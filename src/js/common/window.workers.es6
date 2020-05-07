@@ -16,7 +16,7 @@ const {
     cordova,
     navigator: { hardwareConcurrency },
     URL,
-    Worker
+    Worker,
 } = window;
 
 /**
@@ -56,7 +56,7 @@ function workerTimeout() {
     const timeout = k * Math.max(cordova ? 400 : 250, 10 * (end - start));
     logger.info({
         method: 'workerTimeout',
-        message: `Worker default timeout set to ${timeout} ms`
+        message: `Worker default timeout set to ${timeout} ms`,
     });
     return timeout;
 }
@@ -71,7 +71,7 @@ const TTL = workerTimeout();
 function concat(responses) {
     let ret;
     if (Array.isArray(responses) && Array.isArray(responses[0])) {
-        ret = responses.map(r => r[0]).join('\n\n');
+        ret = responses.map((r) => r[0]).join('\n\n');
     } else if (
         Array.isArray(responses) &&
         $.type(responses[0]) === CONSTANTS.STRING
@@ -132,7 +132,7 @@ export default class WorkerPool {
             libraries,
             assert.format(assert.messages.isArray.default, 'url')
         );
-        const promises = libraries.map(library =>
+        const promises = libraries.map((library) =>
             $.ajax({ url: library, cache: true, dataType: 'text' })
         );
         /**
@@ -152,7 +152,7 @@ export default class WorkerPool {
                 URL.revokeObjectURL(this._library);
             }
             const blob = new Blob([concat(responses)], {
-                type: 'application/javascript'
+                type: 'application/javascript',
             });
             this._library = URL.createObjectURL(blob);
         });
@@ -214,7 +214,7 @@ export default class WorkerPool {
                     this._library
                         ? `self.importScripts('${this._library}'); `
                         : ''
-                }self.onmessage = function (e) { ${script}; self.close(); };`
+                }self.onmessage = function (e) { ${script}; self.close(); };`,
             ],
             { type: 'application/javascript' }
         );
@@ -223,7 +223,7 @@ export default class WorkerPool {
             deferred,
             message,
             name, // Essentially to display a function name in logs
-            blobURL
+            blobURL,
         });
         this._next();
         return deferred.promise();
@@ -267,7 +267,7 @@ export default class WorkerPool {
                 setTimeout(_next, ttl / (workers.length || 1));
                 logger.debug({
                     method: '_next',
-                    message: 'Waiting for an idle worker'
+                    message: 'Waiting for an idle worker',
                 });
             } else {
                 // Run the task on the available worker
@@ -275,7 +275,7 @@ export default class WorkerPool {
                 const name = task.name || 'a worker';
                 logger.debug({
                     method: '_next',
-                    message: `Executing ${name} on thread ${thread}`
+                    message: `Executing ${name} on thread ${thread}`,
                 });
                 workers[thread] = new Worker(task.blobURL);
                 // onmessage event handler
@@ -284,7 +284,7 @@ export default class WorkerPool {
                     terminate(thread, task);
                     logger.debug({
                         method: '_next',
-                        message: `Completing ${name} on thread ${thread}`
+                        message: `Completing ${name} on thread ${thread}`,
                     });
                     _next();
                 };
@@ -301,7 +301,7 @@ export default class WorkerPool {
                     terminate(thread, task);
                     logger.error({
                         method: '_next',
-                        error
+                        error,
                     });
                     _next();
                 };
@@ -318,7 +318,7 @@ export default class WorkerPool {
                         terminate(thread, task);
                         logger.error({
                             method: '_next',
-                            error
+                            error,
                         });
                         _next();
                     }

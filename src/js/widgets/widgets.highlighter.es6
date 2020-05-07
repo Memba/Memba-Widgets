@@ -18,7 +18,7 @@ const {
     attr,
     destroy,
     format,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.highlighter');
 
@@ -73,7 +73,7 @@ const HighLighter = Widget.extend({
         // It is important to split < and > because we cannot htmlEncode
         split: '', // The default splits the text into individual characters
         // split: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])' // This uses the punctuation to split the text into words
-        enabled: true
+        enabled: true,
     },
 
     /**
@@ -323,7 +323,7 @@ const HighLighter = Widget.extend({
         // Snap selection to words if necessary
         selection = {
             start: this._roundUp(selection.start),
-            end: this._roundDown(selection.end)
+            end: this._roundDown(selection.end),
         };
         const ret = [];
         const value = this._value || [];
@@ -344,7 +344,7 @@ const HighLighter = Widget.extend({
                 // There is an overlap, so we should merge existing and selection
                 selection = {
                     start: Math.min(selection.start, existing.start),
-                    end: Math.max(selection.end, existing.end)
+                    end: Math.max(selection.end, existing.end),
                 };
             }
         }
@@ -389,7 +389,7 @@ const HighLighter = Widget.extend({
         // Snap selection to words if necessary
         selection = {
             start: this._roundUp(selection.start),
-            end: this._roundDown(selection.end)
+            end: this._roundDown(selection.end),
         };
         const ret = [];
         const value = this._value || [];
@@ -406,14 +406,14 @@ const HighLighter = Widget.extend({
                 if (selection.start > existing.start) {
                     ret.push({
                         start: existing.start,
-                        end: this._roundDown(selection.start - 1)
+                        end: this._roundDown(selection.start - 1),
                     });
                 }
                 // Second break
                 if (selection.end < existing.end) {
                     ret.push({
                         start: this._roundUp(selection.end + 1),
-                        end: existing.end
+                        end: existing.end,
                     });
                 }
             }
@@ -565,7 +565,7 @@ const HighLighter = Widget.extend({
                 e.data.selection = {
                     // possibly we get end < start, and we do not have a selection
                     start: this._roundUp(index),
-                    end: this._roundDown(index)
+                    end: this._roundDown(index),
                 };
                 e.data.touched = e.type === CONSTANTS.TOUCHSTART;
             }
@@ -747,7 +747,7 @@ const HighLighter = Widget.extend({
         destroy(wrapper);
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);
-    }
+    },
 });
 
 /**

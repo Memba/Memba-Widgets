@@ -35,7 +35,7 @@ const {
     template,
     spreadsheet,
     toolbar: { Item, OverflowButton, registerComponent },
-    ui: { plugin, StaticList, ToolBar }
+    ui: { plugin, StaticList, ToolBar },
 } = window.kendo;
 const logger = new Logger('widgets.mathinput.toolbar');
 const TOOLBAR = [
@@ -48,7 +48,7 @@ const TOOLBAR = [
     'expressions',
     'sets',
     'matrices',
-    'statistics'
+    'statistics',
     // 'units',
     // 'chemistry'
 ];
@@ -61,10 +61,10 @@ const TOOLBAR = [
 
 const TOOLBAR_MESSAGES = {
     field: {
-        title: 'Field'
+        title: 'Field',
     },
     backspace: {
-        title: 'Backspace'
+        title: 'Backspace',
     },
     keypad: {
         title: 'KeyPad',
@@ -96,8 +96,8 @@ const TOOLBAR_MESSAGES = {
             pi: 'Pi',
             infty: 'Infinity',
             space: 'Space',
-            subscript: 'Subscript'
-        }
+            subscript: 'Subscript',
+        },
     },
     basic: {
         title: 'Basic',
@@ -117,8 +117,8 @@ const TOOLBAR_MESSAGES = {
             pow3: 'Power of 3',
             sin: 'Sine',
             cos: 'Cosine',
-            tan: 'Tangent'
-        }
+            tan: 'Tangent',
+        },
     },
     greek: {
         title: 'Greek',
@@ -146,8 +146,8 @@ const TOOLBAR_MESSAGES = {
             phi: 'Phi', // varphi
             chi: 'Chi',
             psi: 'Psi',
-            omega: 'Omega'
-        }
+            omega: 'Omega',
+        },
     },
     operators: {
         title: 'Operators',
@@ -179,8 +179,8 @@ const TOOLBAR_MESSAGES = {
             and: 'And',
             or: 'Or',
             circ: 'Composition',
-            nabla: 'Nabla'
-        }
+            nabla: 'Nabla',
+        },
     },
     expressions: {
         title: 'Functions',
@@ -206,8 +206,8 @@ const TOOLBAR_MESSAGES = {
             oint: 'Contour integral',
             sum: 'Sum',
             prod: 'Product',
-            lim: 'Limit'
-        }
+            lim: 'Limit',
+        },
     },
     sets: {
         title: 'Sets',
@@ -234,8 +234,8 @@ const TOOLBAR_MESSAGES = {
             implies: 'Implies',
             impliedby: 'Implied by',
             nimplies: 'Not implies',
-            iff: 'Equivalent to'
-        }
+            iff: 'Equivalent to',
+        },
     },
     matrices: {
         title: 'Matrices',
@@ -249,17 +249,17 @@ const TOOLBAR_MESSAGES = {
             vmatrix: 'Matrix with vertical lines',
             vvmatrix: 'Matrix with double vertical lines',
             column: 'Add column',
-            row: 'Add row'
-        }
+            row: 'Add row',
+        },
     },
     statistics: {
         title: 'Statistics',
         buttons: {
             factorial: 'Factorial',
             binomial: 'Binomial',
-            overline: 'Overline (mean)'
-        }
-    }
+            overline: 'Overline (mean)',
+        },
+    },
     /*
             units: {
                 title: 'Units',
@@ -277,45 +277,45 @@ const toolDefaults = {
     field: {
         type: 'button',
         command: 'ToolbarFieldCommand',
-        iconClass: 'field'
+        iconClass: 'field',
     },
     backspace: {
         type: 'button',
         command: 'ToolbarBackspaceCommand',
-        iconClass: 'backspace'
+        iconClass: 'backspace',
     },
     keypad: {
         type: 'keypad',
-        iconClass: 'keypad'
+        iconClass: 'keypad',
     },
     basic: {
         type: 'basic',
-        iconClass: 'basic'
+        iconClass: 'basic',
     },
     greek: {
         type: 'greek',
-        iconClass: 'greek'
+        iconClass: 'greek',
     },
     operators: {
         type: 'operators',
-        iconClass: 'operators'
+        iconClass: 'operators',
     },
     expressions: {
         type: 'expressions',
-        iconClass: 'expressions'
+        iconClass: 'expressions',
     },
     sets: {
         type: 'sets',
-        iconClass: 'sets'
+        iconClass: 'sets',
     },
     matrices: {
         type: 'matrices',
-        iconClass: 'matrices'
+        iconClass: 'matrices',
     },
     statistics: {
         type: 'statistics',
-        iconClass: 'statistics'
-    }
+        iconClass: 'statistics',
+    },
     /*
             units: {
                 type: 'units',
@@ -340,14 +340,14 @@ const MathInputToolBar = ToolBar.extend({
         ToolBar.fn.init.call(this, element, options);
         logger.debug({
             method: 'init',
-            message: 'Widget initialized'
+            message: 'Widget initialized',
         });
         const handleClick = this._click.bind(this);
         this.element.addClass('k-spreadsheet-toolbar kj-mathinput-toolbar');
         this._addSeparators(this.element);
         this.bind({
             click: handleClick,
-            toggle: handleClick
+            toggle: handleClick,
         });
     },
     _addSeparators(element) {
@@ -367,7 +367,7 @@ const MathInputToolBar = ToolBar.extend({
             const typeDefaults = {
                 splitButton: { spriteCssClass },
                 button: { showText: 'overflow' },
-                colorPicker: { toolIcon: spriteCssClass }
+                colorPicker: { toolIcon: spriteCssClass },
             };
             const tool = $.extend(
                 {
@@ -375,8 +375,8 @@ const MathInputToolBar = ToolBar.extend({
                     text: TOOLBAR_MESSAGES[options.name || toolName].title,
                     spriteCssClass,
                     attributes: {
-                        title: TOOLBAR_MESSAGES[options.name || toolName].title
-                    }
+                        title: TOOLBAR_MESSAGES[options.name || toolName].title,
+                    },
                 },
                 typeDefaults[type],
                 options
@@ -394,7 +394,7 @@ const MathInputToolBar = ToolBar.extend({
             if (Array.isArray(tool)) {
                 groups.push({
                     type: 'buttonGroup',
-                    buttons: tool.map(expandTool)
+                    buttons: tool.map(expandTool),
                 });
             } else {
                 groups.push(expandTool.call(this, tool));
@@ -414,8 +414,8 @@ const MathInputToolBar = ToolBar.extend({
             command: commandType,
             options: {
                 property: tool.property || null,
-                value: tool.value || null
-            }
+                value: tool.value || null,
+            },
         };
         if (typeof args.options.value === 'boolean') {
             args.options.value = e.checked ? true : null;
@@ -430,12 +430,12 @@ const MathInputToolBar = ToolBar.extend({
         'overflowOpen',
         'overflowClose',
         'action',
-        'dialog'
+        'dialog',
     ],
     options: {
         name: 'MathInputToolBar',
         resizable: true,
-        tools: TOOLBAR
+        tools: TOOLBAR,
     },
     focused() {
         // As in kendo.editor at L#8410
@@ -504,7 +504,7 @@ const MathInputToolBar = ToolBar.extend({
                     element = $(element);
                     return {
                         property: element.attr('data-property'),
-                        tool: this._getItem(element)
+                        tool: this._getItem(element),
                     };
                 }.bind(this)
             );
@@ -520,9 +520,9 @@ const MathInputToolBar = ToolBar.extend({
         ToolBar.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
-    }
+    },
 });
 
 /**
@@ -546,8 +546,9 @@ if (
 const PopupTool = Item.extend({
     init(options, toolbar) {
         this.element = $(
-            `${'<a href="#" class="k-button k-button-icon">' +
-                '<span class="'}${options.spriteCssClass}">` +
+            `${
+                '<a href="#" class="k-button k-button-icon">' + '<span class="'
+            }${options.spriteCssClass}">` +
                 `</span><span class="k-icon k-i-arrow-60-down"/>` +
                 `</a>`
         );
@@ -565,7 +566,7 @@ const PopupTool = Item.extend({
         this.popup.destroy();
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     open(ev) {
@@ -578,7 +579,7 @@ const PopupTool = Item.extend({
             .appendTo(element)
             .kendoPopup({ anchor: element })
             .data('kendoPopup');
-    }
+    },
 });
 
 /*
@@ -616,7 +617,7 @@ const OverflowDialogButton = OverflowButton.extend({
         const instance = this.element.data('button');
         this.element.data(this.options.type, instance);
     },
-    _click: $.noop
+    _click: $.noop,
 });
 
 /**
@@ -637,157 +638,157 @@ const KeyPadTool = PopupTool.extend({
         this.element.data({
             type: 'keypad',
             keypad: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
         {
             value: '7',
             iconClass: 'n7',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n7
+            text: TOOLBAR_MESSAGES.keypad.buttons.n7,
         },
         {
             value: '8',
             iconClass: 'n8',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n8
+            text: TOOLBAR_MESSAGES.keypad.buttons.n8,
         },
         {
             value: '9',
             iconClass: 'n9',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n9
+            text: TOOLBAR_MESSAGES.keypad.buttons.n9,
         },
         {
             value: 'a',
             iconClass: 'a',
-            text: TOOLBAR_MESSAGES.keypad.buttons.a
+            text: TOOLBAR_MESSAGES.keypad.buttons.a,
         },
         {
             value: 'b',
             iconClass: 'b',
-            text: TOOLBAR_MESSAGES.keypad.buttons.b
+            text: TOOLBAR_MESSAGES.keypad.buttons.b,
         },
         {
             value: 'c',
             iconClass: 'c',
-            text: TOOLBAR_MESSAGES.keypad.buttons.c
+            text: TOOLBAR_MESSAGES.keypad.buttons.c,
         },
         {
             value: '4',
             iconClass: 'n4',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n4
+            text: TOOLBAR_MESSAGES.keypad.buttons.n4,
         },
         {
             value: '5',
             iconClass: 'n5',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n5
+            text: TOOLBAR_MESSAGES.keypad.buttons.n5,
         },
         {
             value: '6',
             iconClass: 'n6',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n6
+            text: TOOLBAR_MESSAGES.keypad.buttons.n6,
         },
         {
             value: 'i',
             iconClass: 'i',
-            text: TOOLBAR_MESSAGES.keypad.buttons.i
+            text: TOOLBAR_MESSAGES.keypad.buttons.i,
         },
         {
             value: 'j',
             iconClass: 'j',
-            text: TOOLBAR_MESSAGES.keypad.buttons.j
+            text: TOOLBAR_MESSAGES.keypad.buttons.j,
         },
         {
             value: 'k',
             iconClass: 'k',
-            text: TOOLBAR_MESSAGES.keypad.buttons.k
+            text: TOOLBAR_MESSAGES.keypad.buttons.k,
         },
         {
             value: '1',
             iconClass: 'n1',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n1
+            text: TOOLBAR_MESSAGES.keypad.buttons.n1,
         },
         {
             value: '2',
             iconClass: 'n2',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n2
+            text: TOOLBAR_MESSAGES.keypad.buttons.n2,
         },
         {
             value: '3',
             iconClass: 'n3',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n3
+            text: TOOLBAR_MESSAGES.keypad.buttons.n3,
         },
         {
             value: 'n',
             iconClass: 'n',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n
+            text: TOOLBAR_MESSAGES.keypad.buttons.n,
         },
         {
             value: 'p',
             iconClass: 'p',
-            text: TOOLBAR_MESSAGES.keypad.buttons.p
+            text: TOOLBAR_MESSAGES.keypad.buttons.p,
         },
         {
             value: 'q',
             iconClass: 'q',
-            text: TOOLBAR_MESSAGES.keypad.buttons.q
+            text: TOOLBAR_MESSAGES.keypad.buttons.q,
         },
         {
             value: ',',
             iconClass: 'comma',
-            text: TOOLBAR_MESSAGES.keypad.buttons.comma
+            text: TOOLBAR_MESSAGES.keypad.buttons.comma,
         },
         {
             value: '0',
             iconClass: 'n0',
-            text: TOOLBAR_MESSAGES.keypad.buttons.n0
+            text: TOOLBAR_MESSAGES.keypad.buttons.n0,
         },
         {
             value: '.',
             iconClass: 'stop',
-            text: TOOLBAR_MESSAGES.keypad.buttons.stop
+            text: TOOLBAR_MESSAGES.keypad.buttons.stop,
         },
         {
             value: 'x',
             iconClass: 'x',
-            text: TOOLBAR_MESSAGES.keypad.buttons.x
+            text: TOOLBAR_MESSAGES.keypad.buttons.x,
         },
         {
             value: 'y',
             iconClass: 'y',
-            text: TOOLBAR_MESSAGES.keypad.buttons.y
+            text: TOOLBAR_MESSAGES.keypad.buttons.y,
         },
         {
             value: 'z',
             iconClass: 'z',
-            text: TOOLBAR_MESSAGES.keypad.buttons.z
+            text: TOOLBAR_MESSAGES.keypad.buttons.z,
         },
         {
             value: '\\pi',
             iconClass: 'pi',
-            text: TOOLBAR_MESSAGES.keypad.buttons.pi
+            text: TOOLBAR_MESSAGES.keypad.buttons.pi,
         },
         {
             value: '\\infty',
             iconClass: 'infty',
-            text: TOOLBAR_MESSAGES.keypad.buttons.infty
+            text: TOOLBAR_MESSAGES.keypad.buttons.infty,
         },
         {
             value: ' ',
             iconClass: 'space',
-            text: TOOLBAR_MESSAGES.keypad.buttons.space
+            text: TOOLBAR_MESSAGES.keypad.buttons.space,
         },
         {
             value: '_{ }',
             iconClass: 'subscript',
-            text: TOOLBAR_MESSAGES.keypad.buttons.subscript
-        }
+            text: TOOLBAR_MESSAGES.keypad.buttons.subscript,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -814,15 +815,15 @@ const KeyPadTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarKeyPadCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const KeyPadButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'keypad' });
-    }
+    },
 });
 registerComponent('keypad', KeyPadTool, KeyPadButton);
 
@@ -845,92 +846,92 @@ const BasicTool = PopupTool.extend({
         this.element.data({
             type: 'basic',
             basic: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
         {
             value: '=',
             iconClass: 'equal',
-            text: TOOLBAR_MESSAGES.basic.buttons.equal
+            text: TOOLBAR_MESSAGES.basic.buttons.equal,
         },
         {
             value: '+',
             iconClass: 'plus',
-            text: TOOLBAR_MESSAGES.basic.buttons.plus
+            text: TOOLBAR_MESSAGES.basic.buttons.plus,
         },
         {
             value: '-',
             iconClass: 'minus',
-            text: TOOLBAR_MESSAGES.basic.buttons.minus
+            text: TOOLBAR_MESSAGES.basic.buttons.minus,
         },
         {
             value: '\\cdot',
             iconClass: 'cdot',
-            text: TOOLBAR_MESSAGES.basic.buttons.cdot
+            text: TOOLBAR_MESSAGES.basic.buttons.cdot,
         },
         {
             value: '\\times',
             iconClass: 'times',
-            text: TOOLBAR_MESSAGES.basic.buttons.times
+            text: TOOLBAR_MESSAGES.basic.buttons.times,
         },
         {
             value: '\\div',
             iconClass: 'div',
-            text: TOOLBAR_MESSAGES.basic.buttons.div
+            text: TOOLBAR_MESSAGES.basic.buttons.div,
         },
         {
             value: '(', // '\\left[',
             iconClass: 'pleft',
-            text: TOOLBAR_MESSAGES.basic.buttons.pleft
+            text: TOOLBAR_MESSAGES.basic.buttons.pleft,
         },
         {
             value: '\\right)', // '\\right)',
             iconClass: 'pright',
-            text: TOOLBAR_MESSAGES.basic.buttons.pright
+            text: TOOLBAR_MESSAGES.basic.buttons.pright,
         },
         {
             value: '\\frac',
             iconClass: 'frac',
-            text: TOOLBAR_MESSAGES.basic.buttons.frac
+            text: TOOLBAR_MESSAGES.basic.buttons.frac,
         },
         {
             value: '\\sqrt',
             iconClass: 'sqrt',
-            text: TOOLBAR_MESSAGES.basic.buttons.sqrt
+            text: TOOLBAR_MESSAGES.basic.buttons.sqrt,
         },
         {
             value: '^2',
             iconClass: 'pow2',
-            text: TOOLBAR_MESSAGES.basic.buttons.pow2
+            text: TOOLBAR_MESSAGES.basic.buttons.pow2,
         },
         {
             value: '^3',
             iconClass: 'pow3',
-            text: TOOLBAR_MESSAGES.basic.buttons.pow3
+            text: TOOLBAR_MESSAGES.basic.buttons.pow3,
         },
         {
             value: '\\sin\\left(\\right)',
             iconClass: 'sin',
-            text: TOOLBAR_MESSAGES.basic.buttons.sin
+            text: TOOLBAR_MESSAGES.basic.buttons.sin,
         },
         {
             value: '\\cos\\left(\\right)',
             iconClass: 'cos',
-            text: TOOLBAR_MESSAGES.basic.buttons.cos
+            text: TOOLBAR_MESSAGES.basic.buttons.cos,
         },
         {
             value: '\\tan\\left(\\right)',
             iconClass: 'tan',
-            text: TOOLBAR_MESSAGES.basic.buttons.tan
-        }
+            text: TOOLBAR_MESSAGES.basic.buttons.tan,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -957,15 +958,15 @@ const BasicTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarBasicCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const BasicButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'basic' });
-    }
+    },
 });
 registerComponent('basic', BasicTool, BasicButton);
 
@@ -987,131 +988,131 @@ const GreekTool = PopupTool.extend({
         this.element.data({
             type: 'greek',
             greek: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
         {
             value: '\\alpha',
             iconClass: 'alpha',
-            text: TOOLBAR_MESSAGES.greek.buttons.alpha
+            text: TOOLBAR_MESSAGES.greek.buttons.alpha,
         },
         {
             value: '\\beta',
             iconClass: 'beta',
-            text: TOOLBAR_MESSAGES.greek.buttons.beta
+            text: TOOLBAR_MESSAGES.greek.buttons.beta,
         },
         {
             value: '\\gamma',
             iconClass: 'gamma',
-            text: TOOLBAR_MESSAGES.greek.buttons.gamma
+            text: TOOLBAR_MESSAGES.greek.buttons.gamma,
         },
         {
             value: '\\delta',
             iconClass: 'delta',
-            text: TOOLBAR_MESSAGES.greek.buttons.delta
+            text: TOOLBAR_MESSAGES.greek.buttons.delta,
         },
         {
             value: '\\epsilon',
             iconClass: 'epsilon',
-            text: TOOLBAR_MESSAGES.greek.buttons.epsilon
+            text: TOOLBAR_MESSAGES.greek.buttons.epsilon,
         },
         {
             value: '\\zeta',
             iconClass: 'zeta',
-            text: TOOLBAR_MESSAGES.greek.buttons.zeta
+            text: TOOLBAR_MESSAGES.greek.buttons.zeta,
         },
         {
             value: '\\eta',
             iconClass: 'eta',
-            text: TOOLBAR_MESSAGES.greek.buttons.eta
+            text: TOOLBAR_MESSAGES.greek.buttons.eta,
         },
         {
             value: '\\theta',
             iconClass: 'theta',
-            text: TOOLBAR_MESSAGES.greek.buttons.theta
+            text: TOOLBAR_MESSAGES.greek.buttons.theta,
         },
         {
             value: '\\iota',
             iconClass: 'iota',
-            text: TOOLBAR_MESSAGES.greek.buttons.iota
+            text: TOOLBAR_MESSAGES.greek.buttons.iota,
         },
         {
             value: '\\kappa',
             iconClass: 'kappa',
-            text: TOOLBAR_MESSAGES.greek.buttons.kappa
+            text: TOOLBAR_MESSAGES.greek.buttons.kappa,
         },
         {
             value: '\\lambda',
             iconClass: 'lambda',
-            text: TOOLBAR_MESSAGES.greek.buttons.lambda
+            text: TOOLBAR_MESSAGES.greek.buttons.lambda,
         },
         {
             value: '\\mu',
             iconClass: 'mu',
-            text: TOOLBAR_MESSAGES.greek.buttons.mu
+            text: TOOLBAR_MESSAGES.greek.buttons.mu,
         },
         {
             value: '\\nu',
             iconClass: 'nu',
-            text: TOOLBAR_MESSAGES.greek.buttons.nu
+            text: TOOLBAR_MESSAGES.greek.buttons.nu,
         },
         {
             value: '\\xi',
             iconClass: 'xi',
-            text: TOOLBAR_MESSAGES.greek.buttons.xi
+            text: TOOLBAR_MESSAGES.greek.buttons.xi,
         },
         {
             // Omicron does not exist in LaTeX
             // see https://tex.stackexchange.com/questions/233257/omicron-not-working-in-latex
             value: 'o', // \\omicron',
             iconClass: 'omicron',
-            text: TOOLBAR_MESSAGES.greek.buttons.omicron
+            text: TOOLBAR_MESSAGES.greek.buttons.omicron,
         },
         {
             value: '\\pi',
             iconClass: 'pi',
-            text: TOOLBAR_MESSAGES.greek.buttons.pi
+            text: TOOLBAR_MESSAGES.greek.buttons.pi,
         },
         {
             value: '\\rho',
             iconClass: 'rho',
-            text: TOOLBAR_MESSAGES.greek.buttons.rho
+            text: TOOLBAR_MESSAGES.greek.buttons.rho,
         },
         {
             value: '\\sigma',
             iconClass: 'sigma',
-            text: TOOLBAR_MESSAGES.greek.buttons.sigma
+            text: TOOLBAR_MESSAGES.greek.buttons.sigma,
         },
         {
             value: '\\tau',
             iconClass: 'tau',
-            text: TOOLBAR_MESSAGES.greek.buttons.tau
+            text: TOOLBAR_MESSAGES.greek.buttons.tau,
         },
         {
             value: '\\upsilon',
             iconClass: 'upsilon',
-            text: TOOLBAR_MESSAGES.greek.buttons.upsilon
+            text: TOOLBAR_MESSAGES.greek.buttons.upsilon,
         },
         {
             value: '\\phi',
             iconClass: 'phi',
-            text: TOOLBAR_MESSAGES.greek.buttons.phi
+            text: TOOLBAR_MESSAGES.greek.buttons.phi,
         },
         {
             value: '\\chi',
             iconClass: 'chi',
-            text: TOOLBAR_MESSAGES.greek.buttons.chi
+            text: TOOLBAR_MESSAGES.greek.buttons.chi,
         },
         {
             value: '\\psi',
             iconClass: 'psi',
-            text: TOOLBAR_MESSAGES.greek.buttons.psi
+            text: TOOLBAR_MESSAGES.greek.buttons.psi,
         },
         {
             value: '\\omega',
             iconClass: 'omega',
-            text: TOOLBAR_MESSAGES.greek.buttons.omega
+            text: TOOLBAR_MESSAGES.greek.buttons.omega,
         },
         /*
                  {
@@ -1128,12 +1129,12 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Gamma',
             iconClass: 'gamma-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.gamma
+            text: TOOLBAR_MESSAGES.greek.buttons.gamma,
         },
         {
             value: '\\Delta',
             iconClass: 'delta-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.delta
+            text: TOOLBAR_MESSAGES.greek.buttons.delta,
         },
         /*
                  {
@@ -1155,7 +1156,7 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Theta',
             iconClass: 'theta-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.theta
+            text: TOOLBAR_MESSAGES.greek.buttons.theta,
         },
         /*
                  {
@@ -1172,7 +1173,7 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Lambda',
             iconClass: 'lambda-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.lambda
+            text: TOOLBAR_MESSAGES.greek.buttons.lambda,
         },
         /*
                  {
@@ -1189,7 +1190,7 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Xi',
             iconClass: 'xi-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.xi
+            text: TOOLBAR_MESSAGES.greek.buttons.xi,
         },
         /*
                  {
@@ -1201,7 +1202,7 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Pi',
             iconClass: 'pi-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.pi
+            text: TOOLBAR_MESSAGES.greek.buttons.pi,
         },
         /*
                  {
@@ -1213,7 +1214,7 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Sigma',
             iconClass: 'sigma-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.sigma
+            text: TOOLBAR_MESSAGES.greek.buttons.sigma,
         },
         /*
                  {
@@ -1225,12 +1226,12 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Upsilon',
             iconClass: 'upsilon-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.upsilon
+            text: TOOLBAR_MESSAGES.greek.buttons.upsilon,
         },
         {
             value: '\\Phi',
             iconClass: 'phi-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.phi
+            text: TOOLBAR_MESSAGES.greek.buttons.phi,
         },
         /*
                  {
@@ -1242,20 +1243,20 @@ const GreekTool = PopupTool.extend({
         {
             value: '\\Psi',
             iconClass: 'psi-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.psi
+            text: TOOLBAR_MESSAGES.greek.buttons.psi,
         },
         {
             value: '\\Omega',
             iconClass: 'omega-maj',
-            text: TOOLBAR_MESSAGES.greek.buttons.omega
-        }
+            text: TOOLBAR_MESSAGES.greek.buttons.omega,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -1282,15 +1283,15 @@ const GreekTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarGreekCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const GreekButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'greek' });
-    }
+    },
 });
 registerComponent('greek', GreekTool, GreekButton);
 
@@ -1312,157 +1313,157 @@ const OperatorsTool = PopupTool.extend({
         this.element.data({
             type: 'operators',
             operators: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
         {
             value: '=',
             iconClass: 'equal',
-            text: TOOLBAR_MESSAGES.operators.buttons.equal
+            text: TOOLBAR_MESSAGES.operators.buttons.equal,
         },
         {
             value: '+',
             iconClass: 'plus',
-            text: TOOLBAR_MESSAGES.operators.buttons.plus
+            text: TOOLBAR_MESSAGES.operators.buttons.plus,
         },
         {
             value: '-',
             iconClass: 'minus',
-            text: TOOLBAR_MESSAGES.operators.buttons.minus
+            text: TOOLBAR_MESSAGES.operators.buttons.minus,
         },
         {
             value: '\\cdot',
             iconClass: 'cdot',
-            text: TOOLBAR_MESSAGES.operators.buttons.cdot
+            text: TOOLBAR_MESSAGES.operators.buttons.cdot,
         },
         {
             value: '\\times',
             iconClass: 'times',
-            text: TOOLBAR_MESSAGES.operators.buttons.times
+            text: TOOLBAR_MESSAGES.operators.buttons.times,
         },
         {
             value: '\\div',
             iconClass: 'div',
-            text: TOOLBAR_MESSAGES.operators.buttons.div
+            text: TOOLBAR_MESSAGES.operators.buttons.div,
         },
         {
             value: '(', // '\\left[',
             iconClass: 'pleft',
-            text: TOOLBAR_MESSAGES.operators.buttons.pleft
+            text: TOOLBAR_MESSAGES.operators.buttons.pleft,
         },
         {
             value: '\\right)', // '\\right)',
             iconClass: 'pright',
-            text: TOOLBAR_MESSAGES.operators.buttons.pright
+            text: TOOLBAR_MESSAGES.operators.buttons.pright,
         },
         {
             value: '[', // '\\left[',
             iconClass: 'bleft',
-            text: TOOLBAR_MESSAGES.operators.buttons.bleft
+            text: TOOLBAR_MESSAGES.operators.buttons.bleft,
         },
         {
             value: '\\right]',
             iconClass: 'bright',
-            text: TOOLBAR_MESSAGES.operators.buttons.bright
+            text: TOOLBAR_MESSAGES.operators.buttons.bright,
         },
         {
             value: '\\left{',
             iconClass: 'cleft',
-            text: TOOLBAR_MESSAGES.operators.buttons.cleft
+            text: TOOLBAR_MESSAGES.operators.buttons.cleft,
         },
         {
             value: '\\right}',
             iconClass: 'cright',
-            text: TOOLBAR_MESSAGES.operators.buttons.cright
+            text: TOOLBAR_MESSAGES.operators.buttons.cright,
         },
         {
             value: '\\left|',
             iconClass: 'vleft',
-            text: TOOLBAR_MESSAGES.operators.buttons.vleft
+            text: TOOLBAR_MESSAGES.operators.buttons.vleft,
         },
         {
             value: '\\right|',
             iconClass: 'vright',
-            text: TOOLBAR_MESSAGES.operators.buttons.vright
+            text: TOOLBAR_MESSAGES.operators.buttons.vright,
         },
         {
             value: '<',
             iconClass: 'lt',
-            text: TOOLBAR_MESSAGES.operators.buttons.lt
+            text: TOOLBAR_MESSAGES.operators.buttons.lt,
         },
         {
             value: '\\le',
             iconClass: 'le',
-            text: TOOLBAR_MESSAGES.operators.buttons.le
+            text: TOOLBAR_MESSAGES.operators.buttons.le,
         },
         {
             value: '>',
             iconClass: 'gt',
-            text: TOOLBAR_MESSAGES.operators.buttons.gt
+            text: TOOLBAR_MESSAGES.operators.buttons.gt,
         },
         {
             value: '\\ge',
             iconClass: 'ge',
-            text: TOOLBAR_MESSAGES.operators.buttons.ge
+            text: TOOLBAR_MESSAGES.operators.buttons.ge,
         },
         {
             value: '\\neq',
             iconClass: 'neq',
-            text: TOOLBAR_MESSAGES.operators.buttons.neq
+            text: TOOLBAR_MESSAGES.operators.buttons.neq,
         },
         {
             value: '\\approx',
             iconClass: 'approx',
-            text: TOOLBAR_MESSAGES.operators.buttons.approx
+            text: TOOLBAR_MESSAGES.operators.buttons.approx,
         },
         {
             value: '\\propto',
             iconClass: 'propto',
-            text: TOOLBAR_MESSAGES.operators.buttons.propto
+            text: TOOLBAR_MESSAGES.operators.buttons.propto,
         },
         {
             value: '\\pm',
             iconClass: 'plusminus',
-            text: TOOLBAR_MESSAGES.operators.buttons.plusminus
+            text: TOOLBAR_MESSAGES.operators.buttons.plusminus,
         },
         {
             value: '%',
             iconClass: 'percent',
-            text: TOOLBAR_MESSAGES.operators.buttons.percent
+            text: TOOLBAR_MESSAGES.operators.buttons.percent,
         },
         {
             value: '\\neg',
             iconClass: 'not',
-            text: TOOLBAR_MESSAGES.operators.buttons.not
+            text: TOOLBAR_MESSAGES.operators.buttons.not,
         },
         {
             value: '\\wedge', // also '\\and',
             iconClass: 'and',
-            text: TOOLBAR_MESSAGES.operators.buttons.and
+            text: TOOLBAR_MESSAGES.operators.buttons.and,
         },
         {
             value: '\\vee', // also '\\or',
             iconClass: 'or',
-            text: TOOLBAR_MESSAGES.operators.buttons.or
+            text: TOOLBAR_MESSAGES.operators.buttons.or,
         },
         {
             value: '\\circ',
             iconClass: 'circ',
-            text: TOOLBAR_MESSAGES.operators.buttons.circ
+            text: TOOLBAR_MESSAGES.operators.buttons.circ,
         },
         {
             value: '\\nabla',
             iconClass: 'nabla',
-            text: TOOLBAR_MESSAGES.operators.buttons.nabla
-        }
+            text: TOOLBAR_MESSAGES.operators.buttons.nabla,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -1489,15 +1490,15 @@ const OperatorsTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarOperatorsCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const OperatorsButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'operators' });
-    }
+    },
 });
 registerComponent('operators', OperatorsTool, OperatorsButton);
 
@@ -1519,122 +1520,122 @@ const ExpressionsTool = PopupTool.extend({
         this.element.data({
             type: 'expressions',
             expressions: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
         {
             value: '\\sqrt',
             iconClass: 'sqrt',
-            text: TOOLBAR_MESSAGES.expressions.buttons.sqrt
+            text: TOOLBAR_MESSAGES.expressions.buttons.sqrt,
         },
         {
             value: '\\sqrt[3]{ }',
             iconClass: 'cbrt',
-            text: TOOLBAR_MESSAGES.expressions.buttons.cubert
+            text: TOOLBAR_MESSAGES.expressions.buttons.cubert,
         },
         {
             value: '\\sqrt[]{ }',
             iconClass: 'nthroot',
-            text: TOOLBAR_MESSAGES.expressions.buttons.nthroot
+            text: TOOLBAR_MESSAGES.expressions.buttons.nthroot,
         },
         {
             value: '^{ }',
             iconClass: 'pow',
-            text: TOOLBAR_MESSAGES.expressions.buttons.pow
+            text: TOOLBAR_MESSAGES.expressions.buttons.pow,
         },
         {
             value: '^2',
             iconClass: 'pow2',
-            text: TOOLBAR_MESSAGES.expressions.buttons.pow2
+            text: TOOLBAR_MESSAGES.expressions.buttons.pow2,
         },
         {
             value: '^3',
             iconClass: 'pow3',
-            text: TOOLBAR_MESSAGES.expressions.buttons.pow3
+            text: TOOLBAR_MESSAGES.expressions.buttons.pow3,
         },
         {
             value: '\\log_{}\\left(\\right)',
             iconClass: 'log',
-            text: TOOLBAR_MESSAGES.expressions.buttons.log
+            text: TOOLBAR_MESSAGES.expressions.buttons.log,
         },
         {
             value: '\\log\\left(\\right)',
             iconClass: 'log10',
-            text: TOOLBAR_MESSAGES.expressions.buttons.log10
+            text: TOOLBAR_MESSAGES.expressions.buttons.log10,
         },
         {
             value: '\\ln\\left(\\right)',
             iconClass: 'ln',
-            text: TOOLBAR_MESSAGES.expressions.buttons.ln
+            text: TOOLBAR_MESSAGES.expressions.buttons.ln,
         },
         {
             value: '\\sin\\left(\\right)',
             iconClass: 'sin',
-            text: TOOLBAR_MESSAGES.expressions.buttons.sin
+            text: TOOLBAR_MESSAGES.expressions.buttons.sin,
         },
         {
             value: '\\cos\\left(\\right)',
             iconClass: 'cos',
-            text: TOOLBAR_MESSAGES.expressions.buttons.cos
+            text: TOOLBAR_MESSAGES.expressions.buttons.cos,
         },
         {
             value: '\\tan\\left(\\right)',
             iconClass: 'tan',
-            text: TOOLBAR_MESSAGES.expressions.buttons.tan
+            text: TOOLBAR_MESSAGES.expressions.buttons.tan,
         },
         {
             value: '\\arcsin\\left(\\right)',
             iconClass: 'arcsin',
-            text: TOOLBAR_MESSAGES.expressions.buttons.arcsin
+            text: TOOLBAR_MESSAGES.expressions.buttons.arcsin,
         },
         {
             value: '\\arccos\\left(\\right)',
             iconClass: 'arccos',
-            text: TOOLBAR_MESSAGES.expressions.buttons.arccos
+            text: TOOLBAR_MESSAGES.expressions.buttons.arccos,
         },
         {
             value: '\\arctan\\left(\\right)',
             iconClass: 'arctan',
-            text: TOOLBAR_MESSAGES.expressions.buttons.arctan
+            text: TOOLBAR_MESSAGES.expressions.buttons.arctan,
         },
         {
             value: '\\frac{d}{dx}\\left(\\right)',
             iconClass: 'deriv',
-            text: TOOLBAR_MESSAGES.expressions.buttons.deriv
+            text: TOOLBAR_MESSAGES.expressions.buttons.deriv,
         },
         {
             value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
             iconClass: 'partial',
-            text: TOOLBAR_MESSAGES.expressions.buttons.partial
+            text: TOOLBAR_MESSAGES.expressions.buttons.partial,
         },
         {
             value: '\\int',
             iconClass: 'int',
-            text: TOOLBAR_MESSAGES.expressions.buttons.int
+            text: TOOLBAR_MESSAGES.expressions.buttons.int,
         },
         {
             value: '\\sum',
             iconClass: 'sum-ex',
-            text: TOOLBAR_MESSAGES.expressions.buttons.sum
+            text: TOOLBAR_MESSAGES.expressions.buttons.sum,
         },
         {
             value: '\\prod',
             iconClass: 'prod',
-            text: TOOLBAR_MESSAGES.expressions.buttons.prod
+            text: TOOLBAR_MESSAGES.expressions.buttons.prod,
         },
         {
             value: '\\lim_{\\to}\\left(\\right)',
             iconClass: 'lim',
-            text: TOOLBAR_MESSAGES.expressions.buttons.lim
-        }
+            text: TOOLBAR_MESSAGES.expressions.buttons.lim,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -1661,15 +1662,15 @@ const ExpressionsTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarExpressionsCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const ExpressionsButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'expressions' });
-    }
+    },
 });
 registerComponent('expressions', ExpressionsTool, ExpressionsButton);
 
@@ -1692,7 +1693,7 @@ const SetsTool = PopupTool.extend({
         this.element.data({
             type: 'sets',
             sets: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
@@ -1700,110 +1701,110 @@ const SetsTool = PopupTool.extend({
         {
             value: '\\C', // also '\\complexes', but \\mathbb{C} does not work
             iconClass: 'cset',
-            text: TOOLBAR_MESSAGES.sets.buttons.cset
+            text: TOOLBAR_MESSAGES.sets.buttons.cset,
         },
         {
             value: '\\N', // also '\\naturals', but \\mathbb{N} does not work
             iconClass: 'nset',
-            text: TOOLBAR_MESSAGES.sets.buttons.nset
+            text: TOOLBAR_MESSAGES.sets.buttons.nset,
         },
         {
             value: '\\P', // also '\\primes',
             iconClass: 'pset',
-            text: TOOLBAR_MESSAGES.sets.buttons.pset
+            text: TOOLBAR_MESSAGES.sets.buttons.pset,
         },
         {
             value: '\\Q', // also '\\rationals',
             iconClass: 'qset',
-            text: TOOLBAR_MESSAGES.sets.buttons.qset
+            text: TOOLBAR_MESSAGES.sets.buttons.qset,
         },
         {
             value: '\\R', // also '\\reals',
             iconClass: 'rset',
-            text: TOOLBAR_MESSAGES.sets.buttons.rset
+            text: TOOLBAR_MESSAGES.sets.buttons.rset,
         },
         {
             value: '\\Z', // also '\\integers',
             iconClass: 'zset',
-            text: TOOLBAR_MESSAGES.sets.buttons.zset
+            text: TOOLBAR_MESSAGES.sets.buttons.zset,
         },
         {
             value: '\\varnothing', // also '\\O', '\\empty' and '\\emptyset',
             iconClass: 'emptyset',
-            text: TOOLBAR_MESSAGES.sets.buttons.emptyset
+            text: TOOLBAR_MESSAGES.sets.buttons.emptyset,
         },
         {
             value: '\\forall',
             iconClass: 'forall',
-            text: TOOLBAR_MESSAGES.sets.buttons.forall
+            text: TOOLBAR_MESSAGES.sets.buttons.forall,
         },
         {
             value: '\\exists',
             iconClass: 'exists',
-            text: TOOLBAR_MESSAGES.sets.buttons.exists
+            text: TOOLBAR_MESSAGES.sets.buttons.exists,
         },
         {
             value: '\\nexists',
             iconClass: 'nexists',
-            text: TOOLBAR_MESSAGES.sets.buttons.nexists
+            text: TOOLBAR_MESSAGES.sets.buttons.nexists,
         },
         {
             value: '\\in',
             iconClass: 'in',
-            text: TOOLBAR_MESSAGES.sets.buttons.in
+            text: TOOLBAR_MESSAGES.sets.buttons.in,
         },
         {
             value: '\\notin',
             iconClass: 'nin',
-            text: TOOLBAR_MESSAGES.sets.buttons.nin
+            text: TOOLBAR_MESSAGES.sets.buttons.nin,
         },
         {
             value: '\\subset',
             iconClass: 'subset',
-            text: TOOLBAR_MESSAGES.sets.buttons.subset
+            text: TOOLBAR_MESSAGES.sets.buttons.subset,
         },
         {
             value: '\\supset',
             iconClass: 'supset',
-            text: TOOLBAR_MESSAGES.sets.buttons.supset
+            text: TOOLBAR_MESSAGES.sets.buttons.supset,
         },
         {
             value: '\\cap', // also '\\intersection'
             iconClass: 'intersection',
-            text: TOOLBAR_MESSAGES.sets.buttons.intersection
+            text: TOOLBAR_MESSAGES.sets.buttons.intersection,
         },
         {
             value: '\\cup', // also '\\union',
             iconClass: 'union',
-            text: TOOLBAR_MESSAGES.sets.buttons.union
+            text: TOOLBAR_MESSAGES.sets.buttons.union,
         },
         {
             value: '\\to',
             iconClass: 'to',
-            text: TOOLBAR_MESSAGES.sets.buttons.to
+            text: TOOLBAR_MESSAGES.sets.buttons.to,
         },
         {
             value: '\\Rightarrow', // also '\\implies',
             iconClass: 'implies',
-            text: TOOLBAR_MESSAGES.sets.buttons.implies
+            text: TOOLBAR_MESSAGES.sets.buttons.implies,
         },
         {
             value: '\\Leftarrow', // also '\\impliedby',
             iconClass: 'impliedby',
-            text: TOOLBAR_MESSAGES.sets.buttons.impliedby
+            text: TOOLBAR_MESSAGES.sets.buttons.impliedby,
         },
         {
             value: '\\iff',
             iconClass: 'iff',
-            text: TOOLBAR_MESSAGES.sets.buttons.iff
-        }
+            text: TOOLBAR_MESSAGES.sets.buttons.iff,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -1830,15 +1831,15 @@ const SetsTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarSetsCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const SetsButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'sets' });
-    }
+    },
 });
 registerComponent('sets', SetsTool, SetsButton);
 
@@ -1860,7 +1861,7 @@ const MatricesTool = PopupTool.extend({
         this.element.data({
             type: 'matrices',
             matrices: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
@@ -1869,60 +1870,60 @@ const MatricesTool = PopupTool.extend({
         {
             value: '\\vec',
             iconClass: 'vector',
-            text: TOOLBAR_MESSAGES.matrices.buttons.vector
+            text: TOOLBAR_MESSAGES.matrices.buttons.vector,
         },
         {
             value: '\\widehat',
             iconClass: 'widehat',
-            text: TOOLBAR_MESSAGES.matrices.buttons.widehat
+            text: TOOLBAR_MESSAGES.matrices.buttons.widehat,
         },
         {
             value: '\\begin{matrix}&amp;\\\\&amp;\\end{matrix}', // Bare
             iconClass: 'matrix',
-            text: TOOLBAR_MESSAGES.matrices.buttons.matrix
+            text: TOOLBAR_MESSAGES.matrices.buttons.matrix,
         },
         {
             value: '\\begin{pmatrix}&amp;\\\\&amp;\\end{pmatrix}', // Parenthesis
             iconClass: 'pmatrix',
-            text: TOOLBAR_MESSAGES.matrices.buttons.pmatrix
+            text: TOOLBAR_MESSAGES.matrices.buttons.pmatrix,
         },
         {
             value: '\\begin{bmatrix}1&amp;2\\\\x&amp;y\\end{bmatrix}', // Square Brackets
             iconClass: 'bmatrix',
-            text: TOOLBAR_MESSAGES.matrices.buttons.bmatrix
+            text: TOOLBAR_MESSAGES.matrices.buttons.bmatrix,
         },
         {
             value: '\\begin{Bmatrix}1&amp;2\\\\x&amp;y\\end{Bmatrix}', // Curly braces
             iconClass: 'bbmatrix',
-            text: TOOLBAR_MESSAGES.matrices.buttons.bbmatrix
+            text: TOOLBAR_MESSAGES.matrices.buttons.bbmatrix,
         },
         {
             value: '\\begin{vmatrix}1&amp;2\\\\x&amp;y\\end{vmatrix}', // Vertical line
             iconClass: 'vmatrix',
-            text: TOOLBAR_MESSAGES.matrices.buttons.vmatrix
+            text: TOOLBAR_MESSAGES.matrices.buttons.vmatrix,
         },
         {
             value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // Double vertical lines
             iconClass: 'vvmatrix',
-            text: TOOLBAR_MESSAGES.matrices.buttons.vvmatrix
+            text: TOOLBAR_MESSAGES.matrices.buttons.vvmatrix,
         },
         {
             value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add column
             iconClass: 'column',
-            text: TOOLBAR_MESSAGES.matrices.buttons.column
+            text: TOOLBAR_MESSAGES.matrices.buttons.column,
         },
         {
             value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add row
             iconClass: 'row',
-            text: TOOLBAR_MESSAGES.matrices.buttons.row
-        }
+            text: TOOLBAR_MESSAGES.matrices.buttons.row,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -1949,15 +1950,15 @@ const MatricesTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarMatricesCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const MatricesButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'matrices' });
-    }
+    },
 });
 registerComponent('matrices', MatricesTool, MatricesButton);
 
@@ -1979,32 +1980,32 @@ const StatisticsTool = PopupTool.extend({
         this.element.data({
             type: 'statistics',
             statistics: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
         {
             value: '!',
             iconClass: 'factorial',
-            text: TOOLBAR_MESSAGES.statistics.buttons.factorial
+            text: TOOLBAR_MESSAGES.statistics.buttons.factorial,
         },
         {
             value: '\\binom',
             iconClass: 'binomial',
-            text: TOOLBAR_MESSAGES.statistics.buttons.binomial
+            text: TOOLBAR_MESSAGES.statistics.buttons.binomial,
         },
         {
             value: '\\overline',
             iconClass: 'overline',
-            text: TOOLBAR_MESSAGES.statistics.buttons.overline
-        }
+            text: TOOLBAR_MESSAGES.statistics.buttons.overline,
+        },
     ],
     destroy() {
         this.popup.element.off();
         PopupTool.fn.destroy.call(this);
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     _commandPalette() {
@@ -2031,15 +2032,15 @@ const StatisticsTool = PopupTool.extend({
         this.toolbar.action({
             command: 'ToolbarStatisticsCommand',
             params: {
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const StatisticsButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'statistics' });
-    }
+    },
 });
 registerComponent('statistics', StatisticsTool, StatisticsButton);
 
@@ -2156,8 +2157,8 @@ mathinput.messages.dialogs = {
             pi: 'Pi',
             infty: 'Infinity',
             space: 'Space',
-            subscript: 'Subscript'
-        }
+            subscript: 'Subscript',
+        },
     },
     basic: {
         title: 'Basic',
@@ -2177,8 +2178,8 @@ mathinput.messages.dialogs = {
             pow3: 'Power of 3',
             sin: 'Sine',
             cos: 'Cosine',
-            tan: 'Tangent'
-        }
+            tan: 'Tangent',
+        },
     },
     greek: {
         title: 'Greek',
@@ -2206,8 +2207,8 @@ mathinput.messages.dialogs = {
             phi: 'Phi', // varphi
             chi: 'Chi',
             psi: 'Psi',
-            omega: 'Omega'
-        }
+            omega: 'Omega',
+        },
     },
     operators: {
         title: 'Operators',
@@ -2239,8 +2240,8 @@ mathinput.messages.dialogs = {
             and: 'And',
             or: 'Or',
             circ: 'Composition',
-            nabla: 'Nabla'
-        }
+            nabla: 'Nabla',
+        },
     },
     expressions: {
         title: 'Functions',
@@ -2266,8 +2267,8 @@ mathinput.messages.dialogs = {
             oint: 'Contour integral',
             sum: 'Sum',
             prod: 'Product',
-            lim: 'Limit'
-        }
+            lim: 'Limit',
+        },
     },
     sets: {
         title: 'Sets',
@@ -2294,8 +2295,8 @@ mathinput.messages.dialogs = {
             implies: 'Implies',
             impliedby: 'Implied by',
             nimplies: 'Not implies',
-            iff: 'Equivalent to'
-        }
+            iff: 'Equivalent to',
+        },
     },
     matrices: {
         title: 'Matrices',
@@ -2309,17 +2310,17 @@ mathinput.messages.dialogs = {
             vmatrix: 'Matrix with vertical lines',
             vvmatrix: 'Matrix with double vertical lines',
             column: 'Add column',
-            row: 'Add row'
-        }
+            row: 'Add row',
+        },
     },
     statistics: {
         title: 'Statistics',
         buttons: {
             factorial: 'Factorial',
             binomial: 'Binomial',
-            overline: 'Overline (mean)'
-        }
-    }
+            overline: 'Overline (mean)',
+        },
+    },
     /*
     units: {
         title: 'Units',
@@ -2352,7 +2353,7 @@ mathinput.dialogs = {
             ret = new DialogClass(options);
         }
         return ret;
-    }
+    },
 };
 
 /**
@@ -2376,7 +2377,7 @@ const MathInputDialog = Observable.extend({
                     template(this.options.template)({
                         messages:
                             spreadsheet.messages.dialogs || DIALOG_MESSAGES,
-                        errors: this.options.errors
+                        errors: this.options.errors,
                     })
                 )
                 .appendTo(document.body)
@@ -2393,7 +2394,7 @@ const MathInputDialog = Observable.extend({
                     },
                     close: this._onDialogClose.bind(this),
                     activate: this._onDialogActivate.bind(this),
-                    deactivate: this._onDialogDeactivate.bind(this)
+                    deactivate: this._onDialogDeactivate.bind(this),
                 })
                 .data('kendoWindow');
         }
@@ -2416,7 +2417,7 @@ const MathInputDialog = Observable.extend({
         }
         logger.debug({
             method: 'destroy',
-            message: 'widget destroyed'
+            message: 'widget destroyed',
         });
     },
     open() {
@@ -2428,7 +2429,7 @@ const MathInputDialog = Observable.extend({
     close() {
         this._action = 'close';
         this.dialog().close();
-    }
+    },
 });
 mathinput.MathInputDialog = MathInputDialog;
 
@@ -2444,144 +2445,144 @@ const KeyPadDialog = MathInputDialog.extend({
                 {
                     value: '0',
                     iconClass: 'n0',
-                    text: DIALOG_MESSAGES.keypad.buttons.n0
+                    text: DIALOG_MESSAGES.keypad.buttons.n0,
                 },
                 {
                     value: '1',
                     iconClass: 'n1',
-                    text: DIALOG_MESSAGES.keypad.buttons.n1
+                    text: DIALOG_MESSAGES.keypad.buttons.n1,
                 },
                 {
                     value: '2',
                     iconClass: 'n2',
-                    text: DIALOG_MESSAGES.keypad.buttons.n2
+                    text: DIALOG_MESSAGES.keypad.buttons.n2,
                 },
                 {
                     value: '3',
                     iconClass: 'n3',
-                    text: DIALOG_MESSAGES.keypad.buttons.n3
+                    text: DIALOG_MESSAGES.keypad.buttons.n3,
                 },
                 {
                     value: '4',
                     iconClass: 'n4',
-                    text: DIALOG_MESSAGES.keypad.buttons.n4
+                    text: DIALOG_MESSAGES.keypad.buttons.n4,
                 },
                 {
                     value: '5',
                     iconClass: 'n5',
-                    text: DIALOG_MESSAGES.keypad.buttons.n5
+                    text: DIALOG_MESSAGES.keypad.buttons.n5,
                 },
                 {
                     value: '6',
                     iconClass: 'n6',
-                    text: DIALOG_MESSAGES.keypad.buttons.n6
+                    text: DIALOG_MESSAGES.keypad.buttons.n6,
                 },
                 {
                     value: '7',
                     iconClass: 'n7',
-                    text: DIALOG_MESSAGES.keypad.buttons.n7
+                    text: DIALOG_MESSAGES.keypad.buttons.n7,
                 },
                 {
                     value: '8',
                     iconClass: 'n8',
-                    text: DIALOG_MESSAGES.keypad.buttons.n8
+                    text: DIALOG_MESSAGES.keypad.buttons.n8,
                 },
                 {
                     value: '9',
                     iconClass: 'n9',
-                    text: DIALOG_MESSAGES.keypad.buttons.n9
+                    text: DIALOG_MESSAGES.keypad.buttons.n9,
                 },
                 {
                     value: '.',
                     iconClass: 'stop',
-                    text: DIALOG_MESSAGES.keypad.buttons.stop
+                    text: DIALOG_MESSAGES.keypad.buttons.stop,
                 },
                 {
                     value: ',',
                     iconClass: 'comma',
-                    text: DIALOG_MESSAGES.keypad.buttons.comma
+                    text: DIALOG_MESSAGES.keypad.buttons.comma,
                 },
                 {
                     value: 'a',
                     iconClass: 'a',
-                    text: DIALOG_MESSAGES.keypad.buttons.a
+                    text: DIALOG_MESSAGES.keypad.buttons.a,
                 },
                 {
                     value: 'b',
                     iconClass: 'b',
-                    text: DIALOG_MESSAGES.keypad.buttons.b
+                    text: DIALOG_MESSAGES.keypad.buttons.b,
                 },
                 {
                     value: 'c',
                     iconClass: 'c',
-                    text: DIALOG_MESSAGES.keypad.buttons.c
+                    text: DIALOG_MESSAGES.keypad.buttons.c,
                 },
                 {
                     value: 'i',
                     iconClass: 'i',
-                    text: DIALOG_MESSAGES.keypad.buttons.i
+                    text: DIALOG_MESSAGES.keypad.buttons.i,
                 },
                 {
                     value: 'j',
                     iconClass: 'j',
-                    text: DIALOG_MESSAGES.keypad.buttons.j
+                    text: DIALOG_MESSAGES.keypad.buttons.j,
                 },
                 {
                     value: 'k',
                     iconClass: 'k',
-                    text: DIALOG_MESSAGES.keypad.buttons.k
+                    text: DIALOG_MESSAGES.keypad.buttons.k,
                 },
                 {
                     value: 'n',
                     iconClass: 'n',
-                    text: DIALOG_MESSAGES.keypad.buttons.n
+                    text: DIALOG_MESSAGES.keypad.buttons.n,
                 },
                 {
                     value: 'p',
                     iconClass: 'p',
-                    text: DIALOG_MESSAGES.keypad.buttons.p
+                    text: DIALOG_MESSAGES.keypad.buttons.p,
                 },
                 {
                     value: 'q',
                     iconClass: 'q',
-                    text: DIALOG_MESSAGES.keypad.buttons.q
+                    text: DIALOG_MESSAGES.keypad.buttons.q,
                 },
                 {
                     value: 'x',
                     iconClass: 'x',
-                    text: DIALOG_MESSAGES.keypad.buttons.x
+                    text: DIALOG_MESSAGES.keypad.buttons.x,
                 },
                 {
                     value: 'y',
                     iconClass: 'y',
-                    text: DIALOG_MESSAGES.keypad.buttons.y
+                    text: DIALOG_MESSAGES.keypad.buttons.y,
                 },
                 {
                     value: 'z',
                     iconClass: 'z',
-                    text: DIALOG_MESSAGES.keypad.buttons.z
+                    text: DIALOG_MESSAGES.keypad.buttons.z,
                 },
                 {
                     value: '\\pi',
                     iconClass: 'pi',
-                    text: DIALOG_MESSAGES.keypad.buttons.pi
+                    text: DIALOG_MESSAGES.keypad.buttons.pi,
                 },
                 {
                     value: '\\infty',
                     iconClass: 'infty',
-                    text: DIALOG_MESSAGES.keypad.buttons.infty
+                    text: DIALOG_MESSAGES.keypad.buttons.infty,
                 },
                 {
                     value: ' ',
                     iconClass: 'space',
-                    text: DIALOG_MESSAGES.keypad.buttons.space
+                    text: DIALOG_MESSAGES.keypad.buttons.space,
                 },
                 {
                     value: '_{ }',
                     iconClass: 'subscript',
-                    text: DIALOG_MESSAGES.keypad.buttons.subscript
-                }
-            ]
+                    text: DIALOG_MESSAGES.keypad.buttons.subscript,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -2591,12 +2592,12 @@ const KeyPadDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -2606,10 +2607,10 @@ const KeyPadDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarKeyPadCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('keypad', KeyPadDialog);
 
@@ -2625,79 +2626,79 @@ const BasicDialog = MathInputDialog.extend({
                 {
                     value: '=',
                     iconClass: 'equal',
-                    text: DIALOG_MESSAGES.basic.buttons.equal
+                    text: DIALOG_MESSAGES.basic.buttons.equal,
                 },
                 {
                     value: '+',
                     iconClass: 'plus',
-                    text: DIALOG_MESSAGES.basic.buttons.plus
+                    text: DIALOG_MESSAGES.basic.buttons.plus,
                 },
                 {
                     value: '-',
                     iconClass: 'minus',
-                    text: DIALOG_MESSAGES.basic.buttons.minus
+                    text: DIALOG_MESSAGES.basic.buttons.minus,
                 },
                 {
                     value: '\\cdot',
                     iconClass: 'cdot',
-                    text: DIALOG_MESSAGES.basic.buttons.cdot
+                    text: DIALOG_MESSAGES.basic.buttons.cdot,
                 },
                 {
                     value: '\\times',
                     iconClass: 'times',
-                    text: DIALOG_MESSAGES.basic.buttons.times
+                    text: DIALOG_MESSAGES.basic.buttons.times,
                 },
                 {
                     value: '\\div',
                     iconClass: 'div',
-                    text: DIALOG_MESSAGES.basic.buttons.div
+                    text: DIALOG_MESSAGES.basic.buttons.div,
                 },
                 {
                     value: '(', // '\\left[',
                     iconClass: 'pleft',
-                    text: DIALOG_MESSAGES.basic.buttons.pleft
+                    text: DIALOG_MESSAGES.basic.buttons.pleft,
                 },
                 {
                     value: '\\right)', // '\\right)',
                     iconClass: 'pright',
-                    text: DIALOG_MESSAGES.basic.buttons.pright
+                    text: DIALOG_MESSAGES.basic.buttons.pright,
                 },
                 {
                     value: '\\frac',
                     iconClass: 'frac',
-                    text: DIALOG_MESSAGES.basic.buttons.frac
+                    text: DIALOG_MESSAGES.basic.buttons.frac,
                 },
                 {
                     value: '\\sqrt',
                     iconClass: 'sqrt',
-                    text: DIALOG_MESSAGES.basic.buttons.sqrt
+                    text: DIALOG_MESSAGES.basic.buttons.sqrt,
                 },
                 {
                     value: '^2',
                     iconClass: 'pow2',
-                    text: DIALOG_MESSAGES.basic.buttons.pow2
+                    text: DIALOG_MESSAGES.basic.buttons.pow2,
                 },
                 {
                     value: '^3',
                     iconClass: 'pow3',
-                    text: DIALOG_MESSAGES.basic.buttons.pow3
+                    text: DIALOG_MESSAGES.basic.buttons.pow3,
                 },
                 {
                     value: '\\sin\\left(\\right)',
                     iconClass: 'sin',
-                    text: DIALOG_MESSAGES.basic.buttons.sin
+                    text: DIALOG_MESSAGES.basic.buttons.sin,
                 },
                 {
                     value: '\\cos\\left(\\right)',
                     iconClass: 'cos',
-                    text: DIALOG_MESSAGES.basic.buttons.cos
+                    text: DIALOG_MESSAGES.basic.buttons.cos,
                 },
                 {
                     value: '\\tan\\left(\\right)',
                     iconClass: 'tan',
-                    text: DIALOG_MESSAGES.basic.buttons.tan
-                }
-            ]
+                    text: DIALOG_MESSAGES.basic.buttons.tan,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -2707,12 +2708,12 @@ const BasicDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -2722,10 +2723,10 @@ const BasicDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarBasicCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('basic', BasicDialog);
 
@@ -2741,122 +2742,122 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\alpha',
                     iconClass: 'alpha',
-                    text: messages.greek.buttons.alpha
+                    text: messages.greek.buttons.alpha,
                 },
                 {
                     value: '\\beta',
                     iconClass: 'beta',
-                    text: messages.greek.buttons.beta
+                    text: messages.greek.buttons.beta,
                 },
                 {
                     value: '\\gamma',
                     iconClass: 'gamma',
-                    text: messages.greek.buttons.gamma
+                    text: messages.greek.buttons.gamma,
                 },
                 {
                     value: '\\delta',
                     iconClass: 'delta',
-                    text: messages.greek.buttons.delta
+                    text: messages.greek.buttons.delta,
                 },
                 {
                     value: '\\epsilon',
                     iconClass: 'epsilon',
-                    text: messages.greek.buttons.epsilon
+                    text: messages.greek.buttons.epsilon,
                 },
                 {
                     value: '\\zeta',
                     iconClass: 'zeta',
-                    text: messages.greek.buttons.zeta
+                    text: messages.greek.buttons.zeta,
                 },
                 {
                     value: '\\eta',
                     iconClass: 'eta',
-                    text: messages.greek.buttons.eta
+                    text: messages.greek.buttons.eta,
                 },
                 {
                     value: '\\theta',
                     iconClass: 'theta',
-                    text: messages.greek.buttons.theta
+                    text: messages.greek.buttons.theta,
                 },
                 {
                     value: '\\iota',
                     iconClass: 'iota',
-                    text: messages.greek.buttons.iota
+                    text: messages.greek.buttons.iota,
                 },
                 {
                     value: '\\kappa',
                     iconClass: 'kappa',
-                    text: messages.greek.buttons.kappa
+                    text: messages.greek.buttons.kappa,
                 },
                 {
                     value: '\\lambda',
                     iconClass: 'lambda',
-                    text: messages.greek.buttons.lambda
+                    text: messages.greek.buttons.lambda,
                 },
                 {
                     value: '\\mu',
                     iconClass: 'mu',
-                    text: messages.greek.buttons.mu
+                    text: messages.greek.buttons.mu,
                 },
                 {
                     value: '\\nu',
                     iconClass: 'nu',
-                    text: messages.greek.buttons.nu
+                    text: messages.greek.buttons.nu,
                 },
                 {
                     value: '\\xi',
                     iconClass: 'xi',
-                    text: messages.greek.buttons.xi
+                    text: messages.greek.buttons.xi,
                 },
                 {
                     value: '\\omicron',
                     iconClass: 'omicron',
-                    text: messages.greek.buttons.omicron
+                    text: messages.greek.buttons.omicron,
                 },
                 {
                     value: '\\pi',
                     iconClass: 'pi',
-                    text: messages.greek.buttons.pi
+                    text: messages.greek.buttons.pi,
                 },
                 {
                     value: '\\rho',
                     iconClass: 'rho',
-                    text: messages.greek.buttons.rho
+                    text: messages.greek.buttons.rho,
                 },
                 {
                     value: '\\sigma',
                     iconClass: 'sigma',
-                    text: messages.greek.buttons.sigma
+                    text: messages.greek.buttons.sigma,
                 },
                 {
                     value: '\\tau',
                     iconClass: 'tau',
-                    text: messages.greek.buttons.tau
+                    text: messages.greek.buttons.tau,
                 },
                 {
                     value: '\\upsilon',
                     iconClass: 'upsilon',
-                    text: messages.greek.buttons.upsilon
+                    text: messages.greek.buttons.upsilon,
                 },
                 {
                     value: '\\phi',
                     iconClass: 'phi',
-                    text: messages.greek.buttons.phi
+                    text: messages.greek.buttons.phi,
                 },
                 {
                     value: '\\chi',
                     iconClass: 'chi',
-                    text: messages.greek.buttons.chi
+                    text: messages.greek.buttons.chi,
                 },
                 {
                     value: '\\psi',
                     iconClass: 'psi',
-                    text: messages.greek.buttons.psi
+                    text: messages.greek.buttons.psi,
                 },
                 {
                     value: '\\omega',
                     iconClass: 'omega',
-                    text: messages.greek.buttons.omega
+                    text: messages.greek.buttons.omega,
                 },
                 /*
             {
@@ -2873,12 +2874,12 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Gamma',
                     iconClass: 'gamma-maj',
-                    text: messages.greek.buttons.gamma
+                    text: messages.greek.buttons.gamma,
                 },
                 {
                     value: '\\Delta',
                     iconClass: 'delta-maj',
-                    text: messages.greek.buttons.delta
+                    text: messages.greek.buttons.delta,
                 },
                 /*
             {
@@ -2900,7 +2901,7 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Theta',
                     iconClass: 'theta-maj',
-                    text: messages.greek.buttons.theta
+                    text: messages.greek.buttons.theta,
                 },
                 /*
             {
@@ -2917,7 +2918,7 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Lambda',
                     iconClass: 'lambda-maj',
-                    text: messages.greek.buttons.lambda
+                    text: messages.greek.buttons.lambda,
                 },
                 /*
             {
@@ -2934,7 +2935,7 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Xi',
                     iconClass: 'xi-maj',
-                    text: messages.greek.buttons.xi
+                    text: messages.greek.buttons.xi,
                 },
                 /*
             {
@@ -2946,7 +2947,7 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Pi',
                     iconClass: 'pi-maj',
-                    text: messages.greek.buttons.pi
+                    text: messages.greek.buttons.pi,
                 },
                 /*
             {
@@ -2958,7 +2959,7 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Sigma',
                     iconClass: 'sigma-maj',
-                    text: messages.greek.buttons.sigma
+                    text: messages.greek.buttons.sigma,
                 },
                 /*
             {
@@ -2970,12 +2971,12 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Upsilon',
                     iconClass: 'upsilon-maj',
-                    text: messages.greek.buttons.upsilon
+                    text: messages.greek.buttons.upsilon,
                 },
                 {
                     value: '\\Phi',
                     iconClass: 'phi-maj',
-                    text: messages.greek.buttons.phi
+                    text: messages.greek.buttons.phi,
                 },
                 /*
             {
@@ -2987,14 +2988,14 @@ const GreekDialog = MathInputDialog.extend({
                 {
                     value: '\\Psi',
                     iconClass: 'psi-maj',
-                    text: messages.greek.buttons.psi
+                    text: messages.greek.buttons.psi,
                 },
                 {
                     value: '\\Omega',
                     iconClass: 'omega-maj',
-                    text: messages.greek.buttons.omega
-                }
-            ]
+                    text: messages.greek.buttons.omega,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -3004,12 +3005,12 @@ const GreekDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -3019,10 +3020,10 @@ const GreekDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarGreekCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('greek', GreekDialog);
 
@@ -3038,144 +3039,144 @@ const OperatorsDialog = MathInputDialog.extend({
                 {
                     value: '=',
                     iconClass: 'equal',
-                    text: DIALOG_MESSAGES.operators.buttons.equal
+                    text: DIALOG_MESSAGES.operators.buttons.equal,
                 },
                 {
                     value: '+',
                     iconClass: 'plus',
-                    text: DIALOG_MESSAGES.operators.buttons.plus
+                    text: DIALOG_MESSAGES.operators.buttons.plus,
                 },
                 {
                     value: '-',
                     iconClass: 'minus',
-                    text: DIALOG_MESSAGES.operators.buttons.minus
+                    text: DIALOG_MESSAGES.operators.buttons.minus,
                 },
                 {
                     value: '\\cdot',
                     iconClass: 'cdot',
-                    text: DIALOG_MESSAGES.operators.buttons.cdot
+                    text: DIALOG_MESSAGES.operators.buttons.cdot,
                 },
                 {
                     value: '\\times',
                     iconClass: 'times',
-                    text: DIALOG_MESSAGES.operators.buttons.times
+                    text: DIALOG_MESSAGES.operators.buttons.times,
                 },
                 {
                     value: '\\div',
                     iconClass: 'div',
-                    text: DIALOG_MESSAGES.operators.buttons.div
+                    text: DIALOG_MESSAGES.operators.buttons.div,
                 },
                 {
                     value: '(', // '\\left[',
                     iconClass: 'pleft',
-                    text: DIALOG_MESSAGES.operators.buttons.pleft
+                    text: DIALOG_MESSAGES.operators.buttons.pleft,
                 },
                 {
                     value: '\\right)', // '\\right)',
                     iconClass: 'pright',
-                    text: DIALOG_MESSAGES.operators.buttons.pright
+                    text: DIALOG_MESSAGES.operators.buttons.pright,
                 },
                 {
                     value: '[', // '\\left[',
                     iconClass: 'bleft',
-                    text: DIALOG_MESSAGES.operators.buttons.bleft
+                    text: DIALOG_MESSAGES.operators.buttons.bleft,
                 },
                 {
                     value: '\\right]',
                     iconClass: 'bright',
-                    text: DIALOG_MESSAGES.operators.buttons.bright
+                    text: DIALOG_MESSAGES.operators.buttons.bright,
                 },
                 {
                     value: '\\left{',
                     iconClass: 'cleft',
-                    text: DIALOG_MESSAGES.operators.buttons.cleft
+                    text: DIALOG_MESSAGES.operators.buttons.cleft,
                 },
                 {
                     value: '\\right}',
                     iconClass: 'cright',
-                    text: DIALOG_MESSAGES.operators.buttons.cright
+                    text: DIALOG_MESSAGES.operators.buttons.cright,
                 },
                 {
                     value: '\\left|',
                     iconClass: 'vleft',
-                    text: DIALOG_MESSAGES.operators.buttons.vleft
+                    text: DIALOG_MESSAGES.operators.buttons.vleft,
                 },
                 {
                     value: '\\right|',
                     iconClass: 'vright',
-                    text: DIALOG_MESSAGES.operators.buttons.vright
+                    text: DIALOG_MESSAGES.operators.buttons.vright,
                 },
                 {
                     value: '<',
                     iconClass: 'lt',
-                    text: DIALOG_MESSAGES.operators.buttons.lt
+                    text: DIALOG_MESSAGES.operators.buttons.lt,
                 },
                 {
                     value: '\\le',
                     iconClass: 'le',
-                    text: DIALOG_MESSAGES.operators.buttons.le
+                    text: DIALOG_MESSAGES.operators.buttons.le,
                 },
                 {
                     value: '>',
                     iconClass: 'gt',
-                    text: DIALOG_MESSAGES.operators.buttons.gt
+                    text: DIALOG_MESSAGES.operators.buttons.gt,
                 },
                 {
                     value: '\\ge',
                     iconClass: 'ge',
-                    text: DIALOG_MESSAGES.operators.buttons.ge
+                    text: DIALOG_MESSAGES.operators.buttons.ge,
                 },
                 {
                     value: '\\neq',
                     iconClass: 'neq',
-                    text: DIALOG_MESSAGES.operators.buttons.neq
+                    text: DIALOG_MESSAGES.operators.buttons.neq,
                 },
                 {
                     value: '\\approx',
                     iconClass: 'approx',
-                    text: DIALOG_MESSAGES.operators.buttons.approx
+                    text: DIALOG_MESSAGES.operators.buttons.approx,
                 },
                 {
                     value: '\\propto',
                     iconClass: 'propto',
-                    text: DIALOG_MESSAGES.operators.buttons.propto
+                    text: DIALOG_MESSAGES.operators.buttons.propto,
                 },
                 {
                     value: '\\pm',
                     iconClass: 'plusminus',
-                    text: DIALOG_MESSAGES.operators.buttons.plusminus
+                    text: DIALOG_MESSAGES.operators.buttons.plusminus,
                 },
                 {
                     value: '%',
                     iconClass: 'percent',
-                    text: DIALOG_MESSAGES.operators.buttons.percent
+                    text: DIALOG_MESSAGES.operators.buttons.percent,
                 },
                 {
                     value: '\\neg',
                     iconClass: 'not',
-                    text: DIALOG_MESSAGES.operators.buttons.not
+                    text: DIALOG_MESSAGES.operators.buttons.not,
                 },
                 {
                     value: '\\wedge', // also '\\and',
                     iconClass: 'and',
-                    text: DIALOG_MESSAGES.operators.buttons.and
+                    text: DIALOG_MESSAGES.operators.buttons.and,
                 },
                 {
                     value: '\\vee', // also '\\or',
                     iconClass: 'or',
-                    text: DIALOG_MESSAGES.operators.buttons.or
+                    text: DIALOG_MESSAGES.operators.buttons.or,
                 },
                 {
                     value: '\\circ',
                     iconClass: 'circ',
-                    text: DIALOG_MESSAGES.operators.buttons.circ
+                    text: DIALOG_MESSAGES.operators.buttons.circ,
                 },
                 {
                     value: '\\nabla',
                     iconClass: 'nabla',
-                    text: DIALOG_MESSAGES.operators.buttons.nabla
-                }
-            ]
+                    text: DIALOG_MESSAGES.operators.buttons.nabla,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -3185,12 +3186,12 @@ const OperatorsDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -3200,10 +3201,10 @@ const OperatorsDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarOperatorsCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('operators', OperatorsDialog);
 
@@ -3220,109 +3221,109 @@ const ExpressionsDialog = MathInputDialog.extend({
                 {
                     value: '\\sqrt',
                     iconClass: 'sqrt',
-                    text: DIALOG_MESSAGES.expressions.buttons.sqrt
+                    text: DIALOG_MESSAGES.expressions.buttons.sqrt,
                 },
                 {
                     value: '\\sqrt[3]{ }',
                     iconClass: 'cbrt',
-                    text: DIALOG_MESSAGES.expressions.buttons.cubert
+                    text: DIALOG_MESSAGES.expressions.buttons.cubert,
                 },
                 {
                     value: '\\sqrt[]{ }',
                     iconClass: 'nthroot',
-                    text: DIALOG_MESSAGES.expressions.buttons.nthroot
+                    text: DIALOG_MESSAGES.expressions.buttons.nthroot,
                 },
                 {
                     value: '^{ }',
                     iconClass: 'pow',
-                    text: DIALOG_MESSAGES.expressions.buttons.pow
+                    text: DIALOG_MESSAGES.expressions.buttons.pow,
                 },
                 {
                     value: '^2',
                     iconClass: 'pow2',
-                    text: DIALOG_MESSAGES.expressions.buttons.pow2
+                    text: DIALOG_MESSAGES.expressions.buttons.pow2,
                 },
                 {
                     value: '^3',
                     iconClass: 'pow3',
-                    text: DIALOG_MESSAGES.expressions.buttons.pow3
+                    text: DIALOG_MESSAGES.expressions.buttons.pow3,
                 },
                 {
                     value: '\\log_{}\\left(\\right)',
                     iconClass: 'log',
-                    text: DIALOG_MESSAGES.expressions.buttons.log
+                    text: DIALOG_MESSAGES.expressions.buttons.log,
                 },
                 {
                     value: '\\log\\left(\\right)',
                     iconClass: 'log10',
-                    text: DIALOG_MESSAGES.expressions.buttons.log10
+                    text: DIALOG_MESSAGES.expressions.buttons.log10,
                 },
                 {
                     value: '\\ln\\left(\\right)',
                     iconClass: 'ln',
-                    text: DIALOG_MESSAGES.expressions.buttons.ln
+                    text: DIALOG_MESSAGES.expressions.buttons.ln,
                 },
                 {
                     value: '\\sin\\left(\\right)',
                     iconClass: 'sin',
-                    text: DIALOG_MESSAGES.expressions.buttons.sin
+                    text: DIALOG_MESSAGES.expressions.buttons.sin,
                 },
                 {
                     value: '\\cos\\left(\\right)',
                     iconClass: 'cos',
-                    text: DIALOG_MESSAGES.expressions.buttons.cos
+                    text: DIALOG_MESSAGES.expressions.buttons.cos,
                 },
                 {
                     value: '\\tan\\left(\\right)',
                     iconClass: 'tan',
-                    text: DIALOG_MESSAGES.expressions.buttons.tan
+                    text: DIALOG_MESSAGES.expressions.buttons.tan,
                 },
                 {
                     value: '\\arcsin\\left(\\right)',
                     iconClass: 'arcsin',
-                    text: DIALOG_MESSAGES.expressions.buttons.arcsin
+                    text: DIALOG_MESSAGES.expressions.buttons.arcsin,
                 },
                 {
                     value: '\\arccos\\left(\\right)',
                     iconClass: 'arccos',
-                    text: DIALOG_MESSAGES.expressions.buttons.arccos
+                    text: DIALOG_MESSAGES.expressions.buttons.arccos,
                 },
                 {
                     value: '\\arctan\\left(\\right)',
                     iconClass: 'arctan',
-                    text: DIALOG_MESSAGES.expressions.buttons.arctan
+                    text: DIALOG_MESSAGES.expressions.buttons.arctan,
                 },
                 {
                     value: '\\frac{d}{dx}\\left(\\right)',
                     iconClass: 'deriv',
-                    text: DIALOG_MESSAGES.expressions.buttons.deriv
+                    text: DIALOG_MESSAGES.expressions.buttons.deriv,
                 },
                 {
                     value: '\\frac{\\partial}{\\partial x}\\left(\\right)',
                     iconClass: 'partial',
-                    text: DIALOG_MESSAGES.expressions.buttons.partial
+                    text: DIALOG_MESSAGES.expressions.buttons.partial,
                 },
                 {
                     value: '\\int',
                     iconClass: 'int',
-                    text: DIALOG_MESSAGES.expressions.buttons.int
+                    text: DIALOG_MESSAGES.expressions.buttons.int,
                 },
                 {
                     value: '\\sum',
                     iconClass: 'sum-ex',
-                    text: DIALOG_MESSAGES.expressions.buttons.sum
+                    text: DIALOG_MESSAGES.expressions.buttons.sum,
                 },
                 {
                     value: '\\prod',
                     iconClass: 'prod',
-                    text: DIALOG_MESSAGES.expressions.buttons.prod
+                    text: DIALOG_MESSAGES.expressions.buttons.prod,
                 },
                 {
                     value: '\\lim_{\\to}\\left(\\right)',
                     iconClass: 'lim',
-                    text: DIALOG_MESSAGES.expressions.buttons.lim
-                }
-            ]
+                    text: DIALOG_MESSAGES.expressions.buttons.lim,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -3332,12 +3333,12 @@ const ExpressionsDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -3347,10 +3348,10 @@ const ExpressionsDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarExpressionsCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('expressions', ExpressionsDialog);
 
@@ -3367,104 +3368,104 @@ const SetsDialog = MathInputDialog.extend({
                 {
                     value: '\\C', // also '\\complexes', but \\mathbb{C} does not work
                     iconClass: 'cset',
-                    text: DIALOG_MESSAGES.sets.buttons.cset
+                    text: DIALOG_MESSAGES.sets.buttons.cset,
                 },
                 {
                     value: '\\N', // also '\\naturals', but \\mathbb{N} does not work
                     iconClass: 'nset',
-                    text: DIALOG_MESSAGES.sets.buttons.nset
+                    text: DIALOG_MESSAGES.sets.buttons.nset,
                 },
                 {
                     value: '\\P', // also '\\primes',
                     iconClass: 'pset',
-                    text: DIALOG_MESSAGES.sets.buttons.pset
+                    text: DIALOG_MESSAGES.sets.buttons.pset,
                 },
                 {
                     value: '\\Q', // also '\\rationals',
                     iconClass: 'qset',
-                    text: DIALOG_MESSAGES.sets.buttons.qset
+                    text: DIALOG_MESSAGES.sets.buttons.qset,
                 },
                 {
                     value: '\\R', // also '\\reals',
                     iconClass: 'rset',
-                    text: DIALOG_MESSAGES.sets.buttons.rset
+                    text: DIALOG_MESSAGES.sets.buttons.rset,
                 },
                 {
                     value: '\\Z', // also '\\integers',
                     iconClass: 'zset',
-                    text: DIALOG_MESSAGES.sets.buttons.zset
+                    text: DIALOG_MESSAGES.sets.buttons.zset,
                 },
                 {
                     value: '\\varnothing', // also '\\O', '\\empty' and '\\emptyset',
                     iconClass: 'emptyset',
-                    text: DIALOG_MESSAGES.sets.buttons.emptyset
+                    text: DIALOG_MESSAGES.sets.buttons.emptyset,
                 },
                 {
                     value: '\\forall',
                     iconClass: 'forall',
-                    text: DIALOG_MESSAGES.sets.buttons.forall
+                    text: DIALOG_MESSAGES.sets.buttons.forall,
                 },
                 {
                     value: '\\exists',
                     iconClass: 'exists',
-                    text: DIALOG_MESSAGES.sets.buttons.exists
+                    text: DIALOG_MESSAGES.sets.buttons.exists,
                 },
                 {
                     value: '\\nexists',
                     iconClass: 'nexists',
-                    text: DIALOG_MESSAGES.sets.buttons.nexists
+                    text: DIALOG_MESSAGES.sets.buttons.nexists,
                 },
                 {
                     value: '\\in',
                     iconClass: 'in',
-                    text: DIALOG_MESSAGES.sets.buttons.in
+                    text: DIALOG_MESSAGES.sets.buttons.in,
                 },
                 {
                     value: '\\notin',
                     iconClass: 'nin',
-                    text: DIALOG_MESSAGES.sets.buttons.nin
+                    text: DIALOG_MESSAGES.sets.buttons.nin,
                 },
                 {
                     value: '\\subset',
                     iconClass: 'subset',
-                    text: DIALOG_MESSAGES.sets.buttons.subset
+                    text: DIALOG_MESSAGES.sets.buttons.subset,
                 },
                 {
                     value: '\\supset',
                     iconClass: 'supset',
-                    text: DIALOG_MESSAGES.sets.buttons.supset
+                    text: DIALOG_MESSAGES.sets.buttons.supset,
                 },
                 {
                     value: '\\cap', // also '\\intersection'
                     iconClass: 'intersection',
-                    text: DIALOG_MESSAGES.sets.buttons.intersection
+                    text: DIALOG_MESSAGES.sets.buttons.intersection,
                 },
                 {
                     value: '\\cup', // also '\\union',
                     iconClass: 'union',
-                    text: DIALOG_MESSAGES.sets.buttons.union
+                    text: DIALOG_MESSAGES.sets.buttons.union,
                 },
                 {
                     value: '\\to',
                     iconClass: 'to',
-                    text: DIALOG_MESSAGES.sets.buttons.to
+                    text: DIALOG_MESSAGES.sets.buttons.to,
                 },
                 {
                     value: '\\Rightarrow', // also '\\implies',
                     iconClass: 'implies',
-                    text: DIALOG_MESSAGES.sets.buttons.implies
+                    text: DIALOG_MESSAGES.sets.buttons.implies,
                 },
                 {
                     value: '\\Leftarrow', // also '\\impliedby',
                     iconClass: 'impliedby',
-                    text: DIALOG_MESSAGES.sets.buttons.impliedby
+                    text: DIALOG_MESSAGES.sets.buttons.impliedby,
                 },
                 {
                     value: '\\iff',
                     iconClass: 'iff',
-                    text: DIALOG_MESSAGES.sets.buttons.iff
-                }
-            ]
+                    text: DIALOG_MESSAGES.sets.buttons.iff,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -3474,12 +3475,12 @@ const SetsDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -3489,10 +3490,10 @@ const SetsDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarSetsCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('sets', SetsDialog);
 
@@ -3510,54 +3511,54 @@ const MatricesDialog = MathInputDialog.extend({
                 {
                     value: '\\vec',
                     iconClass: 'vector',
-                    text: DIALOG_MESSAGES.matrices.buttons.vector
+                    text: DIALOG_MESSAGES.matrices.buttons.vector,
                 },
                 {
                     value: '\\widehat',
                     iconClass: 'widehat',
-                    text: DIALOG_MESSAGES.matrices.buttons.widehat
+                    text: DIALOG_MESSAGES.matrices.buttons.widehat,
                 },
                 {
                     value: '\\begin{matrix}1&amp;2\\\\x&amp;y\\end{matrix}', // Bare
                     iconClass: 'matrix',
-                    text: DIALOG_MESSAGES.matrices.buttons.matrix
+                    text: DIALOG_MESSAGES.matrices.buttons.matrix,
                 },
                 {
                     value: '\\begin{pmatrix}1&amp;2\\\\x&amp;y\\end{pmatrix}', // Parenthesis
                     iconClass: 'pmatrix',
-                    text: DIALOG_MESSAGES.matrices.buttons.pmatrix
+                    text: DIALOG_MESSAGES.matrices.buttons.pmatrix,
                 },
                 {
                     value: '\\begin{bmatrix}1&amp;2\\\\x&amp;y\\end{bmatrix}', // Square Brackets
                     iconClass: 'bmatrix',
-                    text: DIALOG_MESSAGES.matrices.buttons.bmatrix
+                    text: DIALOG_MESSAGES.matrices.buttons.bmatrix,
                 },
                 {
                     value: '\\begin{Bmatrix}1&amp;2\\\\x&amp;y\\end{Bmatrix}', // Curly braces
                     iconClass: 'bbmatrix',
-                    text: DIALOG_MESSAGES.matrices.buttons.bbmatrix
+                    text: DIALOG_MESSAGES.matrices.buttons.bbmatrix,
                 },
                 {
                     value: '\\begin{vmatrix}1&amp;2\\\\x&amp;y\\end{vmatrix}', // Vertical line
                     iconClass: 'vmatrix',
-                    text: DIALOG_MESSAGES.matrices.buttons.vmatrix
+                    text: DIALOG_MESSAGES.matrices.buttons.vmatrix,
                 },
                 {
                     value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // Double vertical lines
                     iconClass: 'vvmatrix',
-                    text: DIALOG_MESSAGES.matrices.buttons.vvmatrix
+                    text: DIALOG_MESSAGES.matrices.buttons.vvmatrix,
                 },
                 {
                     value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add column
                     iconClass: 'column',
-                    text: DIALOG_MESSAGES.matrices.buttons.column
+                    text: DIALOG_MESSAGES.matrices.buttons.column,
                 },
                 {
                     value: '\\begin{Vmatrix}&amp;\\\\&amp;\\end{Vmatrix}', // TODO Add row
                     iconClass: 'row',
-                    text: DIALOG_MESSAGES.matrices.buttons.row
-                }
-            ]
+                    text: DIALOG_MESSAGES.matrices.buttons.row,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -3567,12 +3568,12 @@ const MatricesDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -3582,10 +3583,10 @@ const MatricesDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarMatricesCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('matrices', MatricesDialog);
 
@@ -3602,19 +3603,19 @@ const StatisticsDialog = MathInputDialog.extend({
                 {
                     value: '!',
                     iconClass: 'factorial',
-                    text: DIALOG_MESSAGES.statistics.buttons.factorial
+                    text: DIALOG_MESSAGES.statistics.buttons.factorial,
                 },
                 {
                     value: '\\binom',
                     iconClass: 'binomial',
-                    text: DIALOG_MESSAGES.statistics.buttons.binomial
+                    text: DIALOG_MESSAGES.statistics.buttons.binomial,
                 },
                 {
                     value: '\\overline',
                     iconClass: 'overline',
-                    text: DIALOG_MESSAGES.statistics.buttons.overline
-                }
-            ]
+                    text: DIALOG_MESSAGES.statistics.buttons.overline,
+                },
+            ],
         };
         MathInputDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -3624,12 +3625,12 @@ const StatisticsDialog = MathInputDialog.extend({
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({
-                data: this.options.buttons
+                data: this.options.buttons,
             }),
             // template: '<a title="#=text#" data-property="#=property#" data-value="#=value#">' + '<span class="k-icon k-i-#=iconClass#"></span>' + '#=text#' + '</a>',
             template:
                 '<a title="#=text#" data-value="#=value#"><span class="k-icon k-i-#=iconClass#"/></a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -3639,10 +3640,10 @@ const StatisticsDialog = MathInputDialog.extend({
         this.trigger('action', {
             command: 'ToolbarStatisticsCommand',
             params: {
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 mathinput.dialogs.register('statistics', StatisticsDialog);
 

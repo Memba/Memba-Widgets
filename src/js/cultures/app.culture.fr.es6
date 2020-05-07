@@ -31,5 +31,5 @@ export default {
     editors,
     libraries,
     tools,
-    webapp
+    webapp,
 };

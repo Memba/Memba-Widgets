@@ -14,7 +14,7 @@ import {
     extendQueryWithPartition,
     getAttributeBinding,
     normalizeSchema,
-    xhr2error
+    xhr2error,
 } from '../../../src/js/data/data.util.es6';
 
 const { describe, it, xit } = window;
@@ -29,9 +29,7 @@ describe('data.util', () => {
     describe('error2xhr', () => {
         it('It should convert an error into an $.ajax failure', () => {
             const arr = error2xhr(new Error('Oops!'));
-            expect(arr)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.property('length', 3);
+            expect(arr).to.be.an(CONSTANTS.ARRAY).with.property('length', 3);
             expect(arr[0]).to.have.property('readyState', 4);
             expect(arr[0]).to.have.property('responseJSON');
             expect(arr[0]).to.have.property('responseText');
@@ -46,7 +44,7 @@ describe('data.util', () => {
         it('It should extend an empty query with a partition', () => {
             const q = {};
             const p = {
-                language: 'en'
+                language: 'en',
             };
             const query = extendQueryWithPartition(q, p);
             expect(query).to.deep.equal({
@@ -56,10 +54,10 @@ describe('data.util', () => {
                         {
                             field: 'language',
                             operator: 'eq',
-                            value: 'en'
-                        }
-                    ]
-                }
+                            value: 'en',
+                        },
+                    ],
+                },
             });
         });
 
@@ -70,11 +68,11 @@ describe('data.util', () => {
                 filter: {
                     field: 'title',
                     operator: 'startswith',
-                    value: 'memba'
-                }
+                    value: 'memba',
+                },
             };
             const p = {
-                language: 'en'
+                language: 'en',
             };
             const query = extendQueryWithPartition(q, p);
             expect(query).to.deep.equal({
@@ -86,15 +84,15 @@ describe('data.util', () => {
                         {
                             field: 'title',
                             operator: 'startswith',
-                            value: 'memba'
+                            value: 'memba',
                         },
                         {
                             field: 'language',
                             operator: 'eq',
-                            value: 'en'
-                        }
-                    ]
-                }
+                            value: 'en',
+                        },
+                    ],
+                },
             });
         });
 
@@ -146,14 +144,12 @@ describe('data.util', () => {
         it('It should add data, total and error for rapi', () => {
             const schema = {
                 // https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema
-                type: 'xml'
+                type: 'xml',
             };
             const normalized = normalizeSchema(schema);
             expect(normalized).to.have.property('type', schema.type);
             // expect(normalized === schema).to.be.true;
-            expect(normalized)
-                .to.have.property('data')
-                .that.is.a('function');
+            expect(normalized).to.have.property('data').that.is.a('function');
             expect(normalized).to.have.property('errors', 'error');
             expect(normalized).to.have.property('total', 'total');
             const obj = JSC.object()();

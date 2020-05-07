@@ -19,7 +19,7 @@ const {
     format,
     keys,
     ui: { plugin, Widget },
-    wrap
+    wrap,
 } = window.kendo;
 const logger = new Logger('widgets.splitbutton');
 
@@ -48,7 +48,7 @@ const ARROW_BUTTON_SELECTOR = '.k-split-button-arrow';
 function adjustPopupWidth() {
     const {
         element,
-        options: { anchor }
+        options: { anchor },
     } = this;
     const computedWidth = _outerWidth(anchor);
     let width;
@@ -60,7 +60,7 @@ function adjustPopupWidth() {
     }
     element.css({
         fontFamily: anchor.css('font-family'),
-        'min-width': width
+        'min-width': width,
     });
 }
 
@@ -128,7 +128,7 @@ const SplitButton = Widget.extend({
         icon: '',
         imageUrl: '',
         text: 'Button',
-        menuButtons: []
+        menuButtons: [],
     },
 
     /**
@@ -145,7 +145,7 @@ const SplitButton = Widget.extend({
     _render() {
         const {
             element,
-            options: { action, icon, imageUrl, text }
+            options: { action, icon, imageUrl, text },
         } = this;
         assert.ok(
             element.is(CONSTANTS.DIV),
@@ -206,14 +206,11 @@ const SplitButton = Widget.extend({
                 animation: options.animation,
                 open: adjustPopupWidth,
                 activate() {
-                    this.element
-                        .find(':kendoFocusable')
-                        .first()
-                        .focus();
+                    this.element.find(':kendoFocusable').first().focus();
                 },
                 close() {
                     element.focus();
-                }
+                },
             })
             .data('kendoPopup');
     },
@@ -231,7 +228,7 @@ const SplitButton = Widget.extend({
 
         if (enabled) {
             // that.element.on(CONSTANTS.KEYDOWN + NS, BUTTON_SELECTOR, function (e) {
-            that.element.on(CONSTANTS.KEYDOWN + NS, e => {
+            that.element.on(CONSTANTS.KEYDOWN + NS, (e) => {
                 if (e.keyCode === keys.DOWN) {
                     that.toggle();
                 } else if (
@@ -242,36 +239,40 @@ const SplitButton = Widget.extend({
                         currentTarget: $(e.currentTarget)
                             .children(BUTTON_SELECTOR)
                             .first(),
-                        preventDefault: $.noop
+                        preventDefault: $.noop,
                     });
                 }
             });
 
-            that.popupElement.on(CONSTANTS.KEYDOWN + NS, BUTTON_SELECTOR, e => {
-                const li = $(e.target).parent();
-                e.preventDefault();
-                if (
-                    e.keyCode === keys.ESC ||
-                    e.keyCode === keys.TAB ||
-                    (e.altKey && e.keyCode === keys.UP)
-                ) {
-                    that.toggle();
-                    that.focus();
-                } else if (e.keyCode === keys.DOWN) {
-                    findFocusableSibling(li, 'next').focus();
-                } else if (e.keyCode === keys.UP) {
-                    findFocusableSibling(li, 'prev').focus();
-                } else if (
-                    e.keyCode === keys.SPACEBAR ||
-                    e.keyCode === keys.ENTER
-                ) {
-                    // that.toolbar.userEvents.trigger('tap', { target: $(e.target) });
-                    that._onButtonClick({
-                        currentTarget: $(e.currentTarget),
-                        preventDefault: $.noop
-                    });
+            that.popupElement.on(
+                CONSTANTS.KEYDOWN + NS,
+                BUTTON_SELECTOR,
+                (e) => {
+                    const li = $(e.target).parent();
+                    e.preventDefault();
+                    if (
+                        e.keyCode === keys.ESC ||
+                        e.keyCode === keys.TAB ||
+                        (e.altKey && e.keyCode === keys.UP)
+                    ) {
+                        that.toggle();
+                        that.focus();
+                    } else if (e.keyCode === keys.DOWN) {
+                        findFocusableSibling(li, 'next').focus();
+                    } else if (e.keyCode === keys.UP) {
+                        findFocusableSibling(li, 'prev').focus();
+                    } else if (
+                        e.keyCode === keys.SPACEBAR ||
+                        e.keyCode === keys.ENTER
+                    ) {
+                        // that.toolbar.userEvents.trigger('tap', { target: $(e.target) });
+                        that._onButtonClick({
+                            currentTarget: $(e.currentTarget),
+                            preventDefault: $.noop,
+                        });
+                    }
                 }
-            });
+            );
         }
     },
 
@@ -331,7 +332,7 @@ const SplitButton = Widget.extend({
             }
             // Trigger click event
             this.trigger(CONSTANTS.CLICK, {
-                action: $(e.currentTarget).attr(attr(CONSTANTS.ACTION))
+                action: $(e.currentTarget).attr(attr(CONSTANTS.ACTION)),
             });
         }
     },
@@ -352,7 +353,7 @@ const SplitButton = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

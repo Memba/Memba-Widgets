@@ -34,7 +34,7 @@ const DummyTool = BaseTool.extend({
     templates: {
         play: format(TEMPLATE, '\\\\#0f0', 'PLAY'),
         design: format(TEMPLATE, '\\\\#00f', 'DESIGN'),
-        review: format(TEMPLATE, '\\\\#f00', 'REVIEW')
+        review: format(TEMPLATE, '\\\\#f00', 'REVIEW'),
     },
     // attributes: {},
     // properties: {},
@@ -76,7 +76,7 @@ const DummyTool = BaseTool.extend({
                 window.alert(`Hello from ${component.uid}`);
             });
         }
-    }
+    },
 });
 
 /**

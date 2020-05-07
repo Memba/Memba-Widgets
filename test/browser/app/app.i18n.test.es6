@@ -17,7 +17,7 @@ describe('app.i18n', () => {
         expect(__).to.have.property('locale', 'en');
     });
 
-    it('Load', done => {
+    it('Load', (done) => {
         __.load('en')
             .then(() => {
                 // Note: consider more tests

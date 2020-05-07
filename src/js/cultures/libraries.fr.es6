@@ -14,38 +14,38 @@ const res = {
     arrayLibrary: {
         equal: { name: 'Égal' },
         ignoreCaseEqual: { name: 'Égal (sans maj.)' },
-        sumEqual: { name: 'Égal (sommes)' }
+        sumEqual: { name: 'Égal (sommes)' },
     },
 
     /* booleanLibrary */
     booleanLibrary: {
         equal: { name: 'Égal' },
-        notEqual: { name: 'Pas égal' }
+        notEqual: { name: 'Pas égal' },
     },
 
     /* charGridLibrary */
     charGridLibrary: {
-        equal: { name: 'Égal' }
+        equal: { name: 'Égal' },
     },
 
     /* dateLibrary */
     dateLibrary: {
-        equal: { name: 'Égal' }
+        equal: { name: 'Égal' },
     },
 
     /* genericLibrary */
     genericLibrary: {
-        equal: { name: 'Égal' }
+        equal: { name: 'Égal' },
     },
 
     /* mathLibrary */
     mathLibrary: {
-        equal: { name: 'Égal' }
+        equal: { name: 'Égal' },
     },
 
     /* multiQuizLibrary */
     multiQuizLibrary: {
-        equal: { name: 'Égal' }
+        equal: { name: 'Égal' },
     },
 
     /* numberLibrary */
@@ -54,7 +54,7 @@ const res = {
         greaterThan: { name: '>' },
         greaterThanOrEqual: { name: '>=' },
         lowerThan: { name: '<' },
-        lowerThanOrEqual: { name: '<=' }
+        lowerThanOrEqual: { name: '<=' },
     },
 
     /* stringLibrary */
@@ -65,15 +65,15 @@ const res = {
         ignoreDiacriticsEqual: { name: 'Égal (sans diacritique)' },
         match: { name: 'Correspond' },
         metaphone: { name: 'Métaphone' },
-        soundex: { name: 'Soundex' }
+        soundex: { name: 'Soundex' },
     },
 
     /* textLibrary */
     textLibrary: {
         euqal: { name: 'Égal' },
         ignoreSpacesEqual: { name: 'Égal (sans espace)' },
-        ignorePunctuationEqual: { name: 'Égal (sans ponctuation)' }
-    }
+        ignorePunctuationEqual: { name: 'Égal (sans ponctuation)' },
+    },
 };
 
 /**

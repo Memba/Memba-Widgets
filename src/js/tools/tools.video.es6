@@ -41,26 +41,26 @@ const VideoTool = BaseTool.extend({
     width: 600,
     menu: ['attributes.mp4'],
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         autoplay: new BooleanAdapter({
             title: __('tools.video.attributes.autoplay.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         toolbarHeight: new NumberAdapter({
             title: __('tools.video.attributes.toolbarHeight.title'),
-            defaultValue: 48
+            defaultValue: 48,
         }),
         mp4: new AssetAdapter({
-            title: __('tools.video.attributes.mp4.title')
+            title: __('tools.video.attributes.mp4.title'),
         }),
         ogv: new AssetAdapter({
-            title: __('tools.video.attributes.ogv.title')
+            title: __('tools.video.attributes.ogv.title'),
         }),
         wbem: new AssetAdapter({
-            title: __('tools.video.attributes.wbem.title')
-        })
+            title: __('tools.video.attributes.wbem.title'),
+        }),
     },
 
     /**
@@ -85,8 +85,8 @@ const VideoTool = BaseTool.extend({
             video: [
                 component.get('attributes.mp4'),
                 component.get('attributes.ogv'),
-                component.get('attributes.wbem')
-            ].filter(item => $.type(item) === CONSTANTS.STRING)
+                component.get('attributes.wbem'),
+            ].filter((item) => $.type(item) === CONSTANTS.STRING),
         };
     },
 
@@ -127,7 +127,7 @@ const VideoTool = BaseTool.extend({
                     files.push(wbem);
                 }
                 return JSON.stringify(files);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -141,7 +141,7 @@ const VideoTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this; // tool description
         if (
             !component.attributes ||
@@ -154,12 +154,12 @@ const VideoTool = BaseTool.extend({
                     messages.invalidVideoFile,
                     description,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // Note: we are not testing for an ogv or wbem file
         return ret;
-    }
+    },
 });
 
 /**

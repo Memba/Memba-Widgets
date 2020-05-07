@@ -150,7 +150,7 @@ function JPEGEncoder(quality) {
         57,
         58,
         62,
-        63
+        63,
     ];
 
     const std_dc_luminance_nrcodes = [
@@ -170,7 +170,7 @@ function JPEGEncoder(quality) {
         0,
         0,
         0,
-        0
+        0,
     ];
     const std_dc_luminance_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     const std_ac_luminance_nrcodes = [
@@ -190,7 +190,7 @@ function JPEGEncoder(quality) {
         0,
         0,
         1,
-        0x7d
+        0x7d,
     ];
     const std_ac_luminance_values = [
         0x01,
@@ -354,7 +354,7 @@ function JPEGEncoder(quality) {
         0xf7,
         0xf8,
         0xf9,
-        0xfa
+        0xfa,
     ];
 
     const std_dc_chrominance_nrcodes = [
@@ -374,7 +374,7 @@ function JPEGEncoder(quality) {
         0,
         0,
         0,
-        0
+        0,
     ];
     const std_dc_chrominance_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     const std_ac_chrominance_nrcodes = [
@@ -394,7 +394,7 @@ function JPEGEncoder(quality) {
         0,
         1,
         2,
-        0x77
+        0x77,
     ];
     const std_ac_chrominance_values = [
         0x00,
@@ -558,7 +558,7 @@ function JPEGEncoder(quality) {
         0xf7,
         0xf8,
         0xf9,
-        0xfa
+        0xfa,
     ];
 
     function initQuantTables(sf) {
@@ -626,7 +626,7 @@ function JPEGEncoder(quality) {
             112,
             100,
             103,
-            99
+            99,
         ];
 
         for (let i = 0; i < 64; i++) {
@@ -702,7 +702,7 @@ function JPEGEncoder(quality) {
             99,
             99,
             99,
-            99
+            99,
         ];
         for (let j = 0; j < 64; j++) {
             let u = ffloor((UVQT[j] * sf + 50) / 100);
@@ -721,7 +721,7 @@ function JPEGEncoder(quality) {
             1.0,
             0.785694958,
             0.5411961,
-            0.275899379
+            0.275899379,
         ];
         let k = 0;
         for (let row = 0; row < 8; row++) {
@@ -1556,7 +1556,7 @@ function PNGEncoder(/* options */) {
              * Z_FIXED prevents the use of dynamic Huffman codes, allowing for a simpler decoder for special applications.
              */
             strategy: 3,
-            ...options
+            ...options,
         }); // as Uint8Array;
         parts.push(writeIDATChunk(compressed));
         parts.push(writeIENDChunk());
@@ -1601,7 +1601,7 @@ export function jpegEncode(imgData, quality) {
     logger.debug({
         method: 'jpegEncode',
         message: 'Encoding as jpeg',
-        data: { quality }
+        data: { quality },
     });
     const encoder = new JPEGEncoder();
     return encoder.encode(imgData, quality);
@@ -1617,7 +1617,7 @@ export function pngEncode(imgData, options) {
     logger.debug({
         method: 'pngEncode',
         message: 'Encoding as png',
-        data: { options }
+        data: { options },
     });
     const encoder = new PNGEncoder();
     return encoder.encode(imgData, options);
@@ -1643,7 +1643,7 @@ export function getImageData(source, options) {
         .css({
             position: 'absolute',
             top: 0,
-            left: -10000
+            left: -10000,
         })
         // Appending to body prevents
         // Error: Uncaught IndexSizeError: Failed to execute 'getImageData' on 'CanvasRenderingContext2D': The source width is 0.
@@ -1655,7 +1655,7 @@ export function getImageData(source, options) {
             const width = (options || {}).width || w;
             const canvas = $(`<${CONSTANTS.CANVAS}>`).prop({
                 height,
-                width
+                width,
             });
             const c = canvas[0];
             const ctx = c.getContext('2d');
@@ -1665,7 +1665,7 @@ export function getImageData(source, options) {
             img.off().remove();
             dfd.resolve(imageData);
         })
-        .on(CONSTANTS.ERROR, e => {
+        .on(CONSTANTS.ERROR, (e) => {
             const err = new Error('Error loading image');
             err.event = e;
             err.image = source;
@@ -1694,13 +1694,13 @@ export function getDataUriAndSize(source) {
         .css({
             position: 'absolute',
             top: 0,
-            left: -10000
+            left: -10000,
         })
         .appendTo(CONSTANTS.BODY)
         .on(CONSTANTS.LOAD, () => {
             const canvas = $(`<${CONSTANTS.CANVAS}>`).prop({
                 height: img.height(),
-                width: img.width()
+                width: img.width(),
             });
             const c = canvas[0];
             const ctx = c.getContext('2d');
@@ -1710,10 +1710,10 @@ export function getDataUriAndSize(source) {
             dfd.resolve({
                 dataUri,
                 height: c.height,
-                width: c.width
+                width: c.width,
             });
         })
-        .on(CONSTANTS.ERROR, e => {
+        .on(CONSTANTS.ERROR, (e) => {
             const err = new Error('Error loading image');
             err.event = e;
             err.image = source;
@@ -1759,7 +1759,7 @@ export function preload(url) {
     $(`<${CONSTANTS.IMG}>`)
         .attr('crossOrigin', 'Anonymous')
         .on(CONSTANTS.LOAD, dfd.resolve)
-        .on(CONSTANTS.ERROR, e => {
+        .on(CONSTANTS.ERROR, (e) => {
             const err = new Error('Error loading image');
             err.event = e;
             err.image = url;

@@ -19,22 +19,22 @@ import { getComponentArray } from './js/helpers/helpers.data.es6';
 const {
     bind,
     observable,
-    ui: { PropertyGrid }
+    ui: { PropertyGrid },
 } = window.kendo;
 
 // Get components
 const data = getComponentArray();
 // Load tools
-const promises = data.map(component => tools.load(component.tool));
+const promises = data.map((component) => tools.load(component.tool));
 $.when(...promises).then(() => {
     const pageComponentDataSource = new PageComponentDataSource({ data });
     const viewModel = observable({
         items: pageComponentDataSource,
-        current: null
+        current: null,
     });
 
     // Change binding
-    viewModel.bind('change', e => {
+    viewModel.bind('change', (e) => {
         if (e.field === 'current') {
             const grid1 = $('#grid1').data('kendoPropertyGrid');
             const grid2 = $('#grid2').data('kendoPropertyGrid');

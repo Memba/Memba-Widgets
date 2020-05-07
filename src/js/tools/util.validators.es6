@@ -18,9 +18,7 @@ import TOOLS from './util.constants.es6';
  * @param value
  */
 export function makeInput(name, value) {
-    return $(`<${CONSTANTS.INPUT}>`)
-        .attr({ name })
-        .val(value);
+    return $(`<${CONSTANTS.INPUT}>`).attr({ name }).val(value);
 }
 
 /*
@@ -53,7 +51,7 @@ const altValidator = {
             return false; // TOOLS.RX_TEXT.test(input.val());
         }
         return true;
-    }
+    },
 };
 
 /**
@@ -64,7 +62,7 @@ const constantValidator = {
     required: true,
     constant(input) {
         return !!input;
-    }
+    },
 };
 
 /**
@@ -73,7 +71,7 @@ const constantValidator = {
  */
 const questionValidator = {
     required: true,
-    pattern: TOOLS.RX_TEXT
+    pattern: TOOLS.RX_TEXT,
 };
 
 /**
@@ -83,7 +81,7 @@ const questionValidator = {
 const scoreValidator = {
     score(input) {
         return !!input;
-    }
+    },
 };
 
 /**
@@ -94,7 +92,7 @@ const solutionValidator = {
     // TODO depends on the solution
     solution(input) {
         return !!input;
-    }
+    },
 };
 
 /**
@@ -118,7 +116,7 @@ const styleValidator = {
             );
         }
         return true;
-    }
+    },
 };
 
 /**
@@ -134,7 +132,7 @@ const textValidator = {
             return TOOLS.RX_TEXT.test(input.val());
         }
         return true;
-    }
+    },
 };
 
 /**
@@ -146,7 +144,7 @@ const textValidator = {
 const validationValidator = {
     validation(input) {
         return !!input;
-    }
+    },
 };
 
 /**
@@ -160,5 +158,5 @@ export {
     solutionValidator,
     styleValidator,
     textValidator,
-    validationValidator
+    validationValidator,
 };

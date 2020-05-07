@@ -17,7 +17,7 @@ import Logger from '../common/window.logger.es6';
 const {
     attr,
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.social');
 
@@ -29,7 +29,7 @@ const ACTION = {
     GOOGLE: 'google',
     LINKEDIN: 'linkedin',
     PINTEREST: 'pinterest',
-    TWITTER: 'twitter'
+    TWITTER: 'twitter',
 };
 const IMAGES = {
     CLASSROOM:
@@ -43,7 +43,7 @@ const IMAGES = {
     PINTEREST:
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><title>pinterest</title><rect width="1024" height="1024" style="fill:#ca2128"/><path d="M511.51,142c-204.72,0-370.73,166-370.73,370.74,0,151.8,91.27,282.22,221.93,339.55-1-25.93-.19-57,6.43-85.12,7.15-30.14,47.72-202.06,47.72-202.06S405,541.51,405,506.52c0-54.9,31.89-95.94,71.54-95.94,33.7,0,50,25.3,50,55.63,0,33.89-21.63,84.6-32.73,131.55-9.3,39.33,19.73,71.39,58.45,71.39,70.26,0,117.56-90.17,117.56-197.09,0-81.22-54.71-142-154.24-142-112.44,0-182.51,83.84-182.51,177.5,0,32.32,9.54,55.1,24.45,72.73,6.87,8.11,7.82,11.34,5.29,20.64-1.71,6.87-5.81,23.25-7.53,29.75-2.48,9.44-10.06,12.77-18.54,9.3-51.81-21.12-75.93-77.85-75.93-141.61,0-105.29,88.79-231.6,265-231.6,141.51,0,234.71,102.43,234.71,212.39,0,145.43-80.9,254.06-200.07,254.06-40,0-77.69-21.65-90.55-46.19,0,0-21.55,85.41-26.07,101.91-7.87,28.54-23.26,57.15-37.33,79.41a371.11,371.11,0,0,0,105,15.15c204.72,0,370.7-166,370.7-370.73S716.24,142,511.51,142Z" transform="translate(0 -0.01)" style="fill:#fff"/></svg>',
     TWITTER:
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><title>twitter</title><rect width="1024" height="1024" style="fill:#2aa8e0"/><path d="M853.31,300.28a279.66,279.66,0,0,1-80.44,22.05,140.33,140.33,0,0,0,61.58-77.48,280,280,0,0,1-88.91,34,140.21,140.21,0,0,0-238.7,127.72C390.47,400.76,287.28,345,218.18,260.24a140.27,140.27,0,0,0,43.33,187,139.47,139.47,0,0,1-63.42-17.52v1.76A140.17,140.17,0,0,0,310.43,568.81a141,141,0,0,1-36.9,4.94,139.08,139.08,0,0,1-26.34-2.55A140.23,140.23,0,0,0,378,668.49a280.94,280.94,0,0,1-173.95,60,289,289,0,0,1-33.38-2,396.7,396.7,0,0,0,214.72,62.9C643,789.37,783.85,576,783.85,390.91c0-6.05-.16-12.09-0.38-18.15A285.25,285.25,0,0,0,853.31,300.28Z" style="fill:#fff"/></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><title>twitter</title><rect width="1024" height="1024" style="fill:#2aa8e0"/><path d="M853.31,300.28a279.66,279.66,0,0,1-80.44,22.05,140.33,140.33,0,0,0,61.58-77.48,280,280,0,0,1-88.91,34,140.21,140.21,0,0,0-238.7,127.72C390.47,400.76,287.28,345,218.18,260.24a140.27,140.27,0,0,0,43.33,187,139.47,139.47,0,0,1-63.42-17.52v1.76A140.17,140.17,0,0,0,310.43,568.81a141,141,0,0,1-36.9,4.94,139.08,139.08,0,0,1-26.34-2.55A140.23,140.23,0,0,0,378,668.49a280.94,280.94,0,0,1-173.95,60,289,289,0,0,1-33.38-2,396.7,396.7,0,0,0,214.72,62.9C643,789.37,783.85,576,783.85,390.91c0-6.05-.16-12.09-0.38-18.15A285.25,285.25,0,0,0,853.31,300.28Z" style="fill:#fff"/></svg>',
 };
 
 /*
@@ -112,7 +112,7 @@ const Social = Widget.extend({
                 image:
                     $('meta[property="og:image"]').attr(CONTENT) ||
                     $('meta[property="twitter:image"]').attr(CONTENT),
-                source: $('meta[property="og:site_name"]').attr(CONTENT)
+                source: $('meta[property="og:site_name"]').attr(CONTENT),
             },
             this.options
         );
@@ -143,8 +143,8 @@ const Social = Widget.extend({
             google: 'Share to Google+',
             linkedin: 'Share to LinkedIn',
             pinterest: 'Share to Pinterest',
-            twitter: 'Share to Twitter'
-        }
+            twitter: 'Share to Twitter',
+        },
     },
 
     /**
@@ -165,7 +165,7 @@ const Social = Widget.extend({
                 CONSTANTS.NUMBER
             )
         );
-        Object.keys(ACTION).forEach(key => {
+        Object.keys(ACTION).forEach((key) => {
             if (Object.prototype.hasOwnProperty.call(IMAGES, key)) {
                 const action = ACTION[key];
                 $(`<${CONSTANTS.A}/>`)
@@ -173,11 +173,11 @@ const Social = Widget.extend({
                         'data-action': action,
                         href: CONSTANTS.HASH,
                         role: CONSTANTS.BUTTON,
-                        title: options.messages[action]
+                        title: options.messages[action],
                     })
                     .css({
                         display: 'inline-block',
-                        outline: 0
+                        outline: 0,
                     })
                     .height(options.size)
                     .width(options.size)
@@ -192,7 +192,7 @@ const Social = Widget.extend({
                                     options.enabled
                                         ? 'none'
                                         : 'block',
-                                position: 'fixed'
+                                position: 'fixed',
                             })
                             .height(options.size)
                             .width(options.size)
@@ -203,9 +203,7 @@ const Social = Widget.extend({
                     )
                     .append(
                         // Add svg image
-                        $(IMAGES[key])
-                            .height(options.size)
-                            .width(options.size)
+                        $(IMAGES[key]).height(options.size).width(options.size)
                     )
                     .appendTo(element);
             }
@@ -229,7 +227,7 @@ const Social = Widget.extend({
                     size: options.size,
                     // theme
                     title: options.title,
-                    url: options.url
+                    url: options.url,
                 });
             }
         });
@@ -398,36 +396,43 @@ const Social = Widget.extend({
                 // @ see https://developers.facebook.com/docs/sharing/reference/feed-dialog
                 // @ see https://developers.facebook.com/docs/sharing/best-practices
                 // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
-                openUrl = `${'https://www.facebook.com/dialog/feed' +
+                openUrl = `${
+                    'https://www.facebook.com/dialog/feed' +
                     '?display=popup' +
-                    '&app_id='}${facebookAppId}&link=${url}&picture=${image}&name=${title}&caption=${title}&description=${description}`;
+                    '&app_id='
+                }${facebookAppId}&link=${url}&picture=${image}&name=${title}&caption=${title}&description=${description}`;
                 // '&redirect_uri=' + url;
                 // TODO: ref
                 break;
             case ACTION.GOOGLE:
                 // @see https://developers.google.com/+/web/share/
-                openUrl = `${'https://plus.google.com/share' +
-                    '?url='}${url}&hl=${options.language}`;
+                openUrl = `${
+                    'https://plus.google.com/share' + '?url='
+                }${url}&hl=${options.language}`;
                 break;
             case ACTION.LINKEDIN:
                 // @see https://developer.linkedin.com/docs/share-on-linkedin
                 // @see also http://stackoverflow.com/questions/3758525/linkedin-sharearticle-thumbnail
                 // Note Linkedin uses open graph meta tags
-                openUrl = `${'https://www.linkedin.com/shareArticle' +
+                openUrl = `${
+                    'https://www.linkedin.com/shareArticle' +
                     '?mini=true' +
-                    '&source='}${source}&summary=${description}&title=${title}&url=${url}`;
+                    '&source='
+                }${source}&summary=${description}&title=${title}&url=${url}`;
 
                 break;
             case ACTION.PINTEREST:
                 // @see https://developers.pinterest.com/docs/widgets/pin-it/
-                openUrl = `${'https://pinterest.com/pin/create/button/' +
-                    '?url='}${url}&media=${image}&description=${description}`;
+                openUrl = `${
+                    'https://pinterest.com/pin/create/button/' + '?url='
+                }${url}&media=${image}&description=${description}`;
                 break;
             case ACTION.TWITTER:
                 // Twitter web intent
                 // @ see https://dev.twitter.com/web/tweet-button/web-intent
-                openUrl = `${'https://twitter.com/intent/tweet' +
-                    '?text='}${title}&url=${url}&via=${twitterAccount}`;
+                openUrl = `${
+                    'https://twitter.com/intent/tweet' + '?text='
+                }${title}&url=${url}&via=${twitterAccount}`;
                 break;
             // case ACTION.EMAIL:
             //     openUrl = 'mailto:fastlec@memba.org?&subject=Shared Link&body=Hey%20loojk%20at%20that';
@@ -480,7 +485,7 @@ const Social = Widget.extend({
             )
             .css({
                 backgroundColor: '',
-                opacity: ''
+                opacity: '',
             });
 
         if (e.type === CONSTANTS.MOUSEENTER) {
@@ -489,7 +494,7 @@ const Social = Widget.extend({
                 // Darken overlay
                 button.children(CONSTANTS.DIV).css({
                     backgroundColor: '#000',
-                    opacity: 0.2
+                    opacity: 0.2,
                 });
             }
         }
@@ -504,7 +509,7 @@ const Social = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

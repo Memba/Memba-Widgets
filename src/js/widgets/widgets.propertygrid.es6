@@ -31,7 +31,7 @@ const {
     toHyphens,
     ui,
     ui: { plugin, Tooltip, Validator, Widget },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.propertygrid');
 // const NS = '.kendoPropertyGrid';
@@ -73,12 +73,12 @@ const PropertyGrid = Widget.extend({
             row:
                 '<tr role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
             altRow:
-                '<tr class="k-alt" role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>'
+                '<tr class="k-alt" role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
         },
         messages: {
             property: 'Property',
-            value: 'Value'
-        }
+            value: 'Value',
+        },
     },
 
     /**
@@ -139,7 +139,7 @@ const PropertyGrid = Widget.extend({
     _render() {
         const {
             element,
-            options: { messages, size }
+            options: { messages, size },
         } = this;
         this.wrapper = element;
         element.addClass(WIDGET_CLASS); // the kendo.ui.Grid has style="height:..."
@@ -150,14 +150,14 @@ const PropertyGrid = Widget.extend({
             $.type(messages.value) === CONSTANTS.STRING
         ) {
             element.append(
-                `${'<div class="k-grid-header" style="padding-right:17px;">' +
+                `${
+                    '<div class="k-grid-header" style="padding-right:17px;">' +
                     '<div class="k-grid-header-wrap k-auto-scrollable">' +
                     '<table role="grid">' +
                     `<colgroup><col style="width:${size[0]};"><col style="width:${size[1]};"></colgroup>` +
                     '<thead role="rowgroup"><tr role="row">' +
-                    '<th role="columnheader" class="k-header">'}${
-                    messages.property
-                }</th>` +
+                    '<th role="columnheader" class="k-header">'
+                }${messages.property}</th>` +
                     `<th role="columnheader" class="k-header">${messages.value}</th>` +
                     `</tr></thead>` +
                     `</table>` +
@@ -220,7 +220,7 @@ const PropertyGrid = Widget.extend({
                 tbody.append(
                     tmpl({
                         title: row.title,
-                        help: row.help || ''
+                        help: row.help || '',
                     })
                 );
 
@@ -295,7 +295,7 @@ const PropertyGrid = Widget.extend({
         // if hashedOptionRows is an empty object, then there won't be any rows
         const hasRows = $.isPlainObject(hashedOptionRows);
         const optionRows = hashedOptionRows || {};
-        Object.keys(properties).forEach(prop => {
+        Object.keys(properties).forEach((prop) => {
             // Select only public properties that are not functions (discards _events)
             if (
                 prop.indexOf(CONSTANTS.UNDERSCORE) !== 0 &&
@@ -363,7 +363,7 @@ const PropertyGrid = Widget.extend({
                             fields && fields[prop],
                             defaults && defaults[prop],
                             properties[prop]
-                        )
+                        ),
                     };
 
                     // Add validation rules to attributes
@@ -377,7 +377,7 @@ const PropertyGrid = Widget.extend({
                             maxlength: fields[prop].validation.maxlength, // See http://docs.telerik.com/kendo-ui/aspnet-mvc/helpers/editor/how-to/add-max-length-validation
                             step: fields[prop].validation.step,
                             pattern: fields[prop].validation.pattern,
-                            type: fields[prop].validation.type
+                            type: fields[prop].validation.type,
                         };
                         row.attributes = $.extend(
                             {},
@@ -423,7 +423,7 @@ const PropertyGrid = Widget.extend({
                     obj = obj[hierarchy[i]];
                 }
                 obj._index = index;
-                Object.keys(row).forEach(key => {
+                Object.keys(row).forEach((key) => {
                     obj[key] = row[key];
                 });
             });
@@ -477,7 +477,7 @@ const PropertyGrid = Widget.extend({
         );
         if (handle.length && propertyColumn.length) {
             handle.css({
-                left: propertyColumn.outerWidth() - handle.outerWidth() / 2
+                left: propertyColumn.outerWidth() - handle.outerWidth() / 2,
             });
         }
     },
@@ -498,9 +498,7 @@ const PropertyGrid = Widget.extend({
         let valueCell;
         // var call;
         if (!element.children(`.${HANDLE_CLASS}`).length) {
-            $('<div />')
-                .addClass(HANDLE_CLASS)
-                .appendTo(element);
+            $('<div />').addClass(HANDLE_CLASS).appendTo(element);
         }
         const resizableWidget = element.data('kendoResisable');
         if (!(resizableWidget instanceof ui.Resizable)) {
@@ -568,7 +566,7 @@ const PropertyGrid = Widget.extend({
                     element.children().each((index, child) => {
                         resize($(child));
                     });
-                }
+                },
             });
         }
     },
@@ -596,9 +594,9 @@ const PropertyGrid = Widget.extend({
                     animation: {
                         open: {
                             effects: 'zoom',
-                            duration: 150
-                        }
-                    }
+                            duration: 150,
+                        },
+                    },
                 })
                 .data('kendoTooltip');
         }
@@ -619,7 +617,7 @@ const PropertyGrid = Widget.extend({
             const rules = {};
             const value = this.value();
             // Only add validator rules for property grid rows
-            rows.forEach(row => {
+            rows.forEach((row) => {
                 // For each row find the validation rules in the data.Model field
                 const name = row.field;
                 let validation;
@@ -645,7 +643,7 @@ const PropertyGrid = Widget.extend({
                     }
                 }
                 if ($.type(validation) === CONSTANTS.OBJECT) {
-                    Object.keys(validation).forEach(key => {
+                    Object.keys(validation).forEach((key) => {
                         const rule = validation[key];
                         /*
                         if ($.isFunction(rule)) {
@@ -748,7 +746,7 @@ const PropertyGrid = Widget.extend({
         // Destroy
         Widget.fn.destroy.call(this);
         destroy(element);
-    }
+    },
 });
 
 /**

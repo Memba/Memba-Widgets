@@ -158,7 +158,7 @@ function parseLibraryItem(value, library) {
         // Add ret.item
         const found = library.filter(
             // Array.find is not available in Internet Explorer
-            item => item.key === libraryMatches[1]
+            (item) => item.key === libraryMatches[1]
         );
         if (Array.isArray(found) && found.length) {
             [ret.item] = found;
@@ -190,7 +190,7 @@ const CUSTOM = {
     formula: format(
         TOOLS.VALIDATION_CUSTOM,
         '// Your code should return true when value is validated against solution.\n\treturn true;'
-    )
+    ),
 };
 
 /**
@@ -213,7 +213,7 @@ const arrayLibrary = {
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
                     'return (value || []).sort().join(•).trim().replace(/\\s*|•|\\s*/g, "|•|") === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|");'
-            )
+            ),
         },
         {
             key: 'ignoreCaseEqual', // TODO <--- This is useless because we generally know the arrays
@@ -222,7 +222,7 @@ const arrayLibrary = {
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
                     'return (value || []).sort().join("|•|").trim().replace(/\\s*|•|\\s*/g, "|•|").toLowerCase() === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|").toLowerCase();'
-            )
+            ),
         },
         {
             key: 'sumEqual',
@@ -233,9 +233,9 @@ const arrayLibrary = {
                     'var ret = 0;\t' +
                     '(value || []).forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
                     'return ret === parseFloat(String(solution).trim());'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -251,7 +251,7 @@ const booleanLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).toLowerCase() === String(solution).toLowerCase();'
-            )
+            ),
         },
         {
             key: 'notEqual',
@@ -259,9 +259,9 @@ const booleanLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).toLowerCase() !== String(solution).toLowerCase();'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -277,9 +277,9 @@ const charGridLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return value && typeof value.equals === "function" && value.equals(solution);'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -296,9 +296,9 @@ const dateLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return value - solution === 0;'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -314,9 +314,9 @@ const genericLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -332,15 +332,15 @@ const mathLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
-            ) // TODO several MathQuillMathField
+            ), // TODO several MathQuillMathField
         } /* ,
         {
             // TODO permutations
             key: 'anyCommutations',
             formula: format(TOOLS.VALIDATION_LIBRARY_SOLUTION, 'return shuntingYard(value).equals(solution);')
         }
-        */
-    ]
+        */,
+    ],
 };
 
 /**
@@ -357,9 +357,9 @@ const multiQuizLibrary = {
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 '// Note: both value and solution are arrays of strings\n\t' +
                     'return String(value.sort()) === String(solution.sort());'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -375,7 +375,7 @@ const numberLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) === Number(solution);'
-            )
+            ),
         },
         {
             key: 'greaterThan',
@@ -383,7 +383,7 @@ const numberLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) > Number(solution);'
-            )
+            ),
         },
         {
             key: 'greaterThanOrEqual',
@@ -391,7 +391,7 @@ const numberLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) >= Number(solution);'
-            )
+            ),
         },
         {
             key: 'lowerThan',
@@ -399,7 +399,7 @@ const numberLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) < Number(solution);'
-            )
+            ),
         },
         {
             key: 'lowerThanOrEqual',
@@ -407,9 +407,9 @@ const numberLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) <= Number(solution);'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -425,7 +425,7 @@ const stringLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
-            )
+            ),
         },
         {
             key: 'ignoreCaseEqual',
@@ -433,7 +433,7 @@ const stringLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();'
-            )
+            ),
         },
         {
             key: 'ignoreCaseMatch',
@@ -443,7 +443,7 @@ const stringLibrary = {
                 TOOLS.VALIDATION_LIBRARY_PARAMS,
                 'return new RegExp(params, "i").test(String(value).trim());'
             ),
-            editor: regexpEditor
+            editor: regexpEditor,
         },
         {
             key: 'ignoreDiacriticsEqual',
@@ -451,7 +451,7 @@ const stringLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());'
-            )
+            ),
         },
         {
             key: 'match',
@@ -461,7 +461,7 @@ const stringLibrary = {
                 TOOLS.VALIDATION_LIBRARY_PARAMS,
                 'return new RegExp(params, "i").test(String(value).trim());'
             ),
-            editor: regexpEditor
+            editor: regexpEditor,
         },
         {
             key: 'metaphone',
@@ -469,7 +469,7 @@ const stringLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));'
-            )
+            ),
         },
         {
             key: 'soundex',
@@ -477,9 +477,9 @@ const stringLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -495,7 +495,7 @@ const textLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
-            )
+            ),
         },
         {
             key: 'ignoreSpacesEqual',
@@ -503,7 +503,7 @@ const textLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();'
-            )
+            ),
         },
         {
             key: 'ignorePunctuationEqual',
@@ -511,9 +511,9 @@ const textLibrary = {
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();'
-            )
-        }
-    ]
+            ),
+        },
+    ],
 };
 
 /**
@@ -538,5 +538,5 @@ export {
     multiQuizLibrary,
     numberLibrary,
     stringLibrary,
-    textLibrary
+    textLibrary,
 };

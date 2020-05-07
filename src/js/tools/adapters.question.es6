@@ -41,7 +41,7 @@ const QuestionAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             input.kendoComboBox({
@@ -75,10 +75,10 @@ const QuestionAdapter = BaseAdapter.extend({
                     });
                     data.sort();
                     e.sender.setDataSource(data);
-                }
+                },
             });
         };
-    }
+    },
 });
 
 /**

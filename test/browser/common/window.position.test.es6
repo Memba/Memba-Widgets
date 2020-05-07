@@ -17,7 +17,7 @@ import {
     getElementCenter,
     getMousePosition,
     getTransformRotation,
-    getTransformScale
+    getTransformScale,
 } from '../../../src/js/common/window.position.es6';
 
 const { describe, it } = window;

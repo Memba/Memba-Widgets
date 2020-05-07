@@ -23,12 +23,12 @@ import TOOLS from '../../../src/js/tools/util.constants.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 import {
     componentGenerator,
-    getStream
+    getStream,
 } from '../../../src/js/helpers/helpers.components.es6';
 
 const { describe, it, xit } = window;
 const {
-    data: { ObservableArray }
+    data: { ObservableArray },
     // observable
 } = window.kendo;
 const { expect } = chai;
@@ -42,7 +42,9 @@ function getTestModel() {
     pages
         .fetch()
         .then(() => {
-            const promises = pages.data().map(page => page.components.fetch());
+            const promises = pages
+                .data()
+                .map((page) => page.components.fetch());
             $.when(...promises)
                 .then(() => {
                     dfd.resolve(stream.getTestModel());
@@ -64,7 +66,7 @@ function assertBaseTest(test) {
     expect(test).to.respondTo('percent');
     expect(test).to.respondTo('score');
     expect(test).to.respondTo('toJSON');
-    Object.keys(test).forEach(key => {
+    Object.keys(test).forEach((key) => {
         if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
             expect(test).to.have.nested.property(`${key}.result`);
             expect(test).to.have.nested.property(`${key}.score`);
@@ -75,8 +77,8 @@ function assertBaseTest(test) {
 }
 
 describe('data.basetest', () => {
-    before(done => {
-        const promises = Object.keys(componentGenerator).map(tool =>
+    before((done) => {
+        const promises = Object.keys(componentGenerator).map((tool) =>
             tools.load(tool)
         );
         $.when(...promises)
@@ -91,10 +93,10 @@ describe('data.basetest', () => {
                 assertBaseTest(test);
             });
 
-            it('It should initialize from stream', done => {
+            it('It should initialize from stream', (done) => {
                 getTestModel()
                     .then(
-                        tryCatch(done)(TestModel => {
+                        tryCatch(done)((TestModel) => {
                             const test = new TestModel();
                             assertBaseTest(test);
                         })
@@ -104,14 +106,14 @@ describe('data.basetest', () => {
         });
 
         describe('getScoreTable', () => {
-            it('It should initialize from stream', done => {
+            it('It should initialize from stream', (done) => {
                 getTestModel()
                     .then(
-                        tryCatch(done)(TestModel => {
+                        tryCatch(done)((TestModel) => {
                             const test = new TestModel();
                             const table = test.getScoreTable();
                             const keys = Object.keys(test.fields).filter(
-                                key =>
+                                (key) =>
                                     TOOLS.RX_TEST_FIELD_NAME.test(key) &&
                                     !test[key]
                                         .component()
@@ -120,7 +122,7 @@ describe('data.basetest', () => {
                             expect(table)
                                 .to.be.an(CONSTANTS.ARRAY)
                                 .with.lengthOf(keys.length);
-                            table.forEach(scoreLine => {
+                            table.forEach((scoreLine) => {
                                 expect(scoreLine).to.have.property('name');
                                 expect(scoreLine).to.have.property('pageIdx');
                                 expect(scoreLine).to.have.property('question');
@@ -136,12 +138,12 @@ describe('data.basetest', () => {
         });
 
         describe('grade', () => {
-            it('Grade all pages', done => {
+            it('Grade all pages', (done) => {
                 getTestModel()
-                    .then(TestModel => {
+                    .then((TestModel) => {
                         const test = new TestModel();
                         // Set the value of each field to the solution
-                        Object.keys(test.fields).forEach(key => {
+                        Object.keys(test.fields).forEach((key) => {
                             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                                 const field = test[key];
                                 const component = field.component();
@@ -157,7 +159,7 @@ describe('data.basetest', () => {
                         test.grade()
                             .then(
                                 tryCatch(done)(() => {
-                                    Object.keys(test.fields).forEach(key => {
+                                    Object.keys(test.fields).forEach((key) => {
                                         if (
                                             TOOLS.RX_TEST_FIELD_NAME.test(key)
                                         ) {
@@ -187,14 +189,14 @@ describe('data.basetest', () => {
                     .catch(done);
             });
 
-            it('Grade a single page', done => {
+            it('Grade a single page', (done) => {
                 getTestModel()
-                    .then(TestModel => {
+                    .then((TestModel) => {
                         const test = new TestModel();
                         const indexes = [];
                         // Set the value of each field to the solution
                         // also collect page indexes in the same iteration
-                        Object.keys(test.fields).forEach(key => {
+                        Object.keys(test.fields).forEach((key) => {
                             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                                 const field = test[key];
                                 const component = field.component();
@@ -216,7 +218,7 @@ describe('data.basetest', () => {
                         test.grade(pageIdx)
                             .then(
                                 tryCatch(done)(() => {
-                                    Object.keys(test.fields).forEach(key => {
+                                    Object.keys(test.fields).forEach((key) => {
                                         if (
                                             TOOLS.RX_TEST_FIELD_NAME.test(key)
                                         ) {
@@ -263,14 +265,14 @@ describe('data.basetest', () => {
         });
 
         describe('max', () => {
-            it('It should compute the max score', done => {
+            it('It should compute the max score', (done) => {
                 getTestModel()
                     .then(
-                        tryCatch(done)(TestModel => {
+                        tryCatch(done)((TestModel) => {
                             const test = new TestModel();
                             const max = test.max();
                             let success = 0;
-                            Object.keys(test.fields).forEach(key => {
+                            Object.keys(test.fields).forEach((key) => {
                                 if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                                     const field = test[key];
                                     const component = field.component();
@@ -290,10 +292,10 @@ describe('data.basetest', () => {
         });
 
         xdescribe('percent', () => {
-            it('It should compute the score as a percentage of the max score', done => {
+            it('It should compute the score as a percentage of the max score', (done) => {
                 getTestModel()
                     .then(
-                        tryCatch(done)(TestModel => {
+                        tryCatch(done)((TestModel) => {
                             const test = new TestModel();
                             expect(test).to.be.an.instanceof(TestModel);
                         })
@@ -303,10 +305,10 @@ describe('data.basetest', () => {
         });
 
         xdescribe('score', () => {
-            it('It should compute the score', done => {
+            it('It should compute the score', (done) => {
                 getTestModel()
                     .then(
-                        tryCatch(done)(TestModel => {
+                        tryCatch(done)((TestModel) => {
                             const test = new TestModel();
                             expect(test).to.be.an.instanceof(TestModel);
                         })
@@ -316,7 +318,7 @@ describe('data.basetest', () => {
         });
 
         describe('toJSON', () => {
-            xit('It should return a JSON object', done => {
+            xit('It should return a JSON object', (done) => {
                 done();
             });
         });

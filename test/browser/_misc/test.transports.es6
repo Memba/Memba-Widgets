@@ -17,7 +17,7 @@ export function getSpyingTransport(data, spies = {}) {
     return {
         create(options) {
             const resp = Object.assign(options.data, {
-                id: new ObjectId().toString()
+                id: new ObjectId().toString(),
             });
             if (typeof spies.create === 'function') {
                 spies.create(resp);
@@ -42,7 +42,7 @@ export function getSpyingTransport(data, spies = {}) {
                 spies.update(options.data);
             }
             options.success(options.data);
-        }
+        },
     };
 }
 
@@ -65,6 +65,6 @@ export function getErrorTransport() {
         },
         update(options) {
             options.error(error2xhr(new Error('Update error')));
-        }
+        },
     };
 }

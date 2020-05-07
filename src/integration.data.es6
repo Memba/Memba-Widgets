@@ -34,8 +34,8 @@ const data = {
                     attributes: {
                         text: 'Who painted this self-portrait?',
                         style:
-                            'font-family:Georgia, serif;font-size:80px;color:#663300;'
-                    }
+                            'font-family:Georgia, serif;font-size:80px;color:#663300;',
+                    },
                 },
                 {
                     id: '54a74fb1-12f0-43b2-a9ac-b03325624276',
@@ -56,8 +56,8 @@ const data = {
                             { text: 'Fernand Léger' },
                             { text: 'Pablo Picasso' },
                             { text: 'George Braque' },
-                            { text: 'Paul Cézanne' }
-                        ]
+                            { text: 'Paul Cézanne' },
+                        ],
                     },
                     properties: {
                         name: 'val_e57345',
@@ -66,8 +66,8 @@ const data = {
                         validation: '// equal',
                         success: 1,
                         failure: 0,
-                        omit: 0
-                    }
+                        omit: 0,
+                    },
                 },
                 {
                     id: 'c971f83d-2dcf-48f4-ab96-7fbbefd870ed',
@@ -80,10 +80,10 @@ const data = {
                     tag: null,
                     attributes: {
                         src: 'data://self-portrait-1907.jpg',
-                        alt: 'Painting Landscape'
-                    }
-                }
-            ]
+                        alt: 'Painting Landscape',
+                    },
+                },
+            ],
         },
         {
             id: 'c9caa1a7-8f5f-4b4a-a4dc-c9a98652dc2a',
@@ -106,8 +106,8 @@ const data = {
                         validation: '// equal',
                         success: 1,
                         failure: 0,
-                        omit: 0
-                    }
+                        omit: 0,
+                    },
                 },
                 {
                     id: 'ed5d0c8f-7e77-4b57-881a-ec11f76279a2',
@@ -121,8 +121,8 @@ const data = {
                     attributes: {
                         text: 'Which year did Elvis die?',
                         style:
-                            'font-family:Georgia, serif;font-size:80px;color:#FF0000;'
-                    }
+                            'font-family:Georgia, serif;font-size:80px;color:#FF0000;',
+                    },
                 },
                 {
                     id: '285b7355-91dc-447e-869f-3db89d96fac0',
@@ -135,10 +135,10 @@ const data = {
                     tag: null,
                     attributes: {
                         src: 'data://Elvis.jpg',
-                        alt: 'Painting Landscape'
-                    }
-                }
-            ]
+                        alt: 'Painting Landscape',
+                    },
+                },
+            ],
         },
         {
             id: '7c187777-deea-41e8-83f4-4b7fab333702',
@@ -155,8 +155,8 @@ const data = {
                     tag: null,
                     attributes: {
                         src: 'data://France-Fleuves-1.png',
-                        alt: 'Painting Landscape'
-                    }
+                        alt: 'Painting Landscape',
+                    },
                 },
                 {
                     id: '76923b71-d891-4ef7-9090-f2cfe5e14bbb',
@@ -169,7 +169,7 @@ const data = {
                     tag: null,
                     attributes: {
                         style:
-                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;'
+                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;',
                     },
                     properties: {
                         name: 'val_123890',
@@ -178,8 +178,8 @@ const data = {
                         validation: '// ignoreCaseEqual',
                         success: 0.25,
                         failure: 0,
-                        omit: 0
-                    }
+                        omit: 0,
+                    },
                 },
                 {
                     id: '75275998-467d-4374-a6ea-d221b8c14d30',
@@ -192,7 +192,7 @@ const data = {
                     tag: null,
                     attributes: {
                         style:
-                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;'
+                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;',
                     },
                     properties: {
                         name: 'val_5ee0ab',
@@ -201,8 +201,8 @@ const data = {
                         validation: '// ignoreCaseEqual',
                         success: 0.25,
                         failure: 0,
-                        omit: 0
-                    }
+                        omit: 0,
+                    },
                 },
                 {
                     id: 'b1222495-1bc1-41cc-8cc6-086057f769f6',
@@ -216,8 +216,8 @@ const data = {
                     attributes: {
                         text: 'Please name the french rivers on the map',
                         style:
-                            'font-family:Georgia, serif;font-size:80px;color:#0066CC;'
-                    }
+                            'font-family:Georgia, serif;font-size:80px;color:#0066CC;',
+                    },
                 },
                 {
                     id: '6c4dec80-6c44-4fa3-a919-904987ec5094',
@@ -230,7 +230,7 @@ const data = {
                     tag: null,
                     attributes: {
                         style:
-                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;'
+                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;',
                     },
                     properties: {
                         name: 'val_304345',
@@ -239,8 +239,8 @@ const data = {
                         validation: '// ignoreCaseEqual',
                         success: 0.25,
                         failure: 0,
-                        omit: 0
-                    }
+                        omit: 0,
+                    },
                 },
                 {
                     id: 'a08a68d2-7d19-4576-bf61-12f46acaeb02',
@@ -253,7 +253,7 @@ const data = {
                     tag: null,
                     attributes: {
                         style:
-                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;'
+                            'color:#0066CC;background-color:#E0F0FF;opacity:0.8;',
                     },
                     properties: {
                         name: 'val_a8aef1',
@@ -262,10 +262,10 @@ const data = {
                         validation: '// ignoreCaseMatch ["(Rh(o|ô)ne)"]',
                         success: 0.25,
                         failure: 0,
-                        omit: 0
-                    }
-                }
-            ]
+                        omit: 0,
+                    },
+                },
+            ],
         },
         {
             id: '82b02398-7810-467c-9328-b554c26d5786',
@@ -284,8 +284,8 @@ const data = {
                         text:
                             '"S.O.S.," the Morse code distress signal, originally stood for "Save Our Ship."',
                         style:
-                            'text-align:center;font-family:Georgia, serif;font-size:80px;color:#000000;'
-                    }
+                            'text-align:center;font-family:Georgia, serif;font-size:80px;color:#000000;',
+                    },
                 },
                 {
                     id: '2c64f70f-727e-4d40-a070-2ad675ba4a5f',
@@ -301,7 +301,7 @@ const data = {
                         groupStyle: 'font-size:50px;',
                         itemStyle: 'width:300px;',
                         activeStyle: '',
-                        data: [{ text: 'True' }, { text: 'False' }]
+                        data: [{ text: 'True' }, { text: 'False' }],
                     },
                     properties: {
                         name: 'val_667456',
@@ -310,12 +310,12 @@ const data = {
                         validation: '// equal',
                         success: 1,
                         failure: 0,
-                        omit: 0
-                    }
-                }
-            ]
-        }
-    ]
+                        omit: 0,
+                    },
+                },
+            ],
+        },
+    ],
 };
 
 // LocalStream
@@ -329,7 +329,7 @@ const LocalStream = Stream.define({
                 const promises = that.pages
                     .data()
                     // .map(page => page.components.fetch());
-                    .map(page => {
+                    .map((page) => {
                         const d = $.Deferred();
                         page.components
                             .fetch()
@@ -350,8 +350,8 @@ const LocalStream = Stream.define({
         const dfd = $.Deferred();
         const stream = JSON.parse(localStorage.getItem(storageKey)) || {};
         const promises = [];
-        stream.pages.forEach(page => {
-            page.components.forEach(component => {
+        stream.pages.forEach((page) => {
+            page.components.forEach((component) => {
                 // Note: possibly discard components without registered tools
                 promises.push(tools.load(component.tool));
             });
@@ -359,9 +359,7 @@ const LocalStream = Stream.define({
         $.when(...promises)
             .then(() => {
                 this.accept(stream);
-                this._fetchAll()
-                    .then(dfd.resolve)
-                    .catch(dfd.reject);
+                this._fetchAll().then(dfd.resolve).catch(dfd.reject);
             })
             .catch(dfd.reject);
         return dfd.promise();
@@ -369,10 +367,10 @@ const LocalStream = Stream.define({
     save() {
         const that = this;
         const json = that.toJSON(true);
-        json.pages.forEach(page => {
+        json.pages.forEach((page) => {
             // eslint-disable-next-line no-param-reassign
             page.id = page.id || guid();
-            page.components.forEach(component => {
+            page.components.forEach((component) => {
                 // eslint-disable-next-line no-param-reassign
                 component.id = component.id || guid();
             });
@@ -380,11 +378,11 @@ const LocalStream = Stream.define({
         localStorage.setItem(storageKey, stringify(json));
         that.accept(json);
         return that._fetchAll();
-    }
+    },
 });
 
 // Store data
-LocalStream.reset = force => {
+LocalStream.reset = (force) => {
     if (!!force || !localStorage.getItem(storageKey)) {
         localStorage.setItem(storageKey, stringify(data));
     }
@@ -394,7 +392,7 @@ LocalStream.reset();
 // Schemes
 const schemes = {
     cdn: 'https://cdn.kidoju.com/',
-    data: `${location.protocol}//${location.host}/Kidoju.Widgets/test/data/images/miscellaneous/`
+    data: `${location.protocol}//${location.host}/Kidoju.Widgets/test/data/images/miscellaneous/`,
 };
 
 // Assets
@@ -404,7 +402,7 @@ window.app.assets = {
         collections: [],
         extensions: ['.mp3', '.ogg'],
         schemes,
-        transport: {}
+        transport: {},
     }),
     image: new ToolAssets({
         collections: [
@@ -412,8 +410,8 @@ window.app.assets = {
                 name: 'G-Collection',
                 transport: {
                     read:
-                        'http://localhost:63342/Kidoju.Widgets/test/data/images/g_collection/svg/all/index.json'
-                }
+                        'http://localhost:63342/Kidoju.Widgets/test/data/images/g_collection/svg/all/index.json',
+                },
             },
             {
                 name: 'O-Collection',
@@ -422,24 +420,24 @@ window.app.assets = {
                         name: 'Dark Grey',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json'
-                        }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/dark_grey/index.json',
+                        },
                     },
                     {
                         name: 'Office',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json'
-                        }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/office/index.json',
+                        },
                     },
                     {
                         name: 'White',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json'
-                        }
-                    }
-                ]
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/o_collection/svg/white/index.json',
+                        },
+                    },
+                ],
             },
             {
                 name: 'V-Collection',
@@ -448,31 +446,31 @@ window.app.assets = {
                         name: 'Small',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/32x32/index.json'
-                        }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/32x32/index.json',
+                        },
                     },
                     {
                         name: 'Medium',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/64x64/index.json'
-                        }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/64x64/index.json',
+                        },
                     },
                     {
                         name: 'Large',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/128x128/index.json'
-                        }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/128x128/index.json',
+                        },
                     },
                     {
                         name: 'Huge',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/256x256/index.json'
-                        }
-                    }
-                ]
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/v_collection/png/256x256/index.json',
+                        },
+                    },
+                ],
             },
             {
                 name: 'X-Collection',
@@ -481,29 +479,29 @@ window.app.assets = {
                         name: 'Small',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/32x32/index.json'
-                        }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/32x32/index.json',
+                        },
                     },
                     {
                         name: 'Large',
                         transport: {
                             read:
-                                'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/128x128/index.json'
-                        }
-                    }
-                ]
-            }
+                                'http://localhost:63342/Kidoju.Widgets/test/data/images/x_collection/png/128x128/index.json',
+                        },
+                    },
+                ],
+            },
         ],
         extensions: ['.gif', '.jpg', '.png', '.svg'],
         schemes,
-        transport: {}
+        transport: {},
     }),
     video: new ToolAssets({
         collections: [],
         extensions: ['.mp4', '.ogv', '.wbem'],
         schemes,
-        transport: {}
-    })
+        transport: {},
+    }),
 };
 
 // Default export

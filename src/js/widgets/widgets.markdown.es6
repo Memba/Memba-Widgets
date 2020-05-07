@@ -21,7 +21,7 @@ import twemoji from '../vendor/markdown-it/twemoji.amd';
 
 const {
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 
 const logger = new Logger('widgets.markdown');
@@ -104,7 +104,7 @@ const Markdown = Widget.extend({
         name: 'Markdown',
         url: null,
         value: null,
-        schemes: {}
+        schemes: {},
     },
 
     /**
@@ -148,7 +148,7 @@ const Markdown = Widget.extend({
                 } catch (err) {
                     return hljs.highlightAuto(code).value;
                 }
-            }
+            },
         });
 
         // Initialize renderers
@@ -224,7 +224,7 @@ const Markdown = Widget.extend({
                 // @see https://cordova.apache.org/docs/en/3.1.0/cordova/inappbrowser/window.open.html
                 tokens[idx].attrPush([
                     'target',
-                    window.cordova ? '_system' : '_blank'
+                    window.cordova ? '_system' : '_blank',
                 ]); // add new attribute
             } else {
                 // eslint-disable-next-line no-param-reassign
@@ -255,7 +255,7 @@ const Markdown = Widget.extend({
         const { schemes } = this.options;
         let ret = uri;
         if ($.type(uri) === CONSTANTS.STRING) {
-            Object.keys(schemes).some(scheme => {
+            Object.keys(schemes).some((scheme) => {
                 let done = false;
                 if (uri.indexOf(`${scheme}://`) === 0) {
                     const root = schemes[scheme];
@@ -368,7 +368,7 @@ const Markdown = Widget.extend({
             // TODO
         } else if ($.type(url) === CONSTANTS.STRING) {
             $.get(url)
-                .then(data => {
+                .then((data) => {
                     this.value(data);
                 })
                 .catch(() => {
@@ -425,7 +425,7 @@ const Markdown = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

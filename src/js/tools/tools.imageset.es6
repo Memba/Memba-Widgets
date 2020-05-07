@@ -27,7 +27,7 @@ import { genericLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
@@ -61,52 +61,52 @@ const ImageSetTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         // shuffle: new BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
         style: new StyleAdapter({
             title: __('tools.imageset.attributes.style.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         data: new ImageListAdapter({
             title: __('tools.imageset.attributes.data.title'),
-            defaultValue: __('tools.imageset.attributes.data.defaultValue')
-        })
+            defaultValue: __('tools.imageset.attributes.data.defaultValue'),
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.imageset.properties.name.title')
+            title: __('tools.imageset.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.imageset.properties.question.help'),
             title: __('tools.imageset.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new QuizAdapter({
             help: __('tools.imageset.properties.solution.help'),
-            title: __('tools.imageset.properties.solution.title')
+            title: __('tools.imageset.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: __('tools.imageset.properties.validation.title')
+            title: __('tools.imageset.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.imageset.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.imageset.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.imageset.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -128,8 +128,8 @@ const ImageSetTool = BaseTool.extend({
             audio: [],
             image: component
                 .get('attributes.data')
-                .map(item => assets.image.scheme2http(item.url)),
-            video: []
+                .map((item) => assets.image.scheme2http(item.url)),
+            video: [],
         };
     },
 
@@ -153,14 +153,14 @@ const ImageSetTool = BaseTool.extend({
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         $.extend(component, {
             data$() {
-                const data = component.get('attributes.data').map(item => {
+                const data = component.get('attributes.data').map((item) => {
                     return {
                         text: item.text,
-                        url: assets.image.scheme2http(item.url)
+                        url: assets.image.scheme2http(item.url),
                     };
                 });
                 return JSON.stringify(data);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -186,7 +186,7 @@ const ImageSetTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -201,12 +201,12 @@ const ImageSetTool = BaseTool.extend({
                     __('tools.messages.invalidData'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO: Check that solution matches one of the data
         return ret;
-    }
+    },
 });
 
 /**

@@ -24,10 +24,10 @@ import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 import {
     getComponentArray,
     getPage,
-    getPageArray
+    getPageArray,
 } from '../../../src/js/helpers/helpers.components.es6';
 import {
-    getErrorTransport
+    getErrorTransport,
     // getSpyingTransport
 } from '../_misc/test.transports.es6';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
@@ -35,14 +35,14 @@ import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, Model }
+    data: { DataSource, Model },
 } = window.kendo;
 chai.use(sinonChai);
 
 describe('data.page', () => {
     describe('Page', () => {
         describe('Initialization', () => {
-            it('It should initialize without options', done => {
+            it('It should initialize without options', (done) => {
                 // Unfortunately, this is a Kendo UI requirement
                 const page = new Page();
                 const { components } = page;
@@ -64,7 +64,7 @@ describe('data.page', () => {
 
             it('It should throw when initializing with invalid components', () => {
                 const options = {
-                    components: [JSC.object()()]
+                    components: [JSC.object()()],
                 };
                 const page = new Page(options);
                 const { components } = page;
@@ -80,7 +80,7 @@ describe('data.page', () => {
                 // expect(page.load).not.to.throw();
             });
 
-            it('It should initialize from a dummy object', done => {
+            it('It should initialize from a dummy object', (done) => {
                 const options = JSC.object()();
                 const prop = Object.keys(options)[0];
                 const page = new Page(options);
@@ -102,12 +102,12 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            it('if should initialize with bare components', done => {
+            it('if should initialize with bare components', (done) => {
                 const data = getComponentArray();
                 const options = {
-                    components: data.map(item => ({
-                        tool: item.tool
-                    }))
+                    components: data.map((item) => ({
+                        tool: item.tool,
+                    })),
                 };
                 const page = new Page(options);
                 const { components } = page;
@@ -128,7 +128,7 @@ describe('data.page', () => {
                                     ...component.defaults,
                                     attributes: component.attributes.defaults,
                                     properties: component.properties.defaults,
-                                    ...options.components[index]
+                                    ...options.components[index],
                                 });
                             });
                         })
@@ -136,7 +136,7 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            it('if should initialize with all data', done => {
+            it('if should initialize with all data', (done) => {
                 const options = getPage();
                 const page = new Page(options);
                 const { components } = page;
@@ -192,7 +192,7 @@ describe('data.page', () => {
         */
 
         describe('assets', () => {
-            it('It should list assets', done => {
+            it('It should list assets', (done) => {
                 const options = getPage();
                 const page = new Page(options);
                 page.components
@@ -235,7 +235,7 @@ describe('data.page', () => {
         });
 
         xdescribe('clone', () => {
-            it('It should clone any page', done => {
+            it('It should clone any page', (done) => {
                 const options = getPage();
                 const page = new Page(options);
                 const { components } = page;
@@ -292,16 +292,16 @@ describe('data.page', () => {
         });
 
         describe('Events', () => {
-            xit('It should propagate CHANGE events when updating components', done => {
+            xit('It should propagate CHANGE events when updating components', (done) => {
                 const options = getPage();
                 const page = new Page(options);
                 const { components } = page;
                 const pageChange = sinon.spy();
                 const componentsChange = sinon.spy();
-                page.bind(CONSTANTS.CHANGE, e => {
+                page.bind(CONSTANTS.CHANGE, (e) => {
                     pageChange(e);
                 });
-                components.bind(CONSTANTS.CHANGE, e => {
+                components.bind(CONSTANTS.CHANGE, (e) => {
                     componentsChange(e);
                 });
                 components
@@ -309,7 +309,7 @@ describe('data.page', () => {
                     .then(
                         tryCatch(done)(() => {
                             let hasLabel = false;
-                            components.data().forEach(component => {
+                            components.data().forEach((component) => {
                                 if (component.get('tool') === 'label') {
                                     component.attributes.set(
                                         'text',
@@ -335,17 +335,17 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            xit('It should propagate CHANGE events when adding/inserting components', done => {
+            xit('It should propagate CHANGE events when adding/inserting components', (done) => {
                 const options = getPage();
                 const page = new Page(options);
                 const { components } = page;
                 const pageChange = sinon.spy();
                 const componentsChange = sinon.spy();
-                page.bind(CONSTANTS.CHANGE, e => {
+                page.bind(CONSTANTS.CHANGE, (e) => {
                     // debugger;
                     pageChange(e);
                 });
-                components.bind(CONSTANTS.CHANGE, e => {
+                components.bind(CONSTANTS.CHANGE, (e) => {
                     // debugger;
                     componentsChange(e);
                 });
@@ -368,20 +368,20 @@ describe('data.page', () => {
                 const PageWithModel = Page.define({
                     model: {
                         components: {
-                            transport: getErrorTransport()
-                        }
-                    }
+                            transport: getErrorTransport(),
+                        },
+                    },
                 });
                 const options = getPage();
                 const page = new PageWithModel(options);
                 const { components } = page;
                 const pageError = sinon.spy();
                 const componentsError = sinon.spy();
-                page.bind(CONSTANTS.ERROR, e => {
+                page.bind(CONSTANTS.ERROR, (e) => {
                     // debugger;
                     pageError(e);
                 });
-                components.bind(CONSTANTS.ERROR, e => {
+                components.bind(CONSTANTS.ERROR, (e) => {
                     // debugger;
                     componentsError(e);
                 });
@@ -418,10 +418,10 @@ describe('data.page', () => {
                 expect(dataSource).to.be.an.instanceof(DataSource);
             });
 
-            it('if initialized from an empty array, the count of pages should match', done => {
+            it('if initialized from an empty array, the count of pages should match', (done) => {
                 const dataSource1 = new PageDataSource();
                 const dataSource2 = new PageDataSource({
-                    data: []
+                    data: [],
                 });
                 expect(dataSource1)
                     .to.have.nested.property('options.schema.model')
@@ -447,15 +447,15 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            xit('if initialized from a stupid array, ...', done => {
+            xit('if initialized from a stupid array, ...', (done) => {
                 const books = [
                     { title: 'Gone with the wind' },
                     { title: 'OK Coral' },
                     { title: 'The third man' },
-                    { title: 'The guns of Navarone' }
+                    { title: 'The guns of Navarone' },
                 ];
                 const dataSource = new PageDataSource({
-                    data: books
+                    data: books,
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -480,36 +480,36 @@ describe('data.page', () => {
                     idField: 'id',
                     fields: {
                         id: {
-                            type: 'string'
+                            type: 'string',
                         },
                         title: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
 
                 const books = [
                     { id: ObjectId(), title: 'Gone with the wind' },
                     { id: ObjectId(), title: 'OK Coral' },
                     { id: ObjectId(), title: 'The third man' },
-                    { id: ObjectId(), title: 'The guns of Navarone' }
+                    { id: ObjectId(), title: 'The guns of Navarone' },
                 ];
                 function testFn() {
                     const dataSource = new PageDataSource({
                         data: books,
                         schema: {
-                            model: Book
-                        }
+                            model: Book,
+                        },
                     });
                     dataSource.read();
                 }
                 expect(testFn).to.throw(Error);
             });
 
-            it('if initialized from a proper array, the count of pages should match and dirty === false', done => {
+            it('if initialized from a proper array, the count of pages should match and dirty === false', (done) => {
                 const data = getPageArray();
                 const dataSource = new PageDataSource({
-                    data
+                    data,
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -531,7 +531,7 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            xit('if initialized from a proper array, there should be page components', done => {
+            xit('if initialized from a proper array, there should be page components', (done) => {
                 function test(page) {
                     const dfd = $.Deferred();
                     expect(page).to.be.an.instanceof(Page);
@@ -548,7 +548,7 @@ describe('data.page', () => {
                 }
                 const data = getPageArray();
                 const dataSource = new PageDataSource({
-                    data
+                    data,
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -575,7 +575,7 @@ describe('data.page', () => {
                 expect(fn).to.throw(Error);
             });
 
-            it('if initialized from a PageDataSource, the number of pages should match', done => {
+            it('if initialized from a PageDataSource, the number of pages should match', (done) => {
                 const data = getPageArray();
                 const dataSource1 = PageDataSource.create(data);
                 const dataSource2 = PageDataSource.create(dataSource1);
@@ -603,15 +603,15 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            it('if initialized from a transport, the number of pages should match', done => {
+            it('if initialized from a transport, the number of pages should match', (done) => {
                 const data = getPageArray();
                 const dataSource1 = PageDataSource.create(data);
                 const dataSource2 = new PageDataSource({
                     transport: {
                         read(options) {
                             options.success(data);
-                        }
-                    }
+                        },
+                    },
                 });
                 expect(dataSource1)
                     .to.have.nested.property('options.schema.model')
@@ -637,14 +637,14 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            xit('if initialized from $.ajax, the number of pages and components should match', done => {
+            xit('if initialized from $.ajax, the number of pages and components should match', (done) => {
                 const dataSource = new PageDataSource({
                     transport: {
                         read: {
                             url: baseUrl('/test/data/pageCollection.json'),
-                            dataType: 'json'
-                        }
-                    }
+                            dataType: 'json',
+                        },
+                    },
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -689,10 +689,10 @@ describe('data.page', () => {
         describe('Adding and inserting', () => {
             it('It should handle duplicate ids', () => {});
 
-            it('If dataSource initialized from in-memory array, there should be one page component more', done => {
+            it('If dataSource initialized from in-memory array, there should be one page component more', (done) => {
                 const data = getPageArray();
                 const dataSource = new PageDataSource({
-                    data
+                    data,
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -717,7 +717,7 @@ describe('data.page', () => {
                     .catch(done);
             });
 
-            it('If dataSource initialized from transport, it should only call create', done => {
+            it('If dataSource initialized from transport, it should only call create', (done) => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
@@ -738,8 +738,8 @@ describe('data.page', () => {
                         destroy(options) {
                             destroy(options);
                             options.success(options.data);
-                        }
-                    }
+                        },
+                    },
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -767,10 +767,10 @@ describe('data.page', () => {
         });
 
         describe('Updating', () => {
-            it('If dataSource initialized from in-memory array, there should be one updated page', done => {
+            it('If dataSource initialized from in-memory array, there should be one updated page', (done) => {
                 const data = getPageArray();
                 const dataSource = new PageDataSource({
-                    data
+                    data,
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -787,7 +787,7 @@ describe('data.page', () => {
                 });
             });
 
-            it('If dataSource initialized from transport, it should only call update', done => {
+            it('If dataSource initialized from transport, it should only call update', (done) => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
@@ -808,8 +808,8 @@ describe('data.page', () => {
                         destroy(options) {
                             destroy(options);
                             options.success(options.data);
-                        }
-                    }
+                        },
+                    },
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -833,10 +833,10 @@ describe('data.page', () => {
         });
 
         describe('Removing', () => {
-            it('If dataSource initialized from in-memory array, there should be one page less', done => {
+            it('If dataSource initialized from in-memory array, there should be one page less', (done) => {
                 const data = getPageArray();
                 const dataSource = new PageDataSource({
-                    data
+                    data,
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -853,7 +853,7 @@ describe('data.page', () => {
                 });
             });
 
-            it('If dataSource initialized from transport, it should only call destroy', done => {
+            it('If dataSource initialized from transport, it should only call destroy', (done) => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
@@ -874,8 +874,8 @@ describe('data.page', () => {
                         destroy(options) {
                             destroy(options);
                             options.success(options.data);
-                        }
-                    }
+                        },
+                    },
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')

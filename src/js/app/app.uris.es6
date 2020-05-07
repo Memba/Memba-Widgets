@@ -17,7 +17,7 @@ const { format } = window.kendo;
  * @param icon
  * @returns {string}
  */
-const iconUri = icon =>
+const iconUri = (icon) =>
     format(
         window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
         icon

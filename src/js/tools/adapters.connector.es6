@@ -45,7 +45,7 @@ const ConnectorAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             input.kendoComboBox({
@@ -81,7 +81,7 @@ const ConnectorAdapter = BaseAdapter.extend({
                         settings.model.parent().selectedPage instanceof Page
                     ) {
                         const {
-                            components
+                            components,
                         } = settings.model.parent().selectedPage;
                         $.each(components.data(), (index, component) => {
                             if (
@@ -101,10 +101,10 @@ const ConnectorAdapter = BaseAdapter.extend({
                         solutions.sort();
                     }
                     e.sender.setDataSource(solutions);
-                }
+                },
             });
         };
-    }
+    },
 });
 
 /**

@@ -34,12 +34,12 @@ workerPool
     .then(() => {
         loader.resolve(workerPool);
     })
-    .catch(error => {
+    .catch((error) => {
         loader.reject(error);
         logger.error({
             module: 'loader',
             message: 'Cannot load code library for worker pool',
-            error
+            error,
         });
         notification.error('Cannot load code library for worker pool'); // TODO i18n message
     });
@@ -51,7 +51,7 @@ workerPool
  */
 export default function poolExec(...args) {
     const dfd = $.Deferred();
-    loader.then(pool => {
+    loader.then((pool) => {
         // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
         // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.
         // eslint-disable-next-line prettier/prettier
@@ -60,9 +60,7 @@ export default function poolExec(...args) {
         // considering script uses JSON.parse(e.data)
         const data = JSON.stringify(args[1]);
         const name = args[2];
-        pool.exec(code, data, name)
-            .then(dfd.resolve)
-            .catch(dfd.reject);
+        pool.exec(code, data, name).then(dfd.resolve).catch(dfd.reject);
     });
     return dfd.promise();
 }

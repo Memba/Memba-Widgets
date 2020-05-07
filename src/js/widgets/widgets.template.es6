@@ -14,7 +14,7 @@ const {
     data: { DataSource },
     destroy,
     template,
-    ui: { plugin, DataBoundWidget }
+    ui: { plugin, DataBoundWidget },
 } = window.kendo;
 const logger = new Logger('widgets.template');
 const WIDGET_CLASS = 'kj-template'; // 'k-widget kj-template';
@@ -76,7 +76,7 @@ const Template = DataBoundWidget.extend({
         name: 'Template',
         template: '',
         value: {},
-        valueField: null
+        valueField: null,
     },
 
     /**
@@ -89,7 +89,7 @@ const Template = DataBoundWidget.extend({
         CONSTANTS.DATABINDING,
         // call after mutating DOM
         // traverses DOM and binds ALL THE THINGS
-        CONSTANTS.DATABOUND
+        CONSTANTS.DATABOUND,
     ],
 
     /**
@@ -235,7 +235,7 @@ const Template = DataBoundWidget.extend({
                     // and hierarchical dataSources
                     const data = find(
                         this.dataSource,
-                        item => item[options.valueField] === value
+                        (item) => item[options.valueField] === value
                     );
                     if ($.type(data) !== CONSTANTS.UNDEFINED) {
                         element.html(this.template(data));
@@ -259,7 +259,7 @@ const Template = DataBoundWidget.extend({
         DataBoundWidget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'Widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

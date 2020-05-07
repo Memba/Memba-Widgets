@@ -41,13 +41,13 @@ const TOOLS = {
     STAGE_MODES: {
         DESIGN: 'design',
         PLAY: 'play',
-        REVIEW: 'review'
+        REVIEW: 'review',
     },
 
     VALIDATION_CUSTOM: 'function validate(value, solution, all) {\n\t{0}\n}',
     VALIDATION_LIBRARY_SOLUTION:
         'function validate(value, solution) {\n\t{0}\n}',
-    VALIDATION_LIBRARY_PARAMS: 'function validate(value, params) {\n\t{0}\n}'
+    VALIDATION_LIBRARY_PARAMS: 'function validate(value, params) {\n\t{0}\n}',
 };
 
 /**

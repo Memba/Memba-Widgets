@@ -38,7 +38,7 @@ const HighLighterAdapter = BaseAdapter.extend({
                 .css({
                     width: '100%',
                     fontSize: '1em',
-                    minHeight: '4.6em'
+                    minHeight: '4.6em',
                 })
                 .attr({
                     name: settings.field,
@@ -47,15 +47,15 @@ const HighLighterAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             highLighter.kendoHighLighter({
                 text: settings.model.get('attributes.text'),
-                split: settings.model.get('attributes.split')
+                split: settings.model.get('attributes.split'),
             });
         };
-    }
+    },
 });
 
 /**

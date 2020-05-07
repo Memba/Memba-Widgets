@@ -19,7 +19,7 @@ import {
     getImageData,
     jpegEncode,
     pngEncode,
-    preload
+    preload,
 } from '../../../src/js/common/window.image.es6';
 import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 import { tryCatch } from '../_misc/test.util.es6';
@@ -38,7 +38,7 @@ const PNG_URL = baseUrl('/test/data/images/miscellaneous/rainbow.png');
 const SVG_URL = baseUrl('/test/data/images/miscellaneous/logo.svg');
 const UNRESOLVED_URL = [
     baseUrl('/test/data/z.bin'), // 404
-    'https://xxx.yz.com/favicon.jpg' // unresolved dns
+    'https://xxx.yz.com/favicon.jpg', // unresolved dns
 ];
 
 // --------------
@@ -58,7 +58,7 @@ const INVALID_DATAURIS = [
     JSC.string()(),
     'data:,Hello%2C%20World!',
     'data:text/html,%3Ch1%3EHello%2C%20World!%3C%2Fh1%3E',
-    'data:text/html,<script>alert("hi");</script>'
+    'data:text/html,<script>alert("hi");</script>',
 ];
 
 describe('window.image', () => {
@@ -90,12 +90,12 @@ describe('window.image', () => {
     });
 
     describe('getDataUriAndSize', () => {
-        it('it should get size from valid data uris', done => {
+        it('it should get size from valid data uris', (done) => {
             function test(dataUri) {
                 const dfd = $.Deferred();
                 getDataUriAndSize(dataUri)
                     .then(
-                        tryCatch(dfd)(resp => {
+                        tryCatch(dfd)((resp) => {
                             // Note dataUri is always converted to PNG
                             expect(resp)
                                 .to.have.property('dataUri')
@@ -119,12 +119,12 @@ describe('window.image', () => {
                 .catch(done);
         });
 
-        it('it should get size from valid urls', done => {
+        it('it should get size from valid urls', (done) => {
             function test(dataUri) {
                 const dfd = $.Deferred();
                 getDataUriAndSize(dataUri)
                     .then(
-                        tryCatch(dfd)(resp => {
+                        tryCatch(dfd)((resp) => {
                             // Note dataUri is always converted to PNG
                             expect(resp)
                                 .to.have.property('dataUri')
@@ -150,12 +150,12 @@ describe('window.image', () => {
     });
 
     describe('getImageData', () => {
-        it('it should get image data for valid urls', done => {
+        it('it should get image data for valid urls', (done) => {
             function test(url) {
                 const dfd = $.Deferred();
                 getImageData(url)
                     .then(
-                        tryCatch(dfd)(imgData => {
+                        tryCatch(dfd)((imgData) => {
                             expect(imgData).to.be.an.instanceof(
                                 window.ImageData
                             );
@@ -178,7 +178,7 @@ describe('window.image', () => {
                 .catch(done);
         });
 
-        it('it should reject invalid urls', done => {
+        it('it should reject invalid urls', (done) => {
             function test(url) {
                 const dfd = $.Deferred();
                 getImageData(url)
@@ -186,7 +186,7 @@ describe('window.image', () => {
                         dfd.reject(new Error(`\`${url}\` should be invalid`));
                     })
                     .catch(
-                        tryCatch(dfd)(err => {
+                        tryCatch(dfd)((err) => {
                             expect(err).to.be.an.instanceof(Error);
                             expect(err.event)
                                 .be.an.instanceof($.Event)
@@ -225,7 +225,7 @@ describe('window.image', () => {
             img.attr({
                 src: jpeg,
                 height: c.height,
-                width: c.width
+                width: c.width,
             });
             fixtures.append(img);
         });
@@ -248,19 +248,19 @@ describe('window.image', () => {
             img.attr({
                 src: png,
                 height: c.height,
-                width: c.width
+                width: c.width,
             });
             fixtures.append(img);
         });
     });
 
     describe('preload', () => {
-        it('It should preload an existing image url', done => {
+        it('It should preload an existing image url', (done) => {
             function test(url) {
                 const dfd = $.Deferred();
                 preload(url)
                     .then(
-                        tryCatch(dfd)(e => {
+                        tryCatch(dfd)((e) => {
                             expect(e)
                                 .to.be.an.instanceof($.Event)
                                 .with.property('type', 'load');
@@ -277,7 +277,7 @@ describe('window.image', () => {
                 .catch(done);
         });
 
-        it('It should gracefully fail on unresolved image url', done => {
+        it('It should gracefully fail on unresolved image url', (done) => {
             function test(url) {
                 const dfd = $.Deferred();
                 preload(url)
@@ -285,7 +285,7 @@ describe('window.image', () => {
                         dfd.reject(new Error(`\`${url}\` should be invalid`));
                     })
                     .catch(
-                        tryCatch(dfd)(err => {
+                        tryCatch(dfd)((err) => {
                             expect(err).to.be.an.instanceof(Error);
                             expect(err.event)
                                 .be.an.instanceof($.Event)
@@ -309,23 +309,21 @@ describe('window.image', () => {
 
         before(() => {
             container = $(`<${CONSTANTS.DIV}/>`).appendTo(CONSTANTS.BODY);
-            $(`<${CONSTANTS.H1}/>`)
-                .text('Visuals')
-                .appendTo(container);
+            $(`<${CONSTANTS.H1}/>`).text('Visuals').appendTo(container);
         });
 
-        it('We expect to resize and encode an image as JPEG', done => {
+        it('We expect to resize and encode an image as JPEG', (done) => {
             $(`<${CONSTANTS.IMG}>`)
                 .attr('crossOrigin', 'Anonymous')
-                .on('load', e => {
+                .on('load', (e) => {
                     getImageData(e.target.src, { height: 100, width: 100 })
-                        .then(imgData => {
+                        .then((imgData) => {
                             const jpeg = jpegEncode(imgData, 50);
                             $(`<${CONSTANTS.IMG}>`)
                                 .attr({
                                     src: jpeg,
                                     height: imgData.height,
-                                    width: imgData.width
+                                    width: imgData.width,
                                 })
                                 .appendTo(container);
                             done();
@@ -337,18 +335,18 @@ describe('window.image', () => {
                 .appendTo(container);
         });
 
-        it('We expect to resize and encode an image as PNG', done => {
+        it('We expect to resize and encode an image as PNG', (done) => {
             $(`<${CONSTANTS.IMG}>`)
                 .attr('crossOrigin', 'Anonymous')
-                .on('load', e => {
+                .on('load', (e) => {
                     getImageData(e.target.src, { height: 100, width: 100 })
-                        .then(imgData => {
+                        .then((imgData) => {
                             const jpeg = pngEncode(imgData /* , options */);
                             $(`<${CONSTANTS.IMG}>`)
                                 .attr({
                                     src: jpeg,
                                     height: imgData.height,
-                                    width: imgData.width
+                                    width: imgData.width,
                                 })
                                 .appendTo(container);
                             done();

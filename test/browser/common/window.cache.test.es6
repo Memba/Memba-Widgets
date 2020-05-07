@@ -9,7 +9,7 @@ import chai from 'chai';
 import JSC from 'jscheck';
 import {
     localCache,
-    sessionCache
+    sessionCache,
 } from '../../../src/js/common/window.cache.es6';
 import support from '../../../src/js/common/window.support.es6';
 import { dateReviver } from '../../../src/js/common/window.util.es6';
@@ -22,7 +22,7 @@ const { expect } = chai;
 const INVALID = [
     { key: JSC.number(1000)(), value: JSC.string()() },
     { key: JSC.boolean()(), value: JSC.string()() },
-    { key: JSC.object()(), value: JSC.string()() }
+    { key: JSC.object()(), value: JSC.string()() },
 ];
 
 const DATA = JSC.array(
@@ -45,7 +45,7 @@ const DATA = JSC.array(
             Math.PI,
             Math.E,
             Number.EPSILON,
-            new Date()
+            new Date(),
         ])
     )
 )();
@@ -84,9 +84,7 @@ describe('window.cache', () => {
                 expect(item).to.have.property('sig');
                 expect(item).to.have.property('ts');
                 expect(item).to.have.property('ttl');
-                expect(item)
-                    .to.have.property('value')
-                    .that.eql(DATA[index]);
+                expect(item).to.have.property('value').that.eql(DATA[index]);
             }
             DATA.forEach(test);
         });
@@ -116,16 +114,10 @@ describe('window.cache', () => {
             // expect(items).to.have.eql(DATA);
             // expect(items).to.have.members(DATA);
             expect(items.length).to.equal(DATA.length);
-            items.forEach(item => {
-                const keys = Object.keys(item)
-                    .sort()
-                    .toString();
-                const found = DATA.find(data => {
-                    return (
-                        Object.keys(data)
-                            .sort()
-                            .toString() === keys
-                    );
+            items.forEach((item) => {
+                const keys = Object.keys(item).sort().toString();
+                const found = DATA.find((data) => {
+                    return Object.keys(data).sort().toString() === keys;
                 });
                 expect(item).to.eql(found);
             });
@@ -171,7 +163,7 @@ describe('window.cache', () => {
                     JSON.stringify({
                         ttl: lag,
                         ts: Date.now() - 1000 * lag - 1,
-                        value: DATA[0]
+                        value: DATA[0],
                     })
                 )
             );
@@ -186,7 +178,7 @@ describe('window.cache', () => {
                 sig: md5(JSC.string()()),
                 ttl: 24 * 60 * 60,
                 ts: Date.now(),
-                value: DATA[0]
+                value: DATA[0],
             };
             storage.setItem(
                 key,
@@ -226,9 +218,7 @@ describe('window.cache', () => {
                 expect(item).to.have.property('sig');
                 expect(item).to.have.property('ts');
                 expect(item).to.have.property('ttl');
-                expect(item)
-                    .to.have.property('value')
-                    .that.eql(DATA[index]);
+                expect(item).to.have.property('value').that.eql(DATA[index]);
             }
             DATA.forEach(test);
         });
@@ -258,16 +248,10 @@ describe('window.cache', () => {
             // expect(items).to.have.eql(DATA);
             // expect(items).to.have.members(DATA);
             expect(items.length).to.equal(DATA.length);
-            items.forEach(item => {
-                const keys = Object.keys(item)
-                    .sort()
-                    .toString();
-                const found = DATA.find(data => {
-                    return (
-                        Object.keys(data)
-                            .sort()
-                            .toString() === keys
-                    );
+            items.forEach((item) => {
+                const keys = Object.keys(item).sort().toString();
+                const found = DATA.find((data) => {
+                    return Object.keys(data).sort().toString() === keys;
                 });
                 expect(item).to.eql(found);
             });
@@ -313,7 +297,7 @@ describe('window.cache', () => {
                     JSON.stringify({
                         ttl: lag,
                         ts: Date.now() - 1000 * lag - 1,
-                        value: DATA[0]
+                        value: DATA[0],
                     })
                 )
             );
@@ -328,7 +312,7 @@ describe('window.cache', () => {
                 sig: md5(JSC.string()()),
                 ttl: 24 * 60 * 60,
                 ts: Date.now(),
-                value: DATA[0]
+                value: DATA[0],
             };
             storage.setItem(
                 key,

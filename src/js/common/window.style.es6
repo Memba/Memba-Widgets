@@ -41,7 +41,7 @@ export default class Style {
     static parse(styles, whitelist = false) {
         const map = new Map();
         if ($.type(styles) === CONSTANTS.STRING) {
-            styles.split(CONSTANTS.SEMICOLON).forEach(style => {
+            styles.split(CONSTANTS.SEMICOLON).forEach((style) => {
                 const keyValue = style.split(CONSTANTS.COLON);
                 if (Array.isArray(keyValue) && keyValue.length === 2) {
                     const key = keyValue[0].trim();
@@ -60,7 +60,7 @@ export default class Style {
                 }
             });
         } else if ($.isPlainObject(styles)) {
-            Object.keys(styles).forEach(k => {
+            Object.keys(styles).forEach((k) => {
                 const key = toHyphens(k);
                 let value = styles[k];
                 if (

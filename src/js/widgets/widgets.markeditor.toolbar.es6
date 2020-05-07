@@ -51,8 +51,8 @@ const {
         plugin,
         StaticList,
         ToolBar,
-        Window
-    }
+        Window,
+    },
 } = window.kendo;
 const logger = new Logger('widgets.markeditor.toolbar');
 const NO_PADDING_CLASS = 'kj-no-padding';
@@ -72,7 +72,7 @@ const TOOLBAR = [
     'latex',
     // 'symbols',
     // 'emoji',
-    'preview'
+    'preview',
 ];
 
 /** *******************************************************************************
@@ -84,50 +84,50 @@ const toolDefaults = {
     undo: {
         type: 'button',
         command: 'ToolbarUndoCommand',
-        iconClass: 'undo'
+        iconClass: 'undo',
     },
     redo: {
         type: 'button',
         command: 'ToolbarRedoCommand',
-        iconClass: 'redo'
+        iconClass: 'redo',
     },
     headings: {
         type: 'markHeadings',
-        iconClass: 'font-size'
+        iconClass: 'font-size',
     },
     bold: {
         type: 'button',
         command: 'ToolbarBoldCommand',
-        iconClass: 'bold'
+        iconClass: 'bold',
     },
     italic: {
         type: 'button',
         command: 'ToolbarItalicCommand',
-        iconClass: 'italic'
+        iconClass: 'italic',
     },
     bulleted: {
         type: 'button',
         command: 'ToolbarBulletedCommand',
-        iconClass: 'list-bulleted'
+        iconClass: 'list-bulleted',
         // group: 'list',
         // togglable: true
     },
     numbered: {
         type: 'button',
         command: 'ToolbarNumberedCommand',
-        iconClass: 'list-numbered'
+        iconClass: 'list-numbered',
         // group: 'list',
         // togglable: true
     },
     blockquote: {
         type: 'button',
         command: 'ToolbarBlockquoteCommand',
-        iconClass: 'insert-middle'
+        iconClass: 'insert-middle',
     },
     hrule: {
         type: 'button',
         command: 'ToolbarHruleCommand',
-        iconClass: 'rule-horizontal'
+        iconClass: 'rule-horizontal',
     },
     link: {
         type: 'markDialog',
@@ -137,7 +137,7 @@ const toolDefaults = {
         // because toolbar.registerComponent('markDialog', toolbar.ToolBarButton.extend({...}));
         // does not register an overflow button - see spreadsheet toolbar
         overflow: 'never',
-        text: false
+        text: false,
     },
     image: {
         type: 'markDialog',
@@ -145,12 +145,12 @@ const toolDefaults = {
         iconClass: 'image-insert',
         // See comment above
         overflow: 'never',
-        text: false
+        text: false,
     },
     code: {
         type: 'button',
         command: 'ToolbarCodeCommand',
-        iconClass: 'js'
+        iconClass: 'js',
     },
     latex: {
         type: 'markDialog',
@@ -158,7 +158,7 @@ const toolDefaults = {
         iconClass: 'formula-fx', // 'sum'
         // See comment above
         overflow: 'never',
-        text: false
+        text: false,
     },
     preview: {
         type: 'markDialog',
@@ -166,8 +166,8 @@ const toolDefaults = {
         iconClass: 'window-maximize',
         // See comment above
         overflow: 'never',
-        text: false
-    }
+        text: false,
+    },
 };
 const TOOLBAR_MESSAGES = {
     undo: 'Undo',
@@ -179,7 +179,7 @@ const TOOLBAR_MESSAGES = {
         h3: 'Heading 3',
         h4: 'Heading 4',
         h5: 'Heading 5',
-        h6: 'Heading 6'
+        h6: 'Heading 6',
     },
     bold: 'Bold',
     italic: 'Italic',
@@ -191,7 +191,7 @@ const TOOLBAR_MESSAGES = {
     image: 'Image',
     code: 'Code',
     latex: 'Mathematic Expression',
-    preview: 'Preview in New Window'
+    preview: 'Preview in New Window',
 };
 markeditor.messages.toolbar = TOOLBAR_MESSAGES;
 
@@ -215,7 +215,7 @@ const MarkEditorToolBar = ToolBar.extend({
         this._addSeparators(this.element);
         this.bind({
             click: handleClick,
-            toggle: handleClick
+            toggle: handleClick,
         });
         logger.info({ method: 'init', message: 'widget initialized' });
     },
@@ -252,7 +252,7 @@ const MarkEditorToolBar = ToolBar.extend({
                             toolIcon: spriteCssClass,
                             spriteCssClass: spriteCssClass
                         } */
-                headings: { spriteCssClass }
+                headings: { spriteCssClass },
             };
             const tool = $.extend(
                 {
@@ -262,8 +262,9 @@ const MarkEditorToolBar = ToolBar.extend({
                     spriteCssClass,
                     attributes: {
                         title: TOOLBAR_MESSAGES[options.name || toolName],
-                        'aria-label': TOOLBAR_MESSAGES[options.name || toolName]
-                    }
+                        'aria-label':
+                            TOOLBAR_MESSAGES[options.name || toolName],
+                    },
                 },
                 typeDefaults[type],
                 options
@@ -277,11 +278,11 @@ const MarkEditorToolBar = ToolBar.extend({
             }
             return tool;
         }
-        return tools.reduce(function(all, tool) {
+        return tools.reduce(function (all, tool) {
             if (Array.isArray(tool)) {
                 all.push({
                     type: 'buttonGroup',
-                    buttons: tool.map(expandTool)
+                    buttons: tool.map(expandTool),
                 });
             } else {
                 all.push(expandTool.call(this, tool));
@@ -307,8 +308,8 @@ const MarkEditorToolBar = ToolBar.extend({
             params: {
                 property: tool.property || null,
                 value: tool.value || null,
-                options: tool.options || {}
-            }
+                options: tool.options || {},
+            },
         };
         if (typeof args.params.value === 'boolean') {
             args.params.value = e.checked ? true : null;
@@ -327,7 +328,7 @@ const MarkEditorToolBar = ToolBar.extend({
         'overflowOpen',
         'overflowClose',
         'action',
-        'dialog'
+        'dialog',
     ],
 
     /**
@@ -336,7 +337,7 @@ const MarkEditorToolBar = ToolBar.extend({
     options: {
         name: 'MarkEditorToolBar',
         resizable: true,
-        tools: TOOLBAR
+        tools: TOOLBAR,
     },
 
     /**
@@ -437,11 +438,11 @@ const MarkEditorToolBar = ToolBar.extend({
         return this.element
             .find(`[${attr('property')}]`)
             .toArray()
-            .map(element => {
+            .map((element) => {
                 const el = $(element);
                 return {
                     property: el.attr('data-property'),
-                    tool: this._getItem(el)
+                    tool: this._getItem(el),
                 };
             });
     },
@@ -458,7 +459,7 @@ const MarkEditorToolBar = ToolBar.extend({
         });
         ToolBar.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**
@@ -544,8 +545,9 @@ if (
 const PopupTool = toolbar.Item.extend({
     init(options, tb) {
         this.element = $(
-            `${'<a href="#" class="k-button k-button-icon">' +
-                '<span class="'}${options.spriteCssClass}">` +
+            `${
+                '<a href="#" class="k-button k-button-icon">' + '<span class="'
+            }${options.spriteCssClass}">` +
                 `</span><span class="k-icon k-i-arrow-60-down"></span>` +
                 `</a>`
         );
@@ -578,7 +580,7 @@ const PopupTool = toolbar.Item.extend({
             .appendTo(element)
             .kendoPopup({ anchor: element })
             .data('kendoPopup');
-    }
+    },
 });
 
 const OverflowDialogButton = toolbar.OverflowButton.extend({
@@ -589,7 +591,7 @@ const OverflowDialogButton = toolbar.OverflowButton.extend({
         const instance = this.element.data('button');
         this.element.data(this.options.type, instance);
     },
-    _click: $.noop
+    _click: $.noop,
 });
 
 /**
@@ -600,14 +602,14 @@ const HeadingsTool = PopupTool.extend({
         PopupTool.fn.init.call(this, options, tb);
         this.element.attr({ 'data-property': 'headings' });
         this._commandPalette();
-        this.popup.element.on('click', '.k-button', e => {
+        this.popup.element.on('click', '.k-button', (e) => {
             this._action($(e.currentTarget));
             this.popup.close();
         });
         this.element.data({
             type: 'markHeadings',
             markHeadings: this,
-            instance: this
+            instance: this,
         });
     },
     buttons: [
@@ -615,38 +617,38 @@ const HeadingsTool = PopupTool.extend({
             property: 'headings',
             value: '#',
             iconClass: 'h1',
-            text: TOOLBAR_MESSAGES.headingsButtons.h1
+            text: TOOLBAR_MESSAGES.headingsButtons.h1,
         },
         {
             property: 'headings',
             value: '##',
             iconClass: 'h2',
-            text: TOOLBAR_MESSAGES.headingsButtons.h2
+            text: TOOLBAR_MESSAGES.headingsButtons.h2,
         },
         {
             property: 'headings',
             value: '###',
             iconClass: 'h3',
-            text: TOOLBAR_MESSAGES.headingsButtons.h3
+            text: TOOLBAR_MESSAGES.headingsButtons.h3,
         },
         {
             property: 'headings',
             value: '####',
             iconClass: 'h4',
-            text: TOOLBAR_MESSAGES.headingsButtons.h4
+            text: TOOLBAR_MESSAGES.headingsButtons.h4,
         },
         {
             property: 'headings',
             value: '#####',
             iconClass: 'h5',
-            text: TOOLBAR_MESSAGES.headingsButtons.h5
+            text: TOOLBAR_MESSAGES.headingsButtons.h5,
         },
         {
             property: 'headings',
             value: '######',
             iconClass: 'h6',
-            text: TOOLBAR_MESSAGES.headingsButtons.h6
-        }
+            text: TOOLBAR_MESSAGES.headingsButtons.h6,
+        },
     ],
     destroy() {
         this.popup.element.off();
@@ -691,15 +693,15 @@ const HeadingsTool = PopupTool.extend({
             command: 'ToolbarHeadingsCommand',
             params: {
                 property,
-                value
-            }
+                value,
+            },
         });
-    }
+    },
 });
 const HeadingsButton = OverflowDialogButton.extend({
     _click() {
         this.toolbar.dialog({ name: 'markHeadings' });
-    }
+    },
 });
 toolbar.registerComponent('markHeadings', HeadingsTool, HeadingsButton);
 
@@ -720,31 +722,31 @@ const DIALOG_MESSAGES = {
             h3: 'Heading 3',
             h4: 'Heading 4',
             h5: 'Heading 5',
-            h6: 'Heading 6'
-        }
+            h6: 'Heading 6',
+        },
     },
     linkDialog: {
         title: 'Hyperlink',
         labels: {
-            text: 'Url'
-        }
+            text: 'Url',
+        },
     },
     imageDialog: {
         title: 'Image',
         labels: {
-            url: 'Url'
-        }
+            url: 'Url',
+        },
     },
     latexDialog: {
         title: 'Mathematic Expression',
         labels: {
             display: 'Display',
-            inline: 'inline'
-        }
+            inline: 'inline',
+        },
     },
     previewDialog: {
-        title: 'Preview'
-    }
+        title: 'Preview',
+    },
 };
 markeditor.messages.dialogs = DIALOG_MESSAGES;
 
@@ -767,7 +769,7 @@ markeditor.dialogs = {
             ret = new DialogClass(options);
         }
         return ret;
-    }
+    },
 };
 
 /**
@@ -785,7 +787,7 @@ toolbar.registerComponent(
         },
         open() {
             this.toolbar.dialog({ name: this._dialogName });
-        }
+        },
     })
 );
 
@@ -811,7 +813,7 @@ const MarkEditorDialog = Observable.extend({
                     template(this.options.template)({
                         messages:
                             markeditor.messages.dialogs || DIALOG_MESSAGES,
-                        errors: this.options.errors
+                        errors: this.options.errors,
                     })
                 )
                 .appendTo(document.body)
@@ -840,7 +842,7 @@ const MarkEditorDialog = Observable.extend({
                     close: this._onDialogClose.bind(this),
                     activate: this._onDialogActivate.bind(this),
                     deactivate: this._onDialogDeactivate.bind(this),
-                    resize: this._onDialogResize.bind(this) // This was added for resizing PreviewDialog
+                    resize: this._onDialogResize.bind(this), // This was added for resizing PreviewDialog
                 })
                 .data('kendoWindow');
         }
@@ -876,7 +878,7 @@ const MarkEditorDialog = Observable.extend({
     close() {
         this._action = 'close';
         this.dialog().close();
-    }
+    },
 });
 markeditor.MarkEditorDialog = MarkEditorDialog;
 
@@ -894,39 +896,39 @@ const HeadingsDialog = MarkEditorDialog.extend({
                     property: 'headings',
                     value: '#',
                     iconClass: 'h1',
-                    text: messages.buttons.h1
+                    text: messages.buttons.h1,
                 },
                 {
                     property: 'headings',
                     value: '##',
                     iconClass: 'h2',
-                    text: messages.buttons.h2
+                    text: messages.buttons.h2,
                 },
                 {
                     property: 'headings',
                     value: '###',
                     iconClass: 'h3',
-                    text: messages.buttons.h3
+                    text: messages.buttons.h3,
                 },
                 {
                     property: 'headings',
                     value: '####',
                     iconClass: 'h4',
-                    text: messages.buttons.h4
+                    text: messages.buttons.h4,
                 },
                 {
                     property: 'headings',
                     value: '#####',
                     iconClass: 'h5',
-                    text: messages.buttons.h5
+                    text: messages.buttons.h5,
                 },
                 {
                     property: 'headings',
                     value: '######',
                     iconClass: 'h6',
-                    text: messages.buttons.h6
-                }
-            ]
+                    text: messages.buttons.h6,
+                },
+            ],
         };
         MarkEditorDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
@@ -940,7 +942,7 @@ const HeadingsDialog = MarkEditorDialog.extend({
                 '<a title="#=text#" data-property="#=property#" data-value="#=value#">' +
                 '<span class="k-icon k-icon k-i-#=iconClass#"></span>#=text#' +
                 '</a>',
-            change: this.apply.bind(this)
+            change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
     },
@@ -951,10 +953,10 @@ const HeadingsDialog = MarkEditorDialog.extend({
             command: 'PropertyChangeCommand',
             params: {
                 property: dataItem.property,
-                value: dataItem.value
-            }
+                value: dataItem.value,
+            },
         });
-    }
+    },
 });
 markeditor.dialogs.register('markHeadings', HeadingsDialog);
 
@@ -971,7 +973,7 @@ const LinkDialog = MarkEditorDialog.extend({
                 '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') +
             '</div>',
         title: DIALOG_MESSAGES.linkDialog.title,
-        autoFocus: false
+        autoFocus: false,
     },
     open(...args) {
         const self = this;
@@ -988,18 +990,18 @@ const LinkDialog = MarkEditorDialog.extend({
                     command: 'ToolbarLinkCommand',
                     params: {
                         property: 'link',
-                        value: model.url
-                    }
+                        value: model.url,
+                    },
                 });
                 self.close();
             },
-            cancel: self.close.bind(self)
+            cancel: self.close.bind(self),
         });
         bind(element, model);
         element
             .find('input')
             .focus()
-            .on('keydown', function(ev) {
+            .on('keydown', function (ev) {
                 if (ev.keyCode === 13) {
                     model.url = $(this).val();
                     ev.stopPropagation();
@@ -1011,7 +1013,7 @@ const LinkDialog = MarkEditorDialog.extend({
                     model.cancel();
                 }
             });
-    }
+    },
 });
 markeditor.dialogs.register('markLink', LinkDialog);
 
@@ -1028,7 +1030,7 @@ const ImageDialog = MarkEditorDialog.extend({
                 '<button class="k-button" data-bind="click: cancel">#= messages.cancel #</button>') +
             '</div>',
         title: DIALOG_MESSAGES.imageDialog.title,
-        autoFocus: false
+        autoFocus: false,
     },
     open(...args) {
         const self = this;
@@ -1045,18 +1047,18 @@ const ImageDialog = MarkEditorDialog.extend({
                     command: 'ToolbarImageCommand',
                     params: {
                         property: 'image',
-                        value: model.url
-                    }
+                        value: model.url,
+                    },
                 });
                 self.close();
             },
-            cancel: self.close.bind(self)
+            cancel: self.close.bind(self),
         });
         bind(element, model);
         element
             .find('input')
             .focus()
-            .on('keydown', function(ev) {
+            .on('keydown', function (ev) {
                 if (ev.keyCode === 13) {
                     model.url = $(this).val();
                     ev.stopPropagation();
@@ -1068,7 +1070,7 @@ const ImageDialog = MarkEditorDialog.extend({
                     model.cancel();
                 }
             });
-    }
+    },
 });
 markeditor.dialogs.register('markImage', ImageDialog);
 
@@ -1089,7 +1091,7 @@ const LatexDialog = MarkEditorDialog.extend({
             '</div>',
         title: DIALOG_MESSAGES.latexDialog.title,
         autoFocus: false,
-        width: 480
+        width: 480,
     },
     open(...args) {
         const self = this;
@@ -1109,13 +1111,13 @@ const LatexDialog = MarkEditorDialog.extend({
                         property: 'latex',
                         value: {
                             latex: model.latex,
-                            inline: model.inline
-                        }
-                    }
+                            inline: model.inline,
+                        },
+                    },
                 });
                 self.close();
             },
-            cancel: self.close.bind(self)
+            cancel: self.close.bind(self),
         });
         bind(element, model);
         resize(element);
@@ -1134,7 +1136,7 @@ const LatexDialog = MarkEditorDialog.extend({
                     }
                 });
                 */
-    }
+    },
 });
 markeditor.dialogs.register('markLatex', LatexDialog);
 
@@ -1160,7 +1162,7 @@ const PreviewDialog = MarkEditorDialog.extend({
             '</div>' +
             '</div>',
         title: DIALOG_MESSAGES.previewDialog.title,
-        width: $(window).width() / 2
+        width: $(window).width() / 2,
     },
     open(...args) {
         const self = this;
@@ -1178,19 +1180,19 @@ const PreviewDialog = MarkEditorDialog.extend({
                     command: 'ToolbarPreviewCommand',
                     params: {
                         property: 'preview',
-                        value: model.markdown
-                    }
+                        value: model.markdown,
+                    },
                 });
                 self.close();
             },
-            cancel: self.close.bind(self)
+            cancel: self.close.bind(self),
         });
 
         // Set markeditor options
         const tb = {
             container: '#preview_toolbar_container',
             resizable: options.toolbar.resizable,
-            tools: options.toolbar.tools.filter(tool => tool !== 'preview')
+            tools: options.toolbar.tools.filter((tool) => tool !== 'preview'),
         };
         element
             .find(roleSelector('markeditor'))
@@ -1287,7 +1289,7 @@ const PreviewDialog = MarkEditorDialog.extend({
         );
         markEditorWidget.codeMirror.setSize('100%', pane.height());
         resize(toolBarContainer);
-    }
+    },
 });
 
 markeditor.dialogs.register('markPreview', PreviewDialog);

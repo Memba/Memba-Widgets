@@ -11,7 +11,7 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 const {
     attr,
     data: { DataSource },
-    toHyphens
+    toHyphens,
 } = window.kendo;
 const { expect } = chai;
 
@@ -22,14 +22,14 @@ const { expect } = chai;
  */
 function assertBaseModel(actual, expected) {
     expect(actual).to.be.an.instanceof(BaseModel);
-    Object.keys(actual.fields).forEach(key => {
+    Object.keys(actual.fields).forEach((key) => {
         if (
             actual[key] === null ||
             [
                 CONSTANTS.BOOLEAN,
                 CONSTANTS.DATE,
                 CONSTANTS.NUMBER,
-                CONSTANTS.STRING
+                CONSTANTS.STRING,
             ].indexOf(actual.fields[key].type) > -1
         ) {
             expect(actual).to.have.property(key, expected[key]);
@@ -64,7 +64,7 @@ function getStageElement(height = 50, width = 50, scale = 0.75) {
  */
 function options2attributes(options = {}) {
     const attributes = {};
-    Object.keys(options).forEach(key => {
+    Object.keys(options).forEach((key) => {
         attributes[attr(toHyphens(key))] = options[key];
     });
     return attributes;

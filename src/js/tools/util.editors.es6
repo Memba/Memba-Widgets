@@ -26,7 +26,7 @@ const editors = {
     input,
     span,
     template,
-    textarea
+    textarea,
 };
 
 /**
@@ -79,7 +79,7 @@ function optimizeEditor(row = {}) {
                 'rating',
                 'slider',
                 'switch',
-                'timepicker'
+                'timepicker',
             ].indexOf(row.editor) > -1 &&
             (Object.prototype.hasOwnProperty.call(
                 rolesFromNamespaces(ui),
@@ -92,7 +92,7 @@ function optimizeEditor(row = {}) {
         ) {
             row.attributes = {
                 ...row.attributes,
-                ...getAttributeBinding(CONSTANTS.ROLE, row.editor)
+                ...getAttributeBinding(CONSTANTS.ROLE, row.editor),
             };
             row.editor = editors.input;
             return;
@@ -109,7 +109,7 @@ function optimizeEditor(row = {}) {
         ) {
             row.attributes = {
                 ...row.attributes,
-                ...getAttributeBinding(CONSTANTS.ROLE, row.editor)
+                ...getAttributeBinding(CONSTANTS.ROLE, row.editor),
             };
             row.editor = editors.select;
             return;
@@ -130,21 +130,21 @@ function optimizeEditor(row = {}) {
         case CONSTANTS.NUMBER:
             row.attributes = {
                 ...row.attributes,
-                ...getAttributeBinding(CONSTANTS.ROLE, 'numerictextbox')
+                ...getAttributeBinding(CONSTANTS.ROLE, 'numerictextbox'),
             };
             row.editor = editors.input;
             break;
         case CONSTANTS.BOOLEAN:
             row.attributes = {
                 ...row.attributes,
-                ...getAttributeBinding(CONSTANTS.ROLE, 'switch')
+                ...getAttributeBinding(CONSTANTS.ROLE, 'switch'),
             };
             row.editor = editors.input;
             break;
         case CONSTANTS.DATE:
             row.attributes = {
                 ...row.attributes,
-                ...getAttributeBinding(CONSTANTS.ROLE, 'datepicker')
+                ...getAttributeBinding(CONSTANTS.ROLE, 'datepicker'),
             };
             row.editor = editors.input;
             break;
@@ -152,7 +152,7 @@ function optimizeEditor(row = {}) {
             // CONSTANTS.STRING
             row.attributes = {
                 type: 'text',
-                ...row.attributes
+                ...row.attributes,
             };
             row.editor = editors.input;
     }

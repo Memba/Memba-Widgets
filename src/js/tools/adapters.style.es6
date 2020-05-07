@@ -15,7 +15,7 @@ import '../dialogs/widgets.basedialog.es6';
 import BaseAdapter from './adapters.base.es6';
 
 const {
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -46,11 +46,11 @@ const StyleAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container)
                 .kendoButtonBox({
-                    click: this.showDialog.bind(this, settings)
+                    click: this.showDialog.bind(this, settings),
                 });
         };
     },
@@ -67,9 +67,9 @@ const StyleAdapter = BaseAdapter.extend({
         openStyleEditor({
             title: options.title || this.title,
             data: {
-                value: options.model.get(options.field)
-            }
-        }).then(result => {
+                value: options.model.get(options.field),
+            },
+        }).then((result) => {
             if (
                 result.action ===
                 BaseDialog.fn.options.messages.actions.ok.action
@@ -77,7 +77,7 @@ const StyleAdapter = BaseAdapter.extend({
                 options.model.set(options.field, result.data.value);
             }
         });
-    }
+    },
 });
 
 /**

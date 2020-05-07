@@ -29,7 +29,7 @@ import { multiQuizLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
@@ -65,7 +65,7 @@ const MultiQuizTool = BaseTool.extend({
         'attributes.mode',
         '', // separator
         'properties.question',
-        'properties.solution'
+        'properties.solution',
     ],
     weight: 1,
     width: 420,
@@ -74,71 +74,71 @@ const MultiQuizTool = BaseTool.extend({
         play: format(TEMPLATE, `${BINDING} ${SHUFFLE}`),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         mode: new DropDownListAdapter(
             {
                 defaultValue: 'checkbox',
                 source: __('tools.multiquiz.attributes.mode.source'),
-                title: __('tools.multiquiz.attributes.mode.title')
+                title: __('tools.multiquiz.attributes.mode.title'),
             },
             { style: 'width: 100%;' }
         ),
         shuffle: new BooleanAdapter({
-            title: __('tools.multiquiz.attributes.shuffle.title')
+            title: __('tools.multiquiz.attributes.shuffle.title'),
         }),
         groupStyle: new StyleAdapter({
             title: __('tools.multiquiz.attributes.groupStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         itemStyle: new StyleAdapter({
             title: __('tools.multiquiz.attributes.itemStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         selectedStyle: new StyleAdapter({
             title: __('tools.multiquiz.attributes.selectedStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         data: new ImageListAdapter({
             title: __('tools.multiquiz.attributes.data.title'),
-            defaultValue: __('tools.multiquiz.attributes.data.defaultValue')
-        })
+            defaultValue: __('tools.multiquiz.attributes.data.defaultValue'),
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.multiquiz.properties.name.title')
+            title: __('tools.multiquiz.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.multiquiz.properties.question.help'),
             title: __('tools.multiquiz.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new MultiQuizAdapter({
             defaultValue: [],
             help: __('tools.multiquiz.properties.solution.help'),
-            title: __('tools.multiquiz.properties.solution.title')
+            title: __('tools.multiquiz.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
             library: multiQuizLibrary.library,
-            title: __('tools.multiquiz.properties.validation.title')
+            title: __('tools.multiquiz.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.multiquiz.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.multiquiz.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.multiquiz.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -160,8 +160,8 @@ const MultiQuizTool = BaseTool.extend({
             audio: [],
             image: component
                 .get('attributes.data')
-                .map(item => assets.image.scheme2http(item.url)),
-            video: []
+                .map((item) => assets.image.scheme2http(item.url)),
+            video: [],
         };
     },
 
@@ -185,14 +185,14 @@ const MultiQuizTool = BaseTool.extend({
         $.extend(component, {
             // The data$ function resolves urls with schemes like cdn://sample.jpg
             data$() {
-                const data = component.get('attributes.data').map(item => {
+                const data = component.get('attributes.data').map((item) => {
                     return {
                         text: item.text,
-                        url: assets.image.scheme2http(item.url)
+                        url: assets.image.scheme2http(item.url),
                     };
                 });
                 return JSON.stringify(data);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -256,7 +256,7 @@ const MultiQuizTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -271,11 +271,11 @@ const MultiQuizTool = BaseTool.extend({
                     __('tools.messages.invalidData'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         return ret;
-    }
+    },
 });
 
 /**

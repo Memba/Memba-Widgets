@@ -37,7 +37,7 @@ const {
     toCamelCase,
     toHyphens,
     ui: { plugin, TabStrip, Widget },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.formatstrip');
 
@@ -54,7 +54,7 @@ const BORDERS = [
     'border-bottom',
     'border-left',
     'border-right',
-    'border-top'
+    'border-top',
 ];
 const BORDER_STYLES = [
     'none',
@@ -68,7 +68,7 @@ const BORDER_STYLES = [
     'inset',
     'outset',
     'initial',
-    'inherit'
+    'inherit',
 ];
 const FONT_SIZE_DEFAULT = 14; // Check Kidoju
 const FONT_FAMILY = [
@@ -76,7 +76,7 @@ const FONT_FAMILY = [
     'Georgia',
     'Times New Roman',
     'Trebuchet MS',
-    'Verdana'
+    'Verdana',
 ];
 const FONT_FAMILY_DEFAULT = 'Arial';
 const TEXT_ALIGN = [/* 'left', */ 'center', 'right', 'justify'];
@@ -101,10 +101,7 @@ const Style = Class.extend({
                 const pos = styles[i].indexOf(CONSTANTS.COLON);
                 const { length } = styles[i];
                 if (pos > 0 && pos < length - 1) {
-                    let name = styles[i]
-                        .substr(0, pos)
-                        .trim()
-                        .toLowerCase();
+                    let name = styles[i].substr(0, pos).trim().toLowerCase();
                     const value = styles[i].substr(pos + 1).trim();
                     if (/[\w\-_]+/.test(name) && value) {
                         if (BORDERS.indexOf(name) > -1) {
@@ -164,7 +161,7 @@ const Style = Class.extend({
         textAlign: null,
         textDecoration: null, // underline
         verticalAlign: null,
-        whiteSpace: null // nowrap
+        whiteSpace: null, // nowrap
     },
 
     /**
@@ -210,7 +207,7 @@ const Style = Class.extend({
      */
     toString() {
         let style = '';
-        Object.keys(this).forEach(name => {
+        Object.keys(this).forEach((name) => {
             if (
                 Object.prototype.hasOwnProperty.call(this, name) &&
                 $.type(this[name]) === CONSTANTS.STRING &&
@@ -225,7 +222,7 @@ const Style = Class.extend({
             }
         });
         return style;
-    }
+    },
 });
 
 if (window.DEBUG) {
@@ -249,7 +246,7 @@ const FormatBar = ToolBar.extend({
      */
     init(element, options = {}) {
         Object.assign(options, {
-            tools: options.tools || FormatBar.prototype.options.tools
+            tools: options.tools || FormatBar.prototype.options.tools,
         });
         ToolBar.fn.init.call(this, element, options);
         this.ns = '.kendoFormatBar';
@@ -276,8 +273,8 @@ const FormatBar = ToolBar.extend({
             'fontSize',
             'fontFamily',
             'alignment',
-            'textWrap'
-        ]
+            'textWrap',
+        ],
     },
 
     /**
@@ -335,7 +332,7 @@ const FormatBar = ToolBar.extend({
                 'allBorders',
                 'insideBorders',
                 'insideHorizontalBorders',
-                'insideVerticalBorders'
+                'insideVerticalBorders',
             ],
             (index, borderType) => {
                 borderpalette
@@ -539,32 +536,32 @@ const FormatBar = ToolBar.extend({
             case 'noBorders':
                 return {
                     color: '',
-                    size: 0
+                    size: 0,
                 };
             case 'outsideBorders':
                 return {
                     color: this._value.borderColor,
-                    size: parseInt(this._value.borderWidth, 10)
+                    size: parseInt(this._value.borderWidth, 10),
                 };
             case 'bottomBorder':
                 return {
                     color: this._value.borderBottomColor,
-                    size: parseInt(this._value.borderBottomWidth, 10)
+                    size: parseInt(this._value.borderBottomWidth, 10),
                 };
             case 'leftBorder':
                 return {
                     color: this._value.borderLeftColor,
-                    size: parseInt(this._value.borderLeftWidth, 10)
+                    size: parseInt(this._value.borderLeftWidth, 10),
                 };
             case 'rightBorder':
                 return {
                     color: this._value.borderRightColor,
-                    size: parseInt(this._value.borderRightWidth, 10)
+                    size: parseInt(this._value.borderRightWidth, 10),
                 };
             case 'topBorder':
                 return {
                     color: this._value.borderTopColor,
-                    size: parseInt(this._value.borderTopWidth, 10)
+                    size: parseInt(this._value.borderTopWidth, 10),
                 };
             case 'background':
                 return this._value.backgroundColor;
@@ -598,7 +595,7 @@ const FormatBar = ToolBar.extend({
                             ? 'center'
                             : that._value.verticalAlign ||
                                   VERTICAL_ALIGN_DEFAULT;
-                    }
+                    },
                 };
             default:
         }
@@ -608,11 +605,11 @@ const FormatBar = ToolBar.extend({
         return this.element
             .find('[data-property]')
             .toArray()
-            .map(element => {
+            .map((element) => {
                 const $element = $(element);
                 return {
                     property: $element.attr('data-property'),
-                    tool: this._getItem($element)
+                    tool: this._getItem($element),
                 };
             });
     },
@@ -711,7 +708,7 @@ const FormatBar = ToolBar.extend({
                 if (enabled) {
                     tool.off(CONSTANTS.CLICK + that.ns);
                 } else {
-                    tool.on(CONSTANTS.CLICK + that.ns, e => {
+                    tool.on(CONSTANTS.CLICK + that.ns, (e) => {
                         e.preventDefault(); // prevents anchors of overflow popup from navigating or reloading the page
                         e.stopImmediatePropagation(); // prevents following click handlers from executing
                     });
@@ -730,7 +727,7 @@ const FormatBar = ToolBar.extend({
         this.unbind('dialog');
         unbind(this.wrapper);
         ToolBar.fn.destroy.call(this);
-    }
+    },
 });
 
 /**
@@ -768,8 +765,8 @@ const FormatStrip = Widget.extend({
     options: {
         name: 'FormatStrip',
         messages: {
-            defaultTab: 'Style'
-        }
+            defaultTab: 'Style',
+        },
     },
 
     /**
@@ -852,7 +849,7 @@ const FormatStrip = Widget.extend({
                         content: format(
                             FORMATBAR_DATABIND,
                             `attributes.${attr}`
-                        )
+                        ),
                     });
                 }
             }
@@ -860,7 +857,7 @@ const FormatStrip = Widget.extend({
         if (!tabs.length) {
             tabs.push({
                 text: that.options.messages.defaultTab,
-                content: FORMATBAR_DISABLED
+                content: FORMATBAR_DISABLED,
             });
         }
         return tabs;
@@ -941,7 +938,7 @@ const FormatStrip = Widget.extend({
         this._clearTabs();
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

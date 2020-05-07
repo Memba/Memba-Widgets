@@ -23,8 +23,8 @@ describe('tools.base', () => {
         const tool = new BaseTool({ id });
         const Component = BaseModel.extend({
             fields: {
-                tool: { type: CONSTANTS.STRING }
-            }
+                tool: { type: CONSTANTS.STRING },
+            },
         });
 
         it('It should have descriptors', () => {
@@ -40,12 +40,8 @@ describe('tools.base', () => {
         });
 
         it('It should have empty attributes and properties', () => {
-            expect(tool)
-                .to.have.property('attributes')
-                .that.deep.equals({});
-            expect(tool)
-                .to.have.property('properties')
-                .that.deep.equals({});
+            expect(tool).to.have.property('attributes').that.deep.equals({});
+            expect(tool).to.have.property('properties').that.deep.equals({});
         });
 
         it('getAttributeModel', () => {
@@ -61,9 +57,7 @@ describe('tools.base', () => {
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows();
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(5);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(5);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -84,9 +78,7 @@ describe('tools.base', () => {
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows();
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(0);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(0);
         });
 
         it('getAssets', () => {
@@ -94,7 +86,7 @@ describe('tools.base', () => {
             expect(assets).to.deep.equal({
                 audio: [],
                 image: [],
-                video: []
+                video: [],
             });
         });
 

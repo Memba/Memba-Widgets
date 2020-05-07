@@ -32,7 +32,7 @@ const ColorAdapter = BaseAdapter.extend({
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr(CONSTANTS.ROLE)] = 'colorpicker';
-    }
+    },
 });
 
 /**

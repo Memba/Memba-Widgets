@@ -28,7 +28,7 @@ const {
     support,
     template,
     ui: { DataBoundWidget, plugin /* , Stage */ },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.navigation');
 const NS = '.kendoNavigation';
@@ -83,8 +83,8 @@ const Navigation = DataBoundWidget.extend({
         pageHeight: 768,
         selectionBorder: 10, // this is the padding of the page wrapper, which draws a border around it
         messages: {
-            empty: 'No page to display' // TODO: add message in UI (see refresh)
-        }
+            empty: 'No page to display', // TODO: add message in UI (see refresh)
+        },
     },
 
     /**
@@ -95,7 +95,7 @@ const Navigation = DataBoundWidget.extend({
         CONSTANTS.CHANGE,
         CONSTANTS.DATABINDING,
         CONSTANTS.DATABOUND,
-        CONSTANTS.SELECT
+        CONSTANTS.SELECT,
     ],
 
     /**
@@ -447,7 +447,7 @@ const Navigation = DataBoundWidget.extend({
                     that.dataSource.remove(page);
                     that.dataSource.insert(e.newIndex, page);
                 }
-            }
+            },
         });
     },
 
@@ -473,7 +473,7 @@ const Navigation = DataBoundWidget.extend({
                     padding: parseInt(this.options.selectionBorder, 10),
                     margin:
                         parseInt(this.options.pageSpacing, 10) -
-                        parseInt(this.options.selectionBorder, 10)
+                        parseInt(this.options.selectionBorder, 10),
                 }
             );
 
@@ -499,7 +499,7 @@ const Navigation = DataBoundWidget.extend({
                     enabled: false,
                     readonly: true,
                     dataSource: page.components,
-                    scale: this._getStageScale()
+                    scale: this._getStageScale(),
                 })
                 .data('kendoStage');
 
@@ -541,7 +541,7 @@ const Navigation = DataBoundWidget.extend({
             that.element.find(ALL_ITEMS_SELECTOR).each((index, el) => {
                 that._removeItemByUid($(el).attr(attr(CONSTANTS.UID)));
             });
-            pages.forEach(page => {
+            pages.forEach((page) => {
                 that._addItem(page);
             });
         } else if (
@@ -549,7 +549,7 @@ const Navigation = DataBoundWidget.extend({
             Array.isArray(e.items) &&
             e.items.length
         ) {
-            e.items.forEach(page => {
+            e.items.forEach((page) => {
                 selectedIndex = that.dataSource.indexOf(page);
                 that._addItem(page, selectedIndex);
             });
@@ -558,13 +558,13 @@ const Navigation = DataBoundWidget.extend({
             Array.isArray(e.items) &&
             e.items.length
         ) {
-            e.items.forEach(page => {
+            e.items.forEach((page) => {
                 that._removeItemByUid(page.uid);
             });
             selectedIndex = e.index || -1;
         } else if (e.action === 'itemchange') {
             if (e.field === 'style') {
-                e.items.forEach(page => {
+                e.items.forEach((page) => {
                     // TODO Review
                     const item = that.element.find(
                         format(ITEM_BYUID_SELECTOR, page.uid)
@@ -639,14 +639,12 @@ const Navigation = DataBoundWidget.extend({
             .height(scale * parseInt(this.options.pageHeight, 10))
             .find(roleSelector('stage'))
             .each((index, element) => {
-                $(element)
-                    .data('kendoStage')
-                    .scale(scale);
+                $(element).data('kendoStage').scale(scale);
             });
         logger.debug({
             method: 'resize',
             message: 'widget resized',
-            data: { scale }
+            data: { scale },
         });
     },
 
@@ -729,15 +727,12 @@ const Navigation = DataBoundWidget.extend({
         unbind(that.element);
         // unbind all other events
         that.element.find('*').off();
-        that.element
-            .off()
-            .empty()
-            .removeClass(WIDGET_CLASS);
+        that.element.off().empty().removeClass(WIDGET_CLASS);
         that.setDataSource(null);
         DataBoundWidget.fn.destroy.call(that);
         destroy(that.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

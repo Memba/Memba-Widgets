@@ -29,9 +29,9 @@ const TextBoxAdapter = BaseAdapter.extend({
         this.editor = CONSTANTS.INPUT;
         this.attributes = $.extend({}, this.attributes, attributes, {
             type: 'text',
-            class: 'k-textbox'
+            class: 'k-textbox',
         });
-    }
+    },
 });
 
 /**

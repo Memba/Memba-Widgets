@@ -28,9 +28,9 @@ const TextAreaAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = CONSTANTS.TEXTAREA;
         this.attributes = $.extend({}, this.attributes, attributes, {
-            class: 'k-textbox'
+            class: 'k-textbox',
         });
-    }
+    },
 });
 
 /**

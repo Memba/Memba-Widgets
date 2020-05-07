@@ -42,7 +42,7 @@ describe('tools', () => {
         it('it should at least have a pointer, a label, a textbox and an image tool', () => {
             expect(tools).to.have.property(TOOLS.ACTIVE, TOOLS.POINTER);
             expect(tools(TOOLS.POINTER)).to.be.an.instanceof(PointerTool);
-            DATA.forEach(id => {
+            DATA.forEach((id) => {
                 expect(tools(id)).to.be.an.instanceof(StubTool);
             });
         });
@@ -56,7 +56,7 @@ describe('tools', () => {
                 JSC.boolean(),
                 JSC.number(),
                 JSC.object(),
-                JSC.array()
+                JSC.array(),
             ])();
             function fn() {
                 tools.load(id);
@@ -64,13 +64,13 @@ describe('tools', () => {
             expect(fn).to.throw();
         });
 
-        it('it should reject when loading a tool that is designated by an unknown string id', done => {
+        it('it should reject when loading a tool that is designated by an unknown string id', (done) => {
             const id = JSC.one_of([
                 '_events',
                 '_handlers',
                 'load',
                 TOOLS.ACTIVE,
-                JSC.string()()
+                JSC.string()(),
             ])();
             expect(tools(id)).not.to.be.an.instanceof(Observable);
             expect(tools(id)).not.to.be.an.instanceof(BaseTool);
@@ -79,13 +79,13 @@ describe('tools', () => {
                 .then(() => {
                     done(new Error(`It should not have loaded tool ${id}`));
                 })
-                .catch(err => {
+                .catch((err) => {
                     expect(err).to.be.an.instanceof(Error);
                     done();
                 });
         });
 
-        it('it should load a tool with a known id', done => {
+        it('it should load a tool with a known id', (done) => {
             function test(id) {
                 const dfd = $.Deferred();
                 expect(tools(id)).to.be.an.instanceof(StubTool);
@@ -108,7 +108,7 @@ describe('tools', () => {
                 .catch(done);
         });
 
-        it('it should reload a tool with a known id', done => {
+        it('it should reload a tool with a known id', (done) => {
             function test(id) {
                 const dfd = $.Deferred();
                 expect(tools(id)).to.be.an.instanceof(StubTool);

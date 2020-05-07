@@ -108,7 +108,7 @@ export function getLocation(url) {
         hash: location.hash,
         username: location.username ? location.username : undefined,
         password: location.password ? location.password : undefined,
-        origin: location.origin
+        origin: location.origin,
     };
 }
 

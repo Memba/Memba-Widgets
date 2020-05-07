@@ -34,7 +34,7 @@ const notification = element
     .kendoNotification({
         position: {
             top: 70,
-            right: 30
+            right: 30,
         },
         stacking: 'down',
         // hide automatically after 7 seconds
@@ -44,7 +44,7 @@ const notification = element
         // show a hide button
         button: true,
         // prevent hiding by clicking on the notification content
-        hideOnClick: false
+        hideOnClick: false,
     })
     .data('kendoNotification');
 

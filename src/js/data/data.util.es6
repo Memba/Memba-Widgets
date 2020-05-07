@@ -20,7 +20,7 @@ export const SYNC_STATE = {
     FIELD: '__state__',
     CREATED: 1,
     DESTROYED: 3,
-    UPDATED: 2
+    UPDATED: 2,
 };
 
 /**
@@ -57,9 +57,9 @@ export function error2xhr(err) {
             originalError: {
                 message: err.message,
                 name: err.name,
-                stack: err.stack && err.stack.toString()
+                stack: err.stack && err.stack.toString(),
             },
-            status: err.status || err.code || 520
+            status: err.status || err.code || 520,
         }
     );
     // Possible responseText from rapi calls are:
@@ -70,10 +70,10 @@ export function error2xhr(err) {
             responseJSON: { error },
             responseText: JSON.stringify({ error }),
             status: error.status,
-            statusText: 'error'
+            statusText: 'error',
         },
         'error',
-        error.message
+        error.message,
     ];
 }
 
@@ -126,7 +126,7 @@ export function extendQueryWithPartition(query, partition) {
             q.filter.filters,
             assert.format(assert.messages.isArray.default, 'q.filter.filters')
         );
-        Object.keys(partition).forEach(prop => {
+        Object.keys(partition).forEach((prop) => {
             if ($.type(partition[prop]) !== CONSTANTS.UNDEFINED) {
                 let found;
                 for (
@@ -148,7 +148,7 @@ export function extendQueryWithPartition(query, partition) {
                     q.filter.filters.push({
                         field: prop,
                         operator: 'eq',
-                        value: partition[prop]
+                        value: partition[prop],
                     });
                 }
             }
@@ -215,7 +215,7 @@ export function normalizeSchema(schema) {
         // parse
         total: 'total',
         // type: 'json',
-        ...schema
+        ...schema,
     };
 }
 

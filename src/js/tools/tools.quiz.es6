@@ -29,7 +29,7 @@ import { genericLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
@@ -65,7 +65,7 @@ const QuizTool = BaseTool.extend({
         'attributes.mode',
         '', // separator
         'properties.question',
-        'properties.solution'
+        'properties.solution',
     ],
     weight: 1,
     width: 490,
@@ -74,7 +74,7 @@ const QuizTool = BaseTool.extend({
         play: format(TEMPLATE, `${BINDING} ${SHUFFLE}`),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         mode: new DropDownListAdapter(
@@ -82,65 +82,65 @@ const QuizTool = BaseTool.extend({
                 defaultValue: 'button',
                 help: __('tools.quiz.attributes.mode.help'),
                 source: __('tools.quiz.attributes.mode.source'),
-                title: __('tools.quiz.attributes.mode.title')
+                title: __('tools.quiz.attributes.mode.title'),
             },
             { style: 'width: 100%;' }
         ),
         shuffle: new BooleanAdapter({
-            title: __('tools.quiz.attributes.shuffle.title')
+            title: __('tools.quiz.attributes.shuffle.title'),
         }),
         groupStyle: new StyleAdapter({
             title: __('tools.quiz.attributes.groupStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         itemStyle: new StyleAdapter({
             title: __('tools.quiz.attributes.itemStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         selectedStyle: new StyleAdapter({
             title: __('tools.quiz.attributes.selectedStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         data: new ImageListAdapter({
             defaultValue: __('tools.quiz.attributes.data.defaultValue'),
             help: __('tools.quiz.attributes.data.help'),
-            title: __('tools.quiz.attributes.data.title')
-        })
+            title: __('tools.quiz.attributes.data.title'),
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.quiz.properties.name.title')
+            title: __('tools.quiz.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.quiz.properties.question.help'),
             title: __('tools.quiz.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new QuizAdapter({
             help: __('tools.quiz.properties.solution.help'),
-            title: __('tools.quiz.properties.solution.title')
+            title: __('tools.quiz.properties.solution.title'),
             // TODO validation: solutionValidator
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: __('tools.quiz.properties.validation.title')
+            title: __('tools.quiz.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.quiz.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.quiz.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.quiz.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -162,8 +162,8 @@ const QuizTool = BaseTool.extend({
             audio: [],
             image: component
                 .get('attributes.data')
-                .map(item => assets.image.scheme2http(item.url)),
-            video: []
+                .map((item) => assets.image.scheme2http(item.url)),
+            video: [],
         };
     },
 
@@ -187,14 +187,14 @@ const QuizTool = BaseTool.extend({
         $.extend(component, {
             // The data$ function resolves urls with schemes like cdn://sample.jpg
             data$() {
-                const data = component.attributes.get('data').map(item => {
+                const data = component.attributes.get('data').map((item) => {
                     return {
                         text: item.text,
-                        url: assets.image.scheme2http(item.url)
+                        url: assets.image.scheme2http(item.url),
                     };
                 });
                 return JSON.stringify(data);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -234,7 +234,7 @@ const QuizTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -249,12 +249,12 @@ const QuizTool = BaseTool.extend({
                     __('tools.messages.invalidData'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO: Check that solution matches one of the data
         return ret;
-    }
+    },
 });
 
 /**

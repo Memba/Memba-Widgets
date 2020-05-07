@@ -39,14 +39,14 @@ const FILE_ERROR_CODES = {
     INVALID_MODIFICATION_ERR: 9,
     QUOTA_EXCEEDED_ERR: 10,
     TYPE_MISMATCH_ERR: 11,
-    PATH_EXISTS_ERR: 12
+    PATH_EXISTS_ERR: 12,
 };
 const FILE_TRANFER_ERROR_CODES = {
     FILE_NOT_FOUND_ERR: 1,
     INVALID_URL_ERR: 2,
     CONNECTION_ERR: 3,
     ABORT_ERR: 4,
-    NOT_MODIFIED_ERR: 5
+    NOT_MODIFIED_ERR: 5,
 };
 
 /**
@@ -98,13 +98,13 @@ function makeDir(dfd, root, folders) {
         logger.debug({
             message: 'Calling root.getDirectory',
             method: 'makeDir',
-            data: { rootURL, folder: folders[0] }
+            data: { rootURL, folder: folders[0] },
         });
 
         root.getDirectory(
             folders[0],
             { create: true },
-            directoryEntry => {
+            (directoryEntry) => {
                 // Recursively add the new subfolder (if we still have another to create).
                 if (folders.length > 1) {
                     makeDir(dfd, directoryEntry, folders.slice(1));
@@ -176,8 +176,8 @@ export default class FileSystem {
             data: {
                 requestFileSystem:
                     $.type(window.requestFileSystem) !== CONSTANTS.UNDEFINED,
-                storageInfo: $.type(window.storageInfo) !== CONSTANTS.UNDEFINED
-            }
+                storageInfo: $.type(window.storageInfo) !== CONSTANTS.UNDEFINED,
+            },
         });
         window.storageInfo = window.storageInfo || {
             // Stub requestQuota for systems that do not implement/require it, including iOS Cordova
@@ -186,7 +186,7 @@ export default class FileSystem {
                 // @see https://github.com/apache/cordova-plugin-file#create-a-temporary-file
                 // @see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
                 successCallback(requestedBytes);
-            }
+            },
         };
         if (
             window.requestFileSystem &&
@@ -196,17 +196,17 @@ export default class FileSystem {
                 window.storageInfo.requestQuota(
                     window.TEMPORARY,
                     TEMPORARY_STORAGE_SIZE,
-                    grantedBytes => {
+                    (grantedBytes) => {
                         window.requestFileSystem(
                             window.TEMPORARY,
                             grantedBytes,
-                            temporary => {
+                            (temporary) => {
                                 that._temporary = temporary;
                                 dfd.resolve(temporary);
                                 logger.debug({
                                     message: 'Temporary file system granted',
                                     method: '_initTemporary',
-                                    data: { grantedBytes }
+                                    data: { grantedBytes },
                                 });
                             },
                             dfd.reject
@@ -239,8 +239,8 @@ export default class FileSystem {
             data: {
                 requestFileSystem:
                     $.type(window.requestFileSystem) !== CONSTANTS.UNDEFINED,
-                storageInfo: $.type(window.storageInfo) !== CONSTANTS.UNDEFINED
-            }
+                storageInfo: $.type(window.storageInfo) !== CONSTANTS.UNDEFINED,
+            },
         });
         window.storageInfo = window.storageInfo || {
             // Stub requestQuota for systems that do not implement/require it, including iOS Cordova
@@ -249,7 +249,7 @@ export default class FileSystem {
                 // @see https://github.com/apache/cordova-plugin-file#create-a-persistent-file-
                 // @see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
                 successCallback(requestedBytes);
-            }
+            },
         };
         if (
             window.requestFileSystem &&
@@ -259,17 +259,17 @@ export default class FileSystem {
                 window.storageInfo.requestQuota(
                     window.PERSISTENT,
                     PERSISTENT_STORAGE_SIZE,
-                    grantedBytes => {
+                    (grantedBytes) => {
                         window.requestFileSystem(
                             window.PERSISTENT,
                             grantedBytes,
-                            persistent => {
+                            (persistent) => {
                                 that._persistent = persistent;
                                 dfd.resolve(persistent);
                                 logger.debug({
                                     message: 'Persistent file system granted',
                                     method: '_initPersistent',
-                                    data: { grantedBytes }
+                                    data: { grantedBytes },
                                 });
                             },
                             dfd.reject
@@ -328,7 +328,7 @@ export default class FileSystem {
         logger.debug({
             message: 'Getting directory',
             method: 'getDirectoryEntry',
-            data: { path, type }
+            data: { path, type },
         });
 
         const dfd = $.Deferred();
@@ -376,7 +376,7 @@ export default class FileSystem {
         logger.debug({
             message: 'Getting file entry',
             method: 'FileSystem.getFileEntry',
-            data: { directoryURL, fileName }
+            data: { directoryURL, fileName },
         });
 
         const dfd = $.Deferred();
@@ -481,7 +481,7 @@ export default class FileSystem {
 
         // Set request headers
         if ($.isPlainObject(headers)) {
-            Object.keys(headers).forEach(header => {
+            Object.keys(headers).forEach((header) => {
                 xhr.setRequestHeader(header, headers[header]);
             });
         }
@@ -494,7 +494,7 @@ export default class FileSystem {
             if (this.readyState === this.DONE && this.status === 200) {
                 const blob = xhr.response; // not xhr.responseText
                 if (blob) {
-                    fileEntry.createWriter(fileWriter => {
+                    fileEntry.createWriter((fileWriter) => {
                         /* eslint-disable no-param-reassign */
                         fileWriter.onwriteend = dfd.resolve;
                         fileWriter.onerror = dfd.reject;
@@ -533,7 +533,7 @@ export default class FileSystem {
         logger.debug({
             message: 'Downloading a file',
             method: 'download',
-            data: { remoteUrl, headers: JSON.stringify(headers) }
+            data: { remoteUrl, headers: JSON.stringify(headers) },
         });
 
         // Send the request

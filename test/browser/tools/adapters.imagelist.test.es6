@@ -24,9 +24,7 @@ describe('adapters.imagelist', () => {
                 .to.have.property('defaultValue')
                 .that.deep.equal([]);
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter)
-                .to.have.property('editor')
-                .that.is.a('function');
+            expect(adapter).to.have.property('editor').that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -42,7 +40,7 @@ describe('adapters.imagelist', () => {
         it('getField', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
-                defaultValue: []
+                defaultValue: [],
                 // type: CONSTANTS.STRING
             });
         });
@@ -58,9 +56,7 @@ describe('adapters.imagelist', () => {
              */
             expect(Object.keys(row)).to.have.lengthOf(2);
             expect(row).to.have.property('field', field);
-            expect(row)
-                .to.have.property('editor')
-                .that.is.a('function');
+            expect(row).to.have.property('editor').that.is.a('function');
         });
     });
 });

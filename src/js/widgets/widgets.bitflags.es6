@@ -14,7 +14,7 @@ import Logger from '../common/window.logger.es6';
 
 const {
     destroy,
-    ui: { plugin, DataBoundWidget, MultiSelect }
+    ui: { plugin, DataBoundWidget, MultiSelect },
 } = window.kendo;
 const logger = new Logger('widgets.bitflags');
 const WIDGET_CLASS = 'kj-bitflags';
@@ -77,7 +77,7 @@ const BitFlags = DataBoundWidget.extend({
         autoWidth: false,
         // popup: null
         // ------------------> Specific to widgets.bitflags
-        readonly: false
+        readonly: false,
     },
 
     /**
@@ -148,7 +148,7 @@ const BitFlags = DataBoundWidget.extend({
             assert.format(assert.messages.isArray.default, 'array')
         );
         let ret = 0;
-        array.forEach(item => {
+        array.forEach((item) => {
             if ($.type(item) === CONSTANTS.NUMBER) {
                 ret += item;
             }
@@ -236,11 +236,11 @@ const BitFlags = DataBoundWidget.extend({
         const tags = tagList.find('> li').sort((a, b) => {
             const aText = $(a).text();
             const aNum = (data.find(
-                item => item[dataTextField || CONSTANTS.TEXT] === aText
+                (item) => item[dataTextField || CONSTANTS.TEXT] === aText
             ) || {})[dataValueField || CONSTANTS.VALUE];
             const bText = $(b).text();
             const bNum = (data.find(
-                item => item[dataTextField || CONSTANTS.TEXT] === bText
+                (item) => item[dataTextField || CONSTANTS.TEXT] === bText
             ) || {})[dataValueField || CONSTANTS.VALUE];
             return aNum - bNum;
         });
@@ -333,7 +333,7 @@ const BitFlags = DataBoundWidget.extend({
     destroy() {
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element); // Destroys MultiSelect
-    }
+    },
 });
 
 /**

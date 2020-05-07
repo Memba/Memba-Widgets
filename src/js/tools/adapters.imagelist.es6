@@ -19,7 +19,7 @@ import BaseAdapter from './adapters.base.es6';
 // TODO Review with imageset
 
 const {
-    ui: { BaseDialog, ImageList }
+    ui: { BaseDialog, ImageList },
 } = window.kendo;
 
 /**
@@ -48,13 +48,13 @@ const ImageListAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `source: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             const widget = element
                 .kendoImageList({
                     schemes: assets.image.schemes,
-                    click: this.onImageClick.bind(this, settings)
+                    click: this.onImageClick.bind(this, settings),
                 })
                 .data('kendoImageList');
             assert.instanceof(
@@ -66,7 +66,7 @@ const ImageListAdapter = BaseAdapter.extend({
                     'kendo.ui.ImageList'
                 )
             );
-            widget.dataSource.bind('change', e => {
+            widget.dataSource.bind('change', (e) => {
                 // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                 // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
                 if ($.type(e.action) === CONSTANTS.STRING) {
@@ -89,10 +89,10 @@ const ImageListAdapter = BaseAdapter.extend({
                 assets: assets.image,
                 cssClass: 'kj-dialog-2', // Potentially a second level of depth considering contextual menu
                 data: {
-                    value: e.item.get('url')
-                }
+                    value: e.item.get('url'),
+                },
             })
-                .then(result => {
+                .then((result) => {
                     if (
                         result.action ===
                         BaseDialog.fn.options.messages.actions.ok.action
@@ -102,7 +102,7 @@ const ImageListAdapter = BaseAdapter.extend({
                 })
                 .catch($.noop); // TODO error management
         }
-    }
+    },
 });
 
 /**

@@ -25,7 +25,7 @@ import { mathLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
@@ -53,7 +53,7 @@ const MathInputTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
@@ -62,75 +62,75 @@ const MathInputTool = BaseTool.extend({
         // field: new BooleanAdapter({ title: __('tools.mathinput.attributes.field.title'), defaultValue: false }),
         keypad: new BooleanAdapter({
             title: __('tools.mathinput.attributes.keypad.title'),
-            defaultValue: true
+            defaultValue: true,
         }),
         basic: new BooleanAdapter({
             title: __('tools.mathinput.attributes.basic.title'),
-            defaultValue: true
+            defaultValue: true,
         }),
         greek: new BooleanAdapter({
             title: __('tools.mathinput.attributes.greek.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         operators: new BooleanAdapter({
             title: __('tools.mathinput.attributes.operators.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         expressions: new BooleanAdapter({
             title: __('tools.mathinput.attributes.expressions.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         sets: new BooleanAdapter({
             title: __('tools.mathinput.attributes.sets.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         matrices: new BooleanAdapter({
             title: __('tools.mathinput.attributes.matrices.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         statistics: new BooleanAdapter({
             title: __('tools.mathinput.attributes.statistics.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         style: new StyleAdapter({
             title: __('tools.mathinput.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.mathinput.properties.name.title')
+            title: __('tools.mathinput.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.mathinput.properties.question.help'),
             title: __('tools.mathinput.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new MathInputAdapter({
             defaultValue: '',
             help: __('tools.mathinput.properties.solution.help'),
-            title: __('tools.mathinput.properties.solution.title')
+            title: __('tools.mathinput.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${mathLibrary.defaultKey}`,
             library: mathLibrary.library,
-            title: __('tools.mathinput.properties.validation.title')
+            title: __('tools.mathinput.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.mathinput.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.mathinput.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.mathinput.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -179,9 +179,9 @@ const MathInputTool = BaseTool.extend({
                 return {
                     container: '', // TODO: '#floating .kj-floating-content',
                     resizable: false,
-                    tools
+                    tools,
                 };
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -220,11 +220,11 @@ const MathInputTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         return ret;
-    }
+    },
 });
 
 /**

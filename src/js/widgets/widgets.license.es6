@@ -13,7 +13,7 @@ import Logger from '../common/window.logger.es6';
 
 const {
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.license');
 const NS = '.kendoLicense';
@@ -73,7 +73,7 @@ const License = Widget.extend({
     options: {
         name: 'License',
         value: 0,
-        enabled: true
+        enabled: true,
     },
 
     /**
@@ -117,7 +117,7 @@ const License = Widget.extend({
             this.element.off(`${CONSTANTS.CLICK}${NS}`);
         } else {
             this.element.addClass(CONSTANTS.DISABLED_CLASS);
-            this.element.on(`${CONSTANTS.CLICK}${NS}`, 'a', e => {
+            this.element.on(`${CONSTANTS.CLICK}${NS}`, 'a', (e) => {
                 e.preventDefault();
                 this.trigger(CONSTANTS.CLICK);
             });
@@ -185,7 +185,7 @@ const License = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ destroy: 'init', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

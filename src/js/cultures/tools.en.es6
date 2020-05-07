@@ -28,8 +28,8 @@ const res = {
             // Incors O-Collection sign_warning.svg
             // warning: '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>',
             warning:
-                'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4='
-        }
+                'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4=',
+        },
     },
 
     // validation messages
@@ -66,7 +66,7 @@ const res = {
         invalidValidation:
             'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
         invalidVideoFile:
-            'A(n) {0} on page {1} requires an mp4 file in display attributes.'
+            'A(n) {0} on page {1} requires an mp4 file in display attributes.',
     },
 
     // audio
@@ -78,8 +78,8 @@ const res = {
         attributes: {
             autoplay: { title: 'Autoplay' },
             mp3: { title: 'MP3 File' },
-            ogg: { title: 'OGG File' }
-        }
+            ogg: { title: 'OGG File' },
+        },
     },
 
     // chargrid
@@ -101,24 +101,24 @@ const res = {
             lockedFill: { title: 'Locked Fill' },
             rows: { title: 'Rows' },
             selectedFill: { title: 'Selection Fill' },
-            whitelist: { title: 'Whitelist' }
+            whitelist: { title: 'Whitelist' },
         },
         // Properties
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
-        }
+            omit: { title: 'Omit' },
+        },
     },
 
     // chart
@@ -131,7 +131,7 @@ const res = {
             categories: { title: 'Categories' },
             data: {
                 help: 'Enter chart data',
-                title: 'Data'
+                title: 'Data',
             },
             legend: {
                 source: [
@@ -139,9 +139,9 @@ const res = {
                     { text: 'Top', value: 'top' },
                     { text: 'Bottom', value: 'bottom' },
                     { text: 'Left', value: 'left' },
-                    { text: 'Right', value: 'right' }
+                    { text: 'Right', value: 'right' },
                 ],
-                title: 'Legend'
+                title: 'Legend',
             },
             style: { title: 'Style' },
             title: { title: 'Title' },
@@ -159,12 +159,12 @@ const res = {
                     { text: 'Stack Bar', value: 'stackBar' },
                     { text: 'Waterfall', value: 'waterfall' },
                     { text: 'Vertical Area', value: 'verticalArea' },
-                    { text: 'Vertical Line', value: 'verticalLine' }
+                    { text: 'Vertical Line', value: 'verticalLine' },
                 ],
-                title: 'Type'
+                title: 'Type',
             },
-            values: { title: 'Values' }
-        }
+            values: { title: 'Values' },
+        },
     },
 
     // connector
@@ -174,24 +174,24 @@ const res = {
         icon: 'target',
         name: 'Connector',
         attributes: {
-            color: { title: 'Color' }
+            color: { title: 'Color' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
             omit: { title: 'Omit' },
-            disabled: { title: 'Disabled' }
-        }
+            disabled: { title: 'Disabled' },
+        },
     },
 
     // dropzone
@@ -203,31 +203,31 @@ const res = {
         attributes: {
             center: {
                 defaultValue: false,
-                title: 'Centre'
+                title: 'Centre',
             },
             empty: { title: 'Empty' },
             style: { title: 'Style' },
             text: {
                 defaultValue: 'Please drop here.',
-                title: 'Text'
-            }
+                title: 'Text',
+            },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
             omit: { title: 'Omit' },
-            disabled: { title: 'Disabled' }
-        }
+            disabled: { title: 'Disabled' },
+        },
     },
 
     // dummy
@@ -235,7 +235,7 @@ const res = {
         description: 'Square tool',
         help: 'TODO',
         icon: 'shapes',
-        name: 'Square'
+        name: 'Square',
     },
 
     // highlighter
@@ -250,24 +250,24 @@ const res = {
             style: { title: 'Style' },
             text: {
                 defaultValue: 'Some text you can highlight.',
-                title: 'Text'
-            }
+                title: 'Text',
+            },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
-        }
+            omit: { title: 'Omit' },
+        },
     },
 
     // image
@@ -280,27 +280,27 @@ const res = {
             alt: {
                 defaultValue: 'Image',
                 help: 'Enter alternate text for disabled people',
-                title: 'Text'
+                title: 'Text',
             },
             src: {
                 defaultValue:
                     'cdn://images/o_collection/svg/office/painting_landscape.svg',
                 help: 'Select an image',
-                title: 'Source'
+                title: 'Source',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             behavior: {
                 source: [
                     { text: 'None', value: 'none' },
                     { text: 'Draggable', value: 'draggable' },
-                    { text: 'Selectable', value: 'selectable' }
+                    { text: 'Selectable', value: 'selectable' },
                 ],
-                title: 'Behaviour'
+                title: 'Behaviour',
             },
-            constant: { title: 'Constant' }
-        }
+            constant: { title: 'Constant' },
+        },
     },
 
     // imageset
@@ -314,28 +314,28 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Image set',
-                        url: 'cdn://images/o_collection/svg/office/photos.svg'
-                    }
+                        url: 'cdn://images/o_collection/svg/office/photos.svg',
+                    },
                 ],
-                title: 'Images'
+                title: 'Images',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
-        }
+            omit: { title: 'Omit' },
+        },
     },
 
     // label
@@ -349,20 +349,20 @@ const res = {
             text: {
                 defaultValue: 'Label',
                 help: 'Enter the label text',
-                title: 'Text'
-            }
+                title: 'Text',
+            },
         },
         properties: {
             behavior: {
                 source: [
                     { text: 'None', value: 'none' },
                     { text: 'Draggable', value: 'draggable' },
-                    { text: 'Selectable', value: 'selectable' }
+                    { text: 'Selectable', value: 'selectable' },
                 ],
-                title: 'Behaviour'
+                title: 'Behaviour',
             },
-            constant: { title: 'Constant' }
-        }
+            constant: { title: 'Constant' },
+        },
     },
 
     // latex
@@ -374,25 +374,25 @@ const res = {
         attributes: {
             formula: {
                 defaultValue: '\\sum_{n=1}^{\\infty}2^{-n}=1',
-                title: 'Formula'
+                title: 'Formula',
             },
             inline: {
                 defaultValue: false, // TODO
-                title: 'Inline'
+                title: 'Inline',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             behavior: {
                 source: [
                     { text: 'None', value: 'none' },
                     { text: 'Draggable', value: 'draggable' },
-                    { text: 'Selectable', value: 'selectable' }
+                    { text: 'Selectable', value: 'selectable' },
                 ],
-                title: 'Behaviour'
+                title: 'Behaviour',
             },
-            constant: { title: 'Constant' }
-        }
+            constant: { title: 'Constant' },
+        },
     },
 
     // line
@@ -410,16 +410,16 @@ const res = {
                     { text: 'Arrow', value: 'arrow' },
                     { text: 'Circle', value: 'circle' },
                     { text: 'Diamond', value: 'diamond' },
-                    { text: 'Square', value: 'square' }
-                ]
+                    { text: 'Square', value: 'square' },
+                ],
             },
             lineColor: {
                 help: 'Select a color for the line',
-                title: 'Color'
+                title: 'Color',
             },
             lineWidth: {
                 help: 'Enter a number for the thickness of the line',
-                title: 'Thickness'
+                title: 'Thickness',
             },
             startCap: {
                 title: 'Begin Type',
@@ -428,11 +428,11 @@ const res = {
                     { text: 'Arrow', value: 'arrow' },
                     { text: 'Circle', value: 'circle' },
                     { text: 'Diamond', value: 'diamond' },
-                    { text: 'Square', value: 'square' }
-                ]
-            }
+                    { text: 'Square', value: 'square' },
+                ],
+            },
         },
-        properties: {}
+        properties: {},
     },
 
     // mathinput
@@ -442,7 +442,7 @@ const res = {
         icon: 'formula_input',
         name: 'Math input',
         attributes: {},
-        properties: {}
+        properties: {},
     },
 
     // multiquiz
@@ -457,16 +457,16 @@ const res = {
                     {
                         text: 'Option 1',
                         url:
-                            'cdn://images/o_collection/svg/office/hand_count_one.svg'
+                            'cdn://images/o_collection/svg/office/hand_count_one.svg',
                     },
                     {
                         text: 'Option 2',
                         url:
-                            'cdn://images/o_collection/svg/office/hand_point_up.svg'
-                    }
+                            'cdn://images/o_collection/svg/office/hand_point_up.svg',
+                    },
                 ],
                 help: 'Enter the answers to choose from',
-                title: 'Values'
+                title: 'Values',
             },
             groupStyle: { title: 'Group Style' },
             itemStyle: { title: 'Item Style' },
@@ -477,28 +477,28 @@ const res = {
                     { text: 'Checkbox', value: 'checkbox' },
                     { text: 'Image', value: 'image' },
                     { text: 'Link', value: 'link' },
-                    { text: 'Multiselection', value: 'multiselect' }
+                    { text: 'Multiselection', value: 'multiselect' },
                 ],
-                title: 'Mode'
+                title: 'Mode',
             },
             selectedStyle: { title: 'Selection Style' },
-            shuffle: { title: 'Shuffle' }
+            shuffle: { title: 'Shuffle' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
-        }
+            omit: { title: 'Omit' },
+        },
     },
 
     // numericbox
@@ -511,23 +511,23 @@ const res = {
             decimals: { title: 'Decimals' },
             min: { title: 'Minimum' },
             max: { title: 'Maximum' },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
-        }
+            omit: { title: 'Omit' },
+        },
     },
 
     // pointer
@@ -535,7 +535,7 @@ const res = {
         description: 'Pointer',
         help: 'TODO',
         icon: 'mouse_pointer',
-        name: 'Pointer'
+        name: 'Pointer',
     },
 
     // quiz
@@ -549,15 +549,15 @@ const res = {
                 defaultValue: [
                     {
                         text: 'True',
-                        url: 'cdn://images/o_collection/svg/office/ok.svg'
+                        url: 'cdn://images/o_collection/svg/office/ok.svg',
                     },
                     {
                         text: 'False',
-                        url: 'cdn://images/o_collection/svg/office/error.svg'
-                    }
+                        url: 'cdn://images/o_collection/svg/office/error.svg',
+                    },
                 ],
                 help: 'Enter the answers to choose from',
-                title: 'Values'
+                title: 'Values',
             },
             groupStyle: { title: 'Group Style' },
             itemStyle: { title: 'Item Style' },
@@ -568,28 +568,28 @@ const res = {
                     { text: 'Drop-down list', value: 'dropdown' },
                     { text: 'Image', value: 'image' },
                     { text: 'Link', value: 'link' },
-                    { text: 'Radio button', value: 'radio' }
+                    { text: 'Radio button', value: 'radio' },
                 ],
-                title: 'Mode'
+                title: 'Mode',
             },
             selectedStyle: { title: 'Selection Style' },
-            shuffle: { title: 'Shuffle' }
+            shuffle: { title: 'Shuffle' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
-        }
+            omit: { title: 'Omit' },
+        },
     },
 
     // selector
@@ -604,27 +604,27 @@ const res = {
                 source: [
                     { text: 'Circle', value: 'circle' },
                     { text: 'Cross', value: 'cross' },
-                    { text: 'Rectangle', value: 'rect' }
+                    { text: 'Rectangle', value: 'rect' },
                 ],
-                title: 'Shape'
-            }
+                title: 'Shape',
+            },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
             omit: { title: 'Omit' },
-            disabled: { title: 'Disabled' }
-        }
+            disabled: { title: 'Disabled' },
+        },
     },
 
     // table
@@ -636,8 +636,8 @@ const res = {
         attributes: {
             columns: { title: 'Columns' },
             data: { title: 'Data' },
-            rows: { title: 'Rows' }
-        }
+            rows: { title: 'Rows' },
+        },
     },
 
     // textarea
@@ -647,24 +647,24 @@ const res = {
         icon: 'text_area',
         name: 'TextArea',
         attributes: {
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
+            omit: { title: 'Omit' },
             // disabled: { title: 'Disabled' }
-        }
+        },
     },
 
     // textbox
@@ -676,26 +676,26 @@ const res = {
         attributes: {
             mask: {
                 // TODO: Add help
-                title: 'Mask'
+                title: 'Mask',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
+            omit: { title: 'Omit' },
             // disabled: { title: 'Disabled' }
-        }
+        },
     },
 
     // textgaps
@@ -709,25 +709,25 @@ const res = {
             style: { title: 'Style' },
             text: {
                 title: 'Text',
-                defaultValue: 'Some text with gaps like [] or [] to fill.'
-            }
+                defaultValue: 'Some text with gaps like [] or [] to fill.',
+            },
         },
         properties: {
             name: { title: 'Name' },
             question: {
                 help: 'Enter the question shown in score reports',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help: 'Enter the solution shown in score reports',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Success' },
             failure: { title: 'Failure' },
-            omit: { title: 'Omit' }
+            omit: { title: 'Omit' },
             // disabled: { title: 'Disabled' }
-        }
+        },
     },
 
     // variable
@@ -740,13 +740,13 @@ const res = {
         properties: {
             expression: {
                 help: 'Enter a calculated expression',
-                title: 'Expression'
+                title: 'Expression',
             },
             variable: {
                 help: 'Enter a variable name',
-                title: 'Variable'
-            }
-        }
+                title: 'Variable',
+            },
+        },
     },
 
     // video
@@ -760,9 +760,9 @@ const res = {
             mp4: { title: 'MP4 File' },
             ogv: { title: 'OGV File' },
             toolbarHeight: { title: 'Toolbar Height' }, // TODO: Make style
-            wbem: { title: 'WBEM File' }
-        }
-    }
+            wbem: { title: 'WBEM File' },
+        },
+    },
 };
 
 /**

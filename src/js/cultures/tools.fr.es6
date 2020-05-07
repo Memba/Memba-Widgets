@@ -28,8 +28,8 @@ const res = {
             // Incors O-Collection sign_warning.svg
             // warning: '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>',
             warning:
-                'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4='
-        }
+                'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4=',
+        },
     },
 
     // validation messages
@@ -66,7 +66,7 @@ const res = {
         invalidValidation:
             'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation dans la logique de test.',
         invalidVideoFile:
-            'Un(e) {0} en page {1} nécessite un fichier mp4 dans les attributs d’affichage.'
+            'Un(e) {0} en page {1} nécessite un fichier mp4 dans les attributs d’affichage.',
     },
 
     // audio
@@ -78,8 +78,8 @@ const res = {
         attributes: {
             autoplay: { title: 'Auto.' },
             mp3: { title: 'Fichier MP3' },
-            ogg: { title: 'Fichier OGG' }
-        }
+            ogg: { title: 'Fichier OGG' },
+        },
     },
 
     // chargrid
@@ -100,25 +100,25 @@ const res = {
             lockedFill: { title: 'Fond Vérouillé' },
             rows: { title: 'Lignes' },
             selectedFill: { title: 'Fond Sélectionné' },
-            whitelist: { title: 'Caractères' }
+            whitelist: { title: 'Caractères' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
-            omit: { title: 'Omission' }
-        }
+            omit: { title: 'Omission' },
+        },
     },
 
     // chart
@@ -131,7 +131,7 @@ const res = {
             categories: { title: 'Catégories' },
             data: {
                 help: 'Saisissez les données',
-                title: 'Données'
+                title: 'Données',
             },
             legend: {
                 source: [
@@ -139,9 +139,9 @@ const res = {
                     { text: 'Haut', value: 'top' },
                     { text: 'Bas', value: 'bottom' },
                     { text: 'Gauche', value: 'left' },
-                    { text: 'Droite', value: 'right' }
+                    { text: 'Droite', value: 'right' },
                 ],
-                title: 'Légende'
+                title: 'Légende',
             },
             style: { title: 'Style' },
             title: { title: 'Titre' },
@@ -159,12 +159,12 @@ const res = {
                     { text: 'Stack Bar', value: 'stackBar' },
                     { text: 'Waterfall', value: 'waterfall' },
                     { text: 'Vertical Area', value: 'verticalArea' },
-                    { text: 'Vertical Line', value: 'verticalLine' }
+                    { text: 'Vertical Line', value: 'verticalLine' },
                 ],
-                title: 'Type'
+                title: 'Type',
             },
-            values: { title: 'Valeurs' }
-        }
+            values: { title: 'Valeurs' },
+        },
     },
 
     // connector
@@ -174,26 +174,26 @@ const res = {
         icon: 'target',
         name: 'Connecteur',
         attributes: {
-            color: { title: 'Couleur' }
+            color: { title: 'Couleur' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
             omit: { title: 'Omission' },
-            disabled: { title: 'Désactivé' }
-        }
+            disabled: { title: 'Désactivé' },
+        },
     },
 
     // dropzone
@@ -205,33 +205,33 @@ const res = {
         attributes: {
             center: {
                 defaultValue: false,
-                title: 'Centrer'
+                title: 'Centrer',
             },
             empty: { title: 'Vide' },
             style: { title: 'Style' },
             text: {
                 defaultValue: 'Veuillez déposer ici.',
-                title: 'Texte'
-            }
+                title: 'Texte',
+            },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
             omit: { title: 'Omission' },
-            disabled: { title: 'Désactivé' }
-        }
+            disabled: { title: 'Désactivé' },
+        },
     },
 
     // dummy
@@ -239,7 +239,7 @@ const res = {
         description: 'Carré',
         help: 'TODO',
         icon: 'shapes',
-        name: 'Carré'
+        name: 'Carré',
     },
 
     // highlighter
@@ -254,26 +254,26 @@ const res = {
             style: { title: 'Style' },
             text: {
                 defaultValue: 'Un peu de texte à surligner.',
-                title: 'Texte'
-            }
+                title: 'Texte',
+            },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
-            omit: { title: 'Omission' }
-        }
+            omit: { title: 'Omission' },
+        },
     },
 
     // image
@@ -286,27 +286,27 @@ const res = {
             alt: {
                 defaultValue: 'Image',
                 help: 'Saisissez la description pour les malvoyants',
-                title: 'Texte'
+                title: 'Texte',
             },
             src: {
                 defaultValue:
                     'cdn://images/o_collection/svg/office/painting_landscape.svg',
                 help: 'Sélectionnez une image',
-                title: 'Source'
+                title: 'Source',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             behavior: {
                 source: [
                     { text: 'Aucun', value: 'none' },
                     { text: 'Glissable', value: 'draggable' },
-                    { text: 'Sélectionnable', value: 'selectable' }
+                    { text: 'Sélectionnable', value: 'selectable' },
                 ],
-                title: 'Comportement'
+                title: 'Comportement',
             },
-            constant: { title: 'Constante' }
-        }
+            constant: { title: 'Constante' },
+        },
     },
 
     // imageset
@@ -320,30 +320,30 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Jeu d’images',
-                        url: 'cdn://images/o_collection/svg/office/photos.svg'
-                    }
+                        url: 'cdn://images/o_collection/svg/office/photos.svg',
+                    },
                 ],
-                title: 'Images'
+                title: 'Images',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
-            omit: { title: 'Omission' }
-        }
+            omit: { title: 'Omission' },
+        },
     },
 
     // label
@@ -357,20 +357,20 @@ const res = {
             text: {
                 defaultValue: 'Texte',
                 help: 'Saisissez le texte de l´étiquette',
-                title: 'Texte'
-            }
+                title: 'Texte',
+            },
         },
         properties: {
             behavior: {
                 source: [
                     { text: 'Aucun', value: 'none' },
                     { text: 'Glissable', value: 'draggable' },
-                    { text: 'Sélectionnable', value: 'selectable' }
+                    { text: 'Sélectionnable', value: 'selectable' },
                 ],
-                title: 'Comportement'
+                title: 'Comportement',
             },
-            constant: { title: 'Constante' }
-        }
+            constant: { title: 'Constante' },
+        },
     },
 
     // latex
@@ -382,25 +382,25 @@ const res = {
         attributes: {
             formula: {
                 defaultValue: '\\sum_{n=1}^{\\infty}2^{-n}=1',
-                title: 'Formule'
+                title: 'Formule',
             },
             inline: {
                 defaultValue: false, // TODO
-                title: 'Aligné'
+                title: 'Aligné',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             behavior: {
                 source: [
                     { text: 'Aucun', value: 'none' },
                     { text: 'Glissable', value: 'draggable' },
-                    { text: 'Sélectionnable', value: 'selectable' }
+                    { text: 'Sélectionnable', value: 'selectable' },
                 ],
-                title: 'Comportement'
+                title: 'Comportement',
             },
-            constant: { title: 'Constante' }
-        }
+            constant: { title: 'Constante' },
+        },
     },
 
     // line
@@ -418,16 +418,16 @@ const res = {
                     { text: 'Flèche', value: 'arrow' },
                     { text: 'Cercle', value: 'circle' },
                     { text: 'Diamant', value: 'diamond' },
-                    { text: 'Carré', value: 'square' }
-                ]
+                    { text: 'Carré', value: 'square' },
+                ],
             },
             lineColor: {
                 help: 'Choisissez la couleur de la ligne',
-                title: 'Couleur'
+                title: 'Couleur',
             },
             lineWidth: {
                 help: 'Saississez un nombre pour l´épaisseur de la ligne',
-                title: 'Épaisseur'
+                title: 'Épaisseur',
             },
             startCap: {
                 title: 'Type de Fin',
@@ -436,11 +436,11 @@ const res = {
                     { text: 'Flèche', value: 'arrow' },
                     { text: 'Cercle', value: 'circle' },
                     { text: 'Diamant', value: 'diamond' },
-                    { text: 'Carré', value: 'square' }
-                ]
-            }
+                    { text: 'Carré', value: 'square' },
+                ],
+            },
         },
-        properties: {}
+        properties: {},
     },
 
     // mathinput
@@ -451,7 +451,7 @@ const res = {
         icon: 'formula_input',
         name: 'Mat input',
         attributes: {},
-        properties: {}
+        properties: {},
     },
 
     // multiquiz
@@ -466,16 +466,16 @@ const res = {
                     {
                         text: 'Option 1',
                         url:
-                            'cdn://images/o_collection/svg/office/hand_count_one.svg'
+                            'cdn://images/o_collection/svg/office/hand_count_one.svg',
                     },
                     {
                         text: 'Option 2',
                         url:
-                            'cdn://images/o_collection/svg/office/hand_point_up.svg'
-                    }
+                            'cdn://images/o_collection/svg/office/hand_point_up.svg',
+                    },
                 ],
                 help: 'Saisissez les réponses possibles',
-                title: 'Valeurs'
+                title: 'Valeurs',
             },
             groupStyle: { title: 'Style Groupe' },
             itemStyle: { title: 'Style Element' },
@@ -486,30 +486,30 @@ const res = {
                     { text: 'Case à cocher', value: 'checkbox' },
                     { text: 'Image', value: 'image' },
                     { text: 'Lien', value: 'link' },
-                    { text: 'Multisélection', value: 'multiselect' }
+                    { text: 'Multisélection', value: 'multiselect' },
                 ],
-                title: 'Mode'
+                title: 'Mode',
             },
             selectedStyle: { title: 'Style Sélection' },
-            shuffle: { title: 'Mélanger' }
+            shuffle: { title: 'Mélanger' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
-            omit: { title: 'Omission' }
-        }
+            omit: { title: 'Omission' },
+        },
     },
 
     // numericbox
@@ -522,25 +522,25 @@ const res = {
             decimals: { title: 'Décimales' },
             min: { title: 'Minimum' },
             max: { title: 'Maximum' },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
-            omit: { title: 'Omission' }
-        }
+            omit: { title: 'Omission' },
+        },
     },
 
     // pointer
@@ -548,7 +548,7 @@ const res = {
         description: 'Pointeur',
         help: 'TODO',
         icon: 'mouse_pointer',
-        name: 'Pointeur'
+        name: 'Pointeur',
     },
 
     // quiz
@@ -562,15 +562,15 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Vrai',
-                        url: 'cdn://images/o_collection/svg/office/ok.svg'
+                        url: 'cdn://images/o_collection/svg/office/ok.svg',
                     },
                     {
                         text: 'Faux',
-                        url: 'cdn://images/o_collection/svg/office/error.svg'
-                    }
+                        url: 'cdn://images/o_collection/svg/office/error.svg',
+                    },
                 ],
                 help: 'Saisissez les réponses possibles',
-                title: 'Valeurs'
+                title: 'Valeurs',
             },
             groupStyle: { title: 'Style Groupe' },
             itemStyle: { title: 'Style Element' },
@@ -581,30 +581,30 @@ const res = {
                     { text: 'Liste déroulante', value: 'dropdown' },
                     { text: 'Image', value: 'image' },
                     { text: 'Lien', value: 'link' },
-                    { text: 'Option', value: 'radio' }
+                    { text: 'Option', value: 'radio' },
                 ],
-                title: 'Mode'
+                title: 'Mode',
             },
             selectedStyle: { title: 'Style Sélection' },
-            shuffle: { title: 'Mélanger' }
+            shuffle: { title: 'Mélanger' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
-            omit: { title: 'Omission' }
-        }
+            omit: { title: 'Omission' },
+        },
     },
 
     // selector
@@ -619,29 +619,29 @@ const res = {
                 source: [
                     { text: 'Cercle', value: 'circle' },
                     { text: 'Croix', value: 'cross' },
-                    { text: 'Rectangle', value: 'rect' }
+                    { text: 'Rectangle', value: 'rect' },
                 ],
-                title: 'Forme'
-            }
+                title: 'Forme',
+            },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
             omit: { title: 'Omission' },
-            disabled: { title: 'Désactivé' }
-        }
+            disabled: { title: 'Désactivé' },
+        },
     },
 
     // table
@@ -653,8 +653,8 @@ const res = {
         attributes: {
             columns: { title: 'Colonnes' },
             data: { title: 'Données' },
-            rows: { title: 'Lignes' }
-        }
+            rows: { title: 'Lignes' },
+        },
     },
 
     // textarea
@@ -664,27 +664,27 @@ const res = {
         icon: 'text_area',
         name: 'Saisie de Texte Long',
         attributes: {
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
             omit: { title: 'Omission' },
-            disabled: { title: 'Désactivé' }
+            disabled: { title: 'Désactivé' },
             // disabled: { title: 'Désactivé' }
-        }
+        },
     },
 
     // textbox
@@ -696,29 +696,29 @@ const res = {
         attributes: {
             mask: {
                 // TODO: Add help
-                title: 'Masque'
+                title: 'Masque',
             },
-            style: { title: 'Style' }
+            style: { title: 'Style' },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
             omit: { title: 'Omission' },
-            disabled: { title: 'Désactivé' }
+            disabled: { title: 'Désactivé' },
             // disabled: { title: 'Désactivé' }
-        }
+        },
     },
 
     // textgaps
@@ -733,28 +733,28 @@ const res = {
             text: {
                 title: 'Texte',
                 defaultValue:
-                    'Un peu de texte avec un trou comme [] ou [] à remplir.'
-            }
+                    'Un peu de texte avec un trou comme [] ou [] à remplir.',
+            },
         },
         properties: {
             name: { title: 'Nom' },
             question: {
                 help:
                     'Saisissez la question à afficher dans les rapports de correction',
-                title: 'Question'
+                title: 'Question',
             },
             solution: {
                 help:
                     'Saisissez la solution à afficher dans les rapports de correction',
-                title: 'Solution'
+                title: 'Solution',
             },
             validation: { title: 'Validation' },
             success: { title: 'Succès' },
             failure: { title: 'Échec' },
             omit: { title: 'Omission' },
-            disabled: { title: 'Désactivé' }
+            disabled: { title: 'Désactivé' },
             // disabled: { title: 'Désactivé' }
-        }
+        },
     },
 
     // variable
@@ -767,13 +767,13 @@ const res = {
         properties: {
             expression: {
                 help: 'Saisissez une expression calculée',
-                title: 'Expression'
+                title: 'Expression',
             },
             variable: {
                 help: 'Saisissez un nom de variable',
-                title: 'Variable'
-            }
-        }
+                title: 'Variable',
+            },
+        },
     },
 
     // video
@@ -787,9 +787,9 @@ const res = {
             mp4: { title: 'Fichier MP4' },
             ogv: { title: 'Fichier OGV' },
             toolbarHeight: { title: 'Haut. Commandes' }, // TODO: Make style
-            wbem: { title: 'Fichier WBEM' }
-        }
-    }
+            wbem: { title: 'Fichier WBEM' },
+        },
+    },
 };
 
 /**

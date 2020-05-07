@@ -137,7 +137,7 @@ const CONSTANTS = {
     DATA_PAGE_SIZE: {
         SMALL: 5,
         MEDIUM: 10,
-        MAX: 100
+        MAX: 100,
     },
     DRAFT: 'draft',
     ID: 'id',
@@ -146,12 +146,12 @@ const CONSTANTS = {
         ADD: 'add',
         CLOSE: 'close',
         EDIT: 'edit',
-        OK: 'ok'
+        OK: 'ok',
     },
     PANEL_STATE: {
         CLOSED: 0,
         READ: 1,
-        EDIT: 2
+        EDIT: 2,
     },
     ROLE: 'role',
     TEXT: 'text',
@@ -159,7 +159,7 @@ const CONSTANTS = {
     VALUE: 'value',
     WORKFLOW: {
         DRAFT: 0,
-        PUBLISHED: 5
+        PUBLISHED: 5,
     },
     // HTML tags
     A: 'a',
@@ -181,7 +181,7 @@ const CONSTANTS = {
     ARIA_DISABLED: 'aria-disabled',
     ARIA_HIDDEN: 'aria-hidden',
     DISABLED: 'disabled',
-    READONLY: 'readonly'
+    READONLY: 'readonly',
 };
 
 /**

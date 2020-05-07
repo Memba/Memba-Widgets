@@ -29,9 +29,7 @@ describe('util.assets', () => {
                     .to.have.property('extensions')
                     .that.is.an(CONSTANTS.ARRAY)
                     .with.lengthOf(0);
-                expect(assets)
-                    .to.have.property('schemes')
-                    .that.is.an('object');
+                expect(assets).to.have.property('schemes').that.is.an('object');
             });
 
             xit('It should initialize with options', () => {
@@ -46,9 +44,7 @@ describe('util.assets', () => {
                     .to.have.property('extensions')
                     .that.is.an(CONSTANTS.ARRAY)
                     .with.lengthOf(0);
-                expect(assets)
-                    .to.have.property('schemes')
-                    .that.is.an('object');
+                expect(assets).to.have.property('schemes').that.is.an('object');
             });
         });
 

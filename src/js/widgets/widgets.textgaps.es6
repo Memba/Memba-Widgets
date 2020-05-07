@@ -14,14 +14,14 @@ import {
     // compareBasicArrays,
     getSelection,
     isAnyArray,
-    setSelection
+    setSelection,
 } from '../common/window.util.es6';
 
 const {
     destroy,
     format,
     htmlEncode,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.textgaps');
 const NS = '.kendoTextGaps';
@@ -59,7 +59,7 @@ const TextGaps = Widget.extend({
         text: '',
         input: '\\[\\]', // backslahes are required for regular expressions, but this should be read []
         inputStyle: '',
-        enabled: true
+        enabled: true,
     },
 
     /**
@@ -236,7 +236,7 @@ const TextGaps = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

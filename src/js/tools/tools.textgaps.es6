@@ -25,7 +25,7 @@ import { arrayLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
@@ -64,56 +64,56 @@ const TextGapsTool = BaseTool.extend({
         ),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         inputStyle: new StyleAdapter({
             title: __('tools.textgaps.attributes.inputStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         style: new StyleAdapter({
             title: __('tools.textgaps.attributes.style.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         text: new TextBoxAdapter({
             title: __('tools.textgaps.attributes.text.title'),
-            defaultValue: __('tools.textgaps.attributes.text.defaultValue')
-        })
+            defaultValue: __('tools.textgaps.attributes.text.defaultValue'),
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.textgaps.properties.name.title')
+            title: __('tools.textgaps.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.textgaps.properties.question.help'),
             title: __('tools.textgaps.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new BasicListAdapter({
             defaultValue: [],
             help: __('tools.textgaps.properties.solution.help'),
-            title: __('tools.textgaps.properties.solution.title')
+            title: __('tools.textgaps.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
-            title: __('tools.textgaps.properties.validation.title')
+            title: __('tools.textgaps.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.textgaps.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.textgaps.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.textgaps.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -162,7 +162,7 @@ const TextGapsTool = BaseTool.extend({
                     __('tools.messages.invalidText'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -179,7 +179,7 @@ const TextGapsTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -196,12 +196,12 @@ const TextGapsTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO also check that split regex is safe
         return ret;
-    }
+    },
 });
 
 /**

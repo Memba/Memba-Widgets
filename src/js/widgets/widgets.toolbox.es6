@@ -18,7 +18,7 @@ const {
     attr,
     destroy,
     format,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.toolbox');
 
@@ -84,7 +84,7 @@ const ToolBox = Widget.extend({
         size: DEFAULT_SIZE,
         iconPath: DEFAULT_PATH,
         extension: DEFAULT_EXTENSION,
-        tools // This is a function to defer loading
+        tools, // This is a function to defer loading
     },
 
     /**
@@ -159,7 +159,7 @@ const ToolBox = Widget.extend({
             'Please use a div tag to instantiate a ToolBox widget.'
         );
         this.wrapper = element.addClass(WIDGET_CLASS).attr(ROLE, MENU);
-        Object.keys(options.tools()).forEach(id => {
+        Object.keys(options.tools()).forEach((id) => {
             const tool = options.tools(id);
             if (tool instanceof StubTool) {
                 const button = $(
@@ -169,12 +169,9 @@ const ToolBox = Widget.extend({
                     .attr(ROLE, MENUITEM)
                     .css({
                         lineHeight: 'normal',
-                        margin: `${Math.round(options.size / 16)}px`
+                        margin: `${Math.round(options.size / 16)}px`,
                     });
-                button
-                    .find('img')
-                    .height(options.size)
-                    .width(options.size);
+                button.find('img').height(options.size).width(options.size);
                 element.append(button);
             }
         });
@@ -214,7 +211,7 @@ const ToolBox = Widget.extend({
         if (enabled) {
             element
                 .removeClass(CONSTANTS.DISABLED_CLASS)
-                .on(`${CONSTANTS.CLICK}${NS}`, 'a.kj-tool', e => {
+                .on(`${CONSTANTS.CLICK}${NS}`, 'a.kj-tool', (e) => {
                     e.preventDefault();
                     const value = $(e.currentTarget).attr(attr(TOOL));
                     if (!this.trigger(CONSTANTS.CLICK, { value })) {
@@ -243,7 +240,7 @@ const ToolBox = Widget.extend({
         Widget.fn.destroy.call(this);
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

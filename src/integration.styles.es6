@@ -23,12 +23,12 @@ const { bind, observable } = window.kendo;
 // Get components
 const data = getComponentArray();
 // Load tools
-const promises = data.map(component => tools.load(component.tool));
+const promises = data.map((component) => tools.load(component.tool));
 $.when(...promises).then(() => {
     const pageComponentDataSource = new PageComponentDataSource({ data });
     const viewModel = observable({
         items: pageComponentDataSource,
-        current: null
+        current: null,
     });
 
     // Page ready

@@ -16,13 +16,13 @@ import { escapeRegExp } from '../common/window.util.es6';
 import tools from '../tools/tools.es6';
 import {
     PageComponent,
-    PageComponentDataSource
+    PageComponentDataSource,
 } from './data.pagecomponent.es6';
 import BaseModel from './data.base.es6';
 
 const {
     data: { DataSource, ObservableArray },
-    format
+    format,
 } = window.kendo;
 
 /**
@@ -37,7 +37,7 @@ const Page = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         components: {
             type: CONSTANTS.OBJECT,
@@ -53,25 +53,25 @@ const Page = BaseModel.define({
                 }
                 if (Array.isArray(value) || value instanceof ObservableArray) {
                     return new PageComponentDataSource({
-                        data: value
+                        data: value,
                     });
                 }
                 return new PageComponentDataSource(value);
-            }
+            },
         },
         explanations: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         instructions: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         style: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         time: {
             type: CONSTANTS.NUMBER,
-            defaultValue: 30 // seconds
-        }
+            defaultValue: 30, // seconds
+        },
     },
 
     /**
@@ -106,7 +106,7 @@ const Page = BaseModel.define({
         missingSelector:
             'A Selector is required for selectable Labels or Images on page {0}.',
         missingInstructions: 'Instructions are recommended on page {0}.',
-        missingExplanations: 'Explanations are recommended on page {0}.'
+        missingExplanations: 'Explanations are recommended on page {0}.',
     },
 
     /**
@@ -254,15 +254,15 @@ const Page = BaseModel.define({
         const ret = {
             audio: [],
             image: [],
-            video: []
+            video: [],
         };
         // Iterate through components
-        this.components.data().forEach(component => {
+        this.components.data().forEach((component) => {
             const assets = component.assets();
             // Iterate through asset classes (media audio, image, video)
-            Object.keys(assets).forEach(media => {
+            Object.keys(assets).forEach((media) => {
                 // Iterate through component assets
-                assets[media].forEach(a => {
+                assets[media].forEach((a) => {
                     // Only add to ret if not a duplicate
                     if (ret[media].indexOf(a) === -1) {
                         ret[media].push(a);
@@ -317,7 +317,7 @@ const Page = BaseModel.define({
     clone() {
         let clone = {};
         // Copy page fields (explanations, instructions, style), but not components
-        Object.keys(this.fields).forEach(key => {
+        Object.keys(this.fields).forEach((key) => {
             if (key !== this.idField && key !== 'components') {
                 clone[key] = this.get(key);
             }
@@ -330,7 +330,7 @@ const Page = BaseModel.define({
         }
         // Return clone
         return clone;
-    }
+    },
 
     /**
      * Page validation
@@ -491,7 +491,7 @@ const Page = BaseModel.define({
 /**
  * createTextBoxPage
  */
-Page.createTextBoxPage = options => {
+Page.createTextBoxPage = (options) => {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -517,9 +517,9 @@ Page.createTextBoxPage = options => {
     const dfd = $.Deferred();
     const solutions = options.solution
         .split('\n')
-        .filter(item => item.trim() !== '');
+        .filter((item) => item.trim() !== '');
     const escaped = solutions.map(escapeRegExp);
-    const promises = ['image', 'label', 'textbox'].map(tool =>
+    const promises = ['image', 'label', 'textbox'].map((tool) =>
         tools.load(tool)
     );
     $.when(...promises)
@@ -533,8 +533,8 @@ Page.createTextBoxPage = options => {
                         width: 940,
                         height: 160,
                         attributes: {
-                            text: options.question
-                        }
+                            text: options.question,
+                        },
                     }),
                     new PageComponent({
                         tool: 'image',
@@ -543,8 +543,8 @@ Page.createTextBoxPage = options => {
                         width: 360,
                         height: 360,
                         attributes: {
-                            alt: options.question
-                        }
+                            alt: options.question,
+                        },
                     }),
                     new PageComponent({
                         tool: 'textbox',
@@ -560,9 +560,9 @@ Page.createTextBoxPage = options => {
                                     ? `// ignoreCaseMatch ${JSON.stringify([
                                         `^(?:${escaped.join('|')})$`// eslint-disable-line prettier/prettier
                                     ])}` // eslint-disable-line prettier/prettier
-                                    : '// ignoreCaseEqual'
-                        }
-                    })
+                                    : '// ignoreCaseEqual',
+                        },
+                    }),
                 ],
                 instructions: format(
                     Page.prototype.messages.createTextBoxInstructions,
@@ -571,7 +571,7 @@ Page.createTextBoxPage = options => {
                 explanations: format(
                     Page.prototype.messages.createTextBoxExplanations,
                     solutions[0]
-                )
+                ),
             });
             dfd.resolve(page);
         })
@@ -582,7 +582,7 @@ Page.createTextBoxPage = options => {
 /**
  * createQuizPage
  */
-Page.createQuizPage = options => {
+Page.createQuizPage = (options) => {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -610,7 +610,7 @@ Page.createQuizPage = options => {
         )
     );
     const dfd = $.Deferred();
-    const promises = ['image', 'label', 'quiz'].map(tool => tools.load(tool));
+    const promises = ['image', 'label', 'quiz'].map((tool) => tools.load(tool));
     $.when(...promises)
         .then(() => {
             // TODO Check that options.data has text and image
@@ -623,8 +623,8 @@ Page.createQuizPage = options => {
                         width: 940,
                         height: 160,
                         attributes: {
-                            text: options.question
-                        }
+                            text: options.question,
+                        },
                     }),
                     new PageComponent({
                         tool: 'image',
@@ -633,8 +633,8 @@ Page.createQuizPage = options => {
                         width: 360,
                         height: 360,
                         attributes: {
-                            alt: options.question
-                        }
+                            alt: options.question,
+                        },
                     }),
                     new PageComponent({
                         tool: 'quiz',
@@ -644,14 +644,14 @@ Page.createQuizPage = options => {
                         height: 360,
                         attributes: {
                             mode: 'radio',
-                            data: options.data
+                            data: options.data,
                         },
                         properties: {
                             question: options.question,
                             solution: options.solution,
-                            validation: '// equal'
-                        }
-                    })
+                            validation: '// equal',
+                        },
+                    }),
                 ],
                 instructions: format(
                     Page.prototype.messages.createQuizInstructions,
@@ -660,7 +660,7 @@ Page.createQuizPage = options => {
                 explanations: format(
                     Page.prototype.messages.createQuizExplanations,
                     options.solution
-                )
+                ),
             });
             dfd.resolve(page);
         })
@@ -671,7 +671,7 @@ Page.createQuizPage = options => {
 /**
  * createMultiQuizPage
  */
-Page.createMultiQuizPage = options => {
+Page.createMultiQuizPage = (options) => {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -695,7 +695,7 @@ Page.createMultiQuizPage = options => {
         assert.format(assert.messages.isArray.default, options.solution)
     );
     const dfd = $.Deferred();
-    const promises = ['image', 'label', 'multiquiz'].map(tool =>
+    const promises = ['image', 'label', 'multiquiz'].map((tool) =>
         tools.load(tool)
     );
     $.when(...promises)
@@ -710,8 +710,8 @@ Page.createMultiQuizPage = options => {
                         width: 940,
                         height: 160,
                         attributes: {
-                            text: options.question
-                        }
+                            text: options.question,
+                        },
                     }),
                     new PageComponent({
                         tool: 'image',
@@ -720,8 +720,8 @@ Page.createMultiQuizPage = options => {
                         width: 360,
                         height: 360,
                         attributes: {
-                            alt: options.question
-                        }
+                            alt: options.question,
+                        },
                     }),
                     new PageComponent({
                         tool: 'multiquiz',
@@ -731,14 +731,14 @@ Page.createMultiQuizPage = options => {
                         height: 360,
                         attributes: {
                             mode: 'checkbox',
-                            data: options.data
+                            data: options.data,
                         },
                         properties: {
                             question: options.question,
                             solution: options.solution,
-                            validation: '// equal'
-                        }
-                    })
+                            validation: '// equal',
+                        },
+                    }),
                 ],
                 instructions: format(
                     Page.prototype.messages.createQuizInstructions,
@@ -747,7 +747,7 @@ Page.createMultiQuizPage = options => {
                 explanations: format(
                     Page.prototype.messages.createMultiQuizExplanations,
                     options.solution.join('**,\n- **')
-                )
+                ),
             });
             dfd.resolve(page);
         })
@@ -821,8 +821,8 @@ const PageDataSource = DataSource.extend({
                                 ? options.schema.modelBase
                                 : options.schema.model
                         ),
-                        model: Page.define(options.schema.model)
-                    }
+                        model: Page.define(options.schema.model),
+                    },
                 });
             }
         }
@@ -834,8 +834,8 @@ const PageDataSource = DataSource.extend({
                 {
                     schema: {
                         modelBase: Page,
-                        model: Page
-                    }
+                        model: Page,
+                    },
                 },
                 options
             )
@@ -843,7 +843,7 @@ const PageDataSource = DataSource.extend({
 
         // See https://www.telerik.com/forums/_attachbubblehandlers
         // this._attachBubbleHandlers();
-    }
+    },
 
     /**
      * _attachBubbleHandlers
@@ -867,7 +867,7 @@ const PageDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-PageDataSource.create = options => {
+PageDataSource.create = (options) => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray

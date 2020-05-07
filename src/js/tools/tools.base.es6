@@ -20,7 +20,7 @@ import TOOLS from './util.constants.es6';
 import {
     isCustomFormula,
     isLibraryFormula,
-    parseLibraryItem
+    parseLibraryItem,
 } from './util.libraries.es6';
 
 const {
@@ -32,7 +32,7 @@ const {
     htmlEncode,
     ns,
     resize,
-    template
+    template,
 } = window.kendo;
 
 /**
@@ -115,7 +115,7 @@ const StubTool = Class.extend({
     getHelp(component) {
         this._assertComponent(component);
         return template(this.help || CONSTANTS.EMPTY)(component);
-    }
+    },
 });
 
 /**
@@ -132,7 +132,7 @@ const BaseTool = StubTool.extend({
         type: CONSTANTS.STRING,
         // defaultValue: null,
         // editable: true
-        nullable: true
+        nullable: true,
         // parse(value) { return value; }
         // from: undefined
         // validation: {}
@@ -150,7 +150,7 @@ const BaseTool = StubTool.extend({
      */
     getAttributeModel() {
         const model = { fields: {} };
-        Object.keys(this.attributes).forEach(key => {
+        Object.keys(this.attributes).forEach((key) => {
             if (this.attributes[key] instanceof BaseAdapter) {
                 model.fields[key] = this.attributes[key].getField();
             }
@@ -202,7 +202,7 @@ const BaseTool = StubTool.extend({
         );
 
         // Add other attributes
-        Object.keys(this.attributes).forEach(key => {
+        Object.keys(this.attributes).forEach((key) => {
             if (this.attributes[key] instanceof BaseAdapter) {
                 rows.push(this.attributes[key].getRow(`attributes.${key}`));
             }
@@ -218,7 +218,7 @@ const BaseTool = StubTool.extend({
      */
     getPropertyModel() {
         const model = { fields: {} };
-        Object.keys(this.properties).forEach(key => {
+        Object.keys(this.properties).forEach((key) => {
             if (this.properties[key] instanceof BaseAdapter) {
                 model.fields[key] = this.properties[key].getField();
                 if (key === 'name') {
@@ -239,7 +239,7 @@ const BaseTool = StubTool.extend({
      */
     getPropertyRows() {
         const rows = [];
-        Object.keys(this.properties).forEach(key => {
+        Object.keys(this.properties).forEach((key) => {
             if (this.properties[key] instanceof BaseAdapter) {
                 rows.push(this.properties[key].getRow(`properties.${key}`));
             }
@@ -257,7 +257,7 @@ const BaseTool = StubTool.extend({
         return {
             audio: [],
             image: [],
-            video: []
+            video: [],
         };
     },
 
@@ -300,18 +300,18 @@ const BaseTool = StubTool.extend({
                 value: { ...this.field },
                 result: {
                     type: CONSTANTS.BOOLEAN,
-                    nullable: true
+                    nullable: true,
                 },
                 score: {
                     type: CONSTANTS.NUMBER,
-                    defaultValue: component.get('properties.omit')
-                }
+                    defaultValue: component.get('properties.omit'),
+                },
             },
             // Bind change event in constructor
             init(options) {
                 const that = this;
                 BaseModel.fn.init.call(that, options);
-                that.bind(CONSTANTS.CHANGE, e => {
+                that.bind(CONSTANTS.CHANGE, (e) => {
                     // When value changes
                     if (e.field === 'value') {
                         // Reset grading and score calculations
@@ -359,7 +359,7 @@ const BaseTool = StubTool.extend({
                 const values = {};
                 const model = this.parent(); // a TestModel derived from BaseTest
                 const page = this.page();
-                Object.keys(model.fields).forEach(key => {
+                Object.keys(model.fields).forEach((key) => {
                     if (
                         TOOLS.RX_TEST_FIELD_NAME.test(key) && // val_xxxxxx
                         model[key].page() === page // same page
@@ -392,7 +392,7 @@ const BaseTool = StubTool.extend({
                     solution: tool.getSolution(component, variables),
                     // Other field values on the same page
                     // assuming this TestModelField is part of a TestModel
-                    all: $.extend(pageValues, variables)
+                    all: $.extend(pageValues, variables),
                 };
             },
             // grade function
@@ -426,7 +426,7 @@ const BaseTool = StubTool.extend({
                         .promise();
                 }
                 poolExec(validation, data, name)
-                    .then(res => {
+                    .then((res) => {
                         if (res.name === name) {
                             if (res.result === true) {
                                 that.set('result', true);
@@ -475,7 +475,7 @@ const BaseTool = StubTool.extend({
             toJSON() {
                 // TODO Consider eliminating null values
                 return BaseModel.fn.toJSON.call(this);
-            }
+            },
         });
     },
 

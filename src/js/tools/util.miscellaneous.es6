@@ -31,7 +31,7 @@ const defaultChartData = (categories, values) => {
         for (columnIndex = 1; columnIndex < columnTotal; columnIndex++) {
             row.cells.push({
                 index: columnIndex,
-                value: Math.floor(MAX_VALUE * Math.random())
+                value: Math.floor(MAX_VALUE * Math.random()),
             });
         }
         rows.push(row);
@@ -47,8 +47,8 @@ const defaultChartData = (categories, values) => {
  */
 const resizeSpreadsheetData = (json, rowMax, columnMax) => {
     let { rows } = json.sheets[0];
-    const rowFilter = row => row.index < rowMax;
-    const columnFilter = column => column.index < columnMax;
+    const rowFilter = (row) => row.index < rowMax;
+    const columnFilter = (column) => column.index < columnMax;
     rows = rows.filter(rowFilter);
     for (
         let rowIndex = 0, rowTotal = rows.length;

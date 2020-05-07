@@ -29,7 +29,7 @@ const {
     ns,
     // roleSelector,
     template,
-    ui: { DataBoundWidget, plugin }
+    ui: { DataBoundWidget, plugin },
     // unbind
 } = window.kendo;
 const logger = new Logger('widgets.playbar');
@@ -50,7 +50,7 @@ function button(tmpl, idx, text, numeric, title) {
         text,
         ns,
         numeric,
-        title: title || ''
+        title: title || '',
     });
 }
 
@@ -58,7 +58,7 @@ function icon(tmpl, className, text, wrapClassName) {
     return tmpl({
         className: className.substring(1),
         text,
-        wrapClassName: wrapClassName || ''
+        wrapClassName: wrapClassName || '',
     });
 }
 
@@ -151,8 +151,8 @@ const PlayBar = DataBoundWidget.extend({
             next: 'Go to the next page',
             last: 'Go to the last page',
             refresh: 'Refresh',
-            morePages: 'More pages'
-        }
+            morePages: 'More pages',
+        },
     },
 
     /**
@@ -171,7 +171,7 @@ const PlayBar = DataBoundWidget.extend({
         CONSTANTS.CHANGE,
         CONSTANTS.CLICK,
         CONSTANTS.DATABINDING,
-        CONSTANTS.DATABOUND
+        CONSTANTS.DATABOUND,
     ],
 
     /**
@@ -197,7 +197,7 @@ const PlayBar = DataBoundWidget.extend({
                     that.refresh();
                     that.trigger(CONSTANTS.CHANGE, {
                         index,
-                        value: page
+                        value: page,
                     });
                 }
             }
@@ -498,7 +498,7 @@ const PlayBar = DataBoundWidget.extend({
                             enabled: false,
                             mode: 'play',
                             scale: 0.25,
-                            style: page.style
+                            style: page.style,
                         });
                     },
                     hide(e) {
@@ -507,9 +507,9 @@ const PlayBar = DataBoundWidget.extend({
                     animation: {
                         open: {
                             effects: 'zoom',
-                            duration: 150
-                        }
-                    }
+                            duration: 150,
+                        },
+                    },
                 })
                 .data('kendoTooltip');
         }
@@ -526,7 +526,7 @@ const PlayBar = DataBoundWidget.extend({
             element,
             linkTemplate,
             options,
-            selectTemplate
+            selectTemplate,
         } = this;
         const index = this.index();
         const length = this.length();
@@ -700,15 +700,12 @@ const PlayBar = DataBoundWidget.extend({
      */
     destroy() {
         this.element.find('*').off();
-        this.element
-            .off()
-            .empty()
-            .removeClass(WIDGET_CLASS);
+        this.element.off().empty().removeClass(WIDGET_CLASS);
         this.setDataSource(null);
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

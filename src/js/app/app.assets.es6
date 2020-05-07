@@ -27,10 +27,10 @@ const O_COLLECTION = {
         {
             name: 'Office',
             transport: {
-                read: `${base}/test/data/images/o_collection/svg/office/index.json`
-            }
-        }
-    ]
+                read: `${base}/test/data/images/o_collection/svg/office/index.json`,
+            },
+        },
+    ],
 };
 
 /**
@@ -42,24 +42,24 @@ const assets = {
     audio: new ToolAssets({
         schemes: {
             // cdn: `${base}/src/styles/`,
-            data: `${base}/test/data/audio/`
-        }
+            data: `${base}/test/data/audio/`,
+        },
     }),
     // Assets for the image tool
     image: new ToolAssets({
         collections: [O_COLLECTION],
         schemes: {
             cdn: `${base}/src/styles/`,
-            data: `${base}/test/data/images/miscellaneous/`
-        }
+            data: `${base}/test/data/images/miscellaneous/`,
+        },
     }),
     // Assets for the video tool
     video: new ToolAssets({
         schemes: {
             // cdn: `${base}/src/styles/`,
-            data: `${base}/test/data/video/`
-        }
-    })
+            data: `${base}/test/data/video/`,
+        },
+    }),
 };
 
 /**

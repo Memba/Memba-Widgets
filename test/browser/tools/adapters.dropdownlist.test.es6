@@ -19,15 +19,13 @@ describe('adapters.dropdownlist', () => {
 
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
-            expect(adapter)
-                .to.have.property('attributes')
-                .that.deep.equals({
-                    'data-role': 'dropdownlist',
-                    'data-source': '[]',
-                    'data-text-field': 'text',
-                    'data-value-field': 'value',
-                    'data-value-primitive': true
-                });
+            expect(adapter).to.have.property('attributes').that.deep.equals({
+                'data-role': 'dropdownlist',
+                'data-source': '[]',
+                'data-text-field': 'text',
+                'data-value-field': 'value',
+                'data-value-primitive': true,
+            });
             expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;
             expect(adapter).to.have.property('editor', 'select');
@@ -47,7 +45,7 @@ describe('adapters.dropdownlist', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
                 defaultValue: '',
-                type: CONSTANTS.STRING
+                type: CONSTANTS.STRING,
             });
         });
 
@@ -60,10 +58,10 @@ describe('adapters.dropdownlist', () => {
                     'data-source': '[]',
                     'data-text-field': 'text',
                     'data-value-field': 'value',
-                    'data-value-primitive': true
+                    'data-value-primitive': true,
                 },
                 editor: 'select',
-                field
+                field,
             });
         });
     });

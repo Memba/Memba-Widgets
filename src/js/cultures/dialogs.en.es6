@@ -25,7 +25,7 @@ const res = {
 
     /* dialogs.assetmanager */
     assetmanager: {
-        title: 'Assets'
+        title: 'Assets',
     },
 
     /* dialogs.chargrid */
@@ -34,12 +34,12 @@ const res = {
             '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out empty cells.</p>',
         solution:
             '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>',
-        title: 'Character Grid'
+        title: 'Character Grid',
     },
 
     /* dialogs.codeeditor */
     codeeditor: {
-        title: 'Code Editor'
+        title: 'Code Editor',
     },
 
     /* dialogs.finder */
@@ -48,23 +48,23 @@ const res = {
         me: 'My projects',
         published: 'Published on {0:dd-MMM-yyyy} by {1}',
         search: 'Search',
-        title: 'Search'
+        title: 'Search',
     },
 
     /* dialogs.mediaplayer */
     mediaplayer: {
-        title: 'Video'
+        title: 'Video',
     },
 
     /* dialogs.newsummary */
     newsummary: {
-        title: 'New Quiz'
+        title: 'New Quiz',
     },
 
     /* dialogs.publish */
     publish: {
         message: 'PLease select a license to publish',
-        title: 'Publish'
+        title: 'Publish',
     },
 
     /* dialogs.quizwizard */
@@ -80,23 +80,23 @@ const res = {
         validation: {
             grid:
                 'At least one option and one checked solution are required. Also options cannot be left empty.',
-            question: 'A question is required.'
-        }
+            question: 'A question is required.',
+        },
     },
 
     /* dialogs.signin */
     signin: {
-        title: 'Sign-in'
+        title: 'Sign-in',
     },
 
     /* dialogs.speeadsheet */
     spreadsheet: {
-        title: 'Spreadsheet'
+        title: 'Spreadsheet',
     },
 
     /* dialogs.styleeditor */
     styleeditor: {
-        title: 'Style Editor'
+        title: 'Style Editor',
     },
 
     /* dialogs.textboxwizard */
@@ -108,9 +108,9 @@ const res = {
         title: 'New Simple Question',
         validation: {
             question: 'A question is required.',
-            solution: 'A solution is required.'
-        }
-    }
+            solution: 'A solution is required.',
+        },
+    },
 };
 
 /**

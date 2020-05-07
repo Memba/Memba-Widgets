@@ -37,15 +37,15 @@ config.locales = ['en', 'fr'];
 config.uris = {
     cdn: {
         // icons: `${base}/src/styles/images/o_collection/svg/office/{0}.svg`
-        icons: `https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg`
+        icons: `https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg`,
     },
     webapp: {
         workerlib: [
             `${base}/src/js/vendor/jashkenas/underscore.js`,
             `${base}/src/js/vendor/khan/kas.js`,
-            `${base}/src/js/workers/workers.lib.js`
-        ]
-    }
+            `${base}/src/js/workers/workers.lib.js`,
+        ],
+    },
 };
 
 /**

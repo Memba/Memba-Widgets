@@ -22,7 +22,7 @@ import TOOLS from './util.constants.es6';
 import {
     altValidator,
     constantValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
@@ -45,40 +45,40 @@ const ImageTool = BaseTool.extend({
     menu: ['attributes.src', 'attributes.alt'],
     width: 250,
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         alt: new TextBoxAdapter({
             defaultValue: __('tools.image.attributes.alt.defaultValue'),
             help: __('tools.image.attributes.alt.help'),
             title: __('tools.image.attributes.alt.title'),
-            validation: altValidator
+            validation: altValidator,
         }),
         src: new AssetAdapter({
             defaultValue: __('tools.image.attributes.src.defaultValue'),
             help: __('tools.image.attributes.src.help'),
-            title: __('tools.image.attributes.src.title')
+            title: __('tools.image.attributes.src.title'),
         }),
         style: new StyleAdapter({
             title: __('tools.image.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
                 defaultValue: 'none',
                 source: __('tools.image.properties.behavior.source'),
-                title: __('tools.image.properties.behavior.title')
+                title: __('tools.image.properties.behavior.title'),
             },
             {
-                style: 'width: 100%;'
+                style: 'width: 100%;',
             }
         ),
         constant: new TextBoxAdapter({
             title: __('tools.image.properties.constant.title'),
-            validation: constantValidator
-        })
+            validation: constantValidator,
+        }),
     },
 
     /**
@@ -100,7 +100,7 @@ const ImageTool = BaseTool.extend({
         return {
             audio: [],
             image: [component.get('attributes.src')],
-            video: []
+            video: [],
         };
     },
 
@@ -133,7 +133,7 @@ const ImageTool = BaseTool.extend({
             src$() {
                 const src = component.attributes.get('src');
                 return assets.image.scheme2http(src);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -171,7 +171,7 @@ const ImageTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this; // tool description
         if (
             !component.attributes ||
@@ -187,7 +187,7 @@ const ImageTool = BaseTool.extend({
                     messages.invalidAltText,
                     description,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -208,7 +208,7 @@ const ImageTool = BaseTool.extend({
                     messages.invalidImageFile,
                     description,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -220,12 +220,16 @@ const ImageTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                ),
             });
         }
         // TODO: We should also check that there is a dropZone/Selector on the page if draggable/selectable
         return ret;
-    }
+    },
 });
 
 /**

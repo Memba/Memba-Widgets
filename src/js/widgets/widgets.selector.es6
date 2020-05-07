@@ -17,7 +17,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
     getMousePosition,
-    getTransformScale
+    getTransformScale,
 } from '../common/window.position.es6';
 import { isAnyArray, randomId } from '../common/window.util.es6';
 
@@ -33,7 +33,7 @@ const {
     ns,
     roleSelector,
     unbind,
-    ui: { DataBoundWidget, plugin, ToolBar, Widget }
+    ui: { DataBoundWidget, plugin, ToolBar, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.selector');
 const WIDGET = 'kendoSelector';
@@ -287,7 +287,7 @@ const SelectorEvents = Class.extend({
                 logger.debug({
                     method: '_onMouseDown',
                     message: 'Started new selection',
-                    data: stroke
+                    data: stroke,
                 });
             }
         }
@@ -355,14 +355,14 @@ const SelectorEvents = Class.extend({
                 sel.removeAllRanges();
             }
         }
-    }
+    },
 });
 
 /**
  * Singleton to share SelectorEvents
  * @returns {SelectorEvents}
  */
-SelectorEvents.getSingleton = function(options) {
+SelectorEvents.getSingleton = function (options) {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -438,7 +438,7 @@ const SelectorToolBar = ToolBar.extend({
     options: {
         name: 'SelectorToolBar',
         iconSize: ICON_SIZE,
-        resizable: false
+        resizable: false,
     },
 
     /**
@@ -536,7 +536,7 @@ const SelectorToolBar = ToolBar.extend({
         const stroke = deepExtend({}, selector.options.stroke, {
             dashType: 'solid',
             opacity: 1,
-            width: 2
+            width: 2,
         });
         const border = Math.floor(iconSize / 10);
         const root = new Group();
@@ -563,7 +563,7 @@ const SelectorToolBar = ToolBar.extend({
         // https://docs.telerik.com/kendo-ui/api/javascript/drawing/methods/exportsvg
         // drawing.exportSVG(root)
         exportImage(root, { width: iconSize, height: iconSize })
-            .then(dataUri => {
+            .then((dataUri) => {
                 dfd.resolve({
                     group: 'selectors',
                     id: BUTTON_PREFIX + selector.options.id,
@@ -573,7 +573,7 @@ const SelectorToolBar = ToolBar.extend({
                         selector.options.shape.substr(0, 1).toUpperCase() +
                         selector.options.shape.substr(1).toLowerCase, // TODO: i18n
                     togglable: true,
-                    type: 'button'
+                    type: 'button',
                 });
             })
             .catch(dfd.reject);
@@ -619,7 +619,7 @@ const SelectorToolBar = ToolBar.extend({
             for (let i = 0; i < length; i++) {
                 promises.push(that._createButton(selectorSurface.selectors[i]));
             }
-            $.when.apply(that, promises).then(function() {
+            $.when.apply(that, promises).then(function () {
                 // Remove buttons
                 removeButtonGroup();
                 // Add buttons
@@ -670,7 +670,7 @@ const SelectorToolBar = ToolBar.extend({
         ToolBar.fn.destroy.call(this);
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**
@@ -713,7 +713,7 @@ const SelectorSurface = Widget.extend({
     options: {
         name: 'SelectorSurface',
         container: '',
-        toolbar: ''
+        toolbar: '',
     },
 
     /**
@@ -902,7 +902,7 @@ const SelectorSurface = Widget.extend({
         const items = selector.dataSource
             .view()
             .filter(
-                dataItem =>
+                (dataItem) =>
                     dataItem.type === DATA_TYPE &&
                     dataItem.id === selector.options.id
             );
@@ -944,8 +944,8 @@ const SelectorSurface = Widget.extend({
                 // Remember shape and stroke in case author makes changes in a new version
                 shape: selector.options.shape,
                 stroke: selector.options.stroke,
-                selections: []
-            }
+                selections: [],
+            },
         };
     },
 
@@ -1042,11 +1042,11 @@ const SelectorSurface = Widget.extend({
             // Round the origin and size to spare storage space
             const origin = [
                 Math.round(rect.origin.x),
-                Math.round(rect.origin.y)
+                Math.round(rect.origin.y),
             ];
             const size = [
                 Math.round(rect.size.width),
-                Math.round(rect.size.height)
+                Math.round(rect.size.height),
             ];
             // Add the origin and size to the dataItem corresponding to the selector
             dataItem.data.selections.push({ origin, size });
@@ -1057,7 +1057,7 @@ const SelectorSurface = Widget.extend({
             logger.debug({
                 method: '_pushSelection',
                 message: 'Added new selection',
-                data: { origin, size }
+                data: { origin, size },
             });
         } else {
             // Remove the small path
@@ -1131,7 +1131,7 @@ const SelectorSurface = Widget.extend({
             logger.debug({
                 method: '_pullSelection',
                 message: 'Removed selections',
-                data: { point: [Math.round(point.x), Math.round(point.y)] }
+                data: { point: [Math.round(point.x), Math.round(point.y)] },
             });
         }
         return ret;
@@ -1216,14 +1216,14 @@ const SelectorSurface = Widget.extend({
         const arcGeometry = new geometry.Arc(
             [
                 rect.origin.x + rect.size.width / 2,
-                rect.origin.y + rect.size.height / 2
+                rect.origin.y + rect.size.height / 2,
             ], // center
             {
                 radiusX: rect.size.width / 2,
                 radiusY: rect.size.height / 2,
                 startAngle: 0,
                 endAngle: 360,
-                anticlockwise: false
+                anticlockwise: false,
             }
         );
         // We need to deepExtend stroke to remove all observable wrapping from dataSource
@@ -1382,7 +1382,7 @@ const SelectorSurface = Widget.extend({
                 selectorWidget instanceof Selector &&
                 selectorWidget.dataSource instanceof DataSource
             ) {
-                selectorWidget.dataSource.view().forEach(item => {
+                selectorWidget.dataSource.view().forEach((item) => {
                     // If the dataSource contains selectors from other pages, they will be listed
                     dataItems[item.id] = item;
                 });
@@ -1428,7 +1428,7 @@ const SelectorSurface = Widget.extend({
         // Remove widget class
         // element.removeClass(SURFACE_CLASS);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**
@@ -1485,9 +1485,9 @@ const Selector = DataBoundWidget.extend({
             color: '#FF0000',
             dashType: 'solid',
             opacity: 1,
-            width: 12
+            width: 12,
         },
-        enable: true
+        enable: true,
     },
 
     /**
@@ -1502,7 +1502,7 @@ const Selector = DataBoundWidget.extend({
     shapes: {
         circle: 'circle',
         cross: 'cross',
-        rect: 'rect'
+        rect: 'rect',
     },
 
     /**
@@ -1630,7 +1630,7 @@ const Selector = DataBoundWidget.extend({
             }
             surfaceElement.kendoSelectorSurface({
                 container: options.container,
-                toolbar: options.toolbar
+                toolbar: options.toolbar,
             });
         }
         this.selectorSurface = surfaceElement.data('kendoSelectorSurface');
@@ -1666,7 +1666,7 @@ const Selector = DataBoundWidget.extend({
                 this.dataSource.filter({
                     field: 'type',
                     operator: 'eq',
-                    value: DATA_TYPE
+                    value: DATA_TYPE,
                 });
             }
 
@@ -1738,7 +1738,7 @@ const Selector = DataBoundWidget.extend({
                 (boundingRect.top -
                     stageOffset.top +
                     ownerDocument.scrollTop()) /
-                    scale
+                    scale,
             ],
             [boundingRect.width / scale, boundingRect.height / scale] // getBoundingClientRect includes borders
         );
@@ -1830,7 +1830,7 @@ const Selector = DataBoundWidget.extend({
         Widget.fn.destroy.call(this);
         destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

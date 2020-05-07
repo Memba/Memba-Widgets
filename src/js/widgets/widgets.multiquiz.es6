@@ -30,7 +30,7 @@ const {
     format,
     ns,
     template,
-    ui: { DataBoundWidget, MultiSelect, plugin, Widget }
+    ui: { DataBoundWidget, MultiSelect, plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.multiquiz');
 const NS = '.kendoMultiQuiz';
@@ -53,7 +53,7 @@ const MODES = {
     CHECKBOX: 'checkbox',
     IMAGE: 'image',
     LINK: 'link',
-    MULTISELECT: 'multiselect'
+    MULTISELECT: 'multiselect',
 };
 const CHECKED = 'checked';
 
@@ -86,7 +86,7 @@ const MultiQuiz = DataBoundWidget.extend({
         checkbox: MODES.CHECKBOX,
         image: MODES.IMAGE,
         link: MODES.LINK,
-        multiselect: MODES.MULTISELECT
+        multiselect: MODES.MULTISELECT,
     },
 
     /**
@@ -112,8 +112,8 @@ const MultiQuiz = DataBoundWidget.extend({
         value: null,
         enabled: true,
         messages: {
-            placeholder: 'Select...'
-        }
+            placeholder: 'Select...',
+        },
     },
 
     /**
@@ -140,7 +140,7 @@ const MultiQuiz = DataBoundWidget.extend({
             linkTemplate,
             multiSelectTemplate,
             selectedStyle,
-            textField
+            textField,
         } = this.options;
         this._groupStyle = new Style(groupStyle || ''); // TODO where is it used?
         this._itemStyle = new Style(itemStyle || '');
@@ -179,10 +179,12 @@ const MultiQuiz = DataBoundWidget.extend({
         if (Array.isArray(value) || value instanceof ObservableArray) {
             if (dataSource instanceof ImageDataSource) {
                 // finder is used to satisfy jshint which would otherwise complain about making functions within loops
-                const finder = text => {
+                const finder = (text) => {
                     return dataSource
                         .data()
-                        .find(dataItem => dataItem[options.textField] === text);
+                        .find(
+                            (dataItem) => dataItem[options.textField] === text
+                        );
                 };
                 // Only retain values that have a match in dataSource
                 for (let i = value.length - 1; i >= 0; i--) {
@@ -249,7 +251,7 @@ const MultiQuiz = DataBoundWidget.extend({
                 itemTemplate: this._multiSelectTemplate,
                 tagTemplate: this._multiSelectTemplate,
                 value: options.value,
-                height: 400
+                height: 400,
             })
             .data('kendoMultiSelect');
     },
@@ -294,7 +296,7 @@ const MultiQuiz = DataBoundWidget.extend({
         popup.element.css({
             fontSize: `${Math.floor(fontSize * scale)}px`,
             minWidth: `${Math.floor(width * scale)}px`,
-            width: `${Math.floor(width * scale)}px`
+            width: `${Math.floor(width * scale)}px`,
         });
         // And reposition the popup
         // popup.one('open', function () { // the popup is already opened so the open event won't fire
@@ -495,7 +497,7 @@ const MultiQuiz = DataBoundWidget.extend({
             .attr('style', '')
             .css(_itemStyle.toJSON());
         if (isAnyArray(this._value)) {
-            this._value.forEach(value => {
+            this._value.forEach((value) => {
                 element
                     .find(
                         BUTTON_SELECTOR +
@@ -516,10 +518,7 @@ const MultiQuiz = DataBoundWidget.extend({
      */
     _toggleCheckBoxes() {
         const { _itemStyle, _selectedStyle, element } = this;
-        element
-            .children('div')
-            .attr('style', '')
-            .css(_itemStyle.toJSON());
+        element.children('div').attr('style', '').css(_itemStyle.toJSON());
         element
             .find(CHECKBOX_SELECTOR)
             .prop(CHECKED, false)
@@ -527,7 +526,7 @@ const MultiQuiz = DataBoundWidget.extend({
             .attr('style', '')
             .css(_itemStyle.toJSON());
         if (isAnyArray(this._value)) {
-            this._value.forEach(value => {
+            this._value.forEach((value) => {
                 element
                     .find(
                         CHECKBOX_SELECTOR +
@@ -559,7 +558,7 @@ const MultiQuiz = DataBoundWidget.extend({
             .attr('style', '')
             .css(_itemStyle.toJSON());
         if (isAnyArray(this._value)) {
-            this._value.forEach(value => {
+            this._value.forEach((value) => {
                 element
                     .find(
                         IMAGE_SELECTOR +
@@ -590,7 +589,7 @@ const MultiQuiz = DataBoundWidget.extend({
             .attr('style', '')
             .css(_itemStyle.toJSON());
         if (isAnyArray(this._value)) {
-            this._value.forEach(value => {
+            this._value.forEach((value) => {
                 element
                     .find(
                         LINK_SELECTOR +
@@ -812,10 +811,10 @@ const MultiQuiz = DataBoundWidget.extend({
             // Because input are readonly and not disabled, we need to prevent default (checking options)
             // and let it bubble to the stage element to display the handle box
             element
-                .on(CONSTANTS.CLICK + NS, CHECKBOX_SELECTOR, e => {
+                .on(CONSTANTS.CLICK + NS, CHECKBOX_SELECTOR, (e) => {
                     e.preventDefault();
                 })
-                .on(CONSTANTS.CHANGE + NS, CHECKBOX_SELECTOR, e => {
+                .on(CONSTANTS.CHANGE + NS, CHECKBOX_SELECTOR, (e) => {
                     // In the very specific case of iOS and only when all checkbox buttons are unchecked
                     // a change event is triggered before the click event and the checkbox clicked is checked
                     // like if iOS wanted one checkbox to always be checked
@@ -901,7 +900,7 @@ const MultiQuiz = DataBoundWidget.extend({
         Widget.fn.destroy.call(this);
         destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

@@ -19,7 +19,7 @@ import {
     getParams,
     isCustomFormula,
     parseLibraryItem,
-    stringifyLibraryItem
+    stringifyLibraryItem,
 } from '../tools/util.libraries.es6';
 
 const {
@@ -30,7 +30,7 @@ const {
     Observable,
     ui: { DropDownList, plugin, DataBoundWidget },
     unbind,
-    widgetInstance
+    widgetInstance,
 } = window.kendo;
 const logger = new Logger('widgets.codeinput');
 // const NS = '.kendoCodeInput';
@@ -73,8 +73,8 @@ const CodeInput = DataBoundWidget.extend({
         custom: 'custom', // key
         value: null,
         messages: {
-            custom: 'Custom' // name
-        }
+            custom: 'Custom', // name
+        },
     },
 
     /**
@@ -161,7 +161,7 @@ const CodeInput = DataBoundWidget.extend({
                 dataBound: this._onDropDownListDataBound.bind(this),
                 dataTextField: 'name',
                 dataValueField: 'key',
-                dataSource: options.dataSource
+                dataSource: options.dataSource,
             })
             .data('kendoDropDownList');
 
@@ -389,7 +389,7 @@ const CodeInput = DataBoundWidget.extend({
         // Destroy kendo;
         destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

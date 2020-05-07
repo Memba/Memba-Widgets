@@ -19,7 +19,7 @@ const {
     describe,
     it,
     navigator: { userAgent, vendor },
-    xdescribe
+    xdescribe,
 } = window;
 const { expect } = chai;
 
@@ -32,16 +32,16 @@ if (!support.filesystem) {
 } else {
     describe('window.fs', () => {
         describe('Initialization', () => {
-            it('it should init a window.TEMPORARY file system', done => {
+            it('it should init a window.TEMPORARY file system', (done) => {
                 const fileSystem = new FileSystem();
                 fileSystem
                     ._initTemporary()
-                    .then(temporary => {
+                    .then((temporary) => {
                         // expect(temporary).to.be.an('object');
                         expect(temporary).not.to.be.undefined;
                         fileSystem
                             ._initTemporary()
-                            .then(fs => {
+                            .then((fs) => {
                                 expect(fs).to.equal(temporary);
                                 done();
                             })
@@ -50,16 +50,16 @@ if (!support.filesystem) {
                     .catch(done);
             });
 
-            it('it should init a window.PERSISTENT file system', done => {
+            it('it should init a window.PERSISTENT file system', (done) => {
                 const fileSystem = new FileSystem();
                 fileSystem
                     ._initPersistent()
-                    .then(persistent => {
+                    .then((persistent) => {
                         // expect(persistent).to.be.an('object');
                         expect(persistent).not.to.be.undefined;
                         fileSystem
                             ._initPersistent()
-                            .then(fs => {
+                            .then((fs) => {
                                 expect(fs).to.equal(persistent);
                                 done();
                             })
@@ -68,7 +68,7 @@ if (!support.filesystem) {
                     .catch(done);
             });
 
-            it('it should init a file system (temporary and persistent)', done => {
+            it('it should init a file system (temporary and persistent)', (done) => {
                 const fileSystem = new FileSystem();
                 fileSystem
                     .init()
@@ -94,7 +94,7 @@ if (!support.filesystem) {
                 expect(fn).to.throw();
             });
 
-            it('it should get a directoryEntry in a temporary FileSystem', done => {
+            it('it should get a directoryEntry in a temporary FileSystem', (done) => {
                 const fileSystem = new FileSystem();
                 fileSystem
                     .init()
@@ -102,7 +102,7 @@ if (!support.filesystem) {
                         const path = '/images';
                         fileSystem
                             .getDirectoryEntry(path, window.TEMPORARY)
-                            .then(directoryEntry => {
+                            .then((directoryEntry) => {
                                 try {
                                     expect(directoryEntry).not.to.be.undefined;
                                     expect(directoryEntry.isDirectory).to.be
@@ -120,7 +120,7 @@ if (!support.filesystem) {
                     .catch(done);
             });
 
-            it('it should get a directoryEntry in a persistent FileSystem', done => {
+            it('it should get a directoryEntry in a persistent FileSystem', (done) => {
                 const fileSystem = new FileSystem();
                 fileSystem
                     .init()
@@ -128,7 +128,7 @@ if (!support.filesystem) {
                         const path = '/images/icons/office';
                         fileSystem
                             .getDirectoryEntry(path, window.PERSISTENT)
-                            .then(directoryEntry => {
+                            .then((directoryEntry) => {
                                 try {
                                     expect(directoryEntry).not.to.be.undefined;
                                     expect(directoryEntry.isDirectory).to.be
@@ -148,7 +148,7 @@ if (!support.filesystem) {
         });
 
         describe('getFileEntry', () => {
-            it('it should get a fileEntry in a temporary FileSystem', done => {
+            it('it should get a fileEntry in a temporary FileSystem', (done) => {
                 const fileSystem = new FileSystem();
                 const path = '/images';
                 const fileName = 'temp.jpg';
@@ -157,10 +157,10 @@ if (!support.filesystem) {
                     .then(() => {
                         fileSystem
                             .getDirectoryEntry(path, window.TEMPORARY)
-                            .then(directoryEntry => {
+                            .then((directoryEntry) => {
                                 fileSystem
                                     .getFileEntry(directoryEntry, fileName)
-                                    .then(fileEntry => {
+                                    .then((fileEntry) => {
                                         try {
                                             expect(fileEntry).not.to.be
                                                 .undefined;
@@ -183,7 +183,7 @@ if (!support.filesystem) {
                     .catch(done);
             });
 
-            it('it should get a fileEntry in a persistent FileSystem', done => {
+            it('it should get a fileEntry in a persistent FileSystem', (done) => {
                 const fileSystem = new FileSystem();
                 const path = '/images';
                 const fileName = 'temp.jpg';
@@ -192,10 +192,10 @@ if (!support.filesystem) {
                     .then(() => {
                         fileSystem
                             .getDirectoryEntry(path, window.PERSISTENT)
-                            .then(directoryEntry => {
+                            .then((directoryEntry) => {
                                 fileSystem
                                     .getFileEntry(directoryEntry, fileName)
-                                    .then(fileEntry => {
+                                    .then((fileEntry) => {
                                         try {
                                             expect(fileEntry).not.to.be
                                                 .undefined;
@@ -238,10 +238,13 @@ if (!support.filesystem) {
                         window.resolveLocalFileSystemURL =
                             window.resolveLocalFileSystemURL ||
                             window.webkitResolveLocalFileSystemURL;
-                        window.resolveLocalFileSystemURL(fileUrl, fileEntry => {
-                            transfer(fileUrl);
-                            successCallback(fileEntry);
-                        });
+                        window.resolveLocalFileSystemURL(
+                            fileUrl,
+                            (fileEntry) => {
+                                transfer(fileUrl);
+                                successCallback(fileEntry);
+                            }
+                        );
                     }
                 }
 
@@ -249,7 +252,7 @@ if (!support.filesystem) {
                 window.FileTransfer = FileTransfer;
             });
 
-            it('it should download a remote url to a temporary FileSystem', done => {
+            it('it should download a remote url to a temporary FileSystem', (done) => {
                 const fileSystem = new FileSystem();
                 const remoteUrl =
                     'https://cdn.kidoju.com/kidoju/kidoju.logo.png';
@@ -260,13 +263,13 @@ if (!support.filesystem) {
                     .then(() => {
                         fileSystem
                             .getDirectoryEntry(path, window.TEMPORARY)
-                            .then(directoryEntry => {
+                            .then((directoryEntry) => {
                                 fileSystem
                                     .getFileEntry(directoryEntry, fileName)
-                                    .then(fileEntry => {
+                                    .then((fileEntry) => {
                                         fileSystem
                                             .download(remoteUrl, fileEntry)
-                                            .then(entry => {
+                                            .then((entry) => {
                                                 try {
                                                     expect(transfer).to.have
                                                         .been.calledOnce;
@@ -300,12 +303,12 @@ if (!support.filesystem) {
                     .then(() => {
                         fileSystem
                             .getDirectoryEntry(path, window.TEMPORARY)
-                            .then(directoryEntry => {
+                            .then((directoryEntry) => {
                                 expect(directoryEntry).not.to.be.undefined;
                                 expect(directoryEntry.isDirectory).to.be.true;
                                 fileSystem
                                     .getFileEntry(directoryEntry, fileName)
-                                    .then(fileEntry => {
+                                    .then((fileEntry) => {
                                         expect(fileEntry).not.to.be.undefined;
                                         expect(fileEntry.isFile).to.be.true;
                                         fileSystem
@@ -324,7 +327,7 @@ if (!support.filesystem) {
             function test(remoteUrl, fileName, done) {
                 if (support.xhr2) {
                     download(remoteUrl, fileName)
-                        .then(e => {
+                        .then((e) => {
                             try {
                                 if (
                                     /Chrome/.test(userAgent) &&
@@ -352,14 +355,14 @@ if (!support.filesystem) {
                 }
             }
 
-            xit('it should download a remote url to a temporary FileSystem', done => {
+            xit('it should download a remote url to a temporary FileSystem', (done) => {
                 const remoteUrl =
                     'https://cdn.kidoju.com/kidoju/kidoju.logo.png';
                 const fileName = 'logo.png';
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should grab a profile picture from Facebook', done => {
+            it('it should grab a profile picture from Facebook', (done) => {
                 // var remoteUrl = 'https://lookaside.facebook.com/platform/profilepic/?asid=357323574748619&height=50&width=50&ext=1524312400&hash=AeS041AQDB6qcqqu'; // Fly Flyerson
                 const remoteUrl =
                     'https://graph.facebook.com/v2.8/357323574748619/picture'; // Fly Flyerson
@@ -369,21 +372,21 @@ if (!support.filesystem) {
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should grab the default profile picture from Google', done => {
+            it('it should grab the default profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
                 const fileName = 'picture.jpg';
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should grab a custom profile picture from Google', done => {
+            it('it should grab a custom profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-3ZCodtNM7jE/AAAAAAAAAAI/AAAAAAABcuo/s-E1n4YTpik/photo.jpg';
                 const fileName = 'picture.jpg';
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should grab a profile picture from Twitter', done => {
+            it('it should grab a profile picture from Twitter', (done) => {
                 const remoteUrl =
                     'https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_normal.jpg'; // JLC
                 // var remoteUrl = 'https://pbs.twimg.com/profile_images/2259969465/iPhoto_Library_Twitt_normal.jpg'; // PJ
@@ -392,7 +395,7 @@ if (!support.filesystem) {
             });
 
             // This fails
-            xit('it should grab a profile picture from Windows Live', done => {
+            xit('it should grab a profile picture from Windows Live', (done) => {
                 const remoteUrl =
                     'https://apis.live.net/v5.0/afe934f8913d4112/picture?type=medium';
                 // var remoteUrl = 'https://cid-afe934f8913d4112.users.storage.live.com/users/0xafe934f8913d4112/myprofile/expressionprofile/profilephoto:UserTileStatic';
@@ -400,14 +403,14 @@ if (!support.filesystem) {
                 test(remoteUrl, fileName, done);
             });
 
-            it('it should fail if remote url is forbidden (403)', done => {
+            it('it should fail if remote url is forbidden (403)', (done) => {
                 const remoteUrl = 'https://cdn.kidoju.com/foo/bar';
                 const fileName = 'bar.png';
                 download(remoteUrl, fileName)
                     .then(() => {
                         done(new Error('Should have caught a status error'));
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         try {
                             expect(err.message).to.equal(
                                 window.__karma__
@@ -421,14 +424,14 @@ if (!support.filesystem) {
                     });
             });
 
-            it('it should fail if remote url is not found (404)', done => {
+            it('it should fail if remote url is not found (404)', (done) => {
                 const remoteUrl = 'https://www.memba.com/foo.png';
                 const fileName = 'foo.png';
                 download(remoteUrl, fileName)
                     .then(() => {
                         done(new Error('Should have caught a status error'));
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         try {
                             // expect(err.message).to.equal('XMLHttpRequest status 404');
                             expect(err.message).to.equal(
@@ -443,7 +446,7 @@ if (!support.filesystem) {
         });
 
         describe('download with jQuery', () => {
-            $.ajaxPrefilter('arraybuffer', options => {
+            $.ajaxPrefilter('arraybuffer', (options) => {
                 /* eslint-disable no-param-reassign */
                 options.xhrFields = { responseType: 'arraybuffer' };
                 options.responseFields.arraybuffer = 'response';
@@ -458,12 +461,12 @@ if (!support.filesystem) {
                     // crossDomain: true,
                     dataType: 'arraybuffer',
                     type: 'GET',
-                    url: remoteUrl
+                    url: remoteUrl,
                 })
                     .then((response, status, xhr) => {
                         if (xhr.status === 200) {
                             const blob = new window.Blob([response], {
-                                type: xhr.getResponseHeader('content-type')
+                                type: xhr.getResponseHeader('content-type'),
                             });
                             blob.name = remoteUrl.split('/').pop();
                             dfd.resolve(blob);
@@ -477,7 +480,7 @@ if (!support.filesystem) {
 
             function test(remoteUrl, done) {
                 downloadFile(remoteUrl)
-                    .then(blob => {
+                    .then((blob) => {
                         try {
                             expect(blob).to.have.property('name'); // , 'picture');
                             expect(blob)
@@ -493,7 +496,7 @@ if (!support.filesystem) {
                     .catch(done);
             }
 
-            it('it should grab a profile picture from Facebook', done => {
+            it('it should grab a profile picture from Facebook', (done) => {
                 const remoteUrl =
                     'https://graph.facebook.com/v2.8/357323574748619/picture';
                 // var remoteUrl = 'https://lookaside.facebook.com/platform/profilepic/?asid=357323574748619&height=50&width=50&ext=1524312400&hash=AeS041AQDB6qcqqu';
@@ -502,19 +505,19 @@ if (!support.filesystem) {
                 test(remoteUrl, done);
             });
 
-            it('it should grab the default profile picture from Google', done => {
+            it('it should grab the default profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
                 test(remoteUrl, done);
             });
 
-            it('it should grab a custom profile picture from Google', done => {
+            it('it should grab a custom profile picture from Google', (done) => {
                 const remoteUrl =
                     'https://lh3.googleusercontent.com/-3ZCodtNM7jE/AAAAAAAAAAI/AAAAAAABcuo/s-E1n4YTpik/photo.jpg';
                 test(remoteUrl, done);
             });
 
-            it('it should grab a profile picture from Twitter', done => {
+            it('it should grab a profile picture from Twitter', (done) => {
                 const remoteUrl =
                     'https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_normal.jpg'; // JLC
                 // var remoteUrl = 'https://pbs.twimg.com/profile_images/2259969465/iPhoto_Library_Twitt_normal.jpg'; // PJ
@@ -522,7 +525,7 @@ if (!support.filesystem) {
             });
 
             // It fails
-            xit('it should grab a profile picture from Windows Live', done => {
+            xit('it should grab a profile picture from Windows Live', (done) => {
                 const remoteUrl =
                     'https://apis.live.net/v5.0/afe934f8913d4112/picture?type=medium';
                 // var remoteUrl = 'https://cid-afe934f8913d4112.users.storage.live.com/users/0xafe934f8913d4112/myprofile/expressionprofile/profilephoto:UserTileStatic';

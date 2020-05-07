@@ -18,28 +18,29 @@ import ASSETS from '../../../src/js/helpers/helpers.assets.es6';
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, Model, ObservableArray }
+    data: { DataSource, Model, ObservableArray },
 } = window.kendo;
 chai.use(sinonChai);
 
 const DATA = [
     {
         mime: 'error',
-        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/error.svg'
+        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/error.svg',
     },
     {
         text: 'success',
-        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg'
+        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
     },
     {
         text: 'warning',
         url:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg'
-    }
+            'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg',
+    },
 ];
 const IMAGE = {
     text: 'information',
-    url: 'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg'
+    url:
+        'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg',
 };
 
 describe('data.asset', () => {
@@ -80,7 +81,7 @@ describe('data.asset', () => {
             { size: 100, formatted: '100 bytes' },
             { size: 10000, formatted: '9.77 KB' },
             { size: 18500000, formatted: '17.64 MB' },
-            { size: 5000000000, formatted: '4.66 GB' }
+            { size: 5000000000, formatted: '4.66 GB' },
         ];
 
         it('It should format a size', () => {
@@ -105,7 +106,7 @@ describe('data.asset', () => {
             { uri: `${JSC.string()()}.PnG`, mime: 'image/png' },
             { uri: `${JSC.string()()}.svg`, mime: 'image/svg+xml' },
             { uri: `${JSC.string()()}.Wav`, mime: 'audio/wav' },
-            { uri: `${JSC.string()()}.webm`, mime: 'video/webm' }
+            { uri: `${JSC.string()()}.webm`, mime: 'video/webm' },
         ];
 
         it('It should format a type', () => {
@@ -122,12 +123,12 @@ describe('data.asset', () => {
         const URIS = [
             {
                 uri: `cdn://${URI1}`,
-                converted: `${ASSETS.SCHEMES.cdn}${URI1}`
+                converted: `${ASSETS.SCHEMES.cdn}${URI1}`,
             },
             {
                 uri: `data://${URI2}`,
-                converted: `${ASSETS.SCHEMES.data}${URI2}`
-            }
+                converted: `${ASSETS.SCHEMES.data}${URI2}`,
+            },
         ];
 
         it('It should convert schemes', () => {
@@ -177,13 +178,11 @@ describe('data.asset', () => {
             const total = dataSource.total();
             expect(total).to.equal(1);
             const data = dataSource.data();
-            expect(data)
-                .to.be.an.instanceof(ObservableArray)
-                .with.lengthOf(1);
+            expect(data).to.be.an.instanceof(ObservableArray).with.lengthOf(1);
             expect(data[0]).to.be.an.instanceof(Asset);
         });
 
-        it('It should insert an image', done => {
+        it('It should insert an image', (done) => {
             const dataSource = new AssetDataSource({ data: DATA });
             dataSource
                 .read()
@@ -202,7 +201,7 @@ describe('data.asset', () => {
                 .catch(done);
         });
 
-        it('It should raise events', done => {
+        it('It should raise events', (done) => {
             const change = sinon.spy();
             const dataSource = new AssetDataSource({ data: DATA });
             dataSource.bind('change', change);

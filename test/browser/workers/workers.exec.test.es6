@@ -13,18 +13,18 @@ const { describe, it } = window;
 const { expect } = chai;
 
 describe('workers.exec', () => {
-    it('it should execute an equality validation that results to true', done => {
+    it('it should execute an equality validation that results to true', (done) => {
         const validation =
             'function validate(value, solution, all) { return value === solution; }';
         const value = JSC.one_of([JSC.boolean(), JSC.number(), JSC.string()])();
         const data = {
             all: undefined,
             solution: value,
-            value
+            value,
         };
         const name = JSC.string()();
         poolExec(validation, data, name)
-            .then(response => {
+            .then((response) => {
                 expect(response.name).to.equal(name);
                 expect(response.result).to.be.true;
                 done();
@@ -32,18 +32,18 @@ describe('workers.exec', () => {
             .catch(done);
     });
 
-    it('it should execute an equality validation that results to false', done => {
+    it('it should execute an equality validation that results to false', (done) => {
         const validation =
             'function validate(value, solution, all) { return value === solution; }';
         const value = JSC.one_of([JSC.boolean(), JSC.number(), JSC.string()])();
         const data = {
             all: undefined,
             solution: Math.PI,
-            value
+            value,
         };
         const name = JSC.string()();
         poolExec(validation, data, name)
-            .then(response => {
+            .then((response) => {
                 expect(response.name).to.equal(name);
                 expect(response.result).to.be.false;
                 done();

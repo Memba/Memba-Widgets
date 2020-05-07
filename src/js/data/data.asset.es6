@@ -15,7 +15,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
 const {
-    data: { DataSource, ObservableArray }
+    data: { DataSource, ObservableArray },
 } = window.kendo;
 
 /**
@@ -33,19 +33,19 @@ export const Asset = BaseModel.define({
     fields: {
         size: {
             type: CONSTANTS.NUMBER,
-            editable: false
+            editable: false,
         },
         mime: {
             // Note: we need this otherwise Google images without extensions cannot be viewed
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         url: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
-        }
+            nullable: true,
+        },
     },
     // Note: replace schemes by defining a sub-model
     schemes: {},
@@ -88,7 +88,7 @@ export const Asset = BaseModel.define({
      */
     url$() {
         return Asset.scheme2http(this.get('url'), this.schemes);
-    }
+    },
 });
 
 /**
@@ -97,17 +97,13 @@ export const Asset = BaseModel.define({
  * @param url
  * @returns {*}
  */
-Asset.nameFormatter = url => {
+Asset.nameFormatter = (url) => {
     assert.type(
         CONSTANTS.STRING,
         url,
         assert.format(assert.messages.type.default, 'url', CONSTANTS.STRING)
     );
-    return url
-        .split('\\')
-        .pop()
-        .split('/')
-        .pop();
+    return url.split('\\').pop().split('/').pop();
 };
 
 /**
@@ -116,7 +112,7 @@ Asset.nameFormatter = url => {
  * @param size
  * @returns {*}
  */
-Asset.sizeFormatter = size => {
+Asset.sizeFormatter = (size) => {
     assert.type(
         CONSTANTS.NUMBER,
         size,
@@ -147,16 +143,13 @@ Asset.sizeFormatter = size => {
  * @param url
  * @returns {*}
  */
-Asset.typeFormatter = url => {
+Asset.typeFormatter = (url) => {
     assert.type(
         CONSTANTS.STRING,
         url,
         assert.format(assert.messages.type.default, 'url', CONSTANTS.STRING)
     );
-    const ext = url
-        .split('.')
-        .pop()
-        .toLowerCase();
+    const ext = url.split('.').pop().toLowerCase();
     switch (ext) {
         case 'gif':
             return 'image/gif';
@@ -208,7 +201,7 @@ Asset.scheme2http = (uri, schemes) => {
         assert.format(assert.messages.type.default, 'schemes', CONSTANTS.OBJECT)
     );
     let ret = uri;
-    Object.keys(schemes).some(scheme => {
+    Object.keys(schemes).some((scheme) => {
         let done = false;
         if (uri.indexOf(`${scheme}://`) === 0) {
             const root = schemes[scheme];
@@ -244,11 +237,11 @@ export const AssetDataSource = DataSource.extend({
             $.extend(true, {}, options, {
                 schema: {
                     modelBase: AssetWithSchemes,
-                    model: AssetWithSchemes
-                }
+                    model: AssetWithSchemes,
+                },
             })
         );
-    }
+    },
 });
 
 /**
@@ -256,7 +249,7 @@ export const AssetDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-AssetDataSource.create = options => {
+AssetDataSource.create = (options) => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray

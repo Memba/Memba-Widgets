@@ -31,7 +31,7 @@ const {
     htmlEncode,
     ns,
     roleSelector,
-    ui: { CharGrid }
+    ui: { CharGrid },
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -76,101 +76,101 @@ const CharGridTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         columns: new NumberAdapter(
             {
                 title: __('tools.chargrid.attributes.columns.title'),
-                defaultValue: 9
+                defaultValue: 9,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 20
+                'data-max': 20,
             }
         ),
         rows: new NumberAdapter(
             {
                 title: __('tools.chargrid.attributes.rows.title'),
-                defaultValue: 9
+                defaultValue: 9,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 20
+                'data-max': 20,
             }
         ),
         blank: new TextBoxAdapter({
             title: __('tools.chargrid.attributes.blank.title'),
-            defaultValue: '.'
+            defaultValue: '.',
         }),
         whitelist: new TextBoxAdapter({
             title: __('tools.chargrid.attributes.whitelist.title'),
-            defaultValue: '1-9'
+            defaultValue: '1-9',
         }),
         layout: new CharGridAdapter({
             title: __('tools.chargrid.attributes.layout.title'),
-            defaultValue: null
+            defaultValue: null,
         }),
         gridFill: new ColorAdapter({
             title: __('tools.chargrid.attributes.gridFill.title'),
-            defaultValue: '#ffffff'
+            defaultValue: '#ffffff',
         }),
         gridStroke: new ColorAdapter({
             title: __('tools.chargrid.attributes.gridStroke.title'),
-            defaultValue: '#000000'
+            defaultValue: '#000000',
         }),
         // blankFill = gridStroke
         selectedFill: new ColorAdapter({
             title: __('tools.chargrid.attributes.selectedFill.title'),
-            defaultValue: '#ffffcc'
+            defaultValue: '#ffffcc',
         }),
         lockedFill: new ColorAdapter({
             title: __('tools.chargrid.attributes.lockedFill.title'),
-            defaultValue: '#e6e6e6'
+            defaultValue: '#e6e6e6',
         }),
         // lockedColor = valueColor = fontColor
         fontColor: new ColorAdapter({
             title: __('tools.chargrid.attributes.fontColor.title'),
-            defaultValue: '#9999b6'
-        })
+            defaultValue: '#9999b6',
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.chargrid.properties.name.title')
+            title: __('tools.chargrid.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.chargrid.properties.question.help'),
             title: __('tools.chargrid.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new CharGridAdapter({
             help: __('tools.chargrid.properties.solution.help'),
-            title: __('tools.chargrid.properties.solution.title')
+            title: __('tools.chargrid.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${charGridLibrary.defaultKey}`,
             library: charGridLibrary.library,
-            title: __('tools.chargrid.properties.validation.title')
+            title: __('tools.chargrid.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.chargrid.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.chargrid.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.chargrid.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -238,7 +238,7 @@ const CharGridTool = BaseTool.extend({
             )
         );
         charGridWidget.refresh();
-    }
+    },
 
     /**
      * Component validation

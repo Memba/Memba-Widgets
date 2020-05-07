@@ -34,7 +34,7 @@ const FIXTURES = 'fixtures';
 const TOOL = 'dummy';
 
 describe('tools.dummy', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
@@ -81,9 +81,7 @@ describe('tools.dummy', () => {
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(5);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(5);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -104,9 +102,7 @@ describe('tools.dummy', () => {
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(0);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(0);
         });
 
         it('getAssets', () => {

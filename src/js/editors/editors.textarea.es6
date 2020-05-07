@@ -32,7 +32,7 @@ function textarea(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`)
+        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`),
     };
     attributes.class = attributes.class || 'k-textbox';
     return $(`<${CONSTANTS.TEXTAREA}/>`)
@@ -40,7 +40,7 @@ function textarea(container, options) {
         .attr('name', options.field)
         .css({
             resize: 'vertical',
-            width: '100%'
+            width: '100%',
         })
         .appendTo(container);
 }

@@ -23,7 +23,7 @@ import { textLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
@@ -50,47 +50,47 @@ const TextAreaTool = BaseTool.extend({
     templates: {
         design: format(TEMPLATE, ''),
         play: format(TEMPLATE, BINDING),
-        review: format(TEMPLATE, BINDING) + BaseTool.fn.getHtmlCheckMarks()
+        review: format(TEMPLATE, BINDING) + BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         style: new StyleAdapter({
             title: __('tools.textarea.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.textarea.properties.name.title')
+            title: __('tools.textarea.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.textarea.properties.question.help'),
             title: __('tools.textarea.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new TextAreaAdapter({
             help: __('tools.textarea.properties.solution.help'),
-            title: __('tools.textarea.properties.solution.title')
+            title: __('tools.textarea.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${textLibrary.defaultKey}`,
             library: textLibrary.library,
-            title: __('tools.textarea.properties.validation.title')
+            title: __('tools.textarea.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.textarea.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.textarea.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.textarea.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -127,7 +127,7 @@ const TextAreaTool = BaseTool.extend({
             // disabled elements do not receive mousedown events in Edge
             // and cannot be selected in design mode
             // disabled: !enabled,
-            readonly: !enabled
+            readonly: !enabled,
         });
     },
 
@@ -140,7 +140,7 @@ const TextAreaTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this;
         if (
             !component.attributes ||
@@ -151,11 +151,15 @@ const TextAreaTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                ),
             });
         }
         return ret;
-    }
+    },
 });
 
 /**

@@ -41,12 +41,8 @@ describe('window.assert', () => {
         it('Check window.assert', () => {
             expect(window.assert).to.be.a('function');
             expect(assert).to.be.a('function');
-            expect(window.assert)
-                .to.have.property('ok')
-                .that.is.a('function');
-            expect(assert)
-                .to.have.property('ok')
-                .that.is.a('function');
+            expect(window.assert).to.have.property('ok').that.is.a('function');
+            expect(assert).to.have.property('ok').that.is.a('function');
             if (!window.__karma__) {
                 expect(window.assert).to.equal(assert);
             }
@@ -193,10 +189,10 @@ describe('window.assert', () => {
             function fn4() {
                 assert.hasLength([], ERR_MSG);
             }
-            expect(fn1).to.throw(TypeError, ERR_MSG);
-            expect(fn2).to.throw(TypeError, ERR_MSG);
-            expect(fn3).to.throw(TypeError, ERR_MSG);
-            expect(fn4).to.throw(TypeError, ERR_MSG);
+            expect(fn1).to.throw(Error, ERR_MSG);
+            expect(fn2).to.throw(Error, ERR_MSG);
+            expect(fn3).to.throw(Error, ERR_MSG);
+            expect(fn4).to.throw(Error, ERR_MSG);
             expect(assert.hasLength($(window), ERR_MSG)).to.be.undefined;
             expect(assert.hasLength($(document), ERR_MSG)).to.be.undefined;
             expect(assert.hasLength(['a', 'b'], ERR_MSG)).to.be.undefined;

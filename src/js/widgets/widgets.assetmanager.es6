@@ -49,9 +49,9 @@ const {
         ProgressBar,
         TabStrip,
         Widget,
-        Window
+        Window,
     },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.assetmanager');
 const NS = '.kendoAssetManager';
@@ -88,7 +88,7 @@ const ACTION = {
     EDIT: 'edit',
     EXPORT: 'export',
     DESTROY: 'destroy',
-    UPLOAD: 'upload'
+    UPLOAD: 'upload',
 };
 
 /** *******************************************************************************
@@ -118,7 +118,7 @@ function bindDragEventWrappers(element, onDragEnter, onDragLeave) {
     let hideInterval;
     let lastDrag;
     element
-        .on(CONSTANTS.DRAGENTER + NS, e => {
+        .on(CONSTANTS.DRAGENTER + NS, (e) => {
             onDragEnter(e);
             lastDrag = new Date();
             if (!hideInterval) {
@@ -195,17 +195,17 @@ const AssetManager = Widget.extend({
                     // TODO: Not great to have here as this is part of our application configuration
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                    text: 'Cancel'
+                    text: 'Cancel',
                 },
                 confirm: 'Confirm',
                 newFile: 'New file',
                 ok: {
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
-                    text: 'OK'
+                    text: 'OK',
                 },
                 warningOverwrite:
-                    'Do you really want to overwite these files: `{0}`? Note that file updates take time to propagate across our Content Delivery Network while new files propagate instantly.'
+                    'Do you really want to overwite these files: `{0}`? Note that file updates take time to propagate across our Content Delivery Network while new files propagate instantly.',
             },
             toolbar: {
                 collections: 'Collections:&nbsp;',
@@ -213,9 +213,9 @@ const AssetManager = Widget.extend({
                 delete: 'Delete',
                 edit: 'Edit',
                 search: 'Search',
-                upload: 'Upload'
-            }
-        }
+                upload: 'Upload',
+            },
+        },
         // TODO we need to be able to enable/disable tabs to show disabled organization tab for users who do not have an organization
     },
 
@@ -226,7 +226,7 @@ const AssetManager = Widget.extend({
     events: [
         CONSTANTS.CHANGE,
         CONSTANTS.CLICK, // TODO beforeOpen
-        CONSTANTS.ERROR
+        CONSTANTS.ERROR,
     ],
 
     /**
@@ -279,7 +279,7 @@ const AssetManager = Widget.extend({
         const that = this;
         function makeDataSources(collections, level) {
             const ret = [];
-            collections.forEach(collection => {
+            collections.forEach((collection) => {
                 if (Array.isArray(collection.collections)) {
                     assert.ok(
                         level === 0,
@@ -291,7 +291,7 @@ const AssetManager = Widget.extend({
                         collections: makeDataSources(
                             collection.collections,
                             level + 1
-                        )
+                        ),
                     });
                 } else {
                     // This is a collection with transport
@@ -307,7 +307,7 @@ const AssetManager = Widget.extend({
                         level,
                         editor: collection.editor,
                         name: collection.name,
-                        tools: collection.tools
+                        tools: collection.tools,
                     });
                 }
             });
@@ -340,12 +340,12 @@ const AssetManager = Widget.extend({
                             : response;
                     },
                     error: 'error',
-                    total: 'total'
+                    total: 'total',
                 },
                 // IMPORTANT: schemes specializees model and modelBase in AssetDataSource
                 schemes: options.schemes,
                 serverFiltering: false,
-                serverPaging: false
+                serverPaging: false,
             },
             params
         );
@@ -367,11 +367,11 @@ const AssetManager = Widget.extend({
             ret = { field: 'url', operator: 'endswith', value: extensions[0] };
         } else if (extensions.length > 1) {
             ret = { logic: 'or', filters: [] };
-            extensions.forEach(value => {
+            extensions.forEach((value) => {
                 ret.filters.push({
                     field: 'url',
                     operator: 'endswith',
-                    value
+                    value,
                 });
             });
         }
@@ -419,7 +419,7 @@ const AssetManager = Widget.extend({
         const ul = $(`<${CONSTANTS.UL}/>`).appendTo(div);
 
         // Add a tab per collection
-        this._collections.forEach(collection => {
+        this._collections.forEach((collection) => {
             ul.append(`<li>${collection.name}</li>`);
             div.append(`<${CONSTANTS.DIV}/>`);
         });
@@ -430,7 +430,7 @@ const AssetManager = Widget.extend({
             .kendoTabStrip({
                 tabPosition: 'left',
                 animation: false, // { open: { effects: 'fadeIn' }, close: { effects: 'fadeOut' } },
-                select: this._onTabSelect.bind(this)
+                select: this._onTabSelect.bind(this),
             })
             .data('kendoTabStrip');
     },
@@ -479,7 +479,7 @@ const AssetManager = Widget.extend({
         this.toolbar = $(
             tmpl({
                 accept: (options.extensions || []).join(','), // @see http://www.w3schools.com/tags/att_input_accept.asp
-                messages: options.messages
+                messages: options.messages,
             })
         ).appendTo(this.fileBrowser);
 
@@ -491,7 +491,7 @@ const AssetManager = Widget.extend({
                 dataSource: [],
                 dataTextField: 'name',
                 dataValueField: 'name',
-                change: this._onDropDownListChange.bind(this)
+                change: this._onDropDownListChange.bind(this),
             })
             .data('kendoDropDownList');
 
@@ -503,8 +503,8 @@ const AssetManager = Widget.extend({
                 min: 0,
                 max: 1,
                 animation: {
-                    duration: 600
-                }
+                    duration: 600,
+                },
             })
             .data('kendoProgressBar');
         this.progressBar = progressBar;
@@ -707,7 +707,7 @@ const AssetManager = Widget.extend({
             assert.format(assert.messages.isArray.default, 'parent.collections')
         );
         const found = parent.collections.filter(
-            item => item.name === e.sender.value()
+            (item) => item.name === e.sender.value()
         );
         [this.collection] = found;
         this._updateTab();
@@ -761,7 +761,7 @@ const AssetManager = Widget.extend({
         );
         const that = this;
         function execUpload() {
-            const promises = fileList.map(file => that._uploadFile(file));
+            const promises = fileList.map((file) => that._uploadFile(file));
             that._showUploadProgress();
             $.when(...promises).always(that._hideUploadProgress.bind(that));
         }
@@ -781,8 +781,8 @@ const AssetManager = Widget.extend({
                 message: format(
                     options.messages.dialogs.warningOverwrite,
                     found.join('`, `')
-                )
-            }).then(e => {
+                ),
+            }).then((e) => {
                 if (e.action === 'ok') {
                     execUpload();
                 }
@@ -953,7 +953,7 @@ const AssetManager = Widget.extend({
             ret.accept({
                 size: file.size,
                 type: file.type,
-                url: file.url
+                url: file.url,
             });
             ret._override = true;
         } else {
@@ -961,7 +961,7 @@ const AssetManager = Widget.extend({
             ret = new that.listView.dataSource.reader.model({
                 size: file.size,
                 type: file.type,
-                url: file.url
+                url: file.url,
             });
         }
         return ret;
@@ -1084,12 +1084,12 @@ const AssetManager = Widget.extend({
         const dfd = $.Deferred();
         logger.debug({
             message: 'Uploading file',
-            method: '_uploadFile'
+            method: '_uploadFile',
         });
         // Call the transport defined in app.assets.js
         that.listView.dataSource.transport.upload({
             data: {
-                file
+                file,
             },
             success(response) {
                 assert.type(
@@ -1134,7 +1134,7 @@ const AssetManager = Widget.extend({
             error(xhr, status, error) {
                 dfd.reject(xhr, status, error);
                 that._xhrErrorHandler(xhr, status, error); // TODO
-            }
+            },
         });
         return dfd.promise();
     },
@@ -1186,7 +1186,7 @@ const AssetManager = Widget.extend({
         if (that.collection.editor) {
             logger.debug({
                 method: '_editNew',
-                message: 'Open asset editor' // , data: dataItem.toJSON()
+                message: 'Open asset editor', // , data: dataItem.toJSON()
             });
             const windowWidget = that._getWindow();
             windowWidget.viewModel = that._getWindowViewModel();
@@ -1194,7 +1194,7 @@ const AssetManager = Widget.extend({
             windowWidget.content(that.collection.editor.template);
             bind(windowWidget.element, windowWidget.viewModel);
             if ($.isFunction(that.collection.editor.resize)) {
-                windowWidget.bind('resize', e => {
+                windowWidget.bind('resize', (e) => {
                     // that.collection.editor.resize is defined in app.assets.js
                     that.collection.editor.resize.bind(e.sender)(e);
                 });
@@ -1244,7 +1244,7 @@ const AssetManager = Widget.extend({
             logger.debug({
                 method: '_editSelected',
                 message: 'Open asset editor',
-                data: dataItem.toJSON()
+                data: dataItem.toJSON(),
             });
             const windowWidget = that._getWindow();
             windowWidget.viewModel = that._getWindowViewModel(dataItem.url$());
@@ -1252,13 +1252,13 @@ const AssetManager = Widget.extend({
             windowWidget.content(that.collection.editor.template);
             bind(windowWidget.element, windowWidget.viewModel);
             if ($.isFunction(that.collection.editor.resize)) {
-                windowWidget.bind('resize', e => {
+                windowWidget.bind('resize', (e) => {
                     // that.collection.editor.resize is defined in app.assets.js
                     that.collection.editor.resize.bind(e.sender)(e);
                 });
             }
             if ($.isFunction(that.collection.editor.openUrl)) {
-                windowWidget.one('open', e => {
+                windowWidget.one('open', (e) => {
                     // that.collection.editor.openUrl is defined in app.assets.js
                     that.collection.editor.openUrl.bind(e.sender)(
                         dataItem.url$()
@@ -1268,7 +1268,7 @@ const AssetManager = Widget.extend({
                 logger.warn({
                     method: '_editSelected',
                     message:
-                        'The collection does not designate an editor implementing openUrl'
+                        'The collection does not designate an editor implementing openUrl',
                 });
             }
             windowWidget.center().open();
@@ -1314,7 +1314,7 @@ const AssetManager = Widget.extend({
             logger.debug({
                 method: '_deleteSelected',
                 message: 'Asset deletion',
-                data: dataItem.toJSON()
+                data: dataItem.toJSON(),
             });
             this.listView.dataSource.remove(dataItem);
             // dataSource.sync calls transport.destroy if available
@@ -1412,7 +1412,7 @@ const AssetManager = Widget.extend({
         this.listView.dataSource.query({
             filter,
             page: 1,
-            pageSize: this.listView.dataSource.pageSize()
+            pageSize: this.listView.dataSource.pageSize(),
         });
     },
 
@@ -1465,7 +1465,7 @@ const AssetManager = Widget.extend({
                 dataBound: this._onListViewDataBound.bind(this),
                 dataSource,
                 selectable: true,
-                template: template(this.options.itemTemplate)
+                template: template(this.options.itemTemplate),
             })
             .data('kendoListView');
         assert.instanceof(
@@ -1482,7 +1482,7 @@ const AssetManager = Widget.extend({
             .appendTo(this.fileBrowser)
             .kendoPager({
                 autoBind: false, // dataSource has already been bound/read by this.listView
-                dataSource
+                dataSource,
             })
             .data('kendoPager');
         assert.instanceof(
@@ -1647,7 +1647,7 @@ const AssetManager = Widget.extend({
                         windowWidget.unbind('resize');
                         windowWidget.content(''); // The content method destroys widgets and unbinds data
                         windowWidget.viewModel = undefined;
-                    }
+                    },
                 })
                 .data('kendoWindow');
             // Hides the display of "Fermer" after the "X" icon in the window title bar
@@ -1684,7 +1684,7 @@ const AssetManager = Widget.extend({
                         logger.warn({
                             method: '_getWindowViewModel',
                             message:
-                                'The collection does not designate an editor implementing saveAs'
+                                'The collection does not designate an editor implementing saveAs',
                         });
                     }
                 }
@@ -1704,11 +1704,11 @@ const AssetManager = Widget.extend({
                         logger.warn({
                             method: '_getWindowViewModel',
                             message:
-                                'The collection does not designate an editor implementing openImageDialog'
+                                'The collection does not designate an editor implementing openImageDialog',
                         });
                     }
                 }
-            }
+            },
         });
     },
 
@@ -1758,11 +1758,11 @@ const AssetManager = Widget.extend({
         const that = this;
         if (supportsFileDrop()) {
             that.dropZone = $('.k-dropzone', that.wrapper)
-                .on(CONSTANTS.DRAGENTER + NS, e => {
+                .on(CONSTANTS.DRAGENTER + NS, (e) => {
                     e.stopPropagation();
                     e.preventDefault();
                 })
-                .on(CONSTANTS.DRAGOVER + NS, e => {
+                .on(CONSTANTS.DRAGOVER + NS, (e) => {
                     e.preventDefault();
                 })
                 .on(CONSTANTS.DROP + NS, that._onDrop.bind(that));
@@ -1856,7 +1856,7 @@ const AssetManager = Widget.extend({
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

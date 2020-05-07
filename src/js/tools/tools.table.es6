@@ -42,33 +42,33 @@ const TableTool = BaseTool.extend({
     width: 600,
     menu: ['attributes.columns', 'attributes.rows', 'attributes.data'],
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         columns: new NumberAdapter(
             {
                 defaultValue: 4,
                 help: __('tools.table.attributes.columns.help'),
-                title: __('tools.table.attributes.columns.title')
+                title: __('tools.table.attributes.columns.title'),
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 20
+                'data-max': 20,
             }
         ),
         rows: new NumberAdapter(
             {
                 defaultValue: 6,
                 help: __('tools.table.attributes.rows.help'),
-                title: __('tools.table.attributes.rows.title')
+                title: __('tools.table.attributes.rows.title'),
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 20
+                'data-max': 20,
             }
         ),
         data: new TableAdapter({
@@ -82,17 +82,17 @@ const TableTool = BaseTool.extend({
                                     {
                                         index: 0,
                                         value: 'TableTool',
-                                        fontSize: 48
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
+                                        fontSize: 48,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
             },
             help: __('tools.table.attributes.data.help'),
-            title: __('tools.table.attributes.data.title')
-        })
+            title: __('tools.table.attributes.data.title'),
+        }),
     },
 
     /**
@@ -116,12 +116,12 @@ const TableTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
             // TODO validate columns, rows and data
         }
         return ret;
-    }
+    },
 });
 
 /**

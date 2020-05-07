@@ -45,7 +45,7 @@ function tools(id) {
     if ($.type(_tools) === CONSTANTS.UNDEFINED) {
         logger.info({
             method: 'tools',
-            message: 'Initializing tools with stubs'
+            message: 'Initializing tools with stubs',
         });
 
         /**
@@ -88,14 +88,14 @@ function tools(id) {
                     // The tool is not loaded
                     logger.debug({
                         method: 'load',
-                        message: `Loading ${toolId}`
+                        message: `Loading ${toolId}`,
                     });
                     import(
                         /* webpackMode: "lazy" */
                         /* webpackChunkName: "[request]" */
                         `./tools.${toolId}.es6`
                     )
-                        .then(module => {
+                        .then((module) => {
                             assert.extends(
                                 BaseTool,
                                 module.default,
@@ -110,11 +110,11 @@ function tools(id) {
                                 description: tool.description,
                                 help: tool.help,
                                 icon: tool.icon,
-                                name: tool.name
+                                name: tool.name,
                             });
                             logger.debug({
                                 method: 'load',
-                                message: `Loaded ${toolId}`
+                                message: `Loaded ${toolId}`,
                             });
                             dfd.resolve();
                         })
@@ -124,7 +124,7 @@ function tools(id) {
                     dfd.reject(new Error(`Cannot load tool ${toolId}`));
                 }
                 return dfd.promise();
-            }
+            },
         });
 
         /**
@@ -134,7 +134,7 @@ function tools(id) {
             description: __('tools.pointer.description'),
             help: __('tools.pointer.help'),
             icon: __('tools.pointer.icon'),
-            name: __('tools.pointer.name')
+            name: __('tools.pointer.name'),
         });
         _tools.set(TOOLS.ACTIVE, TOOLS.POINTER);
 
@@ -150,7 +150,7 @@ function tools(id) {
             description: __('tools.label.description'),
             help: __('tools.label.help'),
             icon: __('tools.label.icon'),
-            name: __('tools.label.name')
+            name: __('tools.label.name'),
         });
 
         /**
@@ -160,7 +160,7 @@ function tools(id) {
             description: __('tools.image.description'),
             help: __('tools.image.help'),
             icon: __('tools.image.icon'),
-            name: __('tools.image.name')
+            name: __('tools.image.name'),
         });
 
         /**
@@ -170,7 +170,7 @@ function tools(id) {
             description: __('tools.imageset.description'),
             help: __('tools.imageset.help'),
             icon: __('tools.imageset.icon'),
-            name: __('tools.imageset.name')
+            name: __('tools.imageset.name'),
         });
 
         /**
@@ -180,7 +180,7 @@ function tools(id) {
             description: __('tools.textarea.description'),
             help: __('tools.textarea.help'),
             icon: __('tools.textarea.icon'),
-            name: __('tools.textarea.name')
+            name: __('tools.textarea.name'),
         });
 
         /**
@@ -190,7 +190,7 @@ function tools(id) {
             description: __('tools.textbox.description'),
             help: __('tools.textbox.help'),
             icon: __('tools.textbox.icon'),
-            name: __('tools.textbox.name')
+            name: __('tools.textbox.name'),
         });
 
         /**
@@ -200,7 +200,7 @@ function tools(id) {
             description: __('tools.numericbox.description'),
             help: __('tools.numericbox.help'),
             icon: __('tools.numericbox.icon'),
-            name: __('tools.numericbox.name')
+            name: __('tools.numericbox.name'),
         });
 
         /**
@@ -210,7 +210,7 @@ function tools(id) {
             description: __('tools.variable.description'),
             help: __('tools.variable.help'),
             icon: __('tools.variable.icon'),
-            name: __('tools.variable.name')
+            name: __('tools.variable.name'),
         });
 
         /**
@@ -220,7 +220,7 @@ function tools(id) {
             description: __('tools.quiz.description'),
             help: __('tools.quiz.help'),
             icon: __('tools.quiz.icon'),
-            name: __('tools.quiz.name')
+            name: __('tools.quiz.name'),
         });
 
         /**
@@ -230,7 +230,7 @@ function tools(id) {
             description: __('tools.multiquiz.description'),
             help: __('tools.multiquiz.help'),
             icon: __('tools.multiquiz.icon'),
-            name: __('tools.multiquiz.name')
+            name: __('tools.multiquiz.name'),
         });
 
         /**
@@ -240,7 +240,7 @@ function tools(id) {
             description: __('tools.highlighter.description'),
             help: __('tools.highlighter.help'),
             icon: __('tools.highlighter.icon'),
-            name: __('tools.highlighter.name')
+            name: __('tools.highlighter.name'),
         });
 
         /**
@@ -250,7 +250,7 @@ function tools(id) {
             description: __('tools.textgaps.description'),
             help: __('tools.textgaps.help'),
             icon: __('tools.textgaps.icon'),
-            name: __('tools.textgaps.name')
+            name: __('tools.textgaps.name'),
         });
 
         /**
@@ -260,7 +260,7 @@ function tools(id) {
             description: __('tools.line.description'),
             help: __('tools.line.help'),
             icon: __('tools.line.icon'),
-            name: __('tools.line.name')
+            name: __('tools.line.name'),
         });
 
         /**
@@ -270,7 +270,7 @@ function tools(id) {
             description: __('tools.connector.description'),
             help: __('tools.connector.help'),
             icon: __('tools.connector.icon'),
-            name: __('tools.connector.name')
+            name: __('tools.connector.name'),
         });
 
         /**
@@ -280,7 +280,7 @@ function tools(id) {
             description: __('tools.selector.description'),
             help: __('tools.selector.help'),
             icon: __('tools.selector.icon'),
-            name: __('tools.selector.name')
+            name: __('tools.selector.name'),
         });
 
         /**
@@ -290,7 +290,7 @@ function tools(id) {
             description: __('tools.dropzone.description'),
             help: __('tools.dropzone.help'),
             icon: __('tools.dropzone.icon'),
-            name: __('tools.dropzone.name')
+            name: __('tools.dropzone.name'),
         });
 
         /**
@@ -300,7 +300,7 @@ function tools(id) {
             description: __('tools.mathinput.description'),
             help: __('tools.mathinput.help'),
             icon: __('tools.mathinput.icon'),
-            name: __('tools.mathinput.name')
+            name: __('tools.mathinput.name'),
         });
 
         /**
@@ -310,7 +310,7 @@ function tools(id) {
             description: __('tools.latex.description'),
             help: __('tools.latex.help'),
             icon: __('tools.latex.icon'),
-            name: __('tools.latex.name')
+            name: __('tools.latex.name'),
         });
 
         /**
@@ -320,7 +320,7 @@ function tools(id) {
             description: __('tools.audio.description'),
             help: __('tools.audio.help'),
             icon: __('tools.audio.icon'),
-            name: __('tools.audio.name')
+            name: __('tools.audio.name'),
         });
 
         /**
@@ -330,7 +330,7 @@ function tools(id) {
             description: __('tools.video.description'),
             help: __('tools.video.help'),
             icon: __('tools.video.icon'),
-            name: __('tools.video.name')
+            name: __('tools.video.name'),
         });
 
         /**
@@ -340,7 +340,7 @@ function tools(id) {
             description: __('tools.table.description'),
             help: __('tools.table.help'),
             icon: __('tools.table.icon'),
-            name: __('tools.table.name')
+            name: __('tools.table.name'),
         });
 
         /**
@@ -350,7 +350,7 @@ function tools(id) {
             description: __('tools.chart.description'),
             help: __('tools.chart.help'),
             icon: __('tools.chart.icon'),
-            name: __('tools.chart.name')
+            name: __('tools.chart.name'),
         });
 
         /**
@@ -360,7 +360,7 @@ function tools(id) {
             description: __('tools.chargrid.description'),
             help: __('tools.chargrid.help'),
             icon: __('tools.chargrid.icon'),
-            name: __('tools.chargrid.name')
+            name: __('tools.chargrid.name'),
         });
 
         /**
@@ -376,7 +376,7 @@ function tools(id) {
                     description: __('tools.dummy.description'),
                     help: __('tools.dummy.help'),
                     icon: __('tools.dummy.icon'),
-                    name: __('tools.dummy.name')
+                    name: __('tools.dummy.name'),
                 });
             }
         }
@@ -437,7 +437,7 @@ Object.defineProperty(tools, TOOLS.ACTIVE, {
             throw new Error(`${id} is not a registered tool`);
         }
     },
-    enumerable: true
+    enumerable: true,
 });
 
 /**

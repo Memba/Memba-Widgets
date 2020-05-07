@@ -19,13 +19,13 @@ const IMAGES = [
     {
         alt: 'Google',
         src:
-            'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
+            'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
     },
     {
         alt: 'Facebook',
         src:
-            'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg'
-    }
+            'http://4.bp.blogspot.com/_cPxcXn8pqkM/TCoCrLc7mVI/AAAAAAAABF0/8d6paccQU8A/s320/228_facebook.jpg',
+    },
 ];
 
 /**
@@ -49,8 +49,8 @@ function getAudio() {
         attributes: {
             autoplay: false,
             mp3: '',
-            ogg: ''
-        }
+            ogg: '',
+        },
     };
 }
 
@@ -73,7 +73,7 @@ function getImage(index) {
         height,
         width,
         rotate: JSC.integer(MAX_ROTATE)(),
-        attributes: IMAGES[index]
+        attributes: IMAGES[index],
     };
 }
 
@@ -97,8 +97,8 @@ function getLabel() {
         rotate: JSC.integer(MAX_ROTATE)(),
         attributes: {
             style: 'font-family: Georgia; font-style: italic; color: #FF0000;',
-            text: 'World'
-        }
+            text: 'World',
+        },
     };
 }
 
@@ -124,8 +124,8 @@ function getQuiz() {
             data: 'a\nb\nc\nd\n',
             activeStyle: '',
             itemStyle: '',
-            groupStyle: 'font-size: 30px; text-decoration: underline;'
-        }
+            groupStyle: 'font-size: 30px; text-decoration: underline;',
+        },
     };
 }
 
@@ -146,7 +146,7 @@ function getDummy() {
         left: JSC.integer(MAX_WIDTH - width)(),
         height,
         width,
-        rotate: JSC.integer(MAX_ROTATE)()
+        rotate: JSC.integer(MAX_ROTATE)(),
     };
 }
 
@@ -170,8 +170,8 @@ function getTextBox() {
         rotate: JSC.integer(MAX_ROTATE)(),
         attributes: {},
         properties: {
-            name: randomVal()
-        }
+            name: randomVal(),
+        },
     };
 }
 
@@ -187,7 +187,7 @@ function getComponentArray() {
         getLabel(),
         getImage(1),
         // getQuiz(),
-        getTextBox()
+        getTextBox(),
     ];
 }
 
@@ -219,8 +219,8 @@ function getPageArray() {
                     rotate: 0,
                     attributes: {
                         src:
-                            'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png'
-                    }
+                            'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
+                    },
                 },
                 {
                     id: new ObjectId().toString(),
@@ -232,8 +232,8 @@ function getPageArray() {
                     rotate: 0,
                     attributes: {
                         style: 'font-family: Georgia, serif; color: #0000FF;',
-                        text: 'Company?'
-                    }
+                        text: 'Company?',
+                    },
                 },
                 {
                     id: new ObjectId().toString(),
@@ -244,9 +244,9 @@ function getPageArray() {
                     width: 300,
                     rotate: 0,
                     attributes: {},
-                    properties: { name: randomVal() }
-                }
-            ]
+                    properties: { name: randomVal() },
+                },
+            ],
         },
         {
             id: new ObjectId().toString(),
@@ -262,8 +262,8 @@ function getPageArray() {
                     rotate: 0,
                     attributes: {
                         style: 'font-family: Georgia, serif; color: #FF0000;',
-                        text: 'Marignan?'
-                    }
+                        text: 'Marignan?',
+                    },
                 },
                 {
                     id: new ObjectId().toString(),
@@ -274,9 +274,9 @@ function getPageArray() {
                     width: 300,
                     rotate: 0,
                     attributes: {},
-                    properties: { name: randomVal() }
-                }
-            ]
+                    properties: { name: randomVal() },
+                },
+            ],
         },
         {
             id: new ObjectId().toString(),
@@ -292,8 +292,8 @@ function getPageArray() {
                     rotate: 0,
                     attributes: {
                         style: 'font-family: Georgia, serif; color: #00FF00;',
-                        text: "Couleur du cheval blanc d'Henri IV?"
-                    }
+                        text: "Couleur du cheval blanc d'Henri IV?",
+                    },
                 },
                 {
                     id: new ObjectId().toString(),
@@ -304,10 +304,10 @@ function getPageArray() {
                     width: 300,
                     rotate: 0,
                     attributes: {},
-                    properties: { name: randomVal() }
-                }
-            ]
-        }
+                    properties: { name: randomVal() },
+                },
+            ],
+        },
     ];
 }
 
@@ -323,5 +323,5 @@ export {
     getTextBox,
     getComponentArray,
     getPage,
-    getPageArray
+    getPageArray,
 };

@@ -21,7 +21,7 @@ import HelperIt from '../vendor/markdown-it/markdown-it';
 
 const {
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 
 const logger = new Logger('widgets.help');
@@ -54,7 +54,7 @@ const Helper = Widget.extend({
      */
     options: {
         name: 'Helper',
-        value: null
+        value: null,
     },
 
     /**
@@ -90,7 +90,7 @@ const Helper = Widget.extend({
         this.md = new HelperIt({
             html: false,
             linkify: true,
-            typographer: true
+            typographer: true,
         });
 
         // Initialize renderers
@@ -124,7 +124,7 @@ const Helper = Widget.extend({
                 // @see https://cordova.apache.org/docs/en/3.1.0/cordova/inappbrowser/window.open.html
                 tokens[idx].attrPush([
                     'target',
-                    window.cordova ? '_system' : '_blank'
+                    window.cordova ? '_system' : '_blank',
                 ]); // add new attribute
             } else {
                 // eslint-disable-next-line no-param-reassign
@@ -155,7 +155,7 @@ const Helper = Widget.extend({
         const { schemes } = this.options;
         let ret = uri;
         if ($.type(uri) === CONSTANTS.STRING) {
-            Object.keys(schemes).some(scheme => {
+            Object.keys(schemes).some((scheme) => {
                 let done = false;
                 if (uri.indexOf(`${scheme}://`) === 0) {
                     const root = schemes[scheme];
@@ -235,7 +235,7 @@ const Helper = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

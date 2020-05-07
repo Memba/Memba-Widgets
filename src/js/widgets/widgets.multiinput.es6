@@ -21,7 +21,7 @@ const {
     getComputedStyles,
     htmlEncode,
     ui: { plugin, Widget },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.multiinput');
 const NS = '.kendoMultiInput';
@@ -38,7 +38,7 @@ const STYLES = [
     'font-weight',
     'letter-spacing',
     'text-transform',
-    'line-height'
+    'line-height',
 ];
 
 /**
@@ -100,8 +100,8 @@ const MultiInput = Widget.extend({
         separators: ',;\r\n\t', // string of separators
         messages: {
             clear: 'Clear',
-            delete: 'Delete'
-        }
+            delete: 'Delete',
+        },
     },
 
     /**
@@ -151,23 +151,20 @@ const MultiInput = Widget.extend({
     _render() {
         const {
             element,
-            options: { messages }
+            options: { messages },
         } = this;
         const id = element.attr(CONSTANTS.ID);
         // Add wrapper
-        this.wrapper = element
-            .wrap(`<${CONSTANTS.DIV}/>`)
-            .parent()
-            .attr({
-                class:
-                    'k-widget k-multiselect k-multiselect-clearable kj-multiinput',
-                unselectable: 'on'
-            });
+        this.wrapper = element.wrap(`<${CONSTANTS.DIV}/>`).parent().attr({
+            class:
+                'k-widget k-multiselect k-multiselect-clearable kj-multiinput',
+            unselectable: 'on',
+        });
         // Add inner wrapper
         this._innerWrapper = $(`<${CONSTANTS.DIV}/>`)
             .attr({
                 class: 'k-multiselect-wrap k-floatwrap',
-                unselectable: 'on'
+                unselectable: 'on',
             })
             .prependTo(this.wrapper);
         // Add clear icon
@@ -176,7 +173,7 @@ const MultiInput = Widget.extend({
                 class: 'k-icon k-clear-value k-i-close',
                 role: 'button',
                 tabindex: -1,
-                title: messages.clear
+                title: messages.clear,
             })
             .prependTo(this._innerWrapper);
         // <span unselectable="on" className="k-icon k-clear-value k-i-close" title="clear" role="button" tabIndex="-1"></span>
@@ -189,7 +186,7 @@ const MultiInput = Widget.extend({
                 class: 'k-input',
                 role: 'listbox',
                 tabindex: 0,
-                'aria-owns': id ? `${id}_taglist` : ''
+                'aria-owns': id ? `${id}_taglist` : '',
             })
             .prependTo(this._innerWrapper);
         // Add taglist
@@ -198,7 +195,7 @@ const MultiInput = Widget.extend({
                 class: 'k-reset',
                 id: id ? `${id}_taglist` : '',
                 role: 'listbox',
-                unselectable: 'on'
+                unselectable: 'on',
             })
             .prependTo(this._innerWrapper);
         // Add text span used to scale input
@@ -355,10 +352,10 @@ const MultiInput = Widget.extend({
             );
 
             tagList
-                .on(`${CONSTANTS.MOUSEENTER}${NS}`, CONSTANTS.LI, e => {
+                .on(`${CONSTANTS.MOUSEENTER}${NS}`, CONSTANTS.LI, (e) => {
                     $(e.currentTarget).addClass(CONSTANTS.HOVER_CLASS);
                 })
-                .on(`${CONSTANTS.MOUSELEAVE}${NS}`, CONSTANTS.LI, e => {
+                .on(`${CONSTANTS.MOUSELEAVE}${NS}`, CONSTANTS.LI, (e) => {
                     $(e.currentTarget).removeClass(CONSTANTS.HOVER_CLASS);
                 })
                 .on(
@@ -385,7 +382,7 @@ const MultiInput = Widget.extend({
     enable(enable) {
         this._editable({
             readonly: false,
-            enabled: $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable
+            enabled: $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable,
         });
     },
 
@@ -398,7 +395,7 @@ const MultiInput = Widget.extend({
         this._editable({
             readonly:
                 $.type(readonly) === CONSTANTS.UNDEFINED ? true : !!readonly,
-            enabled: true
+            enabled: true,
         });
     },
 
@@ -428,9 +425,9 @@ const MultiInput = Widget.extend({
         );
         const {
             options: { messages },
-            tagList
+            tagList,
         } = this;
-        tags.forEach(tag => {
+        tags.forEach((tag) => {
             const tagElement = $(
                 format(
                     '<li class="k-button" unselectable="on"><span unselectable="on">{0}</span><span unselectable="on" class="k-select" aria-label="{1}" title="{1}"><span class="k-icon k-i-close"></span></span></li>',
@@ -546,7 +543,7 @@ const MultiInput = Widget.extend({
     _fromInputToTag() {
         const {
             input,
-            options: { match }
+            options: { match },
         } = this;
         const tag = input.val().trim();
         if (tag.length) {
@@ -605,7 +602,7 @@ const MultiInput = Widget.extend({
         destroy(this.wrapper);
         // log
         logger.debug({ method: 'destroyed', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

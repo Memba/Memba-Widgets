@@ -20,7 +20,7 @@ import BaseAdapter from './adapters.base.es6';
 const {
     attr,
     format,
-    ui: { ComboBox, CodeInput, NumericTextBox }
+    ui: { ComboBox, CodeInput, NumericTextBox },
 } = window.kendo;
 const ATTR_CONTAIN_SELECTOR = '[{0}*="{1}"]';
 
@@ -52,18 +52,18 @@ const DisabledAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             const switchWidget = input
                 .kendoSwitch({
-                    change: this.onChange.bind(this)
+                    change: this.onChange.bind(this),
                 })
                 .data('kendoSwitch');
             setTimeout(() => {
                 // Note: switchWidget.check() before data bindings so we need to yield some time
                 switchWidget.trigger(CONSTANTS.CHANGE, {
-                    checked: switchWidget.check()
+                    checked: switchWidget.check(),
                 });
             }, 0);
         };
@@ -153,7 +153,7 @@ const DisabledAdapter = BaseAdapter.extend({
         if (omit instanceof NumericTextBox) {
             omit.enable(!e.checked);
         }
-    }
+    },
 });
 
 /**

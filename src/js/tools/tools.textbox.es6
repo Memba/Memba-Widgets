@@ -29,14 +29,14 @@ import {
     scoreValidator,
     solutionValidator,
     styleValidator,
-    validationValidator
+    validationValidator,
 } from './util.validators.es6';
 
 const {
     format,
     ns,
     roleSelector,
-    ui: { MaskedTextBox }
+    ui: { MaskedTextBox },
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -71,52 +71,52 @@ const TextBoxTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         mask: new TextBoxAdapter({
-            title: __('tools.textbox.attributes.mask.title')
+            title: __('tools.textbox.attributes.mask.title'),
         }),
         style: new StyleAdapter({
             title: __('tools.textbox.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.textbox.properties.name.title')
+            title: __('tools.textbox.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.textbox.properties.question.help'),
             title: __('tools.textbox.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new TextBoxAdapter({
             help: __('tools.textbox.properties.solution.help'),
             title: __('tools.textbox.properties.solution.title'),
-            validation: solutionValidator
+            validation: solutionValidator,
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
             title: __('tools.textbox.properties.validation.title'),
-            validation: validationValidator
+            validation: validationValidator,
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.textbox.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.textbox.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.textbox.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -136,7 +136,7 @@ const TextBoxTool = BaseTool.extend({
             stageElement.children(this.childSelector).prop({
                 // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
                 // disabled: !enabled,
-                readonly: !enabled
+                readonly: !enabled,
             });
         }
     },
@@ -179,7 +179,7 @@ const TextBoxTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this; // tool description
         // TODO: validate mask
         if (
@@ -191,11 +191,15 @@ const TextBoxTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                ),
             });
         }
         return ret;
-    }
+    },
 });
 
 /**

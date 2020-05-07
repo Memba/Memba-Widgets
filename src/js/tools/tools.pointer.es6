@@ -19,7 +19,7 @@ const PointerTool = BaseTool.extend({
     height: 0,
     width: 0,
     getHtmlContent: undefined,
-    onResize: undefined
+    onResize: undefined,
 });
 
 /**

@@ -20,7 +20,7 @@ import { Page, PageDataSource } from './data.page.es6';
 import BaseTest from './data.basetest.es6';
 
 const {
-    data: { ObservableArray }
+    data: { ObservableArray },
 } = window.kendo;
 
 /**
@@ -49,8 +49,8 @@ const Stream = BaseModel.define({
                     return new PageDataSource({ data: value });
                 }
                 return new PageDataSource(value);
-            }
-        }
+            },
+        },
     },
 
     /**
@@ -65,7 +65,7 @@ const Stream = BaseModel.define({
         typeVariety:
             'The use of at least {0} types of questions (Multiple Choice, TextBox, Connector or else) is recommended.',
         qtyVariety:
-            'More variety is recommended because {0:p0} of questions are of type {1}.'
+            'More variety is recommended because {0:p0} of questions are of type {1}.',
     },
 
     /**
@@ -214,16 +214,16 @@ const Stream = BaseModel.define({
         const assets = {
             audio: [],
             image: [],
-            video: []
+            video: [],
         };
         // TODO: Check _loaded and throw otherwise
         // Iterate through pages
-        this.pages.data().forEach(page => {
+        this.pages.data().forEach((page) => {
             const media = page.assets();
             // Iterate through asset classes (medium)
-            Object.keys(media).forEach(medium => {
+            Object.keys(media).forEach((medium) => {
                 // Iterate through assets
-                media[medium].forEach(a => {
+                media[medium].forEach((a) => {
                     // Only add if not a duplicate
                     if (assets[medium].indexOf(a) === -1) {
                         assets[medium].push(a);
@@ -255,7 +255,7 @@ const Stream = BaseModel.define({
      */
     time() {
         let time = 0;
-        this.pages.data().forEach(page => {
+        this.pages.data().forEach((page) => {
             time += page.get('time') || Page.fn.defaults.time;
         });
         return time;
@@ -270,15 +270,15 @@ const Stream = BaseModel.define({
     getTestModel() {
         const fields = {
             variables: {
-                defaultValue: []
-            }
+                defaultValue: [],
+            },
         };
 
         // TODO: Make sure pages and components are all loaded
         //  test if(this.loaded()) ???????
 
         this.pages.data().forEach((page, pageIdx) => {
-            page.components.data().forEach(component => {
+            page.components.data().forEach((component) => {
                 const { name, variable } = component.properties || {};
 
                 // Binding properties for val_xxxxxx fields
@@ -294,7 +294,7 @@ const Stream = BaseModel.define({
                             return value instanceof Field
                                 ? value
                                 : new Field(value);
-                        }
+                        },
                     };
                 }
 
@@ -318,7 +318,7 @@ const Stream = BaseModel.define({
 
         // Return a customized test model derived from BaseTest
         return BaseTest.define({ fields });
-    }
+    },
 
     /**
      * Stream validation

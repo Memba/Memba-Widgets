@@ -41,7 +41,7 @@ describe('adapters.color', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
                 defaultValue: '#000000',
-                type: CONSTANTS.STRING
+                type: CONSTANTS.STRING,
             });
         });
 
@@ -51,7 +51,7 @@ describe('adapters.color', () => {
             expect(row).to.deep.equal({
                 attributes: { 'data-role': 'colorpicker' },
                 editor: 'input',
-                field
+                field,
             });
         });
     });

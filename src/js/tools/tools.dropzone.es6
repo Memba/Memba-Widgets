@@ -27,7 +27,7 @@ import { arrayLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
@@ -61,62 +61,62 @@ const DropZoneTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         center: new BooleanAdapter({
             title: __('tools.dropzone.attributes.center.title'),
-            defaultValue: __('tools.dropzone.attributes.center.defaultValue')
+            defaultValue: __('tools.dropzone.attributes.center.defaultValue'),
         }),
         empty: new TextBoxAdapter({
-            title: __('tools.dropzone.attributes.empty.title')
+            title: __('tools.dropzone.attributes.empty.title'),
         }),
         text: new TextBoxAdapter({
             title: __('tools.dropzone.attributes.text.title'),
-            defaultValue: __('tools.dropzone.attributes.text.defaultValue')
+            defaultValue: __('tools.dropzone.attributes.text.defaultValue'),
         }),
         style: new StyleAdapter({
             title: __('tools.dropzone.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.dropzone.properties.name.title')
+            title: __('tools.dropzone.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.dropzone.properties.question.help'),
             title: __('tools.dropzone.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new BasicListAdapter({
             help: __('tools.dropzone.properties.solution.help'),
-            title: __('tools.dropzone.properties.solution.title')
+            title: __('tools.dropzone.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
-            title: __('tools.dropzone.properties.validation.title')
+            title: __('tools.dropzone.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             title: __('tools.dropzone.properties.success.title'),
             defaultValue: 1,
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.dropzone.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.dropzone.properties.omit.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         disabled: new DisabledAdapter({
             defaultValue: false,
-            title: __('tools.dropzone.properties.disabled.title')
-        })
+            title: __('tools.dropzone.properties.disabled.title'),
+        }),
     },
 
     /**
@@ -165,13 +165,13 @@ const DropZoneTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         return ret;
         // TODO: we should also check that there are draggable components on the page
         // TODO: Check order of draggables 'on top' of drop zone
-    }
+    },
 });
 
 /**

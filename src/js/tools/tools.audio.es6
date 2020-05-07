@@ -42,19 +42,19 @@ const AudioTool = BaseTool.extend({
     width: 400,
     menu: ['attributes.mp3'], // TODO <------------ does not work
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         autoplay: new BooleanAdapter({
             title: __('tools.audio.attributes.autoplay.title'),
-            defaultValue: false
+            defaultValue: false,
         }),
         mp3: new AssetAdapter({
-            title: __('tools.audio.attributes.mp3.title')
+            title: __('tools.audio.attributes.mp3.title'),
         }),
         ogg: new AssetAdapter({
-            title: __('tools.audio.attributes.ogg.title')
-        })
+            title: __('tools.audio.attributes.ogg.title'),
+        }),
     },
 
     /**
@@ -76,10 +76,10 @@ const AudioTool = BaseTool.extend({
         return {
             audio: [
                 component.get('attributes.mp3'),
-                component.get('attributes.ogg')
-            ].filter(item => $.type(item) === CONSTANTS.STRING),
+                component.get('attributes.ogg'),
+            ].filter((item) => $.type(item) === CONSTANTS.STRING),
             image: [],
-            video: []
+            video: [],
         };
     },
 
@@ -118,7 +118,7 @@ const AudioTool = BaseTool.extend({
                 // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
                 // return `${JSON.stringify(files)}`;
                 return JSON.stringify(files);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -142,12 +142,12 @@ const AudioTool = BaseTool.extend({
                     __('tools.messages.invalidAudioFile'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // Note: we are not testing for an ogg file
         return ret;
-    }
+    },
 });
 
 /**

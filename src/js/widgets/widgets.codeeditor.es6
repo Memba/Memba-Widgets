@@ -36,7 +36,7 @@ import {
     // getLibraryItemKey,
     isCustomFormula,
     stringifyLibraryItem,
-    parseLibraryItem
+    parseLibraryItem,
 } from '../tools/util.libraries.es6';
 import poolExec from '../workers/workers.exec.es6';
 
@@ -52,7 +52,7 @@ const {
     template,
     ui: { DataBoundWidget, DropDownList, plugin, Tooltip },
     unbind,
-    widgetInstance
+    widgetInstance,
 } = window.kendo;
 const logger = new Logger('widgets.codeeditor');
 const NS = '.kendoCodeEditor';
@@ -126,8 +126,8 @@ const CodeEditor = DataBoundWidget.extend({
             success: 'Success',
             failure: 'Failure',
             omit: 'Omit',
-            error: 'Error'
-        }
+            error: 'Error',
+        },
     },
 
     /**
@@ -194,7 +194,7 @@ const CodeEditor = DataBoundWidget.extend({
     _setControlPanel() {
         const {
             element,
-            options: { autoBind, dataSource, messages }
+            options: { autoBind, dataSource, messages },
         } = this;
         const panel = $(`<${CONSTANTS.DIV}/>`)
             .addClass(`${PANEL_CLASS} k-edit-form-container`)
@@ -212,7 +212,7 @@ const CodeEditor = DataBoundWidget.extend({
                 // dataBound: () => this.value(this.options.value),
                 dataTextField: 'name',
                 dataValueField: 'key',
-                dataSource
+                dataSource,
             })
             .data('kendoDropDownList');
 
@@ -241,17 +241,13 @@ const CodeEditor = DataBoundWidget.extend({
         this.testButton = $(
             format(BUTTON_TMPL, 'play', messages.test)
         ).appendTo(wrapper);
-        $(`<${CONSTANTS.DIV}/>`)
-            .addClass(NOTIFICATION_CLASS)
-            .appendTo(wrapper);
-        $(`<${CONSTANTS.DIV}/>`)
-            .addClass(MESSAGE_CLASS)
-            .appendTo(panel);
+        $(`<${CONSTANTS.DIV}/>`).addClass(NOTIFICATION_CLASS).appendTo(wrapper);
+        $(`<${CONSTANTS.DIV}/>`).addClass(MESSAGE_CLASS).appendTo(panel);
 
         this.tooltip = panel.kendoTooltip({
             filter: '.k-i-js',
             position: 'right',
-            content: e => {
+            content: (e) => {
                 const field = e.target
                     .closest('.k-edit-label')
                     .children('label')
@@ -260,7 +256,7 @@ const CodeEditor = DataBoundWidget.extend({
                     TOOLTIP_TMPL,
                     JSON.stringify(this.viewModel.get(field), null, 2)
                 );
-            }
+            },
         });
     },
 
@@ -316,7 +312,7 @@ const CodeEditor = DataBoundWidget.extend({
             lineNumbers: true,
             lint: true,
             mode: 'javascript',
-            value: ''
+            value: '',
         });
 
         // Prevent from modifying first lines and last line
@@ -812,21 +808,21 @@ const CodeEditor = DataBoundWidget.extend({
             wrapper.append(
                 template(NOTIFICATION_TMPL)({
                     type: 'warning',
-                    message: messages.omit
+                    message: messages.omit,
                 })
             );
         } else if (res.result === true) {
             wrapper.append(
                 template(NOTIFICATION_TMPL)({
                     type: 'success',
-                    message: messages.success
+                    message: messages.success,
                 })
             );
         } else if (res.result === false) {
             wrapper.append(
                 template(NOTIFICATION_TMPL)({
                     type: 'info',
-                    message: messages.failure
+                    message: messages.failure,
                 })
             );
         }
@@ -845,7 +841,7 @@ const CodeEditor = DataBoundWidget.extend({
         this._getNotificationWrapper().append(
             template(NOTIFICATION_TMPL)({
                 type: 'error',
-                message: messages.error
+                message: messages.error,
             })
         );
         this._getErrorMessageWrapper().append(template(MESSAGE_TMPL)(error));
@@ -881,7 +877,7 @@ const CodeEditor = DataBoundWidget.extend({
         }
         destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

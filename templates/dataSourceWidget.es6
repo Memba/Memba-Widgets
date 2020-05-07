@@ -13,7 +13,7 @@ import assert from '../src/js/common/window.assert.es6';
 const {
     data: { DataSource },
     destroy,
-    ui: { plugin, DataBoundWidget }
+    ui: { plugin, DataBoundWidget },
 } = window.kendo;
 // const NS = '.kendoDataSourceWidget';
 const WIDGET_CLASS = 'k-widget kj-data-source-widget';
@@ -38,7 +38,7 @@ const DataSourceWidget = DataBoundWidget.extend({
             enabled: this.element.prop('disabled')
                 ? false
                 : this.options.enabled,
-            dataSource: this.options.dataSource
+            dataSource: this.options.dataSource,
         });
     },
 
@@ -56,7 +56,7 @@ const DataSourceWidget = DataBoundWidget.extend({
         name: 'DataSourceWidget',
         autoBind: true,
         enabled: true,
-        dataSource: []
+        dataSource: [],
     },
 
     /**
@@ -135,7 +135,7 @@ const DataSourceWidget = DataBoundWidget.extend({
      */
     refresh() {
         let list = '<ul>';
-        this.dataSource.view().forEach(item => {
+        this.dataSource.view().forEach((item) => {
             list += `<li>${item}</li>`;
         });
         list += '</ul>';
@@ -163,7 +163,7 @@ const DataSourceWidget = DataBoundWidget.extend({
         this.setDataSource(null);
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
-    }
+    },
 });
 
 /**

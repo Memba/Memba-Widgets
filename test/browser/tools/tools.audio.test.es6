@@ -33,7 +33,7 @@ const FIXTURES = 'fixtures';
 const TOOL = 'audio';
 
 describe('tools.audio', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
@@ -60,9 +60,7 @@ describe('tools.audio', () => {
             expect(tool).to.have.property('help', __('tools.audio.help'));
             expect(tool).to.have.property('id', TOOL);
             expect(tool).to.have.property('icon', __('tools.audio.icon'));
-            expect(tool)
-                .to.have.property('menu')
-                .that.eql(['attributes.mp3']);
+            expect(tool).to.have.property('menu').that.eql(['attributes.mp3']);
             expect(tool).to.have.property('name', __('tools.audio.name'));
             expect(tool).to.have.property('weight', 0);
             expect(tool).to.have.property('width', 400);
@@ -83,9 +81,7 @@ describe('tools.audio', () => {
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(8);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -109,9 +105,7 @@ describe('tools.audio', () => {
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(0);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(0);
         });
 
         it('getAssets', () => {
@@ -203,7 +197,7 @@ describe('tools.audio', () => {
             expect(fn2).to.throw();
 
             // Test all stage TOOLS.STAGE_MODES
-            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
+            Object.values(TOOLS.STAGE_MODES).forEach((mode) => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
                 expect(content).to.match(CONSTANTS.DIV);

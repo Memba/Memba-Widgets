@@ -41,7 +41,7 @@ describe('adapters.number', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
                 defaultValue: 0,
-                type: CONSTANTS.NUMBER
+                type: CONSTANTS.NUMBER,
             });
         });
 
@@ -51,7 +51,7 @@ describe('adapters.number', () => {
             expect(row).to.deep.equal({
                 editor: 'input',
                 field,
-                attributes: { 'data-role': 'numerictextbox' }
+                attributes: { 'data-role': 'numerictextbox' },
             });
         });
     });

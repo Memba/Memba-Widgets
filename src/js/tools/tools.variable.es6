@@ -40,21 +40,21 @@ const VariableTool = BaseTool.extend({
     menu: ['properties.variable', 'properties.expression'],
     width: 64,
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     // attributes: {},
     properties: {
         variable: new TextBoxAdapter({
             defaultValue: 'k',
             help: __('tools.variable.properties.variable.help'),
-            title: __('tools.variable.properties.variable.title')
+            title: __('tools.variable.properties.variable.title'),
         }),
         // Note: an expression can handle more than random numbers, for example: 2 * pi
         expression: new ExpressionAdapter({
             defaultValue: 'round(random(0, 10), 2)',
             help: __('tools.variable.properties.expression.help'),
-            title: __('tools.variable.properties.expression.title')
-        })
+            title: __('tools.variable.properties.expression.title'),
+        }),
     },
 
     /**
@@ -79,7 +79,7 @@ const VariableTool = BaseTool.extend({
             logger.error({
                 method: 'eval',
                 error,
-                data: { variable, expression }
+                data: { variable, expression },
             });
         }
         return value;
@@ -102,7 +102,7 @@ const VariableTool = BaseTool.extend({
             // The src$ function resolves the icon path
             src$() {
                 return iconUri(icon);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -140,7 +140,7 @@ const VariableTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this; // tool description
         if (
             !component.attributes ||
@@ -156,7 +156,7 @@ const VariableTool = BaseTool.extend({
                     messages.invalidAltText,
                     description,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -177,7 +177,7 @@ const VariableTool = BaseTool.extend({
                     messages.invalidImageFile,
                     description,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -189,11 +189,15 @@ const VariableTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                ),
             });
         }
         return ret;
-    }
+    },
 });
 
 /**

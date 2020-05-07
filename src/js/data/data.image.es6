@@ -12,7 +12,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
 const {
-    data: { DataSource, ObservableArray }
+    data: { DataSource, ObservableArray },
 } = window.kendo;
 
 /**
@@ -24,7 +24,7 @@ const Image = BaseModel.define({
     id: 'text', // `text` is used for component validation
     fields: {
         text: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
             /*
             // Note: validation is handled in ../widgets/widgets.imagelist
             validation: {
@@ -34,19 +34,19 @@ const Image = BaseModel.define({
             */
         },
         url: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
             /*
             // Note: validation is handled in ../widgets/widgets.imagelist
             validation: {
                 required: true
             }
             */
-        }
+        },
     },
     url$() {
         const url = this.get('url');
         return assets.image.scheme2http(url);
-    }
+    },
 });
 
 /**
@@ -66,11 +66,11 @@ const ImageDataSource = DataSource.extend({
             $.extend(true, {}, options, {
                 schema: {
                     modelBase: Image,
-                    model: Image
-                }
+                    model: Image,
+                },
             })
         );
-    }
+    },
 });
 
 /**
@@ -78,7 +78,7 @@ const ImageDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-ImageDataSource.create = options => {
+ImageDataSource.create = (options) => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray

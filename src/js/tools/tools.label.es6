@@ -21,7 +21,7 @@ import TOOLS from './util.constants.es6';
 import {
     constantValidator,
     styleValidator,
-    textValidator
+    textValidator,
 } from './util.validators.es6';
 
 const { format, htmlEncode, ns } = window.kendo;
@@ -47,7 +47,7 @@ const TEMPLATE = `<div
 
 const DESIGN = `<div
     class="#: class$() #"
-    data-${ns}id="#: id #" 
+    data-${ns}id="#: id #"
     data-${ns}behavior="#: properties.behavior #"
     data-${ns}constant="#: properties.constant #"
     style="#: attributes.style #">#= text$() #</div>`;
@@ -65,7 +65,7 @@ const LabelTool = BaseTool.extend({
     templates: {
         design: DESIGN,
         play: TEMPLATE,
-        review: TEMPLATE
+        review: TEMPLATE,
     },
     attributes: {
         text: new TextAreaAdapter(
@@ -73,44 +73,44 @@ const LabelTool = BaseTool.extend({
                 title: __('tools.label.attributes.text.title'),
                 help: __('tools.label.attributes.text.help'),
                 defaultValue: __('tools.label.attributes.text.defaultValue'),
-                validation: textValidator
+                validation: textValidator,
             },
             {
                 rows: 2,
                 style: 'resize:vertical; width: 100%;',
-                validationMessage: 'Oops'
+                validationMessage: 'Oops',
             }
         ),
         style: new StyleAdapter(
             {
                 title: __('tools.label.attributes.style.title'),
-                validation: styleValidator
+                validation: styleValidator,
             },
             {
-                validationMessage: 'Oops'
+                validationMessage: 'Oops',
             }
-        )
+        ),
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
                 defaultValue: 'none',
                 source: __('tools.label.properties.behavior.source'),
-                title: __('tools.label.properties.behavior.title')
+                title: __('tools.label.properties.behavior.title'),
             },
             {
-                style: 'width: 100%;'
+                style: 'width: 100%;',
             }
         ),
         constant: new TextBoxAdapter(
             {
                 title: __('tools.label.properties.constant.title'),
-                validation: constantValidator
+                validation: constantValidator,
             },
             {
-                validationMessage: 'Oops'
+                validationMessage: 'Oops',
             }
-        )
+        ),
     },
 
     /**
@@ -146,7 +146,7 @@ const LabelTool = BaseTool.extend({
                 // but in fact the variables$ will be supplied by data.basetest
                 // when binding the test properties
                 return {};
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -160,7 +160,7 @@ const LabelTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this; // tool description
         if (
             !component.attributes ||
@@ -172,7 +172,7 @@ const LabelTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
-                message: format(messages.invalidText, description, pageIdx + 1)
+                message: format(messages.invalidText, description, pageIdx + 1),
             });
         }
         if (
@@ -185,13 +185,17 @@ const LabelTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                ),
             });
         }
         // TODO: We should also check that there is a dropZone on the page if draggable
         // TODO check selectable too
         return ret;
-    }
+    },
 });
 
 /**

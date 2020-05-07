@@ -20,7 +20,7 @@ import {
     randomHexString,
     randomId,
     randomVal,
-    round
+    round,
     // shuffle,
     // getSelection,
     // setSelection,
@@ -31,7 +31,7 @@ const { describe, it } = window;
 const { expect } = chai;
 const {
     data: { ObservableArray },
-    guid
+    guid,
 } = window.kendo;
 
 describe('window.util', () => {
@@ -41,9 +41,7 @@ describe('window.util', () => {
             const test1 = JSON.parse(JSON.stringify({ date }));
             const test2 = JSON.parse(JSON.stringify({ date }), dateReviver);
             expect(test1).to.have.property('date', date.toISOString());
-            expect(test2)
-                .to.have.property('date')
-                .that.is.a('date');
+            expect(test2).to.have.property('date').that.is.a('date');
             expect(test2.date.getTime()).to.equal(date.getTime());
         });
     });
@@ -164,7 +162,7 @@ describe('window.util', () => {
                 a: JSC.boolean()(),
                 b: JSC.number()(),
                 c: JSC.string()(),
-                d: new Date()
+                d: new Date(),
             };
             expect(jsonClone(obj)).to.deep.equal(obj);
         });

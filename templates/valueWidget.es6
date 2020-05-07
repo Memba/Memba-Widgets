@@ -11,7 +11,7 @@ import CONSTANTS from '../src/js/common/window.constants.es6';
 
 const {
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const NS = '.kendoValueWidget';
 const WIDGET_CLASS = 'k-widget kj-value-widget';
@@ -35,7 +35,7 @@ const ValueWidget = Widget.extend({
             enabled: this.element.prop('disabled')
                 ? false
                 : this.options.enabled,
-            value: this.options.value
+            value: this.options.value,
         });
     },
 
@@ -52,7 +52,7 @@ const ValueWidget = Widget.extend({
     options: {
         name: 'ValueWidget',
         enabled: true,
-        value: ''
+        value: '',
     },
 
     /**
@@ -133,7 +133,7 @@ const ValueWidget = Widget.extend({
     destroy() {
         Widget.fn.destroy.call(this);
         destroy(this.element);
-    }
+    },
 });
 
 /**

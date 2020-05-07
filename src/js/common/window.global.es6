@@ -9,7 +9,7 @@
  * @private
  */
 const app = {
-    i18n: {}
+    i18n: {},
 };
 
 /**

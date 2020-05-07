@@ -15,7 +15,7 @@ import notification from '../../../src/js/app/app.notification.es6';
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    ui: { Notification }
+    ui: { Notification },
 } = window.kendo;
 
 chai.use((c, u) => chaiJquery(c, u, $));

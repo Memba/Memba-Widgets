@@ -42,7 +42,7 @@ source.addEventListener(
 
 source.addEventListener(
     'error',
-    e => {
+    (e) => {
         if (e.readyState === EventSource.CLOSED) {
             // Connection was closed.
         }

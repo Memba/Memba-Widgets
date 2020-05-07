@@ -42,7 +42,7 @@ const MultiQuizAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             input.kendoMultiQuiz({
@@ -50,11 +50,11 @@ const MultiQuizAdapter = BaseAdapter.extend({
                 // checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
                 checkboxTemplate: `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${ns}uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1}$() #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>`,
                 dataSource: new ImageDataSource({
-                    data: settings.model.get('attributes.data')
-                })
+                    data: settings.model.get('attributes.data'),
+                }),
             });
         };
-    }
+    },
 });
 
 /**

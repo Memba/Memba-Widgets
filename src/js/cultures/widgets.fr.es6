@@ -43,14 +43,14 @@ if (window.kendo && window.kendo.ui) {
             Social,
             // SplitButton
             Stage,
-            StyleEditor
+            StyleEditor,
             // Table
             // Template
             // TextGaps
             // ToolBox
             // UnitInput
             // VectorDrawing
-        }
+        },
     } = window.kendo;
 
     /* widgets.assetmanager */
@@ -61,15 +61,15 @@ if (window.kendo && window.kendo.ui) {
                 upload: 'Mettre en ligne', // comme sur Youtube.fr
                 delete: 'Supprimer',
                 filter: 'Collection: ',
-                search: 'Recherche'
+                search: 'Recherche',
             },
             tabs: {
-                default: 'Projet'
+                default: 'Projet',
             },
             data: {
                 defaultName: 'Chargement...',
-                defaultImage: '' // TODO
-            }
+                defaultImage: '', // TODO
+            },
         });
     }
 
@@ -80,7 +80,7 @@ if (window.kendo && window.kendo.ui) {
             play: 'Jouer/Pauser',
             mute: 'Avec/Sans son',
             fullScreen: 'Plein écran',
-            notSupported: 'Fichier non supporté'
+            notSupported: 'Fichier non supporté',
         });
     }
 
@@ -92,50 +92,50 @@ if (window.kendo && window.kendo.ui) {
                 error: 'Erreur',
                 info: 'Information',
                 success: 'Succès',
-                warning: 'Avertissement'
+                warning: 'Avertissement',
             },
             actions: {
                 cancel: {
                     action: 'cancel',
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                    text: 'Annuler'
+                    text: 'Annuler',
                 },
                 close: {
                     action: 'close',
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
                     primary: true,
-                    text: 'Fermer'
+                    text: 'Fermer',
                 },
                 create: {
                     action: 'create',
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/plus.svg',
                     primary: true,
-                    text: 'Créer'
+                    text: 'Créer',
                 },
                 no: {
                     action: 'no',
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
-                    text: 'Non'
+                    text: 'Non',
                 },
                 ok: {
                     action: 'ok',
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
                     primary: true,
-                    text: 'OK'
+                    text: 'OK',
                 },
                 yes: {
                     action: 'yes',
                     imageUrl:
                         'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
                     primary: true,
-                    text: 'Oui'
-                }
-            }
+                    text: 'Oui',
+                },
+            },
         });
     }
 
@@ -144,11 +144,11 @@ if (window.kendo && window.kendo.ui) {
         const { options } = BasicList.prototype;
         options.messages = $.extend(true, options.messages, {
             toolbar: {
-                add: 'Ajouter'
+                add: 'Ajouter',
             },
             validation: {
-                text: 'Une valeur est requise.'
-            }
+                text: 'Une valeur est requise.',
+            },
         });
     }
 
@@ -165,7 +165,7 @@ if (window.kendo && window.kendo.ui) {
             success: 'Succès',
             failure: 'Échec',
             omit: 'Omission',
-            error: 'Erreur'
+            error: 'Erreur',
         });
     }
 
@@ -173,7 +173,7 @@ if (window.kendo && window.kendo.ui) {
     if (Explorer) {
         const { options } = Explorer.prototype;
         options.messages = $.extend(true, options.messages, {
-            empty: 'Rien à afficher'
+            empty: 'Rien à afficher',
         });
     }
 
@@ -182,12 +182,12 @@ if (window.kendo && window.kendo.ui) {
         const { options } = ImageList.prototype;
         options.messages = $.extend(true, options.messages, {
             toolbar: {
-                add: 'Ajouter'
+                add: 'Ajouter',
             },
             validation: {
                 text: 'Un texte alternatif de 1 à 100 caractères est requis.',
-                url: 'Une url d’image est requise.'
-            }
+                url: 'Une url d’image est requise.',
+            },
         });
     }
 
@@ -196,7 +196,7 @@ if (window.kendo && window.kendo.ui) {
         const { options } = MarkEditor.prototype;
         options.messages = $.extend(true, options.messages, {
             image: 'Une image sans description',
-            link: 'Cliquez ici'
+            link: 'Cliquez ici',
         });
     }
     if (markeditor && markeditor.messages.dialogs) {
@@ -216,31 +216,31 @@ if (window.kendo && window.kendo.ui) {
                         h3: 'Heading 3',
                         h4: 'Heading 4',
                         h5: 'Heading 5',
-                        h6: 'Heading 6'
-                    }
+                        h6: 'Heading 6',
+                    },
                 },
                 linkDialog: {
                     title: 'Hyperlien',
                     labels: {
-                        text: 'Url'
-                    }
+                        text: 'Url',
+                    },
                 },
                 imageDialog: {
                     title: 'Image',
                     labels: {
-                        url: 'Url'
-                    }
+                        url: 'Url',
+                    },
                 },
                 latexDialog: {
                     title: 'Expression Mathématique',
                     labels: {
                         display: 'Affichage',
-                        inline: 'en ligne'
-                    }
+                        inline: 'en ligne',
+                    },
                 },
                 previewDialog: {
-                    title: 'Aperçu'
-                }
+                    title: 'Aperçu',
+                },
             }
         );
     }
@@ -258,7 +258,7 @@ if (window.kendo && window.kendo.ui) {
                     h3: 'Titre 3',
                     h4: 'Titre 4',
                     h5: 'Titre 5',
-                    h6: 'Titre 6'
+                    h6: 'Titre 6',
                 },
                 bold: 'Gras',
                 italic: 'Italique',
@@ -270,7 +270,7 @@ if (window.kendo && window.kendo.ui) {
                 image: 'Image',
                 code: 'Code',
                 latex: 'Expression Mathématique',
-                preview: 'Aperçu dans une Fenêtre'
+                preview: 'Aperçu dans une Fenêtre',
             }
         );
     }
@@ -311,8 +311,8 @@ if (window.kendo && window.kendo.ui) {
                         pi: 'Pi',
                         infty: 'Infini',
                         space: 'Espace',
-                        subscript: 'Indice'
-                    }
+                        subscript: 'Indice',
+                    },
                 },
                 basic: {
                     title: 'Basique',
@@ -331,8 +331,8 @@ if (window.kendo && window.kendo.ui) {
                         pow3: 'Puissance de 3',
                         sin: 'Sinus',
                         cos: 'Cosinus',
-                        tan: 'Tangente'
-                    }
+                        tan: 'Tangente',
+                    },
                 },
                 greek: {
                     title: 'Grec',
@@ -360,8 +360,8 @@ if (window.kendo && window.kendo.ui) {
                         phi: 'Phi', // varphi
                         chi: 'Chi',
                         psi: 'Psi',
-                        omega: 'Omega'
-                    }
+                        omega: 'Omega',
+                    },
                 },
                 operators: {
                     title: 'Operateurs',
@@ -393,8 +393,8 @@ if (window.kendo && window.kendo.ui) {
                         and: 'Et',
                         or: 'Ou',
                         circ: 'Composition',
-                        nabla: 'Nabla'
-                    }
+                        nabla: 'Nabla',
+                    },
                 },
                 expressions: {
                     title: 'Fonctions',
@@ -420,8 +420,8 @@ if (window.kendo && window.kendo.ui) {
                         oint: 'Intégrale curviligne sur un contour fermé',
                         sum: 'Somme',
                         prod: 'Produit',
-                        lim: 'Limite'
-                    }
+                        lim: 'Limite',
+                    },
                 },
                 sets: {
                     title: 'Ensembles',
@@ -448,8 +448,8 @@ if (window.kendo && window.kendo.ui) {
                         implies: 'Implique',
                         impliedby: 'Implied by',
                         nimplies: 'Not implies',
-                        iff: 'Equivalent to'
-                    }
+                        iff: 'Equivalent to',
+                    },
                 },
                 matrices: {
                     title: 'Matrices',
@@ -463,17 +463,17 @@ if (window.kendo && window.kendo.ui) {
                         vmatrix: 'Matrice avec lignes verticales',
                         vvmatrix: 'Matrice à double ligne verticale',
                         column: 'Ajouter un colonne',
-                        row: 'Ajouter une rangée'
-                    }
+                        row: 'Ajouter une rangée',
+                    },
                 },
                 statistics: {
                     title: 'Statistiques',
                     buttons: {
                         factorial: 'Factorielle',
                         binomial: 'Combinaison',
-                        overline: 'Surlignage (moyenne)'
-                    }
-                }
+                        overline: 'Surlignage (moyenne)',
+                    },
+                },
                 /*
                 units: {
                     title: 'Units',
@@ -493,10 +493,10 @@ if (window.kendo && window.kendo.ui) {
             mathinput.messages.toolbar,
             {
                 field: {
-                    title: 'Zone de saisie'
+                    title: 'Zone de saisie',
                 },
                 backspace: {
-                    title: 'Retour arrière'
+                    title: 'Retour arrière',
                 },
                 keypad: {
                     title: 'Clavier',
@@ -528,8 +528,8 @@ if (window.kendo && window.kendo.ui) {
                         pi: 'Pi',
                         infty: 'Infini',
                         space: 'Espace',
-                        subscript: 'Indice'
-                    }
+                        subscript: 'Indice',
+                    },
                 },
                 basic: {
                     title: 'Basique',
@@ -548,8 +548,8 @@ if (window.kendo && window.kendo.ui) {
                         pow3: 'Puissance de 3',
                         sin: 'Sinus',
                         cos: 'Cosinus',
-                        tan: 'Tangente'
-                    }
+                        tan: 'Tangente',
+                    },
                 },
                 greek: {
                     title: 'Grec',
@@ -577,8 +577,8 @@ if (window.kendo && window.kendo.ui) {
                         phi: 'Phi', // varphi
                         chi: 'Chi',
                         psi: 'Psi',
-                        omega: 'Omega'
-                    }
+                        omega: 'Omega',
+                    },
                 },
                 operators: {
                     title: 'Operateurs',
@@ -610,8 +610,8 @@ if (window.kendo && window.kendo.ui) {
                         and: 'Et',
                         or: 'Ou',
                         circ: 'Composition',
-                        nabla: 'Nabla'
-                    }
+                        nabla: 'Nabla',
+                    },
                 },
                 expressions: {
                     title: 'Fonctions',
@@ -637,8 +637,8 @@ if (window.kendo && window.kendo.ui) {
                         oint: 'Intégrale curviligne sur un contour fermé',
                         sum: 'Somme',
                         prod: 'Produit',
-                        lim: 'Limite'
-                    }
+                        lim: 'Limite',
+                    },
                 },
                 sets: {
                     title: 'Ensembles',
@@ -665,8 +665,8 @@ if (window.kendo && window.kendo.ui) {
                         implies: 'Implique',
                         impliedby: 'Implied by',
                         nimplies: 'Not implies',
-                        iff: 'Equivalent to'
-                    }
+                        iff: 'Equivalent to',
+                    },
                 },
                 matrices: {
                     title: 'Matrices',
@@ -680,17 +680,17 @@ if (window.kendo && window.kendo.ui) {
                         vmatrix: 'Matrice avec lignes verticales',
                         vvmatrix: 'Matrice à double ligne verticale',
                         column: 'Ajouter un colonne',
-                        row: 'Ajouter une rangée'
-                    }
+                        row: 'Ajouter une rangée',
+                    },
                 },
                 statistics: {
                     title: 'Statistiques',
                     buttons: {
                         factorial: 'Factorielle',
                         binomial: 'Combinaison',
-                        overline: 'Surlignage (moyenne)'
-                    }
-                }
+                        overline: 'Surlignage (moyenne)',
+                    },
+                },
                 /*
                 units: {
                     title: 'Units',
@@ -710,7 +710,7 @@ if (window.kendo && window.kendo.ui) {
         const { options } = MultiInput.prototype;
         options.messages = $.extend(true, options.messages, {
             clear: 'Effacer',
-            delete: 'Supprimer'
+            delete: 'Supprimer',
         });
     }
 
@@ -718,7 +718,7 @@ if (window.kendo && window.kendo.ui) {
     if (MultiQuiz) {
         const { options } = MultiQuiz.prototype;
         options.messages = $.extend(true, options.messages, {
-            placeholder: 'Sélectionner...'
+            placeholder: 'Sélectionner...',
         });
     }
 
@@ -726,7 +726,7 @@ if (window.kendo && window.kendo.ui) {
     if (Navigation) {
         const { options } = Navigation.prototype;
         options.messages = $.extend(true, options.messages, {
-            empty: 'Rien à afficher'
+            empty: 'Rien à afficher',
         });
     }
 
@@ -742,7 +742,7 @@ if (window.kendo && window.kendo.ui) {
             next: 'Aller à la prochaine page',
             last: 'Aller à la dernière page',
             refresh: 'Rafraichîr',
-            morePages: 'Plus de pages'
+            morePages: 'Plus de pages',
         });
     }
 
@@ -751,7 +751,7 @@ if (window.kendo && window.kendo.ui) {
         const { options } = PropertyGrid.prototype;
         options.messages = $.extend(true, options.messages, {
             property: 'Propriété',
-            value: 'Valeur'
+            value: 'Valeur',
         });
     }
 
@@ -759,7 +759,7 @@ if (window.kendo && window.kendo.ui) {
     if (Quiz) {
         const { options } = Quiz.prototype;
         options.messages = $.extend(true, options.messages, {
-            optionLabel: 'Sélectionner...'
+            optionLabel: 'Sélectionner...',
         });
     }
 
@@ -772,7 +772,7 @@ if (window.kendo && window.kendo.ui) {
             google: 'Partager sur Google+',
             linkedin: 'Partager sur LinkedIn',
             pinterest: 'Partager sur Pinterest',
-            twitter: 'Partager sur Twitter'
+            twitter: 'Partager sur Twitter',
         });
     }
 
@@ -782,9 +782,9 @@ if (window.kendo && window.kendo.ui) {
         options.messages = $.extend(true, options.messages, {
             contextMenu: {
                 delete: 'Supprimer',
-                duplicate: 'Dupliquer'
+                duplicate: 'Dupliquer',
             },
-            noPage: 'Veuillez ajouter ou sélectionner une page'
+            noPage: 'Veuillez ajouter ou sélectionner une page',
         });
     }
 
@@ -794,16 +794,16 @@ if (window.kendo && window.kendo.ui) {
         options.messages = $.extend(true, options.messages, {
             columns: {
                 name: 'Nom',
-                value: 'Valeur'
+                value: 'Valeur',
             },
             toolbar: {
                 create: 'Nouveau',
-                destroy: 'Effacer'
+                destroy: 'Effacer',
             },
             validation: {
                 name: 'Nom de style manquant',
-                value: 'Valeur manquante'
-            }
+                value: 'Valeur manquante',
+            },
         });
     }
 }

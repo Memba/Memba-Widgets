@@ -13,14 +13,14 @@ import baseUrl from './helpers.base.es6';
 
 const {
     roleSelector,
-    ui: { Window }
+    ui: { Window },
 } = window.kendo;
 const TTL = 100;
 const CDN = 'https://cdn.kidoju.com';
 
 const SCHEMES = {
     cdn: `${CDN}/`,
-    data: baseUrl('/test/data/images/miscellaneous/')
+    data: baseUrl('/test/data/images/miscellaneous/'),
 };
 
 const AUDIO_EXT = ['.mp3', '.ogg'];
@@ -34,7 +34,7 @@ const VIDEO_EXT = ['.mp4', '.ogv', '.wbem'];
 const IMAGE = {
     mime: 'image/svg+xml',
     size: 974,
-    url: `${CDN}/images/o_collection/svg/office/information.svg`
+    url: `${CDN}/images/o_collection/svg/office/information.svg`,
 };
 
 /**
@@ -45,8 +45,8 @@ const G_COLLECTION = {
     name: 'G-Collection',
     transport: {
         // read: `${CDN}/images/g_collection/svg/all/index.json`
-        read: baseUrl('/test/data/images/g_collection/svg/all/index.json')
-    }
+        read: baseUrl('/test/data/images/g_collection/svg/all/index.json'),
+    },
 };
 
 /**
@@ -61,26 +61,26 @@ const O_COLLECTION = {
             transport: {
                 read: baseUrl(
                     '/test/data/images/o_collection/svg/dark_grey/index.json'
-                )
-            }
+                ),
+            },
         },
         {
             name: 'Office',
             transport: {
                 read: baseUrl(
                     '/test/data/images/o_collection/svg/office/index.json'
-                )
-            }
+                ),
+            },
         },
         {
             name: 'White',
             transport: {
                 read: baseUrl(
                     '/test/data/images/o_collection/svg/white/index.json'
-                )
-            }
-        }
-    ]
+                ),
+            },
+        },
+    ],
 };
 
 /**
@@ -95,34 +95,34 @@ const V_COLLECTION = {
             transport: {
                 read: baseUrl(
                     '/test/data/images/v_collection/png/32x32/index.json'
-                )
-            }
+                ),
+            },
         },
         {
             name: 'Medium',
             transport: {
                 read: baseUrl(
                     '/test/data/images/v_collection/png/64x64/index.json'
-                )
-            }
+                ),
+            },
         },
         {
             name: 'Large',
             transport: {
                 read: baseUrl(
                     '/test/data/images/v_collection/png/128x128/index.json'
-                )
-            }
+                ),
+            },
         },
         {
             name: 'Huge',
             transport: {
                 read: baseUrl(
                     '/test/data/images/v_collection/png/256x256/index.json'
-                )
-            }
-        }
-    ]
+                ),
+            },
+        },
+    ],
 };
 
 /**
@@ -137,18 +137,18 @@ const X_COLLECTION = {
             transport: {
                 read: baseUrl(
                     '/test/data/images/x_collection/png/32x32/index.json'
-                )
-            }
+                ),
+            },
         },
         {
             name: 'Large',
             transport: {
                 read: baseUrl(
                     '/test/data/images/x_collection/png/128x128/index.json'
-                )
-            }
-        }
-    ]
+                ),
+            },
+        },
+    ],
 };
 
 /**
@@ -190,11 +190,11 @@ const GOOGLE_SEARCH = {
                         Math.min(
                             100 - Math.min(10, data.pageSize),
                             (data.page - 1) * data.pageSize
-                        ) + 1
+                        ) + 1,
                 };
             }
             return ret;
-        }
+        },
     },
     schema: {
         parse(response) {
@@ -204,17 +204,17 @@ const GOOGLE_SEARCH = {
                 parseInt(response.searchInformation.totalResults, 10)
             );
             if (total && Array.isArray(response.items)) {
-                response.items.forEach(item => {
+                response.items.forEach((item) => {
                     data.push({
                         mime: item.mime,
                         size: item.image.byteSize,
-                        url: item.link
+                        url: item.link,
                     });
                 });
             }
             return { total, data };
-        }
-    }
+        },
+    },
 };
 
 const SIMPLE_PROJECT = {
@@ -228,9 +228,9 @@ const SIMPLE_PROJECT = {
                     { url: 'data://France-Fleuves-1.png', size: 35886 },
                     {
                         url: 'data://self-portrait-1907.jpg',
-                        size: 292974
-                    }
-                ]
+                        size: 292974,
+                    },
+                ],
             });
         },
         create(options) {
@@ -241,7 +241,7 @@ const SIMPLE_PROJECT = {
                 setTimeout(() => {
                     const data = {
                         url: `${CDN}/images/o_collection/svg/office/add.svg`,
-                        size: 354 // TODO
+                        size: 354, // TODO
                     };
                     // VERY IMPORTANT: it won't work without total + data which are both expected
                     options.success({ total: 1, data: [data] });
@@ -250,8 +250,8 @@ const SIMPLE_PROJECT = {
         },
         destroy(options) {
             options.error(new Error('destroyed'));
-        }
-    }
+        },
+    },
 };
 
 const COMPLEX_PROJECT = {
@@ -293,9 +293,7 @@ const COMPLEX_PROJECT = {
             const vectorDrawingWidget = this.element
                 .find(roleSelector('vectordrawing'))
                 .data('kendoVectorDrawing');
-            const resolvedUrl = $('<a/>')
-                .attr('href', url)
-                .get(0).href; // Note: a simple way to resolve a relative url
+            const resolvedUrl = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
             return vectorDrawingWidget.open(resolvedUrl);
             // TODO promise????? app.notification of errors ????
         },
@@ -320,7 +318,7 @@ const COMPLEX_PROJECT = {
         },
         saveAs(/* name, assetManager */) {
             // debugger;
-        }
+        },
     },
     transport: {
         create(options = {}) {
@@ -337,8 +335,8 @@ const COMPLEX_PROJECT = {
                 data: [
                     { url: 'data://Elvis.jpg', size: 69057 },
                     { url: 'data://France-Fleuves-1.png', size: 35886 },
-                    { url: 'data://self-portrait-1907.jpg', size: 292974 }
-                ]
+                    { url: 'data://self-portrait-1907.jpg', size: 292974 },
+                ],
             });
         },
         upload(options) {
@@ -365,8 +363,8 @@ const COMPLEX_PROJECT = {
         stream(options) {
             // debugger;
             $.noop(options);
-        }
-    }
+        },
+    },
 };
 
 const ASSETS = {
@@ -382,7 +380,7 @@ const ASSETS = {
     X_COLLECTION,
     SIMPLE_PROJECT,
     COMPLEX_PROJECT,
-    GOOGLE_SEARCH
+    GOOGLE_SEARCH,
 };
 
 /**

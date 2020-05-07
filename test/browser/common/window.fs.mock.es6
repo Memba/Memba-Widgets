@@ -28,7 +28,7 @@ if (!window.Modernizr.filesystem) {
                 ret += `/${args[i]}`;
             }
             return ret.replace(/[/]+/, '/').replace(/\/$/, '');
-        }
+        },
     };
 
     class FileEntry {

@@ -26,7 +26,7 @@ import { genericLibrary } from './util.libraries.es6';
 import {
     questionValidator,
     scoreValidator,
-    styleValidator
+    styleValidator,
 } from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
@@ -64,59 +64,59 @@ const HighLighterTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         highlightStyle: new StyleAdapter({
             title: __('tools.highlighter.attributes.highlightStyle.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         style: new StyleAdapter({
             title: __('tools.highlighter.attributes.style.title'),
-            validation: styleValidator
+            validation: styleValidator,
         }),
         text: new TextAreaAdapter({
             title: __('tools.highlighter.attributes.text.title'),
-            defaultValue: __('tools.highlighter.attributes.text.defaultValue')
+            defaultValue: __('tools.highlighter.attributes.text.defaultValue'),
         }),
         split: new TextBoxAdapter({
             title: __('tools.highlighter.attributes.split.title'),
-            defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])'
-        })
+            defaultValue: '([\\s\\.,;:\\?¿!<>\\(\\)&"`«»\\[\\]{}])',
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.highlighter.properties.name.title')
+            title: __('tools.highlighter.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.highlighter.properties.question.help'),
             title: __('tools.highlighter.properties.question.title'),
-            validator: questionValidator
+            validator: questionValidator,
         }),
         solution: new HighLighterAdapter({
             help: __('tools.highlighter.properties.solution.help'),
-            title: __('tools.highlighter.properties.solution.title')
+            title: __('tools.highlighter.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: __('tools.highlighter.properties.validation.title')
+            title: __('tools.highlighter.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.highlighter.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.highlighter.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.highlighter.properties.omit.title'),
-            validation: scoreValidator
-        })
+            validation: scoreValidator,
+        }),
     },
 
     /**
@@ -141,7 +141,7 @@ const HighLighterTool = BaseTool.extend({
                     __('tools.messages.invalidText'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -158,7 +158,7 @@ const HighLighterTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -175,12 +175,12 @@ const HighLighterTool = BaseTool.extend({
                     __('tools.messages.invalidStyle'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO also check that split regex is safe
         return ret;
-    }
+    },
 });
 
 /**

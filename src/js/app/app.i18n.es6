@@ -64,7 +64,7 @@ Object.defineProperty(__, 'locale', {
         // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
         // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
         // ret = (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
-    }
+    },
 });
 
 /**
@@ -135,7 +135,7 @@ __.load = function load(value) {
             /* webpackChunkName: "[request]" */
             `../cultures/app.culture.${locale}.es6`
         )
-            .then(module => {
+            .then((module) => {
                 /*
                 try {
                     localStorage.setItem(LANGUAGE, locale);
@@ -160,7 +160,7 @@ __.load = function load(value) {
                 // Log readiness
                 logger.debug({
                     message: `${locale} locale loaded`,
-                    method: 'load'
+                    method: 'load',
                 });
                 dfd.resolve();
             })

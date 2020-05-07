@@ -41,7 +41,7 @@ describe('adapters.boolean', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
                 defaultValue: false,
-                type: CONSTANTS.BOOLEAN
+                type: CONSTANTS.BOOLEAN,
             });
         });
 
@@ -51,7 +51,7 @@ describe('adapters.boolean', () => {
             expect(row).to.deep.equal({
                 editor: 'input',
                 field,
-                attributes: { 'data-role': 'switch' }
+                attributes: { 'data-role': 'switch' },
             });
         });
     });

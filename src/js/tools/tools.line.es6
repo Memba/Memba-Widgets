@@ -45,32 +45,32 @@ const LineTool = BaseTool.extend({
     width: 300,
     menu: ['attributes.lineColor', 'attributes.lineWidth'],
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         lineColor: new ColorAdapter({
             help: __('tools.line.attributes.lineColor.help'),
             title: __('tools.line.attributes.lineColor.title'),
-            defaultValue: TOOLS.MEDIUM_GREY
+            defaultValue: TOOLS.MEDIUM_GREY,
         }),
         lineWidth: new NumberAdapter(
             {
                 help: __('tools.line.attributes.lineWidth.help'),
                 title: __('tools.line.attributes.lineWidth.title'),
-                defaultValue: 10
+                defaultValue: 10,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 20
+                'data-max': 20,
             }
         ),
         startCap: new DropDownListAdapter(
             {
                 defaultValue: 'none',
                 source: __('tools.line.attributes.startCap.source'),
-                title: __('tools.line.attributes.startCap.title')
+                title: __('tools.line.attributes.startCap.title'),
             },
             { style: 'width: 100%;' }
         ),
@@ -78,10 +78,10 @@ const LineTool = BaseTool.extend({
             {
                 defaultValue: 'none',
                 source: __('tools.line.attributes.endCap.source'),
-                title: __('tools.line.attributes.endCap.title')
+                title: __('tools.line.attributes.endCap.title'),
             },
             { style: 'width: 100%;' }
-        )
+        ),
     },
     // properties: {},
 
@@ -127,7 +127,7 @@ const LineTool = BaseTool.extend({
         // TODO: We should also check that there is a dropZone on the page if draggable
         // TODO check selectable too
         return ret;
-    }
+    },
 });
 
 /**

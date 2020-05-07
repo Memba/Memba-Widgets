@@ -14,7 +14,7 @@ import BaseAdapter from './adapters.base.es6';
 
 const {
     format,
-    ui: { BaseDialog, CharGrid }
+    ui: { BaseDialog, CharGrid },
 } = window.kendo;
 
 /**
@@ -95,13 +95,13 @@ const CharGridAdapter = BaseAdapter.extend({
                 lockedFill: model.get('attributes.lockedFill'),
                 lockedColor: model.get('attributes.lockedColor'),
                 selectedFill: model.get('attributes.selectedFill'),
-                valueColor: model.get('attributes.valueColor')
+                valueColor: model.get('attributes.valueColor'),
             },
             data: {
-                value
-            }
+                value,
+            },
         })
-            .then(result => {
+            .then((result) => {
                 if (
                     result.action ===
                     BaseDialog.fn.options.messages.actions.ok.action
@@ -111,7 +111,7 @@ const CharGridAdapter = BaseAdapter.extend({
                 }
             })
             .catch($.noop); // TODO error management
-    }
+    },
 });
 
 /**

@@ -19,7 +19,7 @@ import TOOLS from '../tools/util.constants.es6';
 
 const {
     data: { DataSource, ObservableArray /* , ObservableObject */ },
-    format
+    format,
 } = window.kendo;
 const logger = new Logger('data.pagecomponent');
 
@@ -34,22 +34,22 @@ const PageComponent = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         attributes: {
             type: CONSTANTS.OBJECT,
-            nullable: true
+            nullable: true,
             // parse cannot access this
         },
         height: {
-            type: CONSTANTS.NUMBER
+            type: CONSTANTS.NUMBER,
         },
         left: {
-            type: CONSTANTS.NUMBER
+            type: CONSTANTS.NUMBER,
         },
         properties: {
             type: CONSTANTS.OBJECT,
-            nullable: true
+            nullable: true,
             // parse cannot access this
         },
         rotate: {
@@ -58,19 +58,19 @@ const PageComponent = BaseModel.define({
                 return $.type(value) === CONSTANTS.NUMBER
                     ? (value + 360) % 360
                     : 0;
-            }
+            },
         },
         tool: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         top: {
-            type: CONSTANTS.NUMBER
+            type: CONSTANTS.NUMBER,
         },
         width: {
-            type: CONSTANTS.NUMBER
-        }
+            type: CONSTANTS.NUMBER,
+        },
     },
 
     /**
@@ -278,7 +278,7 @@ const PageComponent = BaseModel.define({
         );
         const clone = {};
         // Copy page component fields (tool, top, left, height, width, rotate, ...), but not id, attributes and properties
-        Object.keys(this.fields).forEach(key => {
+        Object.keys(this.fields).forEach((key) => {
             if (
                 key !== this.idField &&
                 key !== 'attributes' &&
@@ -289,7 +289,7 @@ const PageComponent = BaseModel.define({
         });
         // Copy display attributes
         clone.attributes = {};
-        Object.keys(this.attributes.fields).forEach(key => {
+        Object.keys(this.attributes.fields).forEach((key) => {
             // Consider using toJSON on  ObservableObject and ObservableArray
             clone.attributes[key] = JSON.parse(
                 JSON.stringify(this.get(`attributes.${key}`))
@@ -298,7 +298,7 @@ const PageComponent = BaseModel.define({
         });
         // copy some property attributes
         clone.properties = {};
-        Object.keys(this.properties.fields).forEach(key => {
+        Object.keys(this.properties.fields).forEach((key) => {
             // Copying validation can be fairly complex depending on the use of all,
             // especially considering components need to change name
             if (
@@ -309,7 +309,7 @@ const PageComponent = BaseModel.define({
                     'validation',
                     'success',
                     'failure',
-                    'omit'
+                    'omit',
                 ].indexOf(key) === -1
             ) {
                 // Consider using toJSON on ObservableObject and ObservableArray
@@ -321,7 +321,7 @@ const PageComponent = BaseModel.define({
         });
         // Return clone
         return new PageComponent(clone);
-    }
+    },
 
     /**
      * Validate
@@ -442,8 +442,8 @@ const PageComponentDataSource = DataSource.extend({
                                 ? options.schema.modelBase
                                 : options.schema.model
                         ),
-                        model: PageComponent.define(options.schema.model)
-                    }
+                        model: PageComponent.define(options.schema.model),
+                    },
                 });
             }
         }
@@ -455,8 +455,8 @@ const PageComponentDataSource = DataSource.extend({
                 {
                     schema: {
                         modelBase: PageComponent,
-                        model: PageComponent
-                    }
+                        model: PageComponent,
+                    },
                 },
                 options
             )
@@ -464,7 +464,7 @@ const PageComponentDataSource = DataSource.extend({
 
         // See https://www.telerik.com/forums/_attachbubblehandlers
         // this._attachBubbleHandlers();
-    }
+    },
 
     /**
      * _attachBubbleHandlers
@@ -489,7 +489,7 @@ const PageComponentDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-PageComponentDataSource.create = options => {
+PageComponentDataSource.create = (options) => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray

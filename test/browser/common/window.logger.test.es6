@@ -77,7 +77,7 @@ describe('window.logger', () => {
             logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
-                error: sinon.spy()
+                error: sinon.spy(),
             };
             window.console = console;
         });
@@ -120,7 +120,7 @@ describe('window.logger', () => {
                 logger.log(level, {
                     message: MESSAGE,
                     data: DATA,
-                    error: ERROR
+                    error: ERROR,
                 });
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.callCount(count);
@@ -137,7 +137,7 @@ describe('window.logger', () => {
                 logger[level]({
                     message: MESSAGE,
                     data: DATA,
-                    error: ERROR
+                    error: ERROR,
                 });
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
@@ -157,13 +157,13 @@ describe('window.logger', () => {
         beforeEach(() => {
             window.DEBUG = 2;
             plugin = {
-                log: sinon.spy()
+                log: sinon.spy(),
             };
             Logger.register(plugin);
             logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
-                error: sinon.spy()
+                error: sinon.spy(),
             };
             window.console = console;
         });
@@ -191,7 +191,7 @@ describe('window.logger', () => {
                     level,
                     module: MODULE,
                     message: MESSAGE,
-                    data: DATA
+                    data: DATA,
                 });
             }
             // test('debug');
@@ -204,7 +204,7 @@ describe('window.logger', () => {
                 logger[level]({
                     message: MESSAGE,
                     data: DATA,
-                    error: ERROR
+                    error: ERROR,
                 });
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
@@ -214,7 +214,7 @@ describe('window.logger', () => {
                     level,
                     module: MODULE,
                     message: MESSAGE,
-                    data: DATA
+                    data: DATA,
                 });
             }
             test('error', 1);
@@ -230,13 +230,13 @@ describe('window.logger', () => {
         beforeEach(() => {
             window.DEBUG = 4;
             plugin = {
-                log: sinon.spy()
+                log: sinon.spy(),
             };
             Logger.register(plugin);
             logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
-                error: sinon.spy()
+                error: sinon.spy(),
             };
             window.console = console;
         });
@@ -249,7 +249,7 @@ describe('window.logger', () => {
                 expect(plugin.log).to.have.been.calledWithMatch({
                     level,
                     module: MODULE,
-                    message: MESSAGE
+                    message: MESSAGE,
                     // data: DATA
                 });
             }
@@ -269,7 +269,7 @@ describe('window.logger', () => {
                     level,
                     module: MODULE,
                     message: MESSAGE,
-                    data: DATA
+                    data: DATA,
                 });
             }
             // test('debug');
@@ -282,7 +282,7 @@ describe('window.logger', () => {
                 logger[level]({
                     message: MESSAGE,
                     data: DATA,
-                    error: ERROR
+                    error: ERROR,
                 });
                 expect(console.error).to.have.callCount(count);
                 expect(console.log).to.have.been.calledWith(
@@ -292,7 +292,7 @@ describe('window.logger', () => {
                     level,
                     module: MODULE,
                     message: MESSAGE,
-                    data: DATA
+                    data: DATA,
                 });
             }
             test('error', 1);
@@ -308,13 +308,13 @@ describe('window.logger', () => {
         beforeEach(() => {
             window.DEBUG = 8;
             plugin = {
-                log: sinon.spy()
+                log: sinon.spy(),
             };
             Logger.register(plugin);
             logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
-                error: sinon.spy()
+                error: sinon.spy(),
             };
             window.console = console;
         });
@@ -327,7 +327,7 @@ describe('window.logger', () => {
                 expect(plugin.log).to.have.been.calledWithMatch({
                     level,
                     module: MODULE,
-                    message: MESSAGE
+                    message: MESSAGE,
                     // data: DATA
                 });
             }
@@ -347,13 +347,13 @@ describe('window.logger', () => {
         beforeEach(() => {
             window.DEBUG = true;
             plugin = {
-                log: sinon.spy()
+                log: sinon.spy(),
             };
             Logger.register(plugin);
             logger = new Logger(MODULE);
             console = {
                 log: sinon.spy(),
-                error: sinon.spy()
+                error: sinon.spy(),
             };
             window.console = console;
 
@@ -372,7 +372,7 @@ describe('window.logger', () => {
             expect(plugin.log).to.have.been.calledWithMatch({
                 level: 'debug',
                 module: MODULE,
-                message: MESSAGE
+                message: MESSAGE,
                 // data: DATA
             });
         });

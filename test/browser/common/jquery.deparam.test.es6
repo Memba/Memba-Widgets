@@ -25,8 +25,8 @@ describe('jquery.deparam', () => {
                 JSC.integer(5, 10),
                 // With at least 3 chars, there is a low probability of a number to coerce
                 JSC.string(JSC.integer(3, 10), JSC.character())
-            )()
-        }
+            )(),
+        },
     ];
 
     it('It should plug $.deparam', () => {

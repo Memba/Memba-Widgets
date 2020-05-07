@@ -23,20 +23,20 @@ import BaseModel from '../../../src/js/data/data.base.es6';
 import { Page } from '../../../src/js/data/data.page.es6';
 import {
     PageComponent,
-    PageComponentDataSource
+    PageComponentDataSource,
 } from '../../../src/js/data/data.pagecomponent.es6';
 import { normalizeSchema } from '../../../src/js/data/data.util.es6';
 import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
 import {
     getComponentArray,
-    getPage
+    getPage,
 } from '../../../src/js/helpers/helpers.components.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, Model }
+    data: { DataSource, Model },
 } = window.kendo;
 chai.use(sinonChai);
 
@@ -65,7 +65,7 @@ describe('data.pagecomponent', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent({
-                        tool: CONSTANTS.POINTER
+                        tool: CONSTANTS.POINTER,
                     });
                 }
                 expect(test).to.throw(Error);
@@ -75,7 +75,7 @@ describe('data.pagecomponent', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent({
-                        tool: JSC.string()()
+                        tool: JSC.string()(),
                     });
                 }
                 expect(test).to.throw(Error);
@@ -92,11 +92,11 @@ describe('data.pagecomponent', () => {
                         ...component.defaults,
                         attributes: component.attributes.defaults,
                         properties: component.properties.defaults,
-                        ...options
+                        ...options,
                     });
                 }
                 getComponentArray()
-                    .map(item => ({ tool: item.tool }))
+                    .map((item) => ({ tool: item.tool }))
                     .forEach(test);
             });
 
@@ -289,7 +289,7 @@ describe('data.pagecomponent', () => {
 
     describe('PageComponentDataSource', () => {
         describe('Initialization', () => {
-            it('It should initialize without options', done => {
+            it('It should initialize without options', (done) => {
                 const dataSource = new PageComponentDataSource();
                 expect(dataSource).to.be.an.instanceof(PageComponentDataSource);
                 expect(dataSource).to.be.an.instanceof(DataSource);
@@ -309,7 +309,7 @@ describe('data.pagecomponent', () => {
                     .catch(done);
             });
 
-            it('It should initialize from an empty array', done => {
+            it('It should initialize from an empty array', (done) => {
                 const dataSource = new PageComponentDataSource({ data: [] });
                 expect(dataSource).to.be.an.instanceof(PageComponentDataSource);
                 expect(dataSource).to.be.an.instanceof(DataSource);
@@ -325,7 +325,7 @@ describe('data.pagecomponent', () => {
             it('It should throw when initializing from a dummy array', () => {
                 function test() {
                     const dataSource = new PageComponentDataSource({
-                        data: JSC.array(JSC.integer(5), JSC.object())()
+                        data: JSC.array(JSC.integer(5), JSC.object())(),
                     });
                     dataSource.read();
                 }
@@ -337,49 +337,49 @@ describe('data.pagecomponent', () => {
                     idField: 'id',
                     fields: {
                         id: {
-                            type: 'string'
+                            type: 'string',
                         },
                         title: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const books = [
                     {
                         id: new ObjectId().toString(),
-                        title: 'Gone with the wind'
+                        title: 'Gone with the wind',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'OK Coral'
+                        title: 'OK Coral',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'The third man'
+                        title: 'The third man',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'The guns of Navarone'
-                    }
+                        title: 'The guns of Navarone',
+                    },
                 ];
                 function test() {
                     const dataSource = new PageComponentDataSource({
                         data: books,
                         schema: {
                             model: Book,
-                            modelBase: Book
-                        }
+                            modelBase: Book,
+                        },
                     });
                     dataSource.read();
                 }
                 expect(test).to.throw(Error);
             });
 
-            it('It should initialize from an array with a bare component', done => {
+            it('It should initialize from an array with a bare component', (done) => {
                 function test(options) {
                     const dfd = $.Deferred();
                     const dataSource = new PageComponentDataSource({
-                        data: [options]
+                        data: [options],
                     });
                     expect(dataSource).to.be.an.instanceof(
                         PageComponentDataSource
@@ -394,11 +394,11 @@ describe('data.pagecomponent', () => {
                     return dfd.promise();
                 }
                 const data = getComponentArray();
-                const promises = data.map(item => test({ tool: item.tool }));
+                const promises = data.map((item) => test({ tool: item.tool }));
                 $.when(...promises)
                     .then(
                         tryCatch(done)((...results) => {
-                            results.forEach(res => {
+                            results.forEach((res) => {
                                 expect(res.dataSource.total()).to.equal(1);
                                 const component = res.dataSource.at(0);
                                 assertBaseModel(
@@ -411,7 +411,7 @@ describe('data.pagecomponent', () => {
                                             attributes:
                                                 component.attributes.defaults,
                                             properties:
-                                                component.properties.defaults
+                                                component.properties.defaults,
                                         }
                                     )
                                 );
@@ -421,7 +421,7 @@ describe('data.pagecomponent', () => {
                     .catch(done);
             });
 
-            it('it should initialize from an array of components', done => {
+            it('it should initialize from an array of components', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({ data });
                 expect(dataSource)
@@ -445,7 +445,7 @@ describe('data.pagecomponent', () => {
                     .catch(done);
             });
 
-            it('it should initialize from a transport', done => {
+            it('it should initialize from a transport', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({
                     schema: normalizeSchema({
@@ -457,11 +457,11 @@ describe('data.pagecomponent', () => {
                                 left: { type: CONSTANTS.NUMBER },
                                 rotate: { type: CONSTANTS.NUMBER },
                                 top: { type: CONSTANTS.NUMBER },
-                                width: { type: CONSTANTS.NUMBER }
-                            }
-                        }
+                                width: { type: CONSTANTS.NUMBER },
+                            },
+                        },
                     }),
-                    transport: getSpyingTransport(data)
+                    transport: getSpyingTransport(data),
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -486,7 +486,7 @@ describe('data.pagecomponent', () => {
         });
 
         describe('Adding and inserting', () => {
-            it('It should add components', done => {
+            it('It should add components', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource();
                 function test(options) {
@@ -506,7 +506,7 @@ describe('data.pagecomponent', () => {
                     .catch(done);
             });
 
-            it('It should insert components', done => {
+            it('It should insert components', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource();
                 function test(options) {
@@ -549,7 +549,7 @@ describe('data.pagecomponent', () => {
             });
             */
 
-            xit('If dataSource initialized from transport, it should only call create', done => {
+            xit('If dataSource initialized from transport, it should only call create', (done) => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
@@ -570,8 +570,8 @@ describe('data.pagecomponent', () => {
                         destroy(options) {
                             destroy(options);
                             options.success(options.data);
-                        }
-                    }
+                        },
+                    },
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -596,7 +596,7 @@ describe('data.pagecomponent', () => {
         });
 
         describe('Updating', () => {
-            xit('If dataSource initialized from in-memory array, there should be one updated page component', done => {
+            xit('If dataSource initialized from in-memory array, there should be one updated page component', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({ data });
                 expect(dataSource)
@@ -614,7 +614,7 @@ describe('data.pagecomponent', () => {
                 });
             });
 
-            xit('If dataSource initialized from transport, it should only call update', done => {
+            xit('If dataSource initialized from transport, it should only call update', (done) => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
@@ -635,8 +635,8 @@ describe('data.pagecomponent', () => {
                         destroy(options) {
                             destroy(options);
                             options.success(options.data);
-                        }
-                    }
+                        },
+                    },
                 });
                 expect(dataSource)
                     .to.have.nested.property('options.schema.model')
@@ -660,7 +660,7 @@ describe('data.pagecomponent', () => {
         });
 
         describe('Removing', () => {
-            xit('If dataSource initialized from in-memory array, there should be one page component less', done => {
+            xit('If dataSource initialized from in-memory array, there should be one page component less', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({ data });
                 expect(dataSource)
@@ -678,7 +678,7 @@ describe('data.pagecomponent', () => {
                 });
             });
 
-            xit('If dataSource initialized from transport, it should only call destroy', done => {
+            xit('If dataSource initialized from transport, it should only call destroy', (done) => {
                 const create = sinon.spy();
                 const update = sinon.spy();
                 const destroy = sinon.spy();
@@ -700,8 +700,8 @@ describe('data.pagecomponent', () => {
                             destroy(options) {
                                 destroy(options);
                                 options.success(options.data);
-                            }
-                        }
+                            },
+                        },
                     }
                 );
                 expect(pageComponentCollectionDataSource)
@@ -739,7 +739,7 @@ describe('data.pagecomponent', () => {
         });
 
         describe('toJSON', () => {
-            xit('it should implement toJSON', done => {
+            xit('it should implement toJSON', (done) => {
                 const data = getComponentArray();
                 const dataSource = new PageComponentDataSource({ data });
                 expect(dataSource)
@@ -791,7 +791,7 @@ describe('data.pagecomponent', () => {
             expect(fn).to.throw(Error);
         });
 
-        xit('if initialized from a PageComponentDataSource, the number of components should match', done => {
+        xit('if initialized from a PageComponentDataSource, the number of components should match', (done) => {
             const data = getComponentArray();
             const dataSource1 = PageComponentDataSource.create(data);
             const dataSource2 = PageComponentDataSource.create(dataSource1);
@@ -816,15 +816,15 @@ describe('data.pagecomponent', () => {
             });
         });
 
-        xit('if initialized from a transport, the number of components should match', done => {
+        xit('if initialized from a transport, the number of components should match', (done) => {
             const data = getComponentArray();
             const dataSource1 = PageComponentDataSource.create(data);
             const dataSource2 = new PageComponentDataSource({
                 transport: {
                     read(options) {
                         options.success(data);
-                    }
-                }
+                    },
+                },
             });
             expect(dataSource1)
                 .to.have.nested.property('options.schema.model')

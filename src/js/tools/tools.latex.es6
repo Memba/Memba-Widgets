@@ -47,37 +47,37 @@ const LatexTool = BaseTool.extend({
     width: 370,
     menu: ['attributes.formula'],
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         formula: new MathInputAdapter({
             title: __('tools.latex.attributes.formula.title'),
-            defaultValue: __('tools.latex.attributes.formula.defaultValue')
+            defaultValue: __('tools.latex.attributes.formula.defaultValue'),
         }),
         inline: new BooleanAdapter({
             title: __('tools.latex.attributes.inline.title'),
-            defaultValue: __('tools.latex.attributes.inline.defaultValue')
+            defaultValue: __('tools.latex.attributes.inline.defaultValue'),
         }),
         style: new StyleAdapter({
             title: __('tools.latex.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
                 defaultValue: 'none',
                 source: __('tools.latex.properties.behavior.source'),
-                title: __('tools.latex.properties.behavior.title')
+                title: __('tools.latex.properties.behavior.title'),
             },
             {
-                style: 'width: 100%;'
+                style: 'width: 100%;',
             }
         ),
         constant: new TextBoxAdapter({
             title: __('tools.image.properties.constant.title'),
-            validation: constantValidator
-        })
+            validation: constantValidator,
+        }),
     },
 
     /**
@@ -102,7 +102,7 @@ const LatexTool = BaseTool.extend({
                     component.id.length
                     ? component.id
                     : '';
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -116,7 +116,7 @@ const LatexTool = BaseTool.extend({
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
         const {
             description,
-            i18n: { messages }
+            i18n: { messages },
         } = this; // tool description
         if (
             !component.attributes ||
@@ -133,7 +133,7 @@ const LatexTool = BaseTool.extend({
                     messages.invalidFormula,
                     description,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -145,12 +145,16 @@ const LatexTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    messages.invalidStyle,
+                    description,
+                    pageIdx + 1
+                ),
             });
         }
         // TODO: We should also check that there is a dropZone on the page if draggable
         return ret;
-    }
+    },
 });
 
 /**

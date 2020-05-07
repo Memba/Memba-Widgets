@@ -24,8 +24,8 @@ const BaseTest = BaseModel.define({
     fields: {
         // Store for interactions
         interactions: {
-            defaultValue: []
-        }
+            defaultValue: [],
+        },
         // Variables need a default value which is defined in Stream.getTestModel
         /*
         variables: {
@@ -85,7 +85,7 @@ const BaseTest = BaseModel.define({
     getScoreTable() {
         const that = this;
         const scoreArray = [];
-        Object.keys(that.fields).forEach(key => {
+        Object.keys(that.fields).forEach((key) => {
             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const field = that.get(key);
                 const component = field.component();
@@ -124,7 +124,7 @@ const BaseTest = BaseModel.define({
         const that = this;
         const promises = [];
         // Iterate through test fields
-        Object.keys(this.fields).forEach(key => {
+        Object.keys(this.fields).forEach((key) => {
             // Filter test value fields
             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const field = that.get(key);
@@ -143,7 +143,7 @@ const BaseTest = BaseModel.define({
         logger.info({
             method: 'grade',
             message: 'graded a test',
-            data: { pageIdx }
+            data: { pageIdx },
         });
         return $.when(...promises);
     },
@@ -157,7 +157,7 @@ const BaseTest = BaseModel.define({
         const that = this;
         let max = 0;
         // Note: this.fields has less properties than this
-        Object.keys(that.fields).forEach(key => {
+        Object.keys(that.fields).forEach((key) => {
             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const component = that.get(key).component();
                 if (!component.get('properties.disabled')) {
@@ -187,7 +187,7 @@ const BaseTest = BaseModel.define({
     score() {
         const that = this;
         let score = 0;
-        Object.keys(that.fields).forEach(key => {
+        Object.keys(that.fields).forEach((key) => {
             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const component = that.get(key).component();
                 if (!component.get('properties.disabled')) {
@@ -208,13 +208,13 @@ const BaseTest = BaseModel.define({
     toJSON() {
         const that = this;
         const json = {};
-        Object.keys(that.fields).forEach(key => {
+        Object.keys(that.fields).forEach((key) => {
             if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 // TODO use field.toJSON()
                 json[key] = {
                     result: this.get(`${key}.result`),
                     score: this.get(`${key}.score`),
-                    value: this.get(`${key}.value`)
+                    value: this.get(`${key}.value`),
                 };
             } else if (key === 'interactions') {
                 json[key] = this.get(key).toJSON(); // .slice();
@@ -222,7 +222,7 @@ const BaseTest = BaseModel.define({
         });
         // debugger;
         return json;
-    }
+    },
 });
 
 /**

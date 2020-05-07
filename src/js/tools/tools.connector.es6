@@ -27,7 +27,7 @@ const {
     format,
     ns,
     roleSelector,
-    ui: { Connector }
+    ui: { Connector },
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
@@ -61,51 +61,51 @@ const ConnectorTool = BaseTool.extend({
         play: format(TEMPLATE, BINDING),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         color: new ColorAdapter({
             title: __('tools.connector.attributes.color.title'),
-            defaultValue: '#ff0000'
-        })
+            defaultValue: '#ff0000',
+        }),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.connector.properties.name.title')
+            title: __('tools.connector.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.connector.properties.question.help'),
             title: __('tools.connector.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new ConnectorAdapter({
             help: __('tools.connector.properties.solution.help'),
-            title: __('tools.connector.properties.solution.title')
+            title: __('tools.connector.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: __('tools.connector.properties.validation.title')
+            title: __('tools.connector.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.connector.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.connector.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.connector.properties.omit.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         disabled: new DisabledAdapter({
             defaultValue: false,
-            title: __('tools.connector.properties.disabled.title')
-        })
+            title: __('tools.connector.properties.disabled.title'),
+        }),
     },
 
     /**
@@ -152,7 +152,7 @@ const ConnectorTool = BaseTool.extend({
                     __('tools.messages.invalidColor'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         if (
@@ -169,13 +169,13 @@ const ConnectorTool = BaseTool.extend({
                     toolName,
                     component.properties.name,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO: We should also check that there is a matching connector on the page
         // TODO: Check connectors on top of static images and labels
         return ret;
-    }
+    },
 });
 
 /**

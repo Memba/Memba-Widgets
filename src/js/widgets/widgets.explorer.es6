@@ -14,7 +14,7 @@ import Logger from '../common/window.logger.es6';
 import { PageDataSource } from '../data/data.page.es6';
 import {
     PageComponent,
-    PageComponentDataSource
+    PageComponentDataSource,
 } from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
 import { StubTool } from '../tools/tools.base.es6';
@@ -28,7 +28,7 @@ const {
     ns,
     support,
     template,
-    ui: { DataBoundWidget, plugin }
+    ui: { DataBoundWidget, plugin },
 } = window.kendo;
 const logger = new Logger('widgets.explorer');
 
@@ -83,9 +83,9 @@ const Explorer = DataBoundWidget.extend({
         index: 0,
         itemTemplate: `<li data-${ns}uid="#= uid #" tabindex="-1" unselectable="on" role="option" class="k-item kj-explorer-item"><span class="k-in"><img class="k-image" alt="#= tool #" src="#= icon$() #"><span class="k-text">#= description$() #</span></span></li>`,
         messages: {
-            empty: 'No item to display'
+            empty: 'No item to display',
         },
-        tools
+        tools,
     },
 
     /**
@@ -96,7 +96,7 @@ const Explorer = DataBoundWidget.extend({
         CONSTANTS.CHANGE,
         CONSTANTS.DATABINDING,
         CONSTANTS.DATABOUND,
-        CONSTANTS.SELECT
+        CONSTANTS.SELECT,
     ],
 
     /**
@@ -274,10 +274,9 @@ const Explorer = DataBoundWidget.extend({
      */
     _templates() {
         const { extension, iconPath, itemTemplate } = this.options;
-        this.iconPath = `${iconPath +
-            (/\/$/.test(`${iconPath}`) ? '' : '/')}{0}${
-            /^\./.test(`${extension}`) ? '' : '.'
-        }${extension}`;
+        this.iconPath = `${
+            iconPath + (/\/$/.test(`${iconPath}`) ? '' : '/')
+        }{0}${/^\./.test(`${extension}`) ? '' : '.'}${extension}`;
         this.itemTemplate = template(itemTemplate);
     },
 
@@ -447,7 +446,7 @@ const Explorer = DataBoundWidget.extend({
             placeholder(element) {
                 return element.clone().addClass(PLACEHOLDER_CLASS);
             },
-            change: this._onChange.bind(this)
+            change: this._onChange.bind(this),
         });
     },
 
@@ -642,7 +641,7 @@ const Explorer = DataBoundWidget.extend({
                         },
                         icon$() {
                             return format(iconPath, tool.icon);
-                        }
+                        },
                     })
                 );
 
@@ -673,7 +672,7 @@ const Explorer = DataBoundWidget.extend({
         this.wrapper = undefined;
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
-    }
+    },
 });
 
 /**

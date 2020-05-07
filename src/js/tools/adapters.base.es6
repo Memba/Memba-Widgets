@@ -15,7 +15,7 @@ import '../dialogs/widgets.basedialog.es6';
 const {
     Class,
     getter,
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -70,7 +70,7 @@ const BaseAdapter = Class.extend({
                 CONSTANTS.DATE,
                 CONSTANTS.NUMBER,
                 CONSTANTS.OBJECT,
-                CONSTANTS.STRING
+                CONSTANTS.STRING,
             ].indexOf(this.type) > -1
         ) {
             field.type = this.type;
@@ -159,9 +159,9 @@ const BaseAdapter = Class.extend({
         );
         $.extend(options, {
             row: this.getRow(options.field),
-            title: this.title
+            title: this.title,
         });
-        openPropertyDialog(options).then(result => {
+        openPropertyDialog(options).then((result) => {
             if (
                 result.action ===
                 BaseDialog.fn.options.messages.actions.ok.action
@@ -170,7 +170,7 @@ const BaseAdapter = Class.extend({
                 options.model.set(options.field, value);
             }
         });
-    }
+    },
 });
 
 /**

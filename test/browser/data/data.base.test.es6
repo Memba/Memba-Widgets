@@ -24,7 +24,7 @@ const { describe, it, xit } = window;
 const {
     Class,
     data: { DataSource, Model, ObservableArray, ObservableObject },
-    observable
+    observable,
 } = window.kendo;
 const { expect } = chai;
 
@@ -39,25 +39,25 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     age: {
                         type: 'number',
                         defaultValue() {
                             return 10;
-                        }
+                        },
                     },
                     dob: {
-                        type: 'date'
+                        type: 'date',
                     },
                     male: {
-                        type: 'boolean'
+                        type: 'boolean',
                     },
                     title: {
                         type: 'string',
-                        defaultValue: 'hey'
-                    }
-                }
+                        defaultValue: 'hey',
+                    },
+                },
             };
             const data = { id: new ObjectId().toString() };
 
@@ -96,14 +96,14 @@ describe('data.base', () => {
                 expect(item2).not.to.have.property('title');
             });
 
-            it('kendo.data.Model does not assign default values (via kendo.data.DataSource)', done => {
+            it('kendo.data.Model does not assign default values (via kendo.data.DataSource)', (done) => {
                 const DataModel = Model.define(definition);
                 const dataSource = new DataSource({
                     data: [jsonClone(data)],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .read()
@@ -166,14 +166,14 @@ describe('data.base', () => {
                 );
             });
 
-            it('BaseModel should assign default values (via kendo.data.DataSource)', done => {
+            it('BaseModel should assign default values (via kendo.data.DataSource)', (done) => {
                 const DataModel = BaseModel.define(definition);
                 const dataSource = new DataSource({
                     data: [jsonClone(data)],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .read()
@@ -210,24 +210,24 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     date: {
                         type: 'date',
                         nullable: true,
-                        editable: false
-                    }
-                }
+                        editable: false,
+                    },
+                },
             };
             const past = new Date(1966, 14, 2);
             const data1 = {
                 id: new ObjectId().toString(),
-                date: past.toISOString()
+                date: past.toISOString(),
             };
             const now = new Date();
             const data2 = {
                 id: new ObjectId().toString(),
-                date: now.toISOString()
+                date: now.toISOString(),
             };
 
             it('kendo.data.Model does not parse dates', () => {
@@ -238,9 +238,7 @@ describe('data.base', () => {
 
                 expect(item).to.have.property('id', data1.id);
                 // There lies the problem: the date property is supposed to be a Date and the string value has not been parsed/converted
-                expect(item)
-                    .to.have.property('date')
-                    .that.is.a('string');
+                expect(item).to.have.property('date').that.is.a('string');
                 expect(item.date).to.equal(data1.date);
 
                 item.bind('change', change);
@@ -254,9 +252,7 @@ describe('data.base', () => {
                 expect(change).not.to.have.been.called;
 
                 // There lies the problem again: the date property is supposed to be a Date and the string value has not been parsed/converted
-                expect(item)
-                    .to.have.property('date')
-                    .that.is.a('string');
+                expect(item).to.have.property('date').that.is.a('string');
                 expect(item.date).to.equal(data2.date);
             });
 
@@ -266,9 +262,7 @@ describe('data.base', () => {
                 const item = new DataModel(JSON.parse(JSON.stringify(data1))); // Keeps date strings
                 const change = sinon.spy();
 
-                expect(item)
-                    .to.have.property('id')
-                    .that.is.equal(data1.id);
+                expect(item).to.have.property('id').that.is.equal(data1.id);
                 // The fix in BaseModel is discussed and explained at http://www.telerik.com/forums/parsing-on-initialization-of-kendo-data-model
                 expect(item)
                     .to.have.property('date')
@@ -278,7 +272,7 @@ describe('data.base', () => {
                 item.bind('change', change);
                 item.accept({
                     id: data2.id,
-                    date: now.toISOString()
+                    date: now.toISOString(),
                 });
 
                 expect(item).to.have.property('id', data2.id);
@@ -292,14 +286,14 @@ describe('data.base', () => {
                 expect(item.date.getTime()).to.equal(now.getTime());
             });
 
-            it('BEWARE! kendo.data.Model parses dates (via kendo.data.DataSource)', done => {
+            it('BEWARE! kendo.data.Model parses dates (via kendo.data.DataSource)', (done) => {
                 const DataModel = Model.define(definition);
                 const dataSource = new DataSource({
                     data: [JSON.parse(JSON.stringify(data1))],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .read()
@@ -315,14 +309,14 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('BaseModel should parse dates (via kendo.data.DataSource)', done => {
+            it('BaseModel should parse dates (via kendo.data.DataSource)', (done) => {
                 const DataModel = BaseModel.define(definition);
                 const dataSource = new DataSource({
                     data: [JSON.parse(JSON.stringify(data1))],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .read()
@@ -350,33 +344,33 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     comments: {
                         from: 'metrics.comments.count',
-                        type: 'number'
+                        type: 'number',
                     },
                     firstName: {
                         from: 'author.firstName',
-                        type: 'string'
+                        type: 'string',
                     },
                     lastName: {
                         from: 'author.lastName',
-                        type: 'string'
-                    }
-                }
+                        type: 'string',
+                    },
+                },
             };
             const data = {
                 id: new ObjectId().toString(),
                 author: {
                     firstName: 'Joe',
-                    lastName: 'Blogs'
+                    lastName: 'Blogs',
                 },
                 metrics: {
                     comments: {
-                        count: 10
-                    }
-                }
+                        count: 10,
+                    },
+                },
             };
 
             it('kendo.data.Model does not parse nested properties', () => {
@@ -409,14 +403,14 @@ describe('data.base', () => {
                 expect(item).not.to.have.property('metrics');
             });
 
-            it('BEWARE! kendo.data.Model parses nested properties (with kendo.data.DataSource)', done => {
+            it('BEWARE! kendo.data.Model parses nested properties (with kendo.data.DataSource)', (done) => {
                 const DataModel = Model.define(definition);
                 const dataSource = new DataSource({
                     data: [jsonClone(data)],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .read()
@@ -445,14 +439,14 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('BaseModel should parse nested properties (with kendo.data.DataSource)', done => {
+            it('BaseModel should parse nested properties (with kendo.data.DataSource)', (done) => {
                 const DataModel = BaseModel.define(definition);
                 const dataSource = new DataSource({
                     data: [jsonClone(data)],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .read()
@@ -487,26 +481,26 @@ describe('data.base', () => {
                 fields: {
                     userId: {
                         type: 'string',
-                        nullable: true
+                        nullable: true,
                     },
                     name: {
-                        type: 'string'
-                    }
-                }
+                        type: 'string',
+                    },
+                },
             };
             const bookDefinition = {
                 id: 'id',
                 fields: {
                     id: {
                         type: 'string',
-                        nullable: true
+                        nullable: true,
                     },
                     title: {
-                        type: 'string'
+                        type: 'string',
                     },
                     author: {
                         type: 'object',
-                        defaultValue: null
+                        defaultValue: null,
                         /*
                         parse(value) {
                             return value instanceof Author
@@ -514,32 +508,32 @@ describe('data.base', () => {
                                 : new Author(value);
                         }
                         */
-                    }
-                }
+                    },
+                },
             };
             const data1 = {
                 id: new ObjectId().toString(),
                 title: 'Les Misérables',
                 author: {
                     userId: new ObjectId().toString(),
-                    name: 'Victor Hugo'
-                }
+                    name: 'Victor Hugo',
+                },
             };
             const data2 = {
                 id: new ObjectId().toString(),
                 title: 'La Peste',
                 author: {
                     id: new ObjectId().toString(),
-                    name: 'Albert Camus'
-                }
+                    name: 'Albert Camus',
+                },
             };
             const data3 = {
                 id: new ObjectId().toString(),
                 title: 'Les Trois Mousquetaires',
                 author: {
                     id: new ObjectId().toString(),
-                    name: 'Alexandre Dumas'
-                }
+                    name: 'Alexandre Dumas',
+                },
             };
 
             it('kendo.data.Model does not parse nested models', () => {
@@ -577,7 +571,7 @@ describe('data.base', () => {
                 expect(item.author).to.be.an.instanceof(Author);
             });
 
-            it('kendo.data.Model does not parse nested models (via kendo.data.DataSource)', done => {
+            it('kendo.data.Model does not parse nested models (via kendo.data.DataSource)', (done) => {
                 const Author = Model.define(authorDefinition);
                 bookDefinition.fields.author.parse = function parse(value) {
                     return value instanceof Author ? value : new Author(value);
@@ -587,8 +581,8 @@ describe('data.base', () => {
                     data: [jsonClone(data1)],
                     schema: {
                         model: Book,
-                        modelBase: Book
-                    }
+                        modelBase: Book,
+                    },
                 });
                 dataSource
                     .read()
@@ -616,7 +610,7 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('BaseModel should parse nested models (via kendo.data.DataSource)', done => {
+            it('BaseModel should parse nested models (via kendo.data.DataSource)', (done) => {
                 const Author = BaseModel.define(authorDefinition);
                 bookDefinition.fields.author.parse = function parse(value) {
                     return value instanceof Author ? value : new Author(value);
@@ -626,8 +620,8 @@ describe('data.base', () => {
                     data: [jsonClone(data1)],
                     schema: {
                         model: Book,
-                        modelBase: Book
-                    }
+                        modelBase: Book,
+                    },
                 });
                 dataSource
                     .read()
@@ -646,16 +640,16 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('kendo.data.Model raises a change event when setting a submodel property', done => {
+            it('kendo.data.Model raises a change event when setting a submodel property', (done) => {
                 const Author = Model.define(authorDefinition);
                 bookDefinition.fields.author.parse = function parse(value) {
                     return value instanceof Author ? value : new Author(value);
                 };
                 const Book = Model.define(bookDefinition);
                 const viewModel = observable({
-                    book: new Book(jsonClone(data1))
+                    book: new Book(jsonClone(data1)),
                 });
-                viewModel.bind('change', e => {
+                viewModel.bind('change', (e) => {
                     expect(e).to.have.property('field', 'book.author.name');
                     done();
                 });
@@ -663,16 +657,16 @@ describe('data.base', () => {
                 viewModel.book.author.set('name', 'Emile Zola');
             });
 
-            it('BaseModel should raise a change event when setting a submodel property', done => {
+            it('BaseModel should raise a change event when setting a submodel property', (done) => {
                 const Author = BaseModel.define(authorDefinition);
                 bookDefinition.fields.author.parse = function parse(value) {
                     return value instanceof Author ? value : new Author(value);
                 };
                 const Book = BaseModel.define(bookDefinition);
                 const viewModel = observable({
-                    book: new Book(jsonClone(data1))
+                    book: new Book(jsonClone(data1)),
                 });
-                viewModel.bind('change', e => {
+                viewModel.bind('change', (e) => {
                     expect(e).to.have.property('field', 'book.author.name');
                     done();
                 });
@@ -688,12 +682,12 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     title: {
-                        type: 'string'
-                    }
-                }
+                        type: 'string',
+                    },
+                },
             };
             const authorDefinition = {
                 id: 'id',
@@ -701,14 +695,14 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     books: {
                         // type: 'object',
-                        defaultValue: []
+                        defaultValue: [],
                         /*
                         parse(value) {
                             return value instanceof DataSource &&
@@ -717,8 +711,8 @@ describe('data.base', () => {
                                 : new DataSource({ data: value, schema: { model: Book } });
                         }
                         */
-                    }
-                }
+                    },
+                },
             };
             const data1 = {
                 id: new ObjectId().toString(),
@@ -726,17 +720,17 @@ describe('data.base', () => {
                 books: [
                     {
                         id: new ObjectId().toString(),
-                        title: 'Les Misérables'
+                        title: 'Les Misérables',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'Le Contemplations'
+                        title: 'Le Contemplations',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'Les Châtiments'
-                    }
-                ]
+                        title: 'Les Châtiments',
+                    },
+                ],
             };
             const data2 = {
                 id: new ObjectId().toString(),
@@ -744,17 +738,17 @@ describe('data.base', () => {
                 books: [
                     {
                         id: new ObjectId().toString(),
-                        title: 'Les Trois Mousquetaires'
+                        title: 'Les Trois Mousquetaires',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: '20 Ans Après'
+                        title: '20 Ans Après',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'Le Conte de Monté-Christo'
-                    }
-                ]
+                        title: 'Le Conte de Monté-Christo',
+                    },
+                ],
             };
             const data3 = {
                 id: new ObjectId().toString(),
@@ -762,13 +756,13 @@ describe('data.base', () => {
                 books: [
                     {
                         id: new ObjectId().toString(),
-                        title: 'Le Rouge et le Noir'
+                        title: 'Le Rouge et le Noir',
                     },
                     {
                         id: new ObjectId().toString(),
-                        title: 'La Chartreuse de Parme'
-                    }
-                ]
+                        title: 'La Chartreuse de Parme',
+                    },
+                ],
             };
 
             it('kendo.data.Model does not parse nested data sources of models', () => {
@@ -785,7 +779,7 @@ describe('data.base', () => {
                 expect(item.books).to.be.an.instanceof(ObservableArray);
             });
 
-            it('BaseModel should parse nested data sources of models', done => {
+            it('BaseModel should parse nested data sources of models', (done) => {
                 const Book = BaseModel.define(bookDefinition);
                 authorDefinition.fields.books.parse = function parse(value) {
                     return value instanceof DataSource &&
@@ -804,7 +798,7 @@ describe('data.base', () => {
                                 data1.books.length
                             );
                             let count = 0;
-                            item.books.data().forEach(book => {
+                            item.books.data().forEach((book) => {
                                 expect(book).to.be.an.instanceof(Book);
                                 count += 1;
                             });
@@ -814,7 +808,7 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('kendo.data.Model does not parse nested data sources of models (via kendo.data.DataSource)', done => {
+            it('kendo.data.Model does not parse nested data sources of models (via kendo.data.DataSource)', (done) => {
                 const Book = Model.define(bookDefinition);
                 authorDefinition.fields.books.parse = function parse(value) {
                     return value instanceof DataSource &&
@@ -827,8 +821,8 @@ describe('data.base', () => {
                     data: [jsonClone(data1)],
                     schema: {
                         model: Author,
-                        modelBase: Author
-                    }
+                        modelBase: Author,
+                    },
                 });
                 dataSource
                     .read()
@@ -863,7 +857,7 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('BaseModel should parse nested data sources of models (via kendo.data.DataSource)', done => {
+            it('BaseModel should parse nested data sources of models (via kendo.data.DataSource)', (done) => {
                 const Book = BaseModel.define(bookDefinition);
                 authorDefinition.fields.books.parse = function parse(value) {
                     return value instanceof DataSource &&
@@ -876,8 +870,8 @@ describe('data.base', () => {
                     data: [jsonClone(data1)],
                     schema: {
                         model: Author,
-                        modelBase: Author
-                    }
+                        modelBase: Author,
+                    },
                 });
                 dataSource
                     .read()
@@ -912,7 +906,7 @@ describe('data.base', () => {
                 };
                 const Author = Model.define(authorDefinition);
                 const viewModel = observable({
-                    author: new Author(data1)
+                    author: new Author(data1),
                 });
                 const change = sinon.spy();
                 viewModel.bind('change', change);
@@ -924,13 +918,13 @@ describe('data.base', () => {
                 );
                 const b = {
                     id: new ObjectId().toString(),
-                    title: 'Notre Dame de Paris'
+                    title: 'Notre Dame de Paris',
                 };
                 viewModel.author.books.push(b); // push instead of add
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(
                     sinon.match(
-                        e =>
+                        (e) =>
                             e.action === 'add' &&
                             e.field === 'author.books' &&
                             Array.isArray(e.items) &&
@@ -950,20 +944,20 @@ describe('data.base', () => {
                 };
                 const Author = BaseModel.define(authorDefinition);
                 const viewModel = observable({
-                    author: new Author(data1)
+                    author: new Author(data1),
                 });
                 const change = sinon.spy();
                 viewModel.bind('change', change);
                 expect(viewModel.author.books).to.be.an.instanceof(DataSource);
                 const b = {
                     id: new ObjectId().toString(),
-                    title: 'Notre Dame de Paris'
+                    title: 'Notre Dame de Paris',
                 };
                 viewModel.author.books.add(b);
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(
                     sinon.match(
-                        e =>
+                        (e) =>
                             e.action === 'add' &&
                             e.field === 'author.books' &&
                             Array.isArray(e.items) &&
@@ -981,49 +975,49 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     age: {
-                        type: 'number'
-                    }
-                }
+                        type: 'number',
+                    },
+                },
             };
             const data1 = {
                 id: new ObjectId().toString(),
                 name: 'Joe Bloggs',
-                age: 10
+                age: 10,
             };
             const data2 = {
                 id: new ObjectId().toString(),
                 name: 'Jim Smith',
-                age: 20
+                age: 20,
             };
             const data3 = {
                 id: new ObjectId().toString(),
                 name: 'Mary Jones',
-                age: 20
+                age: 20,
             };
 
-            it('BaseModel should support kendo.data.DataSource aggregating', done => {
+            it('BaseModel should support kendo.data.DataSource aggregating', (done) => {
                 const DataModel = BaseModel.define(definition);
                 const dataSource = new DataSource({
                     data: [
                         jsonClone(data1),
                         jsonClone(data2),
-                        jsonClone(data3)
+                        jsonClone(data3),
                     ],
                     aggregate: [
                         { field: 'age', aggregate: 'sum' },
                         { field: 'age', aggregate: 'min' },
-                        { field: 'age', aggregate: 'max' }
+                        { field: 'age', aggregate: 'max' },
                     ],
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .fetch()
@@ -1038,19 +1032,19 @@ describe('data.base', () => {
                     .catch(done);
             });
 
-            it('BaseModel should support kendo.data.DataSource grouping', done => {
+            it('BaseModel should support kendo.data.DataSource grouping', (done) => {
                 const DataModel = BaseModel.define(definition);
                 const dataSource = new DataSource({
                     data: [
                         jsonClone(data1),
                         jsonClone(data2),
-                        jsonClone(data3)
+                        jsonClone(data3),
                     ],
                     group: { field: 'age' },
                     schema: {
                         model: DataModel,
-                        modelBase: DataModel
-                    }
+                        modelBase: DataModel,
+                    },
                 });
                 dataSource
                     .fetch()
@@ -1085,25 +1079,25 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     age: {
-                        type: 'number'
-                    }
-                }
+                        type: 'number',
+                    },
+                },
             };
             const data1 = {
                 id: new ObjectId().toString(),
                 name: 'Joe Bloggs',
-                age: 10
+                age: 10,
             };
             const data2 = {
                 id: new ObjectId().toString(),
                 name: 'Jim Smith',
-                age: 20
+                age: 20,
             };
             /*
             const data3 = {
@@ -1116,7 +1110,7 @@ describe('data.base', () => {
             xit('kendo.data.Model does not raise a change event on accept (ObservableObject)', () => {
                 const DataModel = Model.define(definition);
                 const viewModel = observable({
-                    item: new DataModel(data1)
+                    item: new DataModel(data1),
                 });
                 const change = sinon.spy();
                 viewModel.bind('change', change);
@@ -1127,21 +1121,21 @@ describe('data.base', () => {
             xit('BaseModel should raise a change event on accept (ObservableObject)', () => {
                 const DataModel = BaseModel.define(definition);
                 const viewModel = observable({
-                    item: new DataModel(data1)
+                    item: new DataModel(data1),
                 });
                 const change = sinon.spy();
                 viewModel.bind('change', change);
                 viewModel.item.accept(data2);
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(
-                    sinon.match(e => e.field === 'item')
+                    sinon.match((e) => e.field === 'item')
                 );
             });
 
             xit('kendo.data.Model does not raise a change event on accept (ObservableArray)', () => {
                 const DataModel = Model.define(definition);
                 const viewModel = observable({
-                    items: [new DataModel(data1)]
+                    items: [new DataModel(data1)],
                 });
                 const change = sinon.spy();
                 viewModel.bind('change', change);
@@ -1152,7 +1146,7 @@ describe('data.base', () => {
             it('BaseModel should raise a change event on accept (ObservableArray)', () => {
                 const DataModel = BaseModel.define(definition);
                 const viewModel = observable({
-                    items: [new DataModel(data1)]
+                    items: [new DataModel(data1)],
                 });
                 const change = sinon.spy();
                 viewModel.bind('change', change);
@@ -1160,7 +1154,7 @@ describe('data.base', () => {
                 expect(change).to.have.been.calledOnce;
                 expect(change).to.have.been.calledWith(
                     sinon.match(
-                        e =>
+                        (e) =>
                             e.action === 'itemchange' &&
                             e.field === 'items' &&
                             e.index === 0 &&
@@ -1178,20 +1172,20 @@ describe('data.base', () => {
                     id: {
                         type: 'string',
                         nullable: true,
-                        editable: false
+                        editable: false,
                     },
                     name: {
-                        type: 'string'
+                        type: 'string',
                     },
                     age: {
-                        type: 'number'
-                    }
-                }
+                        type: 'number',
+                    },
+                },
             };
             const data1 = {
                 id: new ObjectId().toString(),
                 name: 'Joe Bloggs',
-                age: 10
+                age: 10,
             };
             /*
             const data2 = {
@@ -1223,10 +1217,10 @@ describe('data.base', () => {
                 },
                 update(options) {
                     options.error(error2xhr(error404));
-                }
+                },
             });
 
-            it('Read error', done => {
+            it('Read error', (done) => {
                 const errorHandler = sinon.spy();
                 const dataSource = new DataSource({
                     data: [jsonClone(data1)],
@@ -1235,17 +1229,17 @@ describe('data.base', () => {
                         modelBase: DataModel,
                         errors: 'error',
                         data: 'data',
-                        total: 'total'
+                        total: 'total',
                     },
                     transport: new Transport404(),
-                    error: errorHandler
+                    error: errorHandler,
                 });
                 dataSource
                     .read()
                     .then(() => {
                         done(new Error('UNexpected error')); // TODO
                     })
-                    .catch(res => {
+                    .catch((res) => {
                         expect(errorHandler).to.have.been.calledOnce;
                         expect(res[1]).to.equal('error');
                         expect(res[2]).to.equal('Ajax error');
@@ -1262,27 +1256,27 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         children: {
-                            type: 'number'
+                            type: 'number',
                         },
                         dob: {
-                            type: 'date'
+                            type: 'date',
                         },
                         male: {
-                            type: 'boolean'
+                            type: 'boolean',
                         },
                         name: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const data = {
                     children: 3,
                     dob: new Date(),
                     male: true,
-                    name: 'jack'
+                    name: 'jack',
                 };
                 const model = new DataModel(data);
                 const json = model.toJSON();
@@ -1297,17 +1291,17 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         name: {
-                            type: 'string'
-                        }
+                            type: 'string',
+                        },
                     },
-                    dummy1: 'dummy' // <---- one here
+                    dummy1: 'dummy', // <---- one here
                 });
                 const data = {
                     name: 'Jack',
-                    dummy2: 'dummy' // <---- another one here
+                    dummy2: 'dummy', // <---- another one here
                 };
                 const model = new DataModel(data);
                 const json = model.toJSON();
@@ -1326,44 +1320,44 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         comments: {
                             from: 'metrics.comments.count',
-                            type: 'number'
+                            type: 'number',
                         },
                         firstName: {
                             from: 'author.firstName',
-                            type: 'string'
+                            type: 'string',
                         },
                         lastName: {
                             from: 'author.lastName',
-                            type: 'string'
+                            type: 'string',
                         },
                         // For an explanation of the following properties
                         // See https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
                         // They are not required here
                         author: {
-                            defaultValue: {}
+                            defaultValue: {},
                         },
                         metrics: {
                             defaultValue: {
-                                comments: {}
-                            }
-                        }
-                    }
+                                comments: {},
+                            },
+                        },
+                    },
                 };
                 const data = {
                     id: '1',
                     author: {
                         firstName: 'Joe',
-                        lastName: 'Blogs'
+                        lastName: 'Blogs',
                     },
                     metrics: {
                         comments: {
-                            count: 10
-                        }
-                    }
+                            count: 10,
+                        },
+                    },
                 };
                 const DataModel = BaseModel.define(definition);
                 const model = new DataModel(data);
@@ -1378,21 +1372,21 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         firstName: {
                             type: 'string',
-                            serializable: false // <---- here
+                            serializable: false, // <---- here
                         },
                         lastName: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const data = {
                     id: '1',
                     firstName: 'Joe',
-                    lastName: 'Bloggs'
+                    lastName: 'Bloggs',
                 };
                 const model = new DataModel(data);
                 const json = model.toJSON();
@@ -1412,12 +1406,12 @@ describe('data.base', () => {
                         userId: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         name: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const Book = BaseModel.define({
                     id: 'id',
@@ -1425,10 +1419,10 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         title: {
-                            type: 'string'
+                            type: 'string',
                         },
                         author: {
                             defaultValue: null,
@@ -1436,17 +1430,17 @@ describe('data.base', () => {
                                 return value instanceof Author
                                     ? value
                                     : new Author(value);
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 });
                 const data = {
                     id: new ObjectId().toString(),
                     title: 'Les Misérables',
                     author: {
                         userId: new ObjectId().toString(),
-                        name: 'Victor Hugo'
-                    }
+                        name: 'Victor Hugo',
+                    },
                 };
                 const model = new Book(data);
                 const json = model.toJSON();
@@ -1460,12 +1454,12 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         title: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const Author = BaseModel.define({
                     id: 'id',
@@ -1473,10 +1467,10 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         name: {
-                            type: 'string'
+                            type: 'string',
                         },
                         books: {
                             defaultValue: [],
@@ -1485,9 +1479,9 @@ describe('data.base', () => {
                                     value.reader.model === Book
                                     ? value
                                     : new DataSource({data: value, schema: { model: Book, modelBase: Book }}); // eslint-disable-line prettier/prettier
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 });
                 const data = {
                     id: new ObjectId().toString(),
@@ -1495,17 +1489,17 @@ describe('data.base', () => {
                     books: [
                         {
                             id: new ObjectId().toString(),
-                            title: 'Les Misérables'
+                            title: 'Les Misérables',
                         },
                         {
                             id: new ObjectId().toString(),
-                            title: 'Le Contemplations'
+                            title: 'Le Contemplations',
                         },
                         {
                             id: new ObjectId().toString(),
-                            title: 'Les Châtiments'
-                        }
-                    ]
+                            title: 'Les Châtiments',
+                        },
+                    ],
                 };
                 const model = new Author(data);
                 // IMPORTANT! call read
@@ -1521,35 +1515,35 @@ describe('data.base', () => {
                         id: {
                             type: 'string',
                             nullable: true,
-                            editable: false
+                            editable: false,
                         },
                         children: {
-                            type: 'number'
+                            type: 'number',
                         },
                         dob: {
-                            type: 'date'
+                            type: 'date',
                         },
                         male: {
-                            type: 'boolean'
+                            type: 'boolean',
                         },
                         name: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const Inherited = DataModel.define({
                     fields: {
                         country: {
-                            type: 'string'
-                        }
-                    }
+                            type: 'string',
+                        },
+                    },
                 });
                 const data = {
                     children: 3,
                     dob: new Date(),
                     male: true,
                     name: 'jack',
-                    country: 'FR'
+                    country: 'FR',
                 };
                 const model = new Inherited(data);
                 const json = model.toJSON();
@@ -1559,13 +1553,13 @@ describe('data.base', () => {
         });
 
         xdescribe('BaseModel.projection', () => {
-            xit('TODO', done => {
+            xit('TODO', (done) => {
                 done();
             });
         });
 
         xdescribe('validation', () => {
-            xit('TODO', done => {
+            xit('TODO', (done) => {
                 done();
             });
         });

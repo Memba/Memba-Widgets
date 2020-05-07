@@ -26,7 +26,7 @@ const {
     format,
     ns,
     template,
-    ui: { plugin, DataBoundWidget, DropDownList }
+    ui: { plugin, DataBoundWidget, DropDownList },
 } = window.kendo;
 const logger = new Logger('widgets.quiz');
 
@@ -50,7 +50,7 @@ const MODES = {
     DROPDOWN: 'dropdown',
     IMAGE: 'image',
     LINK: 'link',
-    RADIO: 'radio'
+    RADIO: 'radio',
 };
 const CHECKED = 'checked';
 
@@ -84,7 +84,7 @@ const Quiz = DataBoundWidget.extend({
         dropdown: MODES.DROPDOWN,
         link: MODES.LINK,
         image: MODES.IMAGE,
-        radio: MODES.RADIO
+        radio: MODES.RADIO,
     },
 
     /**
@@ -111,8 +111,8 @@ const Quiz = DataBoundWidget.extend({
         value: null,
         enabled: true,
         messages: {
-            optionLabel: 'Select...'
-        }
+            optionLabel: 'Select...',
+        },
     },
 
     /**
@@ -139,7 +139,7 @@ const Quiz = DataBoundWidget.extend({
             linkTemplate,
             radioTemplate,
             selectedStyle,
-            textField
+            textField,
         } = this.options;
         this._groupStyle = new Style(groupStyle || ''); // TODO where is it used?
         this._itemStyle = new Style(itemStyle || '');
@@ -189,7 +189,7 @@ const Quiz = DataBoundWidget.extend({
                 this.dataSource instanceof ImageDataSource &&
                 this.dataSource
                     .data()
-                    .find(item => item[this.options.textField] === value)
+                    .find((item) => item[this.options.textField] === value)
             ) {
                 this._value = value;
             } else {
@@ -237,7 +237,7 @@ const Quiz = DataBoundWidget.extend({
                 template: this._dropDownTemplate,
                 valueTemplate: this._dropDownTemplate,
                 value: options.value,
-                height: 400
+                height: 400,
             })
             .data('kendoDropDownList');
     },
@@ -283,7 +283,7 @@ const Quiz = DataBoundWidget.extend({
         popup.element.css({
             fontSize: `${Math.floor(fontSize * scale)}px`,
             minWidth: `${Math.floor(width * scale)}px`,
-            width: `${Math.floor(width * scale)}px`
+            width: `${Math.floor(width * scale)}px`,
         });
         // And reposition the popup
         // popup.one('open', function () { // the popup is already opened so the open event won't fire
@@ -458,7 +458,7 @@ const Quiz = DataBoundWidget.extend({
                 .attr('style', '')
                 .css({
                     ...this._itemStyle.toJSON(),
-                    ...this._selectedStyle.toJSON()
+                    ...this._selectedStyle.toJSON(),
                 });
         }
     },
@@ -501,7 +501,7 @@ const Quiz = DataBoundWidget.extend({
                 .attr('style', '')
                 .css({
                     ...this._itemStyle.toJSON(),
-                    ...this._selectedStyle.toJSON()
+                    ...this._selectedStyle.toJSON(),
                 });
         }
     },
@@ -527,7 +527,7 @@ const Quiz = DataBoundWidget.extend({
                 .attr('style', '')
                 .css({
                     ...this._itemStyle.toJSON(),
-                    ...this._selectedStyle.toJSON()
+                    ...this._selectedStyle.toJSON(),
                 });
         }
     },
@@ -538,10 +538,7 @@ const Quiz = DataBoundWidget.extend({
      */
     _toggleRadios() {
         const { element } = this;
-        element
-            .children('div')
-            .attr('style', '')
-            .css(this._itemStyle.toJSON());
+        element.children('div').attr('style', '').css(this._itemStyle.toJSON());
         element
             .find(RADIO_SELECTOR)
             .prop(CHECKED, false)
@@ -559,7 +556,7 @@ const Quiz = DataBoundWidget.extend({
                 .attr('style', '')
                 .css({
                     ...this._itemStyle.toJSON(),
-                    ...this._selectedStyle.toJSON()
+                    ...this._selectedStyle.toJSON(),
                 });
         }
     },
@@ -795,11 +792,11 @@ const Quiz = DataBoundWidget.extend({
                 .on(
                     `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TOUCHEND}${NS}`,
                     RADIO_SELECTOR,
-                    e => {
+                    (e) => {
                         e.preventDefault();
                     }
                 )
-                .on(`${CONSTANTS.CHANGE}${NS}`, RADIO_SELECTOR, e => {
+                .on(`${CONSTANTS.CHANGE}${NS}`, RADIO_SELECTOR, (e) => {
                     // In the very specific case of iOS and only when all radio buttons are unchecked
                     // a CONSTANTS.CHANGE event is triggered before the CONSTANTS.CLICK event and the radio CONSTANTS.CLICKed is checked
                     // like if iOS wanted one radio to always be checked
@@ -831,7 +828,7 @@ const Quiz = DataBoundWidget.extend({
         DataBoundWidget.fn.destroy.call(this);
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

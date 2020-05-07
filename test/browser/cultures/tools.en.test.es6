@@ -16,11 +16,9 @@ const { expect } = chai;
 
 describe('tools.en', () => {
     it('It should have i18n resources for each tool', () => {
-        Object.keys(tools).forEach(tool => {
+        Object.keys(tools).forEach((tool) => {
             if (tools[tool] instanceof Observable) {
-                expect(res)
-                    .to.have.property(tool)
-                    .that.is.an('object');
+                expect(res).to.have.property(tool).that.is.an('object');
                 expect(res)
                     .to.have.nested.property(`${tool}.description`)
                     .that.is.a('string');

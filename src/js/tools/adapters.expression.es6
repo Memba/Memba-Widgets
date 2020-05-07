@@ -31,9 +31,9 @@ const ExpressionAdapter = BaseAdapter.extend({
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes, {
             type: 'text',
-            class: 'k-textbox'
+            class: 'k-textbox',
         });
-    }
+    },
 });
 
 /**

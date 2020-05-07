@@ -52,7 +52,7 @@ const ValidationAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${field}, source: _library, events: { click: _onClick }`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
         };
@@ -69,10 +69,10 @@ const ValidationAdapter = BaseAdapter.extend({
                 // Note: we need to clone PageComponent not to modify the original one
                 // value: options.model.get(options.field),
                 value: new PageComponent(options.model.toJSON()),
-                library: [CUSTOM].concat(this.library)
-            }
+                library: [CUSTOM].concat(this.library),
+            },
         })
-            .then(result => {
+            .then((result) => {
                 if (
                     result.action ===
                     ui.BaseDialog.fn.options.messages.actions.ok.action
@@ -84,7 +84,7 @@ const ValidationAdapter = BaseAdapter.extend({
                 }
             })
             .catch($.noop); // TODO error management
-    }
+    },
 });
 
 /**

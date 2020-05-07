@@ -37,11 +37,11 @@ describe('editors.select', () => {
         viewModel.set(component, { value: null });
         const source = [
             { text: 'One', value: 1 },
-            { text: 'Two', value: 2 }
+            { text: 'Two', value: 2 },
         ];
         const attributes = {
             'data-text-field': 'text',
-            'data-value-field': 'value'
+            'data-value-field': 'value',
         };
         select(fixtures, { attributes, field, source });
         bind(fixtures, viewModel);

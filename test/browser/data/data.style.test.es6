@@ -14,33 +14,33 @@ import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
 import BaseModel from '../../../src/js/data/data.base.es6';
 import {
     StyleProperty,
-    StyleDataSource
+    StyleDataSource,
 } from '../../../src/js/data/data.style.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, Model, ObservableArray }
+    data: { DataSource, Model, ObservableArray },
 } = window.kendo;
 chai.use(sinonChai);
 
 const DATA = [
     {
         name: 'border',
-        value: 'solid 1px #000000'
+        value: 'solid 1px #000000',
     },
     {
         name: 'background-color',
-        value: '#ffffff'
+        value: '#ffffff',
     },
     {
         name: 'color',
-        value: '#ff0000'
-    }
+        value: '#ff0000',
+    },
 ];
 const STYLE = {
     name: 'font-size',
-    value: '30px'
+    value: '30px',
 };
 
 describe('data.style', () => {
@@ -78,13 +78,11 @@ describe('data.style', () => {
             const total = dataSource.total();
             expect(total).to.equal(1);
             const data = dataSource.data();
-            expect(data)
-                .to.be.an.instanceof(ObservableArray)
-                .with.lengthOf(1);
+            expect(data).to.be.an.instanceof(ObservableArray).with.lengthOf(1);
             expect(data[0]).to.be.an.instanceof(StyleProperty);
         });
 
-        it('It should insert an style', done => {
+        it('It should insert an style', (done) => {
             const dataSource = new StyleDataSource({ data: DATA });
             dataSource
                 .read()
@@ -103,7 +101,7 @@ describe('data.style', () => {
                 .catch(done);
         });
 
-        it('It should raise events', done => {
+        it('It should raise events', (done) => {
             const change = sinon.spy();
             const dataSource = new StyleDataSource({ data: DATA });
             dataSource.bind('change', change);

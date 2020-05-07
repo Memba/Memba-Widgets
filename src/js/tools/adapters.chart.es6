@@ -15,7 +15,7 @@ import BaseAdapter from './adapters.base.es6';
 import { resizeSpreadsheetData } from './util.miscellaneous.es6';
 
 const {
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -64,10 +64,10 @@ const ChartAdapter = BaseAdapter.extend({
                 columns,
                 rows,
                 sheetsbar: false,
-                toolbar: false
-            })
+                toolbar: false,
+            }),
         })
-            .then(result => {
+            .then((result) => {
                 if (
                     result.action ===
                     BaseDialog.fn.options.messages.actions.ok.action
@@ -77,7 +77,7 @@ const ChartAdapter = BaseAdapter.extend({
                 }
             })
             .catch($.noop); // TODO error management
-    }
+    },
 });
 
 /**

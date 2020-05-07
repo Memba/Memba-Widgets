@@ -31,7 +31,7 @@ const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 const TEMPLATE = `<img
-    alt="#: alt$() #" 
+    alt="#: alt$() #"
     data-${ns}role="selector"
     data-${ns}id="#: properties.name #"
     data-${ns}shape="#: attributes.shape #"
@@ -61,86 +61,86 @@ const SelectorTool = BaseTool.extend({
         ),
         review:
             format(TEMPLATE, `${BINDING} ${DISABLED}`) +
-            BaseTool.fn.getHtmlCheckMarks()
+            BaseTool.fn.getHtmlCheckMarks(),
     },
     attributes: {
         color: new ColorAdapter({
             title: __('tools.selector.attributes.color.title'),
-            defaultValue: '#ff0000'
+            defaultValue: '#ff0000',
         }),
         empty: new TextBoxAdapter({
-            title: __('tools.selector.attributes.empty.title')
+            title: __('tools.selector.attributes.empty.title'),
         }),
         hitRadius: new NumberAdapter(
             {
                 title: __('tools.selector.attributes.hitRadius.title'),
-                defaultValue: 15
+                defaultValue: 15,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 15,
-                'data-max': 999
+                'data-max': 999,
             }
         ),
         shape: new DropDownListAdapter(
             {
                 defaultValue: 'circle',
                 source: __('tools.selector.attributes.shape.source'),
-                title: __('tools.selector.attributes.shape.title')
+                title: __('tools.selector.attributes.shape.title'),
             },
             { style: 'width: 100%;' }
         ),
         strokeWidth: new NumberAdapter(
             {
                 title: __('tools.selector.attributes.strokeWidth.title'),
-                defaultValue: 12
+                defaultValue: 12,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 50
+                'data-max': 50,
             }
-        )
+        ),
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: __('tools.selector.properties.name.title')
+            title: __('tools.selector.properties.name.title'),
         }),
         question: new QuestionAdapter({
             help: __('tools.selector.properties.question.help'),
             title: __('tools.selector.properties.question.title'),
-            validation: questionValidator
+            validation: questionValidator,
         }),
         solution: new BasicListAdapter({
             help: __('tools.selector.properties.solution.help'),
-            title: __('tools.selector.properties.solution.title')
+            title: __('tools.selector.properties.solution.title'),
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
-            title: __('tools.selector.properties.validation.title')
+            title: __('tools.selector.properties.validation.title'),
         }),
         success: new ScoreAdapter({
             defaultValue: 1,
             title: __('tools.selector.properties.success.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         failure: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.selector.properties.failure.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         omit: new ScoreAdapter({
             defaultValue: 0,
             title: __('tools.selector.properties.omit.title'),
-            validation: scoreValidator
+            validation: scoreValidator,
         }),
         disabled: new DisabledAdapter({
             defaultValue: false,
-            title: __('tools.selector.properties.disabled.title')
-        })
+            title: __('tools.selector.properties.disabled.title'),
+        }),
     },
 
     /**
@@ -181,7 +181,7 @@ const SelectorTool = BaseTool.extend({
             // The src$ function resolves the icon path
             src$() {
                 return iconUri(icon);
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
@@ -229,7 +229,7 @@ const SelectorTool = BaseTool.extend({
                     __('tools.messages.invalidColor'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO: We should have a generic validation for  enumerators
@@ -245,12 +245,12 @@ const SelectorTool = BaseTool.extend({
                     __('tools.messages.invalidShape'),
                     toolName,
                     pageIdx + 1
-                )
+                ),
             });
         }
         // TODO: Check selectors on top of static images and labels
         return ret;
-    }
+    },
 });
 
 /**

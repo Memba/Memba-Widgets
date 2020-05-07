@@ -16,7 +16,7 @@ import Logger from '../common/window.logger.es6';
 const {
     destroy,
     htmlEncode,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.latex');
 const WIDGET_CLASS = /* 'k-widget */ 'kj-latex';
@@ -48,7 +48,7 @@ const Latex = Widget.extend({
         name: 'Latex',
         value: null,
         errorColor: '#cc0000',
-        inline: false
+        inline: false,
     },
 
     /**
@@ -98,7 +98,7 @@ const Latex = Widget.extend({
         // KaTeX option { throwOnError: false } is not equivalent to the following which is required to display an error
         try {
             katex.render(this.value() || '', element[0], {
-                displayMode: !options.inline
+                displayMode: !options.inline,
             });
         } catch (ex) {
             element.html(
@@ -117,7 +117,7 @@ const Latex = Widget.extend({
     destroy() {
         Widget.fn.destroy.call(this);
         destroy(this.element);
-    }
+    },
 });
 
 /**

@@ -32,7 +32,7 @@ const {
     support,
     template,
     toString,
-    ui: { ListView, plugin, Sortable, Widget }
+    ui: { ListView, plugin, Sortable, Widget },
     // unbind
 } = window.kendo;
 const logger = new Logger('widgets.basiclist');
@@ -61,22 +61,22 @@ const EDIT_TMPL = `<li class="k-list-item">
 const ATTRIBUTES = {
     boolean: {
         class: 'k-checkbox',
-        type: 'checkbox'
+        type: 'checkbox',
     },
     date: {
         style: 'width:100%;',
-        type: 'date'
+        type: 'date',
     },
     number: {
         style: 'width:100%;',
-        type: 'number'
+        type: 'number',
     },
     string: {
         class: 'k-textbox',
         required: 'required',
         style: 'width:100%;',
-        type: 'text'
-    }
+        type: 'text',
+    },
 };
 ATTRIBUTES.date[attr('role')] = 'datepicker';
 ATTRIBUTES.number[attr('role')] = 'numerictextbox';
@@ -112,16 +112,16 @@ const BasicList = Widget.extend({
         enabled: true,
         messages: {
             toolbar: {
-                add: 'Add'
+                add: 'Add',
             },
             validation: {
-                value: 'A value is required.'
-            }
+                value: 'A value is required.',
+            },
         },
         // type defines a default set of input attributes
         // which can be overriden by specifying attributes hereabove
         type: 'string',
-        value: []
+        value: [],
     },
 
     /**
@@ -186,7 +186,7 @@ const BasicList = Widget.extend({
                         )
                         .change()
                         .blur();
-                }
+                },
             })
             .data('kendoListView');
     },
@@ -267,18 +267,18 @@ const BasicList = Widget.extend({
         }
         const dataSource = new DataSource({
             // change: this._refreshHandler
-            data: data.map(value => ({ id: guid(), value })),
+            data: data.map((value) => ({ id: guid(), value })),
             schema: {
                 model: {
                     idField: 'id', // Without idField, cancel removes the item which is not found
                     fields: {
                         id: {
                             type: CONSTANTS.STRING,
-                            defaultValue: guid
+                            defaultValue: guid,
                         },
                         value: {
-                            type: this.options.type
-                        }
+                            type: this.options.type,
+                        },
                     },
                     value$() {
                         let ret;
@@ -299,9 +299,9 @@ const BasicList = Widget.extend({
                                 break;
                         }
                         return ret;
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
         listView.setDataSource(dataSource);
         this._refreshHandler = refresh.bind(this);
@@ -323,7 +323,7 @@ const BasicList = Widget.extend({
                 'kendo.ui.ListView'
             )
         );
-        return listView.dataSource.data().map(item => item.get('value'));
+        return listView.dataSource.data().map((item) => item.get('value'));
     },
 
     /**
@@ -418,7 +418,7 @@ const BasicList = Widget.extend({
                         );
                         dataSource.remove(dataItem);
                         dataSource.insert(newIndex, dataItem);
-                    }
+                    },
                 })
                 .data('kendoSortable');
         }
@@ -514,7 +514,7 @@ const BasicList = Widget.extend({
         // Destroy widget
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

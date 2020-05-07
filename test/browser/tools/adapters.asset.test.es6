@@ -22,9 +22,7 @@ describe('adapters.asset', () => {
             expect(adapter).to.have.property('attributes').that.is.undefined;
             expect(adapter).to.have.property('defaultValue', '');
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter)
-                .to.have.property('editor')
-                .that.is.a('function');
+            expect(adapter).to.have.property('editor').that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -41,7 +39,7 @@ describe('adapters.asset', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
                 defaultValue: '',
-                type: CONSTANTS.STRING
+                type: CONSTANTS.STRING,
             });
         });
 
@@ -56,9 +54,7 @@ describe('adapters.asset', () => {
              */
             expect(Object.keys(row)).to.have.lengthOf(2);
             expect(row).to.have.property('field', field);
-            expect(row)
-                .to.have.property('editor')
-                .that.is.a('function');
+            expect(row).to.have.property('editor').that.is.a('function');
         });
     });
 });

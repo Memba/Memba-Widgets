@@ -196,7 +196,7 @@ const Network = Observable.extend({
      */
     isOffline() {
         return !this._on;
-    }
+    },
 });
 
 /**

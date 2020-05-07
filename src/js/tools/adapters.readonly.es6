@@ -31,9 +31,9 @@ const ReadOnlyAdapter = BaseAdapter.extend({
         this.attributes = $.extend({}, this.attributes, attributes, {
             class: `k-textbox ${CONSTANTS.DISABLED_CLASS}`,
             disabled: true,
-            type: 'text'
+            type: 'text',
         });
-    }
+    },
 });
 
 /**

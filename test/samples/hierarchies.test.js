@@ -7,130 +7,137 @@
 /* jshint browser: true, jquery: true, expr: true */
 /* global describe, it, before, xdescribe, xit */
 
-;(function (window, $, undefined) {
+(function (window, $, undefined) {
+    const { expect } = window.chai;
+    const { kendo } = window;
+    const { kidoju } = window;
 
-    'use strict';
-
-    var expect = window.chai.expect;
-    var kendo = window.kendo;
-    var kidoju = window.kidoju;
-
-    var Item = kendo.data.Model.define({
+    const Item = kendo.data.Model.define({
         fields: {
             title: {
-                type: 'string'
+                type: 'string',
             },
             attributes: {
-                defaultValue: {}
-            }
-        }
+                defaultValue: {},
+            },
+        },
     });
 
-    var Attributes = kendo.data.Model.define({
+    const Attributes = kendo.data.Model.define({
         fields: {
             src: {
-                type: 'string'
+                type: 'string',
             },
             alt: {
-                type: 'string'
+                type: 'string',
             },
             style: {
-                type: 'string'
-            }
-        }
+                type: 'string',
+            },
+        },
     });
 
-    var categorizedMovies = [
+    const categorizedMovies = [
         {
             categoryName: 'SciFi',
             items: [
                 { title: 'Star Wars: A New Hope', year: 1977 },
                 { title: 'Star Wars: The Empire Strikes Back', year: 1980 },
-                { title: 'Star Wars: Return of the Jedi', year: 1983 }
-            ]
-        }, {
+                { title: 'Star Wars: Return of the Jedi', year: 1983 },
+            ],
+        },
+        {
             categoryName: 'Drama',
             items: [
                 { title: 'The Shawshenk Redemption', year: 1994 },
                 { title: 'Fight Club', year: 1999 },
-                { title: 'The Usual Suspects', year: 1995 }
-            ]
-        }
+                { title: 'The Usual Suspects', year: 1995 },
+            ],
+        },
     ];
 
-    var Author = kendo.data.Node.define({
+    const Author = kendo.data.Node.define({
         fields: {
             firstName: {
-                type: 'string'
+                type: 'string',
             },
             lastName: {
-                type: 'string'
-            }
+                type: 'string',
+            },
         },
         schema: {
             model: {
-                hasChildren: true
-            }
-        }
+                hasChildren: true,
+            },
+        },
     });
 
-    var Book = kendo.data.Node.define({
+    const Book = kendo.data.Node.define({
         fields: {
             title: {
-                type: 'string'
+                type: 'string',
             },
             price: {
-                type: 'number'
-            }
-        }
+                type: 'number',
+            },
+        },
     });
 
-    var LibraryDataSource = kendo.data.HierarchicalDataSource.extend({
+    const LibraryDataSource = kendo.data.HierarchicalDataSource.extend({
         schema: {
             model: Author,
             children: {
                 schema: {
-                    model: Book
-                }
-            }
-        }
+                    model: Book,
+                },
+            },
+        },
     });
 
-
     describe('Test complex models', function () {
-
         it('Test observable composition', function () {
-            var viewModel = kendo.observable({
+            const viewModel = kendo.observable({
                 obj1: {
                     obj2: {
-                        prop: 'test'
-                    }
-                }
+                        prop: 'test',
+                    },
+                },
             });
             expect(viewModel).to.be.an.instanceof(kendo.Observable);
             expect(viewModel.obj1).to.be.an.instanceof(kendo.Observable);
             expect(viewModel.obj1.obj2).to.be.an.instanceof(kendo.Observable);
         });
 
-
         // See: http://www.telerik.com/forums/best-way-to-check-that-properties-of-an-observable-are-observable
 
         it('Test model composition', function () {
-            var attributes = new Attributes({ alt: 'Google', src: 'http://www.google.com/logo.jpg', style: 'height: 100px; width: 100px;' });
-            var item = new Item({ title:'sample image', attributes: attributes });
-            var viewModel = kendo.observable({ item: item });
+            const attributes = new Attributes({
+                alt: 'Google',
+                src: 'http://www.google.com/logo.jpg',
+                style: 'height: 100px; width: 100px;',
+            });
+            const item = new Item({
+                title: 'sample image',
+                attributes,
+            });
+            const viewModel = kendo.observable({ item });
             expect(viewModel.item).to.be.an.instanceof(Item);
             expect(viewModel.item).to.be.an.instanceof(kendo.data.Model);
             expect(viewModel.item).to.be.an.instanceof(kendo.Observable);
             expect(viewModel.item.attributes).to.be.an.instanceof(Attributes);
-            expect(viewModel.item.attributes).to.be.an.instanceof(kendo.data.Model);
-            expect(viewModel.item.attributes).to.be.an.instanceof(kendo.Observable);
+            expect(viewModel.item.attributes).to.be.an.instanceof(
+                kendo.data.Model
+            );
+            expect(viewModel.item.attributes).to.be.an.instanceof(
+                kendo.Observable
+            );
         });
 
-
         it('Test submodel definition', function () {
-            var SubItem = Item.define({ parts: new kendo.data.ObservableArray([]) });
-            var subItem = new SubItem({ title:'sample image' });
+            const SubItem = Item.define({
+                parts: new kendo.data.ObservableArray([]),
+            });
+            const subItem = new SubItem({ title: 'sample image' });
             expect(subItem).to.be.an.instanceof(SubItem);
             expect(subItem).to.be.an.instanceof(Item);
             expect(subItem).to.be.an.instanceof(kendo.data.Model);
@@ -138,18 +145,19 @@
         });
 
         it('Test node initialization', function () {
-            var author = new Author({ dummy: true });
+            const author = new Author({ dummy: true });
             $.noop();
-
         });
 
         it('Fetch current', function (done) {
-            var viewModel = kendo.observable({
-                data: new kendo.data.DataSource({ data: categorizedMovies[0].items }),
-                current: null
+            const viewModel = kendo.observable({
+                data: new kendo.data.DataSource({
+                    data: categorizedMovies[0].items,
+                }),
+                current: null,
             });
             viewModel.data.fetch().then(function () {
-                var title  = 'Another title';
+                const title = 'Another title';
                 viewModel.set('current', viewModel.data.at(0));
                 viewModel.set('current.title', title);
                 expect(viewModel.current.get('title')).to.equal(title);
@@ -157,35 +165,42 @@
                 done();
             });
         });
-
     });
 
     describe('Test kendo.data.HierarchicalDataSource', function () {
-
         describe('When initializing a HierarchicalDataSource', function () {
-
             it('if initialized from an empty array, the count of items should match', function (done) {
-                var hierarchicalDataSource = new kendo.data.HierarchicalDataSource({ data: categorizedMovies });
+                const hierarchicalDataSource = new kendo.data.HierarchicalDataSource(
+                    { data: categorizedMovies }
+                );
                 hierarchicalDataSource.read().always(function () {
-                    expect(hierarchicalDataSource.total()).to.equal(categorizedMovies.length);
-                    hierarchicalDataSource.at(0).load().then(function () {
-                        // expect(hierarchicalDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length);
-                        expect(hierarchicalDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length);
-                        done();
-                    });
+                    expect(hierarchicalDataSource.total()).to.equal(
+                        categorizedMovies.length
+                    );
+                    hierarchicalDataSource
+                        .at(0)
+                        .load()
+                        .then(function () {
+                            // expect(hierarchicalDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length);
+                            expect(
+                                hierarchicalDataSource.at(0).children.data()
+                                    .length
+                            ).to.equal(categorizedMovies[0].items.length);
+                            done();
+                        });
                 });
             });
 
             xit('if initialized from multiple service points', function () {
-
                 // http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
-                var categories = new kendo.data.HierarchicalDataSource({
+                const categories = new kendo.data.HierarchicalDataSource({
                     transport: {
                         read: {
-                            url: 'http://demos.telerik.com/kendo-ui/service/Categories',
-                            dataType: 'json'
-                        }
+                            url:
+                                'http://demos.telerik.com/kendo-ui/service/Categories',
+                            dataType: 'json',
+                        },
                     },
                     schema: {
                         data: 'categories',
@@ -199,39 +214,40 @@
                             children: {
                                 transport: {
                                     read: {
-                                        url: 'http://demos.telerik.com/kendo-ui/service/Products',
-                                        dataType: 'json'
-                                    }
+                                        url:
+                                            'http://demos.telerik.com/kendo-ui/service/Products',
+                                        dataType: 'json',
+                                    },
                                 },
                                 schema: {
                                     data: 'products',
                                     model: {
                                         // products will never have children
-                                        hasChildren: false
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                        hasChildren: false,
+                                    },
+                                },
+                            },
+                        },
+                    },
                 });
 
                 categories.read.always(function () {
                     $.noop();
                 });
-
             });
 
             xit('if initialized from multiple service points', function (done) {
-
                 // http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
-                var guid = kendo.guid();
+                const guid = kendo.guid();
 
-                var categories = new kendo.data.HierarchicalDataSource({
+                const categories = new kendo.data.HierarchicalDataSource({
                     transport: {
-                        read: function (options) {
+                        read(options) {
                             window.console.log('read categories');
-                            options.success([{ categoryId: guid, name: 'Miscellaneous' }]);
-                        }
+                            options.success([
+                                { categoryId: guid, name: 'Miscellaneous' },
+                            ]);
+                        },
                     },
                     schema: {
                         // data: 'categories',
@@ -245,78 +261,88 @@
                             children: {
                                 transport: {
                                     read: {
-                                        url: 'http://demos.telerik.com/kendo-ui/service/Products',
-                                        dataType: 'json'
-                                    }
+                                        url:
+                                            'http://demos.telerik.com/kendo-ui/service/Products',
+                                        dataType: 'json',
+                                    },
                                 },
                                 schema: {
                                     // data: 'products',
                                     model: {
                                         // products will never have children
-                                        hasChildren: false
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                        hasChildren: false,
+                                    },
+                                },
+                            },
+                        },
+                    },
                 });
 
                 categories.read().always(function () {
-                    categories.at(0).load().always(function () {
-                        var t = categories.children.total();
-                        done();
-                    });
+                    categories
+                        .at(0)
+                        .load()
+                        .always(function () {
+                            const t = categories.children.total();
+                            done();
+                        });
                 });
-
             });
-
         });
 
         describe('When initializing a LibraryDataSource', function () {
-
             // See http://www.telerik.com/forums/subclassing-kendo-data-node-and-kendo-data-hierarchicaldatasource
 
             it('if initialized from a dummy array, items should match', function (done) {
-                var libraryDataSource = new LibraryDataSource({ data: categorizedMovies });
+                const libraryDataSource = new LibraryDataSource({
+                    data: categorizedMovies,
+                });
                 libraryDataSource.read().always(function () {
-                    expect(libraryDataSource.total()).to.equal(categorizedMovies.length);
+                    expect(libraryDataSource.total()).to.equal(
+                        categorizedMovies.length
+                    );
                     // expect (libraryDataSource.at(0)).to.be.an.instanceof(Author); <-------------------------------------------------------- Does not work
-                    libraryDataSource.at(0).load().then(function () {
-                        // expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length); <------------------ Does not work
-                        expect(libraryDataSource.at(0).children.data().length).to.equal(categorizedMovies[0].items.length); // <-------------- Works
-                        // expect(libraryDataSource.at(0).children.at(0)).to.be.an.instanceof(Book); <---------------------------------------- Does not work
-                        done();
-                    });
+                    libraryDataSource
+                        .at(0)
+                        .load()
+                        .then(function () {
+                            // expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length); <------------------ Does not work
+                            expect(
+                                libraryDataSource.at(0).children.data().length
+                            ).to.equal(categorizedMovies[0].items.length); // <-------------- Works
+                            // expect(libraryDataSource.at(0).children.at(0)).to.be.an.instanceof(Book); <---------------------------------------- Does not work
+                            done();
+                        });
                 });
             });
 
             it('if initialized from transport, items should match', function (done) {
-                var libraryDataSource = new LibraryDataSource({
+                const libraryDataSource = new LibraryDataSource({
                     transport: {
                         read: {
                             url: '../data/pageCollection.json',
-                            dataType: 'json'
-                        }
-                    }
+                            dataType: 'json',
+                        },
+                    },
                 });
                 $.when(
                     libraryDataSource.read(),
                     $.getJSON(libraryDataSource.options.transport.read.url)
-                )
-                    .then(function (response1, response2) {
-                        expect(response2).to.be.an.instanceof(Array);
-                        // expect(libraryDataSource.at(0)).to.be.an.instanceof(Author); //<------------------------------------------------ Does not work
-                        expect(libraryDataSource.total()).to.equal(response2[0].length);
-                        libraryDataSource.at(0).load().then(function () {
+                ).then(function (response1, response2) {
+                    expect(response2).to.be.an.instanceof(Array);
+                    // expect(libraryDataSource.at(0)).to.be.an.instanceof(Author); //<------------------------------------------------ Does not work
+                    expect(libraryDataSource.total()).to.equal(
+                        response2[0].length
+                    );
+                    libraryDataSource
+                        .at(0)
+                        .load()
+                        .then(function () {
                             // expect(libraryDataSource.at(0).children.total()).to.equal(response2[0][0].items.length);   //<-------------- Does not work
                             done();
                         });
-                    });
+                });
             });
-
         });
-
     });
-
-
-}(this, jQuery));
+})(this, jQuery);

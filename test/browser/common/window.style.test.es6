@@ -17,13 +17,13 @@ const DATA = [
         // Simple
         str: 'color: red;',
         json: { color: 'red' },
-        whitelist: ['color']
+        whitelist: ['color'],
     },
     {
         // With hyphen
         str: 'background-color: firebrick;',
         json: { backgroundColor: 'firebrick' },
-        whitelist: ['background-color']
+        whitelist: ['background-color'],
     },
     {
         // Complex
@@ -36,10 +36,10 @@ const DATA = [
             display: 'flex',
             height: '100px',
             opacity: '0.5',
-            width: '100px'
+            width: '100px',
         },
-        whitelist: false
-    }
+        whitelist: false,
+    },
 ];
 
 describe('window.style', () => {
@@ -96,7 +96,7 @@ describe('window.style', () => {
                 expect(style.toString()).to.equal(item.str);
                 expect(style.toJSON()).to.deep.equal(item.json);
             }
-            DATA.filter(data => Array.isArray(data.whitelist)).forEach(test);
+            DATA.filter((data) => Array.isArray(data.whitelist)).forEach(test);
         });
 
         it('It should merge without overwrite', () => {
@@ -107,7 +107,7 @@ describe('window.style', () => {
                 expect(style.toString()).to.equal(item.str);
                 expect(style.toJSON()).to.deep.equal(item.json);
             }
-            DATA.filter(data => !data.whitelist).forEach(test);
+            DATA.filter((data) => !data.whitelist).forEach(test);
         });
 
         it('It should merge with overwrite', () => {
@@ -120,10 +120,10 @@ describe('window.style', () => {
                 );
                 expect(style.toJSON()).to.deep.equal({
                     ...item.json,
-                    ...merge
+                    ...merge,
                 });
             }
-            DATA.filter(data => !data.whitelist).forEach(test);
+            DATA.filter((data) => !data.whitelist).forEach(test);
         });
     });
 });

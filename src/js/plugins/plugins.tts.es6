@@ -110,11 +110,11 @@ export function getVoice(language) {
         )
     );
     // voices might be undefined as with https://github.com/macdonst/SpeechSynthesisPlugin
-    const natives = (voices || []).filter(voice =>
+    const natives = (voices || []).filter((voice) =>
         voice.lang.toLowerCase().startsWith(language.toLowerCase())
     );
     const localDefaults = natives.filter(
-        voice => voice.default && voice.localService
+        (voice) => voice.default && voice.localService
     );
     let voice;
     if (Array.isArray(localDefaults) && localDefaults.length) {
@@ -248,7 +248,7 @@ export function speechSynthesisPromise(text, language) {
                     dfd.reject(new Error('Speech synthesis error.'));
                     logger.error({
                         method: 'tts.speechSynthesisPromise',
-                        message: 'Speech synthesis error..'
+                        message: 'Speech synthesis error..',
                     });
                 } else {
                     dfd.resolve(evt);
@@ -263,7 +263,7 @@ export function speechSynthesisPromise(text, language) {
             dfd.reject(new Error('No voice available to speak text.'));
             logger.error({
                 method: 'tts.speechSynthesisPromise',
-                message: 'No voice available to speak text.'
+                message: 'No voice available to speak text.',
             });
         }
     } else {
@@ -328,7 +328,7 @@ export function doSpeak(text, language, clear) {
                 rate:
                     RX_IOS.test(window.navigator.userAgent) && !window.MSStream
                         ? 0.7
-                        : 2 // Not tested on iOS 10 and below
+                        : 2, // Not tested on iOS 10 and below
 
                 // When using a confirm cordova dialog
                 // rate: parseFloat(result.input1) || undefined
@@ -338,7 +338,7 @@ export function doSpeak(text, language, clear) {
         );
         logger.debug({
             method: 'tts.doSpeak',
-            message: 'Text spoken with Cordova TTS Plugin'
+            message: 'Text spoken with Cordova TTS Plugin',
         });
         //     },
         //     'TTS Plugin',
@@ -350,7 +350,7 @@ export function doSpeak(text, language, clear) {
         // window.alert('W3C Speech API');
         const chunks = splitChunks(txt, CHUNK_SIZE);
         const promises = [];
-        chunks.forEach(chunk => {
+        chunks.forEach((chunk) => {
             promises.push(speechSynthesisPromise(chunk, language));
         });
         $.when(...promises)
@@ -358,7 +358,7 @@ export function doSpeak(text, language, clear) {
             .catch(dfd.reject);
         logger.debug({
             method: 'tts.doSpeak',
-            message: 'Text spoken with W3C Speech API'
+            message: 'Text spoken with W3C Speech API',
         });
     } else {
         dfd.resolve();
@@ -377,7 +377,7 @@ export function cancelSpeak() {
         window.TTS.speak('', dfd.resolve, dfd.reject);
         logger.debug({
             method: 'tts.cancelSpeak',
-            message: 'Text canceled with Cordova TTS Plugin'
+            message: 'Text canceled with Cordova TTS Plugin',
         });
     } else if (useWebSpeechSynthesis()) {
         // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
@@ -385,7 +385,7 @@ export function cancelSpeak() {
         dfd.resolve();
         logger.debug({
             method: 'tts.cancelSpeak',
-            message: 'Text canceled with W3C Speech API'
+            message: 'Text canceled with W3C Speech API',
         });
     } else {
         dfd.resolve();

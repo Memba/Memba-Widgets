@@ -25,7 +25,7 @@ const {
     roleSelector,
     throttle,
     ui,
-    ui: { Stage }
+    ui: { Stage },
 } = window.kendo;
 
 /**
@@ -44,18 +44,18 @@ const viewModel = observable({
                 const grid = $('div[data-role="grid"]').data('kendoGrid');
                 grid.setDataSource(
                     new DataSource({
-                        data: viewModel.test.getScoreTable()
+                        data: viewModel.test.getScoreTable(),
                     })
                 );
             })
-            .catch(err => {
+            .catch((err) => {
                 // debugger;
                 // app.notification//
             });
-    }
+    },
 });
 
-viewModel.bind(CONSTANTS.CHANGE, e => {
+viewModel.bind(CONSTANTS.CHANGE, (e) => {
     if (e.field === 'selectedPage') {
         const style = e.sender.get('selectedPage.style');
         setTimeout(() => {
@@ -104,14 +104,14 @@ $(() => {
         items: [
             {
                 template:
-                    '<div data-role="playbar" data-bind="source: stream.pages, value: selectedPage" data-refresh="false" data-button-count="5" class="kj-top" style="width:450px;border:none;background:none;" ></div>'
+                    '<div data-role="playbar" data-bind="source: stream.pages, value: selectedPage" data-refresh="false" data-button-count="5" class="kj-top" style="width:450px;border:none;background:none;" ></div>',
             },
             { type: 'separator' },
             { type: 'button', id: 'submit', text: 'Submit', primary: true },
             { type: 'button', id: 'score', text: 'Score', hidden: true },
             { type: 'button', id: 'review', text: 'Review', enable: false },
             { type: 'separator' },
-            { type: 'button', id: 'design', text: 'Design' }
+            { type: 'button', id: 'design', text: 'Design' },
         ],
         click(e) {
             const sections = $('div.centered>div');
@@ -143,7 +143,7 @@ $(() => {
             } else if (e.id === 'design') {
                 window.location.assign('integration.designmode.html');
             }
-        }
+        },
     });
 
     viewModel.stream.load().then(() => {

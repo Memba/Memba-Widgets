@@ -41,7 +41,7 @@ describe('adapters.textbox', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
                 defaultValue: '',
-                type: CONSTANTS.STRING
+                type: CONSTANTS.STRING,
             });
         });
 
@@ -51,10 +51,10 @@ describe('adapters.textbox', () => {
             expect(row).to.deep.equal({
                 attributes: {
                     class: 'k-textbox',
-                    type: 'text'
+                    type: 'text',
                 },
                 editor: 'input',
-                field
+                field,
             });
         });
     });

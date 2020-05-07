@@ -18,7 +18,7 @@ import {
     getVoice,
     speechSynthesisPromise,
     useCordovaPlugIn,
-    useWebSpeechSynthesis
+    useWebSpeechSynthesis,
 } from '../../../src/js/plugins/plugins.tts.es6';
 
 const {
@@ -26,7 +26,7 @@ const {
     describe,
     it,
     Modernizr,
-    navigator: { userAgent }
+    navigator: { userAgent },
 } = window;
 const { expect } = chai;
 
@@ -88,19 +88,19 @@ if (
                         "# Heading\n>Quote\n## Heading 2\n\n**We** love ```js\nconsole.log('Hello')```",
                     // Note: in this example, js should have been removed
                     TEXT:
-                        " Heading\nQuote\n Heading 2\n\nWe love js\nconsole.log('Hello')"
+                        " Heading\nQuote\n Heading 2\n\nWe love js\nconsole.log('Hello')",
                 },
                 {
                     MARKDOWN:
                         '# List 1\n\n- Item\n- Item\n\n# List 2\n\n1. Item\n2. Item',
                     TEXT:
-                        ' List 1\n\n- Item\n- Item\n\n List 2\n\n1. Item\n2. Item'
+                        ' List 1\n\n- Item\n- Item\n\n List 2\n\n1. Item\n2. Item',
                 },
                 {
                     MARKDOWN:
                         'A link:\n[Kidoju](https://www.kidoju.com)\nAn image:\n![Kidoju Logo](https://cdn.kidoju.com/kidoju/logo.png)',
-                    TEXT: 'A link:\nKidoju\nAn image:\nKidoju Logo'
-                }
+                    TEXT: 'A link:\nKidoju\nAn image:\nKidoju Logo',
+                },
             ];
 
             it('clearMarkdown should clear markings', () => {
@@ -135,12 +135,12 @@ if (
                 EN:
                     "MLA format follows the author-page method of in-text citation. This means that the author's last name and the page number(s) from which the quotation or paraphrase is taken must appear in the text, and a complete reference should appear on your Works Cited page. The author's name may appear either in the sentence itself or in parentheses following the quotation or paraphrase, but the page number(s) should always appear in the parentheses, not in the text of your sentence.\nJoe waited for the train.\nThe train was late.\nMary and Samantha took the bus.",
                 FR:
-                    'Lulea, au nord de la Suède, près du cercle polaire, un jour de printemps glacial et neigeux. Le « data center » (centre de données) de Facebook, installé à la sortie de la ville, est peint en couleurs neutres et ne porte aucune enseigne. Mais il a du mal à passer inaperçu : il mesure 320 mètres de long, 100 de large et 30 de haut. Sa superficie équivaut à dix-sept patinoires de hockey sur glace, ont calculé les Suédois.'
+                    'Lulea, au nord de la Suède, près du cercle polaire, un jour de printemps glacial et neigeux. Le « data center » (centre de données) de Facebook, installé à la sortie de la ville, est peint en couleurs neutres et ne porte aucune enseigne. Mais il a du mal à passer inaperçu : il mesure 320 mètres de long, 100 de large et 30 de haut. Sa superficie équivaut à dix-sept patinoires de hockey sur glace, ont calculé les Suédois.',
             };
 
-            it('doSpeak should speak english', done => {
+            it('doSpeak should speak english', (done) => {
                 doSpeak(DATA.EN, 'en-GB', false)
-                    .then(evt => {
+                    .then((evt) => {
                         expect(evt).to.be.an.instanceof(SpeechSynthesisEvent);
                         done();
                     })
@@ -150,9 +150,9 @@ if (
                 }, 3000);
             });
 
-            it('doSpeak should speak french', done => {
+            it('doSpeak should speak french', (done) => {
                 doSpeak(DATA.FR, 'fr', false)
-                    .then(evt => {
+                    .then((evt) => {
                         expect(evt).to.be.an.instanceof(SpeechSynthesisEvent);
                         done();
                     })

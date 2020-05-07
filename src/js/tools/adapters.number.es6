@@ -34,7 +34,7 @@ const NumberAdapter = BaseAdapter.extend({
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr(CONSTANTS.ROLE)] = 'numerictextbox';
-    }
+    },
 });
 
 /**

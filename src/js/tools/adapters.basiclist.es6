@@ -28,7 +28,7 @@ const BasicListAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'textarea';
         this.attributes = { ...this.attributes, ...attributes };
-    }
+    },
 });
 
 /**

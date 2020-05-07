@@ -54,7 +54,7 @@ describe('adapters.date', () => {
             expect(row).to.deep.equal({
                 editor: 'input',
                 field,
-                attributes: { 'data-role': 'datepicker' }
+                attributes: { 'data-role': 'datepicker' },
             });
         });
     });

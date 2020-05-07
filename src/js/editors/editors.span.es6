@@ -31,11 +31,9 @@ function span(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getAttributeBinding(CONSTANTS.BIND, `text: ${options.field}`)
+        ...getAttributeBinding(CONSTANTS.BIND, `text: ${options.field}`),
     };
-    return $(`<${CONSTANTS.SPAN}/>`)
-        .attr(attributes)
-        .appendTo(container);
+    return $(`<${CONSTANTS.SPAN}/>`).attr(attributes).appendTo(container);
 }
 
 /**

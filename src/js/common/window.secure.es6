@@ -67,7 +67,7 @@ class SecureStorage {
             () => {
                 logger.debug({
                     message: 'SecureStorage successfully initialized',
-                    method: 'SecureStorage._initCordova'
+                    method: 'SecureStorage._initCordova',
                 });
             },
             () => {
@@ -134,11 +134,11 @@ class SecureStorage {
                 } catch (err) {
                     failure(err);
                 }
-            }
+            },
         };
         logger.info({
             message: 'SecureStorage not available, using localStorage',
-            method: 'SecureStorage._initFallback'
+            method: 'SecureStorage._initFallback',
         });
     }
 

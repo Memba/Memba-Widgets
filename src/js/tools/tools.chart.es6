@@ -50,7 +50,7 @@ const ChartTool = BaseTool.extend({
     width: 400,
     menu: ['attributes.type', 'attributes.data'],
     templates: {
-        default: TEMPLATE
+        default: TEMPLATE,
     },
     attributes: {
         type: new DropDownListAdapter(
@@ -58,54 +58,54 @@ const ChartTool = BaseTool.extend({
                 defaultValue: 'column',
                 help: __('tools.chart.attributes.type.help'),
                 source: __('tools.chart.attributes.type.source'),
-                title: __('tools.chart.attributes.type.title')
+                title: __('tools.chart.attributes.type.title'),
             },
             { style: 'width: 100%;' }
         ),
         title: new TextBoxAdapter({
-            title: __('tools.chart.attributes.title.title')
+            title: __('tools.chart.attributes.title.title'),
         }),
         categories: new NumberAdapter(
             {
                 title: __('tools.chart.attributes.categories.title'),
-                defaultValue: 4
+                defaultValue: 4,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 10
+                'data-max': 10,
             }
         ),
         values: new NumberAdapter(
             {
                 title: __('tools.chart.attributes.values.title'),
-                defaultValue: 2
+                defaultValue: 2,
             },
             {
                 'data-decimals': 0,
                 'data-format': 'n0',
                 'data-min': 1,
-                'data-max': 10
+                'data-max': 10,
             }
         ),
         legend: new DropDownListAdapter(
             {
                 defaultValue: 'none',
                 source: __('tools.chart.attributes.legend.source'),
-                title: __('tools.chart.attributes.legend.title')
+                title: __('tools.chart.attributes.legend.title'),
             },
             { style: 'width: 100%;' }
         ),
         data: new ChartAdapter({
             defaultValue: defaultChartData(4, 2),
             help: __('tools.chart.attributes.data.help'),
-            title: __('tools.chart.attributes.data.title')
+            title: __('tools.chart.attributes.data.title'),
         }),
         style: new StyleAdapter({
             title: __('tools.chart.attributes.style.title'),
-            validation: styleValidator
-        })
+            validation: styleValidator,
+        }),
     },
 
     /**
@@ -141,7 +141,7 @@ const ChartTool = BaseTool.extend({
             waterfall: { type: 'waterfall' },
             verticalArea: { type: 'verticalArea' },
             // verticalBullet: { type: 'verticalBullet' },
-            verticalLine: { type: 'verticalLine' }
+            verticalLine: { type: 'verticalLine' },
         };
         const style = component.get('attributes.style');
         // Get font from style - @see http://www.telerik.com/forums/charts---changing-the-default-font
@@ -178,7 +178,7 @@ const ChartTool = BaseTool.extend({
             // The chartArea$ function returns an object for chart's data-chart-area attribute binding
             chartArea$() {
                 return JSON.stringify({
-                    background
+                    background,
                 });
             },
             // The legend$ function returns an object for chart's data-legend attribute binding
@@ -189,8 +189,8 @@ const ChartTool = BaseTool.extend({
                     visible: legend !== 'none',
                     labels: {
                         font: smallerFont,
-                        color
-                    }
+                        color,
+                    },
                 });
             },
             // The categoryAxis$ function returns an object for chart's data-category-axis attribute binding
@@ -199,8 +199,8 @@ const ChartTool = BaseTool.extend({
                 const columnTotal = component.attributes.get('categories') + 1;
                 const rowIndex = 0;
                 let columnIndex;
-                const rowFinder = row => row.index === rowIndex;
-                const columnFinder = column => column.index === columnIndex;
+                const rowFinder = (row) => row.index === rowIndex;
+                const columnFinder = (column) => column.index === columnIndex;
                 const json = component.attributes.get('data');
                 const row = json.sheets[0].rows.find(rowFinder);
                 for (
@@ -223,8 +223,8 @@ const ChartTool = BaseTool.extend({
                     color,
                     labels: {
                         font: smallerFont,
-                        color
-                    }
+                        color,
+                    },
                 });
             },
             // The series$ function returns an object for chart's data-series attribute binding
@@ -234,8 +234,8 @@ const ChartTool = BaseTool.extend({
                 const columnTotal = component.attributes.get('categories') + 1;
                 let rowIndex;
                 let columnIndex;
-                const rowFinder = row => row.index === rowIndex;
-                const columnFinder = column => column.index === columnIndex;
+                const rowFinder = (row) => row.index === rowIndex;
+                const columnFinder = (column) => column.index === columnIndex;
                 const json = component.attributes.get('data');
                 for (rowIndex = 1; rowIndex < rowTotal; rowIndex++) {
                     const serie = { name: '', data: [] };
@@ -281,7 +281,7 @@ const ChartTool = BaseTool.extend({
                     text: title,
                     visible: !!title.trim(),
                     font,
-                    color
+                    color,
                 });
             },
             // The valueAxis$ function returns an object for chart's data-value-axis attribute binding
@@ -290,13 +290,13 @@ const ChartTool = BaseTool.extend({
                     color,
                     labels: {
                         font: smallerFont,
-                        color
-                    }
+                        color,
+                    },
                 });
-            }
+            },
         });
         return BaseTool.fn.getHtmlContent.call(this, component, mode);
-    }
+    },
 
     /**
      * Component validation

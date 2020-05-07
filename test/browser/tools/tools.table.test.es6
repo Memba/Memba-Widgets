@@ -33,7 +33,7 @@ const FIXTURES = 'fixtures';
 const TOOL = 'table';
 
 describe('tools.table', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
@@ -66,7 +66,7 @@ describe('tools.table', () => {
                 .that.eql([
                     'attributes.columns',
                     'attributes.rows',
-                    'attributes.data'
+                    'attributes.data',
                 ]);
             expect(tool).to.have.property('name', __('tools.table.name'));
             expect(tool).to.have.property('weight', 0);
@@ -88,9 +88,7 @@ describe('tools.table', () => {
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(8);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(8);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -114,9 +112,7 @@ describe('tools.table', () => {
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(0);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(0);
         });
 
         it('getAssets', () => {
@@ -168,7 +164,7 @@ describe('tools.table', () => {
             expect(fn2).to.throw();
 
             // Test all stage TOOLS.STAGE_MODES
-            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
+            Object.values(TOOLS.STAGE_MODES).forEach((mode) => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
                 expect(content).to.match(CONSTANTS.DIV);

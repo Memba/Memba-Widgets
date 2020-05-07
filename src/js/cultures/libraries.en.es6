@@ -9,45 +9,45 @@
 const res = {
     /* custom */
     custom: {
-        name: 'Custom'
+        name: 'Custom',
     },
 
     /* arrayLibrary */
     arrayLibrary: {
         equal: { name: 'Equal' },
         ignoreCaseEqual: { name: 'Equal (ignore case)' },
-        sumEqual: { name: 'Equal (compare sums)' }
+        sumEqual: { name: 'Equal (compare sums)' },
     },
 
     /* booleanLibrary */
     booleanLibrary: {
         equal: { name: 'Equal' },
-        notEqual: { name: 'Not equal' }
+        notEqual: { name: 'Not equal' },
     },
 
     /* charGridLibrary */
     charGridLibrary: {
-        equal: { name: 'Equal' }
+        equal: { name: 'Equal' },
     },
 
     /* dateLibrary */
     dateLibrary: {
-        equal: { name: 'Equal' }
+        equal: { name: 'Equal' },
     },
 
     /* genericLibrary */
     genericLibrary: {
-        equal: { name: 'Equal' }
+        equal: { name: 'Equal' },
     },
 
     /* mathLibrary */
     mathLibrary: {
-        equal: { name: 'Equal' }
+        equal: { name: 'Equal' },
     },
 
     /* multiQuizLibrary */
     multiQuizLibrary: {
-        equal: { name: 'Equal' }
+        equal: { name: 'Equal' },
     },
 
     /* numberLibrary */
@@ -56,7 +56,7 @@ const res = {
         greaterThan: { name: '>' },
         greaterThanOrEqual: { name: '>=' },
         lowerThan: { name: '<' },
-        lowerThanOrEqual: { name: '<=' }
+        lowerThanOrEqual: { name: '<=' },
     },
 
     /* stringLibrary */
@@ -67,15 +67,15 @@ const res = {
         ignoreDiacriticsEqual: { name: 'Equal (ignore diacritics)' },
         match: { name: 'Match' },
         metaphone: { name: 'Metaphone' },
-        soundex: { name: 'Soundex' }
+        soundex: { name: 'Soundex' },
     },
 
     /* textLibrary */
     textLibrary: {
         equal: { name: 'Equal' },
         ignoreSpacesEqual: { name: 'Equal (ignore spaces)' },
-        ignorePunctuationEqual: { name: 'Equal (ignore punctuation)' }
-    }
+        ignorePunctuationEqual: { name: 'Equal (ignore punctuation)' },
+    },
 };
 
 /**

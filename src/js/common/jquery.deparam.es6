@@ -31,7 +31,7 @@ function deparam(params, coerce) {
     params
         .replace(/\+/g, ' ')
         .split('&')
-        .forEach(v => {
+        .forEach((v) => {
             const param = v.split('=');
             let key = window.decodeURIComponent(param[0]);
             let val;
@@ -51,10 +51,7 @@ function deparam(params, coerce) {
 
                 // Split first keys part into two parts on the [ and add them back onto
                 // the beginning of the keys array.
-                keys = keys
-                    .shift()
-                    .split('[')
-                    .concat(keys);
+                keys = keys.shift().split('[').concat(keys);
 
                 keysLast = keys.length - 1;
             } else {

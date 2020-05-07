@@ -32,7 +32,7 @@ function preProcess(message, data) {
     } else if (message instanceof Error) {
         entry = {
             message: message.message,
-            error: message
+            error: message,
         };
     } else if (
         typeof ErrorEvent === CONSTANTS.FUNCTION &&
@@ -44,9 +44,9 @@ function preProcess(message, data) {
             data: {
                 filename: message.filename,
                 lineno: message.lineno,
-                colno: message.colno
+                colno: message.colno,
             },
-            error: message.error
+            error: message.error,
         };
     } else if (Object.prototype.toString.call(message) === '[object Object]') {
         entry = JSON.parse(JSON.stringify(message));
@@ -57,7 +57,7 @@ function preProcess(message, data) {
     } else {
         entry = {
             message: 'Unknown error',
-            data: message
+            data: message,
         };
     }
     return entry;
@@ -136,7 +136,7 @@ function enhance(logEntry, module, level) {
         */
         entry.query = {
             search: location.search,
-            hash: location.hash
+            hash: location.hash,
         };
         /* } */
     } else {
@@ -262,7 +262,7 @@ export default class Logger {
             warn: { name: 'WARN', value: 4 },
             error: { name: 'ERROR', value: 5 },
             crit: { name: 'CRIT', value: 6 },
-            default: 'info'
+            default: 'info',
         };
     }
 
@@ -292,7 +292,7 @@ export default class Logger {
             log2Console(entry, lv);
         }
         // Call registered plugins
-        plugins.forEach(plugin => {
+        plugins.forEach((plugin) => {
             plugin.log(entry, lv);
         });
     }
@@ -369,7 +369,7 @@ window.onerror = function onerror(message, source, lineno, colno, error) {
         message,
         method: 'window.onerror',
         error,
-        data: { source, lineno, colno }
+        data: { source, lineno, colno },
     });
 };
 

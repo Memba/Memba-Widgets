@@ -31,7 +31,7 @@ const {
     notify,
     roleSelector,
     ui: { MathInputToolBar, plugin, Widget },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.mathinput');
 const WIDGET = 'kendoMathInput';
@@ -49,7 +49,7 @@ const KEYSTROKES = {
     BACKSPACE: 'Backspace',
     LEFT: 'Left',
     RIGHT: 'Right',
-    SPACE: 'Spacebar'
+    SPACE: 'Spacebar',
 };
 const TOOLBAR = [
     'backspace',
@@ -61,7 +61,7 @@ const TOOLBAR = [
     'expressions',
     'sets',
     'matrices',
-    'statistics'
+    'statistics',
     // 'units',
     // 'chemistry'
 ];
@@ -119,13 +119,13 @@ const MathInput = Widget.extend({
             substituteTextarea() {
                 return document.createElement('textarea');
             },
-            mouseEvents: true // TODO
+            mouseEvents: true, // TODO
         },
         toolbar: {
             container: '',
             resizable: true,
-            tools: TOOLBAR
-        }
+            tools: TOOLBAR,
+        },
     },
 
     /**
@@ -176,7 +176,7 @@ const MathInput = Widget.extend({
                     logger.debug({
                         method: 'value',
                         message: 'Setting value',
-                        data: { value }
+                        data: { value },
                     });
                     if ($.type(value[i]) === CONSTANTS.STRING) {
                         that.mathFields[i].latex(value[i]);
@@ -188,7 +188,7 @@ const MathInput = Widget.extend({
         } else if ($.type(value) === CONSTANTS.NULL) {
             that._arrayValue([]);
         } else if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = that.mathFields.map(mathField => {
+            ret = that.mathFields.map((mathField) => {
                 return mathField.latex();
             });
             let isDefault = true;
@@ -269,7 +269,7 @@ const MathInput = Widget.extend({
                 enter: that._onEnter.bind(that),
                 moveOutOf: that._onOutOf.bind(that),
                 selectOutOf: that._onOutOf.bind(that),
-                upOutOf: that._onOutOf.bind(that)
+                upOutOf: that._onOutOf.bind(that),
             };
         }
 
@@ -299,7 +299,7 @@ const MathInput = Widget.extend({
             this.mathFields = [MQ.MathField(element.get(0))];
         }
         // Gather defaults
-        this.defaults = this.mathFields.map(mathField => {
+        this.defaults = this.mathFields.map((mathField) => {
             return mathField.latex();
         });
     },
@@ -453,7 +453,7 @@ const MathInput = Widget.extend({
                     tools: options.toolbar.tools,
                     resizable: options.toolbar.resizable,
                     action: this._onToolBarAction.bind(this),
-                    dialog: this._onToolBarDialog.bind(this)
+                    dialog: this._onToolBarDialog.bind(this),
                 })
                 .data('kendoMathInputToolBar');
             this.toolBar.wrapper.hide();
@@ -468,7 +468,7 @@ const MathInput = Widget.extend({
                     tools: options.toolbar.tools,
                     resizable: options.toolbar.resizable,
                     action: this._onToolBarAction.bind(this),
-                    dialog: this._onToolBarDialog.bind(this)
+                    dialog: this._onToolBarDialog.bind(this),
                 })
                 .data('kendoMathInputToolBar');
         }
@@ -666,7 +666,7 @@ const MathInput = Widget.extend({
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

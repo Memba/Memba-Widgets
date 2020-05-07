@@ -26,15 +26,12 @@ function getPosition(e) {
     const touch = e.sender.touches[0];
     return {
         top: (touch.y.location - offset.top) / scale,
-        left: (touch.x.location - offset.left) / scale
+        left: (touch.x.location - offset.left) / scale,
     };
 }
 
 function hit(e) {
-    mouse
-        .css(getPosition(e))
-        .fadeIn(500)
-        .fadeOut(2000);
+    mouse.css(getPosition(e)).fadeIn(500).fadeOut(2000);
 }
 
 function getDelta(e) {
@@ -44,7 +41,7 @@ function getDelta(e) {
     // https://stackoverflow.com/questions/5603615/get-the-scale-value-of-an-element
     return {
         x: e.x.initialDelta / scale,
-        y: e.y.initialDelta / scale
+        y: e.y.initialDelta / scale,
     };
 }
 
@@ -57,7 +54,7 @@ function handler(e) {
     const delta = getDelta(e);
     $(e.target).css({
         top: initial.top + delta.y,
-        left: initial.left + delta.x
+        left: initial.left + delta.x,
     });
 }
 
@@ -105,7 +102,7 @@ const userEvents = new UserEvents(stage, {
     press(e) {
         console.log('press');
         e.data = {
-            oops: 'toto'
+            oops: 'toto',
         };
     },
     select(e) {
@@ -124,7 +121,7 @@ const userEvents = new UserEvents(stage, {
     tap(e) {
         console.log('tap');
         $.noop(e);
-    }
+    },
 });
 
 $.noop(userEvents);

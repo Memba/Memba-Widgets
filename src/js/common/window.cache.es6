@@ -19,7 +19,7 @@ const logger = new Logger('window.cache');
 const DEFAULTS = {
     cache: !(window.app || {}).NOCACHE,
     silent: false,
-    ttl: 24 * 60 * 60 // 1 day in seconds
+    ttl: 24 * 60 * 60, // 1 day in seconds
 };
 
 /**
@@ -73,7 +73,7 @@ class LocalCache {
                         logger.debug({
                             message: `${key} value read from ${this._storeName} cache`,
                             method: 'getItem',
-                            data: { key, value }
+                            data: { key, value },
                         });
                     } else {
                         // No need to keep an expired or tampered value
@@ -85,7 +85,7 @@ class LocalCache {
             logger.error({
                 message: `Error getting ${key} value from ${this._storeName} cache`,
                 method: 'getItem',
-                error
+                error,
             });
             if (!this._silent) {
                 throw error;
@@ -108,7 +108,7 @@ class LocalCache {
         );
         const items = [];
         if (this._cache) {
-            Object.keys(this._store).forEach(key => {
+            Object.keys(this._store).forEach((key) => {
                 if (rx.test(key)) {
                     items.push(this.getItem(key, raw));
                 }
@@ -146,7 +146,7 @@ class LocalCache {
                 const item = {
                     ts: ts || Date.now(),
                     ttl: ttl || this._ttl,
-                    value
+                    value,
                 };
                 item.sig = md5(JSON.stringify(item));
                 let data = JSON.stringify(item);
@@ -157,14 +157,14 @@ class LocalCache {
                 logger.debug({
                     message: `${key} value added to ${this._storeName} cache`,
                     method: 'setItem',
-                    data: { key, value }
+                    data: { key, value },
                 });
             }
         } catch (error) {
             logger.error({
                 message: `Error setting ${key} value into ${this._storeName} cache`,
                 method: 'setItem',
-                error
+                error,
             });
             if (!this._silent) {
                 throw error;
@@ -189,14 +189,14 @@ class LocalCache {
                 logger.debug({
                     message: `${key} value removed from ${this._storeName} cache`,
                     method: 'removeItem',
-                    data: { key }
+                    data: { key },
                 });
             }
         } catch (error) {
             logger.error({
                 message: `Error removing ${key} value from ${this._storeName} cache`,
                 method: 'removeItem',
-                error
+                error,
             });
             if (!this._silent) {
                 throw error;
@@ -215,7 +215,7 @@ class LocalCache {
             rx,
             assert.format(assert.messages.type.default, 'rx', 'RegExp')
         );
-        Object.keys(this._store).forEach(key => {
+        Object.keys(this._store).forEach((key) => {
             if (rx.test(key)) {
                 this.removeItem(key);
             }

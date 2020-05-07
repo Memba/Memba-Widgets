@@ -15,7 +15,7 @@ import Logger from '../common/window.logger.es6';
 
 const {
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.buttonbox');
 const NS = '.kendoButtonBox';
@@ -44,7 +44,7 @@ const ButtonBox = Widget.extend({
             readonly: this.element.prop('readonly')
                 ? true
                 : this.options.readonly,
-            value: this.options.value
+            value: this.options.value,
         });
     },
 
@@ -63,7 +63,7 @@ const ButtonBox = Widget.extend({
         enabled: true,
         readonly: false,
         value: '',
-        iconClass: 'k-i-more-horizontal'
+        iconClass: 'k-i-more-horizontal',
     },
 
     /**
@@ -126,7 +126,7 @@ const ButtonBox = Widget.extend({
                 // ariaControls
                 ariaLabel: 'select',
                 role: 'button',
-                unselectable: 'on'
+                unselectable: 'on',
             })
             .appendTo(this._inputWrapper);
         element
@@ -150,7 +150,7 @@ const ButtonBox = Widget.extend({
         element.off(NS);
         if (enabled) {
             _button
-                .on(`${CONSTANTS.MOUSEDOWN}${NS}`, e => e.preventDefault())
+                .on(`${CONSTANTS.MOUSEDOWN}${NS}`, (e) => e.preventDefault())
                 .on(`${CONSTANTS.MOUSEUP}${NS}`, this._onClick.bind(this));
             _inputWrapper
                 .addClass(CONSTANTS.DEFAULT_CLASS)
@@ -249,7 +249,7 @@ const ButtonBox = Widget.extend({
         element.off(NS);
         _inputWrapper.off(NS);
         destroy(element);
-    }
+    },
 });
 
 /**

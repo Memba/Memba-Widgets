@@ -35,7 +35,7 @@ function select(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`)
+        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`),
     };
     if ($.type(attributes[attr(CONSTANTS.ROLE)]) === CONSTANTS.UNDEFINED) {
         attributes[attr(CONSTANTS.ROLE)] = 'dropdownlist';

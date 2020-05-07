@@ -69,7 +69,7 @@ const ToolAssets = Class.extend({
             ret = Asset.scheme2http(uri, this.schemes);
         }
         return ret;
-    }
+    },
 });
 
 /**

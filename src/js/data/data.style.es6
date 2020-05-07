@@ -14,7 +14,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
 const {
-    data: { DataSource, ObservableArray }
+    data: { DataSource, ObservableArray },
 } = window.kendo;
 
 /**
@@ -26,12 +26,12 @@ const StyleProperty = BaseModel.define({
     id: 'name',
     fields: {
         name: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         value: {
-            type: CONSTANTS.STRING
-        }
-    }
+            type: CONSTANTS.STRING,
+        },
+    },
 });
 
 /**
@@ -51,8 +51,8 @@ const StyleDataSource = DataSource.extend({
             $.extend(true, {}, options, {
                 schema: {
                     modelBase: StyleProperty,
-                    model: StyleProperty
-                }
+                    model: StyleProperty,
+                },
             })
         );
     },
@@ -63,7 +63,7 @@ const StyleDataSource = DataSource.extend({
 
     parseJSON() {},
 
-    toJSON() {}
+    toJSON() {},
 });
 
 /**
@@ -71,7 +71,7 @@ const StyleDataSource = DataSource.extend({
  * @method create
  * @param options
  */
-StyleDataSource.create = options => {
+StyleDataSource.create = (options) => {
     // Note: this code is vey similar to SchedulerDataSource.create
     const dataSource =
         Array.isArray(options) || options instanceof ObservableArray

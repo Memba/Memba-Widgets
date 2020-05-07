@@ -21,7 +21,7 @@ const {
     extensions: { markeditor },
     format,
     unbind,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.markeditor');
 // const NS = '.kendoMarkEditor';
@@ -44,7 +44,7 @@ const TOOLS = [
     'image',
     'code',
     'latex',
-    'preview'
+    'preview',
 ];
 
 /** *****************************************************************************************
@@ -89,16 +89,16 @@ const MarkEditor = Widget.extend({
         lineNumbers: true,
         messages: {
             image: 'An undescribed image',
-            link: 'Click here'
+            link: 'Click here',
         },
         schemes: {},
         // theme: 'monokai', // We have themed CodeMirror in Kidoju-WebApp - see codemirror.custom.less using Kendo UI less variables
         toolbar: {
             container: '',
             resizable: true,
-            tools: TOOLS
+            tools: TOOLS,
         },
-        value: ''
+        value: '',
     },
 
     /**
@@ -170,7 +170,7 @@ const MarkEditor = Widget.extend({
                 dialog: this._onToolBarDialog.bind(this),
                 resizable: this.options.toolbar.resizable,
                 schemes: this.options.schemes, // Pass teh schemes to the toolbar
-                tools: this.options.toolbar.tools
+                tools: this.options.toolbar.tools,
             })
             .data('kendoMarkEditorToolBar');
     },
@@ -191,7 +191,7 @@ const MarkEditor = Widget.extend({
             mode: options.gfm ? 'gfm' : 'markdown',
             // theme: options.theme,
             value: options.value,
-            viewportMargin: options.autoResize ? Number.POSITIVE_INFINITY : 10
+            viewportMargin: options.autoResize ? Number.POSITIVE_INFINITY : 10,
         });
 
         if (options.autoResize) {
@@ -506,7 +506,7 @@ const MarkEditor = Widget.extend({
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

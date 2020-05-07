@@ -13,14 +13,14 @@ import Logger from '../common/window.logger.es6';
 const {
     destroy,
     toString,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.table');
 const WIDGET_CLASS = 'kj-table'; // 'k-widget kj-table';
 const DEFAULTS = {
     COLUMN_WIDTH: 150,
     ROW_HEIGHT: 58,
-    FONT_SIZE: 12 // ATTENTION: We use 48, but the spreadsheet default is actually 12
+    FONT_SIZE: 12, // ATTENTION: We use 48, but the spreadsheet default is actually 12
 };
 
 /**
@@ -49,7 +49,7 @@ const Table = Widget.extend({
         name: 'Table',
         columns: 5,
         rows: 8,
-        value: [{}]
+        value: [{}],
     },
 
     // events: [
@@ -83,7 +83,7 @@ const Table = Widget.extend({
         // }
         this.wrapper = this.element;
         this.element.addClass(WIDGET_CLASS).css({
-            position: 'relative'
+            position: 'relative',
             // tableLayout: 'fixed',
             // borderCollapse: 'collapse',
             // borderSpacing: 0
@@ -119,13 +119,13 @@ const Table = Widget.extend({
         let width;
         let rowIndex;
         let columnIndex;
-        const rowFinder = row => row.index === rowIndex;
-        const columnFinder = column => column.index === columnIndex;
+        const rowFinder = (row) => row.index === rowIndex;
+        const columnFinder = (column) => column.index === columnIndex;
         for (rowIndex = 0; rowIndex < rowTotal; rowIndex++) {
             ret.push([]);
             const row = ret[rowIndex];
             const rowDefinition = rowDefinitions.find(rowFinder) || {
-                cells: []
+                cells: [],
             };
             for (columnIndex = 0; columnIndex < columnTotal; columnIndex++) {
                 const cellDefinition = rowDefinition.cells.find(columnFinder);
@@ -142,8 +142,8 @@ const Table = Widget.extend({
                             left,
                             height,
                             top,
-                            width
-                        }
+                            width,
+                        },
                     });
                 } else {
                     row.push({
@@ -192,10 +192,11 @@ const Table = Widget.extend({
                             wordBreak:
                                 cellDefinition.wrap === true
                                     ? 'break-all'
-                                    : 'normal'
+                                    : 'normal',
                         },
-                        class: `k-vertical-align-${cellDefinition.verticalAlign ||
-                            'bottom'}`
+                        class: `k-vertical-align-${
+                            cellDefinition.verticalAlign || 'bottom'
+                        }`,
                     });
                 }
                 left += width;
@@ -213,7 +214,7 @@ const Table = Widget.extend({
     refresh() {
         const {
             element,
-            options: { columns, rows }
+            options: { columns, rows },
         } = this;
         element.empty();
         for (let i = 0; i < rows; i++) {
@@ -222,8 +223,9 @@ const Table = Widget.extend({
                 const $cell = $(`<${CONSTANTS.DIV}/>`)
                     .addClass('k-spreadsheet-data')
                     .css(data.css);
-                let htmlContent = `<${CONSTANTS.DIV} class="${data.class ||
-                    ''}">`;
+                let htmlContent = `<${CONSTANTS.DIV} class="${
+                    data.class || ''
+                }">`;
                 if ($.type(data.value) === CONSTANTS.UNDEFINED) {
                     htmlContent += '&nbsp';
                 } else if (!Number.isNaN(parseFloat(data.value))) {
@@ -249,7 +251,7 @@ const Table = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

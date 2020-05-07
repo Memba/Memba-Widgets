@@ -19,7 +19,7 @@ import BaseAdapter from './adapters.base.es6';
 import ToolAssets from './util.assets.es6';
 
 const {
-    ui: { BaseDialog }
+    ui: { BaseDialog },
 } = window.kendo;
 
 /**
@@ -50,11 +50,11 @@ const AssetAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container)
                 .kendoButtonBox({
-                    click: this.showDialog.bind(this, settings)
+                    click: this.showDialog.bind(this, settings),
                 });
         };
     },
@@ -86,11 +86,11 @@ const AssetAdapter = BaseAdapter.extend({
         openAssetManager({
             title: options.title || this.title,
             data: {
-                value: options.model.get(options.field)
+                value: options.model.get(options.field),
             },
-            assets: assets[options.model.tool]
+            assets: assets[options.model.tool],
         })
-            .then(result => {
+            .then((result) => {
                 if (
                     result.action ===
                     BaseDialog.fn.options.messages.actions.ok.action
@@ -99,7 +99,7 @@ const AssetAdapter = BaseAdapter.extend({
                 }
             })
             .catch($.noop); // TODO error management
-    }
+    },
 });
 
 /**

@@ -16,7 +16,7 @@ import Logger from '../common/window.logger.es6';
 import {
     getMousePosition,
     getTransformScale,
-    snap
+    snap,
 } from '../common/window.position.es6';
 
 const {
@@ -29,7 +29,7 @@ const {
     roleSelector,
     unbind,
     ui,
-    ui: { DataBoundWidget, plugin }
+    ui: { DataBoundWidget, plugin },
 } = window.kendo;
 const logger = new Logger('widgets.dropzone');
 const NS = '.kendoDropZone';
@@ -255,7 +255,7 @@ const DropZoneEvents = Class.extend({
             e.data.initial = {
                 // stageElement.position() does not work when scaled
                 top: parseFloat(stageElement.css('top')) || 0,
-                left: parseFloat(stageElement.css('left')) || 0
+                left: parseFloat(stageElement.css('left')) || 0,
             };
             e.data.mousedown = this._getStagePoint(e);
             e.data.stageElement = stageElement;
@@ -444,7 +444,7 @@ const DropZoneEvents = Class.extend({
                                 (dropZoneParent.height() -
                                     stageElement.height()) /
                                     2
-                        )
+                        ),
                     };
                 }
                 if ($.type(dataItem) === CONSTANTS.UNDEFINED) {
@@ -453,8 +453,8 @@ const DropZoneEvents = Class.extend({
                         id,
                         data: {
                             left: position.left,
-                            top: position.top
-                        }
+                            top: position.top,
+                        },
                     });
                 } else if (dataItem instanceof ObservableObject) {
                     assert.equal(
@@ -479,7 +479,7 @@ const DropZoneEvents = Class.extend({
                 dropZoneWidget.trigger(CONSTANTS.CHANGE);
             }
         });
-    }
+    },
 });
 
 /**
@@ -487,7 +487,7 @@ const DropZoneEvents = Class.extend({
  * @param options
  * @returns {DropZoneEvents}
  */
-DropZoneEvents.getSingleton = function(options) {
+DropZoneEvents.getSingleton = function (options) {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -591,7 +591,7 @@ var DropZone = DataBoundWidget.extend({
         draggable: `div.kj-element:has([data-${ns}behavior="draggable"])`, // a stage element containing a draggable
         center: false,
         empty: '', // to force a value when empty
-        enable: true
+        enable: true,
     },
 
     /**
@@ -622,7 +622,7 @@ var DropZone = DataBoundWidget.extend({
                 assert.format(assert.messages.hasLength.default, 'container')
             );
             // We check the dataSource for draggables which have been moved
-            that.dataSource.view().forEach(dataItem => {
+            that.dataSource.view().forEach((dataItem) => {
                 if (
                     dataItem &&
                     dataItem.type === DATA_TYPE &&
@@ -729,7 +729,7 @@ var DropZone = DataBoundWidget.extend({
                 this.dataSource.filter({
                     field: 'type',
                     operator: 'eq',
-                    value: DATA_TYPE
+                    value: DATA_TYPE,
                 });
             }
         }
@@ -759,7 +759,7 @@ var DropZone = DataBoundWidget.extend({
         const dropzone = this.element[0].getBoundingClientRect();
         const center = {
             top: element.top + element.height / 2,
-            left: element.left + element.width / 2
+            left: element.left + element.width / 2,
         };
         // Check the center is within the drop zone
         return (
@@ -809,7 +809,7 @@ var DropZone = DataBoundWidget.extend({
                     if (draggable.length > 0) {
                         draggable.parent().css({
                             left: dataItem.data.left,
-                            top: dataItem.data.top
+                            top: dataItem.data.top,
                         });
                     }
                 }
@@ -844,7 +844,7 @@ var DropZone = DataBoundWidget.extend({
         // remove element classes
         // element.removeClass(WIDGET_CLASS);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

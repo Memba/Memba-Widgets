@@ -93,7 +93,7 @@ const global = window;
             { name: 'Ashcraft', value: 'A226' },
             { name: 'Burroughs', value: 'B622' },
             { name: 'Burrows', value: 'B620' },
-            { name: "O'Hara", value: 'O600' }
+            { name: "O'Hara", value: 'O600' },
         ];
         for (let i = 0, { length } = DATA; i < length; i++) {
             expect(global.soundex(DATA[i].name)).to.equal(DATA[i].value);
@@ -105,7 +105,7 @@ const global = window;
             { name: 'Gnu', value: 'N' },
             { name: 'bigger', value: 'BKR' },
             { name: 'accuracy', value: 'AKKRS' },
-            { name: 'batch batcher', value: 'BXBXR' }
+            { name: 'batch batcher', value: 'BXBXR' },
             // TODO we need more...
         ];
         for (let i = 0, { length } = DATA; i < length; i++) {
@@ -120,8 +120,8 @@ const global = window;
             { name: 'można zapoznać się', value: 'mozna zapoznac sie' },
             {
                 name: 'Z przyjemnością prezentuje Państwu',
-                value: 'Z przyjemnoscia prezentuje Panstwu'
-            }
+                value: 'Z przyjemnoscia prezentuje Panstwu',
+            },
             // TODO we need more...
         ];
         for (let i = 0, { length } = DATA; i < length; i++) {
@@ -136,7 +136,11 @@ const global = window;
             { value: [1, 2, 3], solution: [1, 2, 3], result: true },
             { value: ['a', 'b', 'c'], solution: ['a', 'b', 'c'], result: true },
             { value: [1, 2], solution: [2, 1], result: false },
-            { value: ['a', 'b', 'c'], solution: ['x', 'y', 'z'], result: false }
+            {
+                value: ['a', 'b', 'c'],
+                solution: ['x', 'y', 'z'],
+                result: false,
+            },
         ];
         for (let i = 0, { length } = DATA; i < length; i++) {
             expect(DATA[i].value.equals(DATA[i].solution)).to.equal(
@@ -151,7 +155,7 @@ const global = window;
             { value: '(x-5)', solution: '-x-3', result: false },
             { value: '(3x+7)/(x+4)', solution: '(-3x-7)/(-x-4)', result: true },
             { value: '\\frac{x-1}{y}', solution: '(x-1)/(y)', result: true },
-            { value: '(x-5)(x+5)', solution: 'x^2-25', result: true }
+            { value: '(x-5)(x+5)', solution: 'x^2-25', result: true },
         ];
         for (let i = 0, { length } = DATA; i < length; i++) {
             const value = global.KAS.parse(DATA[i].value).expr;

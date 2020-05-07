@@ -36,7 +36,7 @@ function regex(container, options) {
     );
     const attributes = {
         ...options.attributes,
-        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`)
+        ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`),
     };
     attributes.class = attributes.class || 'k-textbox';
     return $(`<${CONSTANTS.INPUT}/>`)

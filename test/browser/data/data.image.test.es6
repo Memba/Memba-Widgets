@@ -17,28 +17,29 @@ import { Image, ImageDataSource } from '../../../src/js/data/data.image.es6';
 const { describe, it } = window;
 const { expect } = chai;
 const {
-    data: { DataSource, Model, ObservableArray }
+    data: { DataSource, Model, ObservableArray },
 } = window.kendo;
 chai.use(sinonChai);
 
 const DATA = [
     {
         text: 'error',
-        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/error.svg'
+        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/error.svg',
     },
     {
         text: 'success',
-        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg'
+        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
     },
     {
         text: 'warning',
         url:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg'
-    }
+            'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg',
+    },
 ];
 const IMAGE = {
     text: 'information',
-    url: 'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg'
+    url:
+        'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg',
 };
 
 describe('data.image', () => {
@@ -76,13 +77,11 @@ describe('data.image', () => {
             const total = dataSource.total();
             expect(total).to.equal(1);
             const data = dataSource.data();
-            expect(data)
-                .to.be.an.instanceof(ObservableArray)
-                .with.lengthOf(1);
+            expect(data).to.be.an.instanceof(ObservableArray).with.lengthOf(1);
             expect(data[0]).to.be.an.instanceof(Image);
         });
 
-        it('It should insert an image', done => {
+        it('It should insert an image', (done) => {
             const dataSource = new ImageDataSource({ data: DATA });
             dataSource
                 .read()
@@ -101,7 +100,7 @@ describe('data.image', () => {
                 .catch(done);
         });
 
-        it('It should raise events', done => {
+        it('It should raise events', (done) => {
             const change = sinon.spy();
             const dataSource = new ImageDataSource({ data: DATA });
             dataSource.bind('change', change);

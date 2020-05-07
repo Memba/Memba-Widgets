@@ -15,7 +15,7 @@ import BaseAdapter from './adapters.base.es6';
 import '../widgets/widgets.quiz.es6';
 
 const {
-    ui: { Quiz }
+    ui: { Quiz },
 } = window.kendo;
 
 // Important: kj-quiz-item kj-quiz-dropdown defines background-position:vover;background-position:center,display:inline-block;height:1.1em;width:1.1em;
@@ -50,22 +50,22 @@ const QuizAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             input.kendoDropDownList({
                 autoWidth: true,
                 dataSource: new ImageDataSource({
-                    data: settings.model.get('attributes.data')
+                    data: settings.model.get('attributes.data'),
                 }),
                 dataTextField: 'text',
                 dataValueField: 'text',
                 optionLabel: Quiz.fn.options.messages.optionLabel,
                 template: QUIZSOLUTION_TMPL,
-                valueTemplate: QUIZSOLUTION_TMPL
+                valueTemplate: QUIZSOLUTION_TMPL,
             });
         };
-    }
+    },
 });
 
 /**

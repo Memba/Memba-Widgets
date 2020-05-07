@@ -25,7 +25,7 @@ const { expect } = chai;
 const libraries = [
     baseUrl('/src/js/vendor/jashkenas/underscore.js'),
     baseUrl('/src/js/vendor/khan/kas.js'),
-    baseUrl('/src/js/workers/workers.lib.js')
+    baseUrl('/src/js/workers/workers.lib.js'),
 ];
 
 function noop() {}
@@ -60,7 +60,7 @@ describe('window.workers', () => {
                 .with.property('length', 2);
         });
 
-        it('It should load a library', done => {
+        it('It should load a library', (done) => {
             const pool = new WorkerPool();
             pool.load(libraries)
                 .then(() => {
@@ -76,14 +76,14 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('It should resolve an echo task', done => {
+        it('It should resolve an echo task', (done) => {
             const pool = new WorkerPool();
             pool.exec(
                 'self.postMessage(e.data);',
                 'echo', // e.data
                 'dummy' // task name
             )
-                .then(result => {
+                .then((result) => {
                     try {
                         expect(result).to.have.property('name', 'dummy');
                         expect(result).to.have.property('result', 'echo');
@@ -95,7 +95,7 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('It should report an error', done => {
+        it('It should report an error', (done) => {
             if (
                 'chrome' in window &&
                 $.type(window.StyleMedia) === CONSTANTS.UNDEFINED
@@ -107,7 +107,7 @@ describe('window.workers', () => {
                     'Task' // task name
                 )
                     .then(done)
-                    .catch(err => {
+                    .catch((err) => {
                         try {
                             expect(err).to.be.an.instanceof(Error);
                             expect(err).to.have.property('filename');
@@ -124,7 +124,7 @@ describe('window.workers', () => {
             }
         });
 
-        it('It should report a timeout', done => {
+        it('It should report a timeout', (done) => {
             const pool = new WorkerPool();
             pool.exec(
                 'var i = e.data; while(i > -1) { i++ };self.postMessage(i);',
@@ -132,7 +132,7 @@ describe('window.workers', () => {
                 'Task' // task name
             )
                 .then(done)
-                .catch(err => {
+                .catch((err) => {
                     try {
                         expect(err).to.be.an.instanceof(Error);
                         expect(err).to.have.property('timeout');
@@ -143,7 +143,7 @@ describe('window.workers', () => {
                 });
         });
 
-        it('It should exec a large number of tasks', done => {
+        it('It should exec a large number of tasks', (done) => {
             const pool = new WorkerPool();
             const promises = [];
             for (let i = 0; i < 500; i++) {
@@ -177,13 +177,13 @@ describe('window.workers', () => {
     (support.webworkers ? describe : xdescribe)('WorkerLib Functions', () => {
         const pool = new WorkerPool();
 
-        before(done => {
+        before((done) => {
             pool.load(libraries).then(() => {
                 done();
             });
         });
 
-        it('blacklisted unsafe functions', done => {
+        it('blacklisted unsafe functions', (done) => {
             const DATA = [
                 // deactivated
                 'ActiveXObject',
@@ -212,12 +212,12 @@ describe('window.workers', () => {
                 'localStorage',
                 'openDatabase',
                 'sessionStorage',
-                'SharedWorker'
+                'SharedWorker',
             ];
             const promises = [];
             const script = // 'console.log(e.data + ": " + typeof self[e.data]); ' +
                 'self.postMessage((typeof self[e.data] === "undefined") || (self[e.data] && typeof self[e.data].open === "undefined"));';
-            DATA.forEach(data => {
+            DATA.forEach((data) => {
                 promises.push(pool.exec(script, data, data));
             });
             $.when(...promises)
@@ -236,7 +236,7 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('soundex', done => {
+        it('soundex', (done) => {
             const DATA = [
                 { name: 'Soundex', result: 'S532' },
                 { name: 'Example', result: 'E251' },
@@ -258,11 +258,11 @@ describe('window.workers', () => {
                 { name: 'Ashcraft', result: 'A226' },
                 { name: 'Burroughs', result: 'B622' },
                 { name: 'Burrows', result: 'B620' },
-                { name: "O'Hara", result: 'O600' }
+                { name: "O'Hara", result: 'O600' },
             ];
             const promises = [];
             const script = 'self.postMessage(soundex(e.data));';
-            DATA.forEach(data => {
+            DATA.forEach((data) => {
                 promises.push(pool.exec(script, data.name, data.name));
             });
             $.when(...promises)
@@ -287,17 +287,17 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('metaphone', done => {
+        it('metaphone', (done) => {
             const DATA = [
                 { name: 'Gnu', result: 'N' },
                 { name: 'bigger', result: 'BKR' },
                 { name: 'accuracy', result: 'AKKRS' },
-                { name: 'batch batcher', result: 'BXBXR' }
+                { name: 'batch batcher', result: 'BXBXR' },
                 // TODO we need more...
             ];
             const promises = [];
             const script = 'self.postMessage(metaphone(e.data));';
-            DATA.forEach(data => {
+            DATA.forEach((data) => {
                 promises.push(pool.exec(script, data.name, data.name));
             });
             $.when(...promises)
@@ -322,23 +322,23 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('removeDiacritics', done => {
+        it('removeDiacritics', (done) => {
             const DATA = [
                 {
                     name: 'La leçon est terminée',
-                    result: 'La lecon est terminee'
+                    result: 'La lecon est terminee',
                 },
                 { name: 'Cómo está usted', result: 'Como esta usted' },
                 { name: 'można zapoznać się', result: 'mozna zapoznac sie' },
                 {
                     name: 'Z przyjemnością prezentuje Państwu',
-                    result: 'Z przyjemnoscia prezentuje Panstwu'
-                }
+                    result: 'Z przyjemnoscia prezentuje Panstwu',
+                },
                 // TODO we need more...
             ];
             const promises = [];
             const script = 'self.postMessage(removeDiacritics(e.data));';
-            DATA.forEach(data => {
+            DATA.forEach((data) => {
                 promises.push(pool.exec(script, data.name, data.name));
             });
             $.when(...promises)
@@ -363,25 +363,25 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('Array.equals', done => {
+        it('Array.equals', (done) => {
             const DATA = [
                 { value: [1, 2, 3], solution: [1, 2, 3], result: true },
                 { value: [1, 2], solution: [2, 1], result: false },
                 {
                     value: ['a', 'b', 'c'],
                     solution: ['a', 'b', 'c'],
-                    result: true
+                    result: true,
                 },
                 {
                     value: ['a', 'b', 'c'],
                     solution: ['c', 'b', 'a'],
-                    result: false
+                    result: false,
                 },
                 {
                     value: ['a', 'b', 'c'],
                     solution: ['x', 'y', 'z'],
-                    result: false
-                }
+                    result: false,
+                },
             ];
             const script =
                 'self.postMessage(e.data.value.equals(e.data.solution));';
@@ -411,25 +411,25 @@ describe('window.workers', () => {
                 .catch(done);
         });
 
-        it('Formula.equals', done => {
+        it('Formula.equals', (done) => {
             const DATA = [
                 {
                     value: '(x-2)(x-1)',
                     solution: '(x-1)(x-2)',
-                    result: true
+                    result: true,
                 },
                 { value: '(x-5)', solution: '-x-3', result: false },
                 {
                     value: '(3x+7)/(x+4)',
                     solution: '(-3x-7)/(-x-4)',
-                    result: true
+                    result: true,
                 },
                 {
                     value: '\\frac{x-1}{y}',
                     solution: '(x-1)/(y)',
-                    result: true
+                    result: true,
                 },
-                { value: '(x-5)(x+5)', solution: 'x^2-25', result: true }
+                { value: '(x-5)(x+5)', solution: 'x^2-25', result: true },
             ];
             const script =
                 'self.postMessage(Formula(e.data.value).equals(e.data.solution));';

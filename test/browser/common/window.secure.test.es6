@@ -28,13 +28,13 @@ describe('window.secure', () => {
             value = randomValue();
         });
 
-        it('it should write', done => {
+        it('it should write', (done) => {
             secureStorage
                 .setItem(key, value)
-                .then(k => {
+                .then((k) => {
                     expect(k).to.equal(key);
                 })
-                .catch(err => {
+                .catch((err) => {
                     expect(err).to.be.null;
                 })
                 .always(() => {
@@ -42,13 +42,13 @@ describe('window.secure', () => {
                 });
         });
 
-        it('it should read', done => {
+        it('it should read', (done) => {
             secureStorage
                 .getItem(key)
-                .then(v => {
+                .then((v) => {
                     expect(v).to.deep.equal(value);
                 })
-                .catch(err => {
+                .catch((err) => {
                     expect(err).to.be.null;
                 })
                 .always(() => {
@@ -56,13 +56,13 @@ describe('window.secure', () => {
                 });
         });
 
-        it('it should clear', done => {
+        it('it should clear', (done) => {
             secureStorage
                 .removeItem(key)
-                .then(k => {
+                .then((k) => {
                     expect(k).to.equal(key);
                 })
-                .catch(err => {
+                .catch((err) => {
                     expect(err).to.be.null;
                 })
                 .always(() => {

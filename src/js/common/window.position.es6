@@ -16,7 +16,7 @@ const {
     _outerHeight,
     _outerWidth,
     getComputedStyles,
-    getOffset
+    getOffset,
 } = window.kendo;
 const Matrix = window.WebKitCSSMatrix || window.DOMMatrix;
 
@@ -74,12 +74,12 @@ export function containerBoundaries(container, element) {
     return {
         x: {
             min: minX,
-            max: maxX
+            max: maxX,
         },
         y: {
             min: minY,
-            max: maxY
-        }
+            max: maxY,
+        },
     };
 }
 
@@ -141,7 +141,7 @@ export function getElementCenter(element, stage, scale) {
                 stageOffset.top +
                 rect.height / 2 +
                 ownerDocument.scrollTop()) /
-            scale
+            scale,
     };
 }
 
@@ -190,7 +190,7 @@ export function getMousePosition(e, stage) {
     const stageOffset = stage.offset();
     const mouse = {
         x: clientX - stageOffset.left + ownerDocument.scrollLeft(),
-        y: clientY - stageOffset.top + ownerDocument.scrollTop()
+        y: clientY - stageOffset.top + ownerDocument.scrollTop(),
     };
     return mouse;
 }
@@ -250,7 +250,7 @@ export function getRotatedPoint(point, center, radians) {
         y:
             center.y +
             (point.x - center.x) * Math.sin(radians) +
-            (point.y - center.y) * Math.cos(radians)
+            (point.y - center.y) * Math.cos(radians),
     };
 }
 

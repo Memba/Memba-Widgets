@@ -7,7 +7,7 @@
 const class2type = {};
 'Boolean Number String Function Array Date RegExp Object Error Symbol'
     .split(' ')
-    .forEach(name => {
+    .forEach((name) => {
         class2type[`[object ${name}]`] = name.toLowerCase();
     });
 const { toString, hasOwnProperty } = class2type;
@@ -63,7 +63,7 @@ const $ = {
         return typeof obj === 'object' || typeof obj === 'function'
             ? class2type[toString.call(obj)] || 'object'
             : typeof obj;
-    }
+    },
 };
 
 /**
@@ -156,7 +156,7 @@ assert.format = (message, ...values) =>
  */
 assert.hasLength = (el, message) => {
     if (!el || !el.length) {
-        throw new TypeError(message);
+        throw new Error(message);
     }
 };
 
@@ -367,79 +367,80 @@ assert.typeOrUndef = (type, value, message) => {
 
 assert.messages = {
     enum: {
-        default: '`{0}` is expected to be any of `{1}`'
+        default: '`{0}` is expected to be any of `{1}`',
     },
     equal: {
-        default: '`{0}` is expected to equal `{1}`'
+        default: '`{0}` is expected to equal `{1}`',
     },
     extends: {
-        default: '`{0}` is expected to extend `{1}`'
+        default: '`{0}` is expected to extend `{1}`',
     },
     extendsOrUndef: {
-        default: '`{0}` is expected to extend `{1}` or be undefined'
+        default: '`{0}` is expected to extend `{1}` or be undefined',
     },
     hasLength: {
-        default: '`{0}` has neither length nor any item'
+        default: '`{0}` has neither length nor any item',
     },
     instanceof: {
-        default: '`{0}` is expected to be an instance of `{1}`'
+        default: '`{0}` is expected to be an instance of `{1}`',
     },
     isArray: {
-        default: '`{0}` is expected to be an array'
+        default: '`{0}` is expected to be an array',
     },
     isDefined: {
-        default: '`{0}` is expected to be not undefined'
+        default: '`{0}` is expected to be not undefined',
     },
     isEmptyObject: {
-        default: '`{0}` is expected to be an empty object'
+        default: '`{0}` is expected to be an empty object',
     },
     isFunction: {
-        default: '`{0}` is expected to be a function'
+        default: '`{0}` is expected to be a function',
     },
     isNonEmptyPlainObject: {
-        default: '`{0}` is expected to be a plain non-empty object'
+        default: '`{0}` is expected to be a plain non-empty object',
     },
     isNonEmptyPlainObjectOrUndef: {
-        default: '`{0}` is expected to be undefined or a plain non-empty object'
+        default:
+            '`{0}` is expected to be undefined or a plain non-empty object',
     },
     isPlainObject: {
-        default: '`{0}` is expected to be a plain or empty object'
+        default: '`{0}` is expected to be a plain or empty object',
     },
     isPlainObjectOrUndef: {
-        default: '`{0}` is expected to be a plain or empty object or undefined'
+        default: '`{0}` is expected to be a plain or empty object or undefined',
     },
     isPoint: {
-        default: '`{0}` is expected to be a point {x, y}'
+        default: '`{0}` is expected to be a point {x, y}',
     },
     isUndefined: {
-        default: '`{0}` is expected to be undefined'
+        default: '`{0}` is expected to be undefined',
     },
     match: {
-        default: '`{0}` is expected to match `{1}`'
+        default: '`{0}` is expected to match `{1}`',
     },
     nullableInstanceOrUndef: {
         default:
-            '`{0}` is expected to be an instance of `{1}` or be null or undefined'
+            '`{0}` is expected to be an instance of `{1}` or be null or undefined',
     },
     nullableTypeOrUndef: {
-        default: '`{0}` is expected to have type `{1}` or be null or undefined'
+        default: '`{0}` is expected to have type `{1}` or be null or undefined',
     },
     ok: {
-        default: 'A statement is expected to be true'
+        default: 'A statement is expected to be true',
     },
     type: {
-        default: '`{0}` is expected to have type `{1}`'
+        default: '`{0}` is expected to have type `{1}`',
     },
     typeOrUndef: {
-        default: '`{0}` is expected to have type `{1}` or be undefined'
-    }
+        default: '`{0}` is expected to have type `{1}` or be undefined',
+    },
 };
 
 /**
  * Assert data source transport options
  * @param options
  */
-assert.crud = options => {
+assert.crud = (options) => {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -462,7 +463,7 @@ assert.crud = options => {
  * Assert rapi interface
  * @param rapi
  */
-assert.rapi = rapi => {
+assert.rapi = (rapi) => {
     assert.isFunction(
         rapi.create,
         assert.format(assert.messages.isFunction.default, 'rapi.create')

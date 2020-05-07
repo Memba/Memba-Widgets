@@ -12,7 +12,7 @@ import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     enumerateDevices,
     getUserMedia,
-    createAudioMeter
+    createAudioMeter,
 } from '../../../src/js/common/window.media.es6';
 
 const {
@@ -23,7 +23,7 @@ const {
     MediaStream,
     Modernizr,
     navigator: { userAgent },
-    ScriptProcessorNode
+    ScriptProcessorNode,
 } = window;
 const { expect } = chai;
 
@@ -36,9 +36,9 @@ if (!Modernizr.getusermedia || userAgent.indexOf('HeadlessChrome') > -1) {
 } else {
     describe('window.media', () => {
         describe('enumerateDevices', () => {
-            it('It should enumerate devices', done => {
+            it('It should enumerate devices', (done) => {
                 enumerateDevices()
-                    .then(devices => {
+                    .then((devices) => {
                         try {
                             expect(devices)
                                 .to.be.an(CONSTANTS.ARRAY)
@@ -63,9 +63,9 @@ if (!Modernizr.getusermedia || userAgent.indexOf('HeadlessChrome') > -1) {
         });
 
         describe('getUserMedia', () => {
-            it('It should get user media', done => {
+            it('It should get user media', (done) => {
                 getUserMedia()
-                    .then(stream => {
+                    .then((stream) => {
                         try {
                             expect(stream).to.be.an.instanceof(MediaStream);
                             done();

@@ -23,7 +23,7 @@ const {
     ns,
     support,
     template,
-    ui: { DataBoundWidget, ListView, plugin, Sortable, Tooltip }
+    ui: { DataBoundWidget, ListView, plugin, Sortable, Tooltip },
     // unbind
 } = window.kendo;
 const logger = new Logger('widgets.imagelist');
@@ -91,7 +91,7 @@ const ImageList = DataBoundWidget.extend({
             // Also it cannot enforce required="required" which is also needed to prevent empty inputs
             type: 'text',
             required: 'required',
-            pattern: '^\\\\S.{0,99}$'
+            pattern: '^\\\\S.{0,99}$',
         },
         autoBind: true,
         dataSource: [],
@@ -99,13 +99,13 @@ const ImageList = DataBoundWidget.extend({
         requireImages: false, // whether images are required
         messages: {
             toolbar: {
-                add: 'Add'
+                add: 'Add',
             },
             validation: {
                 text: 'An alternate text of 1 to 100 characters is required.',
-                url: 'An image url is required.'
-            }
-        }
+                url: 'An image url is required.',
+            },
+        },
     },
 
     /**
@@ -166,7 +166,7 @@ const ImageList = DataBoundWidget.extend({
                         .find('input.k-textbox:not(.k-state-disabled)')
                         .change()
                         .blur();
-                }
+                },
             })
             .data('kendoListView');
 
@@ -191,7 +191,7 @@ const ImageList = DataBoundWidget.extend({
                         htmlEncode(target.attr('alt')),
                         window.encodeURI(target.attr('src'))
                     );
-                }
+                },
             })
             .data('kendoTooltip');
     },
@@ -364,7 +364,7 @@ const ImageList = DataBoundWidget.extend({
                         );
                         dataSource.remove(dataItem);
                         dataSource.insert(newIndex, dataItem);
-                    }
+                    },
                 })
                 .data('kendoSortable');
         }
@@ -460,7 +460,7 @@ const ImageList = DataBoundWidget.extend({
         // Destroy widget
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

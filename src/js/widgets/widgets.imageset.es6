@@ -16,7 +16,7 @@ const {
     destroy,
     htmlEncode,
     keys,
-    ui: { plugin, DataBoundWidget }
+    ui: { plugin, DataBoundWidget },
 } = window.kendo;
 const logger = new Logger('widgets.imageset');
 const NS = '.kendoImageSet';
@@ -57,7 +57,7 @@ const ImageSet = DataBoundWidget.extend({
         height: 100,
         style: '',
         value: null,
-        width: 100
+        width: 100,
     },
 
     /**
@@ -125,7 +125,7 @@ const ImageSet = DataBoundWidget.extend({
                 $(`<${CONSTANTS.DIV}/>`)
                     .attr({
                         role: 'button',
-                        style: options.style
+                        style: options.style,
                     })
                     .css({
                         cursor: 'pointer',
@@ -133,7 +133,7 @@ const ImageSet = DataBoundWidget.extend({
                         backgroundRepeat: 'no-repeat',
                         backgroundSize: 'cover',
                         display: 'inline-block',
-                        outline: 0
+                        outline: 0,
                     })
                     .height(options.height)
                     .width(options.width)
@@ -303,7 +303,7 @@ const ImageSet = DataBoundWidget.extend({
         const image = dataSource.get(this.value());
         if (image) {
             wrapper.attr({ title: htmlEncode(image.text) }).css({
-                backgroundImage: `url(${window.encodeURI(image.url)})`
+                backgroundImage: `url(${window.encodeURI(image.url)})`,
             });
         }
         logger.debug({ method: 'refresh', message: 'Widget refreshed' });
@@ -322,7 +322,7 @@ const ImageSet = DataBoundWidget.extend({
         DataBoundWidget.fn.destroy.call(this);
         destroy(wrapper);
         logger.debug({ method: 'destroy', message: 'Widget destroyed' });
-    }
+    },
 });
 
 /**

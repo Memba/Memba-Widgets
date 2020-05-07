@@ -37,7 +37,7 @@ const {
     ns,
     roleSelector,
     unbind,
-    ui: { DataBoundWidget, ComboBox, Grid, plugin }
+    ui: { DataBoundWidget, ComboBox, Grid, plugin },
 } = window.kendo;
 const logger = new Logger('widgets.styleeditor');
 
@@ -147,8 +147,8 @@ function borderStyle(container, options) {
             'none',
             'outset',
             'ridge',
-            'solid'
-        ]
+            'solid',
+        ],
     });
 }
 
@@ -162,7 +162,7 @@ function cssSize(container, options) {
     // https://www.w3schools.com/cssref/css_units.asp
     return unitInput.bind(this)(container, options, {
         units: ['%', 'em', 'px', 'rem', 'vh', 'vw'],
-        nonUnits: ['auto', 'inherit', 'initial']
+        nonUnits: ['auto', 'inherit', 'initial'],
     });
 }
 
@@ -203,8 +203,8 @@ function fontFamily(container, options) {
             'Georgia',
             'Times New Roman',
             'Trebuchet MS',
-            'Verdana'
-        ]
+            'Verdana',
+        ],
     });
 }
 
@@ -217,7 +217,7 @@ function fontFamily(container, options) {
 function fontStyle(container, options) {
     // https://www.w3schools.com/cssref/pr_font_font-style.asp
     return comboBox.bind(this)(container, options, {
-        dataSource: ['inherit', 'initial', 'italic', 'normal', 'oblique']
+        dataSource: ['inherit', 'initial', 'italic', 'normal', 'oblique'],
     });
 }
 
@@ -244,8 +244,8 @@ function fontWeight(container, options) {
             'inherit',
             'initial',
             'lighter',
-            'normal'
-        ]
+            'normal',
+        ],
     });
 }
 
@@ -258,7 +258,14 @@ function fontWeight(container, options) {
 function textAlign(container, options) {
     // https://www.w3schools.com/cssref/pr_text_text-align.asp
     return comboBox.bind(this)(container, options, {
-        dataSource: ['center', 'inherit', 'initial', 'justify', 'left', 'right']
+        dataSource: [
+            'center',
+            'inherit',
+            'initial',
+            'justify',
+            'left',
+            'right',
+        ],
     });
 }
 
@@ -277,8 +284,8 @@ function textDecoration(container, options) {
             'line-through',
             'none',
             'overline',
-            'underline'
-        ]
+            'underline',
+        ],
     });
 }
 
@@ -303,8 +310,8 @@ function verticalAlign(container, options) {
             'super',
             'text-bottom',
             'text-top',
-            'top'
-        ]
+            'top',
+        ],
     });
 }
 
@@ -325,7 +332,7 @@ const CSS_STYLES = [
     { name: 'opacity', value: '1' },
     { name: 'text-align', value: 'center', editor: textAlign },
     { name: 'text-decoration', value: 'underline', editor: textDecoration },
-    { name: 'vertical-align', value: 'middle', editor: verticalAlign }
+    { name: 'vertical-align', value: 'middle', editor: verticalAlign },
     // TODO: box-sizing, height, width, background-image, background-position, ...
 ];
 
@@ -364,17 +371,17 @@ const StyleEditor = DataBoundWidget.extend({
         messages: {
             columns: {
                 name: 'Name',
-                value: 'Value'
+                value: 'Value',
             },
             toolbar: {
                 create: 'New Style',
-                destroy: 'Delete'
+                destroy: 'Delete',
             },
             validation: {
                 name: 'Name is required',
-                value: 'Value is required'
-            }
-        }
+                value: 'Value is required',
+            },
+        },
     },
 
     /**
@@ -421,7 +428,7 @@ const StyleEditor = DataBoundWidget.extend({
                     if (Array.isArray(style) && style.length === 2) {
                         data.push({
                             name: style[0].trim(),
-                            value: style[1].trim()
+                            value: style[1].trim(),
                         });
                     }
                 }
@@ -483,14 +490,14 @@ const StyleEditor = DataBoundWidget.extend({
                         field: 'name',
                         title: options.messages.columns.name,
                         editor: that._cssNameEditor.bind(that),
-                        template: '#=name#'
+                        template: '#=name#',
                     },
                     {
                         field: 'value',
                         title: options.messages.columns.value,
                         editor: that._cssValueEditor.bind(that),
-                        template: '#=value#'
-                    }
+                        template: '#=value#',
+                    },
                 ],
                 dataBound: that._onDataBound.bind(that),
                 dataSource: that._dataSource,
@@ -503,8 +510,8 @@ const StyleEditor = DataBoundWidget.extend({
                 sortable: true,
                 toolbar: [
                     { name: 'create', text: options.messages.toolbar.create },
-                    { name: 'destroy', text: options.messages.toolbar.destroy }
-                ]
+                    { name: 'destroy', text: options.messages.toolbar.destroy },
+                ],
             })
             .data('kendoGrid');
     },
@@ -552,7 +559,7 @@ const StyleEditor = DataBoundWidget.extend({
                 },
                 dataSource: { data: CSS_STYLES },
                 dataTextField: 'name',
-                dataValueField: 'name'
+                dataValueField: 'name',
             })
             .data('kendoComboBox');
         // The workaround for validation to work is to set the name after initializing the kendo ui widget
@@ -575,7 +582,7 @@ const StyleEditor = DataBoundWidget.extend({
             .children()
             .first()
             .text();
-        const found = CSS_STYLES.filter(item => item.name === name);
+        const found = CSS_STYLES.filter((item) => item.name === name);
         // Switch to the corresponding editor or fallback to a simple textbox
         if (
             Array.isArray(found) &&
@@ -709,18 +716,18 @@ const StyleEditor = DataBoundWidget.extend({
                         name: {
                             type: 'string',
                             validation: {
-                                required: true
-                            }
+                                required: true,
+                            },
                         },
                         value: {
                             type: 'string',
                             validation: {
-                                required: true
-                            }
-                        }
-                    }
-                }
-            }
+                                required: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
     },
 
@@ -855,7 +862,7 @@ const StyleEditor = DataBoundWidget.extend({
         destroy(wrapper);
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);
-    }
+    },
 });
 
 /**

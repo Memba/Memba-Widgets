@@ -24,7 +24,7 @@ const {
     format,
     fx,
     ns,
-    ui: { plugin, Slider, Widget }
+    ui: { plugin, Slider, Widget },
 } = window.kendo;
 
 const logger = new Logger('widgets.audiovideo');
@@ -46,16 +46,16 @@ const MEDIA_EVENTS = {
     TIMEUPDATE: 'timeupdate',
     VOLUMECHANGE: 'volumechange',
     PAUSE: 'pause',
-    ENDED: 'ended'
+    ENDED: 'ended',
 };
 const ACTIONS = {
     PLAY: 'play',
     VOLUME: 'volume',
-    FULL_SCREEN: 'full' // full screen
+    FULL_SCREEN: 'full', // full screen
 };
 const MODES = {
     AUDIO: 'audio',
-    VIDEO: 'video'
+    VIDEO: 'video',
 };
 const ICONS = {
     // @see https://docs.telerik.com/kendo-ui/styles-and-layout/icons-web
@@ -64,7 +64,7 @@ const ICONS = {
     PAUSE: 'k-i-pause',
     PLAY: 'k-i-play',
     VOLUME_DOWN: 'k-i-volume-down',
-    VOLUME_UP: 'k-i-volume-up'
+    VOLUME_UP: 'k-i-volume-up',
 };
 
 /**
@@ -169,10 +169,10 @@ const AudioVideo = Widget.extend({
             play: 'Play/Pause',
             mute: 'Mute/Unmute',
             fullScreen: 'Full Screen',
-            notSupported: 'Media not supported'
+            notSupported: 'Media not supported',
         },
         mode: MODES.AUDIO,
-        toolbarHeight: 48 // For video only
+        toolbarHeight: 48, // For video only
     },
 
     /*
@@ -184,7 +184,7 @@ const AudioVideo = Widget.extend({
      */
     modes: {
         audio: MODES.AUDIO,
-        video: MODES.VIDEO
+        video: MODES.VIDEO,
     },
 
     /**
@@ -230,7 +230,7 @@ const AudioVideo = Widget.extend({
             files,
             assert.format(assert.messages.isArray.default, 'options.files')
         );
-        files.forEach(url => {
+        files.forEach((url) => {
             if ($.type(url) === CONSTANTS.STRING && url.length) {
                 $('<source/>')
                     .attr({ src: url, type: typeFormatter(url) })
@@ -483,7 +483,7 @@ const AudioVideo = Widget.extend({
         const { element, options } = this;
         const css = {
             boxSizing: 'border-box',
-            width: '100%'
+            width: '100%',
         };
         if (options.mode === MODES.VIDEO) {
             $.extend(css, {
@@ -493,7 +493,7 @@ const AudioVideo = Widget.extend({
                 // We hide the toolbar until we get loadedmetadata to resize it properly.
                 // We cannot use display:none which yields incorrect measurements
                 visibility: 'hidden',
-                zIndex: 99
+                zIndex: 99,
             });
         }
         this.toolbar = $(`<${CONSTANTS.DIV}/>`)
@@ -510,9 +510,7 @@ const AudioVideo = Widget.extend({
         this._setSeekerSlider(1);
 
         // Remaining time span
-        $(`<${CONSTANTS.SPAN}/>`)
-            .addClass(TIME_CLASS)
-            .appendTo(this.toolbar);
+        $(`<${CONSTANTS.SPAN}/>`).addClass(TIME_CLASS).appendTo(this.toolbar);
 
         // Mute/Unmute button
         $(
@@ -569,9 +567,9 @@ const AudioVideo = Widget.extend({
                 showButtons: false,
                 tickPlacement: 'none',
                 tooltip: {
-                    template: data => toHMS(data.value)
+                    template: (data) => toHMS(data.value),
                 },
-                change: this._onSeekerSliderChange.bind(this)
+                change: this._onSeekerSliderChange.bind(this),
             })
             .data('kendoSlider');
     },
@@ -604,7 +602,7 @@ const AudioVideo = Widget.extend({
                 showButtons: false,
                 tickPlacement: 'none',
                 tooltip: { format: '{0:p0}' },
-                change: this._onVolumeSliderChange.bind(this)
+                change: this._onVolumeSliderChange.bind(this),
             })
             .data('kendoSlider');
     },
@@ -872,7 +870,7 @@ const AudioVideo = Widget.extend({
             options,
             seekerSlider,
             toolbar,
-            volumeSlider
+            volumeSlider,
         } = this;
         if (
             media instanceof $ &&
@@ -905,18 +903,18 @@ const AudioVideo = Widget.extend({
                 fontSize: 0.7 * fontRatio * radius,
                 height: radius,
                 width: radius,
-                margin
+                margin,
             });
             buttons.children('svg').attr({
                 height: Math.max(radius - 10, 0),
-                width: Math.max(radius - 10, 0)
+                width: Math.max(radius - 10, 0),
             });
             const buttonSize = radius + 2 * margin;
             // Resize timer
             timeDiv.css({
                 fontSize: fontRatio * radius,
                 margin: `0 ${margin}`,
-                lineHeight: '1em'
+                lineHeight: '1em',
             });
             // timeDiv.width(timeDiv.width()); // we do not want the width to change when the number of digits drops
             const timeSize = timeDiv.width() + 2 * margin;
@@ -941,12 +939,12 @@ const AudioVideo = Widget.extend({
                 const mT = -4; // parseInt(tracks.css('margin-top'), 10);
                 tracks.css({
                     height: 2 * ratio * hT,
-                    marginTop: 2 * ratio * mT
+                    marginTop: 2 * ratio * mT,
                 });
                 const selections = toolbar.find('.k-slider-selection');
                 selections.css({
                     height: 2 * ratio * hT,
-                    marginTop: 2 * ratio * mT
+                    marginTop: 2 * ratio * mT,
                 });
                 const handles = toolbar.find('.k-draghandle');
                 // var tH = -4; // parseInt(handles.css('top'), 10);
@@ -957,7 +955,7 @@ const AudioVideo = Widget.extend({
                     // top: 2 * ratio * mT,
                     height: 4 * ratio * hT,
                     width: 4 * ratio * hT,
-                    borderRadius: 2 * ratio * hT
+                    borderRadius: 2 * ratio * hT,
                 });
                 // Reset the position of the seeker handle
                 handles.first().css({ left: -2 * ratio * hT });
@@ -1004,20 +1002,14 @@ const AudioVideo = Widget.extend({
                             `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.TOUCHSTART}${NS}`,
                             () => {
                                 // toolbar.show(TDURATION);
-                                fx(toolbar)
-                                    .expand('vertical')
-                                    .stop()
-                                    .play();
+                                fx(toolbar).expand('vertical').stop().play();
                             }
                         )
                         .on(
                             `${CONSTANTS.MOUSELEAVE}${NS} ${CONSTANTS.FOCUSOUT}${NS}`,
                             () => {
                                 // toolbar.hide(DURATION);
-                                fx(toolbar)
-                                    .expand('vertical')
-                                    .stop()
-                                    .reverse();
+                                fx(toolbar).expand('vertical').stop().reverse();
                             }
                         );
                 }
@@ -1052,7 +1044,7 @@ const AudioVideo = Widget.extend({
         element.removeClass(WIDGET_CLASS);
         destroy(element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

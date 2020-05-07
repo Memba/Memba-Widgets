@@ -17,7 +17,7 @@ import Logger from '../common/window.logger.es6';
 import {
     getElementCenter,
     getMousePosition,
-    getTransformScale
+    getTransformScale,
 } from '../common/window.position.es6';
 import { randomColor } from '../common/window.util.es6';
 
@@ -32,7 +32,7 @@ const {
     geometry,
     ns,
     ui: { DataBoundWidget, plugin },
-    unbind
+    unbind,
 } = window.kendo;
 const logger = new Logger('widgets.connector');
 const WIDGET = 'kendoConnector';
@@ -89,7 +89,7 @@ const Connector = DataBoundWidget.extend({
         // in play mode: createSurface = true, enabled = true
         // in review mode: createSurface = true, enable = false
         createSurface: true,
-        enable: true
+        enable: true,
     },
 
     /**
@@ -231,7 +231,7 @@ const Connector = DataBoundWidget.extend({
             .on(
                 applyEventMap(CONSTANTS.MAPDOWN, NS.substr(1)),
                 CONSTANTS.DOT + WIDGET_CLASS,
-                e => {
+                (e) => {
                     e.preventDefault(); // prevents from selecting the div
                     element = $(e.currentTarget);
                     const elementWidget = element.data(WIDGET);
@@ -276,8 +276,8 @@ const Connector = DataBoundWidget.extend({
                             stroke: {
                                 color: elementWidget.options.color,
                                 lineCap: PATH_LINECAP,
-                                width: PATH_WIDTH
-                            }
+                                width: PATH_WIDTH,
+                            },
                         });
                         path.moveTo(center.left, center.top);
                         path.lineTo(mouse.x / scale, mouse.y / scale);
@@ -285,7 +285,7 @@ const Connector = DataBoundWidget.extend({
                     }
                 }
             )
-            .on(applyEventMap(CONSTANTS.MAPMOVE, NS.substr(1)), e => {
+            .on(applyEventMap(CONSTANTS.MAPMOVE, NS.substr(1)), (e) => {
                 if (element instanceof $ && path instanceof Path) {
                     const elementWidget = element.data(WIDGET);
                     assert.instanceof(
@@ -323,7 +323,7 @@ const Connector = DataBoundWidget.extend({
                     NS.substr(1)
                 ),
                 CONSTANTS.DOT + WIDGET_CLASS,
-                e => {
+                (e) => {
                     if (element instanceof $ && path instanceof Path) {
                         /* eslint-disable prettier/prettier */
                         const targetElement =
@@ -439,7 +439,7 @@ const Connector = DataBoundWidget.extend({
             this.dataSource.filter({
                 field: 'type',
                 operator: 'eq',
-                value: DATA_TYPE
+                value: DATA_TYPE,
             });
 
             // trigger a read on the dataSource if one hasn't happened yet
@@ -509,13 +509,13 @@ const Connector = DataBoundWidget.extend({
                 const destinationWidget = id < targetId ? targetWidget : this;
                 const connections = dataSource.view();
                 const originConnection = connections.find(
-                    connection =>
+                    (connection) =>
                         connection.type === DATA_TYPE && // The dataSource is already filtered, so this might be redundant
                         (connection.id === originId ||
                             connection.data.target === originId)
                 );
                 const destinationConnection = connections.find(
-                    connection =>
+                    (connection) =>
                         connection.type === DATA_TYPE && // The dataSource is already filtered, so this might be redundant
                         (connection.id === destinationId ||
                             connection.data.target === destinationId)
@@ -539,8 +539,8 @@ const Connector = DataBoundWidget.extend({
                         id: originId,
                         data: {
                             target: destinationId,
-                            color: randomColor()
-                        }
+                            color: randomColor(),
+                        },
                     });
                     originWidget._value = destinationWidget.options.targetValue;
                     destinationWidget._value = originWidget.options.targetValue;
@@ -553,7 +553,7 @@ const Connector = DataBoundWidget.extend({
                         )
                     ) {
                         originWidget.trigger(CONSTANTS.CHANGE, {
-                            value: originWidget._value
+                            value: originWidget._value,
                         });
                     }
                     // if (destinationWidget.element[0].kendoBindingTarget && !(destinationWidget.element[0].kendoBindingTarget.source instanceof kidoju.data.PageComponent)) {
@@ -565,7 +565,7 @@ const Connector = DataBoundWidget.extend({
                         )
                     ) {
                         destinationWidget.trigger(CONSTANTS.CHANGE, {
-                            value: destinationWidget._value
+                            value: destinationWidget._value,
                         });
                     }
                 }
@@ -599,7 +599,7 @@ const Connector = DataBoundWidget.extend({
             )
         );
         const found = that.dataSource.view().find(
-            connection =>
+            (connection) =>
                 connection.type === DATA_TYPE && // The dataSource is already filtered, so this might be redundant
                 (connection.id === id || connection.data.target === id)
         );
@@ -652,7 +652,7 @@ const Connector = DataBoundWidget.extend({
             // Clear surface
             surface.clear();
             // Redraw all connections
-            that.dataSource.view().forEach(connection => {
+            that.dataSource.view().forEach((connection) => {
                 const origin = container.find(
                     format(
                         ATTRIBUTE_SELECTOR,
@@ -690,8 +690,8 @@ const Connector = DataBoundWidget.extend({
                         stroke: {
                             color: connection.data.color,
                             lineCap: PATH_LINECAP,
-                            width: PATH_WIDTH
-                        }
+                            width: PATH_WIDTH,
+                        },
                     })
                         .moveTo(originCenter.left, originCenter.top)
                         .lineTo(destinationCenter.left, destinationCenter.top);
@@ -743,7 +743,7 @@ const Connector = DataBoundWidget.extend({
             container.removeData(SURFACE);
         }
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

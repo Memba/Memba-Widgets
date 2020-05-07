@@ -16,7 +16,7 @@ import {
     getElementCenter,
     getMousePosition,
     getTransformRotation,
-    getTransformScale
+    getTransformScale,
 } from '../common/window.position.es6';
 import { isAnyArray } from '../common/window.util.es6';
 
@@ -26,7 +26,7 @@ const {
     format,
     geometry,
     ns,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.chargrid');
 
@@ -85,7 +85,7 @@ const CharGrid = Widget.extend({
         valueColor: '#9999b6',
         locked: [],
         value: [],
-        enable: true
+        enable: true,
     },
 
     /**
@@ -308,14 +308,14 @@ const CharGrid = Widget.extend({
         grid.append(
             new Rect(rectGeometry, {
                 fill: { color: gridFill },
-                stroke: { color: gridStroke, width: STROKE_WIDTH }
+                stroke: { color: gridStroke, width: STROKE_WIDTH },
             })
         );
         // rows
         for (let row = 1; row < rows; row++) {
             grid.append(
                 new Path({
-                    stroke: { color: gridStroke, width: STROKE_WIDTH }
+                    stroke: { color: gridStroke, width: STROKE_WIDTH },
                 })
                     .moveTo(0, (height * row) / rows)
                     .lineTo(width, (height * row) / rows)
@@ -325,7 +325,7 @@ const CharGrid = Widget.extend({
         for (let col = 1; col < columns; col++) {
             grid.append(
                 new Path({
-                    stroke: { color: gridStroke, width: STROKE_WIDTH }
+                    stroke: { color: gridStroke, width: STROKE_WIDTH },
                 })
                     .moveTo((width * col) / columns, 0)
                     .lineTo((width * col) / columns, height)
@@ -372,16 +372,16 @@ const CharGrid = Widget.extend({
             const rectGeometry = new geometry.Rect(
                 [
                     (c * width) / columns, // left or x
-                    (r * height) / rows // top or y
+                    (r * height) / rows, // top or y
                 ],
                 [
                     width / columns, // width
-                    height / rows // height
+                    height / rows, // height
                 ]
             );
             rect = new Rect(rectGeometry, {
                 fill: { color: fillColor },
-                stroke: { color: gridStroke, width: STROKE_WIDTH }
+                stroke: { color: gridStroke, width: STROKE_WIDTH },
             });
         }
         return rect;
@@ -419,7 +419,7 @@ const CharGrid = Widget.extend({
                     : { color: valueColor, width: 1 },
                 fill: this.isLocked(r, c)
                     ? { color: lockedColor }
-                    : { color: valueColor }
+                    : { color: valueColor },
             };
             text = new Text(char, new geometry.Point(0, 0), params);
             const { size } = text.bbox();
@@ -525,7 +525,7 @@ const CharGrid = Widget.extend({
         ) {
             const scroll = {
                 left: $(window).scrollLeft(),
-                top: $(window).scrollTop()
+                top: $(window).scrollTop(),
             };
             this._selectedCell = { col: c, row: r };
             this.input.focus();
@@ -576,7 +576,7 @@ const CharGrid = Widget.extend({
         // Find the mouse coordinates against the center
         const pos = {
             x: mouse.x / scale - center.left,
-            y: mouse.y / scale - center.top
+            y: mouse.y / scale - center.top,
         };
         // Project the mouse coordinates to annihilate the rotation and find col and row
         const r = Math.floor(
@@ -773,7 +773,7 @@ const CharGrid = Widget.extend({
         destroy(element);
         // remove widget class
         element.removeClass(WIDGET_CLASS);
-    }
+    },
 });
 
 /**

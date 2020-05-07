@@ -35,7 +35,7 @@ const MathInputAdapter = BaseAdapter.extend({
                 .css({
                     width: '100%',
                     fontSize: '1.25em',
-                    minHeight: '4.6em'
+                    minHeight: '4.6em',
                 })
                 .attr({
                     name: settings.field,
@@ -44,7 +44,7 @@ const MathInputAdapter = BaseAdapter.extend({
                         CONSTANTS.BIND,
                         `value: ${settings.field}`
                     ),
-                    ...attributes
+                    ...attributes,
                 })
                 .appendTo(container);
             input.kendoMathInput({
@@ -61,14 +61,14 @@ const MathInputAdapter = BaseAdapter.extend({
                         'expressions',
                         'sets',
                         'matrices',
-                        'statistics'
+                        'statistics',
                         // 'units',
                         // 'chemistry'
-                    ]
-                }
+                    ],
+                },
             });
         };
-    }
+    },
 });
 
 /**

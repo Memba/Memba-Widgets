@@ -21,7 +21,7 @@ import Logger from '../common/window.logger.es6';
 const {
     culture,
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.unitinput');
 
@@ -72,7 +72,7 @@ const UnitInput = Widget.extend({
         min: 0,
         nonUnits: [], // These choices in the drop down list disable the numeric entry
         step: 1,
-        units: []
+        units: [],
     },
 
     /**
@@ -142,7 +142,7 @@ const UnitInput = Widget.extend({
                 format: options.format,
                 max: options.max,
                 min: options.min,
-                step: options.step
+                step: options.step,
             })
             .data('kendoNumericTextBox');
         this.dropDownList = $(`<${CONSTANTS.SELECT}/>`)
@@ -150,8 +150,8 @@ const UnitInput = Widget.extend({
             .kendoDropDownList({
                 change: this._onDropDownListChange.bind(this),
                 dataSource: {
-                    data: options.units.concat(options.nonUnits)
-                }
+                    data: options.units.concat(options.nonUnits),
+                },
             })
             .data('kendoDropDownList');
     },
@@ -200,7 +200,7 @@ const UnitInput = Widget.extend({
      */
     enable(enable) {
         const {
-            options: { nonUnits }
+            options: { nonUnits },
         } = this;
         this._enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
@@ -224,7 +224,7 @@ const UnitInput = Widget.extend({
         Widget.fn.destroy.call(this);
         destroy(this.element);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
-    }
+    },
 });
 
 /**

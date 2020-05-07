@@ -33,7 +33,7 @@ const FIXTURES = 'fixtures';
 const TOOL = 'highlighter';
 
 describe('tools.highlighter', () => {
-    before(done => {
+    before((done) => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
         }
@@ -85,9 +85,7 @@ describe('tools.highlighter', () => {
 
         it('getAttributeRows', () => {
             const rows = tool.getAttributeRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(9);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(9);
             expect(rows[0]).to.have.property('field', 'top');
             expect(rows[1]).to.have.property('field', 'left');
             expect(rows[2]).to.have.property('field', 'height');
@@ -121,9 +119,7 @@ describe('tools.highlighter', () => {
 
         it('getPropertyRows', () => {
             const rows = tool.getPropertyRows(component);
-            expect(rows)
-                .to.be.an(CONSTANTS.ARRAY)
-                .with.lengthOf(7);
+            expect(rows).to.be.an(CONSTANTS.ARRAY).with.lengthOf(7);
             expect(rows[0]).to.have.property('field', 'properties.name');
             expect(rows[1]).to.have.property('field', 'properties.question');
             expect(rows[2]).to.have.property('field', 'properties.solution');
@@ -222,7 +218,7 @@ describe('tools.highlighter', () => {
             expect(fn2).to.throw();
 
             // Test all stage TOOLS.STAGE_MODES
-            Object.values(TOOLS.STAGE_MODES).forEach(mode => {
+            Object.values(TOOLS.STAGE_MODES).forEach((mode) => {
                 const content = tool.getHtmlContent(component, mode);
                 expect(content).to.be.an.instanceOf($);
                 expect(content).to.match(CONSTANTS.DIV);

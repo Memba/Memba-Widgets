@@ -23,10 +23,10 @@ chai.use(sinonChai);
 const network = new Network({
     ajax: {
         url: 'https://www.kidoju.com/api/ping',
-        timeout: 5000
+        timeout: 5000,
     },
     enabled: true,
-    global: false
+    global: false,
 });
 
 /**
@@ -39,16 +39,16 @@ if (fixtures.length) {
         .appendTo(fixtures)
         .on('click', () => {
             // eslint-disable-next-line no-alert
-            network.check().then(status => window.alert(status));
+            network.check().then((status) => window.alert(status));
         });
 }
 
 describe('window.network', () => {
     describe('using default options', () => {
-        it('check', done => {
+        it('check', (done) => {
             network
                 .check()
-                .then(status => {
+                .then((status) => {
                     expect(status).to.be.true;
                     done();
                 })
@@ -78,12 +78,12 @@ describe('window.network', () => {
             network.enable(false);
         });
 
-        it('check', done => {
+        it('check', (done) => {
             const on = JSC.boolean()();
             network._setStatus(on);
             network
                 .check()
-                .then(status => {
+                .then((status) => {
                     expect(status).to.equal(on);
                     done();
                 })
@@ -140,17 +140,17 @@ describe('window.network', () => {
                 // @ see http://api.jquery.com/jquery.ajax/
                 ajax: {
                     url: 'https://www.kidoju.com/api/404',
-                    timeout: 5000
+                    timeout: 5000,
                 },
                 enabled: true,
-                global: false
+                global: false,
             });
         });
 
-        it('check', done => {
+        it('check', (done) => {
             network
                 .check()
-                .then(status => {
+                .then((status) => {
                     expect(status).to.be.true;
                     done();
                 })
@@ -172,17 +172,17 @@ describe('window.network', () => {
                 // @ see http://api.jquery.com/jquery.ajax/
                 ajax: {
                     url: 'https://www.kidojuxxxxxxxxx.com/api/ping',
-                    timeout: 5000
+                    timeout: 5000,
                 },
                 enabled: true,
-                global: false
+                global: false,
             });
         });
 
-        it('check', done => {
+        it('check', (done) => {
             network
                 .check()
-                .then(status => {
+                .then((status) => {
                     expect(status).to.be.false;
                     done();
                 })

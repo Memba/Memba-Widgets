@@ -29,7 +29,7 @@ import {
     multiQuizLibrary,
     numberLibrary,
     stringLibrary,
-    textLibrary
+    textLibrary,
 } from '../../../src/js/tools/util.libraries.es6';
 // import { tryCatch } from '../_misc/test.util.es6';
 
@@ -46,8 +46,8 @@ const sampleLibrary = [
     {
         key,
         formula: 'function (value, solution) {\n\treturn true;\n}',
-        editor
-    }
+        editor,
+    },
 ];
 const formulas = {
     empty: TOOLS.LIB_COMMENT,
@@ -60,7 +60,7 @@ const formulas = {
         JSON.stringify(params)
     )}`,
     anyFunction: 'function (a) {\n\treturn a;\n}',
-    custom: `function validate(value, solution, all) {\n\treturn "${JSC.string()()}";\n}`
+    custom: `function validate(value, solution, all) {\n\treturn "${JSC.string()()}";\n}`,
 };
 
 describe('util.libraries', () => {
@@ -220,10 +220,8 @@ describe('util.libraries', () => {
     });
 
     xdescribe('i18n', () => {
-        before(done => {
-            __.load('fr')
-                .then(done)
-                .catch(done);
+        before((done) => {
+            __.load('fr').then(done).catch(done);
         });
 
         it('It should internationalize names', () => {

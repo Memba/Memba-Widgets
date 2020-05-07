@@ -20,7 +20,7 @@ const {
     destroy,
     geometry,
     drawing: { Circle, Element, Group, Path, Rect, Surface },
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.line');
 // const NS = '.kendoLine';
@@ -30,7 +30,7 @@ const SHAPES = {
     CIRCLE: 'circle',
     DIAMOND: 'diamond',
     NONE: 'none',
-    SQUARE: 'square'
+    SQUARE: 'square',
 };
 
 /**
@@ -187,26 +187,26 @@ const Line = Widget.extend({
         name: 'Line',
         endCap: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: 1,
             scale: 3,
             shape: SHAPES.NONE,
             stroke: {
-                width: 0
-            }
+                width: 0,
+            },
         },
         graduations: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: 1,
             scale: 4,
             count: 0,
             stroke: {
                 color: '#999',
-                width: 2
-            }
+                width: 2,
+            },
         },
         line: {
             // fill: {},
@@ -217,32 +217,32 @@ const Line = Widget.extend({
                 // lineCap: 'butt',
                 // lineJoin: 'miter',
                 // opacity: 1,
-                width: 5
-            }
+                width: 5,
+            },
         },
         smallGraduations: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: 1,
             scale: 3,
             count: 0,
             stroke: {
                 color: '#999',
-                width: 1
-            }
+                width: 1,
+            },
         },
         startCap: {
             fill: {
-                color: '#999'
+                color: '#999',
             },
             opacity: 1,
             scale: 3,
             shape: SHAPES.NONE,
             stroke: {
-                width: 0
-            }
-        }
+                width: 0,
+            },
+        },
     },
 
     /**
@@ -263,7 +263,7 @@ const Line = Widget.extend({
         );
         this.wrapper = element.addClass(WIDGET_CLASS).css({
             touchAction: CONSTANTS.none, // Prevents scrolling (also pinching and zooming)
-            userSelect: CONSTANTS.none // Prevents selecting
+            userSelect: CONSTANTS.none, // Prevents selecting
             // TODO maybe we need to add height 100% if undefined - check html
         });
         this.surface = Surface.create(element);
@@ -305,13 +305,13 @@ const Line = Widget.extend({
      */
     _getLine(size) {
         const {
-            options: { line, startCap, endCap }
+            options: { line, startCap, endCap },
         } = this;
         const path = new Path({
             // cursor
             fill: line.fill,
             opacity: line.opacity,
-            stroke: line.stroke
+            stroke: line.stroke,
         });
         const lineWidth = normalizeNumber(((line || {}).stroke || {}).width);
         const startShift =
@@ -335,7 +335,7 @@ const Line = Widget.extend({
      */
     _getGraduations(size) {
         const {
-            options: { line, smallGraduations, graduations }
+            options: { line, smallGraduations, graduations },
         } = this;
         let group;
         // graduationCount is the number of primary graduations
@@ -369,7 +369,7 @@ const Line = Widget.extend({
                 const graduationPath = new Path({
                     fill: graduations.fill,
                     opacity: graduations.opacity,
-                    stroke: graduations.stroke
+                    stroke: graduations.stroke,
                 });
                 const graduationSpace =
                     (size.width - graduationWidth) / graduationCount;
@@ -384,7 +384,7 @@ const Line = Widget.extend({
                     const smallGraduationPath = new Path({
                         fill: smallGraduations.fill,
                         opacity: smallGraduations.opacity,
-                        stroke: smallGraduations.stroke
+                        stroke: smallGraduations.stroke,
                     });
                     const smallGraduationX =
                         graduationX +
@@ -415,7 +415,7 @@ const Line = Widget.extend({
      */
     _getStartCap(size) {
         const {
-            options: { line, startCap }
+            options: { line, startCap },
         } = this;
         const shape = normalizeShape((startCap || {}).shape);
         const capScale = normalizeNumber((startCap || {}).scale);
@@ -425,12 +425,12 @@ const Line = Widget.extend({
                 0,
                 (size.height - capScale * lineWidth) / 2
             ),
-            size: new geometry.Size(capScale * lineWidth, capScale * lineWidth)
+            size: new geometry.Size(capScale * lineWidth, capScale * lineWidth),
         };
         const options = {
             fill: startCap.fill,
             opacity: startCap.opacity,
-            stroke: startCap.stroke
+            stroke: startCap.stroke,
         };
         let cap;
         switch (shape) {
@@ -461,7 +461,7 @@ const Line = Widget.extend({
      */
     _getEndCap(size) {
         const {
-            options: { line, endCap }
+            options: { line, endCap },
         } = this;
         const shape = normalizeShape((endCap || {}).shape);
         const capScale = normalizeNumber((endCap || {}).scale);
@@ -471,12 +471,12 @@ const Line = Widget.extend({
                 size.width - capScale * lineWidth,
                 (size.height - capScale * lineWidth) / 2
             ),
-            size: new geometry.Size(capScale * lineWidth, capScale * lineWidth)
+            size: new geometry.Size(capScale * lineWidth, capScale * lineWidth),
         };
         const options = {
             fill: endCap.fill,
             opacity: endCap.opacity,
-            stroke: endCap.stroke
+            stroke: endCap.stroke,
         };
         let cap;
         switch (shape) {
@@ -507,7 +507,7 @@ const Line = Widget.extend({
         Widget.fn.destroy.call(this);
         logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(this.element);
-    }
+    },
 });
 
 /**

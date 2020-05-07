@@ -36,21 +36,21 @@ const {
     observable,
     roleSelector,
     ui,
-    ui: { Navigation, PropertyGrid, Stage }
+    ui: { Navigation, PropertyGrid, Stage },
 } = window.kendo;
 
 const Settings = Model.define({
     fields: {
         snapAngle: {
-            type: 'number'
+            type: 'number',
         },
         snapGrid: {
-            type: 'number'
+            type: 'number',
         },
         style: {
-            type: 'string'
-        }
-    }
+            type: 'string',
+        },
+    },
 });
 
 const $centerPane = $('#center-pane');
@@ -65,11 +65,11 @@ const viewModel = observable({
     stream: new LocalStream(),
     selectedPage: undefined,
     selectedComponent: undefined,
-    settings: new Settings()
+    settings: new Settings(),
 });
 
 // Bind change event to map rows
-viewModel.bind('change', e => {
+viewModel.bind('change', (e) => {
     // debugger;
     if (e.field === 'selectedPage') {
         e.sender.set('selectedComponent', undefined);
@@ -106,7 +106,7 @@ viewModel.bind('change', e => {
 });
 
 // Bind set event to ensure property grid changes are passed to viewModel when changing selectedPage or selectedComponent
-viewModel.bind('set', e => {
+viewModel.bind('set', (e) => {
     // IMPORTANT: by default changing selectedComponent does not trigger a blur event on the input holding the property grid value being edited if any.
     // So one may edit a component value in a property grid, click another component on stage, the selected component would then change on stage and in the property grid
     // and the value being edited would not have been changed in the view Model. Below is a fix.
@@ -155,7 +155,7 @@ $(() => {
             { id: 'delete', type: 'button', text: 'Delete Page' },
             { id: 'save', type: 'button', text: 'Save' },
             { id: 'reset', type: 'button', text: 'Reset' },
-            { id: 'play', type: 'button', text: 'Play', primary: true }
+            { id: 'play', type: 'button', text: 'Play', primary: true },
         ],
         click(e) {
             let explorer;
@@ -210,7 +210,7 @@ $(() => {
                 default:
                     break;
             }
-        }
+        },
     });
 
     // Load stream
@@ -239,8 +239,8 @@ $(() => {
                         max: 45,
                         smallStep: 1,
                         largeStep: 5,
-                        'data-tick-placement': 'none'
-                    }
+                        'data-tick-placement': 'none',
+                    },
                 },
                 {
                     field: 'snapGrid',
@@ -251,10 +251,10 @@ $(() => {
                         max: 100,
                         smallStep: 1,
                         largeStep: 10,
-                        'data-tick-placement': 'none'
-                    }
+                        'data-tick-placement': 'none',
+                    },
                 },
-                new StyleAdapter({ title: 'Page Style' }).getRow('style')
+                new StyleAdapter({ title: 'Page Style' }).getRow('style'),
             ]);
     });
 });

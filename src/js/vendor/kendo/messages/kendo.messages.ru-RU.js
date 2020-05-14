@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -583,6 +583,57 @@ $.extend(true, kendo.ui.Gantt.prototype.options.messages, {
     "year": "Год"
   }
 });
+}
+
+/* Filter messages */
+  
+if (kendo.ui.Filter) {
+  kendo.ui.Filter.prototype.options.messages = $.extend(
+  true,
+    kendo.ui.Filter.prototype.options.messages,
+      {
+        and: "И",
+        or: "Или",
+        apply: "Применить"
+      }
+  );
+}
+
+if (kendo.ui.Filter) {
+kendo.ui.Filter.prototype.options.operators = $.extend(
+true,
+kendo.ui.Filter.prototype.options.operators,
+{
+  date: {
+    eq: "равна",
+    gte: "после или равна",
+    gt: "после",
+    lte: "до или равна",
+    lt: "до",
+    neq: "не равна"
+  },
+  number: {
+    eq: "равно",
+    gte: "больше или равно",
+    gt: "больше",
+    lte: "меньше или равно",
+    lt: "меньше",
+    neq: "не равно"
+  },
+  string: {
+    endswith: "оканчивается на",
+    eq: "равно",
+    neq: "не равно",
+    startswith: "начинающимися на",
+    contains: "содержащими",
+    doesnotcontain: "не содержит"
+  },
+  enums: {
+    eq: "равно",
+    neq: "не равно"
+  }
+}
+);
 }
 
 })(window.kendo.jQuery);

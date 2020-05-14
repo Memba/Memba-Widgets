@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 });
             },
             _hint: function (element) {
-                return '<div class=\'k-header k-drag-clue\'>' + '<span class=\'k-icon k-drag-status\' />' + this.options.hintText(element) + '</div>';
+                return '<div class=\'k-header k-drag-clue\'>' + '<span class=\'k-icon k-drag-status\'></span>' + this.options.hintText(element) + '</div>';
             },
             _removeTouchHover: function () {
                 if (kendo.support.touch && this.hovered) {
@@ -86,7 +86,7 @@
                 if (newStatus) {
                     statusElement.className = 'k-icon k-drag-status ' + newStatus;
                 } else {
-                    return $.trim(statusElement.className.replace(/(p|k)-(icon|drag-status)/g, ''));
+                    return kendo.trim(statusElement.className.replace(/(p|k)-(icon|drag-status)/g, ''));
                 }
             },
             dragstart: function (e) {

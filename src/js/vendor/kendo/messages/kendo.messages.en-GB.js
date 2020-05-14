@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -423,7 +423,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "pdf": "Export to PDF",
     "save": "Save changes",
     "select": "Select",
-    "update": "Update"
+    "update": "Update",
+    "search": "Search..."
   },
   "editable": {
     "cancelDelete": "Cancel",
@@ -431,7 +432,6 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmDelete": "Delete"
   },
   "noRecords": "No records available.",
-  "search": "Search...",
   "groupHeader": "Press ctrl + space to group",
   "ungroupHeader": "Press ctrl + space to ungroup"
 });

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -61,7 +61,7 @@
             if (!tableRows.length) {
                 return '';
             }
-            return '<table role="presentation"' + cellspacing() + ' class="' + $.trim('k-scheduler-table ' + (className || '')) + '">' + '<tr>' + tableRows.join('</tr><tr>') + '</tr>' + '</table>';
+            return '<table role="presentation"' + cellspacing() + ' class="' + kendo.trim('k-scheduler-table ' + (className || '')) + '">' + '<tr>' + tableRows.join('</tr><tr>') + '</tr>' + '</table>';
         }
         function allDayTable(tableRows, className) {
             if (!tableRows.length) {
@@ -139,7 +139,7 @@
             return $('<div class="k-scheduler-times">' + table(rowHeaderRows) + '</div>');
         }
         function content() {
-            return $('<div class="k-scheduler-content">' + '<table role="presentation"' + cellspacing() + ' class="k-scheduler-table"/>' + '</div>');
+            return $('<div class="k-scheduler-content">' + '<table role="presentation"' + cellspacing() + ' class="k-scheduler-table"></table>' + '</div>');
         }
         var HINT = '<div class="k-marquee k-scheduler-marquee">' + '<div class="k-marquee-color"></div>' + '<div class="k-marquee-text">' + '<div class="k-label-top"></div>' + '<div class="k-label-bottom"></div>' + '</div>' + '</div>';
         var ResourceView = kendo.Class.extend({
@@ -1007,7 +1007,7 @@
                 var that = this;
                 var options = that.options;
                 if (that._isMobile()) {
-                    var html = '<div class="k-header k-scheduler-footer">';
+                    var html = '<div class="k-scheduler-footer k-toolbar">';
                     html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
                     html += options.messages.today + '</a></span>';
                     html += '</div>';
@@ -1509,19 +1509,116 @@
                 }
                 var columnLevels = this.columnLevels = levels(layout, 'columns');
                 var rowLevels = this.rowLevels = levels(layout, 'rows');
+                if (this._isVirtualized()) {
+                    this._trimRowLevels(rowLevels);
+                }
                 this.table = $('<table role="presentation"' + cellspacing() + ' class="k-scheduler-layout k-scheduler-' + this.name + 'view"><tbody></tbody></table>');
                 var rowCount = rowLevels[rowLevels.length - 1].length;
                 this.table.find('tbody:first').append(this._topSection(columnLevels, allDaySlot, rowCount));
                 this.table.find('tbody:first').append(this._bottomSection(columnLevels, rowLevels, rowCount));
                 this.element.append(this.table);
+                if (this._isVirtualized()) {
+                    this._updateDomRowLevels();
+                }
                 if (this._isMobile() && columnLevels.length > 1 && this._groupOrientation() === 'horizontal' && kendo._outerWidth($(window)) < MIN_HORIZONTAL_SCROLL_SIZE) {
                     this.table.find('.k-scheduler-content .k-scheduler-table').width(columnLevels[columnLevels.length - 2].length * 100 + '%');
                     this.table.find('.k-scheduler-header .k-scheduler-table').width(columnLevels[columnLevels.length - 2].length * 100 + '%');
                 }
                 this._scroller();
             },
+            _isVirtualized: function () {
+                return this.options.virtual && this.rowLevels.length > 1 && this._isVerticallyGrouped();
+            },
+            _trimRowLevels: function (rowLevels) {
+                var lastGroup = rowLevels[rowLevels.length - 2];
+                var cachedRowLevels = this.cachedRowLevels || [];
+                var levelMarker;
+                this._hasContentToRender = true;
+                var stopAtLevel = function (levels, index) {
+                    var hasParent = levels[index - 1].length > 0;
+                    if (hasParent) {
+                        return levels[index].length % levels[index - 1][0].rows.length !== 0;
+                    } else {
+                        return true;
+                    }
+                };
+                for (var rowLevelIndex = rowLevels.length - 2; rowLevelIndex >= 0; rowLevelIndex--) {
+                    var stop = false;
+                    if (rowLevelIndex > 0 && stopAtLevel(rowLevels, rowLevelIndex)) {
+                        stop = true;
+                        levelMarker = rowLevelIndex;
+                    }
+                    cachedRowLevels[rowLevelIndex] = rowLevels[rowLevelIndex].splice(1);
+                    if (stop) {
+                        break;
+                    }
+                }
+                cachedRowLevels[rowLevels.length - 1] = rowLevels[rowLevels.length - 1].splice(lastGroup[0].rows.length);
+                this.cachedRowLevels = cachedRowLevels;
+                if (!cachedRowLevels[cachedRowLevels.length - 1].length) {
+                    this._hasContentToRender = false;
+                }
+                return {
+                    levelMarker: levelMarker || 0,
+                    rowLevels: rowLevels
+                };
+            },
+            createNextLayout: function () {
+                var clone = [];
+                var trimmedRowLevels;
+                var rowLevels;
+                var levelMarker;
+                var rowCount;
+                for (var rowLevelIndex = 0; rowLevelIndex < this.cachedRowLevels.length; rowLevelIndex++) {
+                    clone[rowLevelIndex] = this.cachedRowLevels[rowLevelIndex];
+                }
+                trimmedRowLevels = this._trimRowLevels(clone);
+                rowLevels = trimmedRowLevels.rowLevels.splice(trimmedRowLevels.levelMarker);
+                levelMarker = trimmedRowLevels.levelMarker;
+                rowCount = rowLevels[rowLevels.length - 1].length;
+                delete this._height;
+                for (var i = levelMarker; i < this.rowLevels.length; i++) {
+                    this.rowLevels[i] = this.rowLevels[i].concat(rowLevels[i - levelMarker]);
+                }
+                this.table.find('.k-scheduler-times:last tbody').append(times(rowLevels, rowCount, this._isMobile()).find('tr'));
+                this._updateDomRowLevels();
+                if (levelMarker > 0) {
+                    for (i = 0; i < levelMarker; i++) {
+                        var cell = this.table.find('[data-row-level=' + i + ']:last');
+                        var rowSpan = parseInt(cell.attr('rowspan'), 10) + rowCount;
+                        cell.attr('rowspan', rowSpan);
+                    }
+                }
+                this._virtualContent(rowLevels, this.columnLevels);
+                this.render(this._cachedEvents);
+            },
+            _tryRenderContent: function () {
+                var that = this;
+                var bufferHeight = that.table.innerHeight();
+                var height = that.content.find('table').innerHeight();
+                var scrollTop = that.content.scrollTop();
+                while (that._hasContentToRender && height - bufferHeight < scrollTop) {
+                    that.createNextLayout();
+                    height = that.content.find('table').innerHeight();
+                }
+            },
+            _updateDomRowLevels: function () {
+                var that = this;
+                var groupCells = that.times.find('.k-scheduler-group-cell:not([data-row-level])');
+                if (!this._rowLevelIndices) {
+                    this._rowLevelIndices = groupCells.map(function (index, item) {
+                        $(item).attr('data-row-level', index);
+                        return index;
+                    }).toArray().reverse();
+                    return;
+                }
+                groupCells = groupCells.toArray().reverse();
+                for (var i = 0; i <= groupCells.length; i++) {
+                    $(groupCells[i]).attr('data-row-level', this._rowLevelIndices[i]);
+                }
+            },
             refreshLayout: function () {
-                var that = this, toolbar = that.element.find('>.k-scheduler-toolbar'), height = that.element.innerHeight(), scrollbar = this._scrollbar, headerHeight = 0, paddingDirection = this._isRtl ? 'left' : 'right';
+                var that = this, toolbar = that.element.find('> .k-scheduler-toolbar'), height = that.element.innerHeight(), scrollbar = this._scrollbar, headerHeight = 0, paddingDirection = this._isRtl ? 'left' : 'right';
                 for (var idx = 0; idx < toolbar.length; idx++) {
                     height -= outerHeight(toolbar.eq(idx));
                 }
@@ -1609,6 +1706,9 @@
                 this.content.bind('scroll' + NS, function () {
                     that.datesHeader.find('>.k-scheduler-header-wrap').scrollLeft(this.scrollLeft);
                     that.times.scrollTop(this.scrollTop);
+                    if (that._isVirtualized()) {
+                        that._tryRenderContent();
+                    }
                 });
                 var touchScroller = kendo.touchScroller(this.content, {
                     avoidScrolling: function (e) {
@@ -1621,6 +1721,9 @@
                     touchScroller.movable.bind('change', function (e) {
                         that.datesHeader.find('>.k-scheduler-header-wrap').scrollLeft(-e.sender.x);
                         that.times.scrollTop(-e.sender.y);
+                        if (that._isVirtualized()) {
+                            that._tryRenderContent();
+                        }
                     });
                 }
             },

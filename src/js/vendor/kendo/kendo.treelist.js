@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -913,11 +913,12 @@
                 that._processDataItemsState(result.data, result.childrenMap);
                 that._replaceItemsInDataMaps(result.data);
                 result.dataToAggregate = that._dataToAggregate(result.data, options);
-                if (options.filter) {
+                if (options.filter || that.filter()) {
                     filteredChildrenMap = result.filteredChildrenMap;
                     that._replaceInMapWithObservedData(filteredChildrenMap, data);
                     that._setFilteredChildrenMap(filteredChildrenMap);
                     options.filteredChildrenMap = filteredChildrenMap;
+                    that._calculateCollapsedTotal(result.data);
                 }
                 return result;
             },
@@ -1135,20 +1136,6 @@
             _setFilterTotal: function (filterTotal, setDefaultValue) {
                 var that = this;
                 DataSource.fn._setFilterTotal.call(that, filterTotal, setDefaultValue);
-                that._setFilterCollapsedTotal(filterTotal);
-            },
-            _setFilterCollapsedTotal: function (filterTotal) {
-                var that = this;
-                if (!that.options.serverFiltering) {
-                    if (filterTotal !== undefined) {
-                        that._collapsedTotal = filterTotal;
-                    } else {
-                        if (that._getFilteredChildrenMap()) {
-                            that._calculateCollapsedTotal();
-                        }
-                        that._setFilteredChildrenMap(undefined);
-                    }
-                }
             },
             collapsedTotal: function () {
                 var that = this;
@@ -1157,23 +1144,23 @@
                 }
                 return that._calculateCollapsedTotal();
             },
-            _calculateCollapsedTotal: function () {
+            _calculateCollapsedTotal: function (filteredData) {
                 var that = this;
-                var data = that._dataWithoutCollapsedSubtrees();
+                var data = that._dataWithoutCollapsedSubtrees(filteredData);
                 if (data.length) {
                     that._collapsedTotal = data.length;
                 }
                 return that._collapsedTotal;
             },
-            _dataWithoutCollapsedSubtrees: function () {
-                return this._removeCollapsedSubtrees(this._getData());
+            _dataWithoutCollapsedSubtrees: function (filteredData) {
+                return this._removeCollapsedSubtrees(filteredData || this._getData());
             },
             _removeCollapsedSubtrees: function (data) {
                 var that = this;
                 var view = that._createTreeView(data);
                 var result = view.removeCollapsedSubtreesFromRootNodes({
                     expanded: that._modelOptions().expanded,
-                    childrenMap: that._getChildrenMap()
+                    childrenMap: that.filter() ? that._getFilteredChildrenMap() : that._getChildrenMap()
                 });
                 return result;
             },
@@ -1802,7 +1789,7 @@
                         var text = function () {
                             return $(this).text();
                         };
-                        var separator = '<span class=\'k-header k-drag-separator\' />';
+                        var separator = '<span class=\'k-header k-drag-separator\'></span>';
                         return row.children('td').map(text).toArray().join(separator);
                     },
                     contains: proxy(function (source, destination) {
@@ -1914,7 +1901,7 @@
             _progress: function () {
                 var messages = this.options.messages;
                 if (!this.tbody.find('tr').length) {
-                    this._showStatus(kendo.template('<span class=\'#= className #\' /> #: messages.loading #')({
+                    this._showStatus(kendo.template('<span class=\'#= className #\'></span> #: messages.loading #')({
                         className: classNames.icon + ' ' + classNames.loading,
                         messages: messages
                     }));
@@ -2276,7 +2263,9 @@
                 queryOptions.filteredChildrenMap = result.filteredChildrenMap;
                 dataSource._aggregateResult = dataSource._calculateAggregates(result.dataToAggregate, queryOptions);
                 dataSource.view(result.data);
-                dataSource._calculateCollapsedTotal();
+                if (!dataSource.filter()) {
+                    dataSource._calculateCollapsedTotal();
+                }
                 that._refreshPager();
                 that._renderProgress(false);
             },
@@ -3201,9 +3190,9 @@
                         attr.style = {};
                         for (i = 0; i < properties.length; i++) {
                             declaration = properties[i].split(':');
-                            var name = $.trim(declaration[0]);
+                            var name = kendo.trim(declaration[0]);
                             if (name) {
-                                attr.style[$.camelCase(name)] = $.trim(declaration[1]);
+                                attr.style[$.camelCase(name)] = kendo.trim(declaration[1]);
                             }
                         }
                     }
@@ -3229,20 +3218,20 @@
                 this.wrapper = element.addClass(classNames.wrapper);
                 layout = '<div class=\'#= gridHeader #\'>';
                 if (this._hasLockedColumns) {
-                    layout += '<div class=\'k-grid-header-locked\'>' + '<table role=\'grid\'>' + '<colgroup></colgroup>' + '<thead role=\'rowgroup\' />' + '</table>' + '</div>';
+                    layout += '<div class=\'k-grid-header-locked\'>' + '<table role=\'grid\'>' + '<colgroup></colgroup>' + '<thead role=\'rowgroup\'></thead>' + '</table>' + '</div>';
                 }
-                layout += '<div class=\'#= gridHeaderWrap #\'>' + '<table role=\'grid\'>' + '<colgroup></colgroup>' + '<thead role=\'rowgroup\' />' + '</table>' + '</div>' + '</div>';
+                layout += '<div class=\'#= gridHeaderWrap #\'>' + '<table role=\'grid\'>' + '<colgroup></colgroup>' + '<thead role=\'rowgroup\'></thead>' + '</table>' + '</div>' + '</div>';
                 if (this._hasLockedColumns) {
-                    layout += '<div class=\'k-grid-content-locked\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody />' + '</table>' + '</div>';
+                    layout += '<div class=\'k-grid-content-locked\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody></tbody>' + '</table>' + '</div>';
                 }
-                layout += '<div class=\'#= gridContentWrap # k-auto-scrollable\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody />' + '</table>' + '</div>';
+                layout += '<div class=\'#= gridContentWrap # k-auto-scrollable\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody></tbody>' + '</table>' + '</div>';
                 if (!this.options.scrollable) {
-                    layout = '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<thead class=\'#= gridHeader #\' role=\'rowgroup\' />' + '<tbody />' + '</table>';
+                    layout = '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<thead class=\'#= gridHeader #\' role=\'rowgroup\'></thead>' + '<tbody></tbody>' + '</table>';
                 }
                 if (this.options.toolbar) {
-                    layout = '<div class=\'#= header # #= gridToolbar #\' />' + layout;
+                    layout = '<div class=\'#= header # #= gridToolbar #\'></div>' + layout;
                 }
-                element.append(kendo.template(layout)(classNames) + '<div class=\'k-status\' />');
+                element.append(kendo.template(layout)(classNames) + '<div class=\'k-status\'></div>');
                 this.toolbar = element.find(DOT + classNames.gridToolbar);
                 var header = element.find(DOT + classNames.gridHeader).find('thead').addBack().filter('thead');
                 this.thead = header.last();
@@ -4127,7 +4116,7 @@
                     return;
                 }
                 if (!resizeHandle) {
-                    resizeHandle = this.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner" /></div>');
+                    resizeHandle = this.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner"></div></div>');
                 }
                 var cells = leafDataCells(th.closest('thead')).filter(':visible');
                 if (isRtl) {
@@ -5832,7 +5821,7 @@
                 return result.promise();
             };
             TreeList.prototype._initPDFProgress = function (deferred) {
-                var loading = $('<div class=\'k-loading-pdf-mask\'><div class=\'k-loading-color\'/></div>');
+                var loading = $('<div class=\'k-loading-pdf-mask\'><div class=\'k-loading-color\'></div></div>');
                 loading.prepend(this.wrapper.clone().css({
                     position: 'absolute',
                     top: 0,

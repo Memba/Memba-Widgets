@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -37,7 +37,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, ns = '.kendoPivotConfigurator', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, SETTING_CONTAINER_TEMPLATE = kendo.template('<p class="k-reset"><span class="k-icon #=icon#"></span>${name}</p>' + '<div class="k-list-container k-reset"/>');
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, ns = '.kendoPivotConfigurator', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, SETTING_CONTAINER_TEMPLATE = kendo.template('<p class="k-reset"><span class="k-icon #=icon#"></span>${name}</p>' + '<div class="k-list-container k-reset"></div>');
         function addKPI(data) {
             var found;
             var idx = 0;

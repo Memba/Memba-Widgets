@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -682,6 +682,14 @@
                 min: min === MAX_VALUE ? undefined : min,
                 max: max === MIN_VALUE ? undefined : max
             };
+        }
+        function find(array, predicate) {
+            for (var i = 0; i < array.length; i++) {
+                var item = array[i];
+                if (predicate(item, i, array)) {
+                    return item;
+                }
+            }
         }
         function autoMajorUnit(min, max) {
             var diff = round(max - min, DEFAULT_PRECISION - 1);
@@ -6321,6 +6329,7 @@
             setDefaultOptions: setDefaultOptions,
             sparseArrayLimits: sparseArrayLimits,
             styleValue: styleValue,
+            find: find,
             append: append,
             bindEvents: bindEvents,
             Class: Class,

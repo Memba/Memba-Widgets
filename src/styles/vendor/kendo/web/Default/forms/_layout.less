@@ -22,146 +22,215 @@
                                                                                                                                                                                                        
 
 */
-// Window
-.k-window {
-    padding: 0;
-    border-width: @window-border-width;
-    border-style: @window-border-style;
-    display: inline-block;
-    position: absolute;
-    z-index: 10001;
-
-    .k-overlay {
-        position: absolute;
-        opacity: 0;
-    }
-}
-
-each(@window-sizes, {
-    .k-window-@{key} {
-        width: @value;
-    }
-});
-
-
-// Title bar
-.k-window-titlebar {
-    padding: @window-titlebar-padding-y @window-titlebar-padding-x;
-    border-width: @window-titlebar-border-width;
-    border-style: @window-titlebar-border-style;
-    width: 100%;
-    box-sizing: border-box;
-    white-space: nowrap;
-    min-height: 16px; // icon size
-}
-
-
-// Title bar title text
-.k-window-title {
-    font-size: @window-title-font-size;
-    line-height: @window-title-line-height;
-    display: block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    cursor: default;
-}
-.k-window-title::before {
-    // Empty title height fix
-    content: "";
-    display: inline-block;
-}
-
-
-// Title bar actions
-.k-window-titlebar .k-window-actions {
-    // margin: -.25em 0;
-    position: absolute;
-    top: (@window-titlebar-padding-y / 2);
-    right: (@window-titlebar-padding-x / 2);
-}
-.k-window-titlebar .k-window-action {
-    padding: 2px;
-    width: 20px;
-    height: 20px;
+// Form
+.k-form {
     border-width: 0;
-    box-sizing: content-box;
-    opacity: .7;
-
-    &:hover { opacity: 1; }
+    box-sizing: border-box;
+    font-size: @form-font-size;
+    line-height: @form-line-height;
 }
 
 
-// Content
-.k-window-content,
-.k-prompt-container {
-    padding: @window-inner-padding-y @window-inner-padding-x;
-    height: 100%;
-    overflow: auto;
-    position: relative;
-    outline: 0;
+// Form fieldset
+.k-form-fieldset {
+    margin: @form-fieldset-margin;
+    padding: @form-fieldset-padding-y @form-fieldset-padding-x;
+    border-width: 0;
+    box-sizing: border-box;
+
+    > * {
+        &:first-child {
+            margin-top: 0;
+        }
+    }
 }
-.k-window-content + .k-prompt-container {
-    margin-top: -@window-inner-padding-y;
-}
-.k-prompt-container .k-textbox {
+.k-form-legend {
+    margin: @form-legend-margin;
+    padding: @form-legend-padding-y @form-legend-padding-x;
+    border-width: 0 0 2px;
+    border-style: solid;
     width: 100%;
+    border-width: 0 0 2px;
+    box-sizing: border-box;
+    font-size: @form-legend-font-size;
+    line-height: @form-legend-line-height;
+    text-transform: uppercase;
 }
 
-.k-window-iframecontent {
-    padding: 0;
-    overflow: visible;
 
-    .k-content-frame {
-        vertical-align: top;
-        border: 0;
+// Form field
+.k-form-field {
+    margin: @form-field-margin;
+    box-sizing: border-box;
+    display: flex;
+    flex-flow: column nowrap;
+
+    &:first-child {
+        margin-top: 0;
+    }
+
+    // Labels inside forms
+    > .k-label,
+    > .k-form-label {
+        margin: @form-label-margin;
+        display: inline-flex;
+        flex-direction: row;
+        flex-shrink: 0;
+    }
+
+    // Inputs inside form
+    .k-textbox,
+    .k-textarea,
+    .k-autocomplete,
+    .k-combobox,
+    .k-dropdown,
+    .k-dropdowntree,
+    .k-dateinput,
+    .k-datepicker,
+    .k-datetimepicker,
+    .k-daterangepicker-wrap,
+    .k-maskedtextbox,
+    .k-multiselect,
+    .k-numerictextbox,
+    .k-timepicker,
+    .k-textbox-container,
+    .k-floating-label-container {
         width: 100%;
-        height: 100%;
+        // display: flex;
+        // flex-flow: row nowrap;
     }
 }
 
-.k-window-content > .km-scroll-container {
-    height: 100%;
+
+// Form Hint/Error Messages
+.k-form-hint,
+.k-form-error {
+    padding: 4px 0 0;
+    margin: @form-hint-margin;
+    font-size: @form-hint-font-size;
+    display: flex;
+    flex-flow: row nowrap;
 }
 
 
-.k-window > .k-resize-handle {
-    position: absolute;
-    z-index: 1;
-    background-color: #fff;
-    font-size: 0;
-    line-height: 6px;
-    opacity: 0;
-    zoom: 1;
-}
+// Horizontal forms
+.k-form-horizontal {
+    .k-form-field {
+        display: flex;
+        flex-flow: row nowrap;
 
-.k-resize-n { top: -3px; left: 0; width: 100%; height: 6px; cursor: n-resize; }
-.k-resize-e { top: 0; right: -3px; width: 6px; height: 100%; cursor: e-resize; }
-.k-resize-s { bottom: -3px; left: 0; width: 100%; height: 6px; cursor: s-resize; }
-.k-resize-w { top: 0; left: -3px; width: 6px; height: 100%; cursor: w-resize; }
-.k-resize-se { bottom: -3px; right: -3px; width: 6px; height: 6px; cursor: se-resize; }
-.k-resize-sw { bottom: -3px; left: -3px; width: 6px; height: 6px; cursor: sw-resize; }
-.k-resize-ne { top: -3px; right: -3px; width: 6px; height: 6px; cursor: ne-resize; }
-.k-resize-nw { top: -3px; left: -3px; width: 6px; height: 6px; cursor: nw-resize; }
+        > .k-label,
+        > .k-form-label {
+            margin-right: @horizontal-form-label-margin-x;
+            padding-top: @horizontal-form-label-padding-top;
+            width: @horizontal-form-label-width;
+            flex-direction: column;
+            align-items: @horizontal-form-label-align;
+            justify-content: flex-end;
+        }
+        .k-label-optional {
+            margin: 0;
+            align-self: inherit;
+        }
+    }
 
-.k-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10001;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    opacity: .5;
-    -webkit-backface-visibility: hidden;
+    .k-form-field-wrap {
+        flex: 1;
+    }
 }
 
 
-.k-window > .k-action-buttons,
-.k-window-content > .k-action-buttons {
+// Form Buttons
+.k-form-buttons {
+    margin: @form-buttons-margin;
+    padding: @form-buttons-padding-y @form-buttons-padding-x;
+    border-width: 0;
+    border-top-width: @form-buttons-border-width;
+    border-style: solid;
+    display: flex;
+    flex-flow: row nowrap;
+
+    > * {
+        margin-inline-start: @form-buttons-spacing;
+    }
+    > :first-child {
+        margin-inline-start: 0;
+    }
+
+    &.k-buttons-end {
+        justify-content: flex-end;
+    }
+}
+
+
+
+
+
+// Legacy styles
+.k-edit-form
+{
+    margin: 0;
+    padding: 0;
+}
+
+.k-window > div.k-popup-edit-form
+{
+    padding: 1em 0;
+}
+
+.k-grid-edit-row .k-edit-form td
+{
+    border-bottom-width: 0;
+}
+
+.k-edit-form-container
+{
+    position: relative;
+    width: 400px;
+}
+
+.k-edit-label,
+.k-edit-form-container .editor-label
+{
+    float: left;
+    clear: both;
+    width: 30%;
+    padding: .4em 0 1em;
+    margin-left: 2%;
+    text-align: right;
+}
+
+.k-edit-field,
+.k-edit-form-container .editor-field
+{
+    float: right;
+    clear: right;
+    width: 60%;
+    margin-right: 2%;
+    padding: 0 0 .6em;
+
+    &.k-no-editor {
+        padding: .4em 0 1em;
+    }
+}
+
+.k-edit-form-container .k-button
+{
+    margin: 0 .16em;
+}
+
+.k-edit-field > .k-button:first-child {
+    margin-left: 0;
+}
+
+.k-edit-form-container .k-edit-buttons
+{
+    clear: both;
+    text-align: right;
     border-width: 1px 0 0;
     border-style: solid;
+    position: relative;
+    bottom: -1em;
+    padding: .6em;
 }
 
-.k-ie .k-window-content {
-    border-radius: 0;
-}

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -233,7 +233,7 @@
                     }
                     weekDayRule = weekDayRules[0];
                     if (!weekDayRule) {
-                        if (!rule.positions || rule.position > 0) {
+                        if (rule.freq === 'monthly' && !rule.positions || rule.position > 0) {
                             weekDays.forEach(traverseRuleForNextMont);
                         }
                         if (!weekDayRule) {
@@ -1081,7 +1081,7 @@
                 parts = recur.split(' ');
             }
             for (idx = 0, length = parts.length; idx < length; idx++) {
-                part = $.trim(parts[idx]);
+                part = kendo.trim(parts[idx]);
                 if (part.indexOf('DTSTART') !== -1) {
                     instance.start = parseDateRule(part, zone);
                 } else if (part.indexOf('DTEND') !== -1) {
@@ -1090,7 +1090,7 @@
                     instance.exdates = parseDateRule(part, zone);
                 } else if (part.indexOf('RRULE') !== -1) {
                     rule = part.substring(6);
-                } else if ($.trim(part)) {
+                } else if (kendo.trim(part)) {
                     rule = part;
                 }
             }
@@ -1098,8 +1098,8 @@
             for (idx = 0, length = rule.length; idx < length; idx++) {
                 property = rule[idx];
                 splits = property.split('=');
-                value = $.trim(splits[1]).split(',');
-                switch ($.trim(splits[0]).toUpperCase()) {
+                value = kendo.trim(splits[1]).split(',');
+                switch (kendo.trim(splits[0]).toUpperCase()) {
                 case 'FREQ':
                     instance.freq = value[0].toLowerCase();
                     break;

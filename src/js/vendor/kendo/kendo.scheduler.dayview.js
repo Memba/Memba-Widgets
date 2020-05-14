@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -77,6 +77,9 @@
             }
         }
         function getWorkDays(options) {
+            if (options.workDays && options.workDays.length) {
+                return options.workDays;
+            }
             var workDays = [];
             var dayIndex = options.workWeekStart % 7;
             var workWeekEnd = Math.abs(options.workWeekEnd % 7);
@@ -780,7 +783,7 @@
             _footer: function () {
                 var options = this.options;
                 if (options.footer !== false) {
-                    var html = '<div class="k-header k-scheduler-footer">';
+                    var html = '<div class="k-scheduler-footer k-toolbar">';
                     var command = options.footer.command;
                     if (this._isMobile()) {
                         html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
@@ -791,13 +794,13 @@
                             html += '<span class="k-state-default k-scheduler-fullday"><a href="#" class="k-link">';
                             html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></span>';
                         } else {
-                            html += '<ul class="k-reset k-header">';
-                            html += '<li class="k-state-default k-scheduler-fullday"><a href="#" class="k-link"><span class="k-icon k-i-clock"></span>';
-                            html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></li>';
-                            html += '</ul>';
+                            html += '<button type="button" class="k-button k-scheduler-fullday">';
+                            html += '<span class="k-icon k-i-clock"></span>';
+                            html += '<span class="k-button-text">';
+                            html += options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay;
+                            html += '</span>';
+                            html += '</button>';
                         }
-                    } else {
-                        html += '&nbsp;';
                     }
                     html += '</div>';
                     this.footer = $(html).appendTo(this.element);
@@ -863,60 +866,37 @@
             },
             _content: function (dates) {
                 var that = this;
+                var html = '';
+                html += '<tbody>';
+                html += that._renderRows(dates, that.rowLevels, that.columnLevels);
+                html += '</tbody>';
+                this.content.find('table').append(html);
+            },
+            _virtualContent: function (rowLevels, columnLevels) {
+                var that = this;
+                var html = '';
+                var dates = that._dates;
+                html += that._renderRows(dates, rowLevels, columnLevels);
+                that.content.find('table tbody').append(html);
+            },
+            _renderRows: function (dates, rowLevels, columnLevels) {
+                var that = this;
+                var isVerticalGroupped = that._groupOrientation() === 'vertical';
+                var byDate = that._isGroupedByDate();
+                var dateID = 0;
+                var columnCount = dates.length;
                 var options = that.options;
                 var start = that.startTime();
                 var end = this.endTime();
                 var groupsCount = 1;
                 var rowCount = 1;
-                var columnCount = dates.length;
-                var html = '';
                 var resources = this.groupedResources;
-                var allDaySlotTemplate = this.allDaySlotTemplate;
-                var isVerticalGroupped = false;
-                var allDayVerticalGroupRow;
-                var byDate = that._isGroupedByDate();
-                var dateID = 0;
+                var html = '';
                 if (resources.length) {
-                    isVerticalGroupped = that._groupOrientation() === 'vertical';
-                    if (isVerticalGroupped) {
-                        rowCount = this._rowCountForLevel(this.rowLevels.length - 2);
-                        if (byDate) {
-                            groupsCount = this._columnCountForLevel(this.columnLevels.length - 1);
-                        }
-                        if (options.allDaySlot) {
-                            allDayVerticalGroupRow = function (groupIndex) {
-                                var result = '<tr class="k-scheduler-header-all-day">';
-                                var dateGroupIndex = byDate ? 0 : groupIndex;
-                                var resources = function () {
-                                    return that._resourceBySlot({ groupIndex: dateGroupIndex });
-                                };
-                                if (byDate) {
-                                    for (; dateGroupIndex < groupsCount; dateGroupIndex++) {
-                                        result += '<td>' + allDaySlotTemplate({
-                                            date: dates[dateID],
-                                            resources: resources
-                                        }) + '</td>';
-                                    }
-                                } else {
-                                    for (var idx = 0; idx < dates.length; idx++) {
-                                        result += '<td>' + allDaySlotTemplate({
-                                            date: dates[idx],
-                                            resources: resources
-                                        }) + '</td>';
-                                    }
-                                }
-                                return result + '</tr>';
-                            };
-                        }
-                    } else {
-                        if (byDate) {
-                            groupsCount = this._columnCountForLevel(this.columnLevels.length - 1) / this._columnCountForLevel(0);
-                        } else {
-                            groupsCount = this._columnCountForLevel(this.columnLevels.length - 2);
-                        }
-                    }
+                    var levels = that._recalculateLevels(rowLevels, columnLevels);
+                    rowCount = levels.rowCount;
+                    groupsCount = levels.groupsCount;
                 }
-                html += '<tbody>';
                 var appendRow = function (date, majorTick, middleRow) {
                     var content = '';
                     var groupIdx = 0;
@@ -946,14 +926,62 @@
                     return content;
                 };
                 for (var rowIdx = 0; rowIdx < rowCount; rowIdx++) {
-                    html += allDayVerticalGroupRow ? allDayVerticalGroupRow(rowIdx) : '';
+                    html += options.allDaySlot && isVerticalGroupped ? this._allDayVerticalGroupRow(dates, rowIdx, groupsCount, dateID) : '';
                     html += this._forTimeRange(start, end, appendRow);
                     if (isVerticalGroupped) {
                         dateID++;
                     }
                 }
-                html += '</tbody>';
-                this.content.find('table').append(html);
+                return html;
+            },
+            _recalculateLevels: function (rowLevels, columnLevels) {
+                var that = this;
+                var byDate = that._isGroupedByDate();
+                var isVerticalGroupped = that._groupOrientation() === 'vertical';
+                var groupsCount = 1;
+                var rowCount = 1;
+                if (isVerticalGroupped) {
+                    rowCount = that._rowCountForLevel(rowLevels.length - 2, rowLevels);
+                    if (byDate) {
+                        groupsCount = that._columnCountForLevel(columnLevels.length - 1);
+                    }
+                } else {
+                    if (byDate) {
+                        groupsCount = that._columnCountForLevel(columnLevels.length - 1) / this._columnCountForLevel(0);
+                    } else {
+                        groupsCount = that._columnCountForLevel(columnLevels.length - 2);
+                    }
+                }
+                return {
+                    rowCount: rowCount,
+                    groupsCount: groupsCount
+                };
+            },
+            _allDayVerticalGroupRow: function (dates, groupIndex, groupsCount, dateID) {
+                var that = this;
+                var result = '<tr class="k-scheduler-header-all-day">';
+                var byDate = that._isGroupedByDate();
+                var dateGroupIndex = byDate ? 0 : groupIndex;
+                var allDaySlotTemplate = that.allDaySlotTemplate;
+                var resources = function () {
+                    return that._resourceBySlot({ groupIndex: dateGroupIndex });
+                };
+                if (byDate) {
+                    for (; dateGroupIndex < groupsCount; dateGroupIndex++) {
+                        result += '<td>' + allDaySlotTemplate({
+                            date: dates[dateID],
+                            resources: resources
+                        }) + '</td>';
+                    }
+                } else {
+                    for (var idx = 0; idx < dates.length; idx++) {
+                        result += '<td>' + allDaySlotTemplate({
+                            date: dates[idx],
+                            resources: resources
+                        }) + '</td>';
+                    }
+                }
+                return result + '</tr>';
             },
             _addCellsToContent: function (content, dates, date, idx, groupIdx, rowIdx) {
                 var that = this;
@@ -1002,6 +1030,9 @@
                 this._content(dates);
                 this._footer();
                 this.refreshLayout();
+                if (this._isVirtualized()) {
+                    this._tryRenderContent();
+                }
                 var allDayHeader = this.element.find('.k-scheduler-header-all-day td');
                 if (allDayHeader.length) {
                     this._allDayHeaderHeight = allDayHeader.first()[0].clientHeight;
@@ -1193,8 +1224,12 @@
             _positionEvent: function (event, element, slotRange) {
                 var start = event._startTime || event.start;
                 var end = event._endTime || event.end;
+                var borderWidths = kendo.getComputedStyles(slotRange.start.element, [
+                    'border-top-width',
+                    'border-bottom-width'
+                ]);
                 var rect = slotRange.innerRect(start, end, false);
-                var height = rect.bottom - rect.top;
+                var height = rect.bottom - rect.top - parseFloat(borderWidths['border-top-width']) - parseFloat(borderWidths['border-bottom-width']);
                 if (height < 0) {
                     height = 0;
                 }
@@ -1323,6 +1358,9 @@
                         if (!isMultiDayEvent) {
                             if (this._isInTimeSlot(event)) {
                                 group = this.groups[groupIndex];
+                                if (!group) {
+                                    continue;
+                                }
                                 if (!group._continuousEvents) {
                                     group._continuousEvents = [];
                                 }
@@ -1360,6 +1398,9 @@
                             }
                         } else if (this.options.allDaySlot) {
                             group = this.groups[groupIndex];
+                            if (!group) {
+                                continue;
+                            }
                             if (!group._continuousEvents) {
                                 group._continuousEvents = [];
                             }
@@ -1396,6 +1437,7 @@
             },
             render: function (events) {
                 this._headerColumnCount = 0;
+                this._cachedEvents = events;
                 this._groups();
                 this.element.find('.k-event').remove();
                 events = new kendo.data.Query(events).sort([
@@ -1453,8 +1495,9 @@
                 var columnLevel = this.columnLevels[level];
                 return columnLevel ? columnLevel.length : 0;
             },
-            _rowCountForLevel: function (level) {
-                var rowLevel = this.rowLevels[level];
+            _rowCountForLevel: function (level, rowLevels) {
+                rowLevels = rowLevels || this.rowLevels;
+                var rowLevel = rowLevels[level];
                 return rowLevel ? rowLevel.length : 0;
             },
             clearSelection: function () {
@@ -1562,9 +1605,19 @@
                     return kendo.date.addDays(weekStart, workDays[workDays.length - 1] - 7);
                 },
                 calculateDateRange: function () {
-                    var selectedDate = this.options.date, dayOfWeek = kendo.date.dayOfWeek, weekStart = dayOfWeek(selectedDate, this.calendarInfo().firstDay, -1), start = dayOfWeek(weekStart, this.options.workWeekStart, 1), end = dayOfWeek(start, this.options.workWeekEnd, 1), dates = [];
+                    var options = this.options, selectedDate = options.date, dayOfWeek = kendo.date.dayOfWeek, weekStart = dayOfWeek(selectedDate, this.calendarInfo().firstDay, -1), start = dayOfWeek(weekStart, options.workWeekStart, 1), end = dayOfWeek(start, options.workWeekEnd, 1), dates = [], workDays = options.workDays && options.workDays.length ? options.workDays.map(function (day) {
+                            return dayOfWeek(weekStart, day, 1).getTime();
+                        }) : null;
+                    if (workDays) {
+                        start = weekStart;
+                        end = dayOfWeek(start, 6, 1);
+                    }
                     while (start <= end) {
-                        dates.push(start);
+                        if (workDays && workDays.indexOf(start.getTime()) > -1) {
+                            dates.push(start);
+                        } else if (!workDays) {
+                            dates.push(start);
+                        }
                         start = kendo.date.nextDay(start);
                     }
                     this._render(dates);

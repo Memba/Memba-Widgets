@@ -24,11 +24,8 @@
 */
 // Grid
 
-.k-grid,
-.k-listview
-{
+.k-grid {
     position: relative;
-    zoom: 1;
 }
 
 .k-grid table
@@ -399,9 +396,11 @@ div.k-grid-footer
 }
 
 // Grid :: paging
-.k-grid-pager
-{
+.k-grid-pager {
     border-width: 1px 0 0;
+}
+.k-grid-pager-top {
+    border-width: 0 0 1px;
 }
 
 // Grid :: filtering
@@ -589,7 +588,7 @@ form.k-filter-menu .k-textbox
     }
 
     .k-link,
-    .k-button.k-bare {
+    .k-button.k-flat {
         padding: 0;
         border-width: 0;
         display: inline-flex;
@@ -600,7 +599,7 @@ form.k-filter-menu .k-textbox
         margin-right: 4px;
     }
 
-    .k-button.k-bare {
+    .k-button.k-flat {
         margin-left: 8px;
         padding: 0;
         width: auto;
@@ -738,11 +737,6 @@ html body .k-grid tbody .k-button-icon
     white-space: nowrap;
 }
 
-.k-grid .k-edit-cell .k-tooltip
-{
-    white-space: normal;
-}
-
 .k-edit-cell,
 .k-grid-edit-row > td {
     > .k-textbox,
@@ -750,12 +744,6 @@ html body .k-grid tbody .k-button-icon
     > .text-box {
         width: 100%;
     }
-}
-
-html .k-edit-cell .k-widget.k-tooltip,
-html .k-grid-edit-row .k-widget.k-tooltip {
-    width: auto;
-    max-width: 300px;
 }
 
 .k-edit-cell input[type="checkbox"]

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -302,6 +302,22 @@
             widget: 'k-widget',
             scrollContainer: 'k-scroll-container'
         };
+        var GroupsPager = ui.Pager.extend({
+            init: function (element, options) {
+                ui.Pager.fn.init.call(this, element, extend(true, {}, options));
+                this.dataSource.options.useRanges = true;
+                this.dataSource._omitPrefetch = true;
+            },
+            options: { name: 'GroupsPager' },
+            totalPages: function () {
+                var that = this;
+                return Math.ceil((that._collapsedTotal() || 0) / (that.pageSize() || 1));
+            },
+            _collapsedTotal: function () {
+                var dataSource = this.dataSource;
+                return dataSource ? dataSource.groupsTotal(true) || 0 : 0;
+            }
+        });
         var VirtualScrollable = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -395,6 +411,7 @@
                     that._preventScroll = false;
                     return;
                 }
+                that._prevScrollTop = that._scrollTop;
                 that._scrollTop = scrollTop - start * rowHeight;
                 that._scrollbarTop = scrollTop;
                 that._scrolling = delayLoading;
@@ -497,6 +514,7 @@
                 var that = this, dataSource = that.dataSource, itemHeight = that.itemHeight, take = dataSource.take(), rangeStart = that._rangeStart || dataSource.skip() || 0, currentSkip = math.floor(firstItemIndex / take) * take, fetching = false, prefetchAt = 0.33;
                 var scrollbar = that.verticalScrollbar;
                 var webkitCorrection = browser.webkit ? 1 : 0;
+                var total = dataSource._isGroupPaged() ? dataSource.groupsTotal(true) : dataSource.total();
                 if (firstItemIndex < rangeStart) {
                     fetching = true;
                     rangeStart = math.max(0, lastItemIndex - take);
@@ -504,9 +522,11 @@
                     that._page(rangeStart, take);
                 } else if (lastItemIndex >= rangeStart + take && !scrollingUp) {
                     fetching = true;
-                    rangeStart = math.min(firstItemIndex, dataSource.total() - take);
+                    rangeStart = math.min(firstItemIndex, total - take);
                     if (scrollbar.scrollTop() >= scrollbar[0].scrollHeight - scrollbar[0].offsetHeight - webkitCorrection) {
                         that._scrollTop = that.wrapper[0].scrollHeight - that.wrapper[0].offsetHeight;
+                    } else if (that.dataSource._isGroupPaged() && firstItemIndex >= total - take) {
+                        that._scrollTop = that.wrapper[0].scrollHeight - that.wrapper[0].offsetHeight - (that._scrollTop - that._prevScrollTop);
                     } else {
                         that._scrollTop = itemHeight;
                     }
@@ -525,7 +545,7 @@
                 return this._fetching;
             },
             _page: function (skip, take, callback) {
-                var that = this, delayLoading = !that.options.prefetch, dataSource = that.dataSource;
+                var that = this, delayLoading = !that.options.prefetch, dataSource = that.dataSource, isGroupPaged = dataSource._isGroupPaged();
                 callback = isFunction(callback) ? callback : $.noop;
                 if (that.trigger(PAGING, {
                         skip: skip,
@@ -536,13 +556,13 @@
                 clearTimeout(that._timeout);
                 that._fetching = true;
                 that._rangeStart = skip;
-                if (dataSource.inRange(skip, take)) {
+                if (isGroupPaged && dataSource._groupRangeExists() || !isGroupPaged && dataSource.inRange(skip, take)) {
                     kendo.ui.progress($(that.wrapper).parent(), true);
                     dataSource.range(skip, take, function () {
                         kendo.ui.progress($(that.wrapper).parent(), false);
                         callback();
                         that.trigger(PAGE);
-                    });
+                    }, 'page');
                 } else {
                     if (!delayLoading) {
                         kendo.ui.progress(that.wrapper.parent(), true);
@@ -566,7 +586,7 @@
                 var wasScrolledToBottom = that._isScrolledToBottom();
                 itemHeight = that.itemHeight = that.options.itemHeight() || 0;
                 var addScrollBarHeight = wrapperElement.scrollWidth > wrapperElement.offsetWidth ? scrollbar : 0;
-                totalHeight = dataSource.total() * itemHeight + addScrollBarHeight;
+                totalHeight = (dataSource._isGroupPaged() ? dataSource.groupsTotal(true) : dataSource.total()) * itemHeight + addScrollBarHeight;
                 for (idx = 0; idx < math.floor(totalHeight / maxHeight); idx++) {
                     html += '<div style="width:1px;height:' + maxHeight + 'px"></div>';
                 }
@@ -574,7 +594,7 @@
                     html += '<div style="width:1px;height:' + totalHeight % maxHeight + 'px"></div>';
                 }
                 that.verticalScrollbar.html(html);
-                if (wasScrolledToBottom && !that._isScrolledToBottom()) {
+                if (wasScrolledToBottom && !that._isScrolledToBottom() && !that.dataSource._isGroupPaged()) {
                     that.scrollToBottom();
                 }
                 if (typeof that._scrollTop !== 'undefined' && !!shouldScrollWrapper) {
@@ -593,10 +613,10 @@
                     that.drag.cancel();
                 }
                 if (typeof rangeStart !== 'undefined' && !that._fetching) {
-                    if (!action || action !== SYNC && action !== ITEM_CHANGE) {
+                    if (!action || action !== SYNC && action !== ITEM_CHANGE && action !== 'expandGroup') {
                         that._rangeStart = dataSource.skip();
                     }
-                    if (dataSource.page() === 1 && (!action || action !== SYNC && action !== ITEM_CHANGE)) {
+                    if (dataSource.page() === 1 && (!action || action !== SYNC && action !== ITEM_CHANGE && action !== 'expandGroup' && action !== 'collapseGroup')) {
                         that.verticalScrollbar[0].scrollTop = 0;
                     }
                 }
@@ -1460,10 +1480,10 @@
                 that._columns($.extend(true, [], that.options.columns));
                 that._dataSource();
                 that._tbody();
-                that._pageable();
                 that._thead();
                 that._groupable();
                 that._toolbar();
+                that._pageable();
                 that._setContentHeight();
                 that._templates();
                 that._navigatable();
@@ -1519,7 +1539,8 @@
                 'filter',
                 'group',
                 'groupExpand',
-                'groupCollapse'
+                'groupCollapse',
+                'kendoKeydown'
             ],
             setDataSource: function (dataSource) {
                 var that = this;
@@ -1603,7 +1624,8 @@
                     expandCollapseColumnHeader: '',
                     groupHeader: 'Press ctrl + space to group',
                     ungroupHeader: 'Press ctrl + space to ungroup'
-                }
+                },
+                width: null
             },
             destroy: function () {
                 var that = this, element;
@@ -1765,9 +1787,10 @@
                 }
             },
             _items: function (container) {
+                var that = this;
                 return container.children().filter(function () {
                     var tr = $(this);
-                    return !tr.hasClass('k-grouping-row') && !tr.hasClass('k-detail-row') && !tr.hasClass('k-group-footer');
+                    return (that.dataSource._isGroupPaged() ? true : !tr.hasClass('k-grouping-row')) && !tr.hasClass('k-detail-row') && !tr.hasClass('k-group-footer');
                 });
             },
             dataItems: function () {
@@ -2173,7 +2196,7 @@
                             if (title) {
                                 title = kendo.htmlEncode(title);
                             }
-                            return $('<div class="k-header k-reorder-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-i-cancel" />');
+                            return $('<div class="k-header k-reorder-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
                         }
                     }).data('kendoDraggable');
                 }
@@ -2856,6 +2879,9 @@
                     row = row.add(that._relatedRow(row));
                 }
                 row = row.hide();
+                if (that.dataSource._isGroupPaged()) {
+                    that._removeGroupIfEmpty(row);
+                }
                 model = that._modelForContainer(row);
                 if (model && !that.trigger(REMOVE, {
                         row: row,
@@ -3850,6 +3876,9 @@
                         elements.on('keydown' + NS, function (e) {
                             var current = that.current();
                             var target = e.target;
+                            if (!current) {
+                                return;
+                            }
                             if (e.keyCode === keys.SPACEBAR && !e.shiftKey && $.inArray(target, elements) > -1 && !current.is('.k-edit-cell,.k-header') && current.parent().is(':not(.k-grouping-row,.k-detail-row,.k-group-footer)')) {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -4423,7 +4452,7 @@
                         e.stopImmediatePropagation();
                     }
                 });
-                tables.on(kendo.support.touch ? 'touchstart' + NS : 'mousedown' + NS, NAVROW + '>' + NAVCELL, proxy(tableClick, that)).on('focus' + NS, proxy(that._tableFocus, that)).on('focusout' + NS, proxy(that._tableBlur, that)).on('keydown' + NS, proxy(that._tableKeyDown, that));
+                tables.on(kendo.support.touch ? 'touchstart' + NS : 'mousedown' + NS, NAVROW + '>' + NAVCELL, proxy(tableClick, that)).on('focus' + NS, proxy(that._tableFocus, that)).on('focusout' + NS, proxy(that._tableBlur, that)).on('keydown' + NS, that, proxy(that._tableKeyDown, that));
             },
             _openHeaderMenu: function (e) {
                 if (e.altKey && e.keyCode == keys.DOWN) {
@@ -5694,11 +5723,16 @@
                 }
             },
             _pageable: function () {
-                var that = this, wrapper, pageable = that.options.pageable;
+                var that = this, pagerWrap, pageable = that.options.pageable;
                 if (pageable) {
-                    wrapper = that.wrapper.children('div.k-grid-pager');
-                    if (!wrapper.length) {
-                        wrapper = $('<div class="k-pager-wrap k-grid-pager"/>').appendTo(that.wrapper);
+                    pagerWrap = that.wrapper.children('div.k-grid-pager');
+                    if (!pagerWrap.length) {
+                        pagerWrap = $('<div class="k-pager-wrap k-grid-pager"/>');
+                    }
+                    if (pageable.position === 'top') {
+                        pagerWrap.prependTo(that.wrapper).addClass('k-grid-pager-top');
+                    } else {
+                        pagerWrap.appendTo(that.wrapper);
                     }
                     if (that.pager) {
                         that.pager.destroy();
@@ -5706,7 +5740,11 @@
                     if (typeof pageable === 'object' && pageable instanceof kendo.ui.Pager) {
                         that.pager = pageable;
                     } else {
-                        that.pager = new kendo.ui.Pager(wrapper, extend({}, pageable, { dataSource: that.dataSource }));
+                        if (that.dataSource._groupPaging) {
+                            that.pager = new GroupsPager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource }));
+                        } else {
+                            that.pager = new kendo.ui.Pager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource }));
+                        }
                     }
                     that.pager.bind('pageChange', function (e) {
                         if (that.trigger('page', { page: e.index })) {
@@ -6697,7 +6735,7 @@
                         }
                     }
                 }
-                container = $('<div class="k-grid-content-locked"><table' + (isIE7 ? ' cellspacing="0"' : '') + '><colgroup/><tbody></tbody></table></div>');
+                container = $('<div class="k-grid-content-locked"><table' + (isIE7 ? ' cellspacing="0"' : '') + '><colgroup></colgroup><tbody></tbody></table></div>');
                 colgroup.detach();
                 container.find('colgroup').append(lockedCols);
                 colgroup.insertBefore(this.table.find('tbody'));
@@ -6709,7 +6747,7 @@
                 var footer = that.footer;
                 var cells = footer.find('.k-footer-template>td');
                 var cols = footer.find('.k-grid-footer-wrap>table>colgroup>col');
-                var html = $('<div class="k-grid-footer-locked"><table><colgroup /><tbody><tr class="k-footer-template"></tr></tbody></table></div>');
+                var html = $('<div class="k-grid-footer-locked"><table><colgroup></colgroup><tbody><tr class="k-footer-template"></tr></tbody></table></div>');
                 var idx, length;
                 var groups = that._groups();
                 var lockedCells = $(), lockedCols = $();
@@ -6761,9 +6799,9 @@
                     }
                 }
                 if (rows.length) {
-                    html = '<div class="k-grid-header-locked" style="width:1px"><table' + (isIE7 ? ' cellspacing="0"' : '') + '><colgroup/><thead>';
+                    html = '<div class="k-grid-header-locked" style="width:1px"><table' + (isIE7 ? ' cellspacing="0"' : '') + '><colgroup></colgroup><thead>';
                     html += new Array(rows.length + 1).join('<tr></tr>');
-                    html += (hasFilterRow ? '<tr class="k-filter-row" />' : '') + '</thead></table></div>';
+                    html += (hasFilterRow ? '<tr class="k-filter-row"></tr>' : '') + '</thead></table></div>';
                     table = $(html);
                     colgroup = table.find('colgroup');
                     colgroup.append(that.thead.prev().find('col.k-group-col').add(cols));
@@ -7105,10 +7143,24 @@
                 }
                 return extend({}, footerData, headerData);
             },
+            _removeGroupIfEmpty: function (row) {
+                var that = this, itemsCount, subgroupsCount, length = that.dataSource._group.length;
+                for (var i = 0; i < length; i++) {
+                    row = row.prev();
+                    itemsCount = +row.attr('data-group-item-count');
+                    subgroupsCount = +row.attr('data-sub-group-count');
+                    if (itemsCount == 1 || subgroupsCount == 1) {
+                        row.hide();
+                    }
+                }
+            },
             _groupRowHtml: function (group, colspan, level, groupHeaderBuilder, templates, skipColspan, skipLastGroup) {
                 var that = this, html = '', idx, length, field = group.field, column = grep(leafColumns(that.columns), function (column) {
                         return column.field == field;
-                    })[0] || {}, firstColumn = visibleColumns(that.columns)[0], firstVisibleColumnGroupHeaderTemplate = firstColumn ? firstColumn.groupHeaderColumnTemplate : null, template = column.groupHeaderTemplate ? column.groupHeaderTemplate : firstVisibleColumnGroupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), groupItems = group.items, groups = that._groups(), groupFooterTemplate = templates.groupFooterTemplate, groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate, groupData;
+                    })[0] || {}, firstColumn = visibleColumns(that.columns)[0], firstVisibleColumnGroupHeaderTemplate = firstColumn ? firstColumn.groupHeaderColumnTemplate : null, template = column.groupHeaderTemplate ? column.groupHeaderTemplate : firstVisibleColumnGroupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), groupItems = group.currentItems || group.items, groups = that._groups(), groupFooterTemplate = templates.groupFooterTemplate, groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate, groupData, expanded = that.dataSource._isGroupPaged() ? that.dataSource._groupsState[group.uid] : true;
+                if (that.options.editable && group.items && group.items[0] && group.items[0].isNew && group.items[0].isNew()) {
+                    expanded = true;
+                }
                 if (templates.groupFooterTemplate || templates.groupHeaderColumnTemplate || column.groupHeaderTemplate) {
                     groupData = that._groupData(group, false, !column.groupHeaderTemplate && visibleColumns(that.columns)[0].groupHeaderColumnTemplate ? visibleColumns(that.columns)[0] : false);
                 }
@@ -7117,23 +7169,33 @@
                 }
                 if (!that._skipRerenderItemsCount) {
                     if (groupHeaderColumnTemplate) {
-                        html += groupHeaderColumnTemplate(extend({}, groupData, {
-                            groupCells: level,
-                            colspan: groups - level,
-                            text: text
-                        }));
+                        if (!group.excludeHeader) {
+                            html += groupHeaderColumnTemplate(extend({}, groupData, {
+                                groupCells: level,
+                                colspan: groups - level,
+                                text: text
+                            }));
+                        } else {
+                            group.excludeHeader = false;
+                        }
                     } else {
-                        html += groupHeaderBuilder(colspan, level, text);
+                        if (!group.excludeHeader) {
+                            html += groupHeaderBuilder(colspan, level, text, expanded, group.uid, that.dataSource._isGroupPaged());
+                        } else {
+                            group.excludeHeader = false;
+                        }
                     }
                 } else {
-                    groupHeaderBuilder(colspan, level, text);
+                    groupHeaderBuilder(colspan, level, text, expanded, group.uid, that.dataSource._isGroupPaged());
                 }
-                if (group.hasSubgroups) {
-                    for (idx = 0, length = groupItems.length; idx < length; idx++) {
-                        html += that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan, skipLastGroup && idx === groupItems.length - 1);
+                if (expanded) {
+                    if (group.hasSubgroups) {
+                        for (idx = 0, length = groupItems.length; idx < length; idx++) {
+                            html += that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan, skipLastGroup && idx === groupItems.length - 1);
+                        }
+                    } else {
+                        html += that._rowsHtml(groupItems, templates);
                     }
-                } else {
-                    html += that._rowsHtml(groupItems, templates);
                 }
                 if (groupFooterTemplate) {
                     if (skipLastGroup) {
@@ -7154,6 +7216,21 @@
             collapseGroup: function (group) {
                 var level, that = this, groupToCollapse = group, groupable = this.options.groupable, showFooter = groupable.showFooter, footerCount = showFooter ? 0 : 1, offset, relatedGroup = $(), idx, length, tr;
                 group = $(group);
+                level = group.find('.k-group-cell').length;
+                if (this.dataSource._isGroupPaged()) {
+                    var groupUid = group.attr('data-group-uid');
+                    var groupObject = that.dataSource._getGroupByUid(groupUid);
+                    var currentGroupCount = that.dataSource._calculateGroupsTotal([groupObject], true);
+                    var groupCountAfterCollapse;
+                    that.dataSource._groupsState[groupUid] = false;
+                    groupCountAfterCollapse = that.dataSource._calculateGroupsTotal([groupObject], true);
+                    that.dataSource._serverGroupsTotal -= currentGroupCount - groupCountAfterCollapse;
+                    that._progress(true);
+                    that.dataSource.range(that.dataSource._currentRangeStart, that.dataSource.take(), function () {
+                        that._progress(false);
+                    }, 'collapseGroup');
+                    return;
+                }
                 if (this._isLocked()) {
                     if (!group.closest('div').hasClass('k-grid-content-locked')) {
                         relatedGroup = group.nextAll('tr');
@@ -7162,7 +7239,6 @@
                         relatedGroup = this.tbody.children('tr:eq(' + group.index() + ')').nextAll('tr');
                     }
                 }
-                level = group.find('.k-group-cell').length;
                 group.find('.k-i-collapse').addClass('k-i-expand').removeClass('k-i-collapse');
                 group.find('td[aria-expanded=\'true\']:first').attr('aria-expanded', false).find('a').attr(ARIALABEL, EXPAND);
                 group = group.nextAll('tr');
@@ -7195,6 +7271,23 @@
             expandGroup: function (group) {
                 group = $(group);
                 var that = this, showFooter = that.options.groupable.showFooter, level, tr, offset, relatedGroup = $(), idx, length, footersVisibility = [], groupsCount = 1;
+                level = group.find('.k-group-cell').length;
+                if (this.dataSource._isGroupPaged()) {
+                    var groupUid = group.attr('data-group-uid');
+                    var groupObject = that.dataSource._getGroupByUid(groupUid);
+                    var groupCount = that.dataSource._calculateGroupsTotal([groupObject], true);
+                    var groupCountAfterExpand;
+                    that.dataSource._groupsState[groupUid] = true;
+                    if (groupObject.items && groupObject.items.length) {
+                        groupCountAfterExpand = that.dataSource._calculateGroupsTotal([groupObject], true);
+                        that.dataSource._serverGroupsTotal += groupCountAfterExpand - groupCount;
+                    }
+                    that._progress(true);
+                    that.dataSource.range(that.dataSource._currentRangeStart, that.dataSource.take(), function () {
+                        that._progress(false);
+                    }, 'expandGroup');
+                    return;
+                }
                 if (this._isLocked()) {
                     if (!group.closest('div').hasClass('k-grid-content-locked')) {
                         relatedGroup = group.nextAll('tr');
@@ -7203,7 +7296,6 @@
                         relatedGroup = this.tbody.children('tr:eq(' + group.index() + ')').nextAll('tr');
                     }
                 }
-                level = group.find('.k-group-cell').length;
                 group.find('.k-i-expand').addClass('k-i-collapse').removeClass('k-i-expand');
                 group.find('td[aria-expanded=\'false\']:first').attr('aria-expanded', true).find('a').attr(ARIALABEL, COLLAPSE);
                 group = group.nextAll('tr');
@@ -8113,7 +8205,7 @@
                 return result.promise();
             };
             Grid.prototype._initPDFProgress = function (deferred) {
-                var loading = $('<div class=\'k-loading-pdf-mask\'><div class=\'k-loading-color\'/></div>');
+                var loading = $('<div class=\'k-loading-pdf-mask\'><div class=\'k-loading-color\'></div></div>');
                 loading.prepend(this.wrapper.clone().css({
                     position: 'absolute',
                     top: 0,
@@ -8304,8 +8396,8 @@
         function groupCellLockedContentBuilder(headerTemplateIndex) {
             return '<td colspan="' + headerTemplateIndex + '">' + '<p class="k-reset">&nbsp;</p></td>';
         }
-        function groupRowBuilder(colspan, level, text) {
-            return '<tr role="row" class="k-grouping-row">' + groupCells(level) + '<td colspan="' + colspan + '" aria-expanded="true">' + '<p class="k-reset">' + '<a class="k-icon k-i-collapse" href="#" tabindex="-1" ' + ARIALABEL + '="' + COLLAPSE + '"></a>' + text + '</p></td></tr>';
+        function groupRowBuilder(colspan, level, text, expanded, uid, includeAdditionalData) {
+            return '<tr role="row"' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-grouping-row">' + groupCells(level) + '<td colspan="' + colspan + '" aria-expanded="' + !!expanded + '">' + '<p class="k-reset">' + '<a class="k-icon ' + (expanded ? 'k-i-collapse' : 'k-i-expand') + '" href="#" tabindex="-1" ' + ARIALABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>' + text + '</p></td></tr>';
         }
         function groupRowLockedContentBuilder(colspan) {
             return '<tr role="row" class="k-grouping-row">' + '<td colspan="' + colspan + '" aria-expanded="true">' + '<p class="k-reset">&nbsp;</p></td></tr>';

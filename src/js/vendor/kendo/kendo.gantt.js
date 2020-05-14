@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1248,7 +1248,7 @@
             _initContainer: function () {
                 var that = this;
                 var popupStyles = Gantt.styles.popup;
-                var dom = kendo.format('<div class="{0} {1}"><div class="{2} {3}"/></div>"', popupStyles.form, popupStyles.editForm, popupStyles.formContainer, popupStyles.resourcesFormContainer);
+                var dom = kendo.format('<div class="{0} {1}"><div class="{2} {3}"></div></div>"', popupStyles.form, popupStyles.editForm, popupStyles.formContainer, popupStyles.resourcesFormContainer);
                 dom = $(dom);
                 this.container = dom.find(DOT + popupStyles.resourcesFormContainer);
                 this.window = dom.kendoWindow({

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -41,10 +41,10 @@
             }
         }
         function toggleTitle(centerElement) {
-            var siblings = centerElement.siblings(), noTitle = !!centerElement.children('ul')[0], showTitle = !!siblings[0] && $.trim(centerElement.text()) === '', android = !!(kendo.mobile.application && kendo.mobile.application.element.is('.km-android'));
+            var siblings = centerElement.siblings(), noTitle = !!centerElement.children('ul')[0], showTitle = !!siblings[0] && kendo.trim(centerElement.text()) === '', android = !!(kendo.mobile.application && kendo.mobile.application.element.is('.km-android'));
             centerElement.prevAll().toggleClass('km-absolute', noTitle);
             centerElement.toggleClass('km-show-title', showTitle);
-            centerElement.toggleClass('km-fill-title', showTitle && !$.trim(centerElement.html()));
+            centerElement.toggleClass('km-fill-title', showTitle && !kendo.trim(centerElement.html()));
             centerElement.toggleClass('km-no-title', noTitle);
             centerElement.toggleClass('km-hide-title', android && !siblings.children().is(':visible'));
         }

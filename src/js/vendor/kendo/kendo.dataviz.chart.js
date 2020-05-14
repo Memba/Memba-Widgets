@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -9286,7 +9286,7 @@
             },
             renderVisual: function () {
                 ChartElement.fn.renderVisual.call(this);
-                if (this.options.series.find(function (options) {
+                if (dataviz.find(this.options.series, function (options) {
                         return options.autoFit;
                     })) {
                     var targetBox = this.targetBox;
@@ -9753,11 +9753,32 @@
             yAxis: {}
         });
         deepExtend(PolarPlotArea.prototype, PlotAreaEventsMixin);
+        function groupBySeriesIx(segments) {
+            var seriesSegments = [];
+            for (var idx = 0; idx < segments.length; idx++) {
+                var segment = segments[idx];
+                seriesSegments[segment.seriesIx] = seriesSegments[segment.seriesIx] || [];
+                seriesSegments[segment.seriesIx].push(segment);
+            }
+            return seriesSegments;
+        }
         var RadarLineChart = LineChart.extend({
             pointSlot: function (categorySlot, valueSlot) {
                 var valueRadius = categorySlot.center.y - valueSlot.y1;
                 var slot = Point.onCircle(categorySlot.center, categorySlot.middle(), valueRadius);
                 return new Box(slot.x, slot.y, slot.x, slot.y);
+            },
+            renderSegments: function () {
+                LineChart.fn.renderSegments.call(this);
+                if (this._segments && this._segments.length > 1) {
+                    var seriesSegments = groupBySeriesIx(this._segments);
+                    for (var idx = 0; idx < seriesSegments.length; idx++) {
+                        var segments = seriesSegments[idx];
+                        if (segments.length > 1) {
+                            last(segments).linePoints.push(segments[0].linePoints[0]);
+                        }
+                    }
+                }
             },
             createSegment: function (linePoints, currentSeries, seriesIx) {
                 var style = currentSeries.style;
@@ -10681,7 +10702,7 @@
                     this._size = size;
                     this._resize(size, force);
                     this.trigger('resize', size);
-                } else if (hasSize && this._selections && this._selections.find(function (s) {
+                } else if (hasSize && this._selections && dataviz.find(this._selections, function (s) {
                         return !s.visible;
                     })) {
                     this._destroySelections();

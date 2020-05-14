@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -42,7 +42,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = $.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIACHECKED = 'aria-checked', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
+        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = $.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIACHECKED = 'aria-checked', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', ARIAEXPANDED = 'aria-expanded', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
                 text: 'dataTextField',
                 url: 'dataUrlField',
                 spriteCssClass: 'dataSpriteCssClassField',
@@ -93,7 +93,7 @@
                 tmp = node;
                 node = node.nextSibling;
                 if (tmp.nodeType == 3) {
-                    tmp.nodeValue = $.trim(tmp.nodeValue);
+                    tmp.nodeValue = kendo.trim(tmp.nodeValue);
                 }
                 if (spriteRe.test(tmp.className)) {
                     container.insertBefore(tmp, container.firstChild);
@@ -432,10 +432,10 @@
                     },
                     dragClue: templateNoWith('#= data.treeview.template(data) #'),
                     group: templateNoWith('<ul class=\'#= data.r.groupCssClass(data.group) #\'#= data.r.groupAttributes(data.group) #>' + '#= data.renderItems(data) #' + '</ul>'),
-                    itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\' />' + '# } #' + '#= data.treeview.template(data) #'),
-                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\'/>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
+                    itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\'></span>' + '# } #' + '#= data.treeview.template(data) #'),
+                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\'></span>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
                     item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\' ' + '#= r.setAttributes(item.toJSON ? item.toJSON() : item) # ' + '# if (data.treeview.checkboxes) { #' + 'aria-checked=\'#= item.checked ? "true" : "false" #\' ' + '# } #' + 'aria-selected=\'#= item.selected ? "true" : "false" #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + 'aria-expanded=\'#= item.expanded ? "true" : "false" #\' ' + 'data-expanded=\'#= item.expanded ? "true" : "false" #\' ' + '>' + '#= r.itemElement(data) #' + '</li>'),
-                    loading: templateNoWith('<div class=\'k-icon k-i-loading\' /> #: data.messages.loading #'),
+                    loading: templateNoWith('<div class=\'k-icon k-i-loading\'></div> #: data.messages.loading #'),
                     retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>')
                 };
             },
@@ -1427,10 +1427,10 @@
                 if (force || !this._trigger(direction, node)) {
                     if (expanded) {
                         node.attr(expandedAttr, 'true');
-                        node.attr('aria-expanded', 'true');
+                        node.attr(ARIAEXPANDED, 'true');
                     } else {
                         node.removeAttr(expandedAttr);
-                        node.attr('aria-expanded', 'false');
+                        node.attr(ARIAEXPANDED, 'false');
                     }
                     if (dataItem) {
                         dataItem.set('expanded', expanded);
@@ -1603,14 +1603,21 @@
                 function expand(id) {
                     var result = $.Deferred();
                     var node = treeview.dataSource.get(id);
+                    var expandedAttr = kendo.attr('expanded');
+                    var nodeElement;
                     if (node) {
+                        nodeElement = treeview.findByUid(node.uid);
                         if (node.loaded()) {
                             node.set('expanded', true);
+                            nodeElement.attr(expandedAttr, true);
+                            nodeElement.attr(ARIAEXPANDED, true);
                             result.resolve();
                         } else {
-                            treeview._progress(treeview.findByUid(node.uid), true);
+                            treeview._progress(nodeElement, true);
                             node.load().then(function () {
                                 node.set('expanded', true);
+                                nodeElement.attr(expandedAttr, true);
+                                nodeElement.attr(ARIAEXPANDED, true);
                                 result.resolve();
                             });
                         }

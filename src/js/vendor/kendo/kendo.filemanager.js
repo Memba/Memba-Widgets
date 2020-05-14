@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -225,7 +225,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Observable = kendo.Observable, extend = $.extend, proxy = $.proxy, NAVIGATE = 'navigate', SELECT = 'select', EXPAND = 'expand', CHANGE = 'change', OPEN = 'open', LOAD = 'load', KEYDOWN = 'keydown', KEYDOWNACTION = 'keydownAction', NS = '.kendoFileManagerViewComponent', fileManagerDraggables = [], fileManagerDragOrigin = null;
+        var kendo = window.kendo, ui = kendo.ui, Observable = kendo.Observable, extend = $.extend, proxy = $.proxy, keys = kendo.keys, NAVIGATE = 'navigate', SELECT = 'select', EXPAND = 'expand', CHANGE = 'change', OPEN = 'open', LOAD = 'load', KEYDOWN = 'keydown', KEYDOWNACTION = 'keydownAction', NS = '.kendoFileManagerViewComponent', fileManagerDraggables = [], fileManagerDragOrigin = null;
         var registerViewComponent = function (componentName, component) {
             ui.filemanager.ViewComponents[componentName] = component;
         };
@@ -273,7 +273,7 @@
                         left: -50
                     },
                     holdToDrag: true,
-                    ignore: 'input,.k-focusable',
+                    ignore: 'input, .k-focusable',
                     hold: proxy(that._hold, that)
                 }).data('kendoDraggable');
                 that.draggable.userEvents.minHold = 150;
@@ -344,6 +344,7 @@
                 var that = this, dataSourceOptions = explicitOptions.dataSource, messages = explicitOptions.messages;
                 options = extend({}, that.defaultOptions, options, { messages: messages });
                 that._setDSOptions(options, dataSourceOptions);
+                options.kendoKeydown = options.kendoKeydown || proxy(that._kendoKeydown, that);
                 Component.fn.init.call(this, ui.ListView, element, options);
                 that.listView = that.widgetComponent;
                 that._bindEvents();
@@ -352,17 +353,22 @@
                 }
             },
             defaultOptions: {
+                layout: 'flex',
+                flex: {
+                    direction: 'row',
+                    wrap: 'wrap'
+                },
                 selectable: kendo.support.mobileOS ? 'row' : 'multiple',
-                template: '<div class=\'k-item\' title=\'#:name##:extension#\'>' + '<div class=\'file-group-icon\'><span class=\'k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'file-name\'>#:name##:extension#</div>' + '</div>',
-                editTemplate: '<div class=\'k-item\'>' + '<div class=\'file-group-icon\'><span class=\'k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'file-edit-input\'><input type=\'text\' class=\'k-textbox\' data-bind=\'value:name\' name=\'name\' required=\'required\' /></div>' + '</div>',
-                dropFilter: '.k-item',
+                template: '<div class=\'k-listview-item\' title=\'#:name##:extension#\'>' + '<div class=\'k-file-preview\'><span class=\'k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'k-file-name file-name\'>#:name##:extension#</div>' + '</div>',
+                editTemplate: '<div class=\'k-listview-item\'>' + '<div class=\'k-file-preview\'><span class=\'k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'k-file-name\'><input type=\'text\' class=\'k-textbox\' data-bind=\'value:name\' name=\'name\' required=\'required\' /></div>' + '</div>',
+                dropFilter: '.k-listview-item',
                 navigatable: true
             },
             _bindEvents: function () {
                 var that = this, listView = that.listView;
                 listView.bind(CHANGE, proxy(that._select, that));
                 listView.element.on('dblclick' + NS, proxy(that._dblClick, that));
-                listView.element.on('mousedown' + NS, '.k-item:not(.k-edit-item)', proxy(that._mousedown, that));
+                listView.element.on('mousedown' + NS, '.k-listview-item:not(.k-edit-item)', proxy(that._mousedown, that));
                 listView.element.on(KEYDOWN + NS, '.k-edit-item', proxy(that._keydown, that));
                 listView.element.on(KEYDOWN + NS, proxy(that._keydownAction, that));
                 listView.bind('edit', function (ev) {
@@ -393,14 +399,25 @@
                 }
             },
             _mousedown: function (ev) {
-                var that = this, node = $(ev.target).closest('.k-item');
+                var that = this, node = $(ev.target).closest('.k-listview-item');
                 if (ev.which === 3 && !node.is('.k-state-selected')) {
                     that.listView.selectable.clear();
                     that.listView.select(node);
                 }
             },
+            _kendoKeydown: function (ev) {
+                var that = this, node = that.listView.current();
+                if (ev.keyCode === keys.ENTER && !ev.preventKendoKeydown) {
+                    that._triggerOpen(node);
+                    ev.preventKendoKeydown = true;
+                }
+            },
             _dblClick: function (ev) {
-                var that = this, node = $(ev.target).closest('.k-item');
+                var that = this, node = $(ev.target).closest('.k-listview-item');
+                that._triggerOpen(node);
+            },
+            _triggerOpen: function (node) {
+                var that = this;
                 if (node.is('.k-edit-item')) {
                     return;
                 }
@@ -552,6 +569,7 @@
                     options = extend({}, that.defaultOptions, options, { messages: messages });
                     that._setDSOptions(options, dataSourceOptions);
                     that._setupColumns(options, messages);
+                    options.kendoKeydown = options.kendoKeydown || proxy(that._kendoKeydown, that);
                     Component.fn.init.call(this, ui.Grid, element, options);
                     that.grid = that.widgetComponent;
                     that._bindEvents();
@@ -612,6 +630,13 @@
                     });
                     grid.saveRow = $.noop;
                     Component.fn._bindEvents.call(this);
+                },
+                _kendoKeydown: function (ev) {
+                    var that = this, current = that.grid.current(), node = current ? current.closest('tr[data-uid]') : null;
+                    if (node && ev.keyCode === keys.ENTER && !ev.preventKendoKeydown) {
+                        that._triggerOpen(node);
+                        ev.preventKendoKeydown = true;
+                    }
                 },
                 _keydownAction: function (ev) {
                     var that = this, target = $(ev.target).find('.k-state-focused').closest('tr');
@@ -680,6 +705,10 @@
                 },
                 _dblClick: function (ev) {
                     var that = this, node = $(ev.target).closest('tr[data-uid]');
+                    that._triggerOpen(node);
+                },
+                _triggerOpen: function (node) {
+                    var that = this;
                     if (node.is('.k-grid-edit-row')) {
                         return;
                     }
@@ -1374,17 +1403,15 @@
             wrapper: 'k-widget k-filemanager',
             header: 'k-filemanager-header',
             navigation: 'k-filemanager-navigation',
-            navigationContainer: 'k-filemanager-navigation-container',
             contentContainer: 'k-filemanager-content-container',
             content: 'k-filemanager-content',
             preview: 'k-filemanager-preview',
-            previewContainer: 'k-filemanager-preview-container',
             toolbar: 'k-filemanager-toolbar',
             treeview: 'k-filemanager-treeview',
             breadcrumb: 'k-filemanager-breadcrumb',
+            view: 'k-filemanager-view',
             grid: 'k-filemanager-grid',
             list: 'k-filemanager-listview',
-            view: 'k-filemanager-view',
             upload: 'k-filemanager-upload',
             uploadDialog: 'k-filemanager-upload-dialog',
             splitBar: 'k-splitbar',
@@ -1396,11 +1423,10 @@
             resizable: 'k-filemanager-resizable'
         };
         var fileManagerTemplateStyles = {
+            filePreview: 'k-file-preview',
             fileInfo: 'k-file-info',
-            filePreviewWrapper: 'k-file-preview-wrapper',
-            fileTitleWrapper: 'k-file-title-wrapper',
-            fileTitle: 'k-file-title',
-            fileMetaWrapper: 'k-file-meta-wrapper',
+            fileName: 'k-file-name',
+            fileMeta: 'k-file-meta',
             metaLabel: 'k-file-meta-label',
             metaValue: 'k-file-meta-value',
             extension: 'k-file-type',
@@ -1412,9 +1438,9 @@
             grid: 'grid',
             list: 'list'
         };
-        var NO_FILE_PREVIEW_TEMPLATE = '<p>#= messages.noFileSelected #</p>';
-        var SINGLE_FILES_PREVIEW_TEMPLATE = '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreviewWrapper#">' + '<span class="k-icon k-i-#= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' + '</div>' + '<div class="#=styles.fileTitleWrapper#">' + '<span class="#=styles.fileTitle#">#=selection[0].name#</span>' + '</div>' + '#if(metaFields){#' + '<dl class="#=styles.fileMetaWrapper#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#=styles.metaLabel#">#=messages[field]#: </dt>' + '<dd class="#=styles.metaValue# #=styles[field]#">' + '#if(field == "size"){#' + ' #=kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #=kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' + '#} else {#' + ' #=selection[0][field]#' + '#}#' + '</dd>' + '<dd class="line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
-        var MULTIPLE_FILES_PREVIEW_TEMPLATE = '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreviewWrapper#">' + '<span class="k-icon k-i-file"></span>' + '</div>' + '<div class="#=styles.fileTitleWrapper#">' + '<span class="#=styles.fileTitle#">' + '#=selection.length# ' + '#=messages.items#' + '</span>' + '</div>' + '</div>';
+        var NO_FILE_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-none"></span>' + '</div>' + '<span class="#=styles.fileName#" k-no-file-selected>#= messages.noFileSelected #</span>' + '</div>';
+        var SINGLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-#= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' + '</div>' + '<span class="#=styles.fileName#">#=selection[0].name#</span>' + '#if(metaFields){#' + '<dl class="#=styles.fileMeta#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#=styles.metaLabel#">#=messages[field]#: </dt>' + '<dd class="#=styles.metaValue# #=styles[field]#">' + '#if(field == "size"){#' + ' #=kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #=kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' + '#} else {#' + ' #=selection[0][field]#' + '#}#' + '</dd>' + '<dd class="k-line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
+        var MULTIPLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-icon k-i-file"></span>' + '</div>' + '<span class="#=styles.fileName#">' + '#=selection.length# ' + '#=messages.items#' + '</span>' + '</div>';
         var FileManager = DataBoundWidget.extend({
             init: function (element, options) {
                 var that = this;
@@ -1645,9 +1671,7 @@
             _renderNavigation: function () {
                 var that = this;
                 that.navigation = $('<div />').addClass(fileManagerStyles.navigation);
-                that.navigationContainer = $('<div />').addClass(fileManagerStyles.navigationContainer);
-                that.navigation.append(that.navigationContainer);
-                that.navigationContainer.append(that._initTreeView().element);
+                that.navigation.append(that._initTreeView().element);
                 that.contentContainer.append(that.navigation);
             },
             _renderContent: function () {
@@ -1676,7 +1700,10 @@
             _setPreviewPaneContent: function () {
                 var that = this, options = that.options, previewPaneMessages = options.messages.previewPane, previewPaneOptions = options.previewPane, selection = that.getSelected(), previewTemplate;
                 if (!selection) {
-                    previewTemplate = template(previewPaneOptions.noFileTemplate)({ messages: previewPaneMessages });
+                    previewTemplate = template(previewPaneOptions.noFileTemplate)({
+                        styles: fileManagerTemplateStyles,
+                        messages: previewPaneMessages
+                    });
                     that.previewContainer.html(previewTemplate);
                     return;
                 }
@@ -1778,6 +1805,8 @@
                 that.treeView._shouldFocus = false;
                 if (treeView.current() && treeView.current().find('.k-state-focused').length || activeElement.hasClass(fileManagerStyles.treeview)) {
                     that.treeView._shouldFocus = true;
+                    view._focusElement = activeElement;
+                    return;
                 }
                 view._focusElement = activeElement.hasClass(fileManagerStyles[that._viewType]) ? activeElement : null;
             },
@@ -1788,7 +1817,7 @@
                 }
                 if (view._focusElement) {
                     view._focusElement.focus();
-                } else if (target.closest(':kendoFocusable').length) {
+                } else if (target.closest && target.closest(':kendoFocusable').length) {
                     target.closest(':kendoFocusable').focus();
                 }
             },
@@ -1862,7 +1891,7 @@
                 return that.upload;
             },
             _sendUploadPathParameter: function (ev) {
-                ev.data = { path: this.path() };
+                ev.data = extend(ev.data, { path: this.path() });
             },
             _success: function () {
                 this._view.widgetComponent.dataSource.read();
@@ -2085,8 +2114,8 @@
                 }
                 if (that.treeView) {
                     that.treeView.destroy();
-                    that.navigationContainer.empty();
-                    that.navigationContainer.append(that._initTreeView().element);
+                    that.navigation.empty();
+                    that.navigation.append(that._initTreeView().element);
                 }
                 if (that._view) {
                     that.view(that._viewType || that.options.initialView);

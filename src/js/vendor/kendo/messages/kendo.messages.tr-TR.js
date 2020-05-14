@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -498,5 +498,20 @@ $.extend(true, kendo.ui.Prompt.prototype.options.localization, {
 });
 }
 
+/* DateInput */
+if (kendo.ui.DateInput) {
+  kendo.ui.DateInput.prototype.options.messages =
+    $.extend(true, kendo.ui.DateInput.prototype.options.messages, {
+      "year": "yıl",
+      "month": "ay",
+      "day": "gün",
+      "weekday": "haftanın günü",
+      "hour": "saat",
+      "minute": "dakika",
+      "second": "saniye",
+      "dayperiod": "AM/PM"
+    });
+}  
+  
 })(window.kendo.jQuery);
 }));

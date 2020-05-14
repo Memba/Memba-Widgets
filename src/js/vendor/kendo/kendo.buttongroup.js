@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -23,14 +23,20 @@
 
 */
 (function (f, define) {
-    define('kendo.buttongroup', ['kendo.core'], f);
+    define('kendo.buttongroup', [
+        'kendo.core',
+        'kendo.badge'
+    ], f);
 }(function () {
     var __meta__ = {
         id: 'buttongroup',
         name: 'ButtonGroup',
         category: 'web',
         description: 'The Kendo ButtonGroup widget is a linear set of grouped buttons.',
-        depends: ['core']
+        depends: [
+            'core',
+            'badge'
+        ]
     };
     (function ($, undefined) {
         var kendo = window.kendo;
@@ -57,21 +63,24 @@
         var templates = {
             item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
             image: template('<img alt="icon" src="#=data.imageUrl#" />'),
-            icon: template('<span class="#=data#" />'),
+            icon: template('<span class="#=data#"></span>'),
             empty: template('')
         };
         function createBadge(badgeOptions, item) {
-            var span = $('<span />').appendTo(item);
-            if (typeof badgeOptions == 'string' || typeof badgeOptions == 'number') {
-                item.badge = new ui.Badge(span, {
-                    value: badgeOptions,
-                    appearance: 'rectangle'
-                });
-            } else if (typeof badgeOptions == 'boolean') {
-                item.badge = new ui.Badge(span);
-            } else {
-                item.badge = new ui.Badge(span, badgeOptions);
+            var badgeEelement;
+            if (badgeOptions === null || badgeOptions === undefined) {
+                return;
             }
+            if (badgeOptions.constructor !== Object) {
+                badgeOptions = { text: badgeOptions };
+            }
+            if (badgeOptions.position === undefined || badgeOptions.position === '') {
+                badgeOptions.position = 'inline';
+            }
+            badgeOptions._classNames = ['k-button-badge'];
+            item.addClass('k-badge-container');
+            badgeEelement = $('<span />').appendTo(item);
+            item.badge = new ui.Badge(badgeEelement, badgeOptions);
         }
         var ButtonGroup = Widget.extend({
             init: function (element, options) {
@@ -212,13 +221,13 @@
                     return kendo.htmlEncode(value);
                 }
                 if (validValue) {
-                    badge.value(kendo.htmlEncode(value));
+                    badge.text(kendo.htmlEncode(value));
                 } else if (value === false) {
                     badge.element.empty().remove();
                     badge.destroy();
                     return;
                 }
-                return badge ? badge.value() : null;
+                return badge ? badge.text() : null;
             },
             enable: function (enable) {
                 if (typeof enable == 'undefined') {
@@ -256,7 +265,7 @@
                 button.contents().filter(function () {
                     return !$(this).hasClass('k-icon') && !$(this).hasClass('k-image');
                 }).each(function () {
-                    if (this.nodeType == 1 || this.nodeType == 3 && $.trim(this.nodeValue).length > 0) {
+                    if (this.nodeType == 1 || this.nodeType == 3 && kendo.trim(this.nodeValue).length > 0) {
                         isEmpty = false;
                     }
                 });

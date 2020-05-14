@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -37,7 +37,7 @@
         var kendo = window.kendo, FileBrowser = kendo.ui.FileBrowser, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, ERROR = 'error', NS = '.kendoImageBrowser', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
                 field: TYPEFIELD,
                 dir: 'asc'
-            }, EMPTYTILE = kendo.template('<li class="k-tile-empty"><strong>${text}</strong></li>');
+            }, EMPTYTILE = kendo.template('<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>');
         extend(true, kendo.data, {
             schemas: {
                 'imagebrowser': {
@@ -176,8 +176,13 @@
             },
             _content: function () {
                 var that = this;
-                that.list = $('<ul class="k-reset k-floats k-tiles" />').appendTo(that.element).on('scroll' + NS, proxy(that._scroll, that)).on('dblclick' + NS, 'li', proxy(that._dblClick, that));
+                that.list = $('<div class="k-filemanager-listview" />').appendTo(that.element).on('scroll' + NS, proxy(that._scroll, that)).on('dblclick' + NS, '.k-listview-item', proxy(that._dblClick, that));
                 that.listView = new kendo.ui.ListView(that.list, {
+                    layout: 'flex',
+                    flex: {
+                        direction: 'row',
+                        wrap: 'wrap'
+                    },
                     dataSource: that.dataSource,
                     template: that._itemTmpl(),
                     editTemplate: that._editTmpl(),
@@ -187,7 +192,7 @@
                         that.toolbar.find('.k-i-close').parent().addClass('k-state-disabled');
                         if (e.action === 'remove' || e.action === 'sync') {
                             e.preventDefault();
-                            kendo.ui.progress(that.listView.element, false);
+                            kendo.ui.progress(that.listView.content, false);
                         }
                     },
                     dataBound: function () {
@@ -195,7 +200,7 @@
                             that._tiles = this.items().filter('[' + kendo.attr('type') + '=f]');
                             that._scroll();
                         } else {
-                            this.wrapper.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
+                            this.content.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
                         }
                     },
                     change: proxy(that._listViewChange, that)
@@ -234,7 +239,7 @@
                     return;
                 }
                 img.hide().on('load' + NS, function () {
-                    $(this).prev().remove().end().addClass('k-image').fadeIn();
+                    $(this).prev().remove().end().addClass('k-image k-file-image').fadeIn();
                 });
                 element.find('.k-i-loading').after(img);
                 if (isFunction(thumbnailUrl)) {
@@ -274,20 +279,20 @@
                 }
             },
             _itemTmpl: function () {
-                var that = this, html = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#" ';
+                var that = this, html = '<div class="k-listview-item" ' + kendo.attr('uid') + '="#=uid#" ';
                 html += kendo.attr('type') + '="${' + TYPEFIELD + '}">';
                 html += '#if(' + TYPEFIELD + ' == "d") { #';
-                html += '<div class="k-thumb"><span class="k-icon k-i-folder"></span></div>';
+                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-folder"></span></div>';
                 html += '#}else{#';
                 if (that.options.transport && that.options.transport.thumbnailUrl) {
-                    html += '<div class="k-thumb"><span class="k-icon k-i-loading"></span></div>';
+                    html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-loading"></span></div>';
                 } else {
-                    html += '<div class="k-thumb"><span class="k-icon k-i-file"></span></div>';
+                    html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-file"></span></div>';
                 }
                 html += '#}#';
-                html += '<strong>${' + NAMEFIELD + '}</strong>';
-                html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-filesize">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
-                html += '</li>';
+                html += '<span class="k-file-name">${' + NAMEFIELD + '}</span>';
+                html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-file-size">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
+                html += '</div>';
                 return proxy(kendo.template(html), { sizeFormatter: sizeFormatter });
             }
         });

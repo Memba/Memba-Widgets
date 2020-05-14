@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -70,7 +70,7 @@
         var MONTH_HEADER_TEMPLATE = kendo.template('#=kendo.toString(start, \'MMM\')#');
         var YEAR_HEADER_TEMPLATE = kendo.template('#=kendo.toString(start, \'yyyy\')#');
         var RESIZE_HINT = kendo.template('<div class="#=styles.marquee#">' + '<div class="#=styles.marqueeColor#"></div>' + '</div>');
-        var RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper#">' + '<div class="#=styles.tooltipContent#">' + '<div>#=messages.start#: #=kendo.toString(start, format)#</div>' + '<div>#=messages.end#: #=kendo.toString(end, format)#</div>' + '</div>' + '</div>');
+        var RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper# k-gantt-resize-hint">' + '<div class="#=styles.tooltipContent#">' + '<div>#=messages.start#: #=kendo.toString(start, format)#</div>' + '<div>#=messages.end#: #=kendo.toString(end, format)#</div>' + '</div>' + '</div>');
         var PERCENT_RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper#" >' + '<div class="#=styles.tooltipContent#">#=text#%</div>' + '<div class="#=styles.tooltipCallout#" style="left:13px;"></div>' + '</div>');
         var TASK_TOOLTIP_TEMPLATE = kendo.template('<div class="#=kendo.htmlEncode(styles.taskDetails)#">' + '<strong>#=kendo.htmlEncode(task.title)#</strong>' + '<div class="#=styles.taskDetailsPercent#">#=kendo.toString(task.percentComplete, "p0")#</div>' + '<ul class="#=styles.reset#">' + '<li>#=messages.start#: #=kendo.toString(task.start, "h:mm tt ddd, MMM d")#</li>' + '<li>#=messages.end#: #=kendo.toString(task.end, "h:mm tt ddd, MMM d")#</li>' + '</ul>' + '</div>');
         var SIZE_CALCULATION_TEMPLATE = '<table style=\'visibility: hidden;\'>' + '<tbody>' + '<tr style=\'height:{0}\'>' + '<td>&nbsp;</td>' + '</tr>' + '</tbody>' + '</table>';
@@ -154,7 +154,7 @@
             arrowEast: 'k-arrow-e',
             dragHint: 'k-drag-hint',
             dependencyHint: 'k-gantt-dependency-hint',
-            tooltipWrapper: 'k-widget k-tooltip k-popup k-group k-reset',
+            tooltipWrapper: 'k-tooltip',
             tooltipContent: 'k-tooltip-content',
             tooltipCallout: 'k-callout k-callout-s',
             callout: 'k-callout',

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -85,7 +85,7 @@
         "justifyCenter": "Στοίχιση Κέντρο",
         "justifyLeft": "Στοίχιση Αριστερά",
         "justifyRight": "Στοίχιση Δεξιά",
-        "justifyFull": "Justify",
+        "justifyFull": "Ισάζω",
         "insertUnorderedList": "Τοποθετήστε μη διατεταγμένη λίστα",
         "insertOrderedList": "Τοποθετήστε διατεταγμένη λίστα",
         "indent": "Εσοχή",
@@ -870,7 +870,7 @@
           "justtifyLeft": "Ευθυγράμμιση Αριστερά",
           "justifyCenter": "Κέντρο",
           "justifyRight": "Ευθυγράμμιση Δεξιά",
-          "justifyFull": "Justify",
+          "justifyFull": "Ισάζω",
           "alignTop": "Ευθυγράμμιση Πάνω",
           "alignMiddle": "Ευθυγράμμιση Μέση",
           "alignBottom": "Ευθυγράμμιση Κάτω"

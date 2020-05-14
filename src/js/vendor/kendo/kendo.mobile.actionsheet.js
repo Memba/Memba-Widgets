@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, ui = kendo.mobile.ui, Shim = ui.Shim, Popup = ui.Popup, Widget = ui.Widget, OPEN = 'open', CLOSE = 'close', COMMAND = 'command', BUTTONS = 'li>a', CONTEXT_DATA = 'actionsheetContext', WRAP = '<div class="km-actionsheet-wrapper" />', cancelTemplate = kendo.template('<li class="km-actionsheet-cancel"><a href="\\#">#:cancel#</a></li>');
+        var kendo = window.kendo, support = kendo.support, ui = kendo.mobile.ui, Shim = ui.Shim, Popup = ui.Popup, Widget = ui.Widget, OPEN = 'open', CLOSE = 'close', COMMAND = 'command', BUTTONS = 'li>a', CONTEXT_DATA = 'actionsheetContext', WRAP = '<div class="km-actionsheet-wrapper"></div>', cancelTemplate = kendo.template('<li class="km-actionsheet-cancel"><a href="\\#">#:cancel#</a></li>');
         var ActionSheet = Widget.extend({
             init: function (element, options) {
                 var that = this, ShimClass, tablet, type, os = support.mobileOS;

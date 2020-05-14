@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, HIDE = 'hide', OPEN = 'open', CLOSE = 'close', WRAPPER = '<div class="km-popup-wrapper" />', ARROW = '<div class="km-popup-arrow" />', OVERLAY = '<div class="km-popup-overlay" />', DIRECTION_CLASSES = 'km-up km-down km-left km-right', Widget = ui.Widget, DIRECTIONS = {
+        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, HIDE = 'hide', OPEN = 'open', CLOSE = 'close', WRAPPER = '<div class="km-popup-wrapper"></div>', ARROW = '<div class="km-popup-arrow"></div>', OVERLAY = '<div class="km-popup-overlay"></div>', DIRECTION_CLASSES = 'km-up km-down km-left km-right', Widget = ui.Widget, DIRECTIONS = {
                 'down': {
                     origin: 'bottom center',
                     position: 'top center'

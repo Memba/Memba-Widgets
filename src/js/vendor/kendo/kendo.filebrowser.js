@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,7 +48,7 @@
         var kendo = window.kendo, Widget = kendo.ui.Widget, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, placeholderSupported = kendo.support.placeholder, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, CHANGE = 'change', APPLY = 'apply', ERROR = 'error', CLICK = 'click', NS = '.kendoFileBrowser', SEARCHBOXNS = '.kendoSearchBox', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
                 field: TYPEFIELD,
                 dir: 'asc'
-            }, EMPTYTILE = kendo.template('<li class="k-tile-empty"><strong>${text}</strong></li>'), TOOLBARTMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' + '<div class="k-toolbar-wrap">' + '# if (showUpload) { # ' + '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' + '<span class="k-icon k-i-plus"></span>#=messages.uploadFile#<input type="file" name="file" /></div></div>' + '# } #' + '# if (showCreate) { #' + '<button type="button" class="k-button k-button-icon"><span class="k-icon k-i-folder-add" /></button>' + '# } #' + '# if (showDelete) { #' + '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>&nbsp;' + '# } #' + '</div>' + '<div class="k-tiles-arrange">' + '<label>#=messages.orderBy#: <select /></label>' + '</div>' + '</div>';
+            }, EMPTYTILE = kendo.template('<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>'), TOOLBARTMPL = '<div class="k-widget k-filebrowser-toolbar k-toolbar k-floatwrap">' + '# if (showCreate) { #' + '<button type="button" class="k-button k-icon-button"><span class="k-icon k-i-folder-add"></span></button>' + '# } #' + '# if (showUpload) { # ' + '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' + '<span class="k-icon k-i-plus"></span>#=messages.uploadFile#<input type="file" name="file" /></div></div>' + '# } #' + '# if (showDelete) { #' + '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close"></span></button>' + '# } #' + '<div class="k-tiles-arrange">' + '<label>#=messages.orderBy#: <select></select></label>' + '</div>' + '<span class="k-toolbar-spacer" />' + '<input data-role="searchbox" />' + '</div>';
         extend(true, kendo.data, {
             schemas: {
                 'filebrowser': {
@@ -165,7 +165,7 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 that.element.addClass('k-filebrowser');
-                that.element.on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-close)', proxy(that._deleteClick, that)).on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-folder-add)', proxy(that._addClick, that)).on('keydown' + NS, 'li.k-state-selected input', proxy(that._directoryKeyDown, that)).on('blur' + NS, 'li.k-state-selected input', proxy(that._directoryBlur, that));
+                that.element.on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-close)', proxy(that._deleteClick, that)).on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-folder-add)', proxy(that._addClick, that)).on('keydown' + NS, '.k-listview-item.k-state-selected input', proxy(that._directoryKeyDown, that)).on('blur' + NS, '.k-listview-item.k-state-selected input', proxy(that._directoryBlur, that));
                 that._dataSource();
                 that.refresh();
                 that.path(that.options.path);
@@ -257,6 +257,12 @@
                         that.orderBy(this.value());
                     }
                 }).data('kendoDropDownList');
+                that.searchBox = that.toolbar.find('input[data-role=\'searchbox\']').kendoSearchBox({
+                    label: that.options.messages.search,
+                    change: function () {
+                        that.search(this.value());
+                    }
+                }).data('kendoSearchBox');
                 that._attachDropzoneEvents();
             },
             _attachDropzoneEvents: function () {
@@ -292,7 +298,7 @@
                 });
             },
             _deleteClick: function () {
-                var that = this, item = that.listView.select(), message = kendo.format(that.options.messages.deleteFile, item.find('strong').text());
+                var that = this, item = that.listView.select(), message = kendo.format(that.options.messages.deleteFile, item.find('.k-file-name').text());
                 if (item.length && that._showMessage(message, 'confirm')) {
                     that.listView.remove(item);
                 }
@@ -450,8 +456,13 @@
             },
             _content: function () {
                 var that = this;
-                that.list = $('<ul class="k-reset k-floats k-tiles" />').appendTo(that.element).on('dblclick' + NS, 'li', proxy(that._dblClick, that));
+                that.list = $('<div class="k-filemanager-listview" />').appendTo(that.element).on('dblclick' + NS, '.k-listview-item', proxy(that._dblClick, that));
                 that.listView = new kendo.ui.ListView(that.list, {
+                    layout: 'flex',
+                    flex: {
+                        direction: 'row',
+                        wrap: 'wrap'
+                    },
                     dataSource: that.dataSource,
                     template: that._itemTmpl(),
                     editTemplate: that._editTmpl(),
@@ -461,14 +472,14 @@
                         that.toolbar.find('.k-i-close').parent().addClass('k-state-disabled');
                         if (e.action === 'remove' || e.action === 'sync') {
                             e.preventDefault();
-                            kendo.ui.progress(that.listView.element, false);
+                            kendo.ui.progress(that.listView.content, false);
                         }
                     },
                     dataBound: function () {
                         if (that.dataSource.view().length) {
                             that._tiles = this.items().filter('[' + kendo.attr('type') + '=f]');
                         } else {
-                            this.wrapper.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
+                            this.content.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
                         }
                     },
                     change: proxy(that._listViewChange, that)
@@ -524,7 +535,7 @@
                 that.dataSource = kendo.data.DataSource.create(dataSource).bind(ERROR, that._errorHandler);
             },
             _navigation: function () {
-                var that = this, navigation = $('<div class="k-floatwrap"><nav/><input/></div>').appendTo(this.element);
+                var that = this, navigation = $('<div class="k-floatwrap"><nav></nav></div>').appendTo(this.element);
                 that.breadcrumbs = navigation.find('nav:first').kendoBreadcrumb({
                     editable: true,
                     gap: 50,
@@ -533,12 +544,6 @@
                         that.path(this.value());
                     }
                 }).data('kendoBreadcrumb');
-                that.searchBox = navigation.parent().find('input:last').kendoSearchBox({
-                    label: that.options.messages.search,
-                    change: function () {
-                        that.search(this.value());
-                    }
-                }).data('kendoSearchBox');
             },
             _error: function (e) {
                 var that = this, status;
@@ -569,30 +574,30 @@
                 that._content();
             },
             _editTmpl: function () {
-                var html = '<li class="k-tile k-state-selected" ' + kendo.attr('uid') + '="#=uid#" ';
+                var html = '<div class="k-listview-item k-state-selected" ' + kendo.attr('uid') + '="#=uid#" ';
                 html += kendo.attr('type') + '="${' + TYPEFIELD + '}">';
                 html += '#if(' + TYPEFIELD + ' == "d") { #';
-                html += '<div class="k-thumb"><span class="k-icon k-i-folder"></span></div>';
+                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-folder"></span></div>';
                 html += '#}else{#';
-                html += '<div class="k-thumb"><span class="k-icon k-i-loading"></span></div>';
+                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-loading"></span></div>';
                 html += '#}#';
                 html += '#if(' + TYPEFIELD + ' == "d") { #';
-                html += '<input class="k-input" ' + kendo.attr('bind') + '="value:' + NAMEFIELD + '"/>';
+                html += '<span class="k-file-name"><input class="k-textbox" ' + kendo.attr('bind') + '="value:' + NAMEFIELD + '"/></span>';
                 html += '#}#';
-                html += '</li>';
+                html += '</div>';
                 return proxy(kendo.template(html), { sizeFormatter: sizeFormatter });
             },
             _itemTmpl: function () {
-                var html = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#" ';
+                var html = '<div class="k-listview-item" ' + kendo.attr('uid') + '="#=uid#" ';
                 html += kendo.attr('type') + '="${' + TYPEFIELD + '}">';
                 html += '#if(' + TYPEFIELD + ' == "d") { #';
-                html += '<div class="k-thumb"><span class="k-icon k-i-folder"></span></div>';
+                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-folder"></span></div>';
                 html += '#}else{#';
-                html += '<div class="k-thumb"><span class="k-icon k-i-file"></span></div>';
+                html += '<div class="k-file-preview"><span class="k-file-icon k-icon k-i-file"></span></div>';
                 html += '#}#';
-                html += '<strong>${' + NAMEFIELD + '}</strong>';
-                html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-filesize">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
-                html += '</li>';
+                html += '<span class="k-file-name">${' + NAMEFIELD + '}</span>';
+                html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-file-size">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
+                html += '</div>';
                 return proxy(kendo.template(html), { sizeFormatter: sizeFormatter });
             },
             path: function (value) {

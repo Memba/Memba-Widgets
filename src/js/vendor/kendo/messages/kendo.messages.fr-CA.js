@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -209,7 +209,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "pdf": "Exporter vers PDF",
     "select": "Sélectionner",
     "cancel": "Annuler les modifications",
-    "save": "Enregistrer les modifications"
+    "save": "Enregistrer les modifications",
+    "search": "Recherche"
   },
   "editable": {
     "confirmation": "Êtes-vous sûr de vouloir supprimer cet enregistrement?",
@@ -599,6 +600,16 @@ if (kendo.ui.ColorPicker) {
       "cancel": "Annuler",
       "noColor": "aucune couleur",
       "clearColor": "Supprimer la couleur"
+  });
+}
+
+/* Numeric text box messages */
+
+if (kendo.ui.NumericTextBox) {
+  kendo.ui.NumericTextBox.prototype.options =
+  $.extend(true, kendo.ui.NumericTextBox.prototype.options, {
+    "upArrowText": "Augmenter la valeur",
+    "downArrowText": "Diminuer la valeur"
   });
 }
 

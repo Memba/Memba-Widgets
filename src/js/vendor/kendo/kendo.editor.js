@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -96,14 +96,14 @@
             }
         });
         var EditorUtils = {
-            editorWrapperTemplate: '<table cellspacing="4" cellpadding="0" class="k-widget k-editor k-header" role="presentation"><tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-editor-toolbar" role="toolbar" /></td></tr>' + '<tr><td class="k-editable-area" /></tr>' + '</tbody></table>',
-            buttonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #" aria-label="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span></a>',
-            tableWizardButtonTemplate: '# var iconCssClass= "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a tabindex="0" role="button" class="k-tool k-button"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
+            editorWrapperTemplate: '<table cellspacing="0" cellpadding="0" class="k-widget k-editor" role="presentation">' + '<tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-toolbar k-editor-toolbar" role="toolbar"></ul></td></tr>' + '<tr><td class="k-editable-area"></td></tr>' + '</tbody>' + '</table>',
+            buttonTemplate: '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '# var dataPopup = data.popup ? "data-popup" : "";#' + '<button tabindex="0" role="button" class="k-button k-tool" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' + '<span class="#= iconCssClass #"></span>' + '<span class="k-tool-text k-button-text">#= data.title #</span>' + '</button>',
+            tableWizardButtonTemplate: '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '# var dataPopup = data.popup ? "data-popup" : "";#' + '<button tabindex="0" role="button" class="k-tool k-button" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' + '<span class="#= iconCssClass #"></span>' + '<span class="k-tool-text">#= data.title #</span>' + '</button>',
             colorPickerTemplate: '<input class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
-            comboBoxTemplate: '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" />',
-            dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #" /></span>',
-            separatorTemplate: '<span class="k-separator" />',
-            overflowAnchorTemplate: '<a tabindex="0" role="button" class="k-tool k-overflow-anchor" data-popup' + ' unselectable="on" title="#= data.title #" aria-label="#= data.title #" aria-haspopup="true" aria-expanded="false">' + '<span unselectable="on" class="k-icon k-i-more-vertical"></span></a>',
+            comboBoxTemplate: '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #"></select>',
+            dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #"></select></span>',
+            separatorTemplate: '<span class="k-separator"></span>',
+            overflowAnchorTemplate: '<button tabindex="0" role="button" class="k-button k-tool k-overflow-anchor" data-popup' + ' title="#= data.title #" aria-label="#= data.title #" aria-haspopup="true" aria-expanded="false">' + '<span class="k-icon k-i-more-vertical"></span>' + '</button>',
             formatByName: function (name, format) {
                 for (var i = 0; i < format.length; i++) {
                     if ($.inArray(name, format[i].tags) >= 0) {
@@ -368,7 +368,7 @@
                 } else {
                     that.element.attr('contenteditable', true).addClass('k-widget k-editor k-editor-inline');
                     toolbarOptions.popup = true;
-                    toolbarContainer = $('<ul class="k-editor-toolbar" role="toolbar" />').insertBefore(element);
+                    toolbarContainer = $('<ul class="k-toolbar k-editor-toolbar" role="toolbar" />').insertBefore(element);
                 }
                 that.toolbar = new editorNS.Toolbar(toolbarContainer[0], toolbarOptions);
                 that.toolbar.bindTo(that);
@@ -396,7 +396,7 @@
                     value = options.value;
                 } else if (that.textarea) {
                     value = domElement.value;
-                    if (that.options.encoded && $.trim(domElement.defaultValue).length) {
+                    if (that.options.encoded && domElement.defaultValue && domElement.defaultValue.trim().length) {
                         value = domElement.defaultValue;
                     }
                     comments = dom.getAllComments($('<div></div>').html(value)[0]);
@@ -456,7 +456,7 @@
                 var resizable = this.options.resizable;
                 var isResizable = $.isPlainObject(resizable) ? resizable.content === undefined || resizable.content === true : resizable;
                 if (isResizable && this.textarea) {
-                    var draggableElement = $('<div class=\'k-resize-handle\'><span class=\'k-icon k-i-arrow-45-down-right\' /></div>').insertAfter(this.textarea);
+                    var draggableElement = $('<div class=\'k-resize-handle\'><span class=\'k-icon k-i-arrow-45-down-right\'></span></div>').insertAfter(this.textarea);
                     this.wrapper.addClass('k-resizable');
                     this.wrapper.kendoResizable(extend({}, this.options.resizable, {
                         draggableElement: draggableElement,
@@ -2191,7 +2191,7 @@
                 for (i = 0, len = classes.length; i < len; i++) {
                     className = className.replace(' ' + classes[i] + ' ', ' ');
                 }
-                className = $.trim(className);
+                className = kendo.trim(className);
                 if (className.length) {
                     node.className = className;
                 } else {
@@ -2854,7 +2854,7 @@
                     options.semantic = true;
                 }
                 function cssProperties(cssText) {
-                    var trim = $.trim;
+                    var trim = kendo.trim;
                     var css = trim(cssText);
                     var match;
                     var property, value;
@@ -4529,7 +4529,7 @@
         var outerWidth = kendo._outerWidth;
         var outerHeight = kendo._outerHeight;
         var OVERFLOWANCHOR = 'overflowAnchor';
-        var focusable = '.k-tool-group:visible a.k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-widget.k-colorpicker,' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
+        var focusable = '.k-tool-group:visible .k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-colorpicker,' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
         var toolNamesByCssClass = {
             'k-i-sup-script': 'superscript',
             'k-i-sub-script': 'subscript',
@@ -4568,7 +4568,6 @@
         };
         var OverflowAnchorTool = Tool.extend({
             initialize: function (ui, options) {
-                ui.attr({ unselectable: 'on' });
                 var toolbar = options.editor.toolbar;
                 ui.attr('aria-controls', options.editor.element.attr('id')).on('click', $.proxy(function () {
                     this.overflowPopup.toggle();
@@ -4675,7 +4674,7 @@
             ],
             _initPopup: function () {
                 var that = this;
-                this.window = $(this.element).wrap('<div class=\'editorToolbarWindow k-header\' />').parent().prepend('<button class=\'k-button k-bare k-editortoolbar-dragHandle\'><span class=\'k-icon k-i-handler-drag\' /></button>').kendoWindow({
+                this.window = $(this.element).wrap('<div class=\'editorToolbarWindow\' />').parent().prepend('<span class=\'k-editortoolbar-dragHandle\'><span class=\'k-icon k-i-handler-drag\'></span></span>').kendoWindow({
                     title: false,
                     resizable: false,
                     draggable: { dragHandle: '.k-editortoolbar-dragHandle' },
@@ -4699,7 +4698,7 @@
                 }).data('kendoWindow');
             },
             _toggleOverflowStyles: function (element, show) {
-                element.find('> li').toggleClass('k-item k-state-default', show).find('.k-tool:not(.k-state-disabled),.k-overflow-button').toggleClass('k-overflow-button k-button', show);
+                element.find('> li').toggleClass('k-item', show).find('.k-tool:not(.k-state-disabled), .k-overflow-button').toggleClass('k-overflow-button', show);
             },
             _initOverflowPopup: function (ui) {
                 var that = this;
@@ -4927,7 +4926,7 @@
             render: function () {
                 var that = this, tools = that.tools, options, template, toolElement, toolName, editorElement = that._editor.element, element = that.element.empty(), groupName, newGroupName, toolConfig = that._editor.options.tools, browser = kendo.support.browser, group, i, groupPosition = 0, resizable = that.options.resizable && that.options.resizable.toolbar, overflowFlaseTools = this.overflowFlaseTools;
                 function stringify(template) {
-                    var result;
+                    var result = '';
                     if (template.getHtml) {
                         result = template.getHtml();
                     } else {
@@ -4936,7 +4935,7 @@
                         }
                         result = template(options);
                     }
-                    return $.trim(result);
+                    return kendo.trim(result);
                 }
                 function endGroup() {
                     if (group.children().length) {
@@ -4995,7 +4994,7 @@
                     }
                 }
                 endGroup();
-                $(that.element).children(':has(> .k-tool)').addClass('k-button-group');
+                $(that.element).children(':has(> .k-tool)').not('.k-overflow-tools').addClass('k-button-group');
                 if (that.options.popup && browser.msie && browser.version < 9) {
                     that.window.wrapper.find('*').attr('unselectable', 'on');
                 }
@@ -5008,11 +5007,8 @@
                 });
             },
             updateGroups: function () {
-                $(this.element).children().each(function () {
-                    $(this).addClass('k-state-disabled');
-                    $(this).children().filter(function () {
-                        return !$(this).hasClass('k-state-disabled');
-                    }).removeClass('k-group-end').first().addClass('k-group-start').end().last().addClass('k-group-end').end().parent().removeClass('k-state-disabled').css('display', '');
+                $(this.element).children().not('.k-overflow-tools').each(function () {
+                    $(this).children().removeClass('k-group-start k-group-end').first().addClass('k-group-start').end().last().addClass('k-group-end').end();
                 });
             },
             decorateFrom: function (body) {
@@ -5112,7 +5108,7 @@
                         e.preventDefault();
                         focusElement.focus();
                     }
-                    if ((keyCode === keys.ENTER || keyCode === keys.SPACEBAR) && $(current).is('a') && !$(current).attr('href')) {
+                    if ((keyCode === keys.ENTER || keyCode === keys.SPACEBAR) && ($(current).is('button') || $(current).is('a')) && !$(current).attr('href')) {
                         that._executeToolCommand(current, e);
                     }
                 }).on('click' + NS, enabledButtons, function (e) {
@@ -5295,7 +5291,7 @@
                     var popup = this.overflowPopup;
                     group.detach().prependTo(popup.element).addClass('k-overflow-tool-group');
                 } else {
-                    group.hide();
+                    group.addClass('k-hidden');
                 }
             },
             _showGroup: function (group, width) {
@@ -5316,7 +5312,7 @@
                         }
                         group.removeClass('k-overflow-tool-group');
                     } else {
-                        group.show();
+                        group.removeClass('k-hidden');
                     }
                     return true;
                 }
@@ -5369,6 +5365,9 @@
                 }
                 this.createDialog(dialog, {
                     title: messages.viewHtml,
+                    width: 600,
+                    height: 400,
+                    resizable: true,
                     close: close,
                     visible: false
                 }).find(textarea).val(content).end().find('.k-dialog-update').click(apply).end().find('.k-dialog-close').click(close).end().data('kendoWindow').center().open();
@@ -5376,7 +5375,7 @@
             }
         });
         extend(ViewHtmlCommand, {
-            template: '<div class=\'k-editor-dialog k-popup-edit-form k-viewhtml-dialog\'>' + '<div class=\'k-edit-form-container\'></div>' + '<textarea class=\'k-editor-textarea k-input\'></textarea>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class=\'k-dialog-update k-button k-primary\'>#: dialogUpdate #</button>' + '<button class=\'k-dialog-close k-button\'>#: dialogCancel #</button>' + '</div>' + '</div>' + '</div>',
+            template: '' + '<div class=\'k-editor-dialog k-popup-edit-form k-viewhtml-dialog\'>' + '<textarea class=\'k-textarea k-editor-textarea\'></textarea>' + '<div class=\'k-edit-buttons k-state-default\'>' + '<button class=\'k-dialog-update k-button k-primary\'>#: dialogUpdate #</button>' + '<button class=\'k-dialog-close k-button\'>#: dialogCancel #</button>' + '</div>' + '</div>',
             indent: function (content) {
                 return content.replace(/<\/(p|li|ul|ol|h[1-6]|table|tr|td|th)>/gi, '</$1>\n').replace(/<(ul|ol)([^>]*)><li/gi, '<$1$2>\n<li').replace(/<br \/>/gi, '<br />\n').replace(/\n$/, '');
             }
@@ -5621,7 +5620,7 @@
             },
             getInlineCssValue: function (node) {
                 var attributes = node.attributes;
-                var trim = $.trim;
+                var trim = kendo.trim;
                 var i, l, attribute, name, attributeValue, css, pair, cssIndex, len;
                 var propertyAndValue, property, value;
                 if (!attributes) {
@@ -8677,7 +8676,7 @@
                 this.rows = 6;
                 PopupTool.fn.init.call(this, $.extend(options, {
                     command: TableCommand,
-                    popupTemplate: '<div class=\'k-ct-popup\'>' + new Array(this.cols * this.rows + 1).join('<span class=\'k-ct-cell k-state-disabled\' />') + '<div class=\'k-status\'></div>' + '</div>'
+                    popupTemplate: '<div class=\'k-ct-popup\'>' + new Array(this.cols * this.rows + 1).join('<span class=\'k-ct-cell k-state-disabled\'></span>') + '<div class=\'k-status\'></div>' + '</div>'
                 }));
             },
             _activate: function () {
@@ -9362,10 +9361,19 @@
             initialize: function (ui, options) {
                 Tool.fn.initialize.call(this, ui, options);
                 ui.addClass('k-state-disabled');
+                ui.attr('disabled', 'disabled');
             },
             update: function (ui, nodes) {
                 var isFormatted = !tableFormatFinder.isFormatted(nodes);
-                ui.toggleClass('k-state-disabled', isFormatted);
+                if (isFormatted === true) {
+                    ui.parent().addClass('k-hidden k-state-disabled');
+                    ui.attr('disabled', 'disabled');
+                    ui.addClass('k-state-disabled');
+                } else {
+                    ui.parent().removeClass('k-hidden k-state-disabled');
+                    ui.removeAttr('disabled');
+                    ui.removeClass('k-state-disabled');
+                }
             }
         });
         extend(kendo.ui.editor, {
@@ -13601,7 +13609,15 @@
         var TableWizardEditTool = TableWizardTool.extend({
             update: function (ui, nodes) {
                 var isFormatted = !tableFormatFinder.isFormatted(nodes);
-                ui.toggleClass('k-state-disabled', isFormatted);
+                if (isFormatted === true) {
+                    ui.parent().addClass('k-hidden k-state-disabled');
+                    ui.attr('disabled', 'disabled');
+                    ui.addClass('k-state-disabled');
+                } else {
+                    ui.parent().removeClass('k-hidden k-state-disabled');
+                    ui.removeAttr('disabled');
+                    ui.removeClass('k-state-disabled');
+                }
             }
         });
         kendo.ui.editor.TableWizardTool = TableWizardTool;

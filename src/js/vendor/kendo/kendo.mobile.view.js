@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -44,7 +44,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, attr = kendo.attr, Widget = ui.Widget, ViewClone = kendo.ViewClone, INIT = 'init', UI_OVERLAY = '<div style="height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 20000; display: none" />', BEFORE_SHOW = 'beforeShow', SHOW = 'show', AFTER_SHOW = 'afterShow', BEFORE_HIDE = 'beforeHide', TRANSITION_END = 'transitionEnd', TRANSITION_START = 'transitionStart', HIDE = 'hide', DESTROY = 'destroy', attrValue = kendo.attrValue, roleSelector = kendo.roleSelector, directiveSelector = kendo.directiveSelector, compileMobileDirective = kendo.compileMobileDirective;
+        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, attr = kendo.attr, Widget = ui.Widget, ViewClone = kendo.ViewClone, INIT = 'init', UI_OVERLAY = '<div style="height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 20000; display: none"></div>', BEFORE_SHOW = 'beforeShow', SHOW = 'show', AFTER_SHOW = 'afterShow', BEFORE_HIDE = 'beforeHide', TRANSITION_END = 'transitionEnd', TRANSITION_START = 'transitionStart', HIDE = 'hide', DESTROY = 'destroy', attrValue = kendo.attrValue, roleSelector = kendo.roleSelector, directiveSelector = kendo.directiveSelector, compileMobileDirective = kendo.compileMobileDirective;
         function initPopOvers(element) {
             var popovers = element.find(roleSelector('popover')), idx, length, roles = ui.roles;
             for (idx = 0, length = popovers.length; idx < length; idx++) {

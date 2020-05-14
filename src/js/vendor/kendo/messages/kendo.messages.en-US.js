@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1104,6 +1104,8 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "statusFailed": "failed",
   "headerStatusUploading": "Uploading...",
   "headerStatusUploaded": "Done",
+  "uploadSuccess": "File(s) uploaded successfully.",
+  "uploadFail": "File(s) failed to upload.",
   "invalidMaxFileSize": "File size too large.",
   "invalidMinFileSize": "File size too small.",
   "invalidFileExtension": "File type not allowed."

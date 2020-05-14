@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,7 +35,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, Widget = kendo.ui.Widget, antiForgeryTokens = kendo.antiForgeryTokens, logToConsole = kendo.logToConsole, rFileExtension = /\.([^\.]+)$/, NS = '.kendoUpload', SELECT = 'select', UPLOAD = 'upload', SUCCESS = 'success', ERROR = 'error', COMPLETE = 'complete', CANCEL = 'cancel', CLEAR = 'clear', PAUSE = 'pause', RESUME = 'resume', PROGRESS = 'progress', REMOVE = 'remove', VALIDATIONERRORS = 'validationErrors', INVALIDMAXFILESIZE = 'invalidMaxFileSize', INVALIDMINFILESIZE = 'invalidMinFileSize', INVALIDFILEEXTENSION = 'invalidFileExtension', PROGRESSHIDEDELAY = 1000, PROGRESSHIDEDURATION = 2000;
         var headerStatusIcon = {
-            loading: 'k-i-loading',
+            loading: 'k-i-upload',
             warning: 'k-i-warning',
             success: 'k-i-check'
         };
@@ -121,6 +121,8 @@
                     'headerStatusUploading': 'Uploading...',
                     'headerStatusPaused': 'Paused',
                     'headerStatusUploaded': 'Done',
+                    'uploadSuccess': 'File(s) uploaded successfully.',
+                    'uploadFail': 'File(s) failed to upload.',
                     'invalidMaxFileSize': 'File size too large.',
                     'invalidMinFileSize': 'File size too small.',
                     'invalidFileExtension': 'File type not allowed.'
@@ -458,9 +460,9 @@
                 var errors = file[VALIDATIONERRORS];
                 var template = '';
                 if (errors && errors.length > 0) {
-                    template += '<li class=\'k-file k-file-invalid\'><span class=\'k-progress\'></span>' + '<span class=\'k-file-invalid-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-' + fileGroup + '\'></span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'>' + '<span class=\'k-file-name k-file-name-invalid\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-validation-message\'>' + that.localization[errors[0]] + '</span>' + '</span>';
+                    template += '<li class=\'k-file k-file-invalid\'><div class=\'k-progressbar k-hidden\'><span class=\'k-progress\'></span></div>' + '<span class=\'k-file-invalid-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-' + fileGroup + '\'></span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'>' + '<span class=\'k-file-name k-file-name-invalid\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-validation-message k-text-error\'>' + that.localization[errors[0]] + '</span>' + '</span>';
                 } else {
-                    template += '<li class=\'k-file\'><span class=\'k-progress\'></span>' + '<span class=\'k-file-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-' + fileGroup + '\'></span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'><span class=\'k-file-name\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-size\'>' + fileSize + '</span></span>';
+                    template += '<li class=\'k-file\'><div class=\'k-progressbar k-hidden\'><span class=\'k-progress\'></span></div>' + '<span class=\'k-file-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-' + fileGroup + '\'></span>' + '<span class=\'k-file-state\'></span>' + '</span>' + '<span class=\'k-file-name-size-wrapper\'><span class=\'k-file-name\' title=\'' + file.name + '\'>' + file.name + '</span>' + '<span class=\'k-file-size\'>' + fileSize + '</span></span>';
                 }
                 template += '<strong class=\'k-upload-status\'></strong>';
                 return $(template);
@@ -473,9 +475,9 @@
                 var template = '';
                 var i, currentFile;
                 if (filesHaveValidationErrors) {
-                    template += '<li class=\'k-file k-file-invalid\'><span class=\'k-progress\'></span>' + '<span class=\'k-multiple-files-invalid-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-files\'></span>';
+                    template += '<li class=\'k-file k-file-invalid\'><div class=\'k-progressbar k-hidden\'><span class=\'k-progress\'></span></div>' + '<span class=\'k-multiple-files-invalid-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-files\'></span>';
                 } else {
-                    template += '<li class=\'k-file\'><span class=\'k-progress\'></span>' + '<span class=\'k-multiple-files-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-files\'></span>';
+                    template += '<li class=\'k-file\'><div class=\'k-progressbar k-hidden\'><span class=\'k-progress\'></span></div>' + '<span class=\'k-multiple-files-group-wrapper\'>' + '<span class=\'k-file-group k-icon k-i-files\'></span>';
                 }
                 template += '<span class=\'k-file-state\'></span></span>';
                 files.sort(function (a, b) {
@@ -487,17 +489,20 @@
                     }
                     return 0;
                 });
-                template += '<span class=\'k-file-name-size-wrapper\'>';
+                template += '<span class=\'k-multiple-files-wrapper\'>';
                 for (i = 0; i < files.length; i++) {
                     currentFile = files[i];
+                    var fileSize = getTotalFilesSizeMessage([currentFile]);
+                    template += '<span class=\'k-file-name-size-wrapper\'>';
                     if (currentFile[VALIDATIONERRORS] && currentFile[VALIDATIONERRORS].length > 0) {
                         template += '<span class=\'k-file-name k-file-name-invalid\' title=\'' + currentFile.name + '\'>' + currentFile.name + '</span>';
                     } else {
                         template += '<span class=\'k-file-name\' title=\'' + currentFile.name + '\'>' + currentFile.name + '</span>';
                     }
+                    template += '<span class=\'k-file-size\'>' + fileSize + '</span></span>';
                 }
                 if (filesHaveValidationErrors) {
-                    template += '<span class=\'k-file-validation-message\'>' + that.localization.invalidFiles + '</span>';
+                    template += '<span class=\'k-file-validation-message k-text-error\'>' + that.localization.invalidFiles + '</span>';
                 } else {
                     template += '<span class=\'k-file-information\'>Total: ' + files.length + ' files, ' + totalFileSize + '</span>';
                 }
@@ -532,7 +537,7 @@
                     templateData = that._prepareTemplateData(name, data);
                     template = kendo.template(template);
                     fileEntry = $('<li class=\'k-file\'>' + template(templateData) + '</li>');
-                    fileEntry.find('.k-upload-action').addClass('k-button');
+                    fileEntry.find('.k-upload-action').addClass('k-button k-button-icon k-flat');
                     that.angular('compile', function () {
                         return {
                             elements: fileEntry,
@@ -583,7 +588,7 @@
                 };
                 var iconsClassDictionary = {
                     remove: 'k-i-close',
-                    cancel: 'k-i-close',
+                    cancel: 'k-i-cancel',
                     retry: 'k-i-reload-sm',
                     pause: 'k-i-pause-sm'
                 };
@@ -620,7 +625,7 @@
             },
             _renderAction: function (actionClass, actionText, iconClass) {
                 if (actionClass !== '') {
-                    return $('<button type=\'button\' class=\'k-button k-upload-action\' aria-label=\'' + actionText + '\'>' + '<span class=\'k-icon ' + iconClass + ' ' + actionClass + '\' title=\'' + actionText + '\'></span>' + '</button>').on('focus', function () {
+                    return $('<button type=\'button\' class=\'k-button k-button-icon k-flat k-upload-action\' aria-label=\'' + actionText + '\'>' + '<span class=\'k-icon ' + iconClass + ' ' + actionClass + '\' title=\'' + actionText + '\'></span>' + '</button>').on('focus', function () {
                         $(this).addClass('k-state-focused');
                     }).on('blur', function () {
                         $(this).removeClass('k-state-focused');
@@ -663,7 +668,7 @@
                         that.resume(fileEntry);
                     } else if (icon.hasClass('k-i-retry')) {
                         $('.k-i-warning', fileEntry).remove();
-                        $('.k-progress', fileEntry).finish().show();
+                        $('.k-progressbar', fileEntry).finish().show();
                         that._module.onRetry({ target: $(fileEntry, that.wrapper) });
                         that._retryClicked = true;
                     }
@@ -689,16 +694,13 @@
             },
             _onFileProgress: function (e, percentComplete) {
                 var progressPct;
-                var warningPct;
                 if (percentComplete > 100) {
                     percentComplete = 100;
                 }
+                $('.k-progressbar', e.target).removeClass('k-hidden');
                 if (!this.options.template) {
                     progressPct = $('.k-upload-pct', e.target);
-                    warningPct = $('.k-i-warning', e.target);
-                    if (warningPct.length) {
-                        warningPct.removeClass('k-i-warning').removeClass('k-icon').addClass('k-upload-pct');
-                    } else if (progressPct.length === 0) {
+                    if (progressPct.length === 0) {
                         $('.k-upload-status', e.target).prepend('<span class=\'k-upload-pct\'></span>');
                     }
                     if (percentComplete !== 100) {
@@ -718,6 +720,9 @@
             _onUploadSuccess: function (e, response, xhr) {
                 var that = this;
                 var fileEntry = getFileEntry(e);
+                var files = fileEntry.data('fileNames');
+                var fileInfo = fileEntry.find('.k-file-information');
+                var fileSize = fileEntry.find('.k-file-size');
                 var prevented = that.trigger(SUCCESS, {
                     files: fileEntry.data('fileNames'),
                     response: response,
@@ -729,6 +734,11 @@
                 } else {
                     that._fileState(fileEntry, 'uploaded');
                     fileEntry.removeClass('k-file-progress').addClass('k-file-success');
+                    if (fileInfo.length > 0) {
+                        fileInfo.addClass('k-hidden').after('<span class="k-file-validation-message k-text-success">' + files.length + ' ' + that.localization.uploadSuccess + '</span>');
+                    } else if (fileSize.length > 0) {
+                        fileSize.addClass('k-hidden').after('<span class="k-file-validation-message k-text-success">' + that.localization.uploadSuccess + '</span>');
+                    }
                     that._updateHeaderUploadStatus();
                     if (that._supportsRemove()) {
                         that._fileAction(fileEntry, REMOVE);
@@ -780,19 +790,18 @@
                 }
             },
             _setUploadErrorState: function (fileEntry) {
-                var that = this;
-                var uploadPercentage;
+                var that = this, uploadPercentage, files = fileEntry.data('fileNames'), fileInfo = fileEntry.find('.k-file-information'), fileSize = fileEntry.find('.k-file-size');
                 that._fileState(fileEntry, 'failed');
                 fileEntry.removeClass('k-file-progress').addClass('k-file-error');
+                if (fileInfo.length > 0) {
+                    fileInfo.addClass('k-hidden').after('<span class="k-file-validation-message k-text-error">' + files.length + ' ' + that.localization.uploadFail + '</span>');
+                } else if (fileSize.length > 0) {
+                    fileSize.addClass('k-hidden').after('<span class="k-file-validation-message k-text-error">' + that.localization.uploadFail + '</span>');
+                }
                 that._updateUploadProgress(fileEntry);
                 uploadPercentage = $('.k-upload-pct', fileEntry);
                 if (uploadPercentage.length > 0) {
-                    if (!uploadPercentage.parent().find('.k-i-warning').length) {
-                        uploadPercentage.removeClass('k-upload-pct').addClass('k-icon k-i-warning');
-                    }
-                    uploadPercentage.empty();
-                } else {
-                    $('.k-upload-status', fileEntry).prepend('<span class=\'k-icon k-i-warning\'></span>');
+                    uploadPercentage.remove();
                 }
                 this._updateHeaderUploadStatus();
                 this._fileAction(fileEntry, 'retry');
@@ -817,8 +826,8 @@
                 }
             },
             _hideUploadProgress: function (fileEntry) {
-                $('.k-progress', fileEntry).delay(PROGRESSHIDEDELAY).fadeOut(PROGRESSHIDEDURATION, function () {
-                    $(this).css('width', '0%');
+                $('.k-progressbar', fileEntry).delay(PROGRESSHIDEDELAY).fadeOut(PROGRESSHIDEDURATION, function () {
+                    $(this).find('.k-progress').css('width', '0%');
                 });
             },
             _showActionButtons: function () {
@@ -846,6 +855,7 @@
                 if (headerUploadStatus.length !== 0) {
                     headerUploadStatus.remove();
                 }
+                $('.k-dropzone-hint', that.wrapper).addClass('k-hidden');
                 headerUploadStatus = '<strong class="k-upload-status k-upload-status-total"><span class="k-icon"></span></strong>';
                 if (isUploading) {
                     headerUploadStatus = $(headerUploadStatus).append(localization.headerStatusUploading);
@@ -879,7 +889,11 @@
                 }
             },
             _hideHeaderUploadstatus: function () {
+                var that = this, dropZone = that.options.dropZone;
                 $('.k-upload-status-total', this.wrapper).remove();
+                if (dropZone === '') {
+                    $('.k-dropzone-hint', that.wrapper).removeClass('k-hidden');
+                }
             },
             _onParentFormSubmit: function () {
                 var upload = this, element = upload.element;
@@ -936,7 +950,9 @@
                 var that = this;
                 var dropZone = $(that.options.dropZone);
                 if (!that.wrapper.find('.k-dropzone-hint').length) {
-                    $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint\'>' + that.localization.dropFilesHere + '</em>'));
+                    $('.k-dropzone', that.wrapper).append($('<em class=\'k-dropzone-hint k-hidden\'>' + that.localization.dropFilesHere + '</em>'));
+                } else {
+                    $('.k-dropzone-hint', that.wrapper).addClass('k-hidden');
                 }
                 var ns = that._ns;
                 dropZone.on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
@@ -961,9 +977,11 @@
                     if (!that.wrapper.hasClass('k-state-disabled')) {
                         dropZone.addClass('k-dropzone-active');
                         dropZone.closest('.k-upload').removeClass('k-upload-empty');
+                        dropZone.find('.k-dropzone-hint').removeClass('k-hidden');
                     }
                 }, function () {
                     dropZone.removeClass('k-dropzone-active');
+                    dropZone.find('.k-dropzone-hint').addClass('k-hidden');
                     if ($('li.k-file', dropZone.closest('.k-upload')).length === 0) {
                         dropZone.closest('.k-upload').addClass('k-upload-empty');
                     }
@@ -1121,6 +1139,9 @@
                 var e = { files: fileEntry.data('fileNames') };
                 var iframe = fileEntry.data('frame');
                 var upload = this.upload;
+                var fileValidation = fileEntry.find('.k-file-validation-message');
+                var fileInfo = fileEntry.find('.k-file-information');
+                var fileSize = fileEntry.find('.k-file-size');
                 if (!upload.trigger(UPLOAD, e)) {
                     upload._hideActionButtons();
                     upload._showHeaderUploadStatus(true);
@@ -1140,6 +1161,14 @@
                     upload._fileAction(fileEntry, CANCEL);
                     upload._fileState(fileEntry, 'uploading');
                     $(fileEntry).removeClass('k-file-error').addClass('k-file-progress');
+                    if (fileValidation.length > 0) {
+                        fileValidation.remove();
+                    }
+                    if (fileInfo.length > 0) {
+                        fileInfo.removeClass('k-hidden');
+                    } else if (fileSize.length > 0) {
+                        fileSize.removeClass('k-hidden');
+                    }
                     iframe.one('load', $.proxy(this.onIframeLoad, this));
                     form[0].submit();
                 } else {
@@ -1360,6 +1389,9 @@
                         files: fileEntry.data('fileNames'),
                         XMLHttpRequest: xhr
                     }, files;
+                var fileValidation = fileEntry.find('.k-file-validation-message');
+                var fileInfo = fileEntry.find('.k-file-information');
+                var fileSize = fileEntry.find('.k-file-size');
                 if (!upload.trigger(UPLOAD, e)) {
                     if (fileEntry.find('.k-i-cancel').length === 0) {
                         if (upload.options.async.chunkSize) {
@@ -1385,6 +1417,14 @@
                     }
                     upload._fileState(fileEntry, 'uploading');
                     $(fileEntry).removeClass('k-file-error').addClass('k-file-progress');
+                    if (fileValidation.length > 0) {
+                        fileValidation.remove();
+                    }
+                    if (fileInfo.length > 0) {
+                        fileInfo.removeClass('k-hidden');
+                    } else if (fileSize.length > 0) {
+                        fileSize.removeClass('k-hidden');
+                    }
                     if (upload.options.async.useArrayBuffer && window.FileReader) {
                         this._readFile(upload.options.async.saveUrl, formData, fileEntry, xhr);
                     } else {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -613,6 +613,9 @@
                 this._content();
                 this._initSlotHeight();
                 this.refreshLayout();
+                if (this._isVirtualized()) {
+                    this._tryRenderContent();
+                }
                 this.content.on('click' + NS, '.k-nav-day,.k-more-events', function (e) {
                     var offset = $(e.currentTarget).offset();
                     var slot = that._slotByPosition(offset.left, offset.top);
@@ -719,9 +722,17 @@
                 }
                 for (var verticalGroupIdx = 0; verticalGroupIdx < verticalGroupCount; verticalGroupIdx++) {
                     html += this._createCalendar(verticalGroupIdx);
+                    this._cachedGroupIndex = verticalGroupIdx;
                 }
                 html += '</tbody>';
                 this.content.find('table').html(html);
+            },
+            _virtualContent: function () {
+                var that = this;
+                var html = '';
+                html += this._createCalendar(++this._cachedGroupIndex);
+                that.content.find('table tbody').append(html);
+                that._initSlotHeight();
             },
             _calcSlotHeight: function (eventsPerDay) {
                 var options = this.options;
@@ -980,7 +991,7 @@
                 var slot = slotRange.collection.at(startIndex);
                 var container = slot.container;
                 if (!container) {
-                    container = $(kendo.format('<div class="k-events-container" style="top:{0};left:{1};width:{2}"/>', startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + 'px', startSlot.offsetLeft + 'px', startSlot.offsetWidth + 'px'));
+                    container = $(kendo.format('<div class="k-events-container" style="top:{0};left:{1};width:{2}"></div>', startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + 'px', startSlot.offsetLeft + 'px', startSlot.offsetWidth + 'px'));
                     slot.container = container;
                     this.content[0].appendChild(container[0]);
                 }
@@ -1148,6 +1159,7 @@
             },
             render: function (events) {
                 this.content.children('.k-event,.k-more-events,.k-events-container').remove();
+                this._cachedEvents = events;
                 this._groups();
                 events = new kendo.data.Query(events).sort([
                     {
@@ -1178,6 +1190,9 @@
                 var group = this.groups[groupIndex];
                 var view = this._groupedView._view;
                 var isMobile = view._isMobile();
+                if (!group) {
+                    return;
+                }
                 if (!group._continuousEvents) {
                     group._continuousEvents = [];
                 }

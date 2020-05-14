@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -622,7 +622,7 @@
             };
         }
         var DataSource = kendo.data.DataSource;
-        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form class="k-filter-menu">' + '<ul class="k-reset">' + '#if(search){#' + '<li class="k-textbox k-space-right">' + '<input placeholder="#=messages.search#" title="#=messages.search#" autocomplete="' + AUTOCOMPLETEVALUE + '"  />' + '<span class="k-icon k-i-zoom" />' + '</li>' + '#}#' + '<li class="k-filter-tools">' + '<span style="#=checkAll ? "" : "visibility: hidden;" #" class="k-label k-select-all" title="#=messages.checkAll#" ' + 'aria-label="#=messages.checkAll#">#=messages.checkAll#</span>' + '<span class="k-label k-clear-all" title="#=messages.clearAll#" ' + 'aria-label="#=messages.clearAll#">#=messages.clearAll#</span>' + '</li>' + '#if(messages.selectedItemsFormat){#' + '<li>' + '<div class="k-filter-selected-items"></div>' + '</li>' + '#}#' + '<li>' + '<ul class="k-multicheck-wrap k-listgroup k-listgroup-flush"></ul>' + '</li>' + '</ul>' + '</form>' + '</div>';
+        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form class="k-filter-menu">' + '<ul class="k-reset">' + '#if(search){#' + '<li class="k-textbox k-space-right">' + '<input placeholder="#=messages.search#" title="#=messages.search#" autocomplete="' + AUTOCOMPLETEVALUE + '"  />' + '<span class="k-icon k-i-zoom"></span>' + '</li>' + '#}#' + '<li class="k-filter-tools">' + '<span style="#=checkAll ? "" : "visibility: hidden;" #" class="k-label k-select-all" title="#=messages.checkAll#" ' + 'aria-label="#=messages.checkAll#">#=messages.checkAll#</span>' + '<span class="k-label k-clear-all" title="#=messages.clearAll#" ' + 'aria-label="#=messages.clearAll#">#=messages.clearAll#</span>' + '</li>' + '#if(messages.selectedItemsFormat){#' + '<li>' + '<div class="k-filter-selected-items"></div>' + '</li>' + '#}#' + '<li>' + '<ul class="k-multicheck-wrap k-listgroup k-listgroup-flush"></ul>' + '</li>' + '</ul>' + '</form>' + '</div>';
         var FilterMultiCheck = Widget.extend({
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
@@ -674,7 +674,7 @@
                 var element = this.element;
                 var link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
                 if (!link[0]) {
-                    link = element.prepend('<a class="k-grid-filter" href="#" title="' + this.options.messages.filter + '" aria-label="' + this.options.messages.filter + '"><span class="k-icon k-i-filter"/></a>').find('.k-grid-filter');
+                    link = element.prepend('<a class="k-grid-filter" href="#" title="' + this.options.messages.filter + '" aria-label="' + this.options.messages.filter + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
                 }
                 this._link = link.attr('tabindex', -1).on('click' + NS, proxy(this._click, this));
             },
@@ -774,7 +774,7 @@
                 if (!this._isMobile) {
                     html += '<div class=\'k-filter-menu-container\'>';
                     if (options.search) {
-                        html += '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'' + options.messages.search + '\'/>' + '<span class=\'k-icon k-i-zoom\' />' + '</div>';
+                        html += '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'' + options.messages.search + '\'/>' + '<span class=\'k-icon k-i-zoom\'></span>' + '</div>';
                     }
                     html += '<ul class=\'k-reset k-multicheck-wrap\'></ul>';
                     if (options.messages.selectedItemsFormat) {

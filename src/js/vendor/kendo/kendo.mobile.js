@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.1.406'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.2.513'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2183,10 +2183,14 @@
                 that.angular('init', options);
                 Observable.fn.init.call(that);
                 var dataSource = options ? options.dataSource : null;
+                var props;
+                if (options) {
+                    props = (that.componentTypes || {})[(options || {}).componentType];
+                }
                 if (dataSource) {
                     options = extend({}, options, { dataSource: {} });
                 }
-                options = that.options = extend(true, {}, that.options, options);
+                options = that.options = extend(true, {}, that.options, that.defaults, props || {}, options);
                 if (dataSource) {
                     options.dataSource = dataSource;
                 }
@@ -2370,7 +2374,7 @@
                 return;
             }
             dataSource = parseOption(element, 'dataSource');
-            options = $.extend({}, parseOptions(element, widget.fn.options), options);
+            options = $.extend({}, parseOptions(element, $.extend({}, widget.fn.options, widget.fn.defaults)), options);
             if (dataSource) {
                 if (typeof dataSource === STRING) {
                     options.dataSource = kendo.getter(dataSource)(window);
@@ -2466,7 +2470,7 @@
                         leftRight = isRtl ? 'right' : 'left';
                         containerScrollLeft = container.scrollLeft();
                         webkitCorrection = browser.webkit ? !isRtl ? 0 : container[0].scrollWidth - container.width() - 2 * containerScrollLeft : 0;
-                        mask = $(kendo.format('<div class=\'{0}\'><span class=\'k-loading-text\'>{1}</span><div class=\'k-loading-image\'/><div class=\'k-loading-color\'/></div>', cssClass, kendo.ui.progress.messages.loading)).width(options.width).height(options.height).css('top', options.top).css(leftRight, Math.abs(containerScrollLeft) + webkitCorrection).prependTo(container);
+                        mask = $(kendo.format('<div class=\'{0}\'><span class=\'k-loading-text\'>{1}</span><div class=\'k-loading-image\'></div><div class=\'k-loading-color\'></div></div>', cssClass, kendo.ui.progress.messages.loading)).width(options.width).height(options.height).css('top', options.top).css(leftRight, Math.abs(containerScrollLeft) + webkitCorrection).prependTo(container);
                     }
                 } else if (mask) {
                     mask.remove();
@@ -2797,6 +2801,19 @@
             }
             return events;
         };
+        kendo.keyDownHandler = function (e, widget) {
+            var events = widget._events.kendoKeydown;
+            if (!events) {
+                return true;
+            }
+            events = events.slice();
+            e.sender = widget;
+            e.preventKendoKeydown = false;
+            for (var idx = 0, length = events.length; idx < length; idx++) {
+                events[idx].call(widget, e);
+            }
+            return !e.preventKendoKeydown;
+        };
         var on = $.fn.on;
         function kendoJQuery(selector, context) {
             return new kendoJQuery.fn.init(selector, context);
@@ -2838,6 +2855,18 @@
                         touchstart: MouseEventNormalizer.muteMouse,
                         touchend: MouseEventNormalizer.unMuteMouse
                     }, selector, { bustClick: bustClick });
+                }
+                if (arguments[0].indexOf('keydown') !== -1 && args[1] && args[1].options) {
+                    args[0] = events;
+                    var widget = args[1];
+                    var keyDownCallBack = args[args.length - 1];
+                    args[args.length - 1] = function (e) {
+                        if (kendo.keyDownHandler(e, widget)) {
+                            return keyDownCallBack.apply(this, [e]);
+                        }
+                    };
+                    on.apply(that, args);
+                    return that;
                 }
                 if (typeof callback === STRING) {
                     context = that.data('handler');
@@ -3442,6 +3471,42 @@
                 }
             }
         };
+        kendo.trim = function (value) {
+            if (!!value) {
+                return value.toString().trim();
+            } else {
+                return '';
+            }
+        };
+        kendo.getWidgetFocusableElement = function (element) {
+            var nextFocusable = element.closest(':kendoFocusable'), widgetInstance = kendo.widgetInstance(element), target;
+            if (nextFocusable.length) {
+                target = nextFocusable;
+            } else if (widgetInstance) {
+                target = widgetInstance instanceof kendo.ui.Editor ? $(widgetInstance.body) : widgetInstance.wrapper.find(':kendoFocusable').first();
+            } else {
+                target = element;
+            }
+            return target;
+        };
+        kendo.addAttribute = function (element, attribute, value) {
+            var current = element.attr(attribute) || '';
+            if (current.indexOf(value) < 0) {
+                element.attr(attribute, (current + ' ' + value).trim());
+            }
+        };
+        kendo.removeAttribute = function (element, attribute, value) {
+            var current = element.attr(attribute) || '';
+            element.attr(attribute, current.replace(value, '').trim());
+        };
+        kendo.toggleAttribute = function (element, attribute, value) {
+            var current = element.attr(attribute) || '';
+            if (current.indexOf(value) < 0) {
+                kendo.addAttribute(element, attribute, value);
+            } else {
+                kendo.removeAttribute(element, attribute, value);
+            }
+        };
         kendo.matchesMedia = function (mediaQuery) {
             var media = kendo._bootstrapToMedia(mediaQuery) || mediaQuery;
             return support.matchMedia && window.matchMedia(media).matches;
@@ -3633,6 +3698,9 @@
             var i = parseInt(Math.floor(Math.log(size) / Math.log(1024)), 10);
             return Math.round(size / Math.pow(1024, i), 2) + ' ' + sizes[i];
         };
+        kendo.selectorFromClasses = function (classes) {
+            return '.' + classes.split(' ').join('.');
+        };
         (function () {
             function postToProxy(dataURI, fileName, proxyURL, proxyTarget) {
                 var form = $('<form>').attr({
@@ -3712,6 +3780,25 @@
             });
             return observable;
         };
+        (function () {
+            kendo.defaults = kendo.defaults || {};
+            kendo.setDefaults = function (key, value) {
+                var path = key.split('.');
+                var curr = kendo.defaults;
+                key = path.pop();
+                path.forEach(function (part) {
+                    if (curr[part] === undefined) {
+                        curr[part] = {};
+                    }
+                    curr = curr[part];
+                });
+                if (value.constructor === Object) {
+                    curr[key] = deepExtend({}, curr[key], value);
+                } else {
+                    curr[key] = value;
+                }
+            };
+        }());
     }(jQuery, window));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -5632,11 +5719,13 @@
             push: function () {
                 var index = this.length, items = this.wrapAll(arguments), result;
                 result = push.apply(this, items);
-                this.trigger(CHANGE, {
-                    action: 'add',
-                    index: index,
-                    items: items
-                });
+                if (!this.omitChangeEvent) {
+                    this.trigger(CHANGE, {
+                        action: 'add',
+                        index: index,
+                        items: items
+                    });
+                }
                 return result;
             },
             slice: slice,
@@ -6733,27 +6822,49 @@
                 }
                 return new Query(result);
             },
-            group: function (descriptors, allData) {
+            group: function (descriptors, allData, options) {
                 descriptors = normalizeGroup(descriptors || []);
                 allData = allData || this.data;
                 var that = this, result = new Query(that.data), descriptor;
                 if (descriptors.length > 0) {
                     descriptor = descriptors[0];
-                    result = result.groupBy(descriptor).select(function (group) {
-                        var data = new Query(allData).filter([{
+                    if (options && options.groupPaging) {
+                        result = new Query(allData).groupAllData(descriptor, allData).select(function (group) {
+                            var data = new Query(allData).filter([{
+                                    field: group.field,
+                                    operator: 'eq',
+                                    value: group.value,
+                                    ignoreCase: false
+                                }]);
+                            var items = descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), data.toArray(), options).toArray() : group.items;
+                            return {
                                 field: group.field,
-                                operator: 'eq',
                                 value: group.value,
-                                ignoreCase: false
-                            }]);
-                        return {
-                            field: group.field,
-                            value: group.value,
-                            items: descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), data.toArray()).toArray() : group.items,
-                            hasSubgroups: descriptors.length > 1,
-                            aggregates: data.aggregate(descriptor.aggregates)
-                        };
-                    });
+                                hasSubgroups: descriptors.length > 1,
+                                items: items,
+                                aggregates: data.aggregate(descriptor.aggregates),
+                                uid: kendo.guid(),
+                                itemCount: items.length,
+                                subgroupCount: items.length
+                            };
+                        });
+                    } else {
+                        result = result.groupBy(descriptor).select(function (group) {
+                            var data = new Query(allData).filter([{
+                                    field: group.field,
+                                    operator: 'eq',
+                                    value: group.value,
+                                    ignoreCase: false
+                                }]);
+                            return {
+                                field: group.field,
+                                value: group.value,
+                                items: descriptors.length > 1 ? new Query(group.items).group(descriptors.slice(1), data.toArray()).toArray() : group.items,
+                                hasSubgroups: descriptors.length > 1,
+                                aggregates: data.aggregate(descriptor.aggregates)
+                            };
+                        });
+                    }
                 }
                 return result;
             },
@@ -6782,6 +6893,32 @@
                     group.items.push(item);
                 }
                 result = that._sortGroups(result, descriptor);
+                return new Query(result);
+            },
+            groupAllData: function (descriptor, allData) {
+                if (isEmptyObject(descriptor) || this.data && !this.data.length) {
+                    return new Query([]);
+                }
+                var field = descriptor.field, sorted = descriptor.skipItemSorting ? allData : new Query(allData).sort(field, descriptor.dir || 'asc', StableComparer).toArray(), accessor = kendo.accessor(field), item, groupValue = accessor.get(sorted[0], field), group = {
+                        field: field,
+                        value: groupValue,
+                        items: []
+                    }, currentValue, idx, len, result = [group];
+                for (idx = 0, len = sorted.length; idx < len; idx++) {
+                    item = sorted[idx];
+                    currentValue = accessor.get(item, field);
+                    if (!groupValueComparer(groupValue, currentValue)) {
+                        groupValue = currentValue;
+                        group = {
+                            field: field,
+                            value: groupValue,
+                            items: []
+                        };
+                        result.push(group);
+                    }
+                    group.items.push(item);
+                }
+                result = this._sortGroups(result, descriptor);
                 return new Query(result);
             },
             _sortForGrouping: function (field, dir) {
@@ -6938,7 +7075,7 @@
                     query = query.range(skip, take);
                 }
                 if (group) {
-                    query = query.group(group, data);
+                    query = query.group(group, data, options);
                 }
             }
             return {
@@ -7110,10 +7247,12 @@
                     record.field = fieldName;
                 }
                 record.value = modelInstance._parse(record.field, record.value);
-                if (record.hasSubgroups) {
-                    convertGroup(record.items, getters, modelInstance, originalFieldNames, fieldNames);
-                } else {
-                    convertRecords(record.items, getters, modelInstance, originalFieldNames, fieldNames);
+                if (record.items) {
+                    if (record.hasSubgroups) {
+                        convertGroup(record.items, getters, modelInstance, originalFieldNames, fieldNames);
+                    } else {
+                        convertRecords(record.items, getters, modelInstance, originalFieldNames, fieldNames);
+                    }
                 }
             }
         }
@@ -7282,12 +7421,14 @@
             var idx, result = [], length, items, itemIndex;
             for (idx = 0, length = data.length; idx < length; idx++) {
                 var group = data.at(idx);
-                if (group.hasSubgroups) {
-                    result = result.concat(flattenGroups(group.items));
-                } else {
-                    items = group.items;
-                    for (itemIndex = 0; itemIndex < items.length; itemIndex++) {
-                        result.push(items.at(itemIndex));
+                if (group.items) {
+                    if (group.hasSubgroups) {
+                        result = result.concat(flattenGroups(group.items));
+                    } else {
+                        items = group.items;
+                        for (itemIndex = 0; itemIndex < items.length; itemIndex++) {
+                            result.push(items.at(itemIndex));
+                        }
                     }
                 }
             }
@@ -7298,10 +7439,12 @@
             if (model) {
                 for (idx = 0, length = data.length; idx < length; idx++) {
                     group = data.at(idx);
-                    if (group.hasSubgroups) {
-                        wrapGroupItems(group.items, model);
-                    } else {
-                        group.items = new LazyObservableArray(group.items, model, group.items._events);
+                    if (group.items) {
+                        if (group.hasSubgroups) {
+                            wrapGroupItems(group.items, model);
+                        } else {
+                            group.items = new LazyObservableArray(group.items, model, group.items._events);
+                        }
                     }
                 }
             }
@@ -7357,6 +7500,9 @@
             }
         }
         function removeModel(data, model) {
+            if (!data) {
+                return;
+            }
             var length = data.length;
             var dataItem;
             var idx;
@@ -7386,6 +7532,9 @@
         }
         function indexOf(data, comparer) {
             var idx, length;
+            if (!data) {
+                return;
+            }
             for (idx = 0, length = data.length; idx < length; idx++) {
                 if (comparer(data[idx])) {
                     return idx;
@@ -7464,6 +7613,10 @@
                 that._group = normalizeGroup(options.group);
                 that._aggregate = options.aggregate;
                 that._total = options.total;
+                that._groupPaging = options.groupPaging;
+                if (that._groupPaging) {
+                    that._groupsState = {};
+                }
                 that._shouldDetachObservableParents = true;
                 Observable.fn.init.call(that);
                 that.transport = Transport.create(options, data, that);
@@ -7544,6 +7697,13 @@
             _isServerGrouped: function () {
                 var group = this.group() || [];
                 return this.options.serverGrouping && group.length;
+            },
+            _isServerGroupPaged: function () {
+                return this._isServerGrouped() && this._groupPaging;
+            },
+            _isGroupPaged: function () {
+                var group = this.group() || [];
+                return this._groupPaging && group.length;
             },
             _pushCreate: function (result) {
                 this._push(result, 'pushCreate');
@@ -7849,6 +8009,9 @@
                         that._syncEnd();
                         that._change({ action: 'sync' });
                         that.trigger(SYNC);
+                        if (that._isServerGroupPaged()) {
+                            that.read();
+                        }
                     });
                 } else {
                     that._storeData(true);
@@ -7874,6 +8037,9 @@
                     that._changesCanceled();
                     that._change();
                     that._markOfflineUpdatesAsDirty();
+                    if (that._isServerGrouped()) {
+                        that.read();
+                    }
                 }
             },
             _changesCanceled: noop,
@@ -8151,6 +8317,9 @@
                         return;
                     }
                     that._total = that.reader.total(data);
+                    if (that._isServerGroupPaged()) {
+                        that._serverGroupsTotal = that._total;
+                    }
                     if (that._pageSize > that._total) {
                         that._pageSize = that._total;
                         if (that.options.pageSize && that.options.pageSize > that._pageSize) {
@@ -8272,15 +8441,45 @@
                 }
             },
             _addRange: function (data, skip) {
-                var that = this, start = typeof skip !== 'undefined' ? skip : that._skip || 0, end = start + that._flatData(data, true).length;
-                that._ranges.push({
-                    start: start,
-                    end: end,
-                    data: data,
-                    pristineData: data.toJSON(),
-                    timestamp: that._timeStamp()
-                });
+                var that = this, start = typeof skip !== 'undefined' ? skip : that._skip || 0, end, range = {
+                        data: data,
+                        pristineData: data.toJSON(),
+                        timestamp: that._timeStamp()
+                    };
+                if (this._isGroupPaged()) {
+                    end = start + data.length;
+                    range.outerStart = start;
+                    range.outerEnd = end;
+                } else {
+                    end = start + that._flatData(data, true).length;
+                }
+                range.start = start;
+                range.end = end;
+                that._ranges.push(range);
                 that._sortRanges();
+                if (that._isGroupPaged()) {
+                    if (!that._groupsFlat) {
+                        that._groupsFlat = [];
+                    }
+                    that._appendToGroupsFlat(range.data);
+                    that._updateOuterRangesLength();
+                }
+            },
+            _appendToGroupsFlat: function (data) {
+                var length = data.length;
+                for (var i = 0; i < length; i++) {
+                    this._groupsFlat.push(data[i]);
+                }
+            },
+            _getGroupByUid: function (uid) {
+                var length = this._groupsFlat.length;
+                var group;
+                for (var i = 0; i < length; i++) {
+                    group = this._groupsFlat[i];
+                    if (group.uid === uid) {
+                        return group;
+                    }
+                }
             },
             _sortRanges: function () {
                 this._ranges.sort(function (x, y) {
@@ -8305,7 +8504,8 @@
                         sort: that._sort,
                         filter: that._filter,
                         group: that._group,
-                        aggregate: that._aggregate
+                        aggregate: that._aggregate,
+                        groupPaging: !!that._groupPaging
                     }, data);
                 if (!that.options.serverPaging) {
                     delete options.take;
@@ -8332,6 +8532,9 @@
                     delete options.aggregate;
                 } else if (that.reader.model && options.aggregate) {
                     options.aggregate = convertDescriptorsField(options.aggregate, that.reader.model);
+                }
+                if (!that.options.groupPaging) {
+                    delete options.groupPaging;
                 }
                 return options;
             },
@@ -8478,15 +8681,39 @@
                 if (that.options.serverGrouping) {
                     that._clearEmptyGroups(data);
                 }
-                result = that._queryProcess(data, options);
+                options.groupPaging = that._groupPaging;
+                if (that._isGroupPaged() && e && (e.action === 'page' || e.action === 'expandGroup' || e.action === 'collapseGroup')) {
+                    result = that._queryProcess(data, { aggregate: that._aggregate });
+                } else {
+                    result = that._queryProcess(data, options);
+                }
                 if (that.options.serverAggregates !== true) {
                     that._aggregateResult = that._calculateAggregates(result.dataToAggregate || data, options);
                 }
-                that.view(result.data);
+                that._setView(result, options, e);
                 that._setFilterTotal(result.total, false);
                 e = e || {};
                 e.items = e.items || that._view;
                 that.trigger(CHANGE, e);
+            },
+            _setView: function (result, options, e) {
+                var that = this;
+                if (that._isGroupPaged() && !that._isServerGrouped()) {
+                    if (e && (e.action === 'page' || e.action === 'expandGroup' || e.action === 'collapseGroup')) {
+                        that.view(result.data);
+                        that._updateOuterRangesLength();
+                    } else {
+                        that._ranges = [];
+                        var query = new Query(result.data);
+                        that._addRange(that._observe(result.data));
+                        if (options.skip > result.data.length / options.take + 1) {
+                            options.skip = 0;
+                        }
+                        that.view(query.range(options.skip, options.take).toArray());
+                    }
+                } else {
+                    that.view(result.data);
+                }
             },
             _clearEmptyGroups: function (data) {
                 for (var idx = data.length - 1; idx >= 0; idx--) {
@@ -8565,14 +8792,338 @@
                 var isPrevented = this.trigger(REQUESTSTART, { type: 'read' });
                 if (!isPrevented) {
                     this.trigger(PROGRESS);
+                    if (options) {
+                        options.groupPaging = this._groupPaging;
+                    }
                     result = this._queryProcess(this._data, this._mergeState(options));
                     this._setFilterTotal(result.total, true);
                     this._aggregateResult = this._calculateAggregates(result.dataToAggregate || this._data, options);
-                    this.view(result.data);
+                    this._setView(result, options);
                     this.trigger(REQUESTEND, { type: 'read' });
-                    this.trigger(CHANGE, { items: result.data });
+                    this.trigger(CHANGE, {
+                        items: result.data,
+                        action: options ? options.action : ''
+                    });
                 }
                 return $.Deferred().resolve(isPrevented).promise();
+            },
+            _hasExpandedSubGroups: function (group) {
+                var result = false;
+                var length = group.items ? group.items.length : 0;
+                if (!group.hasSubgroups) {
+                    return false;
+                }
+                for (var i = 0; i < length; i++) {
+                    if (this._groupsState[group.items[i].uid]) {
+                        result = true;
+                        break;
+                    }
+                }
+                return result;
+            },
+            _findGroupedRange: function (data, result, options, parents, callback) {
+                var that = this;
+                var length = data.length;
+                var group;
+                var current;
+                var itemsLength;
+                var hasNotRequestedItems;
+                var groupCount;
+                var itemsToSkip;
+                for (var i = 0; i < length; i++) {
+                    group = data[i];
+                    if (options.taken >= options.take) {
+                        break;
+                    }
+                    if (!that._getGroupByUid(group.uid)) {
+                        that._groupsFlat.push(group);
+                    }
+                    if (that._groupsState[group.uid]) {
+                        if (that._isServerGroupPaged()) {
+                            if (group.hasSubgroups && !group.subgroupCount) {
+                                that.getGroupSubGroupCount(group, options, parents, callback);
+                                that._fetchingGroupItems = true;
+                                return;
+                            }
+                            groupCount = (group.subgroupCount || group.itemCount) + 1;
+                            itemsToSkip = options.skip - options.skipped;
+                            hasNotRequestedItems = !group.items || group.items.length - itemsToSkip < options.take - options.taken;
+                            if (!that._hasExpandedSubGroups(group) && itemsToSkip > groupCount) {
+                                options.skipped += groupCount;
+                                continue;
+                            }
+                            if (group.hasSubgroups && (!group.items || hasNotRequestedItems && group.items.length < group.subgroupCount) || !group.hasSubgroups && (!group.items || hasNotRequestedItems && group.items.length < group.itemCount)) {
+                                that.getGroupItems(group, options, parents, callback);
+                                that._fetchingGroupItems = true;
+                                return;
+                            }
+                        }
+                        if (options.includeParents && options.skipped < options.skip) {
+                            options.skipped++;
+                            group.excludeHeader = true;
+                        } else if (options.includeParents) {
+                            options.taken++;
+                        }
+                        if (group.hasSubgroups && group.items && group.items.length) {
+                            group.currentItems = [];
+                            if (!parents) {
+                                parents = [];
+                            }
+                            parents.push(group);
+                            that._findGroupedRange(group.items, group.currentItems, options, parents, callback);
+                            parents.pop();
+                            if (group.currentItems.length || options.taken > 0) {
+                                result.push(group);
+                            } else {
+                                group.excludeHeader = false;
+                            }
+                        } else {
+                            current = [];
+                            itemsLength = group.items.length;
+                            for (var j = 0; j < itemsLength; j++) {
+                                if (options.skipped < options.skip) {
+                                    options.skipped++;
+                                    continue;
+                                }
+                                if (options.taken >= options.take) {
+                                    break;
+                                }
+                                current.push(group.items[j]);
+                                options.taken++;
+                            }
+                            if (current.length || options.taken > 0) {
+                                group.currentItems = current;
+                                result.push(group);
+                            } else {
+                                group.excludeHeader = false;
+                            }
+                        }
+                    } else {
+                        if (options.skipped < options.skip) {
+                            options.skipped++;
+                            continue;
+                        }
+                        result.push(group);
+                        options.taken++;
+                    }
+                }
+            },
+            getGroupItems: function (group, options, parents, callback) {
+                var that = this;
+                var skip;
+                var take;
+                var filter;
+                var data;
+                var subgroups;
+                if (!group.items) {
+                    group.items = [];
+                }
+                skip = group.items.length;
+                take = that.take();
+                filter = this._composeItemsFilter(group, parents);
+                data = {
+                    page: math.floor((skip || 0) / (take || 1)) || 1,
+                    pageSize: take,
+                    skip: skip,
+                    take: take,
+                    filter: filter,
+                    aggregate: that._aggregate,
+                    sort: that._sort
+                };
+                subgroups = that.findSubgroups(group);
+                if (subgroups && subgroups.length) {
+                    data.group = subgroups;
+                    data.groupPaging = true;
+                }
+                clearTimeout(that._timeout);
+                that._timeout = setTimeout(function () {
+                    that._queueRequest(data, function () {
+                        if (!that.trigger(REQUESTSTART, { type: 'read' })) {
+                            that.transport.read({
+                                data: data,
+                                success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback),
+                                error: function () {
+                                    var args = slice.call(arguments);
+                                    that.error.apply(that, args);
+                                }
+                            });
+                        } else {
+                            that._dequeueRequest();
+                        }
+                    });
+                }, 100);
+            },
+            getGroupSubGroupCount: function (group, options, parents, callback) {
+                var that = this;
+                var filter;
+                var groupIndex;
+                var data;
+                if (!group.items) {
+                    group.items = [];
+                }
+                filter = this._composeItemsFilter(group, parents);
+                groupIndex = this._group.map(function (g) {
+                    return g.field;
+                }).indexOf(group.field);
+                data = {
+                    filter: filter,
+                    group: [that._group[groupIndex + 1]],
+                    groupPaging: true,
+                    includeSubGroupCount: true
+                };
+                clearTimeout(that._timeout);
+                that._timeout = setTimeout(function () {
+                    that._queueRequest(data, function () {
+                        if (!that.trigger(REQUESTSTART, { type: 'read' })) {
+                            that.transport.read({
+                                data: data,
+                                success: that._subGroupCountSuccessHandler(group, options.skip, that.take(), callback),
+                                error: function () {
+                                    var args = slice.call(arguments);
+                                    that.error.apply(that, args);
+                                }
+                            });
+                        } else {
+                            that._dequeueRequest();
+                        }
+                    });
+                }, 100);
+            },
+            _subGroupCountSuccessHandler: function (group, skip, take, callback) {
+                var that = this;
+                callback = isFunction(callback) ? callback : noop;
+                var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : 'Total';
+                return function (data) {
+                    that._dequeueRequest();
+                    that.trigger(REQUESTEND, {
+                        response: data,
+                        type: 'read'
+                    });
+                    that._fetchingGroupItems = false;
+                    group.subgroupCount = data[totalField];
+                    that.range(skip, take, callback, 'expandGroup');
+                };
+            },
+            _groupItemsSuccessHandler: function (group, skip, take, callback) {
+                var that = this;
+                var timestamp = that._timeStamp();
+                callback = isFunction(callback) ? callback : noop;
+                return function (data) {
+                    var temp;
+                    var model = Model.define(that.options.schema.model);
+                    that._dequeueRequest();
+                    that.trigger(REQUESTEND, {
+                        response: data,
+                        type: 'read'
+                    });
+                    data = that.reader.parse(data);
+                    if (group.hasSubgroups) {
+                        temp = that.reader.groups(data);
+                    } else {
+                        temp = that.reader.data(data);
+                        temp = temp.map(function (item) {
+                            return new model(item);
+                        });
+                    }
+                    group.items.omitChangeEvent = true;
+                    for (var i = 0; i < temp.length; i++) {
+                        group.items.push(temp[i]);
+                    }
+                    group.items.omitChangeEvent = false;
+                    that._updateRangePristineData(group);
+                    that._fetchingGroupItems = false;
+                    that._serverGroupsTotal += temp.length;
+                    that.range(skip, take, callback, 'expandGroup');
+                    if (timestamp >= that._currentRequestTimeStamp || !that._skipRequestsInProgress) {
+                        that.trigger(CHANGE, {});
+                    }
+                };
+            },
+            findSubgroups: function (group) {
+                var indexOfCurrentGroup = this._group.map(function (g) {
+                    return g.field;
+                }).indexOf(group.field);
+                return this._group.slice(indexOfCurrentGroup + 1, this._group.length);
+            },
+            _composeItemsFilter: function (group, parents) {
+                var filter = this.filter() || {
+                    logic: 'and',
+                    filters: []
+                };
+                filter = extend(true, {}, filter);
+                filter.filters.push({
+                    field: group.field,
+                    operator: 'eq',
+                    value: group.value
+                });
+                if (parents) {
+                    for (var i = 0; i < parents.length; i++) {
+                        filter.filters.push({
+                            field: parents[i].field,
+                            operator: 'eq',
+                            value: parents[i].value
+                        });
+                    }
+                }
+                return filter;
+            },
+            _updateRangePristineData: function (group) {
+                var that = this;
+                var ranges = that._ranges;
+                var rangesLength = ranges.length;
+                var temp;
+                var currentGroup;
+                var range;
+                var dataLength;
+                var indexes;
+                for (var i = 0; i < rangesLength; i++) {
+                    range = ranges[i];
+                    dataLength = range.data.length;
+                    indexes = [];
+                    for (var j = 0; j < dataLength; j++) {
+                        currentGroup = range.data[j];
+                        indexes.push(j);
+                        if (currentGroup.uid === group.uid || currentGroup.hasSubgroups && currentGroup.items.length && that._containsSubGroup(currentGroup, group, indexes)) {
+                            break;
+                        }
+                        indexes.pop();
+                    }
+                    if (indexes.length) {
+                        temp = ranges[i].pristineData;
+                        while (indexes.length > 1) {
+                            temp = temp[indexes.splice(0, 1)[0]].items;
+                        }
+                        temp[indexes[0]] = that._cloneGroup(group);
+                        break;
+                    }
+                }
+            },
+            _containsSubGroup: function (group, subgroup, indexes) {
+                var that = this;
+                var length = group.items.length;
+                var currentSubGroup;
+                if (group.hasSubgroups && length) {
+                    for (var i = 0; i < length; i++) {
+                        currentSubGroup = group.items[i];
+                        indexes.push(i);
+                        if (currentSubGroup.uid === subgroup.uid) {
+                            return true;
+                        } else if (currentSubGroup.hasSubgroups && currentSubGroup.items.length) {
+                            return that._containsSubGroup(currentSubGroup, subgroup, indexes);
+                        }
+                        indexes.pop();
+                    }
+                }
+            },
+            _cloneGroup: function (group) {
+                var that = this;
+                group = typeof group.toJSON == 'function' ? group.toJSON() : group;
+                if (group.items && group.items.length) {
+                    group.items = group.items.map(function (item) {
+                        return that._cloneGroup(item);
+                    });
+                }
+                return group;
             },
             _setFilterTotal: function (filterTotal, setDefaultValue) {
                 var that = this;
@@ -8632,6 +9183,12 @@
                 var that = this, skip;
                 if (val !== undefined) {
                     val = math.max(math.min(math.max(val, 1), that.totalPages()), 1);
+                    var take = that.take();
+                    if (that._isGroupPaged()) {
+                        val -= 1;
+                        that.range(val * take, take, null, 'page');
+                        return;
+                    }
                     that._query(that._pageableQueryOptions({ page: val }));
                     return;
                 }
@@ -8677,8 +9234,80 @@
                 }
                 return that._group;
             },
+            getGroupsFlat: function (data) {
+                var idx, result = [], length;
+                for (idx = 0, length = data.length; idx < length; idx++) {
+                    var group = data[idx];
+                    if (group.hasSubgroups) {
+                        result = result.concat(this.getGroupsFlat(group.items));
+                    }
+                    result.push(group);
+                }
+                return result;
+            },
             total: function () {
                 return parseInt(this._total || 0, 10);
+            },
+            groupsTotal: function (includeExpanded) {
+                var that = this;
+                if (!that._group.length) {
+                    return that.total();
+                }
+                if (that._isServerGrouped()) {
+                    if (that._serverGroupsTotal) {
+                        return that._serverGroupsTotal;
+                    }
+                    that._serverGroupsTotal = that.total();
+                    return that._serverGroupsTotal;
+                }
+                return that._calculateGroupsTotal(that._ranges.length ? that._ranges[0].data : [], includeExpanded);
+            },
+            _calculateGroupsTotal: function (groups, includeExpanded, itemsField, ignoreState) {
+                var that = this;
+                itemsField = itemsField || 'items';
+                var total;
+                var length;
+                if (that._group.length && groups) {
+                    total = 0;
+                    length = groups.length;
+                    for (var i = 0; i < length; i++) {
+                        total += that.groupCount(groups[i], includeExpanded, itemsField, ignoreState);
+                    }
+                    that._groupsTotal = total;
+                    return total;
+                }
+                that._groupsTotal = that._data.length;
+                return that._groupsTotal;
+            },
+            groupCount: function (group, includeExpanded, itemsField, ignoreState) {
+                var that = this;
+                var total = 0;
+                if (group.hasSubgroups && that._groupsState[group.uid]) {
+                    if (includeExpanded && !group.excludeHeader || ignoreState) {
+                        total += 1;
+                    }
+                    group[itemsField].forEach(function (subgroup) {
+                        total += that.groupCount(subgroup, includeExpanded, itemsField, ignoreState);
+                    });
+                } else {
+                    if (that._groupsState[group.uid]) {
+                        if (includeExpanded && !group.excludeHeader || ignoreState) {
+                            total++;
+                        }
+                        total += group[itemsField] ? group[itemsField].length : 0;
+                    } else {
+                        total++;
+                    }
+                }
+                return total;
+            },
+            countGroupRange: function (range) {
+                var total = 0;
+                var length = range.length;
+                for (var i = 0; i < length; i++) {
+                    total += this.groupCount(range[i], true);
+                }
+                return total;
             },
             aggregate: function (val) {
                 var that = this;
@@ -8727,8 +9356,8 @@
                 return parent;
             },
             totalPages: function () {
-                var that = this, pageSize = that.pageSize() || that.total();
-                return math.ceil((that.total() || 0) / pageSize);
+                var that = this, pageSize = that.pageSize() || that.total(), total = that._isGroupPaged() ? that.groupsTotal(true) : that.total();
+                return math.ceil((total || 0) / pageSize);
             },
             inRange: function (skip, take) {
                 var that = this, end = math.min(skip + take, that.total());
@@ -8755,20 +9384,32 @@
             _timeStamp: function () {
                 return new Date().getTime();
             },
-            range: function (skip, take, callback) {
+            range: function (skip, take, callback, action) {
                 this._currentRequestTimeStamp = this._timeStamp();
                 this._skipRequestsInProgress = true;
-                skip = math.min(skip || 0, this.total());
+                var total = this._isGroupPaged() ? this.groupsTotal(true) : this.total();
+                if (action === 'expandGroup' || action === 'collapseGroup') {
+                    this._updateOuterRangesLength();
+                }
+                skip = math.min(skip || 0, total);
                 callback = isFunction(callback) ? callback : noop;
-                var that = this, pageSkip = math.max(math.floor(skip / take), 0) * take, size = math.min(pageSkip + take, that.total()), data;
-                data = that._findRange(skip, math.min(skip + take, that.total()));
-                if (data.length || that.total() === 0) {
-                    that._processRangeData(data, skip, take, pageSkip, size);
+                var that = this, pageSkip = math.max(math.floor(skip / take), 0) * take, size = math.min(pageSkip + take, total), data;
+                data = that._findRange(skip, math.min(skip + take, total), callback);
+                if ((data.length || total === 0) && !that._fetchingGroupItems) {
+                    that._processRangeData(data, skip, take, that._originalPageSkip || pageSkip, that._originalSize || size, { action: action });
+                    that._originalPageSkip = null;
+                    that._originalSize = null;
                     callback();
                     return;
                 }
-                if (take !== undefined) {
-                    if (!that._rangeExists(pageSkip, size)) {
+                if (that._isGroupPaged()) {
+                    that._originalPageSkip = pageSkip;
+                    that._originalSize = size;
+                    pageSkip = math.max(math.floor(that._adjustPageSkip(skip, take) / take), 0) * take;
+                    size = math.min(pageSkip + take, total);
+                }
+                if (take !== undefined && !that._fetchingGroupItems) {
+                    if (that._isGroupPaged() && !that._groupRangeExists(pageSkip, take) || !that._rangeExists(pageSkip, size)) {
                         that.prefetch(pageSkip, take, function () {
                             if (skip > pageSkip && size < that.total() && !that._rangeExists(size, math.min(size + take, that.total()))) {
                                 that.prefetch(size, take, function () {
@@ -8785,11 +9426,52 @@
                     }
                 }
             },
-            _findRange: function (start, end) {
-                var that = this, ranges = that._ranges, range, data = [], skipIdx, takeIdx, startIndex, endIndex, rangeData, rangeEnd, processed, options = that.options, remote = options.serverSorting || options.serverPaging || options.serverFiltering || options.serverGrouping || options.serverAggregates, flatData, count, length;
+            _findRange: function (start, end, callback) {
+                var that = this, ranges = that._ranges, range, data = [], skipIdx, takeIdx, startIndex, endIndex, rangeData, rangeEnd, processed, options = that.options, remote = options.serverSorting || options.serverPaging || options.serverFiltering || options.serverGrouping || options.serverAggregates, flatData, count, length, groupMapOptions = {
+                        take: end - start,
+                        skip: start,
+                        skipped: 0,
+                        taken: 0,
+                        includeParents: true
+                    }, prevRangeEnd, isGroupPaged = that._isGroupPaged(), startField = isGroupPaged ? 'outerStart' : 'start', endField = isGroupPaged ? 'outerEnd' : 'end', currentDataLength;
                 for (skipIdx = 0, length = ranges.length; skipIdx < length; skipIdx++) {
                     range = ranges[skipIdx];
-                    if (start >= range.start && start <= range.end) {
+                    if (isGroupPaged) {
+                        if (range.outerStart >= end) {
+                            return [];
+                        }
+                        if (start > range.outerEnd) {
+                            groupMapOptions.skipped += range.outerEnd - (prevRangeEnd || 0);
+                            prevRangeEnd = range.outerEnd;
+                            continue;
+                        }
+                        if (typeof prevRangeEnd !== 'undefined' && prevRangeEnd != range.outerStart) {
+                            groupMapOptions.skipped += range.outerStart - prevRangeEnd;
+                        }
+                        if (groupMapOptions.skipped > groupMapOptions.skip) {
+                            return [];
+                        }
+                        if (typeof prevRangeEnd === 'undefined' && start > 0 && range.start > 0) {
+                            groupMapOptions.skipped = range.outerStart;
+                        }
+                        takeIdx = skipIdx;
+                        while (true) {
+                            this._findGroupedRange(range.data, data, groupMapOptions, null, callback);
+                            currentDataLength = that._calculateGroupsTotal(data, true, 'currentItems');
+                            if (currentDataLength >= groupMapOptions.take) {
+                                return data;
+                            }
+                            if (that._fetchingGroupItems) {
+                                return [];
+                            }
+                            takeIdx++;
+                            if (ranges[takeIdx] && ranges[takeIdx].outerStart === range.outerEnd) {
+                                range = ranges[takeIdx];
+                            } else {
+                                break;
+                            }
+                        }
+                    } else if (start >= range[startField] && start <= range[endField]) {
                         count = 0;
                         for (takeIdx = skipIdx; takeIdx < length; takeIdx++) {
                             range = ranges[takeIdx];
@@ -8829,8 +9511,26 @@
                         }
                         break;
                     }
+                    prevRangeEnd = range.outerEnd;
                 }
                 return [];
+            },
+            _getRangesMismatch: function (pageSkip) {
+                var that = this;
+                var ranges = that._ranges;
+                var mismatch = 0;
+                var i = 0;
+                while (true) {
+                    var range = ranges[i];
+                    if (!range || range.outerStart > pageSkip) {
+                        break;
+                    }
+                    if (range.outerEnd != range.end) {
+                        mismatch = range.outerEnd - range.end;
+                    }
+                    i++;
+                }
+                return mismatch;
             },
             _mergeGroups: function (data, range, skip, take) {
                 if (this._isServerGrouped()) {
@@ -8843,10 +9543,10 @@
                 }
                 return data.concat(range.slice(skip, take));
             },
-            _processRangeData: function (data, skip, take, pageSkip, size) {
+            _processRangeData: function (data, skip, take, pageSkip, size, eventData) {
                 var that = this;
                 that._pending = undefined;
-                that._skip = skip > that.skip() ? math.min(size, (that.totalPages() - 1) * that.take()) : pageSkip;
+                that._skip = skip > that.skip() && !that._omitPrefetch ? math.min(size, (that.totalPages() - 1) * that.take()) : pageSkip;
                 that._currentRangeStart = skip;
                 that._take = take;
                 var paging = that.options.serverPaging;
@@ -8865,7 +9565,7 @@
                         that._detachObservableParents();
                         that._data = data = that._observe(data);
                     }
-                    that._process(data);
+                    that._process(data, eventData);
                 } finally {
                     that.options.serverPaging = paging;
                     that.options.serverSorting = sorting;
@@ -8908,10 +9608,12 @@
                             if (that._ranges[idx].start === skip) {
                                 found = true;
                                 range = that._ranges[idx];
-                                range.pristineData = temp;
-                                range.data = that._observe(temp);
-                                range.end = range.start + that._flatData(range.data, true).length;
-                                that._sortRanges();
+                                if (!that._isGroupPaged()) {
+                                    range.pristineData = temp;
+                                    range.data = that._observe(temp);
+                                    range.end = range.start + that._flatData(range.data, true).length;
+                                    that._sortRanges();
+                                }
                                 break;
                             }
                         }
@@ -8940,11 +9642,20 @@
                         group: that._group,
                         aggregate: that._aggregate
                     };
-                if (!that._rangeExists(skip, size)) {
+                if (that._isGroupPaged() && !that._isServerGrouped() && that._groupRangeExists(skip, size)) {
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+                if (that._isServerGroupPaged() && !that._groupRangeExists(skip, size) || !that._rangeExists(skip, size)) {
                     clearTimeout(that._timeout);
                     that._timeout = setTimeout(function () {
                         that._queueRequest(options, function () {
                             if (!that.trigger(REQUESTSTART, { type: 'read' })) {
+                                if (that._omitPrefetch) {
+                                    that.trigger(PROGRESS);
+                                }
                                 that.transport.read({
                                     data: that._params(options),
                                     success: that._prefetchSuccessHandler(skip, size, callback),
@@ -8984,6 +9695,48 @@
                     callback();
                 }
             },
+            _adjustPageSkip: function (start, take) {
+                var that = this;
+                var prevRange = that._getPrevRange(start);
+                var result;
+                var total = that.total();
+                var mismatch;
+                if (prevRange) {
+                    mismatch = that._getRangesMismatch(start);
+                    if (!mismatch) {
+                        return start;
+                    }
+                    start -= mismatch;
+                }
+                result = math.max(math.floor(start / take), 0) * take;
+                if (result > total) {
+                    while (true) {
+                        result -= take;
+                        if (result < total) {
+                            break;
+                        }
+                    }
+                }
+                return result;
+            },
+            _getNextRange: function (end) {
+                var that = this, ranges = that._ranges, idx, length;
+                for (idx = 0, length = ranges.length; idx < length; idx++) {
+                    if (ranges[idx].start <= end && ranges[idx].end >= end) {
+                        return ranges[idx];
+                    }
+                }
+            },
+            _getPrevRange: function (start) {
+                var that = this, ranges = that._ranges, idx, range, length = ranges.length;
+                for (idx = length - 1; idx >= 0; idx--) {
+                    if (ranges[idx].outerStart <= start) {
+                        range = ranges[idx];
+                        break;
+                    }
+                }
+                return range;
+            },
             _rangeExists: function (start, end) {
                 var that = this, ranges = that._ranges, idx, length;
                 for (idx = 0, length = ranges.length; idx < length; idx++) {
@@ -8992,6 +9745,21 @@
                     }
                 }
                 return false;
+            },
+            _groupRangeExists: function (start, end) {
+                var that = this, ranges = that._ranges, idx, length, availableItemsCount = 0, total = that.groupsTotal(true);
+                if (end > total && !that._isServerGrouped()) {
+                    end = total;
+                }
+                for (idx = 0, length = ranges.length; idx < length; idx++) {
+                    var range = ranges[idx];
+                    if (range.outerStart <= start && range.outerEnd >= start) {
+                        availableItemsCount += range.outerEnd - start;
+                    } else if (range.outerStart <= end && range.outerEnd >= end) {
+                        availableItemsCount += end - range.outerStart;
+                    }
+                }
+                return availableItemsCount >= end - start;
             },
             _getCurrentRangeSpan: function () {
                 var that = this;
@@ -9021,6 +9789,9 @@
             },
             _removeModelFromRange: function (range, model) {
                 this._eachItem(range.data, function (data) {
+                    if (!data) {
+                        return;
+                    }
                     for (var idx = 0; idx < data.length; idx++) {
                         var dataItem = data[idx];
                         if (dataItem.uid && dataItem.uid == model.uid) {
@@ -9058,11 +9829,13 @@
                 var mismatchFound = false;
                 var mismatchLength = 0;
                 var lengthDifference = 0;
+                var rangeLength;
                 var range;
                 var i;
                 for (i = 0; i < rangesLength; i++) {
                     range = ranges[i];
-                    lengthDifference = that._flatData(range.data, true).length - math.abs(range.end - range.start);
+                    rangeLength = that._isGroupPaged() ? range.data.length : that._flatData(range.data, true).length;
+                    lengthDifference = rangeLength - math.abs(range.end - range.start);
                     if (!mismatchFound && lengthDifference !== 0) {
                         mismatchFound = true;
                         mismatchLength = lengthDifference;
@@ -9073,6 +9846,31 @@
                         range.start += mismatchLength;
                         range.end += mismatchLength;
                     }
+                }
+            },
+            _updateOuterRangesLength: function () {
+                var that = this;
+                var ranges = that._ranges || [];
+                var rangesLength = ranges.length;
+                var mismatchLength = 0;
+                var range;
+                var i;
+                var prevRange;
+                var rangeLength;
+                for (i = 0; i < rangesLength; i++) {
+                    range = ranges[i];
+                    rangeLength = that._isGroupPaged() ? that._calculateGroupsTotal(range.data, true, 'items', true) : that._flatData(range.data, true).length;
+                    if (prevRange) {
+                        if (prevRange.end != range.start) {
+                            mismatchLength = range.start - prevRange.end;
+                        }
+                        range.outerStart = prevRange.outerEnd + mismatchLength;
+                        mismatchLength = 0;
+                    } else {
+                        range.outerStart = range.start;
+                    }
+                    range.outerEnd = range.outerStart + rangeLength;
+                    prevRange = range;
                 }
             }
         });
@@ -9517,7 +10315,7 @@
                 }
                 if (spriteCssClassField) {
                     className = elements(children, '.k-sprite').prop('className');
-                    record[spriteCssClassField] = className && $.trim(className.replace('k-sprite', ''));
+                    record[spriteCssClassField] = className && kendo.trim(className.replace('k-sprite', ''));
                 }
                 if (list.length) {
                     record.items = inferList(list.eq(0), fields);
@@ -11329,7 +12127,7 @@
                 element.kendoBindingTarget = target;
             }
             var children = element.children;
-            if (deep && children) {
+            if (deep && children && !element.getAttribute('data-' + kendo.ns + 'stop')) {
                 for (idx = 0; idx < children.length; idx++) {
                     childrenCopy[idx] = children[idx];
                 }
@@ -11456,7 +12254,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', VALIDATE = 'validate', CHANGE = 'change', VALIDATE_INPUT = 'validateInput', proxy = $.proxy, patternMatcher = function (value, pattern) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', VALIDATIONSUMMARY = 'k-validation-summary', INVALIDLABEL = 'k-text-error', MESSAGEBOX = 'k-messagebox k-messagebox-error', ARIAINVALID = 'aria-invalid', ARIADESCRIBEDBY = 'aria-describedby', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', VALIDATE = 'validate', CHANGE = 'change', VALIDATE_INPUT = 'validateInput', proxy = $.proxy, patternMatcher = function (value, pattern) {
                 if (typeof pattern === 'string') {
                     pattern = new RegExp('^(?:' + pattern + ')$');
                 }
@@ -11476,7 +12274,9 @@
         if (!kendo.ui.validator) {
             kendo.ui.validator = {
                 rules: {},
-                messages: {}
+                messages: {},
+                allowSubmit: $.noop,
+                validateOnInit: $.noop
             };
         }
         function resolveRules(element) {
@@ -11515,6 +12315,7 @@
             }
             return containers;
         }
+        var SUMMARYTEMPLATE = '<ul>' + '#for(var i = 0; i < errors.length; i += 1){#' + '<li><a data-field="#=errors[i].field#" href="\\#">#= errors[i].message #</a></li>' + '# } #' + '</ul>';
         var Validator = Widget.extend({
             init: function (element, options) {
                 var that = this, resolved = resolveRules(element), validateAttributeSelector = '[' + kendo.attr('validate') + '!=false]';
@@ -11523,6 +12324,7 @@
                 options.messages = $.extend({}, kendo.ui.validator.messages, resolved.messages, options.messages);
                 Widget.fn.init.call(that, element, options);
                 that._errorTemplate = kendo.template(that.options.errorTemplate);
+                that._summaryTemplate = kendo.template(that.options.validationSummary.template || SUMMARYTEMPLATE);
                 if (that.element.is(FORM)) {
                     that.element.attr(NOVALIDATE, NOVALIDATE);
                 }
@@ -11531,6 +12333,9 @@
                 that._errors = {};
                 that._attachEvents();
                 that._isValidated = false;
+                if (that._validateOnInit()) {
+                    that.validate();
+                }
             },
             events: [
                 VALIDATE,
@@ -11539,7 +12344,7 @@
             ],
             options: {
                 name: 'Validator',
-                errorTemplate: '<span class="k-widget k-tooltip k-tooltip-validation">' + '<span class="k-icon k-i-warning"> </span> #=message#</span>',
+                errorTemplate: '<span class="k-form-error">#= message #</span>',
                 messages: {
                     required: '{0} is required',
                     pattern: '{0} is not valid',
@@ -11600,11 +12405,22 @@
                         return true;
                     }
                 },
-                validateOnBlur: true
+                validateOnBlur: true,
+                validationSummary: false
+            },
+            _allowSubmit: function () {
+                return kendo.ui.validator.allowSubmit(this.element, this.errors());
+            },
+            _validateOnInit: function () {
+                return kendo.ui.validator.validateOnInit(this.element);
             },
             destroy: function () {
                 Widget.fn.destroy.call(this);
                 this.element.off(NS);
+                if (this.validationSummary) {
+                    this.validationSummary.off(NS);
+                    this.validationSummary = null;
+                }
             },
             value: function () {
                 if (!this._isValidated) {
@@ -11613,7 +12429,7 @@
                 return this.errors().length === 0;
             },
             _submit: function (e) {
-                if (!this.validate()) {
+                if (!this.validate() && !this._allowSubmit()) {
                     e.stopPropagation();
                     e.stopImmediatePropagation();
                     e.preventDefault();
@@ -11672,7 +12488,13 @@
                 } else {
                     result = this.validateInput(this.element);
                 }
-                this.trigger(VALIDATE, { valid: result });
+                if (this.options.validationSummary && !isValid) {
+                    this.showValidationSummary();
+                }
+                this.trigger(VALIDATE, {
+                    valid: result,
+                    errors: this.errors()
+                });
                 if (isValid !== result) {
                     this.trigger(CHANGE);
                 }
@@ -11687,49 +12509,85 @@
                             return element.attr(kendo.attr('for')) === fieldName;
                         }
                         return true;
-                    })).hide(), messageText, wasValid = !input.attr('aria-invalid');
-                input.removeAttr('aria-invalid');
+                    })).addClass('k-hidden'), messageText = !valid ? that._extractMessage(input, result.key) : '', messageLabel = !valid ? parseHtml(template({
+                        message: decode(messageText),
+                        field: fieldName
+                    })) : '', wasValid = !input.attr(ARIAINVALID);
+                input.removeAttr(ARIAINVALID);
                 if (!valid) {
-                    messageText = that._extractMessage(input, result.key);
                     that._errors[fieldName] = messageText;
-                    var messageLabel = parseHtml(template({ message: decode(messageText) }));
                     var lblId = lbl.attr('id');
                     that._decorateMessageContainer(messageLabel, fieldName);
                     if (lblId) {
                         messageLabel.attr('id', lblId);
                     }
-                    if (!lbl.replaceWith(messageLabel).length) {
-                        messageLabel.insertAfter(input);
+                    if (lbl.length !== 0) {
+                        lbl.replaceWith(messageLabel);
+                    } else {
+                        var widgetInstance = kendo.widgetInstance(input);
+                        var parentElement = input.parent().get(0);
+                        var nextElement = input.next().get(0);
+                        if (parentElement && parentElement.nodeName === 'LABEL') {
+                            messageLabel.insertAfter(parentElement);
+                        } else if (nextElement && nextElement.nodeName === 'LABEL') {
+                            messageLabel.insertAfter(nextElement);
+                        } else if (widgetInstance && widgetInstance.wrapper) {
+                            messageLabel.insertAfter(widgetInstance.wrapper);
+                        } else {
+                            messageLabel.insertAfter(input);
+                        }
                     }
-                    messageLabel.show();
-                    input.attr('aria-invalid', true);
+                    messageLabel.removeClass('k-hidden');
+                    input.attr(ARIAINVALID, true);
                 } else {
                     delete that._errors[fieldName];
                 }
                 if (wasValid !== valid) {
                     this.trigger(VALIDATE_INPUT, {
                         valid: valid,
-                        input: input
+                        input: input,
+                        error: messageText,
+                        field: fieldName
                     });
                 }
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
                 if (kendo.widgetInstance(input)) {
                     var inputWrap = kendo.widgetInstance(input)._inputWrapper;
+                    var inputLabel = kendo.widgetInstance(input)._inputLabel;
                     if (inputWrap) {
                         inputWrap.toggleClass(INVALIDINPUT, !valid);
-                        inputWrap.toggleClass(INVALIDINPUT, !valid);
+                        inputWrap.toggleClass(VALIDINPUT, valid);
+                    }
+                    if (inputLabel) {
+                        inputLabel.toggleClass(INVALIDLABEL, !valid);
+                    }
+                }
+                if (wasValid !== valid) {
+                    var errorId = messageLabel ? messageLabel.attr('id') : lbl.attr('id');
+                    that._associateMessageContainer(input, errorId);
+                    if (this.options.validationSummary && this.options.validateOnBlur) {
+                        this.showValidationSummary();
                     }
                 }
                 return valid;
             },
             hideMessages: function () {
                 var that = this, className = '.' + INVALIDMSG, element = that.element;
+                that._disassociateMessageContainers();
                 if (!element.is(INPUTSELECTOR)) {
-                    element.find(className).hide();
+                    element.find(className).addClass('k-hidden');
                 } else {
-                    element.next(className).hide();
+                    element.next(className).addClass('k-hidden');
                 }
+            },
+            reset: function () {
+                var that = this, inputs = that.element.find('.' + INVALIDINPUT);
+                that._errors = [];
+                that.hideMessages();
+                that.hideValidationSummary();
+                inputs.removeAttr(ARIAINVALID);
+                inputs.removeClass(INVALIDINPUT);
             },
             _findMessageContainer: function (fieldName) {
                 var locators = kendo.ui.validator.messageLocators, name, containers = $();
@@ -11744,10 +12602,12 @@
             _decorateMessageContainer: function (container, fieldName) {
                 var locators = kendo.ui.validator.messageLocators, name;
                 container.addClass(INVALIDMSG).attr(kendo.attr('for'), fieldName || '');
+                if (!container.attr('id')) {
+                    container.attr('id', fieldName + '-error');
+                }
                 for (name in locators) {
                     locators[name].decorate(container, fieldName);
                 }
-                container.attr('role', 'alert');
             },
             _extractMessage: function (input, ruleKey) {
                 var that = this, customMessage = that.options.messages[ruleKey], fieldName = input.attr(NAME), nonDefaultMessage;
@@ -11775,6 +12635,99 @@
                     results.push(errors[error]);
                 }
                 return results;
+            },
+            setOptions: function (options) {
+                if (options.validationSummary) {
+                    this.hideValidationSummary();
+                }
+                kendo.deepExtend(this.options, options);
+                this.destroy();
+                this.init(this.element, this.options);
+                this._setEvents(this.options);
+            },
+            _getInputNames: function () {
+                var that = this, inputs = that.element.find(that._inputSelector), sorted = [];
+                for (var idx = 0, length = inputs.length; idx < length; idx++) {
+                    var input = $(inputs[idx]);
+                    if (hasAttribute(input, NAME)) {
+                        sorted.push(input.attr(NAME));
+                    }
+                }
+                return sorted;
+            },
+            _associateMessageContainer: function (input, errorId) {
+                var nextFocusable = kendo.getWidgetFocusableElement(input);
+                if (!nextFocusable || !errorId) {
+                    return;
+                }
+                kendo.toggleAttribute(nextFocusable, ARIADESCRIBEDBY, errorId);
+            },
+            _disassociateMessageContainers: function () {
+                var that = this, inputs = that.element.find('.' + INVALIDINPUT).addBack(), input, errorId;
+                for (var i = 0; i < inputs.length; i += 1) {
+                    input = $(inputs[i]);
+                    if (input.is('input')) {
+                        errorId = that._findMessageContainer(input.attr(NAME)).add(input.next('.' + INVALIDMSG)).attr('id');
+                        that._associateMessageContainer(input, errorId);
+                    }
+                }
+            },
+            _errorsByName: function () {
+                var that = this, inputNames = that._getInputNames(), sorted = [];
+                for (var i = 0; i < inputNames.length; i += 1) {
+                    var name = inputNames[i];
+                    if (that._errors[name]) {
+                        sorted.push({
+                            field: name,
+                            message: that._errors[name]
+                        });
+                    }
+                }
+                return sorted;
+            },
+            _renderSummary: function () {
+                var that = this, options = this.options.validationSummary, element = this.element, prevElement = element.prev(), container;
+                if (options.container) {
+                    container = $(options.container);
+                } else if (prevElement && prevElement.hasClass(VALIDATIONSUMMARY)) {
+                    container = prevElement;
+                } else {
+                    container = $('<div />').insertBefore(that.element);
+                }
+                container.addClass([
+                    VALIDATIONSUMMARY,
+                    MESSAGEBOX
+                ].join(' '));
+                container.attr('role', 'alert');
+                container.on('click' + NS, proxy(that._summaryClick, that));
+                return container;
+            },
+            _summaryClick: function (e) {
+                e.preventDefault();
+                var that = this, link = $(e.target), target = that.element.find('[name=\'' + link.data('field') + '\']'), nextFocusable;
+                if (!target.length) {
+                    return;
+                }
+                nextFocusable = kendo.getWidgetFocusableElement(target);
+                if (nextFocusable) {
+                    nextFocusable.focus();
+                }
+            },
+            showValidationSummary: function () {
+                var that = this, summary = that.validationSummary, errors = that._errorsByName(), errorsList;
+                if (!summary) {
+                    summary = that.validationSummary = that._renderSummary();
+                }
+                errorsList = parseHtml(that._summaryTemplate({ errors: errors }));
+                summary.html(errorsList);
+                summary.toggleClass('k-hidden', !errors.length);
+            },
+            hideValidationSummary: function () {
+                var that = this, summary = that.validationSummary;
+                if (!summary) {
+                    return;
+                }
+                summary.addClass('k-hidden');
             }
         });
         kendo.ui.plugin(Validator);
@@ -12361,7 +13314,7 @@
                 }
             },
             _createElement: function () {
-                var that = this, wrapper = '<' + that.tagName + ' />', element, content;
+                var that = this, wrapper = '<' + that.tagName + '>', element, content;
                 try {
                     content = $(document.getElementById(that.content) || that.content);
                     if (content[0].tagName === SCRIPT) {
@@ -14270,6 +15223,11 @@
                     if (options.anchor != BODY) {
                         that._showDirClass(animation);
                     }
+                    if (!element.is(':visible') && element.data('olddisplay') === undefined) {
+                        element.show();
+                        element.data('olddisplay', element.css('display'));
+                        element.hide();
+                    }
                     element.data(EFFECTS, animation.effects).kendoStop(true).kendoAnimate(animation).attr('aria-hidden', false);
                 }
             },
@@ -14394,7 +15352,7 @@
             _toggleResize: function (toggle) {
                 var method = toggle ? 'on' : 'off';
                 var eventNames = support.resize;
-                if (!(support.mobileOS.ios || support.mobileOS.android)) {
+                if (!(support.mobileOS.ios || support.mobileOS.android || support.browser.safari)) {
                     eventNames += ' ' + SCROLL;
                 }
                 if (toggle && !this.scrollableParents) {
@@ -15343,7 +16301,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, attr = kendo.attr, Widget = ui.Widget, ViewClone = kendo.ViewClone, INIT = 'init', UI_OVERLAY = '<div style="height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 20000; display: none" />', BEFORE_SHOW = 'beforeShow', SHOW = 'show', AFTER_SHOW = 'afterShow', BEFORE_HIDE = 'beforeHide', TRANSITION_END = 'transitionEnd', TRANSITION_START = 'transitionStart', HIDE = 'hide', DESTROY = 'destroy', attrValue = kendo.attrValue, roleSelector = kendo.roleSelector, directiveSelector = kendo.directiveSelector, compileMobileDirective = kendo.compileMobileDirective;
+        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, attr = kendo.attr, Widget = ui.Widget, ViewClone = kendo.ViewClone, INIT = 'init', UI_OVERLAY = '<div style="height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 20000; display: none"></div>', BEFORE_SHOW = 'beforeShow', SHOW = 'show', AFTER_SHOW = 'afterShow', BEFORE_HIDE = 'beforeHide', TRANSITION_END = 'transitionEnd', TRANSITION_START = 'transitionStart', HIDE = 'hide', DESTROY = 'destroy', attrValue = kendo.attrValue, roleSelector = kendo.roleSelector, directiveSelector = kendo.directiveSelector, compileMobileDirective = kendo.compileMobileDirective;
         function initPopOvers(element) {
             var popovers = element.find(roleSelector('popover')), idx, length, roles = ui.roles;
             for (idx = 0, length = popovers.length; idx < length; idx++) {
@@ -16209,7 +17167,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, HIDE = 'hide', OPEN = 'open', CLOSE = 'close', WRAPPER = '<div class="km-popup-wrapper" />', ARROW = '<div class="km-popup-arrow" />', OVERLAY = '<div class="km-popup-overlay" />', DIRECTION_CLASSES = 'km-up km-down km-left km-right', Widget = ui.Widget, DIRECTIONS = {
+        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, HIDE = 'hide', OPEN = 'open', CLOSE = 'close', WRAPPER = '<div class="km-popup-wrapper"></div>', ARROW = '<div class="km-popup-arrow"></div>', OVERLAY = '<div class="km-popup-overlay"></div>', DIRECTION_CLASSES = 'km-up km-down km-left km-right', Widget = ui.Widget, DIRECTIONS = {
                 'down': {
                     origin: 'bottom center',
                     position: 'top center'
@@ -16412,7 +17370,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.mobile.ui, Popup = kendo.ui.Popup, SHIM = '<div class="km-shim"/>', HIDE = 'hide', Widget = ui.Widget;
+        var kendo = window.kendo, ui = kendo.mobile.ui, Popup = kendo.ui.Popup, SHIM = '<div class="km-shim"></div>', HIDE = 'hide', Widget = ui.Widget;
         var Shim = Widget.extend({
             init: function (element, options) {
                 var that = this, app = kendo.mobile.application, os = kendo.support.mobileOS, osname = app ? app.os.name : os ? os.name : 'ios', ioswp = osname === 'ios' || osname === 'wp' || (app ? app.os.skin : false), bb = osname === 'blackberry', align = options.align || (ioswp ? 'bottom center' : bb ? 'center right' : 'center center'), position = options.position || (ioswp ? 'bottom center' : bb ? 'center right' : 'center center'), effect = options.effect || (ioswp ? 'slideIn:up' : bb ? 'slideIn:left' : 'fade:in'), shim = $(SHIM).handler(that).hide();
@@ -16510,7 +17468,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.mobile.ui, Shim = ui.Shim, Widget = ui.Widget, BEFORE_OPEN = 'beforeOpen', OPEN = 'open', CLOSE = 'close', INIT = 'init', WRAP = '<div class="km-modalview-wrapper" />';
+        var kendo = window.kendo, ui = kendo.mobile.ui, Shim = ui.Shim, Widget = ui.Widget, BEFORE_OPEN = 'beforeOpen', OPEN = 'open', CLOSE = 'close', INIT = 'init', WRAP = '<div class="km-modalview-wrapper"></div>';
         var ModalView = ui.View.extend({
             init: function (element, options) {
                 var that = this;
@@ -16863,7 +17821,7 @@
         depends: ['mobile.pane']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.mobile.ui, Widget = ui.Widget, EXPANED_PANE_SHIM = '<div class=\'km-expanded-pane-shim\' />', View = ui.View;
+        var kendo = window.kendo, ui = kendo.mobile.ui, Widget = ui.Widget, EXPANED_PANE_SHIM = '<div class=\'km-expanded-pane-shim\'></div>', View = ui.View;
         var SplitView = View.extend({
             init: function (element, options) {
                 var that = this, pane, modalViews;
@@ -17413,7 +18371,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, ui = kendo.mobile.ui, Shim = ui.Shim, Popup = ui.Popup, Widget = ui.Widget, OPEN = 'open', CLOSE = 'close', COMMAND = 'command', BUTTONS = 'li>a', CONTEXT_DATA = 'actionsheetContext', WRAP = '<div class="km-actionsheet-wrapper" />', cancelTemplate = kendo.template('<li class="km-actionsheet-cancel"><a href="\\#">#:cancel#</a></li>');
+        var kendo = window.kendo, support = kendo.support, ui = kendo.mobile.ui, Shim = ui.Shim, Popup = ui.Popup, Widget = ui.Widget, OPEN = 'open', CLOSE = 'close', COMMAND = 'command', BUTTONS = 'li>a', CONTEXT_DATA = 'actionsheetContext', WRAP = '<div class="km-actionsheet-wrapper"></div>', cancelTemplate = kendo.template('<li class="km-actionsheet-cancel"><a href="\\#">#:cancel#</a></li>');
         var ActionSheet = Widget.extend({
             init: function (element, options) {
                 var that = this, ShimClass, tablet, type, os = support.mobileOS;
@@ -17993,7 +18951,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Node = window.Node, mobile = kendo.mobile, ui = mobile.ui, outerHeight = kendo._outerHeight, DataSource = kendo.data.DataSource, Widget = ui.DataBoundWidget, ITEM_SELECTOR = '.km-list > li, > li:not(.km-group-container)', HIGHLIGHT_SELECTOR = '.km-listview-link, .km-listview-label', ICON_SELECTOR = '[' + kendo.attr('icon') + ']', proxy = $.proxy, attrValue = kendo.attrValue, GROUP_CLASS = 'km-group-title', ACTIVE_CLASS = 'km-state-active', GROUP_WRAPPER = '<div class="' + GROUP_CLASS + '"><div class="km-text"></div></div>', GROUP_TEMPLATE = kendo.template('<li><div class="' + GROUP_CLASS + '"><div class="km-text">#= this.headerTemplate(data) #</div></div><ul>#= kendo.render(this.template, data.items)#</ul></li>'), WRAPPER = '<div class="km-listview-wrapper" />', SEARCH_TEMPLATE = kendo.template('<form class="km-filter-form"><div class="km-filter-wrap"><input type="search" placeholder="#=placeholder#"/><a href="\\#" class="km-filter-reset" title="Clear"><span class="km-icon km-clear"></span><span class="km-text">Clear</span></a></div></form>'), NS = '.kendoMobileListView', STYLED = 'styled', DATABOUND = 'dataBound', DATABINDING = 'dataBinding', ITEM_CHANGE = 'itemChange', CLICK = 'click', CHANGE = 'change', PROGRESS = 'progress', FUNCTION = 'function', whitespaceRegExp = /^\s+$/, buttonRegExp = /button/;
+        var kendo = window.kendo, Node = window.Node, mobile = kendo.mobile, ui = mobile.ui, outerHeight = kendo._outerHeight, DataSource = kendo.data.DataSource, Widget = ui.DataBoundWidget, ITEM_SELECTOR = '.km-list > li, > li:not(.km-group-container)', HIGHLIGHT_SELECTOR = '.km-listview-link, .km-listview-label', ICON_SELECTOR = '[' + kendo.attr('icon') + ']', proxy = $.proxy, attrValue = kendo.attrValue, GROUP_CLASS = 'km-group-title', ACTIVE_CLASS = 'km-state-active', GROUP_WRAPPER = '<div class="' + GROUP_CLASS + '"><div class="km-text"></div></div>', GROUP_TEMPLATE = kendo.template('<li><div class="' + GROUP_CLASS + '"><div class="km-text">#= this.headerTemplate(data) #</div></div><ul>#= kendo.render(this.template, data.items)#</ul></li>'), WRAPPER = '<div class="km-listview-wrapper"></div>', SEARCH_TEMPLATE = kendo.template('<form class="km-filter-form"><div class="km-filter-wrap"><input type="search" placeholder="#=placeholder#"/><a href="\\#" class="km-filter-reset" title="Clear"><span class="km-icon km-clear"></span><span class="km-text">Clear</span></a></div></form>'), NS = '.kendoMobileListView', STYLED = 'styled', DATABOUND = 'dataBound', DATABINDING = 'dataBinding', ITEM_CHANGE = 'itemChange', CLICK = 'click', CHANGE = 'change', PROGRESS = 'progress', FUNCTION = 'function', whitespaceRegExp = /^\s+$/, buttonRegExp = /button/;
         function whitespace() {
             return this.nodeType === Node.TEXT_NODE && this.nodeValue.match(whitespaceRegExp);
         }
@@ -18970,10 +19928,10 @@
             }
         }
         function toggleTitle(centerElement) {
-            var siblings = centerElement.siblings(), noTitle = !!centerElement.children('ul')[0], showTitle = !!siblings[0] && $.trim(centerElement.text()) === '', android = !!(kendo.mobile.application && kendo.mobile.application.element.is('.km-android'));
+            var siblings = centerElement.siblings(), noTitle = !!centerElement.children('ul')[0], showTitle = !!siblings[0] && kendo.trim(centerElement.text()) === '', android = !!(kendo.mobile.application && kendo.mobile.application.element.is('.km-android'));
             centerElement.prevAll().toggleClass('km-absolute', noTitle);
             centerElement.toggleClass('km-show-title', showTitle);
-            centerElement.toggleClass('km-fill-title', showTitle && !$.trim(centerElement.html()));
+            centerElement.toggleClass('km-fill-title', showTitle && !kendo.trim(centerElement.html()));
             centerElement.toggleClass('km-no-title', noTitle);
             centerElement.toggleClass('km-hide-title', android && !siblings.children().is(':visible'));
         }
@@ -19050,7 +20008,7 @@
             _refresh: function (e) {
                 var pageHTML = '';
                 for (var idx = 0; idx < e.pageCount; idx++) {
-                    pageHTML += '<li/>';
+                    pageHTML += '<li></li>';
                 }
                 this.element.html(pageHTML);
                 this.items().eq(e.page).addClass(className(CURRENT_PAGE_CLASS));

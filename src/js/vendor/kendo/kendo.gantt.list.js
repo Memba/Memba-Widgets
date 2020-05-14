@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -760,7 +760,7 @@
                             lineHeight: target.height() + 'px',
                             paddingTop: target.css('paddingTop'),
                             paddingBottom: target.css('paddingBottom')
-                        }).append('<span class="' + listStyles.icon + ' ' + listStyles.dragStatus + '" /><span class="' + listStyles.dragClueText + '"/>');
+                        }).append('<span class="' + listStyles.icon + ' ' + listStyles.dragStatus + '" ></span><span class="' + listStyles.dragClueText + '"></span>');
                     },
                     cursorOffset: {
                         top: -20,
@@ -869,7 +869,7 @@
                     var indicatorWidth = that.options.columnResizeHandleWidth;
                     left += container.scrollLeft();
                     if (!resizeHandle) {
-                        resizeHandle = that.resizeHandle = $('<div class="' + listStyles.resizeHandle + '"><div class="' + listStyles.resizeHandleInner + '" /></div>');
+                        resizeHandle = that.resizeHandle = $('<div class="' + listStyles.resizeHandle + '"><div class="' + listStyles.resizeHandleInner + '" ></div></div>');
                     }
                     var cellOffset = th.offset().left + cellWidth;
                     var show = clientX > cellOffset - indicatorWidth && clientX < cellOffset + indicatorWidth;

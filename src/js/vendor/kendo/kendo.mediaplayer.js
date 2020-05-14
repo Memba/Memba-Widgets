@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -278,7 +278,7 @@
                         toolBarElement.find('.k-mediaplayer-quality-wrap')[0],
                         this._fullscreenButton[0]
                     ]).wrapAll('<div class=\'k-align-right\' />');
-                    toolBarElement.find('.k-button').addClass('k-bare');
+                    toolBarElement.find('.k-button').addClass('k-flat');
                 }
             },
             _createDropDown: function () {
@@ -306,7 +306,7 @@
                         this._dropDown.setDataSource(media.source);
                         this._dropDown.select(0);
                     }
-                    this._dropDown.wrapper.addClass('k-button k-bare');
+                    this._dropDown.wrapper.addClass('k-button k-flat');
                     this._dropDown.wrapper.attr('title', this.options.messages.quality).hide();
                     this._dropDown.wrapper.find('span.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-icon k-i-hd');
                     this._dropDown.list.addClass('k-quality-list');

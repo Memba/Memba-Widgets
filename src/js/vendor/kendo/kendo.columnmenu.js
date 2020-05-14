@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -43,7 +43,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, grep = $.grep, map = $.map, inArray = $.inArray, ACTIVE = 'k-state-selected', ASC = 'asc', DESC = 'desc', CHANGE = 'change', INIT = 'init', OPEN = 'open', SELECT = 'select', POPUP = 'kendoPopup', FILTERMENU = 'kendoFilterMenu', MENU = 'kendoMenu', NS = '.kendoColumnMenu', Widget = ui.Widget;
         function trim(text) {
-            return $.trim(text).replace(/&nbsp;/gi, '');
+            return kendo.trim(text).replace(/&nbsp;/gi, '');
         }
         function toHash(arr, key) {
             var result = {};

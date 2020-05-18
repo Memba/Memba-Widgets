@@ -44,6 +44,9 @@
 /* jshint -W074 */
 
 (function (global, undefined) {
+
+    'use strict';
+
     // List global properties
     /*
     for (var prop in global) {
@@ -155,38 +158,26 @@
      * @constructor
      */
     global.soundex = function (word) {
-        word = `${word}`.toUpperCase();
+        word = (word + '').toUpperCase();
         if (!word) {
             return '';
         }
-        const sdx = [0, 0, 0, 0];
-        const m = {
-            B: 1,
-            F: 1,
-            P: 1,
-            V: 1,
-            C: 2,
-            G: 2,
-            J: 2,
-            K: 2,
-            Q: 2,
-            S: 2,
-            X: 2,
-            Z: 2,
-            D: 3,
-            T: 3,
-            L: 4,
-            M: 5,
-            N: 5,
-            R: 6,
+        var sdx = [0, 0, 0, 0];
+        var m = {
+            B : 1, F : 1, P : 1, V : 1,
+            C : 2, G : 2, J : 2, K : 2, Q : 2, S : 2, X : 2, Z : 2,
+            D : 3, T : 3,
+            L : 4,
+            M : 5, N : 5,
+            R : 6
         };
-        let i = 0;
-        let j;
-        let s = 0;
-        let c;
-        let p;
+        var i = 0;
+        var j;
+        var s = 0;
+        var c;
+        var p;
         while ((c = word.charAt(i++)) && s < 4) {
-            if ((j = m[c])) {
+            if (j = m[c]) {
                 if (j !== p) {
                     sdx[s++] = p = j;
                 }
@@ -207,9 +198,9 @@
      * @param maxPhonemes
      */
     global.metaphone = function (word, maxPhonemes) {
-        const type = typeof word;
+        var type = typeof word;
 
-        if (type === 'undefined' || (type === 'object' && word !== null)) {
+        if (type === 'undefined' || type === 'object' && word !== null) {
             // weird!
             return null;
         }
@@ -232,32 +223,33 @@
         // alpha depends on locale, so this var might need an update
         // or should be turned into a regex
         // for now assuming pure a-z
-        const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const vowel = 'AEIOU';
-        const soft = 'EIY';
-        const leadingNonAlpha = new RegExp(`^[^${alpha}]+`);
+        var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var vowel = 'AEIOU';
+        var soft = 'EIY';
+        var leadingNonAlpha = new RegExp('^[^' + alpha + ']+');
 
         word = typeof word === 'string' ? word : '';
-        word = word.toUpperCase().replace(leadingNonAlpha, '');
+        word = word.toUpperCase()
+            .replace(leadingNonAlpha, '');
 
         if (!word) {
             return '';
         }
 
-        const is = function (p, c) {
+        var is = function (p, c) {
             return c !== '' && p.indexOf(c) !== -1;
         };
 
-        let i = 0;
-        let cc = word.charAt(0); // current char. Short name, because it's used all over the function
-        let nc = word.charAt(1); // next char
-        let nnc; // after next char
-        let pc; // previous char
-        const l = word.length;
-        let meta = '';
+        var i = 0;
+        var cc = word.charAt(0); // current char. Short name, because it's used all over the function
+        var nc = word.charAt(1); // next char
+        var nnc; // after next char
+        var pc; // previous char
+        var l = word.length;
+        var meta = '';
         // traditional is an internal param that could be exposed
         // for now let it be a local var
-        const traditional = true;
+        var traditional = true;
 
         switch (cc) {
             case 'A':
@@ -294,11 +286,7 @@
                 break;
         }
 
-        for (
-            ;
-            i < l && (maxPhonemes === 0 || meta.length < maxPhonemes);
-            i += 1
-        ) {
+        for (; i < l && (maxPhonemes === 0 || meta.length < maxPhonemes); i += 1) {
             cc = word.charAt(i);
             nc = word.charAt(i + 1);
             pc = word.charAt(i - 1);
@@ -322,10 +310,7 @@
                             meta += 'S';
                         }
                     } else if (nc === 'H') {
-                        meta +=
-                            !traditional && (nnc === 'R' || pc === 'S')
-                                ? 'K'
-                                : 'X';
+                        meta += !traditional && (nnc === 'R' || pc === 'S') ? 'K' : 'X';
                         i += 1;
                     } else {
                         meta += 'K';
@@ -341,12 +326,7 @@
                     break;
                 case 'G':
                     if (nc === 'H') {
-                        if (
-                            !(
-                                is('BDH', word.charAt(i - 3)) ||
-                                word.charAt(i - 4) === 'H'
-                            )
-                        ) {
+                        if (!(is('BDH', word.charAt(i - 3)) || word.charAt(i - 4) === 'H')) {
                             meta += 'F';
                             i += 1;
                         }
@@ -382,10 +362,7 @@
                     } else if (nc === 'H') {
                         meta += 'X';
                         i += 1;
-                    } else if (
-                        !traditional &&
-                        word.substr(i + 1, 3) === 'CHW'
-                    ) {
+                    } else if (!traditional && word.substr(i + 1, 3) === 'CHW') {
                         meta += 'X';
                         i += 2;
                     } else {
@@ -438,7 +415,7 @@
      * @returns {*}
      */
     global.removeDiacritics = function (word) {
-        const diacriticsMap = {
+        var diacriticsMap = {
             A: /[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g,
             AA: /[\uA732]/g,
             AE: /[\u00C6\u01FC\u01E2]/g,
@@ -523,9 +500,9 @@
             w: /[\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73]/g,
             x: /[\u0078\u24E7\uFF58\u1E8B\u1E8D]/g,
             y: /[\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF]/g,
-            z: /[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]/g,
+            z: /[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]/g
         };
-        for (const c in diacriticsMap) {
+        for (var c in diacriticsMap) {
             // Iterate through each character in the map and perform a replace
             word = word.replace(diacriticsMap[c], c);
         }
@@ -548,7 +525,7 @@
             return false;
         }
 
-        for (let i = 0, { length } = this; i < length; i++) {
+        for (var i = 0, length = this.length; i < length; i++) {
             // Check if we have nested arrays
             if (this[i] instanceof Array && array[i] instanceof Array) {
                 // recurse into the nested arrays
@@ -576,7 +553,7 @@
             this._expression = expression;
             this._ast = global.KAS.parse(expression).expr;
         } catch (ex) {
-            const error = new Error(`Error parsing \`${expression}\``);
+            var error = new Error('Error parsing `' + expression + '`');
             error.originalError = ex;
             throw error;
         }
@@ -588,12 +565,12 @@
      * @returns {boolean}
      */
     global.Formula.prototype.equals = function (expression) {
-        let ret = false;
-        let ast;
+        var ret = false;
+        var ast;
         try {
             ast = global.KAS.parse(expression).expr;
         } catch (ex) {
-            const error = new Error(`Error parsing \`${expression}\``);
+            var error = new Error('Error parsing `' + expression + '`');
             error.originalError = ex;
             throw error;
         }
@@ -602,7 +579,8 @@
         } catch (ex) {}
         return ret;
     };
-})(this); // this is WorkerGlobalScope (beware Karma though!)
+
+}(this)); // this is WorkerGlobalScope (beware Karma though!)
 
 /* jshint +W074 */
 /* jshint +W071 */

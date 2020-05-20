@@ -25,6 +25,13 @@
   var TextEncoder = global.TextEncoder;
   var AbortController = global.AbortController;
 
+  if (typeof window !== "undefined" && !("readyState" in document) && document.body == null) { // Firefox 2
+    document.readyState = "loading";
+    window.addEventListener("load", function (event) {
+      document.readyState = "complete";
+    }, false);
+  }
+
   if (XMLHttpRequest == null) { // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest_in_IE6
     XMLHttpRequest = function () {
       return new ActiveXObject("Microsoft.XMLHTTP");
@@ -168,7 +175,7 @@
     try {
       return new TextDecoder().decode(new TextEncoder().encode("test"), {stream: true}) === "test";
     } catch (error) {
-      console.log(error);
+      console.debug("TextDecoder does not support streaming option. Using polyfill instead: " + error);
     }
     return false;
   };
@@ -320,7 +327,10 @@
             onFinish(xhr.responseText === "" ? "error" : "load", event);
           }
         } else if (xhr.readyState === 3) {
-          onProgress();
+          if (!("onprogress" in xhr)) { // testing XMLHttpRequest#responseText too many times is too slow in IE 11
+            // and in Firefox 3.6
+            onProgress();
+          }
         } else if (xhr.readyState === 2) {
           onStart();
         }
@@ -357,11 +367,8 @@
       };
     }
 
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=736723
-    if (!("sendAsBinary" in XMLHttpRequest.prototype) && !("mozAnon" in XMLHttpRequest.prototype)) {
-      if ("onprogress" in xhr) {
-        xhr.onprogress = onProgress;
-      }
+    if ("onprogress" in xhr) {
+      xhr.onprogress = onProgress;
     }
 
     // IE 8 - 9 (XMLHTTPRequest)
@@ -370,9 +377,11 @@
     // Firefox 3.5 - 3.6 - ? < 9.0
     // onprogress is not fired sometimes or delayed
     // see also #64 (significant lag in IE 11)
-    xhr.onreadystatechange = function (event) {
-      onReadyStateChange(event);
-    };
+    if ("onreadystatechange" in xhr) {
+      xhr.onreadystatechange = function (event) {
+        onReadyStateChange(event);
+      };
+    }
 
     if ("contentType" in xhr || !("ontimeout" in XMLHttpRequest.prototype)) {
       url += (url.indexOf("?") === -1 ? "?" : "&") + "padding=true";
@@ -400,11 +409,13 @@
     }
   };
   XHRWrapper.prototype.getAllResponseHeaders = function () {
-    return this._xhr.getAllResponseHeaders != undefined ? this._xhr.getAllResponseHeaders() : "";
+    // XMLHttpRequest#getAllResponseHeaders returns null for CORS requests in Firefox 3.6.28
+    return this._xhr.getAllResponseHeaders != undefined ? this._xhr.getAllResponseHeaders() || "" : "";
   };
   XHRWrapper.prototype.send = function () {
     // loading indicator in Safari < ? (6), Chrome < 14, Firefox
-    if (!("ontimeout" in XMLHttpRequest.prototype) &&
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=736723
+    if ((!("ontimeout" in XMLHttpRequest.prototype) || (!("sendAsBinary" in XMLHttpRequest.prototype) && !("mozAnon" in XMLHttpRequest.prototype))) &&
         document != undefined &&
         document.readyState != undefined &&
         document.readyState !== "complete") {
@@ -453,7 +464,7 @@
     return this._map[toLowerCase(name)];
   };
   
-  if (XMLHttpRequest != null && XMLHttpRequest.HEADERS_RECEIVED == null) { // IE < 9
+  if (XMLHttpRequest != null && XMLHttpRequest.HEADERS_RECEIVED == null) { // IE < 9, Firefox 3.6
     XMLHttpRequest.HEADERS_RECEIVED = 2;
   }
 
@@ -627,12 +638,7 @@
   function Event(type) {
     this.type = type;
     this.target = undefined;
-    this.defaultPrevented = false;
   }
-  
-  Event.prototype.preventDefault = function () {
-    this.defaultPrevented = true;
-  };
 
   function MessageEvent(type, options) {
     Event.call(this, type);
@@ -650,6 +656,13 @@
   }
 
   ConnectionEvent.prototype = Object.create(Event.prototype);
+
+  function ErrorEvent(type, options) {
+    Event.call(this, type);
+    this.error = options.error;
+  }
+
+  ErrorEvent.prototype = Object.create(Event.prototype);
 
   var WAITING = -1;
   var CONNECTING = 0;
@@ -724,6 +737,7 @@
     var lastEventId = "";
     var retry = initialRetry;
     var wasActivity = false;
+    var textLength = 0;
     var headers = options.headers || {};
     var TransportOption = options.Transport;
     var xhr = isFetchSupported && TransportOption == undefined ? undefined : new XHRWrapper(TransportOption != undefined ? new TransportOption() : getBestXHRTransport());
@@ -772,9 +786,7 @@
           });
           es.dispatchEvent(event);
           fire(es, es.onerror, event);
-          if (!event.defaultPrevented) {
-            throwError(new Error(message));
-          }
+          console.error(message);
         }
       }
     };
@@ -790,8 +802,9 @@
         }
         var chunk = (n !== -1 ? textBuffer : "") + textChunk.slice(0, n + 1);
         textBuffer = (n === -1 ? textBuffer : "") + textChunk.slice(n + 1);
-        if (chunk !== "") {
+        if (textChunk !== "") {
           wasActivity = true;
+          textLength += textChunk.length;
         }
         for (var position = 0; position < chunk.length; position += 1) {
           var c = chunk.charCodeAt(position);
@@ -839,8 +852,12 @@
                     lastEventId: lastEventIdBuffer
                   });
                   es.dispatchEvent(event);
-                  if (eventTypeBuffer === "message") {
+                  if (eventTypeBuffer === "open") {
+                    fire(es, es.onopen, event);
+                  } else if (eventTypeBuffer === "message") {
                     fire(es, es.onmessage, event);
+                  } else if (eventTypeBuffer === "error") {
+                    fire(es, es.onerror, event);
                   }
                   if (currentState === CLOSED) {
                     return;
@@ -882,14 +899,9 @@
         retry = clampDuration(Math.min(initialRetry * 16, retry * 2));
 
         es.readyState = CONNECTING;
-        var event = new Event("error");
+        var event = new ErrorEvent("error", {error: error});
         es.dispatchEvent(event);
         fire(es, es.onerror, event);
-        if (error != null) {
-          if (!event.defaultPrevented) {
-            throwError(error);
-          }
-        }
       }
     };
 
@@ -911,9 +923,11 @@
 
       if (currentState !== WAITING) {
         if (!wasActivity && abortController != undefined) {
-          onFinish(new Error("No activity within " + heartbeatTimeout + " milliseconds. Reconnecting."));
-          abortController.abort();
-          abortController = undefined;
+          onFinish(new Error("No activity within " + heartbeatTimeout + " milliseconds." + " " + (currentState === CONNECTING ? "No response received." : textLength + " chars received.") + " " + "Reconnecting."));
+          if (abortController != undefined) {
+            abortController.abort();
+            abortController = undefined;
+          }
         } else {
           wasActivity = false;
           timeout = setTimeout(function () {
@@ -924,6 +938,7 @@
       }
 
       wasActivity = false;
+      textLength = 0;
       timeout = setTimeout(function () {
         onTimeout();
       }, heartbeatTimeout);

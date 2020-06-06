@@ -36,17 +36,21 @@ import {
     validateKeyboardLayout,
 } from './keyboard-layout';
 
-export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
+export function showKeystroke(
+    mathfield: MathfieldPrivate,
+    keystroke: string
+): void {
     const vb = mathfield.keystrokeCaption;
     if (vb && mathfield.keystrokeCaptionVisible) {
         const bounds = mathfield.element.getBoundingClientRect();
         vb.style.left = bounds.left + 'px';
         vb.style.top = bounds.top - 64 + 'px';
-        vb.innerHTML =
+        vb.innerHTML = mathfield.config.createHTML(
             '<span>' +
-            (getKeybindingMarkup(keystroke) || keystroke) +
-            '</span>' +
-            vb.innerHTML;
+                (getKeybindingMarkup(keystroke) || keystroke) +
+                '</span>' +
+                vb.innerHTML
+        );
         vb.style.visibility = 'visible';
         setTimeout(function () {
             if (vb.childNodes.length > 0) {
@@ -60,15 +64,16 @@ export function showKeystroke(mathfield: MathfieldPrivate, keystroke: string) {
 }
 
 /**
- * @param [evt] - An Event corresponding to the keystroke.
+ * @param evt - An Event corresponding to the keystroke.
  */
 export function onKeystroke(
     mathfield: MathfieldPrivate,
     keystroke: string,
     evt: KeyboardEvent
-) {
+): boolean {
     // 1. Update the keybindings according to the current keyboard layout
-    // 1.1 Possibly update the current layout based on this event
+
+    // 1.1 Possibly update the current keyboard layout based on this event
     validateKeyboardLayout(evt);
 
     const activeLayout = getActiveKeyboardLayout();
@@ -76,14 +81,25 @@ export function onKeystroke(
         console.log('Switching to keyboard layout ' + activeLayout.id);
         mathfield.keyboardLayout = activeLayout.id;
         mathfield.keybindings = normalizeKeybindings(
-            mathfield.config.keybindings
+            mathfield.config.keybindings,
+            (e) => {
+                if (typeof mathfield.config.onError === 'function') {
+                    mathfield.config.onError({
+                        code: 'invalid-keybinding',
+                        arg: e.join('\n'),
+                    });
+                }
+                console.log(e.join('\n'));
+            }
         );
     }
 
     // 2. Display the keystroke in the keystroke panel (if visible)
     showKeystroke(mathfield, keystroke);
+
     // 3. Reset the timer for the keystroke buffer reset
     clearTimeout(mathfield.keystrokeBufferResetTimer);
+
     // 4. Give a chance to the custom keystroke handler to intercept the event
     if (
         mathfield.config.onKeystroke &&
@@ -95,6 +111,7 @@ export function onKeystroke(
         }
         return false;
     }
+
     // 5. Let's try to find a matching shortcut or command
     let shortcut: string;
     let stateIndex: number;
@@ -146,7 +163,7 @@ export function onKeystroke(
             }
             stateIndex = i - 1;
             mathfield.keystrokeBuffer += c;
-            mathfield.keystrokeBufferStates.push(mathfield.undoManager.save());
+            mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (
                 getInlineShortcutsStartingWith(candidate, mathfield.config)
                     .length <= 1
@@ -202,6 +219,7 @@ export function onKeystroke(
     if (mathfield.config.readOnly && selector[0] === 'insert') {
         return true;
     }
+
     // 6. Perform the action matching this shortcut
     // 6.1 Remove any error indicator (wavy underline) on the current command
     // sequence (if there are any)
@@ -261,12 +279,11 @@ export function onKeystroke(
             });
             const saveMode = mathfield.mode;
             // Create a snapshot with the inserted character
-            mathfield.undoManager.snapshotAndCoalesce(mathfield.config);
+            mathfield.snapshotAndCoalesce();
             // Revert to the state before the beginning of the shortcut
             // (restore doesn't change the undo stack)
-            mathfield.undoManager.restore(
-                mathfield.keystrokeBufferStates[stateIndex],
-                { ...mathfield.config, suppressChangeNotifications: true }
+            mathfield.restoreToUndoRecord(
+                mathfield.keystrokeBufferStates[stateIndex]
             );
             mathfield.mode = saveMode;
         }
@@ -294,7 +311,7 @@ export function onKeystroke(
         }
         mathfield.model.suppressChangeNotifications = save;
         contentDidChange(mathfield.model);
-        mathfield.undoManager.snapshot(mathfield.config);
+        mathfield.snapshot();
         requestUpdate(mathfield);
         mathfield.model.announce('replacement');
         // If we're done with the shortcuts (found a unique one), reset it.
@@ -302,6 +319,7 @@ export function onKeystroke(
             mathfield.resetKeystrokeBuffer();
         }
     }
+
     // 7. Make sure the insertion point is scrolled into view
     mathfield.scrollIntoView();
 
@@ -331,13 +349,18 @@ export function onKeystroke(
 export function onTypedText(
     mathfield: MathfieldPrivate,
     text: string,
-    options?
-) {
+    options?: {
+        focus?: boolean;
+        feedback?: boolean;
+        commandMode?: boolean;
+        simulateKeystroke?: boolean;
+    }
+): void {
     if (mathfield.config.readOnly) {
         mathfield.model.announce('plonk');
         return;
     }
-    options = options || {};
+    options = options ?? {};
     // Focus, then provide audio and haptic feedback
     if (options.focus) {
         mathfield.$focus();
@@ -482,7 +505,7 @@ export function onTypedText(
         }
     }
     if (mathfield.mode !== 'command') {
-        mathfield.undoManager.snapshotAndCoalesce(mathfield.config);
+        mathfield.snapshotAndCoalesce();
     }
     // Mark the mathfield dirty
     // (it will get rendered in scrollIntoView())
@@ -497,7 +520,7 @@ export function onTypedText(
     showPopoverWithLatex(mathfield, popoverText, displayArrows);
 }
 
-function superscriptDepth(mathfield: MathfieldPrivate) {
+function superscriptDepth(mathfield: MathfieldPrivate): number {
     let result = 0;
     let i = 0;
     let atom = mathfield.model.ancestor(i);
@@ -516,7 +539,7 @@ function superscriptDepth(mathfield: MathfieldPrivate) {
     }
     return wasSuperscript ? result : 0;
 }
-function subscriptDepth(mathfield: MathfieldPrivate) {
+function subscriptDepth(mathfield: MathfieldPrivate): number {
     let result = 0;
     let i = 0;
     let atom = mathfield.model.ancestor(i);

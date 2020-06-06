@@ -16,7 +16,11 @@ import { positionInsertionPointAfterCommitedCommand } from './model-selection';
 import type { MathfieldPrivate } from './mathfield-class';
 import { requestUpdate } from './mathfield-render';
 
-export function insertSuggestion(model: ModelPrivate, s, l): void {
+export function insertSuggestion(
+    model: ModelPrivate,
+    s: string,
+    l: number
+): void {
     removeSuggestion(model);
 
     const mathlist = [];
@@ -25,7 +29,7 @@ export function insertSuggestion(model: ModelPrivate, s, l): void {
     const subs = s.substr(l);
     for (const c of subs) {
         const atom = new Atom('command', 'command', c);
-        atom.suggestion = true;
+        atom.isSuggestion = true;
         mathlist.push(atom);
     }
 
@@ -51,7 +55,7 @@ export function complete(
         discard?: boolean;
         acceptSuggestion?: boolean;
     }
-) {
+): boolean {
     options = options || { acceptSuggestion: false };
     hidePopover(mathfield);
     if (options.discard) {
@@ -92,7 +96,7 @@ export function complete(
                 );
             }
         }
-        mathfield.undoManager.snapshot(mathfield.config);
+        mathfield.snapshot();
         mathfield.model.announce('replacement');
         return true;
     }

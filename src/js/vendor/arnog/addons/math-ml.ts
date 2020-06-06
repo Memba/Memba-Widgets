@@ -1,6 +1,6 @@
+import type { MathfieldConfig } from '../public/config';
 import { Atom } from '../core/atom';
 import { stringToColor } from '../core/color';
-
 const SPECIAL_OPERATORS = {
     '\\pm': '&#177;',
     '\\times': '&#215;',
@@ -29,7 +29,7 @@ const SPECIAL_OPERATORS = {
     '\\hat': '&#x005e;',
 };
 
-function xmlEscape(str) {
+function xmlEscape(str: string): string {
     return (
         str
             // .replace(/&/g, '&amp;')
@@ -490,14 +490,23 @@ function scanOperator(stream, final, options) {
  * @param initial index of the input to start conversion from
  * @param final last index of the input to stop conversion to
  */
-function toMathML(input, initial: number, final: number, options) {
+function toMathML(
+    input: number | boolean | string | Atom | Atom[],
+    initial: number,
+    final: number,
+    options: MathfieldConfig
+): {
+    atoms: number | boolean | string | Atom | Atom[];
+    index: number;
+    mathML: string;
+    lastType: string;
+} {
     const result = {
         atoms: input,
-        index: initial || 0,
+        index: initial ?? 0,
         mathML: '',
         lastType: '',
     };
-    final = final || (input ? input.length : 0);
 
     if (typeof input === 'number' || typeof input === 'boolean') {
         result.mathML = input.toString();
@@ -507,6 +516,7 @@ function toMathML(input, initial: number, final: number, options) {
         result.mathML = atomToMathML(input, options);
     } else if (Array.isArray(input)) {
         let count = 0;
+        final = final ?? (input ? input.length : 0);
 
         while (result.index < final) {
             if (
@@ -686,14 +696,15 @@ function atomToMathML(atom, options): string {
 
             case 'array':
                 if (
-                    (atom.lFence && atom.lFence !== '.') ||
-                    (atom.rFence && atom.rFence !== '.')
+                    (atom.leftDelim && atom.leftDelim !== '.') ||
+                    (atom.rightDelim && atom.rightDelim !== '.')
                 ) {
                     result += '<mrow>';
-                    if (atom.lFence && atom.lFence !== '.') {
+                    if (atom.leftDelim && atom.leftDelim !== '.') {
                         result +=
                             '<mo>' +
-                            (SPECIAL_OPERATORS[atom.lFence] || atom.lFence) +
+                            (SPECIAL_OPERATORS[atom.leftDelim] ||
+                                atom.leftDelim) +
                             '</mo>';
                     }
                 }
@@ -727,13 +738,14 @@ function atomToMathML(atom, options): string {
                 result += '</mtable>';
 
                 if (
-                    (atom.lFence && atom.lFence !== '.') ||
-                    (atom.rFence && atom.rFence !== '.')
+                    (atom.leftDelim && atom.leftDelim !== '.') ||
+                    (atom.rightDelim && atom.rightDelim !== '.')
                 ) {
-                    if (atom.rFence && atom.rFence !== '.') {
+                    if (atom.rightDelim && atom.rightDelim !== '.') {
                         result +=
                             '<mo>' +
-                            (SPECIAL_OPERATORS[atom.lFence] || atom.rFence) +
+                            (SPECIAL_OPERATORS[atom.leftDelim] ||
+                                atom.rightDelim) +
                             '</mo>';
                     }
                     result += '</mrow>';
@@ -1084,6 +1096,9 @@ function atomToMathML(atom, options): string {
     return result;
 }
 
-export function atomsToMathML(atoms, options) {
+export function atomsToMathML(
+    atoms: Atom | Atom[],
+    options: MathfieldConfig
+): string {
     return toMathML(atoms, 0, 0, options).mathML;
 }

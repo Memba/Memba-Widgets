@@ -1,16 +1,19 @@
 import type { Mathfield } from './public/mathfield';
 import type { MathfieldConfig, TextToSpeechOptions } from './public/config';
-import type { ParserErrorListener } from './public/core';
+import type { ErrorListener } from './public/core';
 
-import { Atom } from './core/atom';
-import { Span } from './core/span';
 import { decompose } from './core/atom-utils';
 import { parseString } from './core/parser';
 import { coalesce, makeSpan, makeStruts } from './core/span';
 import { MACROS, MacroDictionary } from './core/definitions';
 import { MathfieldPrivate } from './editor/mathfield-class';
 import AutoRender from './addons/auto-render';
-import { jsonToLatex, atomtoMathJson } from './addons/math-json';
+import {
+    jsonToLatex,
+    atomtoMathJson,
+    MathJsonLatexOptions,
+    MathJson,
+} from './addons/math-json';
 import MathLiveDebug from './addons/debug';
 import { MATHSTYLES } from './core/mathstyle';
 import { defaultSpeakHook } from './editor/speech';
@@ -25,6 +28,7 @@ import { atomToSpeakableText } from './editor/atom-to-speakable-text';
 import { atomsToMathML } from './addons/math-ml';
 
 import './addons/definitions-metadata';
+import { AutoRenderOptionsPrivate } from './addons/auto-render';
 
 function latexToMarkup(
     text: string,
@@ -32,11 +36,11 @@ function latexToMarkup(
         mathstyle?: 'displaystyle' | 'textstyle';
         letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
         format?: string;
     }
-): string | Atom[] | Span[] {
-    options = options || {};
+): string {
+    options = options ?? {};
     options.mathstyle = options.mathstyle || 'displaystyle';
     options.letterShapeStyle = options.letterShapeStyle || 'auto';
 
@@ -72,7 +76,7 @@ function latexToMarkup(
     //
     spans = coalesce(spans);
 
-    if (options.format === 'span') return spans;
+    if (options.format === 'span') return (spans as unknown) as string;
 
     //
     // 4. Wrap the expression with struts
@@ -100,7 +104,7 @@ function latexToMathML(
     latex: string,
     options?: {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
         generateID?: boolean;
     }
 ): string {
@@ -122,11 +126,11 @@ function latexToMathML(
 
 function latexToAST(
     latex: string,
-    options?: {
+    options?: MathJsonLatexOptions & {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
-) {
+): MathJson {
     options = options ?? {};
     options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
@@ -143,20 +147,7 @@ function latexToAST(
     );
 }
 
-function astToLatex(
-    ast,
-    options: {
-        precision?: number;
-        decimalMarker?: string;
-        groupSeparator?: string;
-        product?: string;
-        exponentProduct?: string;
-        exponentMarker?: string;
-        scientificNotation?: 'auto' | 'engineering' | 'on';
-        beginRepeatingDigits?: string;
-        endRepeatingDigits?: string;
-    }
-): string {
+function astToLatex(ast: MathJson, options: MathJsonLatexOptions): string {
     return jsonToLatex(
         typeof ast === 'string' ? JSON.parse(ast) : ast,
         options
@@ -167,11 +158,11 @@ function latexToSpeakableText(
     latex: string,
     options: TextToSpeechOptions & {
         macros?: MacroDictionary;
-        onError?: ParserErrorListener;
+        onError?: ErrorListener;
     }
 ): string {
     options = options ?? {};
-    options.macros = options.macros || {};
+    options.macros = options.macros ?? {};
     Object.assign(options.macros, MACROS);
 
     const mathlist = parseString(
@@ -189,7 +180,7 @@ function latexToSpeakableText(
     );
 }
 
-function renderMathInDocument(options): void {
+function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
     renderMathInElement(document.body, options);
 }
 
@@ -204,10 +195,13 @@ function getElement(element: string | HTMLElement): HTMLElement {
     return element;
 }
 
-function renderMathInElement(element, options): void {
-    options = options || {};
-    options.renderToMarkup = options.renderToMarkup || latexToMarkup;
-    options.renderToMathML = options.renderToMathML || latexToMathML;
+function renderMathInElement(
+    element: HTMLElement,
+    options: AutoRenderOptionsPrivate
+): void {
+    options = options ?? {};
+    options.renderToMarkup = options.renderToMarkup ?? latexToMarkup;
+    options.renderToMathML = options.renderToMathML ?? latexToMathML;
     options.renderToSpeakableText =
         options.renderToSpeakableText || latexToSpeakableText;
     options.macros = options.macros || MACROS;
@@ -227,32 +221,39 @@ function validateNamespace(options): void {
     }
 }
 
-function revertToOriginalContent(element: HTMLElement, options): void {
-    // element is a pair: accessible span, math -- set it to the math part
-    element = getElement(element).children[1] as HTMLElement;
-
+function revertToOriginalContent(
+    element: string | HTMLElement | MathfieldPrivate,
+    options: AutoRenderOptionsPrivate
+): void {
     if (element instanceof MathfieldPrivate) {
         element.$revertToOriginalContent();
     } else {
-        options = options || {};
+        // element is a pair: accessible span, math -- set it to the math part
+        element = getElement(element).children[1] as HTMLElement;
+        options = options ?? {};
         validateNamespace(options);
-        element.innerHTML = element.getAttribute(
-            'data-' + (options.namespace || '') + 'original-content'
+        const html = element.getAttribute(
+            'data-' + (options.namespace ?? '') + 'original-content'
         );
+        element.innerHTML = options.createHTML
+            ? options.createHTML(html)
+            : html;
     }
 }
 
-function getOriginalContent(element: string | HTMLElement, options): string {
-    // element is a pair: accessible span, math -- set it to the math part
-    element = getElement(element).children[1] as HTMLElement;
-
+function getOriginalContent(
+    element: string | HTMLElement,
+    options: AutoRenderOptionsPrivate
+): string {
     if (element instanceof MathfieldPrivate) {
         return element.originalContent;
     }
-    options = options || {};
+    // element is a pair: accessible span, math -- set it to the math part
+    element = getElement(element).children[1] as HTMLElement;
+    options = options ?? {};
     validateNamespace(options);
     return element.getAttribute(
-        'data-' + (options.namespace || '') + 'original-content'
+        'data-' + (options.namespace ?? '') + 'original-content'
     );
 }
 

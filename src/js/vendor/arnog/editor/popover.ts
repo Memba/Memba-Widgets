@@ -294,7 +294,7 @@ export function showPopoverWithLatex(
     mf: MathfieldPrivate,
     latex: string,
     displayArrows: boolean
-) {
+): void {
     if (!latex || latex.length === 0) {
         hidePopover(mf);
         return;
@@ -346,7 +346,7 @@ export function showPopoverWithLatex(
 export function updatePopoverPosition(
     mf: MathfieldPrivate,
     options?: { deferred: boolean }
-) {
+): void {
     // Check that the mathfield is still valid
     // (we're calling ourselves from requestAnimationFrame() and the mathfield
     // could have gotten destroyed
@@ -373,8 +373,8 @@ export function updatePopoverPosition(
     }
 }
 
-export function showPopover(mf: MathfieldPrivate, markup) {
-    mf.popover.innerHTML = markup;
+export function showPopover(mf: MathfieldPrivate, markup: string): void {
+    mf.popover.innerHTML = mf.config.createHTML(markup);
 
     const position = getCaretPosition(mf.field);
     if (position) setPopoverPosition(mf, position);
@@ -382,7 +382,10 @@ export function showPopover(mf: MathfieldPrivate, markup) {
     mf.popover.classList.add('is-visible');
 }
 
-function setPopoverPosition(mf, position) {
+function setPopoverPosition(
+    mf: MathfieldPrivate,
+    position: { x: number; y: number; height: number }
+): void {
     // get screen width & height (browser compatibility)
     const screenHeight =
         window.innerHeight ||
@@ -409,7 +412,7 @@ function setPopoverPosition(mf, position) {
         mf.popover.style.left =
             screenWidth - mf.popover.offsetWidth - scrollbarWidth + 'px';
     } else if (position.x - mf.popover.offsetWidth / 2 < 0) {
-        mf.popover.style.left = 0;
+        mf.popover.style.left = '0';
     } else {
         mf.popover.style.left = position.x - mf.popover.offsetWidth / 2 + 'px';
     }
@@ -419,15 +422,15 @@ function setPopoverPosition(mf, position) {
         position.y + mf.popover.offsetHeight + 5 >
         screenHeight - scrollbarHeight - virtualkeyboardHeight
     ) {
-        mf.popover.classList.add('reverse-direction');
+        mf.popover.classList.add('ML__popover--reverse-direction');
         mf.popover.style.top =
             position.y - position.height - mf.popover.offsetHeight - 5 + 'px';
     } else {
-        mf.popover.classList.remove('reverse-direction');
+        mf.popover.classList.remove('ML__popover--reverse-direction');
         mf.popover.style.top = position.y + 5 + 'px';
     }
 }
 
-export function hidePopover(mf: MathfieldPrivate) {
+export function hidePopover(mf: MathfieldPrivate): void {
     mf.popover.classList.remove('is-visible');
 }

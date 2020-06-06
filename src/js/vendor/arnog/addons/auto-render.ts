@@ -1,15 +1,59 @@
 /* eslint no-console:0 */
 import '../core/atom';
-import { MACROS } from '../core/definitions';
+import { MACROS, MacroDictionary } from '../core/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
+import { ErrorListener } from '../public/core';
+import { loadFonts } from '../core/fonts';
+import { inject as injectStylesheet } from '../common/stylesheet';
+import coreStylesheet from '../../css/core.less';
 
-type AutoRenderOptionsPrivate = AutoRenderOptions & {
-    ignoreClassPattern: RegExp;
-    processClassPattern: RegExp;
-    processScriptTypePattern: RegExp;
+export type AutoRenderOptionsPrivate = AutoRenderOptions & {
+    /** A function that will convert any LaTeX found to
+     * HTML markup. This is only useful to override the default MathLive renderer
+     */
+    renderToMarkup?: (
+        text: string,
+        options: {
+            mathstyle?: 'displaystyle' | 'textstyle';
+            letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+            macros?: MacroDictionary;
+            onError?: ErrorListener;
+            format?: string;
+        }
+    ) => string;
+
+    /**
+     * a function that will convert any LaTeX found to
+     * MathML markup.
+     */
+    renderToMathML?: (
+        text: string,
+        options: {
+            mathstyle?: string;
+            format?: string;
+            macros?: MacroDictionary;
+        }
+    ) => string;
+
+    /** A function that will convert any LaTeX found to
+     * speakable text markup. */
+    renderToSpeakableText?: (
+        text: string,
+        options: {
+            mathstyle?: string;
+            format?: string;
+            macros?: MacroDictionary;
+        }
+    ) => string;
+    ignoreClassPattern?: RegExp;
+    processClassPattern?: RegExp;
+    processScriptTypePattern?: RegExp;
+
+    mathstyle?: string;
+    format?: string;
 };
 
-function findEndOfMath(delimiter, text, startIndex) {
+function findEndOfMath(delimiter, text, startIndex): number {
     // Adapted from
     // https://github.com/Khan/perseus/blob/master/src/perseus-markdown.jsx
     let index = startIndex;
@@ -131,7 +175,7 @@ function splitAtDelimiters(
 }
 
 function splitWithDelimiters(
-    text,
+    text: string,
     delimiters
 ): {
     type: string;
@@ -157,29 +201,33 @@ function splitWithDelimiters(
     return data;
 }
 
-function createMathMLNode(latex: string, options: AutoRenderOptionsPrivate) {
+function createMathMLNode(
+    latex: string,
+    options: AutoRenderOptionsPrivate
+): HTMLElement {
     // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
     // This node has a style that makes it be invisible to display but is seen by AT
     const span = document.createElement('span');
     try {
-        span.innerHTML =
+        const html =
             "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
             options.renderToMathML(latex, options) +
             '</math>';
+        span.innerHTML = options.createHTML ? options.createHTML(html) : html;
     } catch (e) {
         console.error("Could not convert'" + latex + "' to MathML with ", e);
         span.textContent = latex;
     }
-    span.className = 'sr-only';
+    span.className = 'ML__sr-only';
     return span;
 }
 
 function createMarkupNode(
     text: string,
     options: AutoRenderOptionsPrivate,
-    mathstyle,
-    createNodeOnFailure
-) {
+    mathstyle: 'displaystyle' | 'textstyle',
+    createNodeOnFailure: boolean
+): HTMLSpanElement | Text {
     // Create a node for displaying math.
     //   This is slightly ugly because in the case of failure to create the markup,
     //   sometimes a text node is desired and sometimes not.
@@ -201,11 +249,14 @@ function createMarkupNode(
     }
 
     try {
-        span.innerHTML = options.renderToMarkup(text, {
-            mathstyle: mathstyle || 'displaystyle',
+        loadFonts(options.fontsDirectory);
+        injectStylesheet(coreStylesheet);
+        const html = options.renderToMarkup(text, {
+            mathstyle: mathstyle ?? 'displaystyle',
             format: 'html',
             macros: options.macros,
         });
+        span.innerHTML = options.createHTML ? options.createHTML(html) : html;
     } catch (e) {
         console.error("Could not parse'" + text + "' with ", e);
         if (createNodeOnFailure) {
@@ -219,17 +270,17 @@ function createMarkupNode(
 
 function createAccessibleMarkupPair(
     text: string,
-    mathstyle: 'displaystyle' | 'inlinestyle' | string,
+    mathstyle: 'displaystyle' | 'textstyle' | string,
     options: AutoRenderOptionsPrivate,
     createNodeOnFailure: boolean
-) {
+): Node {
     // Create a math node (a span with an accessible component and a visual component)
     // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
     //   'null' is returned or an accessible node with the text used.
     const markupNode = createMarkupNode(
         text,
         options,
-        mathstyle,
+        mathstyle as 'displaystyle' | 'textstyle',
         createNodeOnFailure
     );
 
@@ -249,8 +300,11 @@ function createAccessibleMarkupPair(
             options.renderToSpeakableText
         ) {
             const span = document.createElement('span');
-            span.innerHTML = options.renderToSpeakableText(text, options);
-            span.className = 'sr-only';
+            const html = options.renderToSpeakableText(text, options);
+            span.innerHTML = options.createHTML
+                ? options.createHTML(html)
+                : html;
+            span.className = 'ML__sr-only';
             fragment.appendChild(span);
         }
         fragment.appendChild(markupNode);
@@ -260,16 +314,17 @@ function createAccessibleMarkupPair(
     return markupNode;
 }
 
-function scanText(text: string, options: AutoRenderOptionsPrivate) {
+function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
     // If the text starts with '\begin'...
     // (this is a MathJAX behavior)
-    let fragment = null;
+    let fragment: Node = null;
     if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
         fragment = document.createDocumentFragment();
         fragment.appendChild(
             createAccessibleMarkupPair(text, undefined, options, true)
         );
     } else {
+        if (!text.trim()) return null;
         const data = splitWithDelimiters(text, options.TeX.delimiters);
         if (data.length === 1 && data[0].type === 'text') {
             // This text contains no math. No need to continue processing
@@ -295,7 +350,7 @@ function scanText(text: string, options: AutoRenderOptionsPrivate) {
     return fragment;
 }
 
-function scanElement(elem, options: AutoRenderOptionsPrivate) {
+function scanElement(elem, options: AutoRenderOptionsPrivate): void {
     const originalContent = elem.getAttribute(
         'data-' + options.namespace + 'original-content'
     );
@@ -387,16 +442,32 @@ function scanElement(elem, options: AutoRenderOptionsPrivate) {
                 childNode.parentNode.replaceChild(span, childNode);
             } else if (tag !== 'script') {
                 // Element node
+                // console.assert(childNode.className !== 'formula');
                 const shouldRender =
                     options.processClassPattern.test(childNode.className) ||
                     !(
-                        // @ts-ignore TS2339
                         options.skipTags.includes(tag) ||
                         options.ignoreClassPattern.test(childNode.className)
                     );
 
                 if (shouldRender) {
-                    scanElement(childNode, options);
+                    if (
+                        elem.childNodes.length === 1 &&
+                        elem.childNodes[0].nodeType === 3
+                    ) {
+                        const formula = elem.textContent;
+                        elem.textContent = '';
+                        elem.appendChild(
+                            createAccessibleMarkupPair(
+                                formula,
+                                'displaystyle',
+                                options,
+                                true
+                            )
+                        );
+                    } else {
+                        scanElement(childNode, options);
+                    }
                 }
             }
         }

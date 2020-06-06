@@ -138,7 +138,7 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
     let prevColContent = false;
     let prevColRule = false;
     let currentContentCol = 0;
-    let firstColumn = !atom.lFence;
+    let firstColumn = !atom.leftDelim;
     for (const colDesc of colFormat) {
         if (colDesc.align && currentContentCol >= contentCols.length) {
             break;
@@ -211,13 +211,13 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
             firstColumn = false;
         }
     }
-    if (prevColContent && !atom.rFence) {
+    if (prevColContent && !atom.rightDelim) {
         // If the last column was content, add a small gap
         cols.push(makeColGap(arraycolsep));
     }
     if (
-        (!atom.lFence || atom.lFence === '.') &&
-        (!atom.rFence || atom.rFence === '.')
+        (!atom.leftDelim || atom.leftDelim === '.') &&
+        (!atom.rightDelim || atom.rightDelim === '.')
     ) {
         // There are no delimiters around the array, just return what
         // we've built so far.
@@ -236,7 +236,7 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
                     context,
                     makeLeftRightDelim(
                         'mopen',
-                        atom.lFence,
+                        atom.leftDelim,
                         innerHeight,
                         innerDepth,
                         context
@@ -247,7 +247,7 @@ registerAtomType('array', (context: Context, atom: Atom): Span[] => {
                     context,
                     makeLeftRightDelim(
                         'mclose',
-                        atom.rFence,
+                        atom.rightDelim,
                         innerHeight,
                         innerDepth,
                         context
@@ -273,7 +273,12 @@ function makeColGap(width: number): Span {
 /**
  * Used in decomposeArray to create a column of repeating elements.
  */
-function makeColOfRepeatingElements(context: Context, body, offset, elem) {
+function makeColOfRepeatingElements(
+    context: Context,
+    body,
+    offset,
+    elem
+): Span {
     const col = [];
     for (const row of body) {
         const cell = makeSpan(decompose(context, elem));

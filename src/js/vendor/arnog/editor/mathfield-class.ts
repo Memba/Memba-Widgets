@@ -8,6 +8,9 @@ import type {
 
 import { Atom, makeRoot } from '../core/atom';
 
+import { loadFonts } from '../core/fonts';
+import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
+
 import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
 import { delegateKeyboardEvents } from './keyboard';
@@ -66,27 +69,38 @@ import {
 } from './virtual-keyboard-commands';
 
 import { normalizeKeybindings } from './keybindings';
-import { setKeyboardLayoutLocale } from './keyboard-layout';
+import {
+    setKeyboardLayoutLocale,
+    getActiveKeyboardLayout,
+} from './keyboard-layout';
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
 import { atomsToMathML } from '../addons/math-ml';
+import { updateUndoRedoButtons } from './virtual-keyboard';
+
+import mathfieldStylesheet from '../../css/mathfield.less';
+import coreStylesheet from '../../css/core.less';
+
+import popoverStylesheet from '../../css/popover.less';
+import keystrokeCaptionStylesheet from '../../css/keystroke-caption.less';
 
 export class MathfieldPrivate implements Mathfield {
     model: ModelPrivate;
     config: Required<MathfieldConfigPrivate>;
 
-    undoManager: UndoManager;
+    private undoManager: UndoManager;
 
-    readOnly: boolean;
-    blurred: boolean;
+    private blurred: boolean;
     dirty: boolean; // If true, need to be redrawn
     pasteInProgress: boolean;
     smartModeSuppressed: boolean;
-    resizeTimer: number; // Timer handle
+    private resizeTimer: number; // Timer handle
 
     element: HTMLElement;
-    originalContent: string;
+    readonly originalContent: string;
+
+    private stylesheets: Stylesheet[] = [];
 
     textarea: HTMLElement;
     field: HTMLElement;
@@ -113,11 +127,11 @@ export class MathfieldPrivate implements Mathfield {
     mode: ParseMode;
     style: Style;
 
-    keypressSound: HTMLAudioElement; // @revisit. Is this used? The sounds are in config, no?
-    spacebarKeypressSound: HTMLAudioElement;
-    returnKeypressSound: HTMLAudioElement;
-    deleteKeypressSound: HTMLAudioElement;
-    plonkSound: HTMLAudioElement;
+    readonly keypressSound: HTMLAudioElement; // @revisit. Is this used? The sounds are in config, no?
+    readonly spacebarKeypressSound: HTMLAudioElement;
+    readonly returnKeypressSound: HTMLAudioElement;
+    readonly deleteKeypressSound: HTMLAudioElement;
+    readonly plonkSound: HTMLAudioElement;
 
     /**
      * To create a mathfield, you would typically use {@linkcode makeMathField | MathLive.makeMathField()}
@@ -140,6 +154,11 @@ export class MathfieldPrivate implements Mathfield {
         if (elementText) {
             elementText = elementText.trim();
         }
+
+        // Load the fonts, inject the core and mathfield stylesheets
+        loadFonts(this.config.fontsDirectory, this.config.onError);
+        this.stylesheets.push(injectStylesheet(coreStylesheet));
+        this.stylesheets.push(injectStylesheet(mathfieldStylesheet));
 
         // Additional elements used for UI.
         // They are retrieved in order a bit later, so they need to be kept in sync
@@ -188,7 +207,7 @@ export class MathfieldPrivate implements Mathfield {
         // Only display the virtual keyboard toggle if the virtual keyboard mode is
         // 'manual'
         if (this.config.virtualKeyboardMode === 'manual') {
-            markup += `<button class="ML__virtual-keyboard-toggle" data-tooltip="${l10n(
+            markup += `<div class="ML__virtual-keyboard-toggle" role="button" data-tooltip="${l10n(
                 'tooltip.toggle virtual keyboard'
             )}">`;
             // data-tooltip='Toggle Virtual Keyboard'
@@ -197,19 +216,19 @@ export class MathfieldPrivate implements Mathfield {
             } else {
                 markup += `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
             }
-            markup += '</button>';
+            markup += '</div>';
         } else {
             markup += '<span ></span>';
         }
         markup += '</span>';
         markup += `
-        <div class="sr-only">
+        <div class="ML__sr-only">
             <span aria-live="assertive" aria-atomic="true"></span>
             <span></span>
         </div>
     `;
 
-        this.element.innerHTML = markup;
+        this.element.innerHTML = this.config.createHTML(markup);
 
         let iChild = 0; // index of child -- used to make changes below easier
         if (typeof this.config.substituteTextArea === 'function') {
@@ -254,10 +273,12 @@ export class MathfieldPrivate implements Mathfield {
             'mathlive-popover-panel',
             'ML__popover'
         );
+        this.stylesheets.push(injectStylesheet(popoverStylesheet));
         this.keystrokeCaption = getSharedElement(
             'mathlive-keystroke-caption-panel',
             'ML__keystroke-caption'
         );
+        this.stylesheets.push(injectStylesheet(keystrokeCaptionStylesheet));
         // The keystroke caption panel and the command bar are
         // initially hidden
         this.keystrokeCaptionVisible = false;
@@ -291,9 +312,10 @@ export class MathfieldPrivate implements Mathfield {
         // Delegate keyboard events
         delegateKeyboardEvents(this.textarea, {
             allowDeadKey: () => this.mode === 'text',
-            typedText: (text: string, options) =>
-                onTypedText(this, text, options),
-            paste: () => onPaste(this),
+            typedText: (text: string): void => onTypedText(this, text),
+            paste: () => {
+                return onPaste(this);
+            },
             keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
             focus: () => this._onFocus(),
             blur: () => this._onBlur(),
@@ -321,22 +343,27 @@ export class MathfieldPrivate implements Mathfield {
                     .removeExtraneousParentheses,
             },
             {
-                onContentDidChange: (_sender: ModelPrivate) =>
-                    this._onContentDidChange(),
-                onSelectionDidChange: (_sender: ModelPrivate) =>
+                onContentDidChange: (_sender: ModelPrivate): void =>
+                    this.config.onContentDidChange(this),
+                onSelectionDidChange: (_sender: ModelPrivate): void =>
                     this._onSelectionDidChange(),
-                onContentWillChange: () =>
+                onContentWillChange: (): void =>
                     this.config.onContentWillChange(this),
-                onSelectionWillChange: () =>
+                onSelectionWillChange: (): void =>
                     this.config.onSelectionWillChange(this),
                 onError: this.config.onError,
             },
             {
-                announce: (_sender: Mathfield, command, modelBefore, atoms) =>
+                announce: (
+                    _sender: Mathfield,
+                    command,
+                    modelBefore,
+                    atoms
+                ): void =>
                     this.config.onAnnounce?.(this, command, modelBefore, atoms),
-                moveOut: (_sender, direction) =>
+                moveOut: (_sender, direction): boolean =>
                     this.config.onMoveOutOf(this, direction),
-                tabOut: (_sender, direction) =>
+                tabOut: (_sender, direction): boolean =>
                     this.config.onTabOutOf(this, direction),
             },
             this
@@ -359,14 +386,9 @@ export class MathfieldPrivate implements Mathfield {
         this.undoManager.startRecording();
         this.undoManager.snapshot(this.config);
 
-        requestUpdate(this);
-    }
-
-    $setConfig(config: MathfieldConfigPrivate): void {
-        this.config = updateConfig(this.config, config);
         this.model.setListeners({
             onContentDidChange: (_sender: ModelPrivate) =>
-                this._onContentDidChange(),
+                this.config.onContentDidChange(this),
             onSelectionDidChange: (_sender: ModelPrivate) =>
                 this._onSelectionDidChange(),
             onContentWillChange: () => this.config.onContentWillChange(this),
@@ -383,8 +405,60 @@ export class MathfieldPrivate implements Mathfield {
                 this.config.onTabOutOf(this, direction),
         });
 
-        setKeyboardLayoutLocale(this.config.locale);
-        this.keybindings = normalizeKeybindings(this.config.keybindings);
+        if (!this.config.locale.startsWith(getActiveKeyboardLayout().locale)) {
+            setKeyboardLayoutLocale(this.config.locale);
+        }
+        this.keybindings = normalizeKeybindings(
+            this.config.keybindings,
+            (e) => {
+                if (typeof this.config.onError === 'function') {
+                    this.config.onError({
+                        code: 'invalid-keybinding',
+                        arg: e.join('\n'),
+                    });
+                }
+                console.log(e.join('\n'));
+            }
+        );
+        requestUpdate(this);
+    }
+
+    $setConfig(config: MathfieldConfigPrivate): void {
+        this.config = updateConfig(this.config, config);
+        this.model.setListeners({
+            onContentDidChange: (_sender: ModelPrivate) =>
+                this.config.onContentDidChange(this),
+            onSelectionDidChange: (_sender: ModelPrivate) =>
+                this._onSelectionDidChange(),
+            onContentWillChange: () => this.config.onContentWillChange(this),
+            onSelectionWillChange: () =>
+                this.config.onSelectionWillChange(this),
+            onError: this.config.onError,
+        });
+        this.model.setHooks({
+            announce: (_sender: Mathfield, command, modelBefore, atoms) =>
+                this.config.onAnnounce?.(this, command, modelBefore, atoms),
+            moveOut: (_sender, direction) =>
+                this.config.onMoveOutOf(this, direction),
+            tabOut: (_sender, direction) =>
+                this.config.onTabOutOf(this, direction),
+        });
+
+        if (!this.config.locale.startsWith(getActiveKeyboardLayout().locale)) {
+            setKeyboardLayoutLocale(this.config.locale);
+        }
+        this.keybindings = normalizeKeybindings(
+            this.config.keybindings,
+            (e) => {
+                if (typeof this.config.onError === 'function') {
+                    this.config.onError({
+                        code: 'invalid-keybinding',
+                        arg: e.join('\n'),
+                    });
+                }
+                console.log(e.join('\n'));
+            }
+        );
 
         if (!this.config.readOnly) {
             this._onBlur();
@@ -448,7 +522,7 @@ export class MathfieldPrivate implements Mathfield {
         }
     }
     $revertToOriginalContent(): void {
-        this.element.innerHTML = this.originalContent;
+        this.element.innerHTML = this.config.createHTML(this.originalContent);
         delete this.element['mathfield'];
         delete this.accessibleNode;
         delete this.ariaLiveText;
@@ -475,6 +549,7 @@ export class MathfieldPrivate implements Mathfield {
         off(this.element, 'blur', this);
         off(window, 'resize', this);
         delete this.element;
+        this.stylesheets.forEach((x) => x.release());
     }
     resetKeystrokeBuffer(): void {
         this.keystrokeBuffer = '';
@@ -524,21 +599,6 @@ export class MathfieldPrivate implements Mathfield {
         // Invoke client listeners, if provided.
         if (typeof this.config.onSelectionDidChange === 'function') {
             this.config.onSelectionDidChange(this);
-        }
-    }
-    private _onContentDidChange(): void {
-        if (this.undoManager.canRedo()) {
-            this.element.classList.add('can-redo');
-        } else {
-            this.element.classList.remove('can-redo');
-        }
-        if (this.undoManager.canUndo()) {
-            this.element.classList.add('can-undo');
-        } else {
-            this.element.classList.remove('can-undo');
-        }
-        if (typeof this.config.onContentDidChange === 'function') {
-            this.config.onContentDidChange(this);
         }
     }
 
@@ -623,13 +683,13 @@ export class MathfieldPrivate implements Mathfield {
             this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
             // this.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
         } else if (format === 'json') {
-            const json = atomtoMathJson(root, this.config);
+            const json = atomtoMathJson(root);
             result = JSON.stringify(json);
         } else if (format === 'json-2') {
-            const json = atomtoMathJson(root, this.config);
+            const json = atomtoMathJson(root);
             result = JSON.stringify(json, null, 2);
         } else if (format === 'ASCIIMath') {
-            result = atomToAsciiMath(root, this.config);
+            result = atomToAsciiMath(root);
         } else {
             console.warn('Unknown format :', format);
         }
@@ -674,7 +734,7 @@ export class MathfieldPrivate implements Mathfield {
         );
     }
     $latex(text?: string, options?: InsertOptions): string {
-        if (text) {
+        if (typeof text === 'string') {
             const oldValue = this.model.root.toLatex();
             if (text !== oldValue) {
                 options = options ?? { mode: 'math' };
@@ -846,6 +906,60 @@ export class MathfieldPrivate implements Mathfield {
     }
     $typedText(text: string): void {
         onTypedText(this, text);
+    }
+    canUndo(): boolean {
+        return this.undoManager.canUndo();
+    }
+    canRedo(): boolean {
+        return this.undoManager.canRedo();
+    }
+    popUndoStack(): void {
+        this.undoManager.pop();
+    }
+    snapshot(): void {
+        this.undoManager.snapshot({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
+    }
+    snapshotAndCoalesce(): void {
+        this.undoManager.snapshotAndCoalesce({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
+    }
+    getUndoRecord(): UndoRecord {
+        return this.undoManager.save();
+    }
+    restoreToUndoRecord(s: UndoRecord): void {
+        this.undoManager.restore(s, {
+            ...this.config,
+            suppressChangeNotifications: true,
+        });
+    }
+    undo(): void {
+        return this.undoManager.undo({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
+    }
+    redo(): void {
+        return this.undoManager.redo({
+            ...this.config,
+            onUndoStateDidChange: (mf, reason): void => {
+                updateUndoRedoButtons(this);
+                this.config.onUndoStateDidChange(mf, reason);
+            },
+        });
     }
 }
 

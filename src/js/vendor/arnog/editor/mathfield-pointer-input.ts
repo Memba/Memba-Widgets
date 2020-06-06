@@ -1,4 +1,4 @@
-import { pathFromString, clone as clonePath } from './path';
+import { pathFromString, clone as clonePath, Path } from './path';
 import {
     setPath,
     selectGroup,
@@ -66,7 +66,7 @@ export function onPointerDown(
         evt.stopPropagation();
     }
 
-    function onPointerMove(evt: PointerEvent) {
+    function onPointerMove(evt: PointerEvent): void {
         const x = evt['touches'] ? evt['touches'][0].clientX : evt.clientX;
         const y = evt['touches'] ? evt['touches'][0].clientY : evt.clientY;
         // Ignore events that are within small spatial and temporal bounds
@@ -303,7 +303,7 @@ export function pathFromPoint(
     x: number,
     y: number,
     options?: { bias?: number }
-) {
+): Path {
     options = options ?? {};
     options.bias = options.bias ?? 0;
     let result;

@@ -1,4 +1,4 @@
-import type { ParserErrorListener } from '../public/core';
+import type { ErrorListener } from '../public/core';
 import type { ModelPrivate } from './model-class';
 
 export type ModelListeners = {
@@ -6,7 +6,7 @@ export type ModelListeners = {
     onContentDidChange: (sender: ModelPrivate) => void;
     onSelectionWillChange: (sender: ModelPrivate) => void;
     onSelectionDidChange: (sender: ModelPrivate) => void;
-    onError: ParserErrorListener;
+    onError: ErrorListener;
 };
 
 export function selectionWillChange(model: ModelPrivate): void {
@@ -51,8 +51,10 @@ export interface Disposable {
     dispose(): void;
 }
 
+export type EventListener = (...payload: any[]) => void;
+
 export class EventEmitter<T> {
-    events: Map<string, Function[]>;
+    events: Map<string, EventListener[]>;
 
     constructor() {
         this.events = new Map();
@@ -60,7 +62,7 @@ export class EventEmitter<T> {
 
     addListener(
         event: string,
-        listener: Function,
+        listener: EventListener,
         options?: { once?: boolean }
     ): Disposable {
         if (!this.events.has(event)) {
@@ -85,11 +87,11 @@ export class EventEmitter<T> {
         };
     }
 
-    on(event: string, listener: Function): Disposable {
+    on(event: string, listener: EventListener): Disposable {
         return this.addListener(event, listener);
     }
 
-    once(event: string, listener: Function): Disposable {
+    once(event: string, listener: EventListener): Disposable {
         return this.addListener(event, listener, { once: true });
     }
 

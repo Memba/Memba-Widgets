@@ -10,7 +10,7 @@ import { colorToString } from './color';
 /*
  * Return an array of runs with the same mode
  */
-function getModeRuns(atoms) {
+function getModeRuns(atoms: Atom[]): Atom[][] {
     const result = [];
     let run = [];
     let currentMode = 'NONE';
@@ -37,7 +37,7 @@ function getModeRuns(atoms) {
  * @param {boolean} expandMacro true if macros should be expanded
  * @result {string} a LaTeX string
  */
-function latexifyArray(parent, atoms, expandMacro) {
+function latexifyArray(parent, atoms, expandMacro): string {
     if (atoms.length === 0) return '';
     if (atoms[0].type === 'first') {
         if (atoms.length === 1) return '';
@@ -146,8 +146,8 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
             break;
 
         case 'array':
-            result += '\\begin{' + atom.env.name + '}';
-            if (atom.env.name === 'array') {
+            result += '\\begin{' + atom.environmentName + '}';
+            if (atom.environmentName === 'array') {
                 result += '{';
                 if (atom.colFormat) {
                     for (i = 0; i < atom.colFormat.length; i++) {
@@ -170,7 +170,7 @@ export function atomToLatex(atom: Atom, expandMacro: boolean): string {
                     result += ' \\\\ ';
                 }
             }
-            result += '\\end{' + atom.env.name + '}';
+            result += '\\end{' + atom.environmentName + '}';
             break;
 
         case 'root':

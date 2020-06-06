@@ -8,8 +8,8 @@ import { ModelListeners } from './model-listeners';
 import { ModelOptions, ModelHooks } from './model-utils';
 
 export class ModelPrivate implements Model {
-    mathfield: MathfieldPrivate;
-    options: ModelOptions;
+    readonly mathfield: MathfieldPrivate;
+    readonly options: ModelOptions;
     listeners: ModelListeners;
     hooks: Required<ModelHooks>;
 
@@ -70,12 +70,12 @@ export class ModelPrivate implements Model {
                   },
             moveOut: hooks?.moveOut
                 ? hooks.moveOut
-                : () => {
+                : (): boolean => {
                       return true;
                   },
             tabOut: hooks?.tabOut
                 ? hooks.tabOut
-                : () => {
+                : (): boolean => {
                       return true;
                   },
         };
@@ -111,9 +111,9 @@ export class ModelPrivate implements Model {
             if (typeof siblings === 'string') siblings = [];
         }
 
-        // If the 'first' math atom is missing, insert it
+        // If the 'first' atom is missing, insert it
         if (siblings.length === 0 || siblings[0].type !== 'first') {
-            siblings.unshift(new Atom('', 'first'));
+            siblings.unshift(new Atom(this.parent().mode, 'first'));
         }
 
         return siblings;
@@ -198,7 +198,9 @@ export class ModelPrivate implements Model {
                     result[segment.relation].length === 0 ||
                     result[segment.relation][0].type !== 'first'
                 ) {
-                    result[segment.relation].unshift(new Atom('', 'first'));
+                    result[segment.relation].unshift(
+                        new Atom(result[segment.relation][1].type.mode, 'first')
+                    );
                 }
                 const offset = Math.min(
                     segment.offset,

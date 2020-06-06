@@ -17,7 +17,7 @@ import { atomsToMathML } from '../addons/math-ml';
  * Return a hash (32-bit integer) representing the content of the mathfield
  * (but not the selection state)
  */
-function hash(latex: string) {
+function hash(latex: string): number {
     let result = 0;
     for (let i = 0; i < latex.length; i++) {
         result = result * 31 + latex.charCodeAt(i);
@@ -26,7 +26,7 @@ function hash(latex: string) {
     return Math.abs(result);
 }
 
-export function requestUpdate(mathfield: MathfieldPrivate) {
+export function requestUpdate(mathfield: MathfieldPrivate): void {
     if (!mathfield.dirty) {
         mathfield.dirty = true;
         requestAnimationFrame(() => {
@@ -45,7 +45,10 @@ export function requestUpdate(mathfield: MathfieldPrivate) {
  * called explicitly.
  *
  */
-export function render(mathfield: MathfieldPrivate, renderOptions?) {
+export function render(
+    mathfield: MathfieldPrivate,
+    renderOptions?: { forHighlighting?: boolean }
+): void {
     renderOptions = renderOptions ?? {};
     mathfield.dirty = false;
     //
@@ -133,19 +136,19 @@ export function render(mathfield: MathfieldPrivate, renderOptions?) {
     //
     // 6. Generate markup and accessible node
     //
-    mathfield.field.innerHTML = wrapper.toMarkup(
-        0,
-        mathfield.config.horizontalSpacingScale
+    mathfield.field.innerHTML = mathfield.config.createHTML(
+        wrapper.toMarkup(0, mathfield.config.horizontalSpacingScale)
     );
     mathfield.field.classList.toggle(
         'ML__focused',
         hasFocus && !mathfield.config.readOnly
     );
 
-    mathfield.accessibleNode.innerHTML =
+    mathfield.accessibleNode.innerHTML = mathfield.config.createHTML(
         '<math xmlns="http://www.w3.org/1998/Math/MathML">' +
-        atomsToMathML(mathfield.model.root, mathfield.config) +
-        '</math>';
+            atomsToMathML(mathfield.model.root, mathfield.config) +
+            '</math>'
+    );
     //mathfield.ariaLiveText.textContent = "";
 
     //

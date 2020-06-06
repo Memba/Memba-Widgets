@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
+// import MathLive from '../vendor/arnog/mathlive.mjs'; // <-- does not work
 import MathLive from '../vendor/arnog/mathlive';
 import CONSTANTS from '../common/window.constants.es6';
 
@@ -95,6 +96,7 @@ const MathInput = Widget.extend({
     _config() {
         const that = this;
         return {
+            fontsDirectory: '../../styles/vendor/khan/fonts',
             onContentDidChange(mathField) {
                 that.trigger(CONSTANTS.CHANGE);
                 mathField.$focus();
@@ -127,7 +129,7 @@ const MathInput = Widget.extend({
         element.off(NS);
         element.css('cursor', 'default');
         if (enabled) {
-            element.on(CLICK + NS, this._onClick.bind(this));
+            // element.on(CLICK + NS, this._onClick.bind(this));
             element.css('cursor', 'pointer');
         }
     },
@@ -137,10 +139,12 @@ const MathInput = Widget.extend({
      * @method _onClick
      * @private
      */
+    /*
     _onClick() {
         this.value('');
         this.trigger(CHANGE);
     },
+    */
 
     /**
      * Destroy

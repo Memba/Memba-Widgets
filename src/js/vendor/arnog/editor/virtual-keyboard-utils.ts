@@ -9,6 +9,10 @@ import { releaseSharedElement } from './mathfield-utils';
 
 import type { MathfieldPrivate } from './mathfield-class';
 
+import { inject as injectStylesheet } from '../common/stylesheet';
+
+import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
+
 const KEYBOARDS = {
     numeric: {
         tooltip: 'keyboard.tooltip.numeric',
@@ -795,7 +799,7 @@ const LAYERS = {
                 <li class='fnbutton' data-insert='$$\\sqrt[#?]{#0}$$'></li>
                 <li class='bigfnbutton' data-insert='$$#0 \\mod$$' data-latex='\\mod'></li>
                 <li class='bigfnbutton' data-insert='$$\\operatorname{round}(#?) $$' data-latex='\\operatorname{round}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\tiny \\prod_{n=0}^{\\infty}}'></li>
+                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
                 <li class='bigfnbutton' data-insert='$$\\frac{\\differentialD #0}{\\differentialD x}$$'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deletePreviousChar"]'>&#x232b;</li></ul>
             <ul><li class='separator'></li>
@@ -956,34 +960,38 @@ function makeKeyboardToolbar(
 
 export function makeKeycap(
     mf: MathfieldPrivate,
-    elList,
+    elList: HTMLElement[],
     chainedCommand?: string | any[]
 ): void {
     for (let i = 0; i < elList.length; ++i) {
         const el = elList[i];
+        let html: string;
         // Display
         if (el.getAttribute('data-latex')) {
-            el.innerHTML = latexToMarkup(
+            html = latexToMarkup(
                 el.getAttribute('data-latex').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
+                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' },
                 mf
             );
-        } else if (el.innerHTML === '' && el.getAttribute('data-insert')) {
-            el.innerHTML = latexToMarkup(
+        } else if (el.getAttribute('data-insert') && el.innerHTML === '') {
+            html = latexToMarkup(
                 el.getAttribute('data-insert').replace(/&quot;/g, '"'),
-                { '?': '{\\color{#555}{\\tiny \\char"2B1A}}' },
+                { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' },
                 mf
             );
         } else if (el.getAttribute('data-content')) {
-            el.innerHTML = el
-                .getAttribute('data-content')
-                .replace(/&quot;/g, '"');
+            html = el.getAttribute('data-content').replace(/&quot;/g, '"');
         }
+
         if (el.getAttribute('data-aside')) {
-            el.innerHTML +=
+            html =
+                (html ?? '') +
                 '<aside>' +
                 el.getAttribute('data-aside').replace(/&quot;/g, '"') +
                 '</aside>';
+        }
+        if (typeof html !== 'undefined') {
+            el.innerHTML = mf.config.createHTML(html);
         }
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
@@ -1286,6 +1294,8 @@ export function makeKeyboard(
 
     let markup = svgIcons;
 
+    injectStylesheet(virtualKeyboardStylesheet);
+
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
     for (const color of LINE_COLORS) {
@@ -1556,13 +1566,15 @@ export function makeKeyboard(
     } else if (mf.config.virtualKeyboardTheme) {
         result.classList.add(mf.config.virtualKeyboardTheme);
     }
-    result.innerHTML = markup;
+    result.innerHTML = mf.config.createHTML(markup);
 
     // Attach the element handlers
     makeKeycap(
         mf,
-        result.querySelectorAll<HTMLElement>(
-            '.keycap, .action, .fnbutton, .bigfnbutton'
+        [].slice.call(
+            result.querySelectorAll<HTMLElement>(
+                '.keycap, .action, .fnbutton, .bigfnbutton'
+            )
         )
     );
 
@@ -1660,7 +1672,7 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
             const keycap = keycaps[i];
             const content = keycap.getAttribute('data-unshifted-content');
             if (content) {
-                keycap.innerHTML = content;
+                keycap.innerHTML = mathfield.config.createHTML(content);
             }
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {
@@ -1672,4 +1684,28 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
         }
     }
     return false;
+}
+
+export function updateUndoRedoButtons(mathfield: MathfieldPrivate): void {
+    const virtualKeyboardToolbar = mathfield.virtualKeyboard?.querySelector(
+        '.keyboard-toolbar'
+    );
+    if (virtualKeyboardToolbar) {
+        const undoButton = virtualKeyboardToolbar.querySelector(
+            '[data-command=\'"undo"\']'
+        );
+        const redoButton = virtualKeyboardToolbar.querySelector(
+            '[data-command=\'"redo"\']'
+        );
+        if (mathfield.canRedo()) {
+            redoButton.classList.remove('disabled');
+        } else {
+            redoButton.classList.add('disabled');
+        }
+        if (mathfield.canUndo()) {
+            undoButton.classList.remove('disabled');
+        } else {
+            undoButton.classList.add('disabled');
+        }
+    }
 }

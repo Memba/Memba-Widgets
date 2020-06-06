@@ -10,7 +10,7 @@ import { Context } from './context';
  */
 registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
     const mathstyle = context.mathstyle;
-    let base;
+    let base: Span;
     let baseShift = 0;
     let slant = 0;
     if (atom.isSymbol) {
@@ -41,8 +41,8 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
         slant = base.italic;
 
         base.applyStyle({
-            color: atom.phantom ? 'transparent' : atom.color,
-            backgroundColor: atom.phantom
+            color: atom.isPhantom ? 'transparent' : atom.color,
+            backgroundColor: atom.isPhantom
                 ? 'transparent'
                 : atom.backgroundColor,
             cssId: atom.cssId,
@@ -66,9 +66,8 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
     if (atom.isSymbol) base.setTop(baseShift);
     let result = base;
     if (atom.superscript || atom.subscript) {
-        const limits = atom.limits || 'auto';
+        const limits = atom.limits ?? 'auto';
         if (
-            atom.alwaysHandleSupSub ||
             limits === 'limits' ||
             (limits === 'auto' &&
                 mathstyle.size === MATHSTYLES.displaystyle.size)
@@ -78,5 +77,5 @@ registerAtomType('mop', (context: Context, atom: Atom): Span[] => {
             result = atom.attachSupsub(context, base, 'mop');
         }
     }
-    return result;
+    return [result];
 });

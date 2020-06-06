@@ -20,7 +20,7 @@
  * - `charCode`, `keyCode` and `which` are deprecated
  *
  * For background, see this info regarding keybinding in VSCode:
- * - https://github.com/microsoft/vscode/tree/69f2f05a37f2ddcbc93d5739373015a821a105b4/src/vs/workbench/services/keybinding
+ * - https://github.com/microsoft/vscode/tree/master/src/vs/workbench/services/keybinding
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 
@@ -168,7 +168,17 @@ function keyboardEventToString(evt: KeyboardEvent): string {
  * be invoked. In some cases, for example when using input methods or entering
  * emoji, only `typedtext()` will be invoked.
  */
-export function delegateKeyboardEvents(textarea: HTMLElement, handlers): void {
+export function delegateKeyboardEvents(
+    textarea: HTMLElement,
+    handlers: {
+        allowDeadKey: () => boolean;
+        typedText: (text: string) => void;
+        paste: (text: string) => void;
+        keystroke: (keystroke: string, e: KeyboardEvent) => void;
+        focus: () => void;
+        blur: () => void;
+    }
+): void {
     let keydownEvent = null;
     let keypressEvent = null;
     let compositionInProgress = false;
@@ -185,7 +195,7 @@ export function delegateKeyboardEvents(textarea: HTMLElement, handlers): void {
         });
     }
 
-    function handleTypedText() {
+    function handleTypedText(): void {
         // Some browsers (Firefox, Opera) fire a keypress event for commands
         // such as command-C where there might be a non-empty selection.
         // We need to ignore these.
@@ -291,7 +301,9 @@ export function delegateKeyboardEvents(textarea: HTMLElement, handlers): void {
     );
     target.addEventListener(
         'focus',
-        (evt: FocusEvent) => handlers.focus?.(evt),
+        () => {
+            if (handlers.focus) handlers.focus();
+        },
         true
     );
     target.addEventListener(

@@ -83,15 +83,15 @@ export function perform(
             mathfield.mode !== 'command'
         ) {
             // Update the undo state to account for the current selection
-            mathfield.undoManager.pop();
-            mathfield.undoManager.snapshot(mathfield.config);
+            mathfield.popUndoStack();
+            mathfield.snapshot();
         }
         COMMANDS[selector].fn(mathfield.model, ...args);
         if (
             /^(delete|transpose|add)/.test(selector) &&
             mathfield.mode !== 'command'
         ) {
-            mathfield.undoManager.snapshot(mathfield.config);
+            mathfield.snapshot();
         }
         if (/^(delete)/.test(selector) && mathfield.mode === 'command') {
             const command = extractCommandStringAroundInsertionPoint(
@@ -145,7 +145,7 @@ export function perform(
 
 export function performWithFeedback(
     mathfield: MathfieldPrivate,
-    selector
+    selector: SelectorPrivate
 ): boolean {
     // @revisit: have a registry of commands -> sound
     mathfield.$focus();
@@ -153,7 +153,9 @@ export function performWithFeedback(
         navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
     // Convert kebab case to camel case.
-    selector = selector.replace(/-\w/g, (m) => m[1].toUpperCase());
+    selector = selector.replace(/-\w/g, (m) =>
+        m[1].toUpperCase()
+    ) as SelectorPrivate;
     if (
         selector === 'moveToNextPlaceholder' ||
         selector === 'moveToPreviousPlaceholder' ||
@@ -197,6 +199,6 @@ export function performWithFeedback(
 register({
     performWithFeedback: (
         mathfield: MathfieldPrivate,
-        command: string
+        command: SelectorPrivate
     ): boolean => performWithFeedback(mathfield, command),
 });

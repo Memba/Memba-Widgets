@@ -25,7 +25,7 @@ import {
  * That is, delete(-1) will delete only the anchor atom.
  * If dir = 0, delete only if the selection is not collapsed
  */
-function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0) {
+function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0): void {
     // Dispatch notifications
     contentWillChange(model);
     selectionWillChange(model);
@@ -282,7 +282,7 @@ function delete_(model: ModelPrivate, dir: 0 | -1 | 1 = 0) {
 /**
  * Delete sibling atoms
  */
-export function deleteAtoms(model: ModelPrivate, count: number) {
+export function deleteAtoms(model: ModelPrivate, count: number): void {
     if (count > 0) {
         model.siblings().splice(model.anchorOffset() + 1, count);
     } else {

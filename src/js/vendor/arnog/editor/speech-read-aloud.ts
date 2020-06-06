@@ -1,10 +1,10 @@
 import { render } from './mathfield-render';
 import { MathfieldConfig } from '../public/config';
 
-function removeHighlight(node) {
-    node.classList.remove('highlight');
-    if (node.children) {
-        for (const child of node.children) {
+function removeHighlight(element: Element): void {
+    element.classList.remove('ML__highlight');
+    if (element.children) {
+        for (const child of element.children) {
             removeHighlight(child);
         }
     }
@@ -19,18 +19,18 @@ function removeHighlight(node) {
  * @param {string} atomID
  *
  */
-function highlightAtomID(node, atomID?) {
-    if (!atomID || node.dataset.atomId === atomID) {
-        node.classList.add('highlight');
-        if (node.children && node.children.length > 0) {
-            Array.from(node.children).forEach((x) => {
+function highlightAtomID(element: Element, atomID?: string): void {
+    if (!atomID || element['dataset']?.atomId === atomID) {
+        element.classList.add('ML__highlight');
+        if (element.children && element.children.length > 0) {
+            Array.from(element.children).forEach((x) => {
                 highlightAtomID(x);
             });
         }
     } else {
-        node.classList.remove('highlight');
-        if (node.children && node.children.length > 0) {
-            Array.from(node.children).forEach((x) => {
+        element.classList.remove('ML__highlight');
+        if (element.children && element.children.length > 0) {
+            Array.from(element.children).forEach((x) => {
                 highlightAtomID(x, atomID);
             });
         }
@@ -48,14 +48,14 @@ export function defaultReadAloudHook(
     element: HTMLElement,
     text: string,
     config: MathfieldConfig
-) {
+): void {
     if (!window) {
         return;
     }
     if (!config && window['mathlive']) {
         config = window['mathlive'].config;
     }
-    config = config || {};
+    config = config ?? {};
 
     if (config.speechEngine !== 'amazon') {
         console.warn('Use Amazon TTS Engine for synchronized highlighting');
@@ -215,11 +215,14 @@ export function defaultReadAloudHook(
  *
  * **See** {@linkcode speak}
  * @category Read Aloud
- * @return {"ready" | "playing" | "paused" | "unavailable"}
  */
-export function readAloudStatus() {
+export function readAloudStatus():
+    | 'ready'
+    | 'playing'
+    | 'paused'
+    | 'unavailable' {
     if (!window) return 'unavailable';
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
 
     if (!window['mathlive'].readAloudAudio) return 'ready';
     if (window['mathlive'].readAloudAudio.paused) return 'paused';
@@ -233,9 +236,9 @@ export function readAloudStatus() {
  *
  * **See** {@linkcode speak}
  */
-export function pauseReadAloud() {
+export function pauseReadAloud(): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
     if (window['mathlive'].readAloudAudio) {
         if (window['mathlive'].onReadAloudStatus) {
             window['mathlive'].onReadAloudStatus(
@@ -252,9 +255,9 @@ export function pauseReadAloud() {
  *
  * **See** {@linkcode speak}
  */
-export function resumeReadAloud() {
+export function resumeReadAloud(): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
     if (window['mathlive'].readAloudAudio) {
         if (window['mathlive'].onReadAloudStatus) {
             window['mathlive'].onReadAloudStatus(
@@ -271,12 +274,11 @@ export function resumeReadAloud() {
  *
  * **See** {@linkcode speak}
  *
- * @param {string} [token]
- * @param {number} [count] The number of tokens to read.
+ * @param count The number of tokens to read.
  */
-export function playReadAloud(token, count) {
+export function playReadAloud(token: string, count: number): void {
     if (!window) return;
-    window['mathlive'] = window['mathlive'] || {};
+    window['mathlive'] = window['mathlive'] ?? {};
     if (window['mathlive'].readAloudAudio) {
         let timeIndex = 0;
         window['mathlive'].readAloudFinalToken = null;

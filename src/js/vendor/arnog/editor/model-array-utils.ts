@@ -5,7 +5,10 @@ import { Atom } from '../core/atom';
 /**
  * Convert an array row/col into an array index.
  */
-export function arrayIndex(array, rowCol): number {
+export function arrayIndex(
+    array: Atom[][][],
+    rowCol: { col: number; row: number }
+): number {
     let result = 0;
 
     for (let i = 0; i < rowCol.row; i++) {
@@ -62,11 +65,11 @@ export function arrayCell(
     if (typeof colrow !== 'object') colrow = arrayColRow(array, colrow);
     let result: Atom[];
     if (isArray(array[colrow.row])) {
-        result = array[colrow.row][colrow.col] || null;
+        result = array[colrow.row][colrow.col] ?? null;
     }
     // If the 'first' math atom is missing, insert it
     if (result && (result.length === 0 || result[0].type !== 'first')) {
-        result.unshift(new Atom('', 'first'));
+        result.unshift(new Atom('math', 'first'));
     }
     return result;
 }

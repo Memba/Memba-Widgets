@@ -1,4 +1,5 @@
-import {inherit} from './utils';
+import { inherit } from './utils.js';
+import * as regex from './regex.js';
 
 // Common regexps
 export const IDENT_RE = '[a-zA-Z]\\w*';
@@ -8,38 +9,73 @@ export const C_NUMBER_RE = '(-?)(\\b0[xX][a-fA-F0-9]+|(\\b\\d+(\\.\\d*)?|\\.\\d+
 export const BINARY_NUMBER_RE = '\\b(0b[01]+)'; // 0b...
 export const RE_STARTERS_RE = '!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|-|-=|/=|/|:|;|<<|<<=|<=|<|===|==|=|>>>=|>>=|>=|>>>|>>|>|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~';
 
+/**
+* @param { Partial<Mode> & {binary?: string | RegExp} } opts
+*/
+export const SHEBANG = (opts = {}) => {
+  const beginShebang = /^#![ ]*\//;
+  if (opts.binary) {
+    opts.begin = regex.concat(
+      beginShebang,
+      /.*\b/,
+      opts.binary,
+      /\b.*/);
+  }
+  return inherit({
+    className: 'meta',
+    begin: beginShebang,
+    end: /$/,
+    relevance: 0,
+    /** @type {ModeCallback} */
+    "on:begin": (m, resp) => {
+      if (m.index !== 0) resp.ignoreMatch();
+    }
+  }, opts);
+};
+
 // Common modes
 export const BACKSLASH_ESCAPE = {
   begin: '\\\\[\\s\\S]', relevance: 0
 };
 export const APOS_STRING_MODE = {
   className: 'string',
-  begin: '\'', end: '\'',
+  begin: '\'',
+  end: '\'',
   illegal: '\\n',
   contains: [BACKSLASH_ESCAPE]
 };
 export const QUOTE_STRING_MODE = {
   className: 'string',
-  begin: '"', end: '"',
+  begin: '"',
+  end: '"',
   illegal: '\\n',
   contains: [BACKSLASH_ESCAPE]
 };
 export const PHRASAL_WORDS_MODE = {
   begin: /\b(a|an|the|are|I'm|isn't|don't|doesn't|won't|but|just|should|pretty|simply|enough|gonna|going|wtf|so|such|will|you|your|they|like|more)\b/
 };
-export const COMMENT = function (begin, end, inherits) {
+/**
+ * Creates a comment mode
+ *
+ * @param {string | RegExp} begin
+ * @param {string | RegExp} end
+ * @param {Mode | {}} [modeOptions]
+ * @returns {Partial<Mode>}
+ */
+export const COMMENT = function(begin, end, modeOptions = {}) {
   var mode = inherit(
     {
       className: 'comment',
-      begin: begin, end: end,
+      begin,
+      end,
       contains: []
     },
-    inherits || {}
+    modeOptions
   );
   mode.contains.push(PHRASAL_WORDS_MODE);
   mode.contains.push({
     className: 'doctag',
-    begin: '(?:TODO|FIXME|NOTE|BUG|XXX):',
+    begin: '(?:TODO|FIXME|NOTE|BUG|OPTIMIZE|HACK|XXX):',
     relevance: 0
   });
   return mode;
@@ -65,7 +101,7 @@ export const BINARY_NUMBER_MODE = {
 export const CSS_NUMBER_MODE = {
   className: 'number',
   begin: NUMBER_RE + '(' +
-    '%|em|ex|ch|rem'  +
+    '%|em|ex|ch|rem' +
     '|vw|vh|vmin|vmax' +
     '|cm|mm|in|pt|pc|px' +
     '|deg|grad|rad|turn' +
@@ -82,15 +118,17 @@ export const REGEXP_MODE = {
   //     3 / something
   //
   // (which will then blow up when regex's `illegal` sees the newline)
-  begin: /(?=\/[^\/\n]*\/)/,
+  begin: /(?=\/[^/\n]*\/)/,
   contains: [{
     className: 'regexp',
-    begin: /\//, end: /\/[gimuy]*/,
+    begin: /\//,
+    end: /\/[gimuy]*/,
     illegal: /\n/,
     contains: [
       BACKSLASH_ESCAPE,
       {
-        begin: /\[/, end: /\]/,
+        begin: /\[/,
+        end: /\]/,
         relevance: 0,
         contains: [BACKSLASH_ESCAPE]
       }
@@ -111,4 +149,21 @@ export const METHOD_GUARD = {
   // excludes method names from keyword processing
   begin: '\\.\\s*' + UNDERSCORE_IDENT_RE,
   relevance: 0
+};
+
+/**
+ * Adds end same as begin mechanics to a mode
+ *
+ * Your mode must include at least a single () match group as that first match
+ * group is what is used for comparison
+ * @param {Partial<Mode>} mode
+ */
+export const END_SAME_AS_BEGIN = function(mode) {
+  return Object.assign(mode,
+    {
+      /** @type {ModeCallback} */
+      'on:begin': (m, resp) => { resp.data._beginMatch = m[1]; },
+      /** @type {ModeCallback} */
+      'on:end': (m, resp) => { if (resp.data._beginMatch !== m[1]) resp.ignoreMatch(); }
+    });
 };

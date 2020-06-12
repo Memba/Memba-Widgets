@@ -1,13 +1,26 @@
-import * as regex from './regex';
-import { inherit } from './utils';
+import * as regex from './regex.js';
+import { inherit } from './utils.js';
 
 // keywords that should have no default relevance value
 var COMMON_KEYWORDS = 'of and for in not or if then'.split(' ');
 
 // compilation
 
+/**
+ * Compiles a language definition result
+ *
+ * Given the raw result of a language definition (Language), compiles this so
+ * that it is ready for highlighting code.
+ * @param {Language} language
+ * @returns {CompiledLanguage}
+ */
 export function compileLanguage(language) {
-
+  /**
+   * Builds a regex with the case sensativility of the current language
+   *
+   * @param {RegExp | string} value
+   * @param {boolean} [global]
+   */
   function langRe(value, global) {
     return new RegExp(
       regex.source(value),
@@ -31,13 +44,16 @@ export function compileLanguage(language) {
   class MultiRegex {
     constructor() {
       this.matchIndexes = {};
+      // @ts-ignore
       this.regexes = [];
       this.matchAt = 1;
       this.position = 0;
     }
 
+    // @ts-ignore
     addRule(re, opts) {
       opts.position = this.position++;
+      // @ts-ignore
       this.matchIndexes[this.matchAt] = opts;
       this.regexes.push([opts, re]);
       this.matchAt += regex.countMatchGroups(re) + 1;
@@ -46,20 +62,27 @@ export function compileLanguage(language) {
     compile() {
       if (this.regexes.length === 0) {
         // avoids the need to check length every time exec is called
+        // @ts-ignore
         this.exec = () => null;
       }
-      let terminators = this.regexes.map(el => el[1]);
-      this.matcherRe = langRe(regex.join(terminators, '|'), true);
+      const terminators = this.regexes.map(el => el[1]);
+      this.matcherRe = langRe(regex.join(terminators), true);
       this.lastIndex = 0;
     }
 
+    /** @param {string} s */
     exec(s) {
       this.matcherRe.lastIndex = this.lastIndex;
-      let match = this.matcherRe.exec(s);
+      const match = this.matcherRe.exec(s);
       if (!match) { return null; }
 
-      let i = match.findIndex((el, i) => i>0 && el!=undefined);
-      let matchData = this.matchIndexes[i];
+      // eslint-disable-next-line no-undefined
+      const i = match.findIndex((el, i) => i > 0 && el !== undefined);
+      // @ts-ignore
+      const matchData = this.matchIndexes[i];
+      // trim off any earlier non-relevant match groups (ie, the other regex
+      // match groups that make up the multi-matcher)
+      match.splice(0, i);
 
       return Object.assign(match, matchData);
     }
@@ -98,7 +121,9 @@ export function compileLanguage(language) {
   */
   class ResumableMultiRegex {
     constructor() {
+      // @ts-ignore
       this.rules = [];
+      // @ts-ignore
       this.multiRegexes = [];
       this.count = 0;
 
@@ -106,11 +131,12 @@ export function compileLanguage(language) {
       this.regexIndex = 0;
     }
 
+    // @ts-ignore
     getMatcher(index) {
       if (this.multiRegexes[index]) return this.multiRegexes[index];
 
-      let matcher = new MultiRegex();
-      this.rules.slice(index).forEach(([re, opts])=> matcher.addRule(re,opts))
+      const matcher = new MultiRegex();
+      this.rules.slice(index).forEach(([re, opts]) => matcher.addRule(re, opts));
       matcher.compile();
       this.multiRegexes[index] = matcher;
       return matcher;
@@ -120,19 +146,22 @@ export function compileLanguage(language) {
       this.regexIndex = 0;
     }
 
+    // @ts-ignore
     addRule(re, opts) {
       this.rules.push([re, opts]);
-      if (opts.type==="begin") this.count++;
+      if (opts.type === "begin") this.count++;
     }
 
+    /** @param {string} s */
     exec(s) {
-      let m = this.getMatcher(this.regexIndex);
+      const m = this.getMatcher(this.regexIndex);
       m.lastIndex = this.lastIndex;
-      let result = m.exec(s);
+      const result = m.exec(s);
       if (result) {
         this.regexIndex += result.position + 1;
-        if (this.regexIndex === this.count) // wrap-around
+        if (this.regexIndex === this.count) { // wrap-around
           this.regexIndex = 0;
+        }
       }
 
       // this.regexIndex = 0;
@@ -140,26 +169,43 @@ export function compileLanguage(language) {
     }
   }
 
+  /**
+   * Given a mode, builds a huge ResumableMultiRegex that can be used to walk
+   * the content and find matches.
+   *
+   * @param {CompiledMode} mode
+   * @returns {ResumableMultiRegex}
+   */
   function buildModeRegex(mode) {
+    const mm = new ResumableMultiRegex();
 
-    let mm = new ResumableMultiRegex();
+    mode.contains.forEach(term => mm.addRule(term.begin, { rule: term, type: "begin" }));
 
-    mode.contains.forEach(term => mm.addRule(term.begin, {rule: term, type: "begin" }))
-
-    if (mode.terminator_end)
-      mm.addRule(mode.terminator_end, {type: "end"} );
-    if (mode.illegal)
-      mm.addRule(mode.illegal, {type: "illegal"} );
+    if (mode.terminator_end) {
+      mm.addRule(mode.terminator_end, { type: "end" });
+    }
+    if (mode.illegal) {
+      mm.addRule(mode.illegal, { type: "illegal" });
+    }
 
     return mm;
   }
 
   // TODO: We need negative look-behind support to do this properly
-  function skipIfhasPrecedingOrTrailingDot(match) {
-    let before = match.input[match.index-1];
-    let after = match.input[match.index + match[0].length];
+  /**
+   * Skip a match if it has a preceding or trailing dot
+   *
+   * This is used for `beginKeywords` to prevent matching expressions such as
+   * `bob.keyword.do()`. The mode compiler automatically wires this up as a
+   * special _internal_ 'on:begin' callback for modes with `beginKeywords`
+   * @param {RegExpMatchArray} match
+   * @param {CallbackResponse} response
+   */
+  function skipIfhasPrecedingOrTrailingDot(match, response) {
+    const before = match.input[match.index - 1];
+    const after = match.input[match.index + match[0].length];
     if (before === "." || after === ".") {
-      return {ignoreMatch: true };
+      response.ignoreMatch();
     }
   }
 
@@ -193,19 +239,43 @@ export function compileLanguage(language) {
    *             - The parser cursor is not moved forward.
    */
 
+  /**
+   * Compiles an individual mode
+   *
+   * This can raise an error if the mode contains certain detectable known logic
+   * issues.
+   * @param {Mode} mode
+   * @param {CompiledMode | null} [parent]
+   * @returns {CompiledMode | never}
+   */
   function compileMode(mode, parent) {
-    if (mode.compiled)
-      return;
+    const cmode = /** @type CompiledMode */ (mode);
+    if (mode.compiled) return cmode;
     mode.compiled = true;
 
-    // __onBegin is considered private API, internal use only
-    mode.__onBegin = null;
+    // __beforeBegin is considered private API, internal use only
+    mode.__beforeBegin = null;
 
     mode.keywords = mode.keywords || mode.beginKeywords;
-    if (mode.keywords)
-      mode.keywords = compileKeywords(mode.keywords, language.case_insensitive);
 
-    mode.lexemesRe = langRe(mode.lexemes || /\w+/, true);
+    let kw_pattern = null;
+    if (typeof mode.keywords === "object") {
+      kw_pattern = mode.keywords.$pattern;
+      delete mode.keywords.$pattern;
+    }
+
+    if (mode.keywords) {
+      mode.keywords = compileKeywords(mode.keywords, language.case_insensitive);
+    }
+
+    // both are not allowed
+    if (mode.lexemes && kw_pattern) {
+      throw new Error("ERR: Prefer `keywords.$pattern` to `mode.lexemes`, BOTH are not allowed. (see mode reference) ");
+    }
+
+    // `mode.lexemes` was the old standard before we added and now recommend
+    // using `keywords.$pattern` to pass the keyword pattern
+    cmode.keywordPatternRe = langRe(mode.lexemes || kw_pattern || /\w+/, true);
 
     if (parent) {
       if (mode.beginKeywords) {
@@ -215,117 +285,166 @@ export function compileLanguage(language) {
         // doesn't allow spaces in keywords anyways and we still check for the boundary
         // first
         mode.begin = '\\b(' + mode.beginKeywords.split(' ').join('|') + ')(?=\\b|\\s)';
-        mode.__onBegin = skipIfhasPrecedingOrTrailingDot;
+        mode.__beforeBegin = skipIfhasPrecedingOrTrailingDot;
       }
-      if (!mode.begin)
-        mode.begin = /\B|\b/;
-      mode.beginRe = langRe(mode.begin);
-      if (mode.endSameAsBegin)
-        mode.end = mode.begin;
-      if (!mode.end && !mode.endsWithParent)
-        mode.end = /\B|\b/;
-      if (mode.end)
-        mode.endRe = langRe(mode.end);
-      mode.terminator_end = regex.source(mode.end) || '';
-      if (mode.endsWithParent && parent.terminator_end)
-        mode.terminator_end += (mode.end ? '|' : '') + parent.terminator_end;
+      if (!mode.begin) mode.begin = /\B|\b/;
+      cmode.beginRe = langRe(mode.begin);
+      if (mode.endSameAsBegin) mode.end = mode.begin;
+      if (!mode.end && !mode.endsWithParent) mode.end = /\B|\b/;
+      if (mode.end) cmode.endRe = langRe(mode.end);
+      cmode.terminator_end = regex.source(mode.end) || '';
+      if (mode.endsWithParent && parent.terminator_end) {
+        cmode.terminator_end += (mode.end ? '|' : '') + parent.terminator_end;
+      }
     }
-    if (mode.illegal)
-      mode.illegalRe = langRe(mode.illegal);
-    if (mode.relevance == null)
-      mode.relevance = 1;
-    if (!mode.contains) {
-      mode.contains = [];
-    }
+    if (mode.illegal) cmode.illegalRe = langRe(mode.illegal);
+    // eslint-disable-next-line no-undefined
+    if (mode.relevance === undefined) mode.relevance = 1;
+    if (!mode.contains) mode.contains = [];
+
     mode.contains = [].concat(...mode.contains.map(function(c) {
       return expand_or_clone_mode(c === 'self' ? mode : c);
     }));
-    mode.contains.forEach(function(c) {compileMode(c, mode);});
+    mode.contains.forEach(function(c) { compileMode(/** @type Mode */ (c), cmode); });
 
     if (mode.starts) {
       compileMode(mode.starts, parent);
     }
 
-    mode.matcher = buildModeRegex(mode);
+    cmode.matcher = buildModeRegex(cmode);
+    return cmode;
   }
 
   // self is not valid at the top-level
   if (language.contains && language.contains.includes('self')) {
-    throw new Error("ERR: contains `self` is not supported at the top-level of a language.  See documentation.")
+    throw new Error("ERR: contains `self` is not supported at the top-level of a language.  See documentation.");
   }
-  compileMode(language);
+  return compileMode(/** @type Mode */ (language));
 }
 
+/**
+ * Determines if a mode has a dependency on it's parent or not
+ *
+ * If a mode does have a parent dependency then often we need to clone it if
+ * it's used in multiple places so that each copy points to the correct parent,
+ * where-as modes without a parent can often safely be re-used at the bottom of
+ * a mode chain.
+ *
+ * @param {Mode | null} mode
+ * @returns {boolean} - is there a dependency on the parent?
+ * */
 function dependencyOnParent(mode) {
   if (!mode) return false;
 
   return mode.endsWithParent || dependencyOnParent(mode.starts);
 }
 
+/**
+ * Expands a mode or clones it if necessary
+ *
+ * This is necessary for modes with parental dependenceis (see notes on
+ * `dependencyOnParent`) and for nodes that have `variants` - which must then be
+ * exploded into their own individual modes at compile time.
+ *
+ * @param {Mode} mode
+ * @returns {Mode | Mode[]}
+ * */
 function expand_or_clone_mode(mode) {
   if (mode.variants && !mode.cached_variants) {
     mode.cached_variants = mode.variants.map(function(variant) {
-      return inherit(mode, {variants: null}, variant);
+      return inherit(mode, { variants: null }, variant);
     });
   }
 
   // EXPAND
   // if we have variants then essentially "replace" the mode with the variants
   // this happens in compileMode, where this function is called from
-  if (mode.cached_variants)
+  if (mode.cached_variants) {
     return mode.cached_variants;
+  }
 
   // CLONE
   // if we have dependencies on parents then we need a unique
   // instance of ourselves, so we can be reused with many
   // different parents without issue
-  if (dependencyOnParent(mode))
+  if (dependencyOnParent(mode)) {
     return inherit(mode, { starts: mode.starts ? inherit(mode.starts) : null });
+  }
 
-  if (Object.isFrozen(mode))
+  if (Object.isFrozen(mode)) {
     return inherit(mode);
+  }
 
   // no special dependency issues, just return ourselves
   return mode;
 }
 
+/***********************************************
+  Keywords
+***********************************************/
 
-// keywords
-
+/**
+ * Given raw keywords from a language definition, compile them.
+ *
+ * @param {string | Record<string,string>} rawKeywords
+ * @param {boolean} case_insensitive
+ */
 function compileKeywords(rawKeywords, case_insensitive) {
+  /** @type KeywordDict */
   var compiled_keywords = {};
 
   if (typeof rawKeywords === 'string') { // string
     splitAndCompile('keyword', rawKeywords);
   } else {
-    Object.keys(rawKeywords).forEach(function (className) {
+    Object.keys(rawKeywords).forEach(function(className) {
       splitAndCompile(className, rawKeywords[className]);
     });
   }
-return compiled_keywords;
+  return compiled_keywords;
 
-// ---
+  // ---
 
-function splitAndCompile(className, str) {
-  if (case_insensitive) {
-    str = str.toLowerCase();
+  /**
+   * Compiles an individual list of keywords
+   *
+   * Ex: "for if when while|5"
+   *
+   * @param {string} className
+   * @param {string} keywordList
+   */
+  function splitAndCompile(className, keywordList) {
+    if (case_insensitive) {
+      keywordList = keywordList.toLowerCase();
+    }
+    keywordList.split(' ').forEach(function(keyword) {
+      var pair = keyword.split('|');
+      compiled_keywords[pair[0]] = [className, scoreForKeyword(pair[0], pair[1])];
+    });
   }
-  str.split(' ').forEach(function(keyword) {
-    var pair = keyword.split('|');
-    compiled_keywords[pair[0]] = [className, scoreForKeyword(pair[0], pair[1])];
-  });
-}
 }
 
+/**
+ * Returns the proper score for a given keyword
+ *
+ * Also takes into account comment keywords, which will be scored 0 UNLESS
+ * another score has been manually assigned.
+ * @param {string} keyword
+ * @param {string} [providedScore]
+ */
 function scoreForKeyword(keyword, providedScore) {
-// manual scores always win over common keywords
-// so you can force a score of 1 if you really insist
-if (providedScore)
-  return Number(providedScore);
+  // manual scores always win over common keywords
+  // so you can force a score of 1 if you really insist
+  if (providedScore) {
+    return Number(providedScore);
+  }
 
-return commonKeyword(keyword) ? 0 : 1;
+  return commonKeyword(keyword) ? 0 : 1;
 }
 
-function commonKeyword(word) {
-return COMMON_KEYWORDS.includes(word.toLowerCase());
+/**
+ * Determines if a given keyword is common or not
+ *
+ * @param {string} keyword */
+function commonKeyword(keyword) {
+  return COMMON_KEYWORDS.includes(keyword.toLowerCase());
 }

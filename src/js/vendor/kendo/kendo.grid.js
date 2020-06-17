@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -302,22 +302,25 @@
             widget: 'k-widget',
             scrollContainer: 'k-scroll-container'
         };
-        var GroupsPager = ui.Pager.extend({
-            init: function (element, options) {
-                ui.Pager.fn.init.call(this, element, extend(true, {}, options));
-                this.dataSource.options.useRanges = true;
-                this.dataSource._omitPrefetch = true;
-            },
-            options: { name: 'GroupsPager' },
-            totalPages: function () {
-                var that = this;
-                return Math.ceil((that._collapsedTotal() || 0) / (that.pageSize() || 1));
-            },
-            _collapsedTotal: function () {
-                var dataSource = this.dataSource;
-                return dataSource ? dataSource.groupsTotal(true) || 0 : 0;
-            }
-        });
+        var GroupsPager;
+        if (ui.Pager) {
+            GroupsPager = ui.Pager.extend({
+                init: function (element, options) {
+                    ui.Pager.fn.init.call(this, element, extend(true, {}, options));
+                    this.dataSource.options.useRanges = true;
+                    this.dataSource._omitPrefetch = true;
+                },
+                options: { name: 'GroupsPager' },
+                totalPages: function () {
+                    var that = this;
+                    return Math.ceil((that._collapsedTotal() || 0) / (that.pageSize() || 1));
+                },
+                _collapsedTotal: function () {
+                    var dataSource = this.dataSource;
+                    return dataSource ? dataSource.groupsTotal(true) || 0 : 0;
+                }
+            });
+        }
         var VirtualScrollable = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -724,7 +727,7 @@
                 }
             }
         }
-        function normalizeColumns(columns, encoded, hide, parentIds) {
+        function normalizeColumns(columns, encoded, hide, locked, parentIds) {
             return map(columns, function (column) {
                 column = typeof column === STRING ? { field: column } : column;
                 var hidden;
@@ -743,11 +746,12 @@
                     uid = column.headerAttributes.id;
                 }
                 if (column.columns) {
-                    column.columns = normalizeColumns(column.columns, encoded, hidden, parentIds ? parentIds + ' ' + uid : uid);
+                    column.columns = normalizeColumns(column.columns, encoded, hidden, column.locked, parentIds ? parentIds + ' ' + uid : uid);
                 }
                 return extend({
                     encoded: encoded,
-                    hidden: hidden
+                    hidden: hidden,
+                    locked: locked
                 }, column);
             });
         }
@@ -1478,6 +1482,17 @@
                 that._element();
                 that._aria();
                 that._columns($.extend(true, [], that.options.columns));
+                if (that._foreignKeyPromises) {
+                    $.when.apply(null, that._foreignKeyPromises).then(function () {
+                        that._foreignKeyPromises = null;
+                        that._continueInit();
+                    });
+                } else {
+                    that._continueInit();
+                }
+            },
+            _continueInit: function () {
+                var that = this;
                 that._dataSource();
                 that._tbody();
                 that._thead();
@@ -6137,6 +6152,38 @@
                     that.wrapper.on(CLICK + NS, 'tbody > tr ' + CHECKBOXINPUT, proxy(that._checkboxClick, that));
                     that.wrapper.on(CLICK + NS, 'thead > tr ' + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
                 }
+                that._foreignKeyBindings(that.columns);
+            },
+            _foreignKeyBindings: function (columns) {
+                var that = this;
+                var length = columns.length;
+                var column;
+                for (var i = 0; i < length; i++) {
+                    column = columns[i];
+                    if (column.dataSource) {
+                        that._fetchForeignKeyValues(column);
+                    }
+                }
+            },
+            _fetchForeignKeyValues: function (column) {
+                var that = this;
+                var promise = $.Deferred();
+                that._hasBoundForeignKey = true;
+                column.dataSource = DataSource.create(column.dataSource);
+                if (!that._foreignKeyPromises) {
+                    that._foreignKeyPromises = [];
+                }
+                that._foreignKeyPromises.push(promise);
+                column.dataSource.fetch().then(function () {
+                    var data = column.dataSource.data();
+                    column.values = data.map(function (item) {
+                        return {
+                            value: item[column.dataValueField],
+                            text: item[column.dataTextField]
+                        };
+                    });
+                    promise.resolve();
+                });
             },
             _updateColumnIDs: function (columns, tr) {
                 if (!columns.length) {

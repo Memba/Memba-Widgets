@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -130,7 +130,7 @@
                 validatable: {
                     validateOnBlur: true,
                     validationSummary: false,
-                    errorTemplate: this._errorTemplate
+                    errorTemplate: null
                 },
                 buttonsTemplate: null,
                 messages: {
@@ -142,7 +142,8 @@
                 grid: {},
                 formData: {},
                 items: [],
-                formatLabel: null
+                formatLabel: null,
+                focusFirst: false
             },
             _fieldTemplate: '<div class=\'#:styles.field#  #if (colSpan) { #  k-colspan-#:colSpan# # } #\'>' + '# if (label) { # ' + '<label class=\'#:styles.label#\' for=\'#:id#\' id=\'#:id#-form-label\'>' + '#: label.text || label #' + '# if (label.optional) { # <span class=\'#:styles.optional#\'>#:optional#</span>  #}#' + '</label>' + '# } #' + '<div class=\'k-form-field-wrap\' data-container-for=\'#:field#\'></div>' + '</div>',
             _groupTemplate: '<fieldset class=\'#:styles.fieldset# #if (colSpan) { #  k-colspan-#:colSpan# # }#\'>' + '<legend class=\'#:styles.legend#\'>#:label.text || label #</legend>' + '</fieldset>',
@@ -231,16 +232,16 @@
                 that._model = new MyModel(formData);
             },
             _editable: function () {
-                var that = this, options = that.options.validatable;
+                var that = this, options = that.options, validatorOptions = that.options.validatable;
                 that._addEditableMvvmAttributes();
                 that.editable = that.wrapper.kendoEditable({
                     model: that._model,
                     fields: that._fields || [],
-                    validateOnBlur: options.validateOnBlur,
-                    validationSummary: options.validationSummary,
-                    errorTemplate: options.errorTemplate || that._errorTemplate,
+                    validateOnBlur: validatorOptions.validateOnBlur,
+                    validationSummary: validatorOptions.validationSummary,
+                    errorTemplate: validatorOptions.errorTemplate || that._errorTemplate,
                     clearContainer: false,
-                    skipFocus: true,
+                    skipFocus: !options.focusFirst,
                     target: that
                 }).getKendoEditable();
                 that.validator = that.editable.validatable;
@@ -435,7 +436,7 @@
                 if (!validator) {
                     return;
                 }
-                validator.validate();
+                return validator.validate();
             },
             clear: function () {
                 var that = this, fields = that._fields, model = that._model, editable = that.editable, validateOnBlur = that.validator.options.validateOnBlur;

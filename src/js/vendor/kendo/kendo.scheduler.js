@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -464,7 +464,7 @@
             return date;
         }
         function validDateValidator(input) {
-            if (input.filter('[name=start]').length && input.filter('[title=Start]').length || input.filter('[name=end]').length && input.filter('[title=End]').length) {
+            if (input.filter('[name=start]').length && input.filter('[title=Start]').length || input.filter('[name=end]').length && input.filter('[title=End]').length || input.filter('.k-recur-until').length) {
                 var date;
                 var picker = kendo.widgetInstance(input, kendo.ui);
                 if (picker) {
@@ -508,6 +508,27 @@
                             }
                         }
                         return start <= end;
+                    }
+                }
+            }
+            return true;
+        }
+        function untilDateCompareValidator(input) {
+            var untilPicker, until, container, startInput, start, startPicker;
+            if (input.filter('.k-recur-until').length) {
+                untilPicker = kendo.widgetInstance(input, kendo.ui);
+                until = untilPicker.value();
+                container = input.closest('.k-scheduler-edit-form');
+                startInput = container.find('[name=start]:visible');
+                if (startInput[0]) {
+                    startPicker = kendo.widgetInstance(startInput, kendo.ui);
+                    if (startPicker) {
+                        start = startPicker.value();
+                    } else {
+                        start = kendo.parseDate(startInput.val());
+                    }
+                    if (start && until) {
+                        return start <= until;
                     }
                 }
             }
@@ -643,7 +664,11 @@
                 endTimezone: { type: 'string' },
                 recurrenceRule: {
                     defaultValue: '',
-                    type: 'string'
+                    type: 'string',
+                    validation: {
+                        validDate: { value: validDateValidator },
+                        untilDateCompare: { value: untilDateCompareValidator }
+                    }
                 },
                 recurrenceException: {
                     defaultValue: '',
@@ -1241,7 +1266,6 @@
                         if ($(this).hasClass('k-scheduler-cancel')) {
                             that._revertTimezones(model);
                         }
-                        model.unbind('change', startTimezoneChange);
                         var editView = that._editPane;
                         var text = timezoneButtonText(model, messages.editor.noTimezone);
                         editView.content.find('.k-timezone-label').text(text);
@@ -1413,7 +1437,7 @@
                         attr: attr
                     });
                 }
-                if (!model.isNew() && editable.destroy !== false) {
+                if ((!model.isNew() || model.isRecurring()) && editable.destroy !== false) {
                     html += this.createButton({
                         name: 'delete',
                         text: deleteText,
@@ -2916,7 +2940,7 @@
                     if (this._isEditorOpened() && model.isRecurring()) {
                         var recurrenceMessages = this.options.messages.recurrenceMessages;
                         title = recurrenceMessages.deleteWindowTitle;
-                        if (model.isException()) {
+                        if (model.isException() || model.isNew()) {
                             text = recurrenceMessages.deleteRecurringConfirmation ? recurrenceMessages.deleteRecurringConfirmation : DELETERECURRINGCONFIRM;
                         } else {
                             text = recurrenceMessages.deleteSeriesConfirmation ? recurrenceMessages.deleteSeriesConfirmation : DELETESERIESCONFIRM;
@@ -3280,8 +3304,10 @@
                 var editable = that.options.editable;
                 var deleteOccurrence;
                 var deleteSeries;
+                var createException;
                 var deleteOccurrenceConfirmation;
                 var deleteSeriesConfirmation;
+                var createExceptionConfirmation;
                 var editRecurringMode = isPlainObject(editable) ? editable.editRecurringMode : 'dialog';
                 deleteOccurrence = function () {
                     var occurrence = currentModel.recurrenceId ? currentModel : currentModel.toOccurrence();
@@ -3294,6 +3320,10 @@
                         currentModel = that.dataSource.get(currentModel.recurrenceId);
                     }
                     that._removeEvent(currentModel);
+                };
+                createException = function () {
+                    that.dataSource.remove(currentModel);
+                    that.dataSource.sync();
                 };
                 if (editRecurringMode != 'dialog' || that._isEditorOpened()) {
                     deleteOccurrenceConfirmation = function () {
@@ -3310,12 +3340,22 @@
                             }
                         }, currentModel);
                     };
+                    createExceptionConfirmation = function () {
+                        that._confirmation(function (cancel) {
+                            if (!cancel) {
+                                createException();
+                            }
+                        }, currentModel);
+                    };
                 }
                 var seriesCallback = deleteSeriesConfirmation || deleteSeries;
                 var occurrenceCallback = deleteOccurrenceConfirmation || deleteOccurrence;
+                var exeptionCallback = createExceptionConfirmation || createException;
                 if (that._isEditorOpened()) {
                     if (model.isException()) {
                         occurrenceCallback();
+                    } else if (model.isNew()) {
+                        exeptionCallback();
                     } else {
                         seriesCallback();
                     }

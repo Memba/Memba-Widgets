@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -117,7 +117,6 @@
             },
             _element: function () {
                 var that = this;
-                that.element.attr('type', 'number');
                 that.element.addClass(ratingStyles.hidden);
             },
             _wrapper: function () {
@@ -194,7 +193,7 @@
                 }
                 label.html(template({
                     styles: ratingStyles,
-                    value: that.value(),
+                    value: that.parsedValue % 1 === 0 ? that.parsedValue : that._format(that.value()),
                     maxValue: that.options.max
                 }));
             },
@@ -344,7 +343,7 @@
                 var that = this, selection = that.options.selection, isHalfPrecision = that.options.precision == ratingPrecision.half, isSingle = selection == ratingSelection.single, item = $(e.target).closest(DOT + KITEM), items = that.container.find(DOT + KITEM), hasPart, template;
                 that.enableMove = false;
                 var setTemplate = function (item) {
-                    hasPart = that.parsedValue % 1 !== 0 && item.is(that.container.find('[data-value=' + Math.ceil(that.value()) + ']'));
+                    hasPart = that.parsedValue % 1 !== 0 && item.is(that.container.find('[data-value=' + Math.ceil(that.parsedValue) + ']'));
                     template = (item.hasClass(ratingItemStates.selected) || item.hasClass(ratingItemStates.hovered)) && !hasPart ? ratingItemTemplates.selected : ratingItemTemplates.item;
                     that._renderTemplate(item, template);
                     if (isHalfPrecision && hasPart && item.hasClass(ratingItemStates.selected)) {
@@ -376,16 +375,17 @@
                 e.preventDefault();
             },
             _togglePrecisionElements: function (item, templateType) {
-                var that = this, part = item.find(DOT + PRECISION_PART), partTemplate = that._getTemplateType(ratingItemTemplates[templateType]), isFraction;
+                var that = this, part = item.find(DOT + PRECISION_PART), partTemplate = that._getTemplateType(ratingItemTemplates[templateType]), isFraction, itemSize;
                 if (!part.length) {
                     isFraction = that.parsedValue % 1 !== 0;
+                    itemSize = that._getItemWidth(item);
                     part = $('<span></span>').addClass(PRECISION_PART);
                     part.append(partTemplate({ icon: ratingStyles.iconSelected }));
-                    part.width(isFraction ? item.width() / 2 : item.width());
+                    part.width(isFraction ? itemSize / 2 : itemSize);
                     item.append(part);
                     item.append($('<span></span>').css({
-                        'width': item.width(),
-                        'height': item.height(),
+                        'width': itemSize,
+                        'height': itemSize,
                         'display': 'block'
                     }));
                     that._createUpdatePrecisionComplement(item, isFraction);
@@ -398,15 +398,27 @@
                 if (!complement.length) {
                     complement = iconElement.wrap($('<span></span>').addClass(PRECISION_COMPLEMENT)).parent();
                 }
-                complement.width(isHalf ? item.width() / 2 : 0);
+                complement.width(isHalf ? that._getItemWidth(item) / 2 : 0);
                 complement.css(dir, isHalf || isRtl ? '50%' : 0);
+            },
+            _calculateItemWidthFromStyles: function (item) {
+                if (!item) {
+                    return;
+                }
+                return parseFloat(item.find('.k-icon').css('font-size'));
+            },
+            _getItemWidth: function (item) {
+                if (!item) {
+                    return;
+                }
+                return item.width() || this._calculateItemWidthFromStyles(item) || 0;
             },
             _updatePrecisionElements: function (item, partSize) {
                 var that = this, itemPart = item.find(DOT + PRECISION_PART), itemValue = kendo.parseFloat(item.data(ratingItemAttributes.value)), isRtl = kendo.support.isRtl(this.wrapper), itemWidth = item.width(), halfWidth = itemWidth / 2, halfOffset = parseFloat(item.outerWidth() / 2), isHalf = !isRtl ? partSize < halfOffset : partSize > halfOffset;
                 if (item.length && itemPart.length) {
                     itemPart.width(isHalf ? halfWidth : itemWidth);
                     if (this.options.tooltip) {
-                        item.attr(ratingItemAttributes.title, isHalf ? itemValue - PRECISION_HALF_VALUE : itemValue);
+                        item.attr(ratingItemAttributes.title, isHalf ? that._format(itemValue - PRECISION_HALF_VALUE) : itemValue);
                     }
                     item.data(ratingItemAttributes.partValue, isHalf ? itemValue - PRECISION_HALF_VALUE : itemValue);
                     that._createUpdatePrecisionComplement(item, isHalf);
@@ -414,11 +426,11 @@
             },
             _updateElement: function (value) {
                 var that = this, elementValue = value === null ? '' : value;
-                that.element.val(elementValue);
+                that.element.val(that._format(elementValue));
                 if (that.value === null) {
                     that.wrapper.removeAttr(ARIA_VALUENOW);
                 } else {
-                    that.wrapper.attr(ARIA_VALUENOW, value);
+                    that.wrapper.attr(ARIA_VALUENOW, that._format(value));
                 }
             },
             _updateItemsRendering: function (value) {
@@ -453,6 +465,9 @@
                 wrapper.toggleClass(ratingStyles.disabled, !enabled);
                 wrapper.toggleClass(ratingStyles.readonly, readonly && enabled);
             },
+            _format: function (value) {
+                return kendo.toString(value, 'n1', kendo.getCulture().name);
+            },
             value: function (value) {
                 var that = this, isHalfPrecision = that.options.precision == ratingPrecision.half;
                 if (value === null) {
@@ -467,7 +482,7 @@
                 }
                 value = Math.max(that._valueMin, Math.min(value, that.options.max));
                 if (isHalfPrecision) {
-                    that.parsedValue = parseFloat((Math.ceil(value * 2) / 2).toFixed(1));
+                    that.parsedValue = parseFloat(that._format(Math.ceil(value * 2) / 2));
                 } else {
                     that.parsedValue = Math.round(value);
                 }

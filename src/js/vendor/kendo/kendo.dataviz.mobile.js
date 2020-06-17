@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.2.513'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.2.617'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3483,7 +3483,7 @@
             if (nextFocusable.length) {
                 target = nextFocusable;
             } else if (widgetInstance) {
-                target = widgetInstance instanceof kendo.ui.Editor ? $(widgetInstance.body) : widgetInstance.wrapper.find(':kendoFocusable').first();
+                target = widgetInstance.options.name === 'Editor' ? $(widgetInstance.body) : widgetInstance.wrapper.find(':kendoFocusable').first();
             } else {
                 target = element;
             }
@@ -10470,7 +10470,7 @@
                     transport.parameterMap = function (data, type) {
                         data[that.idField || 'id'] = that.id;
                         if (parameterMap) {
-                            data = parameterMap(data, type);
+                            data = parameterMap.call(that, data, type);
                         }
                         return data;
                     };
@@ -35917,6 +35917,7 @@
                         callback(pointData, {
                             category: currentCategory,
                             categoryIx: categoryIx,
+                            categoriesCount: count,
                             series: currentSeries,
                             seriesIx: seriesIx$1
                         });
@@ -44342,8 +44343,15 @@
                     var seriesSegments = groupBySeriesIx(this._segments);
                     for (var idx = 0; idx < seriesSegments.length; idx++) {
                         var segments = seriesSegments[idx];
-                        if (segments.length > 1) {
-                            last(segments).linePoints.push(segments[0].linePoints[0]);
+                        if (segments && segments.length > 1) {
+                            var firstPoint = segments[0].linePoints[0];
+                            var lastSegment = last(segments);
+                            var lastPoint = last(lastSegment.linePoints);
+                            var isFirstDataPoint = firstPoint.categoryIx === 0;
+                            var isLastDataPoint = lastPoint.categoryIx === lastPoint.categoriesCount - 1;
+                            if (isFirstDataPoint && isLastDataPoint) {
+                                last(segments).linePoints.push(firstPoint);
+                            }
                         }
                     }
                 }
@@ -68266,18 +68274,25 @@
             },
             show: function (candidate) {
                 var item = this._getItem(candidate);
+                var buttonGroupInstance;
                 if (item.toolbar) {
                     if (item.toolbar.options.type === 'button' && item.toolbar.options.isChild) {
+                        buttonGroupInstance = item.toolbar.getParentGroup();
                         item.toolbar.show();
-                        item.toolbar.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (item.toolbar.options.hidden) {
                         item.toolbar.show();
                     }
                 }
                 if (item.overflow) {
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
+                        buttonGroupInstance = item.overflow.getParentGroup();
                         item.toolbar.show();
-                        item.overflow.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (item.overflow.options.hidden) {
                         item.overflow.show();
                     }
@@ -70431,10 +70446,13 @@
                             selectedIndex = selectedIndices[j];
                             if (selectedIndex === index) {
                                 $(children[selectedIndex]).removeClass('k-state-selected').attr('aria-selected', false);
+                                var dataItem = this._view[index].item;
+                                var position = this._dataItemPosition(dataItem, this._values);
                                 removed.push({
-                                    position: j + removedIndices,
-                                    dataItem: dataItems.splice(j, 1)[0]
+                                    position: position,
+                                    dataItem: dataItem
                                 });
+                                dataItems.splice(j, 1);
                                 selectedIndices.splice(j, 1);
                                 indices.splice(i, 1);
                                 values.splice(j, 1);
@@ -73575,7 +73593,7 @@
                 year: 1,
                 decade: 2,
                 century: 3
-            }, HEADERSELECTOR = '.k-header, .k-calendar-header', CLASSIC_HEADER_TEMPLATE = '<div class="k-header">' + '<a href="#" ' + kendo.attr('action') + '="prev" role="button" class="k-link k-nav-prev" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" ' + kendo.attr('action') + '="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-link k-nav-fast"></a>' + '<a href="#" ' + kendo.attr('action') + '="next" role="button" class="k-link k-nav-next" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</div>', MODERN_HEADER_TEMPLATE = '<div class="k-calendar-header">' + '<a href="#" ' + kendo.attr('action') + '="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-button k-title"></a>' + '<span class="k-calendar-nav">' + '<a ' + kendo.attr('action') + '="prev" class="k-button k-button-icon k-prev-view">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a ' + kendo.attr('action') + '="today" class="k-today">Today</a>' + '<a ' + kendo.attr('action') + '="next" class="k-button k-button-icon k-next-view">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>' + '</span>' + '</div>';
+            }, HEADERSELECTOR = '.k-header, .k-calendar-header', CLASSIC_HEADER_TEMPLATE = '<div class="k-header">' + '<a href="\\#" ' + kendo.attr('action') + '="prev" role="button" class="k-link k-nav-prev" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="\\#" ' + kendo.attr('action') + '="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-link k-nav-fast"></a>' + '<a href="\\#" ' + kendo.attr('action') + '="next" role="button" class="k-link k-nav-next" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</div>', MODERN_HEADER_TEMPLATE = '<div class="k-calendar-header">' + '<a href="\\#" ' + kendo.attr('action') + '="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-button k-title"></a>' + '<span class="k-calendar-nav">' + '<a ' + kendo.attr('action') + '="prev" class="k-button k-button-icon k-prev-view">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a ' + kendo.attr('action') + '="today" class="k-today">#=messages.today#</a>' + '<a ' + kendo.attr('action') + '="next" class="k-button k-button-icon k-next-view">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>' + '</span>' + '</div>';
         var Calendar = Widget.extend({
             init: function (element, options) {
                 var that = this, value, id;
@@ -73670,7 +73688,10 @@
                         duration: 400
                     }
                 },
-                messages: { weekColumnHeader: '' }
+                messages: {
+                    weekColumnHeader: '',
+                    today: 'Today'
+                }
             },
             events: [
                 CHANGE,
@@ -74346,7 +74367,7 @@
             _header: function () {
                 var that = this, element = that.element, linksSelector = that.options.linksSelector;
                 if (!element.find(HEADERSELECTOR)[0]) {
-                    element.html(that.options.header.template);
+                    element.html(kendo.template(that.options.header.template)(that.options));
                 }
                 element.find(linksSelector).on(MOUSEENTER_WITH_NS + ' ' + MOUSELEAVE + ' ' + FOCUS_WITH_NS + ' ' + BLUR, mousetoggle).on(CLICK + ' touchend' + ns, function () {
                     return false;
@@ -76764,6 +76785,9 @@
             },
             _keydown: function (e) {
                 var that = this, key = e.keyCode;
+                if (key === keys.NUMPAD_DOT) {
+                    that._numPadDot = true;
+                }
                 if (key == keys.DOWN) {
                     that._step(-1);
                     return;
@@ -76785,9 +76809,16 @@
             _inputHandler: function () {
                 var element = this.element;
                 var value = element.val();
+                var min = this.options.min;
                 var numberFormat = this._format(this.options.format);
-                var isValid = this._numericRegex(numberFormat).test(value);
-                if (isValid) {
+                var decimalSeparator = numberFormat[POINT];
+                var minInvalid = min !== null && min >= 0 && value.charAt(0) === '-';
+                if (this._numPadDot && decimalSeparator !== POINT) {
+                    value = value.replace(POINT, decimalSeparator);
+                    this.element.val(value);
+                    this._numPadDot = false;
+                }
+                if (this._numericRegex(numberFormat).test(value) && !minInvalid) {
                     this._oldText = value;
                 } else {
                     this._blinkInvalidState();
@@ -77611,6 +77642,18 @@
             }
             return result;
         }
+        function getEditorTag(type, options) {
+            var tag;
+            if (!type.length) {
+                return;
+            }
+            if (type === 'DropDownTree' && options && options.checkboxes || type === 'MultiSelect') {
+                tag = '<select />';
+            } else {
+                tag = type === 'Editor' ? '<textarea />' : '<input />';
+            }
+            return tag;
+        }
         var kendoEditors = [
             'AutoComplete',
             'ColorPicker',
@@ -77647,11 +77690,11 @@
             },
             'string': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="text" class="k-textbox"/>').attr(attr).appendTo(container);
+                $('<input type="text" />').attr(attr).addClass('k-textbox').appendTo(container);
             },
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="checkbox" class="k-checkbox" />').attr(attr).appendTo(container);
+                $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
             },
             'values': function (container, options) {
                 var attr = createAttributes(options);
@@ -77662,9 +77705,9 @@
             'kendoEditor': function (container, options) {
                 var attr = createAttributes(options);
                 var type = options.editor;
-                var tag = type === 'Editor' ? '<textarea />' : '<input />';
                 var editor = 'kendo' + type;
                 var editorOptions = options.editorOptions;
+                var tag = getEditorTag(type, editorOptions);
                 $(tag).attr(attr).appendTo(container)[editor](editorOptions);
             }
         };

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -598,13 +598,17 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
     "repeatEvery": "Repeat every: ",
     "repeatOn": "Repeat on: ",
     "interval": " month(s)",
-    "day": "Day "
+    "day": "Day ",
+    "date": "Date"
   },
   "yearly": {
     "repeatEvery": "Repeat every: ",
     "repeatOn": "Repeat on: ",
     "interval": " year(s)",
-    "of": " of "
+    "of": " of ",
+    "month": "month",
+    "day": "day",
+    "date": "Date"
   },
   "end": {
     "label": "End:",
@@ -627,6 +631,38 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
     "weekend": "weekend day"
   }
 });
+}
+
+/* MobileRecurrenceEditor messages */
+
+if (kendo.ui.MobileRecurrenceEditor) {
+    kendo.ui.MobileRecurrenceEditor.prototype.options.messages =
+    $.extend(true, kendo.ui.MobileRecurrenceEditor.prototype.options.messages, kendo.ui.RecurrenceEditor.prototype.options.messages, {
+      "endTitle": "Repeat ends",
+      "repeatTitle": "Repeat pattern",
+      "headerTitle": "Repeat event",
+      "end": {
+        "patterns": {
+            "never": "Never",
+            "after": "After...",
+            "on": "On..."
+        }
+      },
+      "monthly": {
+        "repeatBy": "Repeat by: ",
+        "dayOfMonth": "Day of the month",
+        "dayOfWeek": "Day of the week",
+        "every": "Every"
+      },
+      "yearly": {
+        "repeatBy": "Repeat by: ",
+        "dayOfMonth": "Day of the month",
+        "dayOfWeek": "Day of the week",
+        "every": "Every",
+        "month": "Month",
+        "day": "Day"
+      }
+    });
 }
 
 /* Scheduler messages */
@@ -1267,6 +1303,20 @@ if (kendo.ui.Chat) {
         "placeholder": "Type a message...",
         "toggleButton": "Toggle toolbar",
         "sendButton": "Send message"
+    });
+}
+
+/* Wizard messages */
+
+if (kendo.ui.Wizard) {
+    kendo.ui.Wizard.prototype.options.messages =
+    $.extend(true, kendo.ui.Wizard.prototype.options.messages,{
+        "reset": "Reset",
+        "previous": "Previous",
+        "next": "Next",
+        "done": "Done",
+        "step": "Step",
+        "of": "of"
     });
 }
 

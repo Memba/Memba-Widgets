@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -5295,11 +5295,18 @@
                 }
             },
             _showGroup: function (group, width) {
-                var position, previous;
+                var position, previous, groupWidth;
                 if (group.hasClass('k-state-disabled')) {
                     return true;
                 }
-                if (group.length && width > this._groupsWidth() + group.data('outerWidth')) {
+                if (group.hasClass('k-overflow-tool-group')) {
+                    groupWidth = group.data('outerWidth');
+                } else {
+                    group.removeClass('k-hidden');
+                    groupWidth = outerWidth(group, true);
+                    group.addClass('k-hidden');
+                }
+                if (group.length && width > this._groupsWidth() + groupWidth) {
                     if (group.hasClass('k-overflow-tool-group')) {
                         position = group.data('position');
                         if (position === 0) {
@@ -8676,7 +8683,7 @@
                 this.rows = 6;
                 PopupTool.fn.init.call(this, $.extend(options, {
                     command: TableCommand,
-                    popupTemplate: '<div class=\'k-ct-popup\'>' + new Array(this.cols * this.rows + 1).join('<span class=\'k-ct-cell k-state-disabled\'></span>') + '<div class=\'k-status\'></div>' + '</div>'
+                    popupTemplate: '<div class=\'k-ct-popup\'>' + '<div>' + new Array(this.cols * this.rows + 1).join('<span class=\'k-ct-cell k-state-disabled\'></span>') + '</div>' + '<div class=\'k-status\'></div>' + '</div>'
                 }));
             },
             _activate: function () {

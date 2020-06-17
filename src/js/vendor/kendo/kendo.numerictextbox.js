@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -373,6 +373,9 @@
             },
             _keydown: function (e) {
                 var that = this, key = e.keyCode;
+                if (key === keys.NUMPAD_DOT) {
+                    that._numPadDot = true;
+                }
                 if (key == keys.DOWN) {
                     that._step(-1);
                     return;
@@ -394,9 +397,16 @@
             _inputHandler: function () {
                 var element = this.element;
                 var value = element.val();
+                var min = this.options.min;
                 var numberFormat = this._format(this.options.format);
-                var isValid = this._numericRegex(numberFormat).test(value);
-                if (isValid) {
+                var decimalSeparator = numberFormat[POINT];
+                var minInvalid = min !== null && min >= 0 && value.charAt(0) === '-';
+                if (this._numPadDot && decimalSeparator !== POINT) {
+                    value = value.replace(POINT, decimalSeparator);
+                    this.element.val(value);
+                    this._numPadDot = false;
+                }
+                if (this._numericRegex(numberFormat).test(value) && !minInvalid) {
                     this._oldText = value;
                 } else {
                     this._blinkInvalidState();

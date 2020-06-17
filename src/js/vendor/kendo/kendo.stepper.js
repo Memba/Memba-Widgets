@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -245,7 +245,7 @@
                 }
                 that._indicatorAndLabel();
                 that._addStepList();
-                if (that.options.steps && options.steps.length) {
+                if (that.options.steps && that.options.steps.length) {
                     that._processSteps(that.options.steps);
                     that._progressBar();
                 }

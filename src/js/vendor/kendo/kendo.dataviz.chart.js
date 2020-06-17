@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1349,6 +1349,7 @@
                         callback(pointData, {
                             category: currentCategory,
                             categoryIx: categoryIx,
+                            categoriesCount: count,
                             series: currentSeries,
                             seriesIx: seriesIx$1
                         });
@@ -9774,8 +9775,15 @@
                     var seriesSegments = groupBySeriesIx(this._segments);
                     for (var idx = 0; idx < seriesSegments.length; idx++) {
                         var segments = seriesSegments[idx];
-                        if (segments.length > 1) {
-                            last(segments).linePoints.push(segments[0].linePoints[0]);
+                        if (segments && segments.length > 1) {
+                            var firstPoint = segments[0].linePoints[0];
+                            var lastSegment = last(segments);
+                            var lastPoint = last(lastSegment.linePoints);
+                            var isFirstDataPoint = firstPoint.categoryIx === 0;
+                            var isLastDataPoint = lastPoint.categoryIx === lastPoint.categoriesCount - 1;
+                            if (isFirstDataPoint && isLastDataPoint) {
+                                last(segments).linePoints.push(firstPoint);
+                            }
                         }
                     }
                 }

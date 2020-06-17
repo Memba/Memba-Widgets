@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1285,15 +1285,16 @@
             isException: isException,
             toExceptionString: toExceptionString
         };
-        var weekDayCheckBoxes = function (firstDay) {
-            var shortNames = kendo.culture().calendar.days.namesShort, length = shortNames.length, result = '', idx = 0, values = [];
+        var weekDayCheckBoxes = function (firstDay, repeatOn) {
+            var shortNames = kendo.culture().calendar.days.namesShort, names = kendo.culture().calendar.days.names, length = shortNames.length, result = '', idx = 0, values = [];
             for (; idx < length; idx++) {
                 values.push(idx);
             }
             shortNames = shortNames.slice(firstDay).concat(shortNames.slice(0, firstDay));
+            names = names.slice(firstDay).concat(names.slice(0, firstDay));
             values = values.slice(firstDay).concat(values.slice(0, firstDay));
             for (idx = 0; idx < length; idx++) {
-                result += '<label class="k-check"><input class="k-recur-weekday-checkbox" type="checkbox" value="' + values[idx] + '" /> ' + shortNames[idx] + '</label>';
+                result += '<label class="k-check"><input aria-label="' + repeatOn + ' ' + names[idx] + '" class="k-recur-weekday-checkbox" type="checkbox" value="' + values[idx] + '" /> ' + shortNames[idx] + '</label>';
             }
             return result;
         };
@@ -1316,7 +1317,7 @@
             }
             return result;
         };
-        var RECURRENCE_VIEW_TEMPLATE = kendo.template('# if (frequency !== "never") { #' + '<div class="k-edit-label"><label>#:messages.repeatEvery#</label></div>' + '<div class="k-edit-field"><input class="k-recur-interval" title="#:messages.interval#"/>#:messages.interval#</div>' + '# } #' + '# if (frequency === "weekly") { #' + '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' + '<div class="k-edit-field">#=weekDayCheckBoxes(firstWeekDay)#</div>' + '# } else if (frequency === "monthly") { #' + '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' + '<div class="k-edit-field">' + '<ul class="k-reset">' + '<li>' + '<label><input class="k-recur-month-radio" type="radio" name="month" value="monthday" title="#:messages.day#" />#:messages.day#</label>' + '<input class="k-recur-monthday" title="#:messages.day#" />' + '</li>' + '<li>' + '<input class="k-recur-month-radio" type="radio" name="month" value="weekday" title="#:messages.repeatOn#" />' + '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" /><input class="k-recur-weekday" title="#:messages.day#" />' + '</li>' + '</ul>' + '</div>' + '# } else if (frequency === "yearly") { #' + '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' + '<div class="k-edit-field">' + '<ul class="k-reset">' + '<li>' + '<input class="k-recur-year-radio" type="radio" name="year" value="monthday" title="#:messages.repeatOn#" />' + '<input class="k-recur-month" title="#:messages.repeatOn#" /><input class="k-recur-monthday" title="#:messages.day#" />' + '</li>' + '<li>' + '<input class="k-recur-year-radio" type="radio" name="year" value="weekday" title="#:messages.repeatOn#" />' + '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" /><input class="k-recur-weekday" title="#:messages.day#"  />#:messages.of#<input class="k-recur-month" title="#:messages.of#"/>' + '</li>' + '</ul>' + '</div>' + '# } #' + '# if (frequency !== "never") { #' + '<div class="k-edit-label"><label>#:end.label#</label></div>' + '<div class="k-edit-field">' + '<ul class="k-reset">' + '<li>' + '<label><input class="k-recur-end-never" type="radio" name="end" value="never" />#:end.never#</label>' + '</li>' + '<li>' + '<label><input class="k-recur-end-count" type="radio" name="end" value="count" />#:end.after#</label>' + '<input class="k-recur-count" title="#:end.occurrence#" />#:end.occurrence#' + '</li>' + '<li>' + '<label><input class="k-recur-end-until" type="radio" name="end" value="until" />#:end.on#</label>' + '<input class="k-recur-until" title="#:end.on#" />' + '</li>' + '</ul>' + '</div>' + '# } #');
+        var RECURRENCE_VIEW_TEMPLATE = kendo.template('# if (frequency !== "never") { #' + '<div class="k-edit-label"><label>#:messages.repeatEvery#</label></div>' + '<div class="k-edit-field"><input class="k-recur-interval" title="#:messages.repeatEvery# #:messages.interval#"/>#:messages.interval#</div>' + '# } #' + '# if (frequency === "weekly") { #' + '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' + '<div class="k-edit-field">#=weekDayCheckBoxes(firstWeekDay,messages.repeatOn)#</div>' + '# } else if (frequency === "monthly") { #' + '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' + '<div class="k-edit-field">' + '<ul class="k-reset">' + '<li>' + '<input class="k-recur-month-radio" type="radio" name="month" value="monthday" title="#:messages.repeatOn# #:messages.date#" /><label>#:messages.date#:</label>' + '<input class="k-recur-monthday" title="#:messages.date#" />' + '</li>' + '<li>' + '<input class="k-recur-month-radio" type="radio" name="month" value="weekday" title="#:messages.repeatOn# #:messages.day#" />' + '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" /><input class="k-recur-weekday" title="#:messages.day#" />' + '</li>' + '</ul>' + '</div>' + '# } else if (frequency === "yearly") { #' + '<div class="k-edit-label"><label>#:messages.repeatOn#</label></div>' + '<div class="k-edit-field">' + '<ul class="k-reset">' + '<li>' + '<input class="k-recur-year-radio" type="radio" name="year" value="monthday" title="#:messages.repeatOn# #:messages.month#" />' + '<input class="k-recur-month" title="#:messages.month#" /><input class="k-recur-monthday" title="#:messages.date#" />' + '</li>' + '<li>' + '<input class="k-recur-year-radio" type="radio" name="year" value="weekday" title="#:messages.repeatOn# #:messages.day#" />' + '<input class="k-recur-weekday-offset" title="#:messages.repeatOn#" /><input class="k-recur-weekday" title="#:messages.day#"  />#:messages.of#<input class="k-recur-month" title="#:messages.of + messages.month#"/>' + '</li>' + '</ul>' + '</div>' + '# } #' + '# if (frequency !== "never") { #' + '<div class="k-edit-label"><label>#:end.label#</label></div>' + '<div class="k-edit-field">' + '<ul class="k-reset">' + '<li>' + '<input class="k-recur-end-never" type="radio" name="end" value="never" title="#:end.label# #:end.never#" /><label>#:end.never#</label>' + '</li>' + '<li>' + '<input class="k-recur-end-count" type="radio" name="end" value="count" title="#:end.label# #:end.after#" /><label>#:end.after#</label>' + '<input class="k-recur-count" title="#:end.occurrence#" />#:end.occurrence#' + '</li>' + '<li>' + '<input class="k-recur-end-until" type="radio" name="end" value="until" title="#:end.label# #:end.on#" /><label>#:end.on#</label>' + '<input class="k-recur-until" title="#:end.on#" name="recur-until" />' + '</li>' + '</ul>' + '</div>' + '# } #');
         var DAY_RULE = [
             {
                 day: 0,
@@ -1440,13 +1441,17 @@
                         repeatEvery: 'Repeat every: ',
                         repeatOn: 'Repeat on: ',
                         interval: ' month(s)',
-                        day: 'Day '
+                        day: 'Day ',
+                        date: 'Date'
                     },
                     yearly: {
                         repeatEvery: 'Repeat every: ',
                         repeatOn: 'Repeat on: ',
                         interval: ' year(s)',
-                        of: ' of '
+                        of: ' of ',
+                        month: 'month',
+                        day: 'day',
+                        date: 'Date'
                     },
                     end: {
                         label: 'End:',
@@ -1677,16 +1682,34 @@
                 }).data('kendoNumericTextBox');
             },
             _initUntil: function () {
-                var that = this, input = that._container.find('.k-recur-until'), start = that.options.start, rule = that._value, until = rule.until;
+                var that = this, input = that._container.find('.k-recur-until'), start = that.options.start, rule = that._value, until = rule.until, min = until && until < start ? until : start, startInput = that.wrapper.closest('.k-scheduler-edit-form').find('[name=start]:visible'), validDateValidationMessage = kendo.format(kendo.ui.Validator.prototype.options.messages.date, that.options.messages.end.on), dateCompareValidationMessage = kendo.ui.Validator.prototype.options.messages.dateCompare, initialValue = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59);
+                input.attr('data-validDate-msg', validDateValidationMessage);
+                input.attr('data-untilDateCompare-msg', dateCompareValidationMessage);
+                if (startInput.length === 0) {
+                    startInput = that.wrapper.closest('.k-scheduler-edit-form').find('[name=start]');
+                }
+                if (startInput.length > 0 && startInput.val()) {
+                    min = new Date(startInput.val());
+                    if (initialValue < min) {
+                        initialValue = min;
+                    }
+                }
                 that._until = input.kendoDatePicker({
-                    min: until && until < start ? until : start,
-                    value: until || new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59),
+                    min: min,
+                    value: until || initialValue,
                     change: function () {
                         var date = this.value();
-                        rule.until = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+                        if (date) {
+                            rule.until = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+                        }
                         that._trigger();
                     }
                 }).data('kendoDatePicker');
+                if (startInput) {
+                    startInput.on('change', function () {
+                        that._until.setOptions({ min: startInput.val() });
+                    });
+                }
             },
             _trigger: function () {
                 if (!this.options.mobile) {
@@ -1938,7 +1961,7 @@
         ui.plugin(RecurrenceEditor);
         var RECURRENCE_HEADER_TEMPLATE = kendo.template('<div data-role="content">' + '<ul class="k-listgroup k-listgroup-flush">' + '<li class="k-item k-listgroup-item">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:headerTitle#</span>' + '<div class="k-recur-pattern k-listgroup-form-field-wrapper"></div>' + '</label>' + '</li>' + '<li class="k-item k-listgroup-item k-recur-view"></li>' + '</ul>' + '</div>');
         var RECURRENCE_REPEAT_PATTERN_TEMPLATE = kendo.template('# if (frequency !== "never") { #' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatEvery#</span>' + '<div class="k-recur-editor-wrap k-listgroup-form-field-wrapper">' + '<input class="k-recur-interval" type="number" pattern="\\\\d*"/>' + '# if (messages.interval.length) { #' + '<span class="k-recur-editor-text">#:messages.interval#</span>' + '# } #' + '</div>' + '</label>' + '# } #' + '# if (frequency === "weekly") { #' + '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' + '<li class="k-item k-listgroup-item k-no-click">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatOn#</span>' + '</label>' + '</li>' + '#=weekDayCheckBoxes(firstWeekDay)#' + '</ul>' + '# } else if (frequency === "monthly") { #' + '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' + '<li class="k-item k-listgroup-item">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatBy#</span>' + '<div class="k-repeat-rule k-listgroup-form-field-wrapper"></div>' + '</label>' + '</li>' + '<li class="k-monthday-view k-item k-listgroup-item" style="display:none">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' + '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" title="#:messages.day#" pattern="\\\\d*"/></div>' + '</label>' + '</li>' + '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.every#</span>' + '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="#:messages.every#"></select></div>' + '</label>' + '</li>' + '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' + '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="#:messages.day#"></select></div>' + '</label>' + '</li>' + '</ul>' + '# } else if (frequency === "yearly") { #' + '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' + '<li class="k-item k-listgroup-item">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatBy#</span>' + '<div class="k-repeat-rule k-listgroup-form-field-wrapper"></div>' + '</label>' + '</li>' + '<li class="k-monthday-view k-item k-listgroup-item" style="display:none">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' + '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-monthday" type="number" title="#:messages.day#" pattern="\\\\d*"/></div>' + '</label>' + '</li>' + '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.every#</span>' + '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday-offset" title="#:messages.every#"></select></div>' + '</label>' + '</li>' + '<li class="k-weekday-view k-item k-listgroup-item" style="display:none">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.day#</span>' + '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-weekday" title="#:messages.day#"></select></div>' + '</label>' + '</li>' + '<li class="k-item k-item k-listgroup-item">' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.month#</span>' + '<div class="k-listgroup-form-field-wrapper"><select class="k-recur-month" title="#:messages.month#"></select></div>' + '</label>' + '</li>' + '</ul>' + '# } #');
-        var RECURRENCE_END_PATTERN_TEMPLATE = kendo.template('# if (endPattern === "count") { #' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.after#</span>' + '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-count" type="number" pattern="\\\\d*" /></div>' + '</label>' + '# } else if (endPattern === "until") { #' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.on#</span>' + '<div class="k-listgroup-form-field-wrapper"><input type="date" class="k-recur-until" /></div>' + '</label>' + '# } #');
+        var RECURRENCE_END_PATTERN_TEMPLATE = kendo.template('# if (endPattern === "count") { #' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.after#</span>' + '<div class="k-listgroup-form-field-wrapper"><input class="k-recur-count" type="number" pattern="\\\\d*" /></div>' + '</label>' + '# } else if (endPattern === "until") { #' + '<label class="k-label k-listgroup-form-row">' + '<span class="k-item-title k-listgroup-form-field-label">#:messages.on#</span>' + '<div class="k-listgroup-form-field-wrapper"><input type="date" class="k-recur-until" name="recur-until"/></div>' + '</label>' + '# } #');
         var RECURRENCE_GROUP_BUTTON_TEMPLATE = kendo.template('<select class="k-scheduler-select">' + '#for (var i = 0, length = dataSource.length; i < length; i++) {#' + '<option value="#=dataSource[i].value#" #= value === dataSource[i].value  ? "selected" : "" #>#:dataSource[i].text#</option>' + '#}#' + '</select>');
         var MobileRecurrenceEditor = BaseRecurrenceEditor.extend({
             init: function (element, options) {
@@ -2096,7 +2119,10 @@
                 that._view.element.find('.k-scheduler-select').on(CHANGE + that._namespace, function (e) {
                     var value = e.target.value;
                     that._value = { freq: value };
+                    that._defaultValue = $.extend({}, that._value);
                     that._initRepeatView(true);
+                    that._endButton.text(that._endText());
+                    that._endParentEndButton.text(that._endText());
                 });
             },
             _initEndNavigation: function () {
@@ -2403,16 +2429,28 @@
                 var rule = that._value;
                 var until = rule.until;
                 var min = until && until < start ? until : start;
+                var validDateValidationMessage = kendo.format(kendo.ui.Validator.prototype.options.messages.date, that.options.messages.end.on);
+                var dateCompareValidationMessage = kendo.ui.Validator.prototype.options.messages.dateCompare;
+                input.attr('data-validDate-msg', validDateValidationMessage);
+                input.attr('data-untilDateCompare-msg', dateCompareValidationMessage);
                 if (kendo.support.input.date) {
                     that._until = input.attr('min', kendo.toString(min, 'yyyy-MM-dd')).val(kendo.toString(until || start, 'yyyy-MM-dd')).on('change', function () {
-                        rule.until = kendo.parseDate(this.value, 'yyyy-MM-dd');
+                        var date = kendo.parseDate(this.value, 'yyyy-MM-dd');
+                        if (date) {
+                            rule.until = date;
+                        }
+                        that._trigger();
                     });
                 } else {
                     that._until = input.kendoDatePicker({
                         min: min,
                         value: until || start,
                         change: function () {
-                            rule.until = this.value();
+                            var date = this.value();
+                            if (date) {
+                                rule.until = date;
+                            }
+                            that._trigger();
                         }
                     }).data('kendoDatePicker');
                 }

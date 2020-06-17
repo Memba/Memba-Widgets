@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3432,6 +3432,13 @@
                     value: null,
                     sortable: true,
                     serializable: true
+                },
+                {
+                    property: Property,
+                    name: 'html',
+                    value: null,
+                    sortable: true,
+                    serializable: true
                 }
             ],
             init: function (rowCount, columnCount, defaultValues) {
@@ -5677,7 +5684,8 @@
             'borderRight',
             'borderBottom',
             'borderLeft',
-            'comment'
+            'comment',
+            'html'
         ];
         var Range = kendo.Class.extend({
             init: function (ref, sheet) {
@@ -5739,6 +5747,9 @@
                     this._set('formula', null, true);
                 }
                 return this._property('value', value);
+            },
+            html: function (value) {
+                return this._property('html', value);
             },
             resize: function (direction) {
                 var ref = this._resizedRef(direction);
@@ -12418,7 +12429,7 @@
                     cdr.brCell = new kendo.spreadsheet.CellRef(ref.row, ref.col);
                     cdr.brX = excelToPixels(ref.colOffset);
                     cdr.brY = excelToPixels(ref.rowOffset);
-                } else if (this.is(sel_two_cell_anchor)) {
+                } else if (this.is(sel_two_cell_anchor) && cdr.image) {
                     var left = sheet._columns.sum(0, cdr.topLeftCell.col - 1) + cdr.offsetX;
                     var top = sheet._rows.sum(0, cdr.topLeftCell.row - 1) + cdr.offsetY;
                     var right = sheet._columns.sum(0, cdr.brCell.col - 1) + cdr.brX;
@@ -12432,7 +12443,7 @@
                         image: cdr.image,
                         opacity: 1
                     });
-                } else if (this.is(sel_one_cell_anchor)) {
+                } else if (this.is(sel_one_cell_anchor) && cdr.image) {
                     sheet.addDrawing({
                         topLeftCell: cdr.topLeftCell,
                         offsetX: cdr.offsetX,
@@ -15384,7 +15395,11 @@
                     type = data.__dataType;
                 }
             } else if (data !== null && data !== undefined) {
-                data = kendo.dom.text(data);
+                if (cell.html) {
+                    data = kendo.dom.html(data);
+                } else {
+                    data = kendo.dom.text(data);
+                }
             }
             if (!style.textAlign) {
                 switch (type) {

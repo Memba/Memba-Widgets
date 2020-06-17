@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -155,7 +155,7 @@
             },
             _addContainer: function (element, item, index, id) {
                 var that = this;
-                item.order = item.order || index;
+                item.order = typeof item.order == 'number' ? item.order : index;
                 element.attr(kendo.attr('index'), item.order);
                 item.id = id;
                 that._setContainerCoordinates(element, item);
@@ -399,7 +399,7 @@
                             that._setContainerCoordinates(currentContainer, that.itemsMap[id]);
                             that._removeAbsoluteStyles(currentContainer);
                             that._removeResizeHint();
-                            that.trigger(RESIZE, { item: currentContainer });
+                            that.trigger(RESIZE, { container: currentContainer });
                         }
                     });
                 }
@@ -448,6 +448,7 @@
                 var headerSelector = selector(TileLayout.styles.itemHeader);
                 this._draggableInstance = new Draggable(this.element, {
                     filter: headerSelector,
+                    autoScroll: true,
                     hint: function (target) {
                         var item = target.closest(itemSelector);
                         var width = item.width();

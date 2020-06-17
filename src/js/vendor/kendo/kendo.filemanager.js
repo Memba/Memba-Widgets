@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1175,7 +1175,7 @@
                             data.target = that.id;
                         }
                         if (parameterMap) {
-                            data = parameterMap(data, type);
+                            data = parameterMap.call(that, data, type);
                         }
                         return data;
                     };
@@ -1440,7 +1440,7 @@
         };
         var NO_FILE_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-none"></span>' + '</div>' + '<span class="#=styles.fileName#" k-no-file-selected>#= messages.noFileSelected #</span>' + '</div>';
         var SINGLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-#= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' + '</div>' + '<span class="#=styles.fileName#">#=selection[0].name#</span>' + '#if(metaFields){#' + '<dl class="#=styles.fileMeta#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#=styles.metaLabel#">#=messages[field]#: </dt>' + '<dd class="#=styles.metaValue# #=styles[field]#">' + '#if(field == "size"){#' + ' #=kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #=kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' + '#} else {#' + ' #=selection[0][field]#' + '#}#' + '</dd>' + '<dd class="k-line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
-        var MULTIPLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-icon k-i-file"></span>' + '</div>' + '<span class="#=styles.fileName#">' + '#=selection.length# ' + '#=messages.items#' + '</span>' + '</div>';
+        var MULTIPLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-file"></span>' + '</div>' + '<span class="#=styles.fileName#">' + '#=selection.length# ' + '#=messages.items#' + '</span>' + '</div>';
         var FileManager = DataBoundWidget.extend({
             init: function (element, options) {
                 var that = this;

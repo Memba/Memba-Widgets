@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -147,7 +147,8 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
     "day": "Giorno",
     "interval": "mese(i)",
     "repeatEvery": "Ripeti ogni: ",
-    "repeatOn": "Repeti quando:: "
+    "repeatOn": "Repeti quando: ",
+    "date": "Data"
   },
   "offsetPositions": {
     "first": "primo",
@@ -165,7 +166,10 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
     "of": "di",
     "repeatEvery": "Ripeti ogni:",
     "repeatOn": "Ripeti quando:",
-    "interval": "anno(i)"
+    "interval": "anno(i)",
+    "month": "mese",
+    "day": "giorno",
+    "date": "Data"
   },
   "weekdays": {
     "day": "giorno",
@@ -173,6 +177,38 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
     "weekend": "giorno finesettimana"
   }
 });
+}
+
+/* MobileRecurrenceEditor messages */
+
+if (kendo.ui.MobileRecurrenceEditor) {
+    kendo.ui.MobileRecurrenceEditor.prototype.options.messages =
+    $.extend(true, kendo.ui.MobileRecurrenceEditor.prototype.options.messages, kendo.ui.RecurrenceEditor.prototype.options.messages, {
+      "endTitle": "Fine ripetizione",
+      "repeatTitle": "Modello di ripetizione",
+      "headerTitle": "Ripeti appuntamento",
+      "end": {
+        "patterns": {
+            "never": "Mai",
+            "after": "Dopo...",
+            "on": "Il..."
+        }
+      },
+      "monthly": {
+        "repeatBy": "Ripeti per: ",
+        "dayOfMonth": "Data del mese",
+        "dayOfWeek": "Giorno della settimana",
+        "every": "Ogni"
+      },
+      "yearly": {
+        "repeatBy": "Ripeti per: ",
+        "dayOfMonth": "Data del mese",
+        "dayOfWeek": "Giorno della settimana",
+        "every": "Ogni",
+        "month": "Mese",
+        "day": "Giorno"
+      }
+    });
 }
 
 /* FilterCell messages */
@@ -536,6 +572,20 @@ if (kendo.ui.Chat) {
         "placeholder": "Scrivi...",
         "toggleButton": "Apri/chiudi barra degli strumenti",
         "sendButton": "Invia messaggio"
+    });
+}
+
+/* Wizard messages */
+
+if (kendo.ui.Wizard) {
+    kendo.ui.Wizard.prototype.options.messages =
+    $.extend(true, kendo.ui.Wizard.prototype.options.messages,{
+        "reset": "Risetta",
+        "previous": "Precedente",
+        "next": "Prossimo",
+        "done": "Finito",
+        "step": "Passo",
+        "of": "di"
     });
 }
 

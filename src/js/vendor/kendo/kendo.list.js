@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1737,10 +1737,13 @@
                             selectedIndex = selectedIndices[j];
                             if (selectedIndex === index) {
                                 $(children[selectedIndex]).removeClass('k-state-selected').attr('aria-selected', false);
+                                var dataItem = this._view[index].item;
+                                var position = this._dataItemPosition(dataItem, this._values);
                                 removed.push({
-                                    position: j + removedIndices,
-                                    dataItem: dataItems.splice(j, 1)[0]
+                                    position: position,
+                                    dataItem: dataItem
                                 });
+                                dataItems.splice(j, 1);
                                 selectedIndices.splice(j, 1);
                                 indices.splice(i, 1);
                                 values.splice(j, 1);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -123,6 +123,18 @@
             }
             return result;
         }
+        function getEditorTag(type, options) {
+            var tag;
+            if (!type.length) {
+                return;
+            }
+            if (type === 'DropDownTree' && options && options.checkboxes || type === 'MultiSelect') {
+                tag = '<select />';
+            } else {
+                tag = type === 'Editor' ? '<textarea />' : '<input />';
+            }
+            return tag;
+        }
         var kendoEditors = [
             'AutoComplete',
             'ColorPicker',
@@ -159,11 +171,11 @@
             },
             'string': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="text" class="k-textbox"/>').attr(attr).appendTo(container);
+                $('<input type="text" />').attr(attr).addClass('k-textbox').appendTo(container);
             },
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="checkbox" class="k-checkbox" />').attr(attr).appendTo(container);
+                $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
             },
             'values': function (container, options) {
                 var attr = createAttributes(options);
@@ -174,9 +186,9 @@
             'kendoEditor': function (container, options) {
                 var attr = createAttributes(options);
                 var type = options.editor;
-                var tag = type === 'Editor' ? '<textarea />' : '<input />';
                 var editor = 'kendo' + type;
                 var editorOptions = options.editorOptions;
+                var tag = getEditorTag(type, editorOptions);
                 $(tag).attr(attr).appendTo(container)[editor](editorOptions);
             }
         };

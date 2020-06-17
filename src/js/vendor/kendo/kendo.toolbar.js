@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -921,18 +921,25 @@
             },
             show: function (candidate) {
                 var item = this._getItem(candidate);
+                var buttonGroupInstance;
                 if (item.toolbar) {
                     if (item.toolbar.options.type === 'button' && item.toolbar.options.isChild) {
+                        buttonGroupInstance = item.toolbar.getParentGroup();
                         item.toolbar.show();
-                        item.toolbar.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (item.toolbar.options.hidden) {
                         item.toolbar.show();
                     }
                 }
                 if (item.overflow) {
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
+                        buttonGroupInstance = item.overflow.getParentGroup();
                         item.toolbar.show();
-                        item.overflow.getParentGroup().refresh();
+                        if (buttonGroupInstance) {
+                            buttonGroupInstance.refresh();
+                        }
                     } else if (item.overflow.options.hidden) {
                         item.overflow.show();
                     }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.513 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.2.513'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.2.617'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3483,7 +3483,7 @@
             if (nextFocusable.length) {
                 target = nextFocusable;
             } else if (widgetInstance) {
-                target = widgetInstance instanceof kendo.ui.Editor ? $(widgetInstance.body) : widgetInstance.wrapper.find(':kendoFocusable').first();
+                target = widgetInstance.options.name === 'Editor' ? $(widgetInstance.body) : widgetInstance.wrapper.find(':kendoFocusable').first();
             } else {
                 target = element;
             }

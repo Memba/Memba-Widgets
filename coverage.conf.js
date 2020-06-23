@@ -101,6 +101,7 @@ module.exports = (config) => {
             {
                 pattern: 'test/browser/**/*.test.es6',
                 // pattern: 'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
+                // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
                 included: true, // They need to be included!
             },
@@ -174,7 +175,7 @@ module.exports = (config) => {
                         use: [
                             {
                                 loader: 'imports-loader',
-                                options: { jQuery: 'jquery' },
+                                options: { imports: ['default jquery $'] },
                             },
                         ],
                     },

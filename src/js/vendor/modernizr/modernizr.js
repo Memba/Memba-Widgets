@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.10.0
+ * modernizr v3.11.3
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -35,8 +35,7 @@
    * @access public
    */
   var ModernizrProto = {
-    // The current version, dummy
-    _version: '3.10.0',
+    _version: '3.11.3',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.
@@ -281,6 +280,7 @@ Detects support for WindowBase64 API (window.atob && window.btoa).
 {
   "name": "HTML5 Audio Element",
   "property": "audio",
+  "caniuse": "audio",
   "tags": ["html5", "audio", "media"],
   "notes": [{
     "name": "MDN Docs",
@@ -724,6 +724,44 @@ Detects support for SVG in `<embed>` or `<object>` elements.
 
   ;
 
+
+  /**
+   * wrapper around getComputedStyle, to fix issues with Firefox returning null when
+   * called inside of a hidden iframe
+   *
+   * @access private
+   * @function computedStyle
+   * @param {HTMLElement|SVGElement} elem - The element we want to find the computed styles of
+   * @param {string|null} [pseudo] - An optional pseudo element selector (e.g. :before), of null if none
+   * @param {string} prop - A CSS property
+   * @returns {CSSStyleDeclaration} the value of the specified CSS property
+   */
+  function computedStyle(elem, pseudo, prop) {
+    var result;
+
+    if ('getComputedStyle' in window) {
+      result = getComputedStyle.call(window, elem, pseudo);
+      var console = window.console;
+
+      if (result !== null) {
+        if (prop) {
+          result = result.getPropertyValue(prop);
+        }
+      } else {
+        if (console) {
+          var method = console.error ? 'error' : 'log';
+          console[method].call(console, 'getComputedStyle returning null, its possible modernizr test results are inaccurate');
+        }
+      }
+    } else {
+      result = !pseudo && elem.currentStyle && elem.currentStyle[prop];
+    }
+
+    return result;
+  }
+
+  ;
+
   /**
    * Modernizr.mq tests a given media query, live against the current state of the window
    * adapted from matchMedia polyfill by Scott Jehl and Paul Irish
@@ -782,9 +820,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
       var bool = false;
 
       injectElementWithStyles('@media ' + mq + ' { #modernizr { position: absolute; } }', function(node) {
-        bool = (window.getComputedStyle ?
-          window.getComputedStyle(node, null) :
-          node.currentStyle).position === 'absolute';
+        bool = computedStyle(node, null, 'position') === 'absolute';
       });
 
       return bool;
@@ -864,7 +900,7 @@ This test will also return `true` for Firefox 4 Multitouch support.
 /* DOC
 Detects support for the video element, as well as testing what types of content it supports.
 
-Subproperties are provided to describe support for `ogg`, `h264` and `webm` formats, e.g.:
+Subproperties are provided to describe support for `ogg`, `h264`, `h265`, `webm`, `vp9`, `hls` and `av1` formats, e.g.:
 
 ```javascript
 Modernizr.video         // true
@@ -900,9 +936,11 @@ Modernizr.video.ogg     // 'probably'
 
         // Without QuickTime, this value will be `undefined`. github.com/Modernizr/Modernizr/issues/546
         Modernizr.addTest('video.h264', elem.canPlayType('video/mp4; codecs="avc1.42E01E"').replace(/^no$/, ''));
+        Modernizr.addTest('video.h265', elem.canPlayType('video/mp4; codecs="hev1"').replace(/^no$/, ''));
         Modernizr.addTest('video.webm', elem.canPlayType('video/webm; codecs="vp8, vorbis"').replace(/^no$/, ''));
         Modernizr.addTest('video.vp9', elem.canPlayType('video/webm; codecs="vp9"').replace(/^no$/, ''));
         Modernizr.addTest('video.hls', elem.canPlayType('application/x-mpegURL; codecs="avc1.42E01E"').replace(/^no$/, ''));
+        Modernizr.addTest('video.av1', elem.canPlayType('video/mp4; codecs="av01"').replace(/^no$/, ''));
       }
     } catch (e) {}
   })();
@@ -986,44 +1024,6 @@ Modernizr.video.ogg     // 'probably'
     return name.replace(/([A-Z])/g, function(str, m1) {
       return '-' + m1.toLowerCase();
     }).replace(/^ms-/, '-ms-');
-  }
-
-  ;
-
-
-  /**
-   * wrapper around getComputedStyle, to fix issues with Firefox returning null when
-   * called inside of a hidden iframe
-   *
-   * @access private
-   * @function computedStyle
-   * @param {HTMLElement|SVGElement} elem - The element we want to find the computed styles of
-   * @param {string|null} [pseudo] - An optional pseudo element selector (e.g. :before), of null if none
-   * @param {string} prop - A CSS property
-   * @returns {CSSStyleDeclaration} the value of the specified CSS property
-   */
-  function computedStyle(elem, pseudo, prop) {
-    var result;
-
-    if ('getComputedStyle' in window) {
-      result = getComputedStyle.call(window, elem, pseudo);
-      var console = window.console;
-
-      if (result !== null) {
-        if (prop) {
-          result = result.getPropertyValue(prop);
-        }
-      } else {
-        if (console) {
-          var method = console.error ? 'error' : 'log';
-          console[method].call(console, 'getComputedStyle returning null, its possible modernizr test results are inaccurate');
-        }
-      }
-    } else {
-      result = !pseudo && elem.currentStyle && elem.currentStyle[prop];
-    }
-
-    return result;
   }
 
   ;
@@ -1371,7 +1371,7 @@ Detects support for the Flexible Box Layout model, a.k.a. Flexbox, which allows 
 !*/
 
   Modernizr.addTest('csstransforms', function() {
-    // Android < 3.0 is buggy, so we sniff and blacklist
+    // Android < 3.0 is buggy, so we sniff and reject it
     // https://github.com/Modernizr/Modernizr/issues/903
     return navigator.userAgent.indexOf('Android 2.') === -1 &&
            testAllProps('transform', 'scale(1)', true);
@@ -1571,6 +1571,7 @@ to be the File object's prototype.)
 {
   "name": "XML HTTP Request Level 2 XHR2",
   "property": "xhr2",
+  "caniuse": "xhr2",
   "tags": ["network"],
   "builderAliases": ["network_xhr2"],
   "notes": [{
@@ -1594,6 +1595,7 @@ Tests for XHR2.
 /*!
 {
   "property": "speechrecognition",
+  "caniuse": "speech-recognition",
   "tags": ["input", "speech"],
   "authors": ["Cătălin Mariș"],
   "name": "Speech Recognition API",
@@ -1618,6 +1620,7 @@ Tests for XHR2.
 /*!
 {
   "property": "speechsynthesis",
+  "caniuse": "speech-synthesis",
   "tags": ["input", "speech"],
   "authors": ["Cătălin Mariș"],
   "name": "Speech Synthesis API",
@@ -2053,7 +2056,7 @@ Modernizr.datauri.over32kb  // false in IE8
   Modernizr.addAsyncTest(function() {
 
     // IE7 throw a mixed content warning on HTTPS for this test, so we'll
-    // just blacklist it (we know it doesn't support data URIs anyway)
+    // just reject it (we know it doesn't support data URIs anyway)
     // https://github.com/Modernizr/Modernizr/issues/362
     if (navigator.userAgent.indexOf('MSIE 7.') !== -1) {
       // Keep the test async

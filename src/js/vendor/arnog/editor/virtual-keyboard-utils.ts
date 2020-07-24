@@ -1294,7 +1294,7 @@ export function makeKeyboard(
 
     let markup = svgIcons;
 
-    injectStylesheet(virtualKeyboardStylesheet);
+    injectStylesheet(mf.element, virtualKeyboardStylesheet);
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
@@ -1615,10 +1615,14 @@ export function makeKeyboard(
             evt.preventDefault();
             evt.stopPropagation();
         });
-        x.addEventListener('touchstart', (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-        });
+        x.addEventListener(
+            'touchstart',
+            (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+            },
+            { passive: false }
+        );
     });
     layerElements[0].classList.add('is-visible');
 

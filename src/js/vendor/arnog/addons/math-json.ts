@@ -1449,7 +1449,7 @@ function parsePrimary(expr: ParseState, options: MathJsonLatexOptions) {
  * an object.
  * @param {object} expr An expressions, including expr.atoms, expr.index,
  * expr.minPrec the minimum precedence that this parser should parse
- * before returning; expr.lhs (optional); expr.ast, the resulting AST.
+ * before returning; expr.ast, the resulting AST.
  * @return {object} the expr object, updated
  * @private
  */
@@ -1702,7 +1702,7 @@ export function atomToMathJson(
         case 'root':
         case 'group':
             // Macros appear as group as well. Handle some of them.
-            if (atom.symbol && atom.symbol.startsWith('\\nicefrac')) {
+            if (atom.symbol?.startsWith('\\nicefrac')) {
                 m = atom.symbol.slice(9).match(/({.*}|[^}])({.*}|[^}])/);
                 if (m) {
                     if (m[1].length === 1) {
@@ -1737,9 +1737,7 @@ export function atomToMathJson(
             result = wrapFn(
                 'divide',
                 parse(atom.numer, options),
-                atom.denom &&
-                    atom.denom[0] &&
-                    atom.denom[0].type === 'placeholder'
+                atom.denom?.[0]?.type === 'placeholder'
                     ? wrapNum(1)
                     : parse(atom.denom, options)
             );
@@ -2084,7 +2082,7 @@ function parseFloatToPrecision(num) {
  */
 function numberAsLatex(
     num: string | number,
-    config: MathJsonLatexOptions
+    config: Required<MathJsonLatexOptions>
 ): string {
     let result = '';
     let value: number;

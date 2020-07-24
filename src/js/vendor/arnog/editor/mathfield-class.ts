@@ -76,6 +76,7 @@ import {
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomtoMathJson } from '../addons/math-json';
+// import { parseLatex } from '../math-json/math-json';
 import { atomsToMathML } from '../addons/math-ml';
 import { updateUndoRedoButtons } from './virtual-keyboard';
 
@@ -157,8 +158,8 @@ export class MathfieldPrivate implements Mathfield {
 
         // Load the fonts, inject the core and mathfield stylesheets
         loadFonts(this.config.fontsDirectory, this.config.onError);
-        this.stylesheets.push(injectStylesheet(coreStylesheet));
-        this.stylesheets.push(injectStylesheet(mathfieldStylesheet));
+        this.stylesheets.push(injectStylesheet(element, coreStylesheet));
+        this.stylesheets.push(injectStylesheet(element, mathfieldStylesheet));
 
         // Additional elements used for UI.
         // They are retrieved in order a bit later, so they need to be kept in sync
@@ -273,12 +274,14 @@ export class MathfieldPrivate implements Mathfield {
             'mathlive-popover-panel',
             'ML__popover'
         );
-        this.stylesheets.push(injectStylesheet(popoverStylesheet));
+        this.stylesheets.push(injectStylesheet(element, popoverStylesheet));
         this.keystrokeCaption = getSharedElement(
             'mathlive-keystroke-caption-panel',
             'ML__keystroke-caption'
         );
-        this.stylesheets.push(injectStylesheet(keystrokeCaptionStylesheet));
+        this.stylesheets.push(
+            injectStylesheet(element, keystrokeCaptionStylesheet)
+        );
         // The keystroke caption panel and the command bar are
         // initially hidden
         this.keystrokeCaptionVisible = false;
@@ -685,9 +688,11 @@ export class MathfieldPrivate implements Mathfield {
         } else if (format === 'json') {
             const json = atomtoMathJson(root);
             result = JSON.stringify(json);
+            // result = JSON.stringify(parseLatex(root.toLatex()));
         } else if (format === 'json-2') {
             const json = atomtoMathJson(root);
             result = JSON.stringify(json, null, 2);
+            // result = JSON.stringify(parseLatex(root.toLatex()), null, 2);
         } else if (format === 'ASCIIMath') {
             result = atomToAsciiMath(root);
         } else {

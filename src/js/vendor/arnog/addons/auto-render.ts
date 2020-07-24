@@ -2,7 +2,7 @@
 import '../core/atom';
 import { MACROS, MacroDictionary } from '../core/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
-import { ErrorListener } from '../public/core';
+import { ErrorListener, ParserErrorCode } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
 // import coreStylesheet from '../../css/core.less';
@@ -18,7 +18,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
             mathstyle?: 'displaystyle' | 'textstyle';
             letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
             macros?: MacroDictionary;
-            onError?: ErrorListener;
+            onError?: ErrorListener<ParserErrorCode>;
             format?: string;
         }
     ) => string;
@@ -251,7 +251,7 @@ function createMarkupNode(
 
     try {
         loadFonts(options.fontsDirectory);
-        injectStylesheet(coreStylesheet);
+        injectStylesheet(null, coreStylesheet);
         const html = options.renderToMarkup(text, {
             mathstyle: mathstyle ?? 'displaystyle',
             format: 'html',

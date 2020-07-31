@@ -32,7 +32,7 @@ const { afterEach, before, beforeEach, describe, it } = window;
 const {
     attr,
     bind,
-    data: { /* DataSource, */ ObservableArray },
+    data: { DataSource, ObservableArray },
     destroy,
     // format,
     guid,
@@ -89,7 +89,7 @@ describe('widgets.stage', () => {
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(0);
             expect(element.parent()).to.have.class('k-widget');
@@ -109,12 +109,14 @@ describe('widgets.stage', () => {
             const data = getComponentArray();
             const options = {
                 mode: Stage.fn.modes.DESIGN,
-                dataSource: new PageComponentDataSource({ data }),
+                dataSource: window.__karma__
+                    ? data
+                    : new PageComponentDataSource({ data }),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.DESIGN);
@@ -155,12 +157,14 @@ describe('widgets.stage', () => {
             const data = getComponentArray();
             const options = {
                 mode: Stage.fn.modes.PLAY,
-                dataSource: new PageComponentDataSource({ data }),
+                dataSource: window.__karma__
+                    ? data
+                    : new PageComponentDataSource({ data }),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.PLAY);
@@ -202,12 +206,14 @@ describe('widgets.stage', () => {
             const data = getComponentArray();
             const options = {
                 mode: Stage.fn.modes.REVIEW,
-                dataSource: new PageComponentDataSource({ data }),
+                dataSource: window.__karma__
+                    ? data
+                    : new PageComponentDataSource({ data }),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.REVIEW);
@@ -264,7 +270,7 @@ describe('widgets.stage', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.mode()).to.equal(Stage.fn.modes.DESIGN);
@@ -319,7 +325,7 @@ describe('widgets.stage', () => {
         it('length', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.length()).to.equal(data.length);
         });
@@ -327,7 +333,7 @@ describe('widgets.stage', () => {
         it('items', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             const items = widget.items();
             // expect(items).to.be.an.instanceof(window.HTMLCollection)
@@ -348,7 +354,7 @@ describe('widgets.stage', () => {
             }
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
             for (let idx = 0; idx < data; idx++) {
@@ -368,7 +374,7 @@ describe('widgets.stage', () => {
             }
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(fn1).to.throw(TypeError);
             expect(fn2).to.throw(RangeError);
@@ -386,7 +392,7 @@ describe('widgets.stage', () => {
             }
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(fn).to.throw(TypeError);
             for (let idx = 0; idx < data; idx++) {
@@ -406,7 +412,7 @@ describe('widgets.stage', () => {
             }
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.mode()).to.equal(Stage.fn.modes.DESIGN);
             expect(widget.menu).to.be.an.instanceof(ContextMenu);
@@ -425,7 +431,7 @@ describe('widgets.stage', () => {
              */
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.height()).to.equal(widget.options.height);
             // expect(fn1).to.throw(TypeError);
@@ -443,7 +449,7 @@ describe('widgets.stage', () => {
              */
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.width()).to.equal(widget.options.width);
             // expect(fn1).to.throw(TypeError);
@@ -459,7 +465,7 @@ describe('widgets.stage', () => {
             }
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.scale()).to.equal(widget.options.scale);
             expect(fn1).to.throw(TypeError);
@@ -485,7 +491,7 @@ describe('widgets.stage', () => {
         /*
          // For obscure reasons, setting the viewModel here does not work
          viewModel = observable({
-            components: new PageComponentDataSource({ datay }),
+            components: new PageComponentDataSource({ data }),
             current: null
          });
          */
@@ -506,7 +512,7 @@ describe('widgets.stage', () => {
         it('Adding a component to the viewModel adds the corresponding element to the widget', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             // expect(widget.items()).to.be.an.instanceof(window.HTMLCollection);
@@ -533,7 +539,7 @@ describe('widgets.stage', () => {
         it('Removing a component from the viewModel removes the corresponding element from the widget', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -545,7 +551,7 @@ describe('widgets.stage', () => {
         it('Changing the selected component in the viewModel changes the corresponding element in the widget', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -565,7 +571,7 @@ describe('widgets.stage', () => {
         xit('Changing the selected element in the widget, changes the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -593,7 +599,7 @@ describe('widgets.stage', () => {
         it('Adding a new element to the widget, adds the corresponding component to the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -652,7 +658,7 @@ describe('widgets.stage', () => {
         xit('Moving an element on widget, updates top & left properties of the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -733,7 +739,7 @@ describe('widgets.stage', () => {
         xit('Rotating an element on widget, updates the rotate property of the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -823,7 +829,7 @@ describe('widgets.stage', () => {
         xit('Resizing an element on widget, updates the top, left, height & width properties of the corresponding component in the viewModel', () => {
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.total()).to.equal(data.length);
             expect(widget.items()).to.have.property('length', data.length);
@@ -928,7 +934,7 @@ describe('widgets.stage', () => {
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(dataBinding).to.have.been.calledOnce;
             expect(dataBinding).to.have.been.calledWith(widget);
@@ -952,7 +958,7 @@ describe('widgets.stage', () => {
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(propertyBinding).to.have.been.calledOnce;
             expect(propertyBinding).to.have.been.calledWith(widget);
@@ -971,7 +977,7 @@ describe('widgets.stage', () => {
             }).data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
-                PageComponentDataSource
+                window.__karma__ ? DataSource : PageComponentDataSource
             );
             expect(widget.dataSource.data())
                 .to.be.an.instanceof(ObservableArray)

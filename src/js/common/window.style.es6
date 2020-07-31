@@ -40,25 +40,30 @@ export default class Style {
      */
     static parse(styles, whitelist = false) {
         const map = new Map();
-        if ($.type(styles) === CONSTANTS.STRING) {
-            styles.split(CONSTANTS.SEMICOLON).forEach((style) => {
-                const keyValue = style.split(CONSTANTS.COLON);
-                if (Array.isArray(keyValue) && keyValue.length === 2) {
-                    const key = keyValue[0].trim();
-                    let value = keyValue[1].trim();
-                    if (RX_STYLE_KEY.test(key) && value.length) {
-                        if (
-                            Array.isArray(whitelist) &&
-                            whitelist.indexOf(key) === -1
-                        ) {
-                            value = undefined;
-                        }
-                        if (value) {
-                            map.set(key, value);
+        if (
+            $.type(styles) === CONSTANTS.STRING ||
+            $.type(styles) === CONSTANTS.UNDEFINED
+        ) {
+            (styles || CONSTANTS.EMPTY)
+                .split(CONSTANTS.SEMICOLON)
+                .forEach((style) => {
+                    const keyValue = style.split(CONSTANTS.COLON);
+                    if (Array.isArray(keyValue) && keyValue.length === 2) {
+                        const key = keyValue[0].trim();
+                        let value = keyValue[1].trim();
+                        if (RX_STYLE_KEY.test(key) && value.length) {
+                            if (
+                                Array.isArray(whitelist) &&
+                                whitelist.indexOf(key) === -1
+                            ) {
+                                value = undefined;
+                            }
+                            if (value) {
+                                map.set(key, value);
+                            }
                         }
                     }
-                }
-            });
+                });
         } else if ($.isPlainObject(styles)) {
             Object.keys(styles).forEach((k) => {
                 const key = toHyphens(k);

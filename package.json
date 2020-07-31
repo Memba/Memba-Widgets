@@ -28,9 +28,9 @@
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.10.5",
-    "@babel/core": "^7.10.5",
-    "@babel/plugin-transform-runtime": "^7.10.5",
-    "@babel/preset-env": "^7.10.4",
+    "@babel/core": "^7.11.0",
+    "@babel/plugin-transform-runtime": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
     "@babel/register": "^7.10.5",
     "@progress/kendo-theme-bootstrap": "^4.18.0",
     "babel-eslint": "^8.2.6",
@@ -57,7 +57,7 @@
     "grunt-modernizr": "^3.0.1",
     "grunt-stylelint": "^0.15.0",
     "imports-loader": "^1.1.0",
-    "karma": "^5.1.0",
+    "karma": "^5.1.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-coverage": "^2.0.3",
     "karma-edge-launcher": "^0.4.2",
@@ -71,7 +71,7 @@
     "karma-sinon-chai": "^2.0.2",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^4.0.2",
-    "mocha": "^8.0.1",
+    "mocha": "^8.1.0",
     "null-loader": "^4.0.0",
     "nyc": "^15.1.0",
     "phantomjs-prebuilt": "^2.1.16",
@@ -82,7 +82,7 @@
     "stylelint-config-standard": "^20.0.0",
     "stylelint-scss": "^3.18.0",
     "systemjs-plugin-babel": "0.0.25",
-    "webpack": "^4.43.0"
+    "webpack": "^4.44.1"
   },
   "engines": {
     "node": ">=8"

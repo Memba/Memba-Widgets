@@ -163,7 +163,8 @@ module.exports = (config) => {
                         ),
                         loader: 'exports-loader',
                         options: {
-                            exports: 'JSC',
+                            type: 'commonjs',
+                            exports: '[single Foo]',
                         },
                     },
                     {

@@ -161,10 +161,11 @@ module.exports = (config) => {
                         test: require.resolve(
                             path.join(__dirname, '/test/vendor/jscheck.js')
                         ),
+                        // use: 'exports-loader?JSC',
                         loader: 'exports-loader',
                         options: {
                             type: 'commonjs',
-                            exports: '[single Foo]',
+                            exports: 'single JSC',
                         },
                     },
                     {

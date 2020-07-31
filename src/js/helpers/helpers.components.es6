@@ -838,7 +838,7 @@ function getStream() {
 }
 
 /**
- * Exports
+ * Export
  */
 export {
     // -- Tools

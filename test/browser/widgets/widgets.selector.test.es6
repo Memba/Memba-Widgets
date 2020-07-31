@@ -23,6 +23,7 @@ const {
     // attr,
     // bind,
     destroy,
+    guid,
     init,
     // observable,
     ui: { roles, Selector },
@@ -61,33 +62,38 @@ describe('widgets.selector', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
-            const widget = element[WIDGET]().data(WIDGET);
-            expect(widget).to.be.an.instanceof(Selector);
-            expect(element).not.to.have.class('k-widget');
-            expect(element).to.have.class('kj-selector');
-            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
-            expect(widget.value()).to.be.empty;
-        });
-
-        it('from code with options', () => {
-            const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
-            const options = {};
+            const options = {
+                id: guid(),
+            };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(Selector);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class('kj-selector');
             expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
-            expect(widget.value()).to.be.empty;
+            expect(widget.value()).to.be.undefined; // empty
+        });
+
+        it('from code with options', () => {
+            const element = $(ELEMENT).appendTo(STAGE_ELEMENT);
+            const options = {
+                id: guid(),
+            };
+            const widget = element[WIDGET](options).data(WIDGET);
+            expect(widget).to.be.an.instanceof(Selector);
+            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('kj-selector');
+            expect(widget).to.have.property('wrapper').that.is.an.instanceof($);
+            expect(widget.value()).to.be.undefined; // empty
         });
 
         it('from markup', () => {
             const attributes = options2attributes({
+                id: guid(),
                 role: ROLE,
             });
-            const element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
-            init(`#${FIXTURES}`);
+            const element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
+            // init(`#${FIXTURES}`);
+            init(STAGE_ELEMENT);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Selector);
         });
@@ -97,10 +103,9 @@ describe('widgets.selector', () => {
                 role: ROLE,
                 // TODO more...
             });
-            const element = $(ELEMENT)
-                .attr(attributes)
-                .appendTo(`#${FIXTURES}`);
-            init(`#${FIXTURES}`);
+            const element = $(ELEMENT).attr(attributes).appendTo(STAGE_ELEMENT);
+            // init(`#${FIXTURES}`);
+            init(STAGE_ELEMENT);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(Selector);
         });

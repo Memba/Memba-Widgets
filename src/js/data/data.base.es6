@@ -337,20 +337,24 @@ BaseModel.projection = (AnyModel) => {
     const projection = {};
     Object.keys(AnyModel.fields).forEach((key) => {
         const { defaultValue, from, parse } = AnyModel.fields[key];
-        // Simply use `from: CONSTANTS.EMPTY` to remove a field from projection
-        // because then field.length === 0
+        // Simply use `from: CONSTANTS.EMPTY` to remove a field from projection because then field.length === 0
         const field = $.type(from) === CONSTANTS.STRING ? from : key;
-        // Note that a null defaultValue, i.e. parse(null), won't work
-        const subDoc = parse(
-            $.isFunction(defaultValue) ? defaultValue() : defaultValue
-        );
-        if (field.length && $.type(subDoc) === CONSTANTS.OBJECT) {
-            Object.keys(subDoc.fields).forEach((subField) => {
-                projection[`${field}.${subField}`] = true;
-            });
-            // TODO } else if (field.length && Array.isArray(subDoc)) {
-        } else if (field.length) {
-            projection[field] = true;
+        if (field.length) {
+            // Note that a null defaultValue, i.e. parse(null), won't work
+            const subDoc = parse(
+                $.isFunction(defaultValue) ? defaultValue() : defaultValue
+            );
+            if (
+                $.type(subDoc) === CONSTANTS.OBJECT &&
+                Object.prototype.hasOwnProperty.call(subDoc, 'fields')
+            ) {
+                Object.keys(subDoc.fields).forEach((subField) => {
+                    projection[`${field}.${subField}`] = true;
+                });
+                // TODO } else if (field.length && Array.isArray(subDoc)) {
+            } else {
+                projection[field] = true;
+            }
         }
     });
     return projection;

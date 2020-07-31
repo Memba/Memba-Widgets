@@ -242,7 +242,7 @@ class SessionCache extends LocalCache {
 }
 
 /**
- * Exports
+ * Export
  * @type {LocalCache}
  */
 export const localCache = new LocalCache();

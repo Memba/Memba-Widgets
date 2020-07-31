@@ -509,6 +509,6 @@ PageComponentDataSource.create = (options) => {
 };
 
 /**
- * Exports
+ * Export
  */
 export { PageComponent, PageComponentDataSource };

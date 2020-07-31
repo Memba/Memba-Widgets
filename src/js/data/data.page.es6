@@ -887,6 +887,6 @@ PageDataSource.create = (options) => {
 };
 
 /**
- * Exports
+ * Export
  */
 export { Page, PageDataSource };

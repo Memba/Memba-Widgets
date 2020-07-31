@@ -85,6 +85,7 @@ describe('widgets.stage', () => {
     describe('Initialization', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
+            // debugger;
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(Stage);
             expect(widget.dataSource).to.be.an.instanceof(
@@ -95,6 +96,7 @@ describe('widgets.stage', () => {
             expect(element.parent()).to.have.class(`kj-${ROLE}`);
             expect(widget.mode()).to.equal(Stage.fn.modes.PLAY);
             // expect(widget.wrapper).to.equal(element.parent());
+            // debugger;
             expect(widget.wrapper[0]).to.equal(element.parent()[0]);
             expect(widget.wrapper).to.have.descendants(
                 'div[data-role="stage"]'

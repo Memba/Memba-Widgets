@@ -817,7 +817,9 @@ const SelectorSurface = Widget.extend({
             if (!(this.activeSelector instanceof Selector)) {
                 this.activeSelector = selector;
             }
-            this.toolBar.refresh();
+            if (this.toolBar instanceof SelectorToolBar) {
+                this.toolBar.refresh();
+            }
         }
     },
 
@@ -845,7 +847,9 @@ const SelectorSurface = Widget.extend({
             if (this.activeSelector === selector) {
                 this.activeSelector = this.selectors[0]; // Note: this means the activeSelector could potentially be undefined
             }
-            this.toolBar.refresh();
+            if (this.toolBar instanceof SelectorToolBar) {
+                this.toolBar.refresh();
+            }
         }
     },
 

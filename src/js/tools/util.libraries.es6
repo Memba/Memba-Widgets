@@ -517,7 +517,7 @@ const textLibrary = {
 };
 
 /**
- * Exports
+ * Export
  */
 export {
     // functions

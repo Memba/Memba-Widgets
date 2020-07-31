@@ -396,43 +396,31 @@ const Social = Widget.extend({
                 // @ see https://developers.facebook.com/docs/sharing/reference/feed-dialog
                 // @ see https://developers.facebook.com/docs/sharing/best-practices
                 // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
-                openUrl = `${
-                    'https://www.facebook.com/dialog/feed' +
-                    '?display=popup' +
-                    '&app_id='
-                }${facebookAppId}&link=${url}&picture=${image}&name=${title}&caption=${title}&description=${description}`;
+                openUrl = `${'https://www.facebook.com/dialog/feed?display=popup&app_id='}${facebookAppId}&link=${url}&picture=${image}&name=${title}&caption=${title}&description=${description}`;
                 // '&redirect_uri=' + url;
                 // TODO: ref
                 break;
             case ACTION.GOOGLE:
                 // @see https://developers.google.com/+/web/share/
-                openUrl = `${
-                    'https://plus.google.com/share' + '?url='
-                }${url}&hl=${options.language}`;
+                openUrl = `${'https://plus.google.com/share?url='}${url}&hl=${
+                    options.language
+                }`;
                 break;
             case ACTION.LINKEDIN:
                 // @see https://developer.linkedin.com/docs/share-on-linkedin
                 // @see also http://stackoverflow.com/questions/3758525/linkedin-sharearticle-thumbnail
                 // Note Linkedin uses open graph meta tags
-                openUrl = `${
-                    'https://www.linkedin.com/shareArticle' +
-                    '?mini=true' +
-                    '&source='
-                }${source}&summary=${description}&title=${title}&url=${url}`;
+                openUrl = `${'https://www.linkedin.com/shareArticle?mini=true&source='}${source}&summary=${description}&title=${title}&url=${url}`;
 
                 break;
             case ACTION.PINTEREST:
                 // @see https://developers.pinterest.com/docs/widgets/pin-it/
-                openUrl = `${
-                    'https://pinterest.com/pin/create/button/' + '?url='
-                }${url}&media=${image}&description=${description}`;
+                openUrl = `${'https://pinterest.com/pin/create/button/?url='}${url}&media=${image}&description=${description}`;
                 break;
             case ACTION.TWITTER:
                 // Twitter web intent
                 // @ see https://dev.twitter.com/web/tweet-button/web-intent
-                openUrl = `${
-                    'https://twitter.com/intent/tweet' + '?text='
-                }${title}&url=${url}&via=${twitterAccount}`;
+                openUrl = `${'https://twitter.com/intent/tweet?text='}${title}&url=${url}&via=${twitterAccount}`;
                 break;
             // case ACTION.EMAIL:
             //     openUrl = 'mailto:fastlec@memba.org?&subject=Shared Link&body=Hey%20loojk%20at%20that';

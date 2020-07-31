@@ -592,7 +592,7 @@ const Stage = DataBoundWidget.extend({
             this.element.is(CONSTANTS.DIV),
             'Please instantiate this widget with a <div/>'
         );
-
+        // debugger;
         // Set this.stage from the div element that makes the widget
         this.stage = this.element.css({
             position: RELATIVE, // !important
@@ -610,7 +610,7 @@ const Stage = DataBoundWidget.extend({
                 .parent()
                 .addClass(WIDGET_CLASS);
         }
-        this.wrapper = this.stage.css({
+        this.stage.css({
             position: RELATIVE, // !important
             height: _outerHeight(this.stage),
             width: _outerWidth(this.stage),

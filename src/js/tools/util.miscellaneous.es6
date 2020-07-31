@@ -65,6 +65,6 @@ const resizeSpreadsheetData = (json, rowMax, columnMax) => {
 };
 
 /**
- * Exports
+ * Export
  */
 export { defaultChartData, resizeSpreadsheetData };

@@ -849,7 +849,7 @@ const BaseTool = StubTool.extend({
 });
 
 /**
- * Exports
+ * Export
  */
 export {
     BaseTool,

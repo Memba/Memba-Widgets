@@ -91,6 +91,6 @@ StyleDataSource.create = (options) => {
 };
 
 /**
- * Exports
+ * Export
  */
 export { StyleProperty, StyleDataSource };

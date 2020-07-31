@@ -319,7 +319,7 @@ describe('widgets.codeeditor', () => {
         it('A change of widget value raises a change in the viewModel', () => {
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(CodeEditor);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQUAL.key);
             expect(viewModel.get('code')).to.equal(widget.value());
             // Change the widget value
             widget.value(TOOLS.LIB_COMMENT + EQUAL.key);
@@ -331,7 +331,7 @@ describe('widgets.codeeditor', () => {
         it('A change in the viewModel raises a change of widget value', () => {
             expect(change).not.to.have.been.called;
             expect(widget).to.be.an.instanceof(CodeEditor);
-            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + KEY);
+            expect(widget.value()).to.equal(TOOLS.LIB_COMMENT + EQUAL.key);
             expect(viewModel.get('code')).to.equal(widget.value());
             // Change in the view Model
             viewModel.set('code', TOOLS.LIB_COMMENT + EQUAL.key);
@@ -437,7 +437,9 @@ describe('widgets.codeeditor', () => {
             widget.value(FORMULAS[1]);
             expect(change).to.have.been.calledWith(FORMULAS[1]);
             widget.value(SOLUTIONS[1]);
-            expect(change).to.have.been.calledWith(TOOLS.LIB_COMMENT + KEY);
+            expect(change).to.have.been.calledWith(
+                TOOLS.LIB_COMMENT + EQUAL.key
+            );
         });
     });
 

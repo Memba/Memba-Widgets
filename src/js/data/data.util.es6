@@ -16,7 +16,7 @@ const { attr } = window.kendo;
  * Synchronization state
  * @type {{CREATED: string}}
  */
-export const SYNC_STATE = {
+const SYNC_STATE = {
     FIELD: '__state__',
     CREATED: 1,
     DESTROYED: 3,
@@ -27,7 +27,7 @@ export const SYNC_STATE = {
  * Generic datasource error handler
  * @param e
  */
-export function dataSourceErrorHandler(e) {
+function dataSourceErrorHandler(e) {
     // TODO debugger;
     $.noop(e);
 }
@@ -39,7 +39,7 @@ export function dataSourceErrorHandler(e) {
  * @returns {[*,string,*]}
  * @constructor
  */
-export function error2xhr(err) {
+function error2xhr(err) {
     assert.instanceof(
         Error,
         err,
@@ -82,7 +82,7 @@ export function error2xhr(err) {
  * @param query
  * @param partition
  */
-export function extendQueryWithPartition(query, partition) {
+function extendQueryWithPartition(query, partition) {
     const q = query || {};
     if ($.isPlainObject(partition)) {
         // && !$.isEmptyObject(partition)) {
@@ -164,7 +164,7 @@ export function extendQueryWithPartition(query, partition) {
  * @param attribute
  * @param value
  */
-export function getAttributeBinding(attribute, value) {
+function getAttributeBinding(attribute, value) {
     assert.type(
         CONSTANTS.STRING,
         attribute,
@@ -193,7 +193,7 @@ export function getAttributeBinding(attribute, value) {
  * @param schema
  * @returns {*}
  */
-export function normalizeSchema(schema) {
+function normalizeSchema(schema) {
     assert.isNonEmptyPlainObject(
         schema,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'schema')
@@ -226,7 +226,7 @@ export function normalizeSchema(schema) {
  * @param errorThrown
  * @returns {Error}
  */
-export function xhr2error(xhr, status, errorThrown) {
+function xhr2error(xhr, status, errorThrown) {
     let error;
     if (xhr instanceof Error) {
         // When there is an error thrown in the promise
@@ -250,3 +250,16 @@ export function xhr2error(xhr, status, errorThrown) {
     }
     return error;
 }
+
+/**
+ * Export
+ */
+export {
+    SYNC_STATE,
+    dataSourceErrorHandler,
+    error2xhr,
+    extendQueryWithPartition,
+    getAttributeBinding,
+    normalizeSchema,
+    xhr2error,
+};

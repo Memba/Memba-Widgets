@@ -98,6 +98,6 @@ ImageDataSource.create = (options) => {
 };
 
 /**
- * Exports
+ * Export
  */
 export { Image, ImageDataSource };

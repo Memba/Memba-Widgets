@@ -148,7 +148,7 @@ const validationValidator = {
 };
 
 /**
- * Exports
+ * Export
  */
 export {
     altValidator,

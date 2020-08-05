@@ -20717,7 +20717,7 @@
 	  var constants = runner$1.constants;
 	  var EVENT_TEST_PASS = constants.EVENT_TEST_PASS;
 	  var EVENT_TEST_FAIL = constants.EVENT_TEST_FAIL;
-	  var isBrowser = utils.isBrowser;
+	  var isBrowser = utils.isBrowser();
 
 	  function getBrowserWindowSize() {
 	    if ('innerHeight' in commonjsGlobal) {
@@ -20737,7 +20737,7 @@
 	   * Check if both stdio streams are associated with a tty.
 	   */
 
-	  var isatty = isBrowser ? true : process$1.stdout.isTTY && process$1.stderr.isTTY;
+	  var isatty = isBrowser || process$1.stdout.isTTY && process$1.stderr.isTTY;
 	  /**
 	   * Save log references to avoid tests interfering (see GH-3604).
 	   */
@@ -20747,7 +20747,7 @@
 	   * Enable coloring by default, except in the browser interface.
 	   */
 
-	  exports.useColors = !utils.isBrowser() && (require$$9.stdout || process$1.env.MOCHA_COLORS !== undefined);
+	  exports.useColors = !isBrowser && (require$$9.stdout || process$1.env.MOCHA_COLORS !== undefined);
 	  /**
 	   * Inline diffs instead of +/-
 	   */
@@ -23506,7 +23506,7 @@
 	});
 
 	var name = "mocha";
-	var version$2 = "8.1.0";
+	var version$2 = "8.1.1";
 	var homepage = "https://mochajs.org/";
 	var notifyLogo = "https://ibin.co/4QuRuGjXvl36.png";
 	var _package = {

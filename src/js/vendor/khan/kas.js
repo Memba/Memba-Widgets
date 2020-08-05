@@ -949,7 +949,7 @@ case 1:
                 magnitude: $$[$0-2],
                 unit: $$[$0-1],
             };
-        
+
 break;
 case 2:
 
@@ -957,15 +957,15 @@ case 2:
                 type: "unitStandalone",
                 unit: $$[$0-1],
             }
-        
+
 break;
 case 3:
 
             this.$ = $$[$0-2] + "e" + $$[$0];
-        
+
 break;
 case 4: case 13: case 14: case 15: case 17:
- this.$ = $$[$0]; 
+ this.$ = $$[$0];
 break;
 case 5:
 
@@ -973,7 +973,7 @@ case 5:
                 num: $$[$0-2],
                 denom: $$[$0],
             };
-        
+
 break;
 case 6:
 
@@ -981,16 +981,16 @@ case 6:
                 num: $$[$0],
                 denom: null,
             };
-        
+
 break;
 case 7:
- this.$ = [$$[$0-2]].concat($$[$0]); 
+ this.$ = [$$[$0-2]].concat($$[$0]);
 break;
 case 8:
- this.$ = [$$[$0-1]].concat($$[$0]); 
+ this.$ = [$$[$0-1]].concat($$[$0]);
 break;
 case 9:
- this.$ = [$$[$0]]; 
+ this.$ = [$$[$0]];
 break;
 case 10:
 
@@ -998,7 +998,7 @@ case 10:
                 name: $$[$0-2],
                 pow: $$[$0],
             };
-        
+
 break;
 case 11:
 
@@ -1006,13 +1006,13 @@ case 11:
                 name: $$[$0],
                 pow: 1,
             };
-        
+
 break;
 case 12:
- this.$ = yytext; 
+ this.$ = yytext;
 break;
 case 16:
- this.$ = "-" + $$[$0]; 
+ this.$ = "-" + $$[$0];
 break;
 }
 },
@@ -1940,11 +1940,9 @@ _.extend(Expr.prototype, {
     },
 
     // check that the structure of both expressions is the same
-    // all negative signs are stripped and the expressions are converted to
-    // a canonical commutative form
     // should only be done after compare() returns true to avoid false positives
     sameForm: function(other) {
-        return this.strip().equals(other.strip());
+        return this.tex() === other.tex();
     },
 
     // returns the GCD of this expression and the given factor

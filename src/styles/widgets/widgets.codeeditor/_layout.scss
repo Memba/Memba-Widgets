@@ -40,7 +40,12 @@
             }
 
             .k-edit-buttons {
-                @include appearance( widget ); // Fixes border color
+                // @include appearance( widget ); // Fixes border color
+                @include fill(
+                    $widget-text,
+                    $widget-bg,
+                    $widget-border
+                );
 
                 align-items: center;
                 display: flex;

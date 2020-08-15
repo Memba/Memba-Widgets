@@ -546,11 +546,7 @@ if (
 const PopupTool = Item.extend({
     init(options, toolbar) {
         this.element = $(
-            `${
-                '<a href="#" class="k-button k-button-icon">' + '<span class="'
-            }${options.spriteCssClass}">` +
-                `</span><span class="k-icon k-i-arrow-60-down"/>` +
-                `</a>`
+            `<a href="#" class="k-button k-button-icon"><span class="${options.spriteCssClass}"/><span class="k-icon k-i-arrow-60-down"/></a>`
         );
         this.element
             .on('click touchend', this.open.bind(this))

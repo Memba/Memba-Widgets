@@ -401,10 +401,10 @@ const MarkEditor = Widget.extend({
             }
             if (selections[i] > 2 * str.length) {
                 // Cancel duplicate wrappings
-                str = `\\${str.split('').join('\\')}`; // Escape characters, especially *
+                const rx = `\\${str.split('').join('\\')}`; // Escape characters, especially *
                 selections[i] = selections[i]
-                    .replace(new RegExp(`^${str}${str}`), '')
-                    .replace(new RegExp(`${str + str}$`), '');
+                    .replace(new RegExp(`^${rx}${rx}`), '')
+                    .replace(new RegExp(`${rx + rx}$`), '');
             }
         }
         cm.replaceSelections(selections, 'around');
@@ -413,27 +413,28 @@ const MarkEditor = Widget.extend({
 
     /**
      * This functions is used to replace selections with a hyperlink, an image or a latex expression
-     * @param regex
+     * @param rx
      * @param str
      * @param match
      * @private
      */
-    _replaceInSelectionsWith(regex, str, match) {
+    _replaceInSelectionsWith(rx, str, match) {
         const cm = this.codeMirror;
         const selections = cm.getSelections();
-        if ($.type(str) === CONSTANTS.UNDEFINED) {
-            str = `${regex}`;
-            regex = undefined;
+        let _rx = rx;
+        let _str = str;
+        if ($.type(_str) === CONSTANTS.UNDEFINED) {
+            _str = `${_rx}`;
+            _rx = undefined;
         }
         for (let i = 0, { length } = selections; i < length; i++) {
             if (
-                (typeof regex === CONSTANTS.STRING ||
-                    regex instanceof RegExp) &&
+                ($.type(_rx) === CONSTANTS.STRING || _rx instanceof RegExp) &&
                 selections[i].length
             ) {
-                selections[i] = selections[i].replace(regex, `${str}${match}`);
+                selections[i] = selections[i].replace(_rx, `${_str}${match}`);
             } else {
-                selections[i] = `${str}`;
+                selections[i] = _str;
             }
         }
         cm.replaceSelections(selections, 'around');
@@ -447,7 +448,7 @@ const MarkEditor = Widget.extend({
      * @param str
      * @private
      */
-    _replaceAtBeginningOfLine(str, rx) {
+    _replaceAtBeginningOfLine(str /* , rx */) {
         // TODO clicking twice should cancel
         // TODO spaces at the edge of selections
         // TODO if selection.length = 0, keep it that way

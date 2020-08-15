@@ -278,7 +278,7 @@ const MarkEditorToolBar = ToolBar.extend({
             }
             return tool;
         }
-        return tools.reduce(function (all, tool) {
+        return tools.reduce(function reduce(all, tool) {
             if (Array.isArray(tool)) {
                 all.push({
                     type: 'buttonGroup',
@@ -545,11 +545,7 @@ if (
 const PopupTool = toolbar.Item.extend({
     init(options, tb) {
         this.element = $(
-            `${
-                '<a href="#" class="k-button k-button-icon">' + '<span class="'
-            }${options.spriteCssClass}">` +
-                `</span><span class="k-icon k-i-arrow-60-down"></span>` +
-                `</a>`
+            `<a href="#" class="k-button k-button-icon"><span class="${options.spriteCssClass}"/><span class="k-icon k-i-arrow-60-down"/></a>`
         );
         this.element
             .on('click touchend', this.open.bind(this))
@@ -673,10 +669,7 @@ const HeadingsTool = PopupTool.extend({
         const { buttons } = this;
         const element = $('<div />').appendTo(this.popup.element);
         buttons.forEach((options, index) => {
-            const button =
-                `<a title="${options.text}" data-property="${options.property}" data-value="${options.value}" class="k-button k-button-icon">` +
-                `<span class="k-icon k-i-${options.iconClass}"></span>` +
-                `</a>`;
+            const button = `<a title="${options.text}" data-property="${options.property}" data-value="${options.value}" class="k-button k-button-icon"><span class="k-icon k-i-${options.iconClass}"/></a>`;
             if (
                 index !== 0 &&
                 buttons[index - 1].iconClass !== options.iconClass
@@ -933,15 +926,13 @@ const HeadingsDialog = MarkEditorDialog.extend({
         MarkEditorDialog.fn.init.call(this, $.extend(defaultOptions, options));
         this._list();
     },
-    options: { template: '<ul class="k-list k-reset"></ul>' },
+    options: { template: '<ul class="k-list k-reset"/>' },
     _list() {
         const ul = this.dialog().element.find('ul');
         this.list = new StaticList(ul, {
             dataSource: new DataSource({ data: this.options.buttons }),
             template:
-                '<a title="#=text#" data-property="#=property#" data-value="#=value#">' +
-                '<span class="k-icon k-icon k-i-#=iconClass#"></span>#=text#' +
-                '</a>',
+                '<a title="#=text#" data-property="#=property#" data-value="#=value#"><span class="k-icon k-icon k-i-#=iconClass#"/>#=text#</a>',
             change: this.apply.bind(this),
         });
         this.list.dataSource.fetch();
@@ -1001,15 +992,15 @@ const LinkDialog = MarkEditorDialog.extend({
         element
             .find('input')
             .focus()
-            .on('keydown', function (ev) {
-                if (ev.keyCode === 13) {
+            .on('keydown', function onKeyDown(e) {
+                if (e.keyCode === 13) {
                     model.url = $(this).val();
-                    ev.stopPropagation();
-                    ev.preventDefault();
+                    e.stopPropagation();
+                    e.preventDefault();
                     model.apply();
-                } else if (ev.keyCode === 27) {
-                    ev.stopPropagation();
-                    ev.preventDefault();
+                } else if (e.keyCode === 27) {
+                    e.stopPropagation();
+                    e.preventDefault();
                     model.cancel();
                 }
             });
@@ -1058,15 +1049,15 @@ const ImageDialog = MarkEditorDialog.extend({
         element
             .find('input')
             .focus()
-            .on('keydown', function (ev) {
-                if (ev.keyCode === 13) {
+            .on('keydown', function onKeyDown(e) {
+                if (e.keyCode === 13) {
                     model.url = $(this).val();
-                    ev.stopPropagation();
-                    ev.preventDefault();
+                    e.stopPropagation();
+                    e.preventDefault();
                     model.apply();
-                } else if (ev.keyCode === 27) {
-                    ev.stopPropagation();
-                    ev.preventDefault();
+                } else if (e.keyCode === 27) {
+                    e.stopPropagation();
+                    e.preventDefault();
                     model.cancel();
                 }
             });

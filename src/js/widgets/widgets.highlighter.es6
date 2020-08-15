@@ -101,24 +101,27 @@ const HighLighter = Widget.extend({
      */
     value(value) {
         const that = this;
-        if ($.type(value) === CONSTANTS.NULL) {
-            value = '';
+        let _value = value;
+        let ret;
+        if ($.type(_value) === CONSTANTS.NULL) {
+            _value = CONSTANTS.EMPTY;
         }
         if ($.type(value) === CONSTANTS.STRING) {
-            if (that._format(that._value || []) !== value) {
-                const arr = that._parse(value);
+            if (that._format(that._value || []) !== _value) {
+                const arr = that._parse(_value);
                 for (let i = 0, { length } = arr; i < length; i++) {
                     that._add(arr[i]);
                 }
                 that.refresh();
             }
-        } else if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that._format(that._value);
+        } else if ($.type(_value) === CONSTANTS.UNDEFINED) {
+            ret = that._format(that._value);
         } else {
             throw new TypeError(
                 '`value` is expected to be a string if not null or undefined'
             );
         }
+        return ret;
     },
 
     /**
@@ -294,9 +297,10 @@ const HighLighter = Widget.extend({
      * @private
      */
     _add(selection) {
+        let _selection = selection;
         // This is always a selection across all spans, whether breaking the sentence into words or characters
         assert.isNonEmptyPlainObject(
-            selection,
+            _selection,
             assert.format(
                 assert.messages.isNonEmptyPlainObject.default,
                 'selection'
@@ -304,7 +308,7 @@ const HighLighter = Widget.extend({
         );
         assert.type(
             CONSTANTS.NUMBER,
-            selection.start,
+            _selection.start,
             assert.format(
                 assert.messages.type.default,
                 'selection.start',
@@ -313,7 +317,7 @@ const HighLighter = Widget.extend({
         );
         assert.type(
             CONSTANTS.NUMBER,
-            selection.end,
+            _selection.end,
             assert.format(
                 assert.messages.type.default,
                 'selection.end',
@@ -321,35 +325,35 @@ const HighLighter = Widget.extend({
             )
         );
         // Snap selection to words if necessary
-        selection = {
-            start: this._roundUp(selection.start),
-            end: this._roundDown(selection.end),
+        _selection = {
+            start: this._roundUp(_selection.start),
+            end: this._roundDown(_selection.end),
         };
         const ret = [];
         const value = this._value || [];
         let added = false;
         for (let i = 0, { length } = value; i < length; i++) {
             const existing = value[i];
-            if (this._roundUp(existing.end + 1) < selection.start) {
+            if (this._roundUp(existing.end + 1) < _selection.start) {
                 // There is no overlap so keep existing and continue to the next one
                 ret.push(existing);
-            } else if (this._roundUp(selection.end + 1) < existing.start) {
+            } else if (this._roundUp(_selection.end + 1) < existing.start) {
                 // There is no overlap so we can safely add the selection (unless already added), keep existing and continue
                 if (!added) {
-                    ret.push(selection);
+                    ret.push(_selection);
                     added = true;
                 }
                 ret.push(existing);
             } else {
                 // There is an overlap, so we should merge existing and selection
-                selection = {
-                    start: Math.min(selection.start, existing.start),
-                    end: Math.max(selection.end, existing.end),
+                _selection = {
+                    start: Math.min(_selection.start, existing.start),
+                    end: Math.max(_selection.end, existing.end),
                 };
             }
         }
         if (!added) {
-            ret.push(selection);
+            ret.push(_selection);
         }
         this._value = ret;
     },
@@ -360,9 +364,10 @@ const HighLighter = Widget.extend({
      * @private
      */
     _remove(selection) {
+        let _selection = selection;
         // This is always a selection across all spans, whether breaking the sentence into words or characters
         assert.isNonEmptyPlainObject(
-            selection,
+            _selection,
             assert.format(
                 assert.messages.isNonEmptyPlainObject.default,
                 'selection'
@@ -370,7 +375,7 @@ const HighLighter = Widget.extend({
         );
         assert.type(
             CONSTANTS.NUMBER,
-            selection.start,
+            _selection.start,
             assert.format(
                 assert.messages.type.default,
                 'selection.start',
@@ -379,7 +384,7 @@ const HighLighter = Widget.extend({
         );
         assert.type(
             CONSTANTS.NUMBER,
-            selection.end,
+            _selection.end,
             assert.format(
                 assert.messages.type.default,
                 'selection.end',
@@ -387,32 +392,32 @@ const HighLighter = Widget.extend({
             )
         );
         // Snap selection to words if necessary
-        selection = {
-            start: this._roundUp(selection.start),
-            end: this._roundDown(selection.end),
+        _selection = {
+            start: this._roundUp(_selection.start),
+            end: this._roundDown(_selection.end),
         };
         const ret = [];
         const value = this._value || [];
         for (let i = 0, { length } = value; i < length; i++) {
             const existing = value[i];
-            if (selection.end < existing.start) {
+            if (_selection.end < existing.start) {
                 // There is no overlap so keep existing and continue to the next one
                 ret.push(existing);
-            } else if (existing.end < selection.start) {
+            } else if (existing.end < _selection.start) {
                 // There is no overlap so keep existing and continue to the next one
                 ret.push(existing);
             } else {
                 // We get zero (selection = existing) to two breaks (selection in the middle of existing) out of subtracting
-                if (selection.start > existing.start) {
+                if (_selection.start > existing.start) {
                     ret.push({
                         start: existing.start,
-                        end: this._roundDown(selection.start - 1),
+                        end: this._roundDown(_selection.start - 1),
                     });
                 }
                 // Second break
-                if (selection.end < existing.end) {
+                if (_selection.end < existing.end) {
                     ret.push({
-                        start: this._roundUp(selection.end + 1),
+                        start: this._roundUp(_selection.end + 1),
                         end: existing.end,
                     });
                 }
@@ -528,6 +533,7 @@ const HighLighter = Widget.extend({
         } else {
             ({ clientX, clientY } = e);
         }
+        let ret;
         if (
             $.type(clientX) === CONSTANTS.NUMBER &&
             $.type(clientY) === CONSTANTS.NUMBER
@@ -537,9 +543,10 @@ const HighLighter = Widget.extend({
                 span.is(CONSTANTS.SPAN) &&
                 $.contains(this.element.get(0), span.get(0))
             ) {
-                return span;
+                ret = span;
             }
         }
+        return ret;
     },
 
     /**
@@ -679,11 +686,11 @@ const HighLighter = Widget.extend({
         );
         const activeClass = ACTIVE_SELECTOR.substr(1);
         const hoverClass = HOVER_SELECTOR.substr(1);
-        hover = !!hover;
+        const _hover = !!hover;
         // Highlight selections both when hovering and refreshing
         if (active) {
             // Highlighting
-            if (hover) {
+            if (_hover) {
                 // Remove highlighting from any previous mouse selection
                 this.items.filter(HOVER_SELECTOR).removeClass(activeClass);
             }
@@ -692,11 +699,11 @@ const HighLighter = Widget.extend({
                 this.items
                     .slice(selection.start, selection.end + 1)
                     .addClass(
-                        hover ? `${activeClass} ${hoverClass}` : activeClass
+                        _hover ? `${activeClass} ${hoverClass}` : activeClass
                     );
             }
         } else {
-            if (hover) {
+            if (_hover) {
                 // un-highlighting
                 // Restore highlighting to the previous mouse selection
                 this.items.filter(HOVER_SELECTOR).addClass(activeClass);
@@ -706,7 +713,7 @@ const HighLighter = Widget.extend({
                 this.items
                     .slice(selection.start, selection.end + 1)
                     .removeClass(
-                        hover ? `${activeClass} ${hoverClass}` : activeClass
+                        _hover ? `${activeClass} ${hoverClass}` : activeClass
                     );
             }
         }

@@ -13,10 +13,10 @@ import CONSTANTS from '../common/window.constants.es6';
 
 const {
     destroy,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const CHANGE = 'change';
-const CLICK = 'click';
+// const CLICK = 'click';
 const NS = '.kendoMathInput';
 const UNDEFINED = 'undefined';
 const WIDGET_CLASS = 'k-widget k-multiselect-wrap kj-mathinput';
@@ -40,7 +40,7 @@ const MathInput = Widget.extend({
             enabled: this.element.prop('disabled')
                 ? false
                 : this.options.enabled,
-            value: this.options.value
+            value: this.options.value,
         });
     },
 
@@ -57,7 +57,7 @@ const MathInput = Widget.extend({
     options: {
         name: 'MathInput',
         enabled: true,
-        value: ''
+        value: '',
     },
 
     /**
@@ -82,7 +82,7 @@ const MathInput = Widget.extend({
             ret = this._mathField.$latex();
         } else if (this._value !== value) {
             this._mathField.$latex(value, {
-                suppressChangeNotifications: true
+                suppressChangeNotifications: true,
             });
         }
         return ret;
@@ -96,12 +96,13 @@ const MathInput = Widget.extend({
     _config() {
         const that = this;
         return {
-            fontsDirectory: '../../styles/vendor/khan/fonts',
+            fontsDirectory: '../../../styles/vendor/khan/fonts',
+            // fontsDirectory: '../../../styles/vendor/arnog/fonts',
             onContentDidChange(mathField) {
                 that.trigger(CONSTANTS.CHANGE);
                 mathField.$focus();
             },
-            virtualKeyboardMode: 'onfocus'
+            virtualKeyboardMode: 'onfocus',
         };
     },
 
@@ -153,7 +154,7 @@ const MathInput = Widget.extend({
     destroy() {
         Widget.fn.destroy.call(this);
         destroy(this.element);
-    }
+    },
 });
 
 /**

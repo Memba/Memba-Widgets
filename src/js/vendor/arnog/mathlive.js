@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.MathLive = factory());
-}(this, (function () { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.MathLive = {}));
+}(this, (function (exports) { 'use strict';
 
     /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
     function isArray(x) {
@@ -2979,20 +2979,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let sep = '';
         let result = '';
         for (const segment of segments) {
-            if (/[a-zA-Z*]/.test(segment[0])) {
-                // If the segment begins with a char that *could* be in a command
-                // name... insert a separator (if one was needed for the previous segment)
-                result += sep;
+            if (segment) {
+                if (/[a-zA-Z*]/.test(segment[0])) {
+                    // If the segment begins with a char that *could* be in a command
+                    // name... insert a separator (if one was needed for the previous segment)
+                    result += sep;
+                }
+                // If the segment ends in a command...
+                if (/\\[a-zA-Z]+\*?$/.test(segment)) {
+                    // ... potentially add a space before the next segment
+                    sep = ' ';
+                }
+                else {
+                    sep = '';
+                }
+                result += segment;
             }
-            // If the segment ends in a command...
-            if (/\\[a-zA-Z]+\*?$/.test(segment)) {
-                // ... potentially add a space before the next segment
-                sep = ' ';
-            }
-            else {
-                sep = '';
-            }
-            result += segment;
         }
         return result;
     }
@@ -5393,6 +5395,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         'xrightequilibrium',
         'xleftequilibrium',
     ], '[:auto]{:auto}', null, (name, args) => {
+        // The overscript is optional, i.e. `\xtofrom` is valid
+        let overscript = args[1];
+        if ((overscript === null || overscript === void 0 ? void 0 : overscript.length) === 0) {
+            overscript = null;
+        }
         return {
             type: 'overunder',
             // Set the spacing type
@@ -5400,7 +5407,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             // Set the "svgBody" to the name of a SVG object (which is the same
             // as the command name)
             svgBody: name.slice(1),
-            overscript: args[1],
+            overscript: overscript,
             underscript: args[0],
             skipBoundary: true,
         };
@@ -6672,7 +6679,39 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             mathtype: name === '\\stackrel' ? 'mrel' : 'mbin',
         };
     }, (name, _parent, atom, emit) => `${name}{${emit(atom, atom.overscript)}}{${emit(atom, atom.body)}}`);
-    defineFunction('rlap', '{:auto}', null, function (name, args) {
+    /*
+    display: inline-block;
+    width: 0;
+    line-height: 1;
+    */
+    /*
+    display: inline-block;
+    */
+    defineFunction(['phantom', 'vphantom', 'hphantom'], '{:auto*}', {}, (name, _args) => {
+        return {
+            type: 'phantom',
+            captureSelection: true,
+            phantomType: name.slice(1),
+            isPhantom: true,
+        };
+    }, (name, _parent, atom, emit) => name + '{' + emit(atom, atom.body) + '}');
+    defineFunction('smash', '[:string]{:auto}', null, function (_name, args) {
+        let phantomType = 'smash';
+        if (args[0] === 'b') {
+            phantomType = 'bsmash';
+        }
+        else if (args[0] === 't') {
+            phantomType = 'tsmash';
+            // } else if (args[0]) {
+        }
+        return {
+            type: 'phantom',
+            phantomType,
+            skipBoundary: true,
+            body: args[1],
+        };
+    });
+    defineFunction('rlap', '{:auto}', null, function (_name, args) {
         return {
             type: 'overlap',
             align: 'right',
@@ -6680,7 +6719,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             body: args[0],
         };
     });
-    defineFunction('llap', '{:auto}', null, function (name, args) {
+    defineFunction('llap', '{:auto}', null, function (_name, args) {
         return {
             type: 'overlap',
             align: 'left',
@@ -6688,7 +6727,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             body: args[0],
         };
     });
-    defineFunction('mathrlap', '{:auto}', null, function (name, args) {
+    defineFunction('mathrlap', '{:auto}', null, function (_name, args) {
         return {
             type: 'overlap',
             mode: 'math',
@@ -8261,7 +8300,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
             }
         }
-        else if (atoms) {
+        else if (atoms instanceof Atom) {
             // This is a single atom, decompose it
             result = atoms.decompose(context);
             if (result && displaySelection && atoms.isSelected) {
@@ -8367,6 +8406,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             this.mode = mode;
             this.type = type;
             this.body = body;
+            if (style.isPhantom) {
+                this.setPhantom(true);
+            }
             // Append all the properties in extras to this
             // This can override the mode, type and body
             this.applyStyle(style);
@@ -8443,6 +8485,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         isCharacterBox() {
             const base = this.getInitialBaseElement();
             return /minner|mbin|mrel|mpunct|mopen|mclose|textord/.test(base.type);
+        }
+        setPhantom(isPhantom) {
+            // this.isPhantom = isPhantom;
+            this.forEach((x) => {
+                x.isPhantom = isPhantom;
+            });
         }
         forEach(cb) {
             cb(this);
@@ -9434,149 +9482,54 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     }
 
-    /**
-     * Gengrac -- Generalized fraction
-     *
-     * Decompose fractions, binomials, and in general anything made
-     * of two expressions on top of each other, optionally separated by a bar,
-     * and optionally surrounded by fences (parentheses, brackets, etc...)
-     *
-     * Depending on the type of fraction the mathstyle is either
-     * display math or inline math (which is indicated by 'textstyle'). This value can
-     * also be set to 'auto', which indicates it should use the current mathstyle
-     */
-    registerAtomType('genfrac', (context, atom) => {
-        const mathstyle = atom.mathstyle === 'auto'
-            ? context.mathstyle
-            : MATHSTYLES[atom.mathstyle];
-        const newContext = context.clone({ mathstyle: mathstyle });
-        let numer = [];
-        if (atom.numerPrefix) {
-            numer.push(makeSpan(atom.numerPrefix, 'mord'));
+    registerAtomType('accent', (context, atom) => {
+        // Accents are handled in the TeXbook pg. 443, rule 12.
+        const mathstyle = context.mathstyle;
+        // Build the base atom
+        let base = decompose(context.cramp(), atom.body);
+        if (atom.superscript || atom.subscript) {
+            // If there is a supsub attached to the accent
+            // apply it to the base.
+            // Note this does not give the same result as TeX when there
+            // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
+            base = [atom.attachSupsub(context, makeSpan(base, '', 'mord'), 'mord')];
         }
-        const numeratorStyle = atom.continuousFraction
-            ? mathstyle
-            : mathstyle.fracNum();
-        numer = numer.concat(decompose(newContext.clone({ mathstyle: numeratorStyle }), atom.numer));
-        const numerReset = makeHlist(numer, context.mathstyle.adjustTo(numeratorStyle));
-        let denom = [];
-        if (atom.denomPrefix) {
-            denom.push(makeSpan(atom.denomPrefix, 'mord'));
+        // Calculate the skew of the accent. This is based on the line "If the
+        // nucleus is not a single character, let s = 0; otherwise set s to the
+        // kern amount for the nucleus followed by the \skewchar of its font."
+        // Note that our skew metrics are just the kern between each character
+        // and the skewchar.
+        let skew$1 = 0;
+        if (isArray(atom.body) &&
+            atom.body.length === 1 &&
+            atom.body[0].isCharacterBox()) {
+            skew$1 = skew(base);
         }
-        const denominatorStyle = atom.continuousFraction
-            ? mathstyle
-            : mathstyle.fracDen();
-        denom = denom.concat(decompose(newContext.clone({ mathstyle: denominatorStyle }), atom.denom));
-        const denomReset = makeHlist(denom, context.mathstyle.adjustTo(denominatorStyle));
-        const ruleWidth = !atom.hasBarLine
-            ? 0
-            : METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        // Rule 15b from TeXBook Appendix G, p.444
-        //
-        // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
-        // as θ ̸= 0 or θ = 0, and set v ← σ12. (The fraction will be typeset with
-        // its numerator shifted up by an amount u with respect to the current
-        // baseline, and with the denominator shifted down by v, unless the boxes
-        // are unusually large.)
-        let numShift;
-        let clearance = 0;
-        let denomShift;
-        if (mathstyle.size === MATHSTYLES.displaystyle.size) {
-            numShift = mathstyle.metrics.num1; // set u ← σ8
-            if (ruleWidth > 0) {
-                clearance = 3 * ruleWidth; //  φ ← 3θ
-            }
-            else {
-                clearance = 7 * METRICS.defaultRuleThickness; // φ ← 7 ξ8
-            }
-            denomShift = mathstyle.metrics.denom1; // v ← σ11
+        // calculate the amount of space between the body and the accent
+        let clearance = Math.min(height(base), mathstyle.metrics.xHeight);
+        let accentBody;
+        if (atom.svgAccent) {
+            accentBody = makeSVGSpan(atom.svgAccent);
+            clearance = -clearance + METRICS.bigOpSpacing1;
         }
         else {
-            if (ruleWidth > 0) {
-                numShift = mathstyle.metrics.num2; // u ← σ9
-                clearance = ruleWidth; //  φ ← θ
-            }
-            else {
-                numShift = mathstyle.metrics.num3; // u ← σ10
-                clearance = 3 * METRICS.defaultRuleThickness; // φ ← 3 ξ8
-            }
-            denomShift = mathstyle.metrics.denom2; // v ← σ12
+            // Build the accent
+            const accent = makeSymbol('Main-Regular', atom.accent, 'math');
+            // Remove the italic correction of the accent, because it only serves to
+            // shift the accent over to a place we don't want.
+            accent.italic = 0;
+            // The \vec character that the fonts use is a combining character, and
+            // thus shows up much too far to the left. To account for this, we add a
+            // specific class which shifts the accent over to where we want it.
+            const vecClass = atom.accent === '\u20d7' ? ' accent-vec' : '';
+            accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
         }
-        const numerDepth = numerReset ? depth(numerReset) : 0;
-        const denomHeight = denomReset ? height(denomReset) : 0;
-        let frac;
-        if (ruleWidth === 0) {
-            // Rule 15c from Appendix G
-            // No bar line between numerator and denominator
-            const candidateClearance = numShift - numerDepth - (denomHeight - denomShift);
-            if (candidateClearance < clearance) {
-                numShift += 0.5 * (clearance - candidateClearance);
-                denomShift += 0.5 * (clearance - candidateClearance);
-            }
-            frac = makeVlist(newContext, [numerReset, -numShift, denomReset, denomShift], 'individualShift');
-        }
-        else {
-            // Rule 15d from Appendix G
-            // There is a bar line between the numerator and the denominator
-            const axisHeight = mathstyle.metrics.axisHeight;
-            const numerLine = axisHeight + 0.5 * ruleWidth;
-            const denomLine = axisHeight - 0.5 * ruleWidth;
-            if (numShift - numerDepth - numerLine < clearance) {
-                numShift += clearance - (numShift - numerDepth - numerLine);
-            }
-            if (denomLine - (denomHeight - denomShift) < clearance) {
-                denomShift += clearance - (denomLine - (denomHeight - denomShift));
-            }
-            const mid = makeSpan(null, ' frac-line');
-            mid.applyStyle(atom.getStyle());
-            // Manually set the height of the line because its height is
-            // created in CSS
-            mid.height = ruleWidth / 2;
-            mid.depth = ruleWidth / 2;
-            const elements = [];
-            if (numerReset) {
-                elements.push(numerReset);
-                elements.push(-numShift);
-            }
-            elements.push(mid);
-            elements.push(ruleWidth / 2 - axisHeight);
-            if (denomReset) {
-                elements.push(denomReset);
-                elements.push(denomShift);
-            }
-            frac = makeVlist(newContext, elements, 'individualShift');
-        }
-        // Add a 'mfrac' class to provide proper context for
-        // other css selectors (such as 'frac-line')
-        frac.classes += ' mfrac';
-        // Since we manually change the style sometimes (with \dfrac or \tfrac),
-        // account for the possible size change here.
-        frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-        frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
-        // if (!atom.leftDelim && !atom.rightDelim) {
-        //     return makeOrd(frac,
-        //         context.parentMathstyle.adjustTo(mathstyle) +
-        //         ((context.parentSize !== context.size) ?
-        //             (' sizing reset-' + context.parentSize + ' ' + context.size) : ''));
-        // }
-        // Rule 15e of Appendix G
-        const delimSize = mathstyle.size === MATHSTYLES.displaystyle.size
-            ? mathstyle.metrics.delim1
-            : mathstyle.metrics.delim2;
-        // Optional delimiters
-        const leftDelim = atom.bind(context, makeCustomSizedDelim('mopen', atom.leftDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
-        const rightDelim = atom.bind(context, makeCustomSizedDelim('mclose', atom.rightDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
-        leftDelim.applyStyle(atom.getStyle());
-        rightDelim.applyStyle(atom.getStyle());
-        return [
-            atom.bind(context, 
-            // makeStruts(
-            makeSpan([leftDelim, frac, rightDelim], context.parentSize !== context.size
-                ? 'sizing reset-' + context.parentSize + ' ' + context.size
-                : '', 'mord')
-            // )
-            ),
-        ];
+        accentBody = makeVlist(context, [base, -clearance, accentBody]);
+        // Shift the accent over by the skew. Note we shift by twice the skew
+        // because we are centering the accent, so by adding 2*skew to the left,
+        // we shift it to the right by 1*skew.
+        accentBody.children[1].setLeft(2 * skew$1);
+        return [makeSpan([accentBody], 'accent', 'mord')];
     });
 
     registerAtomType('array', (context, atom) => {
@@ -9810,144 +9763,56 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return makeVlist(context, col, 'individualShift');
     }
 
-    // An `overunder` atom has the following attributes:
-    // - body: atoms[]: atoms displayed on the base line
-    // - svgBody: string. A SVG graphic displayed on the base line (if present, the body is ignored)
-    // - overscript: atoms[]: atoms displayed above the body
-    // - svgAbove: string. A named SVG graphic above the element
-    // - underscript: atoms[]: atoms displayed below the body
-    // - svgBelow: string. A named SVG graphic below the element
-    // - skipBoundary: boolean. If true, ignore atom boundary when keyboard navigating
-    registerAtomType('overunder', (context, atom) => {
-        const body = atom.svgBody
-            ? makeSVGSpan(atom.svgBody)
-            : decompose(context, atom.body);
-        const annotationStyle = context.clone({
-            mathstyle: MATHSTYLES.scriptstyle,
-        });
-        let above;
-        let below;
-        if (atom.svgAbove) {
-            above = makeSVGSpan(atom.svgAbove);
-        }
-        else if (atom.overscript) {
-            above = makeSpan(decompose(annotationStyle, atom.overscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
-        }
-        if (atom.svgBelow) {
-            below = makeSVGSpan(atom.svgBelow);
-        }
-        else if (atom.underscript) {
-            below = makeSpan(decompose(annotationStyle, atom.underscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
-        }
-        if (above && below) {
-            // Pad the above and below if over a "base"
-            below.setLeft(0.3);
-            below.setRight(0.3);
-            above.setLeft(0.3);
-            above.setRight(0.3);
-        }
-        let result = makeOverunderStack(context, body, above, below, isSpanType(atom.type) ? atom.type : 'mord');
-        if (atom.superscript || atom.subscript) {
-            result = atom.attachLimits(context, result, 0, 0);
-        }
-        return [result];
-    });
-    /**
-     * Combine a nucleus with an atom above and an atom below. Used to form
-     * stacks for the 'overunder' atom type .
-     *
-     * @param nucleus The base over and under which the atoms will
-     * be placed.
-     * @param type The type ('mop', 'mrel', etc...) of the result
-     */
-    function makeOverunderStack(context, nucleus, above, below, type) {
-        // If nothing above and nothing below, nothing to do.
-        if (!above && !below)
-            return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
-        let aboveShift = 0;
-        let belowShift = 0;
-        if (above) {
-            aboveShift = Math.max(METRICS.bigOpSpacing1, METRICS.bigOpSpacing3 - depth(above));
-        }
-        if (below) {
-            belowShift = Math.max(METRICS.bigOpSpacing2, METRICS.bigOpSpacing4 - height(below));
-        }
-        let result = null;
-        if (below && above) {
-            const bottom = height(below) + depth(below) + depth(nucleus);
-            result = makeVlist(context, [
-                0,
-                below,
-                belowShift,
-                nucleus,
-                aboveShift,
-                above,
-                METRICS.bigOpSpacing2,
-            ], 'bottom', bottom);
-        }
-        else if (below && !above) {
-            const top = height(nucleus);
-            result = makeVlist(context, [0, below, belowShift, nucleus], 'top', top);
-        }
-        else if (above && !below) {
-            result = makeVlist(context, [
-                depth(nucleus),
-                nucleus,
-                Math.max(METRICS.bigOpSpacing2, aboveShift),
-                above,
-            ], 'bottom', depth(nucleus));
-        }
-        return makeSpan(result, 'op-over-under', type);
-    }
-
-    registerAtomType('accent', (context, atom) => {
-        // Accents are handled in the TeXbook pg. 443, rule 12.
-        const mathstyle = context.mathstyle;
-        // Build the base atom
-        let base = decompose(context.cramp(), atom.body);
-        if (atom.superscript || atom.subscript) {
-            // If there is a supsub attached to the accent
-            // apply it to the base.
-            // Note this does not give the same result as TeX when there
-            // are stacked accents, e.g. \vec{\breve{\hat{\acute{...}}}}^2
-            base = [atom.attachSupsub(context, makeSpan(base, '', 'mord'), 'mord')];
-        }
-        // Calculate the skew of the accent. This is based on the line "If the
-        // nucleus is not a single character, let s = 0; otherwise set s to the
-        // kern amount for the nucleus followed by the \skewchar of its font."
-        // Note that our skew metrics are just the kern between each character
-        // and the skewchar.
-        let skew$1 = 0;
-        if (isArray(atom.body) &&
-            atom.body.length === 1 &&
-            atom.body[0].isCharacterBox()) {
-            skew$1 = skew(base);
-        }
-        // calculate the amount of space between the body and the accent
-        let clearance = Math.min(height(base), mathstyle.metrics.xHeight);
-        let accentBody;
-        if (atom.svgAccent) {
-            accentBody = makeSVGSpan(atom.svgAccent);
-            clearance = -clearance + METRICS.bigOpSpacing1;
+    registerAtomType('box', (context, atom) => {
+        // The padding extends outside of the base
+        const padding = typeof atom.padding === 'number' ? atom.padding : METRICS.fboxsep;
+        // Base is the main content "inside" the box
+        const content = makeSpan(decompose(context, atom.body), '', 'mord');
+        content.setStyle('vertical-align', -depth(content), 'em');
+        content.setStyle('height', 0);
+        const base = makeSpan(content, '', 'mord');
+        // This span will represent the box (background and border)
+        // It's positioned to overlap the base
+        // The 'ML__box' class is required to prevent the span from being omitted
+        // during rendering (it looks like an empty, no-op span)
+        const box = makeSpan('', 'ML__box');
+        box.setStyle('position', 'absolute');
+        box.setStyle('height', height(base) + depth(base) + 2 * padding, 'em');
+        if (padding !== 0) {
+            box.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
         }
         else {
-            // Build the accent
-            const accent = makeSymbol('Main-Regular', atom.accent, 'math');
-            // Remove the italic correction of the accent, because it only serves to
-            // shift the accent over to a place we don't want.
-            accent.italic = 0;
-            // The \vec character that the fonts use is a combining character, and
-            // thus shows up much too far to the left. To account for this, we add a
-            // specific class which shifts the accent over to where we want it.
-            const vecClass = atom.accent === '\u20d7' ? ' accent-vec' : '';
-            accentBody = makeSpan(makeSpan(accent), 'accent-body' + vecClass);
+            box.setStyle('width', '100%');
         }
-        accentBody = makeVlist(context, [base, -clearance, accentBody]);
-        // Shift the accent over by the skew. Note we shift by twice the skew
-        // because we are centering the accent, so by adding 2*skew to the left,
-        // we shift it to the right by 1*skew.
-        accentBody.children[1].setLeft(2 * skew$1);
-        return [makeSpan([accentBody], 'accent', 'mord')];
+        box.setStyle('top', -padding, 'em');
+        box.setStyle('left', -padding, 'em');
+        box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
+        box.setStyle('box-sizing', 'border-box');
+        if (atom.backgroundcolor) {
+            box.setStyle('background-color', atom.backgroundcolor);
+        }
+        if (atom.framecolor) {
+            box.setStyle('border', METRICS.fboxrule + 'em solid ' + atom.framecolor);
+        }
+        if (atom.border)
+            box.setStyle('border', atom.border);
+        base.setStyle('display', 'inline-block');
+        base.setStyle('height', height(base) + depth(base), 'em');
+        // The result is a span that encloses the box and the base
+        const result = makeSpan([box, base]);
+        // Set its position as relative so that the box can be absolute positioned
+        // over the base
+        result.setStyle('position', 'relative');
+        result.setStyle('vertical-align', -padding + depth(base), 'em');
+        // The padding adds to the width and height of the pod
+        result.height = height(base) + padding;
+        result.depth = depth(base) + padding;
+        result.setLeft(padding);
+        result.setRight(padding);
+        result.setStyle('height', result.height + result.depth - 2 * padding, 'em');
+        result.setStyle('top', -padding, 'em');
+        result.setStyle('display', 'inline-block');
+        return [result];
     });
 
     registerAtomType('enclose', (context, atom) => {
@@ -10118,146 +9983,149 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return [result];
     });
 
-    registerAtomType('box', (context, atom) => {
-        // The padding extends outside of the base
-        const padding = typeof atom.padding === 'number' ? atom.padding : METRICS.fboxsep;
-        // Base is the main content "inside" the box
-        const content = makeSpan(decompose(context, atom.body), '', 'mord');
-        content.setStyle('vertical-align', -depth(content), 'em');
-        content.setStyle('height', 0);
-        const base = makeSpan(content, '', 'mord');
-        // This span will represent the box (background and border)
-        // It's positioned to overlap the base
-        // The 'ML__box' class is required to prevent the span from being omitted
-        // during rendering (it looks like an empty, no-op span)
-        const box = makeSpan('', 'ML__box');
-        box.setStyle('position', 'absolute');
-        box.setStyle('height', height(base) + depth(base) + 2 * padding, 'em');
-        if (padding !== 0) {
-            box.setStyle('width', 'calc(100% + ' + 2 * padding + 'em)');
-        }
-        else {
-            box.setStyle('width', '100%');
-        }
-        box.setStyle('top', -padding, 'em');
-        box.setStyle('left', -padding, 'em');
-        box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
-        box.setStyle('box-sizing', 'border-box');
-        if (atom.backgroundcolor) {
-            box.setStyle('background-color', atom.backgroundcolor);
-        }
-        if (atom.framecolor) {
-            box.setStyle('border', METRICS.fboxrule + 'em solid ' + atom.framecolor);
-        }
-        if (atom.border)
-            box.setStyle('border', atom.border);
-        base.setStyle('display', 'inline-block');
-        base.setStyle('height', height(base) + depth(base), 'em');
-        // The result is a span that encloses the box and the base
-        const result = makeSpan([box, base]);
-        // Set its position as relative so that the box can be absolute positioned
-        // over the base
-        result.setStyle('position', 'relative');
-        result.setStyle('vertical-align', -padding + depth(base), 'em');
-        // The padding adds to the width and height of the pod
-        result.height = height(base) + padding;
-        result.depth = depth(base) + padding;
-        result.setLeft(padding);
-        result.setRight(padding);
-        result.setStyle('height', result.height + result.depth - 2 * padding, 'em');
-        result.setStyle('top', -padding, 'em');
-        result.setStyle('display', 'inline-block');
-        return [result];
-    });
-
     /**
-     * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
+     * Gengrac -- Generalized fraction
+     *
+     * Decompose fractions, binomials, and in general anything made
+     * of two expressions on top of each other, optionally separated by a bar,
+     * and optionally surrounded by fences (parentheses, brackets, etc...)
+     *
+     * Depending on the type of fraction the mathstyle is either
+     * display math or inline math (which is indicated by 'textstyle'). This value can
+     * also be set to 'auto', which indicates it should use the current mathstyle
      */
-    registerAtomType('mop', (context, atom) => {
-        var _a;
-        const mathstyle = context.mathstyle;
-        let base;
-        let baseShift = 0;
-        let slant = 0;
-        if (atom.isSymbol) {
-            // If this is a symbol, create the symbol.
-            // Most symbol operators get larger in displaystyle (rule 13)
-            const large = mathstyle.size === MATHSTYLES.displaystyle.size &&
-                atom.symbol !== '\\smallint';
-            base = makeSymbol(large ? 'Size2-Regular' : 'Size1-Regular', atom.body, 'op-symbol ' + (large ? 'large-op' : 'small-op'), 'mop');
-            // Shift the symbol so its center lies on the axis (rule 13). It
-            // appears that our fonts have the centers of the symbols already
-            // almost on the axis, so these numbers are very small. Note we
-            // don't actually apply this here, but instead it is used either in
-            // the vlist creation or separately when there are no limits.
-            baseShift =
-                (base.height - base.depth) / 2 -
-                    mathstyle.metrics.axisHeight * mathstyle.sizeMultiplier;
-            // The slant of the symbol is just its italic correction.
-            slant = base.italic;
-            base.applyStyle({
-                color: atom.isPhantom ? 'transparent' : atom.color,
-                backgroundColor: atom.isPhantom
-                    ? 'transparent'
-                    : atom.backgroundColor,
-                cssId: atom.cssId,
-                cssClass: atom.cssClass,
-                letterShapeStyle: context.letterShapeStyle,
-            });
+    registerAtomType('genfrac', (context, atom) => {
+        const mathstyle = atom.mathstyle === 'auto'
+            ? context.mathstyle
+            : MATHSTYLES[atom.mathstyle];
+        const newContext = context.clone({ mathstyle: mathstyle });
+        let numer = [];
+        if (atom.numerPrefix) {
+            numer.push(makeSpan(atom.numerPrefix, 'mord'));
         }
-        else if (isArray(atom.body)) {
-            // If this is a list, decompose that list.
-            base = makeSpan(decompose(context, atom.body), '', 'mop');
+        const numeratorStyle = atom.continuousFraction
+            ? mathstyle
+            : mathstyle.fracNum();
+        numer = numer.concat(decompose(newContext.clone({ mathstyle: numeratorStyle }), atom.numer));
+        const numerReset = makeHlist(numer, context.mathstyle.adjustTo(numeratorStyle));
+        let denom = [];
+        if (atom.denomPrefix) {
+            denom.push(makeSpan(atom.denomPrefix, 'mord'));
         }
-        else {
-            // Otherwise, this is a text operator. Build the text from the
-            // operator's name.
-            console.assert(atom.type === 'mop');
-            base = atom.makeSpan(context, atom.body);
-        }
-        // Bind the generated span and this atom so the atom can be retrieved
-        // from the span later.
-        atom.bind(context, base);
-        if (atom.isSymbol)
-            base.setTop(baseShift);
-        let result = base;
-        if (atom.superscript || atom.subscript) {
-            const limits = (_a = atom.limits) !== null && _a !== void 0 ? _a : 'auto';
-            if (limits === 'limits' ||
-                (limits === 'auto' &&
-                    mathstyle.size === MATHSTYLES.displaystyle.size)) {
-                result = atom.attachLimits(context, base, baseShift, slant);
+        const denominatorStyle = atom.continuousFraction
+            ? mathstyle
+            : mathstyle.fracDen();
+        denom = denom.concat(decompose(newContext.clone({ mathstyle: denominatorStyle }), atom.denom));
+        const denomReset = makeHlist(denom, context.mathstyle.adjustTo(denominatorStyle));
+        const ruleWidth = !atom.hasBarLine
+            ? 0
+            : METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
+        // Rule 15b from TeXBook Appendix G, p.444
+        //
+        // 15b. If C > T, set u ← σ8 and v ← σ11. Otherwise set u ← σ9 or σ10,according
+        // as θ ̸= 0 or θ = 0, and set v ← σ12. (The fraction will be typeset with
+        // its numerator shifted up by an amount u with respect to the current
+        // baseline, and with the denominator shifted down by v, unless the boxes
+        // are unusually large.)
+        let numShift;
+        let clearance = 0;
+        let denomShift;
+        if (mathstyle.size === MATHSTYLES.displaystyle.size) {
+            numShift = mathstyle.metrics.num1; // set u ← σ8
+            if (ruleWidth > 0) {
+                clearance = 3 * ruleWidth; //  φ ← 3θ
             }
             else {
-                result = atom.attachSupsub(context, base, 'mop');
+                clearance = 7 * METRICS.defaultRuleThickness; // φ ← 7 ξ8
             }
-        }
-        return [result];
-    });
-
-    /**
-     * \overline and \underline
-     */
-    registerAtomType('line', (context, atom) => {
-        const mathstyle = context.mathstyle;
-        // TeXBook:443. Rule 9 and 10
-        const inner = decompose(context.cramp(), atom.body);
-        const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-        const line = makeSpan(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-            ' ' +
-            atom.position +
-            '-line');
-        line.height = ruleWidth;
-        line.maxFontSize = 1.0;
-        let vlist;
-        if (atom.position === 'overline') {
-            vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
+            denomShift = mathstyle.metrics.denom1; // v ← σ11
         }
         else {
-            const innerSpan = makeSpan(inner);
-            vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan], 'top', height(innerSpan));
+            if (ruleWidth > 0) {
+                numShift = mathstyle.metrics.num2; // u ← σ9
+                clearance = ruleWidth; //  φ ← θ
+            }
+            else {
+                numShift = mathstyle.metrics.num3; // u ← σ10
+                clearance = 3 * METRICS.defaultRuleThickness; // φ ← 3 ξ8
+            }
+            denomShift = mathstyle.metrics.denom2; // v ← σ12
         }
-        return [makeSpan(vlist, atom.position, 'mord')];
+        const numerDepth = numerReset ? depth(numerReset) : 0;
+        const denomHeight = denomReset ? height(denomReset) : 0;
+        let frac;
+        if (ruleWidth === 0) {
+            // Rule 15c from Appendix G
+            // No bar line between numerator and denominator
+            const candidateClearance = numShift - numerDepth - (denomHeight - denomShift);
+            if (candidateClearance < clearance) {
+                numShift += 0.5 * (clearance - candidateClearance);
+                denomShift += 0.5 * (clearance - candidateClearance);
+            }
+            frac = makeVlist(newContext, [numerReset, -numShift, denomReset, denomShift], 'individualShift');
+        }
+        else {
+            // Rule 15d from Appendix G
+            // There is a bar line between the numerator and the denominator
+            const axisHeight = mathstyle.metrics.axisHeight;
+            const numerLine = axisHeight + 0.5 * ruleWidth;
+            const denomLine = axisHeight - 0.5 * ruleWidth;
+            if (numShift - numerDepth - numerLine < clearance) {
+                numShift += clearance - (numShift - numerDepth - numerLine);
+            }
+            if (denomLine - (denomHeight - denomShift) < clearance) {
+                denomShift += clearance - (denomLine - (denomHeight - denomShift));
+            }
+            const mid = makeSpan(null, ' frac-line');
+            mid.applyStyle(atom.getStyle());
+            // Manually set the height of the line because its height is
+            // created in CSS
+            mid.height = ruleWidth / 2;
+            mid.depth = ruleWidth / 2;
+            const elements = [];
+            if (numerReset) {
+                elements.push(numerReset);
+                elements.push(-numShift);
+            }
+            elements.push(mid);
+            elements.push(ruleWidth / 2 - axisHeight);
+            if (denomReset) {
+                elements.push(denomReset);
+                elements.push(denomShift);
+            }
+            frac = makeVlist(newContext, elements, 'individualShift');
+        }
+        // Add a 'mfrac' class to provide proper context for
+        // other css selectors (such as 'frac-line')
+        frac.classes += ' mfrac';
+        // Since we manually change the style sometimes (with \dfrac or \tfrac),
+        // account for the possible size change here.
+        frac.height *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
+        frac.depth *= mathstyle.sizeMultiplier / context.mathstyle.sizeMultiplier;
+        // if (!atom.leftDelim && !atom.rightDelim) {
+        //     return makeOrd(frac,
+        //         context.parentMathstyle.adjustTo(mathstyle) +
+        //         ((context.parentSize !== context.size) ?
+        //             (' sizing reset-' + context.parentSize + ' ' + context.size) : ''));
+        // }
+        // Rule 15e of Appendix G
+        const delimSize = mathstyle.size === MATHSTYLES.displaystyle.size
+            ? mathstyle.metrics.delim1
+            : mathstyle.metrics.delim2;
+        // Optional delimiters
+        const leftDelim = atom.bind(context, makeCustomSizedDelim('mopen', atom.leftDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
+        const rightDelim = atom.bind(context, makeCustomSizedDelim('mclose', atom.rightDelim, delimSize, true, context.clone({ mathstyle: mathstyle })));
+        leftDelim.applyStyle(atom.getStyle());
+        rightDelim.applyStyle(atom.getStyle());
+        return [
+            atom.bind(context, 
+            // makeStruts(
+            makeSpan([leftDelim, frac, rightDelim], context.parentSize !== context.size
+                ? 'sizing reset-' + context.parentSize + ' ' + context.size
+                : '', 'mord')
+            // )
+            ),
+        ];
     });
 
     /**
@@ -10358,14 +10226,218 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return result;
     });
 
+    /**
+     * \overline and \underline
+     */
+    registerAtomType('line', (context, atom) => {
+        const mathstyle = context.mathstyle;
+        // TeXBook:443. Rule 9 and 10
+        const inner = decompose(context.cramp(), atom.body);
+        const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
+        const line = makeSpan(null, context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
+            ' ' +
+            atom.position +
+            '-line');
+        line.height = ruleWidth;
+        line.maxFontSize = 1.0;
+        let vlist;
+        if (atom.position === 'overline') {
+            vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
+        }
+        else {
+            const innerSpan = makeSpan(inner);
+            vlist = makeVlist(context, [ruleWidth, line, 3 * ruleWidth, innerSpan], 'top', height(innerSpan));
+        }
+        return [makeSpan(vlist, atom.position, 'mord')];
+    });
+
+    /**
+     * Operators are handled in the TeXbook pg. 443-444, rule 13(a).
+     */
+    registerAtomType('mop', (context, atom) => {
+        var _a;
+        const mathstyle = context.mathstyle;
+        let base;
+        let baseShift = 0;
+        let slant = 0;
+        if (atom.isSymbol) {
+            // If this is a symbol, create the symbol.
+            // Most symbol operators get larger in displaystyle (rule 13)
+            const large = mathstyle.size === MATHSTYLES.displaystyle.size &&
+                atom.symbol !== '\\smallint';
+            base = makeSymbol(large ? 'Size2-Regular' : 'Size1-Regular', atom.body, 'op-symbol ' + (large ? 'large-op' : 'small-op'), 'mop');
+            // Shift the symbol so its center lies on the axis (rule 13). It
+            // appears that our fonts have the centers of the symbols already
+            // almost on the axis, so these numbers are very small. Note we
+            // don't actually apply this here, but instead it is used either in
+            // the vlist creation or separately when there are no limits.
+            baseShift =
+                (base.height - base.depth) / 2 -
+                    mathstyle.metrics.axisHeight * mathstyle.sizeMultiplier;
+            // The slant of the symbol is just its italic correction.
+            slant = base.italic;
+            base.applyStyle({
+                color: atom.isPhantom ? 'transparent' : atom.color,
+                backgroundColor: atom.isPhantom
+                    ? 'transparent'
+                    : atom.backgroundColor,
+                cssId: atom.cssId,
+                cssClass: atom.cssClass,
+                letterShapeStyle: context.letterShapeStyle,
+            });
+        }
+        else if (isArray(atom.body)) {
+            // If this is a list, decompose that list.
+            base = makeSpan(decompose(context, atom.body), '', 'mop');
+        }
+        else {
+            // Otherwise, this is a text operator. Build the text from the
+            // operator's name.
+            console.assert(atom.type === 'mop');
+            base = atom.makeSpan(context, atom.body);
+        }
+        // Bind the generated span and this atom so the atom can be retrieved
+        // from the span later.
+        atom.bind(context, base);
+        if (atom.isSymbol)
+            base.setTop(baseShift);
+        let result = base;
+        if (atom.superscript || atom.subscript) {
+            const limits = (_a = atom.limits) !== null && _a !== void 0 ? _a : 'auto';
+            if (limits === 'limits' ||
+                (limits === 'auto' &&
+                    mathstyle.size === MATHSTYLES.displaystyle.size)) {
+                result = atom.attachLimits(context, base, baseShift, slant);
+            }
+            else {
+                result = atom.attachSupsub(context, base, 'mop');
+            }
+        }
+        return [result];
+    });
+
+    // An `overunder` atom has the following attributes:
+    // - body: atoms[]: atoms displayed on the base line
+    // - svgBody: string. A SVG graphic displayed on the base line (if present, the body is ignored)
+    // - overscript: atoms[]: atoms displayed above the body
+    // - svgAbove: string. A named SVG graphic above the element
+    // - underscript: atoms[]: atoms displayed below the body
+    // - svgBelow: string. A named SVG graphic below the element
+    // - skipBoundary: boolean. If true, ignore atom boundary when keyboard navigating
+    registerAtomType('overunder', (context, atom) => {
+        const body = atom.svgBody
+            ? makeSVGSpan(atom.svgBody)
+            : decompose(context, atom.body);
+        const annotationStyle = context.clone({
+            mathstyle: MATHSTYLES.scriptstyle,
+        });
+        let above;
+        let below;
+        if (atom.svgAbove) {
+            above = makeSVGSpan(atom.svgAbove);
+        }
+        else if (atom.overscript && atom.overscript.length > 0) {
+            above = makeSpan(decompose(annotationStyle, atom.overscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
+        }
+        if (atom.svgBelow) {
+            below = makeSVGSpan(atom.svgBelow);
+        }
+        else if (atom.underscript && atom.underscript.length > 0) {
+            below = makeSpan(decompose(annotationStyle, atom.underscript), context.mathstyle.adjustTo(annotationStyle.mathstyle));
+        }
+        if (above && below) {
+            // Pad the above and below if over a "base"
+            below.setLeft(0.3);
+            below.setRight(0.3);
+            above.setLeft(0.3);
+            above.setRight(0.3);
+        }
+        let result = makeOverunderStack(context, body, above, below, isSpanType(atom.type) ? atom.type : 'mrel');
+        if (atom.superscript || atom.subscript) {
+            result = atom.attachLimits(context, result, 0, 0);
+        }
+        return [result];
+    });
+    /**
+     * Combine a nucleus with an atom above and an atom below. Used to form
+     * stacks for the 'overunder' atom type .
+     *
+     * @param nucleus The base over and under which the atoms will
+     * be placed.
+     * @param type The type ('mop', 'mrel', etc...) of the result
+     */
+    function makeOverunderStack(context, nucleus, above, below, type) {
+        // If nothing above and nothing below, nothing to do.
+        if (!above && !below) {
+            return makeSpan(nucleus, 'op-over-under', type);
+            // return isArray(nucleus) ? makeSpan(nucleus) : nucleus;
+        }
+        let aboveShift = 0;
+        let belowShift = 0;
+        if (above) {
+            aboveShift = Math.max(METRICS.bigOpSpacing1, METRICS.bigOpSpacing3 - depth(above));
+        }
+        if (below) {
+            belowShift = Math.max(METRICS.bigOpSpacing2, METRICS.bigOpSpacing4 - height(below));
+        }
+        let result = null;
+        if (below && above) {
+            const bottom = height(below) + depth(below) + depth(nucleus);
+            result = makeVlist(context, [
+                0,
+                below,
+                belowShift,
+                nucleus,
+                aboveShift,
+                above,
+                METRICS.bigOpSpacing2,
+            ], 'bottom', bottom);
+        }
+        else if (below && !above) {
+            const top = height(nucleus);
+            result = makeVlist(context, [0, below, belowShift, nucleus], 'top', top);
+        }
+        else if (above && !below) {
+            result = makeVlist(context, [
+                depth(nucleus),
+                nucleus,
+                Math.max(METRICS.bigOpSpacing2, aboveShift),
+                above,
+            ], 'bottom', depth(nucleus));
+        }
+        return makeSpan(result, 'op-over-under', type);
+    }
+
+    registerAtomType('phantom', (context, atom) => {
+        if (atom.phantomType === 'vphantom') {
+            const content = makeSpan(decompose(context, atom.body), 'inner');
+            return [makeSpan([content, makeSpan(null, 'fix')], 'rlap', 'mord')];
+        }
+        else if (atom.phantomType === 'hphantom' ||
+            atom.phantomType === 'smash' ||
+            atom.phantomType === 'bsmash' ||
+            atom.phantomType === 'tsmash') {
+            const content = makeSpan(decompose(context, atom.body), '', 'mord');
+            if (atom.phantomType !== 'bsmash') {
+                content.height = 0;
+            }
+            if (atom.phantomType !== 'tsmash') {
+                content.depth = 0;
+            }
+            return [makeSpan(makeVlist(context, [content]), '', 'mord')];
+        }
+        return [makeSpan(decompose(context, atom.body), '', 'mord')];
+    });
+
     registerAtomType('surd', (context, atom) => {
+        var _a;
         // See the TeXbook pg. 443, Rule 11.
         // http://www.ctex.org/documents/shredder/src/texbook.pdf
         const mathstyle = context.mathstyle;
         // First, we do the same steps as in overline to build the inner group
         // and line
-        console.assert(isArray(atom.body));
-        const inner = decompose(context.cramp(), atom.body);
+        console.assert(atom.body === null || isArray(atom.body));
+        const inner = (_a = decompose(context.cramp(), atom.body)) !== null && _a !== void 0 ? _a : makeSpan('');
         const ruleWidth = METRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
         let phi = ruleWidth;
         if (mathstyle.id < MATHSTYLES.textstyle.id) {
@@ -10415,463 +10487,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return [
             atom.bind(context, makeSpan([makeSpan(rootVlist, 'root'), delim, body], 'sqrt', 'mord')),
         ];
-    });
-
-    // Each entry indicate the font-name (to be used to calculate font metrics)
-    // and the CSS classes (for proper markup styling) for each possible
-    // variant combinations.
-    const VARIANTS = {
-        // Handle some special characters which are only available in "main" font (not "math")
-        main: ['Main-Regular', 'ML__cmr'],
-        'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
-        'main-bold': ['Main-Bold', 'ML__cmr ML__bold'],
-        'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML_bold ML__it'],
-        normal: ['Main-Regular', 'ML__cmr'],
-        'normal-bold': ['Main-Bold', 'ML__mathbf'],
-        'normal-italic': ['Math-Italic', 'ML__mathit'],
-        'normal-bolditalic': ['Math-BoldItalic', 'ML__mathbfit'],
-        // Extended math symbols, arrows, etc.. at their standard Unicode codepoints
-        ams: ['AMS-Regular', 'ML__ams'],
-        'ams-bold': ['AMS-Regular', 'ML__ams'],
-        'ams-italic': ['AMS-Regular', 'ML__ams'],
-        'ams-bolditalic': ['AMS-Regular', 'ML__ams'],
-        'sans-serif': ['SansSerif-Regular', 'ML__sans'],
-        'sans-serif-bold': ['SansSerif-Regular', 'ML__sans ML__bold'],
-        'sans-serif-italic': ['SansSerif-Regular', 'ML__sans'],
-        'sans-serif-bolditalic': ['SansSerif-Regular', 'ML__sans'],
-        calligraphic: ['Caligraphic-Regular', 'ML__cal'],
-        'calligraphic-bold': ['Caligraphic-Regular', 'ML__cal ML__bold'],
-        'calligraphic-italic': ['Caligraphic-Regular', 'ML__cal ML__it'],
-        'calligraphic-bolditalic': [
-            'Caligraphic-Regular',
-            'ML__cal ML__bold ML__it',
-        ],
-        script: ['Script-Regular', 'ML__script'],
-        'script-bold': ['Script-Regular', 'ML__script ML__bold'],
-        'script-italic': ['Script-Regular', 'ML__script ML__it'],
-        'script-bolditalic': ['Script-Regular', 'ML__script ML__bold ML__it'],
-        fraktur: ['Fraktur-Regular', 'ML__frak'],
-        'fraktur-bold': ['Fraktur-Regular', 'ML__frak'],
-        'fraktur-italic': ['Fraktur-Regular', 'ML__frak'],
-        'fraktur-bolditalic': ['Fraktur-Regular', 'ML__frak'],
-        monospace: ['Typewriter-Regular', 'ML__tt'],
-        'monospace-bold': ['Typewriter-Regular', 'ML__tt ML__bold'],
-        'monospace-italic': ['Typewriter-Regular', 'ML__tt ML__it'],
-        'monospace-bolditalic': ['Typewriter-Regular', 'ML__tt ML__bold ML__it'],
-        // Blackboard characters are 'A-Z' in the AMS font
-        'double-struck': ['AMS-Regular', 'ML__bb'],
-        'double-struck-bold': ['AMS-Regular', 'ML__bb'],
-        'double-struck-italic': ['AMS-Regular', 'ML__bb'],
-        'double-struck-bolditalic': ['AMS-Regular', 'ML__bb'],
-    };
-    const VARIANT_REPERTOIRE = {
-        'double-struck': /^[A-Z ]$/,
-        script: /^[A-Z ]$/,
-        calligraphic: /^[0-9A-Z ]$/,
-        fraktur: /^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/,
-        monospace: /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
-        'sans-serif': /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
-    };
-    const GREEK_LOWERCASE = /^[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5]$/;
-    const GREEK_UPPERCASE = /^[\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9]$/;
-    const LETTER_SHAPE_RANGES = [
-        /^[a-z]$/,
-        /^[A-Z]$/,
-        GREEK_LOWERCASE,
-        GREEK_UPPERCASE,
-    ];
-    // The letterShapeStyle property indicates which characters should be
-    // automatically italicized (see LETTER_SHAPE_RANGES)
-    const LETTER_SHAPE_MODIFIER = {
-        iso: ['it', 'it', 'it', 'it'],
-        tex: ['it', 'it', 'it', 'up'],
-        french: ['it', 'up', 'up', 'up'],
-        upright: ['up', 'up', 'up', 'up'],
-    };
-    // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
-    function emitLatexMathRun(context, run, expandMacro) {
-        let contextValue = context.variant;
-        if (context.variantStyle && context.variantStyle !== 'up') {
-            contextValue += '-' + context.variantStyle;
-        }
-        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
-            const result = joinLatex(getPropertyRuns(x, 'variant').map((x) => {
-                let value = x[0].variant;
-                if (x[0].variantStyle && x[0].variantStyle !== 'up') {
-                    value += '-' + x[0].variantStyle;
-                }
-                // Check if all the atoms in this run have a base
-                // variant identical to the current variant
-                // If so, we can skip wrapping them
-                if (x.every((x) => {
-                    const info = getInfo(x.symbol, context.mode, null);
-                    if (!info || !(info.variant || info.variantStyle)) {
-                        return false;
-                    }
-                    let styledValue = x.variant;
-                    if (x.variantStyle && x.variantStyle !== 'up') {
-                        styledValue += '-' + x.variantStyle;
-                    }
-                    return styledValue === value;
-                })) {
-                    return joinLatex(x.map((x) => x.toLatex(expandMacro)));
-                }
-                let command = '';
-                if (value && value !== contextValue) {
-                    command = {
-                        calligraphic: '\\mathcal{',
-                        fraktur: '\\mathfrak{',
-                        'double-struck': '\\mathbb{',
-                        script: '\\mathscr{',
-                        monospace: '\\mathtt{',
-                        'sans-serif': '\\mathsf{',
-                        normal: '\\mathrm{',
-                        'normal-italic': '\\mathit{',
-                        'normal-bold': '\\mathbf{',
-                        'normal-bolditalic': '\\mathbfit{',
-                        ams: '',
-                        'ams-italic': '\\mathit{',
-                        'ams-bold': '\\mathbf{',
-                        'ams-bolditalic': '\\mathbfit{',
-                        main: '',
-                        'main-italic': '\\mathit{',
-                        'main-bold': '\\mathbf{',
-                        'main-bolditalic': '\\mathbfit{',
-                    }[value];
-                    console.assert(typeof command !== 'undefined');
-                }
-                return (command +
-                    joinLatex(x.map((x) => x.toLatex(expandMacro))) +
-                    (command ? '}' : ''));
-            }));
-            if (x[0].color && (!context || context.color !== x[0].color)) {
-                return ('\\textcolor{' +
-                    colorToString(x[0].color) +
-                    '}{' +
-                    result +
-                    '}');
-            }
-            return result;
-        }));
-    }
-    function applyStyle$1(atom, style) {
-        // letterShapeStyle will usually be set automatically, except when the
-        // locale cannot be determined, in which case its value will be 'auto'
-        // which we default to 'tex'
-        const letterShapeStyle = style.letterShapeStyle === 'auto' || !style.letterShapeStyle
-            ? 'tex'
-            : style.letterShapeStyle;
-        let variant = style.variant || 'normal';
-        let variantStyle = style.variantStyle || '';
-        // 1. Remap to "main" font some characters that don't exist
-        // in the "math" font
-        // There are two fonts that include the roman italic characters, "main-it" and "math"
-        // They are similar, but the "math" font has some different kernings ('f')
-        // and some slightly different character shape. It doesn't include a few
-        // characters, so for those characters, "main" has to be used instead
-        // \imath, \jmath and \pound don't exist in "math" font,
-        // so use "main" italic instead.
-        if (variant === 'normal' &&
-            !variantStyle &&
-            /\u00a3|\u0131|\u0237/.test(atom.body)) {
-            variant = 'main';
-            variantStyle = 'italic';
-        }
-        // 2. If no explicit variant style, auto-italicize some symbols,
-        // depending on the letterShapeStyle
-        if (variant === 'normal' && !variantStyle && atom.body.length === 1) {
-            LETTER_SHAPE_RANGES.forEach((x, i) => {
-                if (x.test(atom.body) &&
-                    LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it') {
-                    variantStyle = 'italic';
-                }
-            });
-        }
-        // 3. Map the variant + variantStyle to a font
-        if (variantStyle === 'up') {
-            variantStyle = '';
-        }
-        const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
-        console.assert(VARIANTS[styledVariant]);
-        const [fontName, classes] = VARIANTS[styledVariant];
-        // 4. If outside the font repertoire, switch to system font
-        // (return NULL to use default metrics)
-        if (VARIANT_REPERTOIRE[variant] &&
-            !VARIANT_REPERTOIRE[variant].test(atom.body)) {
-            // Map to unicode character
-            atom.body = mathVariantToUnicode(atom.body, variant, variantStyle);
-            atom.variant = '';
-            atom.variantStyle = '';
-            // Return NULL to use default metrics
-            return null;
-        }
-        // Lowercase greek letters have an incomplete repertoire (no bold)
-        // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-        if (GREEK_LOWERCASE.test(atom.body)) {
-            atom.classes += ' lcGreek';
-        }
-        // 5. Assign classes based on the font
-        if (classes) {
-            atom.classes += ' ' + classes;
-        }
-        return fontName;
-    }
-    register('math', {
-        emitLatexRun: emitLatexMathRun,
-        applyStyle: applyStyle$1,
-    });
-
-    function emitStringTextRun(_context, run, _expandMacro) {
-        let needSpace = false;
-        return joinLatex(run.map((x) => {
-            let result = '';
-            let space = '';
-            if (x.latex) {
-                result = x.latex;
-            }
-            else if (typeof x.body === 'string') {
-                result = unicodeStringToLatex('text', x.body);
-            }
-            else if (x.symbol) {
-                result = x.symbol.replace(/\\/g, '\\backslash ');
-            }
-            if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
-                space = '{}';
-            }
-            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
-            return space + result;
-        }));
-    }
-    function emitFontShapeTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontShape').map((x) => {
-            const result = emitStringTextRun(context, x);
-            if (x[0].fontShape === 'it') {
-                return '\\textit{' + result + '}';
-            }
-            if (x[0].fontShape === 'sl') {
-                return '\\textsl{' + result + '}';
-            }
-            if (x[0].fontShape === 'sc') {
-                return '\\textsc{' + result + '}';
-            }
-            if (x[0].fontShape === 'n') {
-                return '\\textup{' + result + '}';
-            }
-            if (x[0].fontShape) {
-                return '\\fontshape{' + x[0].fontShape + '}' + result;
-            }
-            return result;
-        }));
-    }
-    function emitFontSeriesTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontSeries').map((x) => {
-            const result = emitFontShapeTextRun(context, x);
-            if (x[0].fontSeries === 'b') {
-                return '\\textbf{' + result + '}';
-            }
-            if (x[0].fontSeries === 'l') {
-                return '\\textlf{' + result + '}';
-            }
-            if (x[0].fontSeries === 'm') {
-                return '\\textmd{' + result + '}';
-            }
-            if (x[0].fontSeries) {
-                return '\\fontseries{' + x[0].fontSeries + '}' + result;
-            }
-            return result;
-        }));
-    }
-    function emitSizeTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontSize').map((x) => {
-            const result = emitFontSeriesTextRun(context, x);
-            const command = {
-                size1: 'tiny',
-                size2: 'scriptsize',
-                size3: 'footnotesize',
-                size4: 'small',
-                size5: 'normalsize',
-                size6: 'large',
-                size7: 'Large',
-                size8: 'LARGE',
-                size9: 'huge',
-                size10: 'Huge',
-            }[x[0].fontSize] || '';
-            if (command) {
-                return '\\' + command + ' ' + result;
-            }
-            return result;
-        }));
-    }
-    function emitFontFamilyTextRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'fontFamily').map((x) => {
-            const result = emitSizeTextRun(context, x);
-            const command = {
-                roman: 'textrm',
-                monospace: 'texttt',
-                'sans-serif': 'textsf',
-            }[x[0].fontFamily] || '';
-            if (command) {
-                return '\\' + command + '{' + result + '}';
-            }
-            if (x[0].fontFamily) {
-                return '\\fontfamily{' + x[0].fontFamily + '}' + result;
-            }
-            return result;
-        }));
-    }
-    function emitStyledTextRun(context, run, expandMacro) {
-        return emitFontFamilyTextRun(context, run);
-    }
-    function emitColorRun(context, run, expandMacro) {
-        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
-            const result = emitStyledTextRun(context, x);
-            if (x[0].color &&
-                x[0].color !== 'none' &&
-                (!context || context.color !== x[0].color)) {
-                // If there is a color specified, and it is different
-                // from our context color, output a command
-                return ('\\textcolor{' +
-                    colorToString(x[0].color) +
-                    '}{' +
-                    result +
-                    '}');
-            }
-            return result;
-        }));
-    }
-    function emitLatexTextRun(context, run, expandMacro) {
-        const result = emitColorRun(context, run);
-        const allAtomsHaveShapeOrSeriesOrFontFamily = run.every((x) => x.fontSeries || x.fontShape || x.fontFamily);
-        if (!allAtomsHaveShapeOrSeriesOrFontFamily ||
-            run[0].mode !== context.mode) {
-            // Wrap in text, only if there isn't a shape or series on
-            // all the atoms, because if so, it will be wrapped in a
-            // \\textbf, \\textit, etc... and the \\text would be redundant
-            return `\\text{${result}}`;
-        }
-        return result;
-    }
-    const TEXT_FONT_CLASS = {
-        roman: '',
-        'sans-serif': 'ML__sans',
-        monospace: 'ML__tt',
-    };
-    /**
-     * Return the font-family name
-     */
-    function applyStyle$2(span, style) {
-        const fontFamily = style.fontFamily;
-        if (TEXT_FONT_CLASS[fontFamily]) {
-            span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
-        }
-        else if (fontFamily) {
-            // Not a well-known family. Use a style.
-            span.setStyle('font-family', fontFamily);
-        }
-        if (style.fontShape) {
-            span.classes +=
-                ' ' +
-                    ({
-                        it: 'ML__it',
-                        sl: 'ML__shape_sl',
-                        sc: 'ML__shape_sc',
-                        ol: 'ML__shape_ol',
-                    }[style.fontShape] || '');
-        }
-        if (style.fontSeries) {
-            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
-            if (m) {
-                span.classes +=
-                    ' ' +
-                        ({
-                            ul: 'ML__series_ul',
-                            el: 'ML__series_el',
-                            l: 'ML__series_l',
-                            sl: 'ML__series_sl',
-                            m: '',
-                            sb: 'ML__series_sb',
-                            b: 'ML__bold',
-                            eb: 'ML__series_eb',
-                            ub: 'ML__series_ub',
-                        }[m[1] || ''] || '');
-                span.classes +=
-                    ' ' +
-                        ({
-                            uc: 'ML__series_uc',
-                            ec: 'ML__series_ec',
-                            c: 'ML__series_c',
-                            sc: 'ML__series_sc',
-                            n: '',
-                            sx: 'ML__series_sx',
-                            x: 'ML__series_x',
-                            ex: 'ML__series_ex',
-                            ux: 'ML__series_ux',
-                        }[m[2] || ''] || '');
-            }
-        }
-        // Always use the metrics of 'Main-Regular' in text mode
-        return 'Main-Regular';
-    }
-    // Given an array of tokens, return an array of atoms
-    // options.args
-    // options.macros
-    // options.smartFence
-    // options.style
-    // options.parser
-    function parse(tokens, error, options) {
-        let result = [];
-        let atom;
-        while (tokens.length > 0) {
-            const token = tokens.shift();
-            if (token === '<space>') {
-                atom = new Atom('text', '', ' ', options.style);
-                atom.symbol = ' ';
-                result.push(atom);
-            }
-            else if (token[0] === '\\') {
-                // Invoke the 'main' parser to handle the command
-                tokens.unshift(token);
-                let atoms;
-                [atoms, tokens] = options.parse('text', tokens, options);
-                result = [...result, ...atoms];
-            }
-            else if (token.length === 1) {
-                const info = getInfo(token, 'text', options.macros);
-                if (!info) {
-                    error({ code: 'unexpected-token' });
-                }
-                else if (!info.mode || info.mode.includes('text')) {
-                    atom = new Atom('text', info ? info.type : '', // @todo: revisit. Use 'text' type?
-                    info ? info.value : token, options.style);
-                    atom.symbol = token;
-                    atom.latex = charToLatex('text', token);
-                    result.push(atom);
-                }
-                else {
-                    error({ code: 'unexpected-token' });
-                }
-            }
-            else if (token === '<$>' || token === '<$$>') {
-                // Mode-shift
-                const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
-                tokens = tokens.slice(subtokens.length + 1);
-                const [atoms] = options.parse('math', subtokens, options);
-                result = [...result, ...atoms];
-            }
-            else if (token === '<{>' || token === '<}>') ;
-            else {
-                error({
-                    code: 'unexpected-token',
-                    arg: token,
-                });
-            }
-        }
-        return [result, tokens];
-    }
-    register('text', {
-        emitLatexRun: emitLatexTextRun,
-        applyStyle: applyStyle$2,
-        parse: (tokens, error, options) => parse(tokens, error, options)[0],
     });
 
     // Performance to check first char of string: https://jsben.ch/QLjdZ
@@ -11113,7 +10728,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 else {
                     const token = this.peek();
-                    if (this.peek() === ']') {
+                    if (token === ']') {
                         done = true;
                     }
                     else if (isLiteral(token)) {
@@ -11132,6 +10747,48 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     }
                 }
                 done = done || this.end();
+            }
+            return result;
+        }
+        /**
+         * Return a sequence of characters as a string.
+         * Terminates on a balanced closing bracket
+         * This is used by the `\ce` command
+         */
+        scanBalancedString() {
+            let result = '';
+            let done = this.end();
+            let level = 1;
+            while (!done) {
+                if (this.match('<space>')) {
+                    result += ' ';
+                }
+                else {
+                    const token = this.get();
+                    if (token === '<{>') {
+                        result += '{';
+                        level += 1;
+                    }
+                    else if (token === '<}>') {
+                        level -= 1;
+                        if (level > 0) {
+                            result += '}';
+                        }
+                        else {
+                            this.index -= 1;
+                        }
+                    }
+                    else if (token === '<$>') {
+                        result += '$';
+                    }
+                    else if (token === '<$$>') {
+                        result += '$$';
+                    }
+                    else {
+                        result += token;
+                    }
+                }
+                done = level === 0 || this.end();
             }
             return result;
         }
@@ -11773,7 +11430,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 else {
                     const arg = this.parseArgument(param.type);
-                    if (arg) {
+                    if (typeof arg !== 'undefined') {
                         args.push(arg);
                     }
                     else {
@@ -11823,6 +11480,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             const saveAtoms = this.swapAtoms([]);
             if (parseMode === 'string') {
                 result = this.scanString();
+                this.skipUntilToken('<}>');
+            }
+            else if (parseMode === 'balanced-string') {
+                result = this.scanBalancedString();
                 this.skipUntilToken('<}>');
             }
             else if (parseMode === 'number') {
@@ -11884,7 +11545,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             this.parseMode = savedParseMode;
             const atoms = this.swapAtoms(saveAtoms);
-            return result ? result : atoms;
+            return result !== null && result !== void 0 ? result : atoms;
         }
         parseOptionalArgument(parseMode) {
             var _a;
@@ -11954,7 +11615,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             this.parseMode = savedParseMode;
             const atoms = this.swapAtoms(saveAtoms);
-            return result ? result : atoms;
+            return result !== null && result !== void 0 ? result : atoms;
         }
         parseSimpleToken() {
             const token = this.get();
@@ -16979,7 +16640,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      *
      */
     function atomToMathML(atom, options) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         // For named SVG atoms, map to a Unicode char
         const SVG_CODE_POINTS = {
             widehat: '^',
@@ -17243,24 +16904,24 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         (atom.svgBelow || underscript)) {
                         body = atom.body;
                     }
-                    else if (overscript) {
+                    else if (overscript && overscript.length > 0) {
                         body = atom.body;
                         if ((_b = (_a = atom.body) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.underscript) {
                             underscript = atom.body[0].underscript;
                             body = atom.body[0].body;
                         }
-                        else if (((_c = atom === null || atom === void 0 ? void 0 : atom.body[0]) === null || _c === void 0 ? void 0 : _c.type) === 'first' && ((_d = atom === null || atom === void 0 ? void 0 : atom.body[1]) === null || _d === void 0 ? void 0 : _d.underscript)) {
+                        else if (((_d = (_c = atom.body) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.type) === 'first' && ((_f = (_e = atom.body) === null || _e === void 0 ? void 0 : _e[1]) === null || _f === void 0 ? void 0 : _f.underscript)) {
                             underscript = atom.body[1].underscript;
                             body = atom.body[1].body;
                         }
                     }
-                    else if (underscript) {
+                    else if (underscript && underscript.length > 0) {
                         body = atom.body;
-                        if ((_f = (_e = atom === null || atom === void 0 ? void 0 : atom.body) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.overscript) {
+                        if ((_h = (_g = atom.body) === null || _g === void 0 ? void 0 : _g[0]) === null || _h === void 0 ? void 0 : _h.overscript) {
                             overscript = atom.body[0].overscript;
                             body = atom.body[0].body;
                         }
-                        else if (((_g = atom === null || atom === void 0 ? void 0 : atom.body[0]) === null || _g === void 0 ? void 0 : _g.type) === 'first' && ((_h = atom === null || atom === void 0 ? void 0 : atom.body[1]) === null || _h === void 0 ? void 0 : _h.overscript)) {
+                        else if (((_k = (_j = atom.body) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.type) === 'first' && ((_m = (_l = atom.body) === null || _l === void 0 ? void 0 : _l[1]) === null || _m === void 0 ? void 0 : _m.overscript)) {
                             overscript = atom.body[1].overscript;
                             body = atom.body[1].body;
                         }
@@ -17433,6 +17094,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     break;
                 case 'space':
                     result += '&nbsp;';
+                    break;
+                case 'msupsub':
+                    break;
+                case 'phantom':
                     break;
                 default:
                     console.log('In conversion to MathML, unknown type : ' + atom.type);
@@ -19104,7 +18769,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * has the style partially applied (i.e. only some sections), remove it from
      * those sections, and apply it to the entire selection.
      */
-    function applyStyle$3(model, style) {
+    function applyStyle$1(model, style) {
         // No selection, nothing to do.
         if (selectionIsCollapsed(model))
             return false;
@@ -22756,7 +22421,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         },
     });
 
-    function applyStyle$4(mathfield, inStyle) {
+    function applyStyle$2(mathfield, inStyle) {
         mathfield.resetKeystrokeBuffer();
         const style = validateStyle(inStyle);
         if (style.mode) {
@@ -22823,12 +22488,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         else {
             // Change the style of the selection
-            applyStyle$3(mathfield.model, style);
+            applyStyle$1(mathfield.model, style);
             mathfield.snapshot();
         }
         return true;
     }
-    register$2({ applyStyle: applyStyle$4 }, { target: 'mathfield' });
+    register$2({ applyStyle: applyStyle$2 }, { target: 'mathfield' });
     /**
      * Validate a style specification object
      */
@@ -25111,11 +24776,8411 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 
     var css_248z$1 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret);margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret);margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__command-caret:after{content:\"_\";border:none;margin-right:-1ex;position:relative;color:var(--caret);-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%;--hue:212;--highlight:hsl(var(--hue),97%,85%);--caret:hsl(var(--hue),40%,49%);--highlight-inactive:#ccc;--primary:hsl(var(--hue),40%,50%);--secondary:hsl(var(--hue),19%,26%);--on-secondary:hsl(var(--hue),19%,26%)}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__fieldcontainer{--highlight:hsl(var(--hue),40%,49%);--highlight-inactive:hsl(var(--hue),10%,35%);--caret:hsl(var(--hue),97%,85%);--secondary:hsl(var(--hue),25%,35%);--on-secondary:#fafafa}}body[theme=dark] .ML__fieldcontainer{--highlight:hsl(var(--hue),40%,49%);--highlight-inactive:hsl(var(--hue),10%,35%);--caret:hsl(var(--hue),97%,85%);--secondary:hsl(var(--hue),25%,35%);--on-secondary:#fafafa}.ML__fieldcontainer:focus{outline:2px solid var(--primary);outline-offset:3px}.ML__fieldcontainer__field{align-self:center;position:relative;overflow:hidden;line-height:0;padding:2px;width:100%}.ML__virtual-keyboard-toggle{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:50%;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary);fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle:hover{background:hsl(var(--hue),25%,35%);color:#fafafa;fill:currentColor;border-radius:50%;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2)}.ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}.ML__textarea__textarea{transform:scale(0);resize:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:16px}.ML__focused .ML__text{background:hsla(var(--hue),40%,50%,.1)}.ML__smart-fence__close{opacity:.5}.ML__selection{background:var(--highlight-inactive);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight)!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open,.sqrt.ML__contains-caret>.sqrt-sign,.sqrt.ML__contains-caret>.vlist>span>.sqrt-line{color:var(--caret)}.ML__command{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;letter-spacing:-1px;font-weight:400;line-height:1em;color:var(--primary)}:not(.ML__command)+.ML__command{margin-left:.25em}.ML__command+:not(.ML__command){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.pressed{background:hsla(0,0%,70%,.5)}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:50%;border:2px solid var(--primary)}.ML__virtual-keyboard-toggle.active,.ML__virtual-keyboard-toggle.active:hover{background:hsla(0,0%,70%,.5);color:#000;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;visibility:hidden;content:attr(data-ML__tooltip);display:inline-table;top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{height:32px;padding:4px 16px;font-size:14px}}[data-ML__tooltip]:hover{position:relative}[data-ML__tooltip]:hover:after{visibility:visible;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
-    var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--ml_text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;border-bottom-style:solid;border-bottom-width:.04em;min-height:.04em;box-sizing:content-box}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;border-bottom-style:solid;border-bottom-width:.04em;min-height:.5px}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
+    var css_248z$2 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--ml_text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__mathlive{display:inline-block;line-height:0;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .reset-textstyle.scriptstyle{font-size:.7em}.ML__mathlive .reset-textstyle.scriptscriptstyle{font-size:.5em}.ML__mathlive .reset-scriptstyle.textstyle{font-size:1.42857em}.ML__mathlive .reset-scriptstyle.scriptscriptstyle{font-size:.71429em}.ML__mathlive .reset-scriptscriptstyle.textstyle{font-size:2em}.ML__mathlive .reset-scriptscriptstyle.scriptstyle{font-size:1.4em}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .vlist{display:inline-block}.ML__mathlive .vlist>span{display:block;height:0;position:relative;line-height:0}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .mfrac>span{text-align:center}.ML__mathlive .mfrac .frac-line{width:100%}.ML__mathlive .mfrac .frac-line:after{content:\"\";display:block;margin-top:-.04em;border-bottom-style:solid;border-bottom-width:.04em;min-height:.04em;box-sizing:content-box}.ML__mathlive .rspace.negativethinspace{margin-right:-.16667em}.ML__mathlive .rspace.thinspace{margin-right:.16667em}.ML__mathlive .rspace.negativemediumspace{margin-right:-.22222em}.ML__mathlive .rspace.mediumspace{margin-right:.22222em}.ML__mathlive .rspace.thickspace{margin-right:.27778em}.ML__mathlive .rspace.sixmuspace{margin-right:.333333em}.ML__mathlive .rspace.eightmuspace{margin-right:.444444em}.ML__mathlive .rspace.enspace{margin-right:.5em}.ML__mathlive .rspace.twelvemuspace{margin-right:.666667em}.ML__mathlive .rspace.quad{margin-right:1em}.ML__mathlive .rspace.qquad{margin-right:2em}.ML__mathlive .mspace{display:inline-block}.ML__mathlive .mspace.negativethinspace{margin-left:-.16667em}.ML__mathlive .mspace.thinspace{width:.16667em}.ML__mathlive .mspace.negativemediumspace{margin-left:-.22222em}.ML__mathlive .mspace.mediumspace{width:.22222em}.ML__mathlive .mspace.thickspace{width:.27778em}.ML__mathlive .mspace.sixmuspace{width:.333333em}.ML__mathlive .mspace.eightmuspace{width:.444444em}.ML__mathlive .mspace.enspace{width:.5em}.ML__mathlive .mspace.twelvemuspace{width:.666667em}.ML__mathlive .mspace.quad{width:1em}.ML__mathlive .mspace.qquad{width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .sqrt{display:inline-block}.ML__mathlive .sqrt>.sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__mathlive .sqrt .sqrt-line{height:.04em;width:100%}.ML__mathlive .sqrt .sqrt-line:before{content:\"\";display:block;margin-top:-.04em;border-bottom-style:solid;border-bottom-width:.04em;min-height:.5px}.ML__mathlive .sqrt .sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em}.ML__mathlive .sqrt>.root{margin-left:.27777778em;margin-right:-.55555556em}.ML__mathlive .fontsize-ensurer,.ML__mathlive .sizing{display:inline-block}.ML__mathlive .fontsize-ensurer.reset-size1.size1,.ML__mathlive .sizing.reset-size1.size1{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size1.size2,.ML__mathlive .sizing.reset-size1.size2{font-size:1.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size3,.ML__mathlive .sizing.reset-size1.size3{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size1.size4,.ML__mathlive .sizing.reset-size1.size4{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size1.size5,.ML__mathlive .sizing.reset-size1.size5{font-size:2em}.ML__mathlive .fontsize-ensurer.reset-size1.size6,.ML__mathlive .sizing.reset-size1.size6{font-size:2.4em}.ML__mathlive .fontsize-ensurer.reset-size1.size7,.ML__mathlive .sizing.reset-size1.size7{font-size:2.88em}.ML__mathlive .fontsize-ensurer.reset-size1.size8,.ML__mathlive .sizing.reset-size1.size8{font-size:3.46em}.ML__mathlive .fontsize-ensurer.reset-size1.size9,.ML__mathlive .sizing.reset-size1.size9{font-size:4.14em}.ML__mathlive .fontsize-ensurer.reset-size1.size10,.ML__mathlive .sizing.reset-size1.size10{font-size:4.98em}.ML__mathlive .fontsize-ensurer.reset-size2.size1,.ML__mathlive .sizing.reset-size2.size1{font-size:.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size2,.ML__mathlive .sizing.reset-size2.size2{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size2.size3,.ML__mathlive .sizing.reset-size2.size3{font-size:1.14285714em}.ML__mathlive .fontsize-ensurer.reset-size2.size4,.ML__mathlive .sizing.reset-size2.size4{font-size:1.28571429em}.ML__mathlive .fontsize-ensurer.reset-size2.size5,.ML__mathlive .sizing.reset-size2.size5{font-size:1.42857143em}.ML__mathlive .fontsize-ensurer.reset-size2.size6,.ML__mathlive .sizing.reset-size2.size6{font-size:1.71428571em}.ML__mathlive .fontsize-ensurer.reset-size2.size7,.ML__mathlive .sizing.reset-size2.size7{font-size:2.05714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size8,.ML__mathlive .sizing.reset-size2.size8{font-size:2.47142857em}.ML__mathlive .fontsize-ensurer.reset-size2.size9,.ML__mathlive .sizing.reset-size2.size9{font-size:2.95714286em}.ML__mathlive .fontsize-ensurer.reset-size2.size10,.ML__mathlive .sizing.reset-size2.size10{font-size:3.55714286em}.ML__mathlive .fontsize-ensurer.reset-size3.size1,.ML__mathlive .sizing.reset-size3.size1{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size3.size2,.ML__mathlive .sizing.reset-size3.size2{font-size:.875em}.ML__mathlive .fontsize-ensurer.reset-size3.size3,.ML__mathlive .sizing.reset-size3.size3{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size3.size4,.ML__mathlive .sizing.reset-size3.size4{font-size:1.125em}.ML__mathlive .fontsize-ensurer.reset-size3.size5,.ML__mathlive .sizing.reset-size3.size5{font-size:1.25em}.ML__mathlive .fontsize-ensurer.reset-size3.size6,.ML__mathlive .sizing.reset-size3.size6{font-size:1.5em}.ML__mathlive .fontsize-ensurer.reset-size3.size7,.ML__mathlive .sizing.reset-size3.size7{font-size:1.8em}.ML__mathlive .fontsize-ensurer.reset-size3.size8,.ML__mathlive .sizing.reset-size3.size8{font-size:2.1625em}.ML__mathlive .fontsize-ensurer.reset-size3.size9,.ML__mathlive .sizing.reset-size3.size9{font-size:2.5875em}.ML__mathlive .fontsize-ensurer.reset-size3.size10,.ML__mathlive .sizing.reset-size3.size10{font-size:3.1125em}.ML__mathlive .fontsize-ensurer.reset-size4.size1,.ML__mathlive .sizing.reset-size4.size1{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size4.size2,.ML__mathlive .sizing.reset-size4.size2{font-size:.77777778em}.ML__mathlive .fontsize-ensurer.reset-size4.size3,.ML__mathlive .sizing.reset-size4.size3{font-size:.88888889em}.ML__mathlive .fontsize-ensurer.reset-size4.size4,.ML__mathlive .sizing.reset-size4.size4{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size4.size5,.ML__mathlive .sizing.reset-size4.size5{font-size:1.11111111em}.ML__mathlive .fontsize-ensurer.reset-size4.size6,.ML__mathlive .sizing.reset-size4.size6{font-size:1.33333333em}.ML__mathlive .fontsize-ensurer.reset-size4.size7,.ML__mathlive .sizing.reset-size4.size7{font-size:1.6em}.ML__mathlive .fontsize-ensurer.reset-size4.size8,.ML__mathlive .sizing.reset-size4.size8{font-size:1.92222222em}.ML__mathlive .fontsize-ensurer.reset-size4.size9,.ML__mathlive .sizing.reset-size4.size9{font-size:2.3em}.ML__mathlive .fontsize-ensurer.reset-size4.size10,.ML__mathlive .sizing.reset-size4.size10{font-size:2.76666667em}.ML__mathlive .fontsize-ensurer.reset-size5.size1,.ML__mathlive .sizing.reset-size5.size1{font-size:.5em}.ML__mathlive .fontsize-ensurer.reset-size5.size2,.ML__mathlive .sizing.reset-size5.size2{font-size:.7em}.ML__mathlive .fontsize-ensurer.reset-size5.size3,.ML__mathlive .sizing.reset-size5.size3{font-size:.8em}.ML__mathlive .fontsize-ensurer.reset-size5.size4,.ML__mathlive .sizing.reset-size5.size4{font-size:.9em}.ML__mathlive .fontsize-ensurer.reset-size5.size5,.ML__mathlive .sizing.reset-size5.size5{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size5.size6,.ML__mathlive .sizing.reset-size5.size6{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size5.size7,.ML__mathlive .sizing.reset-size5.size7{font-size:1.44em}.ML__mathlive .fontsize-ensurer.reset-size5.size8,.ML__mathlive .sizing.reset-size5.size8{font-size:1.73em}.ML__mathlive .fontsize-ensurer.reset-size5.size9,.ML__mathlive .sizing.reset-size5.size9{font-size:2.07em}.ML__mathlive .fontsize-ensurer.reset-size5.size10,.ML__mathlive .sizing.reset-size5.size10{font-size:2.49em}.ML__mathlive .fontsize-ensurer.reset-size6.size1,.ML__mathlive .sizing.reset-size6.size1{font-size:.41666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size2,.ML__mathlive .sizing.reset-size6.size2{font-size:.58333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size3,.ML__mathlive .sizing.reset-size6.size3{font-size:.66666667em}.ML__mathlive .fontsize-ensurer.reset-size6.size4,.ML__mathlive .sizing.reset-size6.size4{font-size:.75em}.ML__mathlive .fontsize-ensurer.reset-size6.size5,.ML__mathlive .sizing.reset-size6.size5{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size6.size6,.ML__mathlive .sizing.reset-size6.size6{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size6.size7,.ML__mathlive .sizing.reset-size6.size7{font-size:1.2em}.ML__mathlive .fontsize-ensurer.reset-size6.size8,.ML__mathlive .sizing.reset-size6.size8{font-size:1.44166667em}.ML__mathlive .fontsize-ensurer.reset-size6.size9,.ML__mathlive .sizing.reset-size6.size9{font-size:1.725em}.ML__mathlive .fontsize-ensurer.reset-size6.size10,.ML__mathlive .sizing.reset-size6.size10{font-size:2.075em}.ML__mathlive .fontsize-ensurer.reset-size7.size1,.ML__mathlive .sizing.reset-size7.size1{font-size:.34722222em}.ML__mathlive .fontsize-ensurer.reset-size7.size2,.ML__mathlive .sizing.reset-size7.size2{font-size:.48611111em}.ML__mathlive .fontsize-ensurer.reset-size7.size3,.ML__mathlive .sizing.reset-size7.size3{font-size:.55555556em}.ML__mathlive .fontsize-ensurer.reset-size7.size4,.ML__mathlive .sizing.reset-size7.size4{font-size:.625em}.ML__mathlive .fontsize-ensurer.reset-size7.size5,.ML__mathlive .sizing.reset-size7.size5{font-size:.69444444em}.ML__mathlive .fontsize-ensurer.reset-size7.size6,.ML__mathlive .sizing.reset-size7.size6{font-size:.83333333em}.ML__mathlive .fontsize-ensurer.reset-size7.size7,.ML__mathlive .sizing.reset-size7.size7{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size7.size8,.ML__mathlive .sizing.reset-size7.size8{font-size:1.20138889em}.ML__mathlive .fontsize-ensurer.reset-size7.size9,.ML__mathlive .sizing.reset-size7.size9{font-size:1.4375em}.ML__mathlive .fontsize-ensurer.reset-size7.size10,.ML__mathlive .sizing.reset-size7.size10{font-size:1.72916667em}.ML__mathlive .fontsize-ensurer.reset-size8.size1,.ML__mathlive .sizing.reset-size8.size1{font-size:.28901734em}.ML__mathlive .fontsize-ensurer.reset-size8.size2,.ML__mathlive .sizing.reset-size8.size2{font-size:.40462428em}.ML__mathlive .fontsize-ensurer.reset-size8.size3,.ML__mathlive .sizing.reset-size8.size3{font-size:.46242775em}.ML__mathlive .fontsize-ensurer.reset-size8.size4,.ML__mathlive .sizing.reset-size8.size4{font-size:.52023121em}.ML__mathlive .fontsize-ensurer.reset-size8.size5,.ML__mathlive .sizing.reset-size8.size5{font-size:.57803468em}.ML__mathlive .fontsize-ensurer.reset-size8.size6,.ML__mathlive .sizing.reset-size8.size6{font-size:.69364162em}.ML__mathlive .fontsize-ensurer.reset-size8.size7,.ML__mathlive .sizing.reset-size8.size7{font-size:.83236994em}.ML__mathlive .fontsize-ensurer.reset-size8.size8,.ML__mathlive .sizing.reset-size8.size8{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size8.size9,.ML__mathlive .sizing.reset-size8.size9{font-size:1.19653179em}.ML__mathlive .fontsize-ensurer.reset-size8.size10,.ML__mathlive .sizing.reset-size8.size10{font-size:1.43930636em}.ML__mathlive .fontsize-ensurer.reset-size9.size1,.ML__mathlive .sizing.reset-size9.size1{font-size:.24154589em}.ML__mathlive .fontsize-ensurer.reset-size9.size2,.ML__mathlive .sizing.reset-size9.size2{font-size:.33816425em}.ML__mathlive .fontsize-ensurer.reset-size9.size3,.ML__mathlive .sizing.reset-size9.size3{font-size:.38647343em}.ML__mathlive .fontsize-ensurer.reset-size9.size4,.ML__mathlive .sizing.reset-size9.size4{font-size:.43478261em}.ML__mathlive .fontsize-ensurer.reset-size9.size5,.ML__mathlive .sizing.reset-size9.size5{font-size:.48309179em}.ML__mathlive .fontsize-ensurer.reset-size9.size6,.ML__mathlive .sizing.reset-size9.size6{font-size:.57971014em}.ML__mathlive .fontsize-ensurer.reset-size9.size7,.ML__mathlive .sizing.reset-size9.size7{font-size:.69565217em}.ML__mathlive .fontsize-ensurer.reset-size9.size8,.ML__mathlive .sizing.reset-size9.size8{font-size:.83574879em}.ML__mathlive .fontsize-ensurer.reset-size9.size9,.ML__mathlive .sizing.reset-size9.size9{font-size:1em}.ML__mathlive .fontsize-ensurer.reset-size9.size10,.ML__mathlive .sizing.reset-size9.size10{font-size:1.20289855em}.ML__mathlive .fontsize-ensurer.reset-size10.size1,.ML__mathlive .sizing.reset-size10.size1{font-size:.20080321em}.ML__mathlive .fontsize-ensurer.reset-size10.size2,.ML__mathlive .sizing.reset-size10.size2{font-size:.2811245em}.ML__mathlive .fontsize-ensurer.reset-size10.size3,.ML__mathlive .sizing.reset-size10.size3{font-size:.32128514em}.ML__mathlive .fontsize-ensurer.reset-size10.size4,.ML__mathlive .sizing.reset-size10.size4{font-size:.36144578em}.ML__mathlive .fontsize-ensurer.reset-size10.size5,.ML__mathlive .sizing.reset-size10.size5{font-size:.40160643em}.ML__mathlive .fontsize-ensurer.reset-size10.size6,.ML__mathlive .sizing.reset-size10.size6{font-size:.48192771em}.ML__mathlive .fontsize-ensurer.reset-size10.size7,.ML__mathlive .sizing.reset-size10.size7{font-size:.57831325em}.ML__mathlive .fontsize-ensurer.reset-size10.size8,.ML__mathlive .sizing.reset-size10.size8{font-size:.69477912em}.ML__mathlive .fontsize-ensurer.reset-size10.size9,.ML__mathlive .sizing.reset-size10.size9{font-size:.8313253em}.ML__mathlive .fontsize-ensurer.reset-size10.size10,.ML__mathlive .sizing.reset-size10.size10{font-size:1em}.ML__mathlive .delimsizing.size1{font-family:KaTeX_Size1}.ML__mathlive .delimsizing.size2{font-family:KaTeX_Size2}.ML__mathlive .delimsizing.size3{font-family:KaTeX_Size3}.ML__mathlive .delimsizing.size4{font-family:KaTeX_Size4}.ML__mathlive .delimsizing.mult .delim-size1{font-family:KaTeX_Size1;vertical-align:top}.ML__mathlive .delimsizing.mult .delim-size4{font-family:KaTeX_Size4;vertical-align:top}.ML__mathlive .nulldelimiter{width:.12em}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .op-limits .vlist>span{text-align:center}.ML__mathlive .op-over-under{position:relative}.ML__mathlive .op-over-under>.vlist>span:first-child,.ML__mathlive .op-over-under>.vlist>span:last-child{text-align:center}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .accent .accent-body>span{font-family:KaTeX_Main;width:0}.ML__mathlive .accent .accent-body.accent-vec>span{position:relative;left:.326em}.ML__mathlive .mtable .vertical-separator{display:inline-block;margin:0 -.025em;border-right:.05em solid}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__placeholder{opacity:.7;padding-left:.4ex;padding-right:.4ex;padding-top:.4ex}";
 
     var css_248z$3 = "div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.active,.ML__popover__content.pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.active,.ML__popover__next-shortcut.pressed,.ML__popover__prev-shortcut.active,.ML__popover__prev-shortcut.pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:50%;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
     var css_248z$4 = ".ML__keystroke-caption{visibility:hidden;background:var(--secondary);border-color:var(--secondary-border);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);text-align:center;border-radius:6px;padding:16px;position:absolute;z-index:1;display:flex;flex-direction:row;justify-content:center;--keystroke:#fff;--on-keystroke:#555;--keystroke-border:#f7f7f7}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keystroke-caption{--keystroke:hsl(var(--hue),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue),50%,25%)}}body[theme=dark] .ML__keystroke-caption{--keystroke:hsl(var(--hue),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue),50%,25%)}.ML__keystroke-caption>span{min-width:14px;margin:0 8px 0 0;padding:4px;background-color:var(--keystroke);color:var(--on-keystroke);fill:currentColor;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:1em;border-radius:6px;border:2px solid var(--keystroke-border)}";
+
+    const ARITHMETIC_DICTIONARY = {
+        //
+        // Constants
+        //
+        PI: {
+            wikidata: 'Q167',
+            isConstant: true,
+            domain: 'R+',
+        },
+        //
+        // Functions
+        //
+        Abs: {
+            /** Elem */
+            wikidata: 'Q3317982',
+            isPure: true,
+            isListable: true,
+            isIdempotent: true,
+        },
+        Add: {
+            /** Elem */
+            wikidata: 'Q32043',
+            isAssociative: true,
+            isCommutative: true,
+            isListable: true,
+            isIdempotent: true,
+            isPure: true,
+        },
+        Chop: {
+            isAssociative: true,
+            isListable: true,
+            isPure: true,
+            isIdempotent: true,
+        },
+        Ceil: {
+            /** rounds a number up to the next largest integer */
+            isPure: true,
+        },
+        Equal: {
+            // mathematical relationship asserting that two quantities have the same value
+            wikidata: 'Q842346',
+            isPure: true,
+        },
+        E: {
+            isConstant: true,
+            value: { num: '2.7182818284590452354' },
+        },
+        Exp: {
+            /** Elem */
+            isPure: true,
+        },
+        Exp2: {
+            /** Elem */
+            isPure: true,
+        },
+        Exp10: {
+            /** Elem */
+            isPure: true,
+        },
+        Erf: {
+            /** Elem */
+            // Error function
+            isPure: true,
+        },
+        Erfc: {
+            /** Elem */
+            // Error function complement
+            isPure: true,
+        },
+        ExpMinusOne: {
+            /** Elem */
+            isPure: true,
+        },
+        Factorial: {
+            wikidata: 'Q120976',
+            isPure: true,
+        },
+        Floor: {
+            isPure: true,
+        },
+        Gamma: {
+            /** Elem */
+            isPure: true,
+        },
+        LogGamma: {
+            /** Elem */
+            isPure: true,
+        },
+        Log: {
+            /** Elem */
+            isPure: true,
+        },
+        Log2: {
+            /** Elem */
+            isPure: true,
+        },
+        Log10: {
+            /** Elem */
+            isPure: true,
+        },
+        LogOnePlus: {
+            /** Elem */
+            isPure: true,
+        },
+        MachineEpsilon: {
+            /*
+                The difference between 1 and the next larger floating point number
+                
+                2^{−52}
+                
+                See https://en.wikipedia.org/wiki/Machine_epsilon
+            */
+            isConstant: true,
+            value: { num: '2.220446049250313e-16' },
+        },
+        Multiply: {
+            /** Elem */
+            wikidata: 'Q40276',
+            isAssociative: true,
+            isCommutative: true,
+            isIdempotent: true,
+            isPure: true,
+        },
+        NotEqual: {
+            // Not equal
+            wikidata: 'Q28113351',
+            isCommutative: true,
+            isPure: true,
+        },
+        Negate: {
+            /** Elem */
+            wikidata: 'Q715358',
+            isPure: true,
+        },
+        Power: {
+            /** Elem */
+            wikidata: 'Q33456',
+            isCommutative: false,
+            isPure: true,
+        },
+        Round: {
+            isPure: true,
+        },
+        SignGamma: {
+            /** Elem */
+            /** The sign of the gamma function: -1 or +1 */
+            isPure: true,
+        },
+        Sqrt: {
+            /** Elem */
+            isPure: true,
+        },
+        Root: {
+            /** Elem */
+            isCommutative: false,
+            isPure: true,
+        },
+        Subtract: {
+            /** Elem */
+            wikidata: 'Q32043',
+            isCommutative: false,
+            isPure: true,
+        },
+    };
+
+    const CORE_DICTIONARY = {
+        Evaluate: {
+        // expr, [precision]
+        },
+        Group: {
+            domain: 'expression',
+            isListable: true,
+            // To support `((a,b),(c,d))`, group is considered non associative
+            // and non-idempotent
+            isPure: false,
+        },
+        Latex: {
+            domain: 'string',
+            isListable: false,
+            isPure: true,
+        },
+        String: {
+            domain: 'string',
+            isListable: true,
+            isPure: true,
+        },
+    };
+    // https://www.mathworks.com/help/referencelist.html?type=function&listtype=cat&category=&blocktype=&capability=&s_tid=CRUX_lftnav        // list
+    // xcas/gias https://www-fourier.ujf-grenoble.fr/~parisse/giac/doc/en/cascmd_en/cascmd_en.html
+    // https://www.haskell.org/onlinereport/haskell2010/haskellch9.html#x16-1720009.1
+    // length(expr, depth:integer) (for a list, an expression, etc..)
+    // apply(expr:symbol, arguments) -> [expr, ...arguments] (but symbol is an expression that's evaluated...)
+    // shape
+    // length
+    // depth
+    // take(n, list) -> n first elements of the list
+    // repeat(x) -> infinite list with "x" as argument
+    // cycle(list) -> infinitely repeating list, i.e. cycle({1, 2, 3}) -> {1, 2, 3, 1, 2, 3, 1...}
+    // iterate(f, acc) -> {f(acc), f(f(acc)), f(f(f(acc)))...}
+    // == NestList ??
+    // identity
+    // range
+    // index
+    // evaluate
+    // bind // replace  ( x-> 1)
+    // domain
+    // min, max
+    // Nothing  -- constants, ignored in lists
+    // None -- constant for some options
+    // rule ->
+    // delayed-rule: :> (value of replacement is recalculated each time)
+    // set, set delayed
+    // join
+    // convert(expr, CONVERT_TO, OPTIONS) -- See Maple
+    // N
+    // set, delayed-set
+    // spread -> expand the elements of a list. If inside a list, insert the list into its parent
+    // compose (compose(f, g) -> a new function such that compose(f, g)(x) -> f(g(x))
+    // convert(expr, options), with options such as 'cos', 'sin, 'trig, 'exp', 'ln', 'latex', 'string', etc...)
+    // symbol(x) -> x as a symbol, e.g. symbol('x' + 'y') -> `xy` (and registers it)
+    // symbols() -> return list of all known symbols
+    // variables() -> return list of all free variables
+
+    // Set operations:
+    // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ1964995%0A%7D%0A
+    const SETS_DICTIONARY = {
+        CartesianProduct: {
+            // Aka the product set, the set direct product or cross product
+            // Notation: \times
+            wikidata: 'Q173740',
+        },
+        // empty-set
+        Intersection: {
+            // notation: \Cap
+            wikidata: 'Q185359',
+        },
+        Complement: {
+            // Return the element of the first argument that are not in any of
+            // the subsequent lists
+            wikidata: 'Q242767',
+        },
+        Union: {
+            // Works on set, but can also work on lists
+            wikidata: 'Q185359',
+        },
+        // disjoint union Q842620 ⊔
+        SymmetricDifference: {
+            // symmetric difference = disjunctive union  (circled minus)
+            /** = Union(Complemenent(a, b), Complement(b, a) */
+            /** Corresponds to XOR in boolean logic */
+            wikidata: 'Q1147242',
+        },
+    };
+
+    // sec, csc, cot
+    // sechh, csch, coth,
+    // arcsec, arccsc, arccot, arcsinh,
+    // arcsech, arccsch, arccoth,
+    const TRIGONOMETRY_DICTIONARY = {
+        Arcosh: {
+            /** Elem */
+            isPure: true,
+        },
+        Arccos: {
+            /** Elem */
+            isPure: true,
+        },
+        Arcsin: {
+            /** Elem */
+            isPure: true,
+        },
+        Arctan: {
+            /** Elem */
+            isPure: true,
+        },
+        Arctan2: {
+            /** Elem */
+            isPure: true,
+        },
+        Arsinh: {
+            /** Elem */
+            isPure: true,
+        },
+        Artanh: {
+            /** Elem */
+            isPure: true,
+        },
+        Cos: {
+            /** Elem */
+            isPure: true,
+        },
+        Degrees: {
+            /* = Pi / 180 */
+            isConstant: true,
+            value: { num: '0.017453292519943295769236907' },
+        },
+        FromPolarCoordinates: {
+            /* converts (radius, angle) -> (x, y) */
+            isPure: true,
+        },
+        Haversine: {
+            /** = sin(z/2)^2 */
+            isPure: true,
+        },
+        Hypot: {
+            /** Elem */
+            // sqrt(x*x + y*y)
+            isPure: true,
+        },
+        InverseHaversine: {
+            /** = 2 * Arcsin(Sqrt(z)) */
+            isPure: true,
+        },
+        Sin: {
+            /** Elem */
+            isPure: true,
+        },
+        Sinh: {
+            /** Elem */
+            isPure: true,
+        },
+        Tan: {
+            /** Elem */
+            isPure: true,
+        },
+        Tanh: {
+            /** Elem */
+            isPure: true,
+        },
+        ToPolarCoordinates: {
+            /* converts (x, y) -> (radius, angle) */
+            isPure: true,
+        },
+    };
+
+    /**
+     * These constants are the 'primitives' that are used for some basic manipulations
+     * such as parsing, and transforming to canonical form.
+     *
+     */
+    const LATEX = 'Latex';
+    const LIST = 'List';
+    const IDENTITY = 'Identity';
+    const MISSING = 'Missing';
+    const NOTHING = 'Nothing';
+    const SEQUENCE = 'Sequence';
+    const SUBSEQUENCE = 'Subsequence';
+    const GROUP = 'Group';
+    const MULTIPLY = 'Multiply';
+    const POWER = 'Power';
+    const DIVIDE = 'Divide';
+    const ADD = 'Add';
+    const SUBTRACT = 'Subtract';
+    const NEGATE = 'Negate';
+    const DERIVATIVE = 'Derivative';
+    const INVERSE_FUNCTION = 'InverseFunction';
+    const EXP = 'Exp';
+    const SQRT = 'Sqrt';
+    const ROOT = 'Root';
+    const PRIME = 'Prime';
+    const COMPLEX_INFINITY = 'COMPLEX_INFINITY';
+    const PI = 'PI';
+    const EXPONENTIAL_E = 'E';
+    const IMAGINARY_I = 'I';
+    function getDefaultDictionary(domain = 'all') {
+        let result;
+        if (domain === 'all') {
+            result = {};
+            Object.keys(DICTIONARY).forEach((x) => {
+                result = { ...result, ...DICTIONARY[x] };
+            });
+        }
+        else {
+            result = { ...DICTIONARY[domain] };
+        }
+        return result;
+    }
+    function findFunctionInDictionary(dic, name) {
+        if (dic[name] && !('isConstant' in dic[name])) {
+            return dic[name];
+        }
+        return null;
+    }
+    function findSymbolInDictionary(dic, name) {
+        if (dic[name] && 'isConstant' in dic[name]) {
+            return dic[name];
+        }
+        return null;
+    }
+    // export const ADD = 'Q32043';
+    // export const SUBTRACT = 'Q40754';
+    // export const NEGATE = 'Q715358'; // -x
+    // export const RECIPROCAL = 'Q216906'; // 1/x
+    // export const MULTIPLY = 'Q40276';
+    // export const DIVIDE = 'Q40276';
+    // export const POWER = 'Q33456';
+    // export const STRING = 'Q184754';
+    // export const TEXT = '';
+    // export const COMPLEX = 'Q11567'; // ℂ Set of complex numbers Q26851286
+    // export const REAL = 'Q12916'; // ℝ Set of real numbers: Q26851380
+    // export const RATIONAL = 'Q1244890'; // ℚ
+    // export const NATURAL_NUMBER = 'Q21199'; // ℕ0 (includes 0) or ℕ* (wihtout 0) Set of Q28777634
+    // // set of positive integers (incl 0): Q47339953
+    // // set of natural numbers (w/o 0): Q47007719
+    // export const INTEGER = 'Q12503'; // ℤ
+    // export const PRIME = 'Q47370614'; // set of prime numbers
+    // export const MATRIX = 'Q44337';
+    // export const FUNCTION = 'Q11348';
+    // export const LIST = 'Q12139612';
+    // Unary functions:
+    // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ657596%0A%7D%0A
+    // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP279%2a%20wd%3AQ657596%0A%7D%0A
+    // Binary functions:
+    // https://query.wikidata.org/#PREFIX%20wd%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX%20wdt%3A%20%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0A%0ASELECT%20DISTINCT%20%3Fitem%0AWHERE%20%7B%0A%20%20%20%20%3Fitem%20wdt%3AP31%2a%20wd%3AQ164307%0A%7D%0A
+    // Bindings to:
+    // - stdlib: https://github.com/stdlib-js/stdlib
+    // - mathjs
+    // - others...?
+    const DICTIONARY = {
+        arithmetic: ARITHMETIC_DICTIONARY,
+        algebra: {
+        // polynomial([0, 2, 0, 4]:list, x:symbol) -> 2x + 4x^3
+        // polynomial(2x + 4x^3, x) -> {0, 2, 0, 4}
+        // rational(2x + 4x^3, {3, 1}, x) -> (2x + 4x^3)/(3+x)
+        // https://reference.wolfram.com/language/tutorial/AlgebraicCalculations.html
+        // simplify-trig (macsyma)
+        //  - trigReduce, trigExpand, trigFactor, trigToExp (mathematica)
+        // Mathematica:
+        // - distribute -> (a+b)(c+d) -> ac+ ad+ bc+ bd (doesn't have to be multiply,
+        // f(a+b, c+d) -> f(a, c) + f(a, d) + f(b, c) + f(b, d)
+        // -- distribute(expr, over=add, with=multiply)
+        // https://reference.wolfram.com/language/ref/Distribute.html
+        // - expand, expand-all
+        // - factor
+        // - simplify
+        },
+        calculus: {
+        // D
+        // Derivative (mathematica)
+        // diff (macsyma)
+        // nth-diff
+        // int
+        // - integrate(expression, symbol)  -- indefinite integral
+        // - integrate(expression, range) <range> = {symbol, min, max} -- definite integral
+        // - integrate(expression, range1, range2) -- multiple integral
+        // def-int
+        },
+        combinatorics: {},
+        complex: {
+        // real
+        // imaginary
+        // complex-cartesian (constructor)
+        // complex-polar
+        // argument
+        // conjugate
+        },
+        core: CORE_DICTIONARY,
+        dimensions: {
+        // volume, speed, area
+        },
+        lists: {
+        // first    or head
+        // rest     or tail
+        // cons -> cons(first (element), rest (list)) = list
+        // append -> append(list, list) -> list
+        // reverse
+        // rotate
+        // in
+        // map   ⁡ map(2x, x, list) ( 2 ⁢ x | x ∈ [ 0 , 10 ] )
+        // such-that {x ∈ Z | x ≥ 0 ∧ x < 100 ∧ x 2 ∈ Z}
+        // select : picks out all elements ei of list for which crit[ei] is True.
+        // sort
+        // contains / find
+        },
+        logic: {
+        // true, false
+        // and, or, not, xor,, nand, nor, xnor,
+        // equivalent, implies
+        // for-all
+        // exists
+        },
+        inequalities: {},
+        intervals: {
+        // interval of integers vs interval of other sets (integer interval don't need to be open/closed)
+        // interval vs. ranges
+        // interval, open-interval, etc..
+        // upper     or min?
+        // lower    or max?
+        },
+        'linear-algebra': {
+        // matrix
+        // transpose
+        // cross-product
+        // outer-product
+        // determinant
+        // vector
+        // matrix
+        // rank
+        // scalar-matrix
+        // constant-matrix
+        // identitity-matrix
+        },
+        numeric: {
+        // Gamma function
+        // Zeta function
+        // erf function
+        // numerator(fraction)
+        // denominator(fraction)
+        // exactFloatToRational
+        // N -> eval as a number
+        // random
+        // hash
+        },
+        other: {},
+        polynomials: {
+        // degree
+        // expand
+        // factors
+        // roots
+        },
+        physics: {
+            'mu-0': {
+                isConstant: true,
+                wikidata: 'Q1515261',
+                domain: 'R+',
+                value: 1.25663706212e-6,
+                unit: [MULTIPLY, 'H', [POWER, 'm', -1]],
+            },
+        },
+        quantifiers: {},
+        relations: {
+        // eq, lt, leq, gt, geq, neq, approx
+        //     shortLogicalImplies: 52, // ->
+        // shortImplies => 51
+        // implies ==> 49
+        //    impliedBy: 45, // <==
+        // := assign 80
+        // less-than-or-equal-to: Q55935272 241
+        // greater-than-or-equal: Q55935291 242
+        // greater-than: Q47035128  243
+        // less-than: Q52834024 245
+        },
+        rounding: {
+        // ceiling, floor, trunc, round,
+        },
+        sets: SETS_DICTIONARY,
+        statistics: {
+        // average
+        // mean
+        // variance = size(l) * stddev(l)^2 / (size(l) - 1)
+        // stddev
+        // median
+        // quantile
+        },
+        transcendentals: {
+        // log, ln, exp,
+        },
+        trigonometry: TRIGONOMETRY_DICTIONARY,
+        units: {},
+    };
+
+    const DEFAULT_LATEX_NUMBER_OPTIONS = {
+        precision: 15,
+        decimalMarker: '.',
+        groupSeparator: '\\,',
+        exponentProduct: '\\cdot',
+        beginExponentMarker: '10^{',
+        endExponentMarker: '}',
+        arcSeparator: '\\,',
+        notation: 'auto',
+        imaginaryNumber: '\\imaginaryI',
+        beginRepeatingDigits: '\\overline{',
+        endRepeatingDigits: '}',
+    };
+    const DEFAULT_PARSE_LATEX_OPTIONS = {
+        ...DEFAULT_LATEX_NUMBER_OPTIONS,
+        invisibleOperator: MULTIPLY,
+        skipSpace: true,
+        parseArgumentsOfUnknownLatexCommands: true,
+        parseNumbers: true,
+        promoteUnknownSymbols: /^[a-zA-Z]$/,
+        promoteUnknownFunctions: /^[fg]$/,
+        invisiblePlusOperator: ADD,
+        preserveLatex: false,
+        dictionary: [],
+    };
+    const DEFAULT_EMIT_LATEX_OPTIONS = {
+        ...DEFAULT_LATEX_NUMBER_OPTIONS,
+        invisibleMultiply: '',
+        invisiblePlus: '',
+        // invisibleApply: '',
+        multiply: '\\times',
+        // openGroup: '(',
+        // closeGroup: ')',
+        // divide: '\\frac{#1}{#2}',
+        // subtract: '#1-#2',
+        // add: '#1+#2',
+        // negate: '-#1',
+        // squareRoot: '\\sqrt{#1}',
+        // nthRoot: '\\sqrt[#2]{#1}',
+        dictionary: [],
+    };
+
+    function isNumberObject(expr) {
+        return Boolean(expr) && typeof expr === 'object' && 'num' in expr;
+    }
+    function isSymbolObject(expr) {
+        return Boolean(expr) && typeof expr === 'object' && 'sym' in expr;
+    }
+    function isFunctionObject(expr) {
+        return Boolean(expr) && typeof expr === 'object' && 'fn' in expr;
+    }
+    function getNumberValue(expr) {
+        if (typeof expr === 'number') {
+            return expr;
+        }
+        if (isNumberObject(expr)) {
+            return parseFloat(expr.num);
+        }
+        if (getFunctionName(expr) === NEGATE) {
+            return -getNumberValue(getArg(expr, 1));
+        }
+        return NaN;
+    }
+    /**
+     * Return a rational (numer over denom) representation of the expression,
+     * if possibe, `[NaN, NaN]` otherwise.
+     *
+     * The expression can be:
+     * - a number
+     * - ["power", d, -1]
+     * - ["power", n, 1]
+     * - ["divide", n, d]
+     * - ["multiply", n, ["power", d, -1]]
+     */
+    function getRationalValue(expr) {
+        if (typeof expr === 'number')
+            return [expr, 1];
+        if (isNumberObject(expr))
+            return [getNumberValue(expr), 1];
+        if (isAtomic$1(expr))
+            return [NaN, NaN];
+        const head = getFunctionName(expr);
+        if (head === POWER) {
+            const exponent = getNumberValue(getArg(expr, 2));
+            if (exponent === 1) {
+                return [getNumberValue(getArg(expr, 1)), 1];
+            }
+            else if (exponent === -1) {
+                return [1, getNumberValue(getArg(expr, 1))];
+            }
+            return [NaN, NaN];
+        }
+        if (head === DIVIDE) {
+            return [
+                getNumberValue(getArg(expr, 1)),
+                getNumberValue(getArg(expr, 2)),
+            ];
+        }
+        if (head === MULTIPLY &&
+            getFunctionName(getArg(expr, 2)) === POWER &&
+            getNumberValue(getArg(getArg(expr, 2), 2)) === -1) {
+            return [
+                getNumberValue(getArg(expr, 1)),
+                getNumberValue(getArg(getArg(expr, 2), 1)),
+            ];
+        }
+        return [NaN, NaN];
+    }
+    /**
+     * The head of an expression can either be a string or an expression.
+     *
+     * Examples:
+     * `["negate", 5]`  -> "negate"
+     * `[["prime", "f"], "x"] -> `["prime", "f"]
+     */
+    function getFunctionHead(expr) {
+        if (Array.isArray(expr)) {
+            return expr[0];
+        }
+        if (isFunctionObject(expr)) {
+            return expr.fn[0];
+        }
+        return null;
+    }
+    /**
+     * True if the expression is a number or a symbol
+     */
+    function isAtomic$1(expr) {
+        // return (
+        //     typeof expr === 'string' ||
+        //     typeof expr === 'number' ||
+        //     (typeof expr === 'object' && ('num' in expr || 'sym' in expr))
+        // );
+        return (expr === null ||
+            (!Array.isArray(expr) && (typeof expr !== 'object' || !('fn' in expr))));
+    }
+    function getFunctionName(expr) {
+        const head = getFunctionHead(expr);
+        if (typeof head === 'string')
+            return head;
+        return '';
+    }
+    function getSymbolName(expr) {
+        if (typeof expr === 'string') {
+            return expr;
+        }
+        if (isSymbolObject(expr)) {
+            return expr.sym;
+        }
+        return null;
+    }
+    /**
+     * Return the arguments
+     */
+    function getArgs(expr) {
+        if (Array.isArray(expr)) {
+            return expr.slice(1);
+        }
+        if (isFunctionObject(expr)) {
+            return expr.fn.slice(1);
+        }
+        return [];
+    }
+    function mapArgs(expr, fn) {
+        if (Array.isArray(expr)) {
+            return expr.map((x, i) => (i === 0 ? x : fn(x)));
+        }
+        if (isFunctionObject(expr)) {
+            return expr.fn.map((x, i) => (i === 0 ? x : fn(x)));
+        }
+        return expr;
+    }
+    function getArg(expr, n) {
+        if (Array.isArray(expr)) {
+            return expr[n];
+        }
+        if (isFunctionObject(expr)) {
+            return expr.fn[n];
+        }
+        return null;
+    }
+    function getArgCount(expr) {
+        if (Array.isArray(expr)) {
+            return Math.max(0, expr.length - 1);
+        }
+        if (isFunctionObject(expr)) {
+            return Math.max(0, expr.fn.length - 1);
+        }
+        return 0;
+    }
+    /**
+     * Replace '#1', '#2' in the latex template stings with the corresponding
+     * values from `replacement`, in a Latex syntax safe manner (i.e. inserting spaces when needed)
+     */
+    function replaceLatex(template, replacement) {
+        var _a;
+        console.assert(typeof template === 'string');
+        console.assert(template.length > 0);
+        let result = template;
+        for (let i = 0; i < replacement.length; i++) {
+            let s = (_a = replacement[i]) !== null && _a !== void 0 ? _a : '';
+            if (/[a-zA-Z*]/.test(s[0])) {
+                const m = result.match(new RegExp('(.*)#' + Number(i + 1).toString()));
+                if (m && /\\[a-zA-Z*]+/.test(m[1])) {
+                    s = ' ' + s;
+                }
+            }
+            result = result.replace('#' + Number(i + 1).toString(), s);
+        }
+        return result;
+    }
+    /**
+     * Return the nth term in expr.
+     * If expr is not a "add" function, returns null.
+     */
+    // export function nth(_expr: Expression, _vars?: string[]): Expression {
+    //     return null;
+    // }
+    function varsRecursive(dic, vars, expr) {
+        const args = getArgs(expr);
+        if (args.length > 0) {
+            args.forEach((x) => varsRecursive(dic, vars, x));
+        }
+        else {
+            // It has a name, but no arguments. It's a symbol
+            const name = getSymbolName(expr);
+            if (name && !vars.has(name)) {
+                const def = findSymbolInDictionary(dic, name);
+                if (!def || !def.isConstant) {
+                    // It's not in the dictionary, or it's in the dictionary
+                    // but not as a constant -> it's a variable
+                    vars.add(name);
+                }
+            }
+        }
+    }
+    /**
+     * Return an array of the non-constant symbols in the expression.
+     */
+    function vars(dic, expr) {
+        const result = new Set();
+        varsRecursive(dic, result, expr);
+        return result;
+    }
+
+    // Each entry indicate the font-name (to be used to calculate font metrics)
+    // and the CSS classes (for proper markup styling) for each possible
+    // variant combinations.
+    const VARIANTS = {
+        // Handle some special characters which are only available in "main" font (not "math")
+        main: ['Main-Regular', 'ML__cmr'],
+        'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
+        'main-bold': ['Main-Bold', 'ML__cmr ML__bold'],
+        'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML_bold ML__it'],
+        normal: ['Main-Regular', 'ML__cmr'],
+        'normal-bold': ['Main-Bold', 'ML__mathbf'],
+        'normal-italic': ['Math-Italic', 'ML__mathit'],
+        'normal-bolditalic': ['Math-BoldItalic', 'ML__mathbfit'],
+        // Extended math symbols, arrows, etc.. at their standard Unicode codepoints
+        ams: ['AMS-Regular', 'ML__ams'],
+        'ams-bold': ['AMS-Regular', 'ML__ams'],
+        'ams-italic': ['AMS-Regular', 'ML__ams'],
+        'ams-bolditalic': ['AMS-Regular', 'ML__ams'],
+        'sans-serif': ['SansSerif-Regular', 'ML__sans'],
+        'sans-serif-bold': ['SansSerif-Regular', 'ML__sans ML__bold'],
+        'sans-serif-italic': ['SansSerif-Regular', 'ML__sans'],
+        'sans-serif-bolditalic': ['SansSerif-Regular', 'ML__sans'],
+        calligraphic: ['Caligraphic-Regular', 'ML__cal'],
+        'calligraphic-bold': ['Caligraphic-Regular', 'ML__cal ML__bold'],
+        'calligraphic-italic': ['Caligraphic-Regular', 'ML__cal ML__it'],
+        'calligraphic-bolditalic': [
+            'Caligraphic-Regular',
+            'ML__cal ML__bold ML__it',
+        ],
+        script: ['Script-Regular', 'ML__script'],
+        'script-bold': ['Script-Regular', 'ML__script ML__bold'],
+        'script-italic': ['Script-Regular', 'ML__script ML__it'],
+        'script-bolditalic': ['Script-Regular', 'ML__script ML__bold ML__it'],
+        fraktur: ['Fraktur-Regular', 'ML__frak'],
+        'fraktur-bold': ['Fraktur-Regular', 'ML__frak'],
+        'fraktur-italic': ['Fraktur-Regular', 'ML__frak'],
+        'fraktur-bolditalic': ['Fraktur-Regular', 'ML__frak'],
+        monospace: ['Typewriter-Regular', 'ML__tt'],
+        'monospace-bold': ['Typewriter-Regular', 'ML__tt ML__bold'],
+        'monospace-italic': ['Typewriter-Regular', 'ML__tt ML__it'],
+        'monospace-bolditalic': ['Typewriter-Regular', 'ML__tt ML__bold ML__it'],
+        // Blackboard characters are 'A-Z' in the AMS font
+        'double-struck': ['AMS-Regular', 'ML__bb'],
+        'double-struck-bold': ['AMS-Regular', 'ML__bb'],
+        'double-struck-italic': ['AMS-Regular', 'ML__bb'],
+        'double-struck-bolditalic': ['AMS-Regular', 'ML__bb'],
+    };
+    const VARIANT_REPERTOIRE = {
+        'double-struck': /^[A-Z ]$/,
+        script: /^[A-Z ]$/,
+        calligraphic: /^[0-9A-Z ]$/,
+        fraktur: /^[0-9A-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/,
+        monospace: /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
+        'sans-serif': /^[0-9A-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039b\u039e\u03A0\u03A3\u03A5\u03A8\u03a9]$/,
+    };
+    const GREEK_LOWERCASE = /^[\u03b1-\u03c9]|\u03d1|\u03d5|\u03d6|\u03f1|\u03f5]$/;
+    const GREEK_UPPERCASE = /^[\u0393|\u0394|\u0398|\u039b|\u039E|\u03A0|\u03A3|\u03a5|\u03a6|\u03a8|\u03a9]$/;
+    const LETTER_SHAPE_RANGES = [
+        /^[a-z]$/,
+        /^[A-Z]$/,
+        GREEK_LOWERCASE,
+        GREEK_UPPERCASE,
+    ];
+    // The letterShapeStyle property indicates which characters should be
+    // automatically italicized (see LETTER_SHAPE_RANGES)
+    const LETTER_SHAPE_MODIFIER = {
+        iso: ['it', 'it', 'it', 'it'],
+        tex: ['it', 'it', 'it', 'up'],
+        french: ['it', 'up', 'up', 'up'],
+        upright: ['up', 'up', 'up', 'up'],
+    };
+    // See http://ctan.math.illinois.edu/macros/latex/base/fntguide.pdf
+    function emitLatexMathRun(context, run, expandMacro) {
+        let contextValue = context.variant;
+        if (context.variantStyle && context.variantStyle !== 'up') {
+            contextValue += '-' + context.variantStyle;
+        }
+        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
+            const result = joinLatex(getPropertyRuns(x, 'variant').map((x) => {
+                let value = x[0].variant;
+                if (x[0].variantStyle && x[0].variantStyle !== 'up') {
+                    value += '-' + x[0].variantStyle;
+                }
+                // Check if all the atoms in this run have a base
+                // variant identical to the current variant
+                // If so, we can skip wrapping them
+                if (x.every((x) => {
+                    const info = getInfo(x.symbol, context.mode, null);
+                    if (!info || !(info.variant || info.variantStyle)) {
+                        return false;
+                    }
+                    let styledValue = x.variant;
+                    if (x.variantStyle && x.variantStyle !== 'up') {
+                        styledValue += '-' + x.variantStyle;
+                    }
+                    return styledValue === value;
+                })) {
+                    return joinLatex(x.map((x) => x.toLatex(expandMacro)));
+                }
+                let command = '';
+                if (value && value !== contextValue) {
+                    command = {
+                        calligraphic: '\\mathcal{',
+                        fraktur: '\\mathfrak{',
+                        'double-struck': '\\mathbb{',
+                        script: '\\mathscr{',
+                        monospace: '\\mathtt{',
+                        'sans-serif': '\\mathsf{',
+                        normal: '\\mathrm{',
+                        'normal-italic': '\\mathit{',
+                        'normal-bold': '\\mathbf{',
+                        'normal-bolditalic': '\\mathbfit{',
+                        ams: '',
+                        'ams-italic': '\\mathit{',
+                        'ams-bold': '\\mathbf{',
+                        'ams-bolditalic': '\\mathbfit{',
+                        main: '',
+                        'main-italic': '\\mathit{',
+                        'main-bold': '\\mathbf{',
+                        'main-bolditalic': '\\mathbfit{',
+                    }[value];
+                    console.assert(typeof command !== 'undefined');
+                }
+                return (command +
+                    joinLatex(x.map((x) => x.toLatex(expandMacro))) +
+                    (command ? '}' : ''));
+            }));
+            if (x[0].color && (!context || context.color !== x[0].color)) {
+                return ('\\textcolor{' +
+                    colorToString(x[0].color) +
+                    '}{' +
+                    result +
+                    '}');
+            }
+            return result;
+        }));
+    }
+    function applyStyle$3(atom, style) {
+        // letterShapeStyle will usually be set automatically, except when the
+        // locale cannot be determined, in which case its value will be 'auto'
+        // which we default to 'tex'
+        const letterShapeStyle = style.letterShapeStyle === 'auto' || !style.letterShapeStyle
+            ? 'tex'
+            : style.letterShapeStyle;
+        let variant = style.variant || 'normal';
+        let variantStyle = style.variantStyle || '';
+        // 1. Remap to "main" font some characters that don't exist
+        // in the "math" font
+        // There are two fonts that include the roman italic characters, "main-it" and "math"
+        // They are similar, but the "math" font has some different kernings ('f')
+        // and some slightly different character shape. It doesn't include a few
+        // characters, so for those characters, "main" has to be used instead
+        // \imath, \jmath and \pound don't exist in "math" font,
+        // so use "main" italic instead.
+        if (variant === 'normal' &&
+            !variantStyle &&
+            /\u00a3|\u0131|\u0237/.test(atom.body)) {
+            variant = 'main';
+            variantStyle = 'italic';
+        }
+        // 2. If no explicit variant style, auto-italicize some symbols,
+        // depending on the letterShapeStyle
+        if (variant === 'normal' && !variantStyle && atom.body.length === 1) {
+            LETTER_SHAPE_RANGES.forEach((x, i) => {
+                if (x.test(atom.body) &&
+                    LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it') {
+                    variantStyle = 'italic';
+                }
+            });
+        }
+        // 3. Map the variant + variantStyle to a font
+        if (variantStyle === 'up') {
+            variantStyle = '';
+        }
+        const styledVariant = variantStyle ? variant + '-' + variantStyle : variant;
+        console.assert(VARIANTS[styledVariant]);
+        const [fontName, classes] = VARIANTS[styledVariant];
+        // 4. If outside the font repertoire, switch to system font
+        // (return NULL to use default metrics)
+        if (VARIANT_REPERTOIRE[variant] &&
+            !VARIANT_REPERTOIRE[variant].test(atom.body)) {
+            // Map to unicode character
+            atom.body = mathVariantToUnicode(atom.body, variant, variantStyle);
+            atom.variant = '';
+            atom.variantStyle = '';
+            // Return NULL to use default metrics
+            return null;
+        }
+        // Lowercase greek letters have an incomplete repertoire (no bold)
+        // so, for \mathbf to behave correctly, add a 'lcGreek' class.
+        if (GREEK_LOWERCASE.test(atom.body)) {
+            atom.classes += ' lcGreek';
+        }
+        // 5. Assign classes based on the font
+        if (classes) {
+            atom.classes += ' ' + classes;
+        }
+        return fontName;
+    }
+    register('math', {
+        emitLatexRun: emitLatexMathRun,
+        applyStyle: applyStyle$3,
+    });
+
+    function emitStringTextRun(_context, run, _expandMacro) {
+        let needSpace = false;
+        return joinLatex(run.map((x) => {
+            let result = '';
+            let space = '';
+            if (x.latex) {
+                result = x.latex;
+            }
+            else if (typeof x.body === 'string') {
+                result = unicodeStringToLatex('text', x.body);
+            }
+            else if (x.symbol) {
+                result = x.symbol.replace(/\\/g, '\\backslash ');
+            }
+            if (needSpace && (!result || /^[a-zA-Z0-9*]/.test(result))) {
+                space = '{}';
+            }
+            needSpace = /\\[a-zA-Z0-9]+\*?$/.test(result);
+            return space + result;
+        }));
+    }
+    function emitFontShapeTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontShape').map((x) => {
+            const result = emitStringTextRun(context, x);
+            if (x[0].fontShape === 'it') {
+                return '\\textit{' + result + '}';
+            }
+            if (x[0].fontShape === 'sl') {
+                return '\\textsl{' + result + '}';
+            }
+            if (x[0].fontShape === 'sc') {
+                return '\\textsc{' + result + '}';
+            }
+            if (x[0].fontShape === 'n') {
+                return '\\textup{' + result + '}';
+            }
+            if (x[0].fontShape) {
+                return '\\fontshape{' + x[0].fontShape + '}' + result;
+            }
+            return result;
+        }));
+    }
+    function emitFontSeriesTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontSeries').map((x) => {
+            const result = emitFontShapeTextRun(context, x);
+            if (x[0].fontSeries === 'b') {
+                return '\\textbf{' + result + '}';
+            }
+            if (x[0].fontSeries === 'l') {
+                return '\\textlf{' + result + '}';
+            }
+            if (x[0].fontSeries === 'm') {
+                return '\\textmd{' + result + '}';
+            }
+            if (x[0].fontSeries) {
+                return '\\fontseries{' + x[0].fontSeries + '}' + result;
+            }
+            return result;
+        }));
+    }
+    function emitSizeTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontSize').map((x) => {
+            const result = emitFontSeriesTextRun(context, x);
+            const command = {
+                size1: 'tiny',
+                size2: 'scriptsize',
+                size3: 'footnotesize',
+                size4: 'small',
+                size5: 'normalsize',
+                size6: 'large',
+                size7: 'Large',
+                size8: 'LARGE',
+                size9: 'huge',
+                size10: 'Huge',
+            }[x[0].fontSize] || '';
+            if (command) {
+                return '\\' + command + ' ' + result;
+            }
+            return result;
+        }));
+    }
+    function emitFontFamilyTextRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'fontFamily').map((x) => {
+            const result = emitSizeTextRun(context, x);
+            const command = {
+                roman: 'textrm',
+                monospace: 'texttt',
+                'sans-serif': 'textsf',
+            }[x[0].fontFamily] || '';
+            if (command) {
+                return '\\' + command + '{' + result + '}';
+            }
+            if (x[0].fontFamily) {
+                return '\\fontfamily{' + x[0].fontFamily + '}' + result;
+            }
+            return result;
+        }));
+    }
+    function emitStyledTextRun(context, run, expandMacro) {
+        return emitFontFamilyTextRun(context, run);
+    }
+    function emitColorRun(context, run, expandMacro) {
+        return joinLatex(getPropertyRuns(run, 'color').map((x) => {
+            const result = emitStyledTextRun(context, x);
+            if (x[0].color &&
+                x[0].color !== 'none' &&
+                (!context || context.color !== x[0].color)) {
+                // If there is a color specified, and it is different
+                // from our context color, output a command
+                return ('\\textcolor{' +
+                    colorToString(x[0].color) +
+                    '}{' +
+                    result +
+                    '}');
+            }
+            return result;
+        }));
+    }
+    function emitLatexTextRun(context, run, expandMacro) {
+        const result = emitColorRun(context, run);
+        const allAtomsHaveShapeOrSeriesOrFontFamily = run.every((x) => x.fontSeries || x.fontShape || x.fontFamily);
+        if (!allAtomsHaveShapeOrSeriesOrFontFamily ||
+            run[0].mode !== context.mode) {
+            // Wrap in text, only if there isn't a shape or series on
+            // all the atoms, because if so, it will be wrapped in a
+            // \\textbf, \\textit, etc... and the \\text would be redundant
+            return `\\text{${result}}`;
+        }
+        return result;
+    }
+    const TEXT_FONT_CLASS = {
+        roman: '',
+        'sans-serif': 'ML__sans',
+        monospace: 'ML__tt',
+    };
+    /**
+     * Return the font-family name
+     */
+    function applyStyle$4(span, style) {
+        const fontFamily = style.fontFamily;
+        if (TEXT_FONT_CLASS[fontFamily]) {
+            span.classes += ' ' + TEXT_FONT_CLASS[fontFamily];
+        }
+        else if (fontFamily) {
+            // Not a well-known family. Use a style.
+            span.setStyle('font-family', fontFamily);
+        }
+        if (style.fontShape) {
+            span.classes +=
+                ' ' +
+                    ({
+                        it: 'ML__it',
+                        sl: 'ML__shape_sl',
+                        sc: 'ML__shape_sc',
+                        ol: 'ML__shape_ol',
+                    }[style.fontShape] || '');
+        }
+        if (style.fontSeries) {
+            const m = style.fontSeries.match(/(.?[lbm])?(.?[cx])?/);
+            if (m) {
+                span.classes +=
+                    ' ' +
+                        ({
+                            ul: 'ML__series_ul',
+                            el: 'ML__series_el',
+                            l: 'ML__series_l',
+                            sl: 'ML__series_sl',
+                            m: '',
+                            sb: 'ML__series_sb',
+                            b: 'ML__bold',
+                            eb: 'ML__series_eb',
+                            ub: 'ML__series_ub',
+                        }[m[1] || ''] || '');
+                span.classes +=
+                    ' ' +
+                        ({
+                            uc: 'ML__series_uc',
+                            ec: 'ML__series_ec',
+                            c: 'ML__series_c',
+                            sc: 'ML__series_sc',
+                            n: '',
+                            sx: 'ML__series_sx',
+                            x: 'ML__series_x',
+                            ex: 'ML__series_ex',
+                            ux: 'ML__series_ux',
+                        }[m[2] || ''] || '');
+            }
+        }
+        // Always use the metrics of 'Main-Regular' in text mode
+        return 'Main-Regular';
+    }
+    // Given an array of tokens, return an array of atoms
+    // options.args
+    // options.macros
+    // options.smartFence
+    // options.style
+    // options.parser
+    function parse(tokens, error, options) {
+        let result = [];
+        let atom;
+        while (tokens.length > 0) {
+            const token = tokens.shift();
+            if (token === '<space>') {
+                atom = new Atom('text', '', ' ', options.style);
+                atom.symbol = ' ';
+                result.push(atom);
+            }
+            else if (token[0] === '\\') {
+                // Invoke the 'main' parser to handle the command
+                tokens.unshift(token);
+                let atoms;
+                [atoms, tokens] = options.parse('text', tokens, options);
+                result = [...result, ...atoms];
+            }
+            else if (token.length === 1) {
+                const info = getInfo(token, 'text', options.macros);
+                if (!info) {
+                    error({ code: 'unexpected-token' });
+                }
+                else if (!info.mode || info.mode.includes('text')) {
+                    atom = new Atom('text', info ? info.type : '', // @todo: revisit. Use 'text' type?
+                    info ? info.value : token, options.style);
+                    atom.symbol = token;
+                    atom.latex = charToLatex('text', token);
+                    result.push(atom);
+                }
+                else {
+                    error({ code: 'unexpected-token' });
+                }
+            }
+            else if (token === '<$>' || token === '<$$>') {
+                // Mode-shift
+                const subtokens = tokens.slice(0, tokens.findIndex((x) => x === token));
+                tokens = tokens.slice(subtokens.length + 1);
+                const [atoms] = options.parse('math', subtokens, options);
+                result = [...result, ...atoms];
+            }
+            else if (token === '<{>' || token === '<}>') ;
+            else {
+                error({
+                    code: 'unexpected-token',
+                    arg: token,
+                });
+            }
+        }
+        return [result, tokens];
+    }
+    register('text', {
+        emitLatexRun: emitLatexTextRun,
+        applyStyle: applyStyle$4,
+        parse: (tokens, error, options) => parse(tokens, error, options)[0],
+    });
+
+    /* eslint-disable */
+    defineFunction(['ce', 'pu'], '{chemformula:balanced-string}', null, (name, args) => {
+        const tex = texify.go(mhchemParser.go(args[0], name === '\\pu' ? 'pu' : 'ce'));
+        // console.log(tex);
+        return {
+            type: 'group',
+            mode: 'chem',
+            body: parseString(tex),
+            latexOpen: '\\' + name + '{',
+            latexClose: '}',
+        };
+    }
+    // (name, _parent, atom, emit) => {
+    //     // let args = '';
+    //     // if (typeof atom.index !== 'undefined') {
+    //     //     args += `[${emit(atom, atom.index)}]`;
+    //     // }
+    //     // args += `{${emit(atom, atom.body as Atom[])}}`;
+    //     return '';
+    // }
+    );
+    /*************************************************************
+     *
+     *  MathJax/extensions/TeX/mhchem.js
+     *
+     *  Implements the \ce command for handling chemical formulas
+     *  from the mhchem LaTeX package.
+     *
+     *  ---------------------------------------------------------------------
+     *
+     *  Copyright (c) 2011-2015 The MathJax Consortium
+     *  Copyright (c) 2015-2018 Martin Hensel
+     *
+     *  Licensed under the Apache License, Version 2.0 (the "License");
+     *  you may not use this file except in compliance with the License.
+     *  You may obtain a copy of the License at
+     *
+     *      http://www.apache.org/licenses/LICENSE-2.0
+     *
+     *  Unless required by applicable law or agreed to in writing, software
+     *  distributed under the License is distributed on an "AS IS" BASIS,
+     *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     *  See the License for the specific language governing permissions and
+     *  limitations under the License.
+     */
+    //
+    // Core parser for mhchem syntax  (recursive)
+    //
+    /** @type {MhchemParser} */
+    var mhchemParser = {
+        //
+        // Parses mchem \ce syntax
+        //
+        // Call like
+        //   go("H2O");
+        //
+        go: function (input, stateMachine) {
+            if (!input) {
+                return [];
+            }
+            if (stateMachine === undefined) {
+                stateMachine = 'ce';
+            }
+            var state = '0';
+            //
+            // String buffers for parsing:
+            //
+            // buffer.a == amount
+            // buffer.o == element
+            // buffer.b == left-side superscript
+            // buffer.p == left-side subscript
+            // buffer.q == right-side subscript
+            // buffer.d == right-side superscript
+            //
+            // buffer.r == arrow
+            // buffer.rdt == arrow, script above, type
+            // buffer.rd == arrow, script above, content
+            // buffer.rqt == arrow, script below, type
+            // buffer.rq == arrow, script below, content
+            //
+            // buffer.text_
+            // buffer.rm
+            // etc.
+            //
+            // buffer.parenthesisLevel == int, starting at 0
+            // buffer.sb == bool, space before
+            // buffer.beginsWithBond == bool
+            //
+            // These letters are also used as state names.
+            //
+            // Other states:
+            // 0 == begin of main part (arrow/operator unlikely)
+            // 1 == next entity
+            // 2 == next entity (arrow/operator unlikely)
+            // 3 == next atom
+            // c == macro
+            //
+            /** @type {Buffer} */
+            var buffer = {};
+            buffer['parenthesisLevel'] = 0;
+            input = input.replace(/\n/g, ' ');
+            input = input.replace(/[\u2212\u2013\u2014\u2010]/g, '-');
+            input = input.replace(/[\u2026]/g, '...');
+            //
+            // Looks through mhchemParser.transitions, to execute a matching action
+            // (recursive)
+            //
+            var lastInput;
+            var watchdog = 10;
+            /** @type {ParserOutput[]} */
+            var output = [];
+            while (true) {
+                if (lastInput !== input) {
+                    watchdog = 10;
+                    lastInput = input;
+                }
+                else {
+                    watchdog--;
+                }
+                //
+                // Find actions in transition table
+                //
+                var machine = mhchemParser.stateMachines[stateMachine];
+                var t = machine.transitions[state] || machine.transitions['*'];
+                iterateTransitions: for (var i = 0; i < t.length; i++) {
+                    var matches = mhchemParser.patterns.match_(t[i].pattern, input);
+                    if (matches) {
+                        //
+                        // Execute actions
+                        //
+                        var task = t[i].task;
+                        for (var iA = 0; iA < task.action_.length; iA++) {
+                            var o;
+                            //
+                            // Find and execute action
+                            //
+                            if (machine.actions[task.action_[iA].type_]) {
+                                o = machine.actions[task.action_[iA].type_](buffer, matches.match_, task.action_[iA].option);
+                            }
+                            else if (mhchemParser.actions[task.action_[iA].type_]) {
+                                o = mhchemParser.actions[task.action_[iA].type_](buffer, matches.match_, task.action_[iA].option);
+                            }
+                            else {
+                                throw [
+                                    'MhchemBugA',
+                                    'mhchem bug A. Please report. (' +
+                                        task.action_[iA].type_ +
+                                        ')',
+                                ]; // Trying to use non-existing action
+                            }
+                            //
+                            // Add output
+                            //
+                            mhchemParser.concatArray(output, o);
+                        }
+                        //
+                        // Set next state,
+                        // Shorten input,
+                        // Continue with next character
+                        //   (= apply only one transition per position)
+                        //
+                        state = task.nextState || state;
+                        if (input.length > 0) {
+                            if (!task.revisit) {
+                                input = matches.remainder;
+                            }
+                            if (!task.toContinue) {
+                                break iterateTransitions;
+                            }
+                        }
+                        else {
+                            return output;
+                        }
+                    }
+                }
+                //
+                // Prevent infinite loop
+                //
+                if (watchdog <= 0) {
+                    throw ['MhchemBugU', 'mhchem bug U. Please report.']; // Unexpected character
+                }
+            }
+        },
+        concatArray: function (a, b) {
+            if (b) {
+                if (Array.isArray(b)) {
+                    for (var iB = 0; iB < b.length; iB++) {
+                        a.push(b[iB]);
+                    }
+                }
+                else {
+                    a.push(b);
+                }
+            }
+        },
+        patterns: {
+            //
+            // Matching patterns
+            // either regexps or function that return null or {match_:"a", remainder:"bc"}
+            //
+            patterns: {
+                // property names must not look like integers ("2") for correct property traversal order, later on
+                empty: /^$/,
+                else: /^./,
+                else2: /^./,
+                space: /^\s/,
+                'space A': /^\s(?=[A-Z\\$])/,
+                space$: /^\s$/,
+                'a-z': /^[a-z]/,
+                x: /^x/,
+                x$: /^x$/,
+                i$: /^i$/,
+                letters: /^(?:[a-zA-Z\u03B1-\u03C9\u0391-\u03A9?@]|(?:\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))))+/,
+                '\\greek': /^\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega|Gamma|Delta|Theta|Lambda|Xi|Pi|Sigma|Upsilon|Phi|Psi|Omega)(?:\s+|\{\}|(?![a-zA-Z]))/,
+                'one lowercase latin letter $': /^(?:([a-z])(?:$|[^a-zA-Z]))$/,
+                '$one lowercase latin letter$ $': /^\$(?:([a-z])(?:$|[^a-zA-Z]))\$$/,
+                'one lowercase greek letter $': /^(?:\$?[\u03B1-\u03C9]\$?|\$?\\(?:alpha|beta|gamma|delta|epsilon|zeta|eta|theta|iota|kappa|lambda|mu|nu|xi|omicron|pi|rho|sigma|tau|upsilon|phi|chi|psi|omega)\s*\$?)(?:\s+|\{\}|(?![a-zA-Z]))$/,
+                digits: /^[0-9]+/,
+                '-9.,9': /^[+\-]?(?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))/,
+                '-9.,9 no missing 0': /^[+\-]?[0-9]+(?:[.,][0-9]+)?/,
+                '(-)(9.,9)(e)(99)': function (input) {
+                    var m = input.match(/^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))?(\((?:[0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+))\))?(?:([eE]|\s*(\*|x|\\times|\u00D7)\s*10\^)([+\-]?[0-9]+|\{[+\-]?[0-9]+\}))?/);
+                    if (m && m[0]) {
+                        return {
+                            match_: m.splice(1),
+                            remainder: input.substr(m[0].length),
+                        };
+                    }
+                    return null;
+                },
+                '(-)(9)^(-9)': function (input) {
+                    var m = input.match(/^(\+\-|\+\/\-|\+|\-|\\pm\s?)?([0-9]+(?:[,.][0-9]+)?|[0-9]*(?:\.[0-9]+)?)\^([+\-]?[0-9]+|\{[+\-]?[0-9]+\})/);
+                    if (m && m[0]) {
+                        return {
+                            match_: m.splice(1),
+                            remainder: input.substr(m[0].length),
+                        };
+                    }
+                    return null;
+                },
+                'state of aggregation $': function (input) {
+                    // ... or crystal system
+                    var a = mhchemParser.patterns.findObserveGroups(input, '', /^\([a-z]{1,3}(?=[\),])/, ')', ''); // (aq), (aq,$\infty$), (aq, sat)
+                    if (a && a.remainder.match(/^($|[\s,;\)\]\}])/)) {
+                        return a;
+                    } //  AND end of 'phrase'
+                    var m = input.match(/^(?:\((?:\\ca\s?)?\$[amothc]\$\))/); // OR crystal system ($o$) (\ca$c$)
+                    if (m) {
+                        return {
+                            match_: m[0],
+                            remainder: input.substr(m[0].length),
+                        };
+                    }
+                    return null;
+                },
+                '_{(state of aggregation)}$': /^_\{(\([a-z]{1,3}\))\}/,
+                '{[(': /^(?:\\\{|\[|\()/,
+                ')]}': /^(?:\)|\]|\\\})/,
+                ', ': /^[,;]\s*/,
+                ',': /^[,;]/,
+                '.': /^[.]/,
+                '. ': /^([.\u22C5\u00B7\u2022])\s*/,
+                '...': /^\.\.\.(?=$|[^.])/,
+                '* ': /^([*])\s*/,
+                '^{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^{', '', '', '}');
+                },
+                '^($...$)': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^', '$', '$', '');
+                },
+                '^a': /^\^([0-9]+|[^\\_])/,
+                '^\\x{}{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^', /^\\[a-zA-Z]+\{/, '}', '', '', '{', '}', '', true);
+                },
+                '^\\x{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '^', /^\\[a-zA-Z]+\{/, '}', '');
+                },
+                '^\\x': /^\^(\\[a-zA-Z]+)\s*/,
+                '^(-1)': /^\^(-?\d+)/,
+                "'": /^'/,
+                '_{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_{', '', '', '}');
+                },
+                '_($...$)': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_', '$', '$', '');
+                },
+                _9: /^_([+\-]?[0-9]+|[^\\])/,
+                '_\\x{}{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_', /^\\[a-zA-Z]+\{/, '}', '', '', '{', '}', '', true);
+                },
+                '_\\x{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '_', /^\\[a-zA-Z]+\{/, '}', '');
+                },
+                '_\\x': /^_(\\[a-zA-Z]+)\s*/,
+                '^_': /^(?:\^(?=_)|\_(?=\^)|[\^_]$)/,
+                '{}': /^\{\}/,
+                '{...}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', '{', '}', '');
+                },
+                '{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '{', '', '', '}');
+                },
+                '$...$': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', '$', '$', '');
+                },
+                '${(...)}$': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '${', '', '', '}$');
+                },
+                '$(...)$': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '$', '', '', '$');
+                },
+                '=<>': /^[=<>]/,
+                '#': /^[#\u2261]/,
+                '+': /^\+/,
+                '-$': /^-(?=[\s_},;\]/]|$|\([a-z]+\))/,
+                '-9': /^-(?=[0-9])/,
+                '- orbital overlap': /^-(?=(?:[spd]|sp)(?:$|[\s,;\)\]\}]))/,
+                '-': /^-/,
+                'pm-operator': /^(?:\\pm|\$\\pm\$|\+-|\+\/-)/,
+                operator: /^(?:\+|(?:[\-=<>]|<<|>>|\\approx|\$\\approx\$)(?=\s|$|-?[0-9]))/,
+                arrowUpDown: /^(?:v|\(v\)|\^|\(\^\))(?=$|[\s,;\)\]\}])/,
+                '\\bond{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\bond{', '', '', '}');
+                },
+                '->': /^(?:<->|<-->|->|<-|<=>>|<<=>|<=>|[\u2192\u27F6\u21CC])/,
+                CMT: /^[CMT](?=\[)/,
+                '[(...)]': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '[', '', '', ']');
+                },
+                '1st-level escape': /^(&|\\\\|\\hline)\s*/,
+                '\\,': /^(?:\\[,\ ;:])/,
+                '\\x{}{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', /^\\[a-zA-Z]+\{/, '}', '', '', '{', '}', '', true);
+                },
+                '\\x{}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '', /^\\[a-zA-Z]+\{/, '}', '');
+                },
+                '\\ca': /^\\ca(?:\s+|(?![a-zA-Z]))/,
+                '\\x': /^(?:\\[a-zA-Z]+\s*|\\[_&{}%])/,
+                orbital: /^(?:[0-9]{1,2}[spdfgh]|[0-9]{0,2}sp)(?=$|[^a-zA-Z])/,
+                others: /^[\/~|]/,
+                '\\frac{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\frac{', '', '', '}', '{', '', '', '}');
+                },
+                '\\overset{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\overset{', '', '', '}', '{', '', '', '}');
+                },
+                '\\underset{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\underset{', '', '', '}', '{', '', '', '}');
+                },
+                '\\underbrace{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\underbrace{', '', '', '}_', '{', '', '', '}');
+                },
+                '\\color{(...)}0': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\color{', '', '', '}');
+                },
+                '\\color{(...)}{(...)}1': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\color{', '', '', '}', '{', '', '', '}');
+                },
+                '\\color(...){(...)}2': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\color', '\\', '', /^(?=\{)/, '{', '', '', '}');
+                },
+                '\\ce{(...)}': function (input) {
+                    return mhchemParser.patterns.findObserveGroups(input, '\\ce{', '', '', '}');
+                },
+                oxidation$: /^(?:[+-][IVX]+|\\pm\s*0|\$\\pm\$\s*0)$/,
+                'd-oxidation$': /^(?:[+-]?\s?[IVX]+|\\pm\s*0|\$\\pm\$\s*0)$/,
+                'roman numeral': /^[IVX]+/,
+                '1/2$': /^[+\-]?(?:[0-9]+|\$[a-z]\$|[a-z])\/[0-9]+(?:\$[a-z]\$|[a-z])?$/,
+                amount: function (input) {
+                    var match;
+                    // e.g. 2, 0.5, 1/2, -2, n/2, +;  $a$ could be added later in parsing
+                    match = input.match(/^(?:(?:(?:\([+\-]?[0-9]+\/[0-9]+\)|[+\-]?(?:[0-9]+|\$[a-z]\$|[a-z])\/[0-9]+|[+\-]?[0-9]+[.,][0-9]+|[+\-]?\.[0-9]+|[+\-]?[0-9]+)(?:[a-z](?=\s*[A-Z]))?)|[+\-]?[a-z](?=\s*[A-Z])|\+(?!\s))/);
+                    if (match) {
+                        return {
+                            match_: match[0],
+                            remainder: input.substr(match[0].length),
+                        };
+                    }
+                    var a = mhchemParser.patterns.findObserveGroups(input, '', '$', '$', '');
+                    if (a) {
+                        // e.g. $2n-1$, $-$
+                        match = a.match_.match(/^\$(?:\(?[+\-]?(?:[0-9]*[a-z]?[+\-])?[0-9]*[a-z](?:[+\-][0-9]*[a-z]?)?\)?|\+|-)\$$/);
+                        if (match) {
+                            return {
+                                match_: match[0],
+                                remainder: input.substr(match[0].length),
+                            };
+                        }
+                    }
+                    return null;
+                },
+                amount2: function (input) {
+                    return this['amount'](input);
+                },
+                '(KV letters),': /^(?:[A-Z][a-z]{0,2}|i)(?=,)/,
+                formula$: function (input) {
+                    if (input.match(/^\([a-z]+\)$/)) {
+                        return null;
+                    } // state of aggregation = no formula
+                    var match = input.match(/^(?:[a-z]|(?:[0-9\ \+\-\,\.\(\)]+[a-z])+[0-9\ \+\-\,\.\(\)]*|(?:[a-z][0-9\ \+\-\,\.\(\)]+)+[a-z]?)$/);
+                    if (match) {
+                        return {
+                            match_: match[0],
+                            remainder: input.substr(match[0].length),
+                        };
+                    }
+                    return null;
+                },
+                uprightEntities: /^(?:pH|pOH|pC|pK|iPr|iBu)(?=$|[^a-zA-Z])/,
+                '/': /^\s*(\/)\s*/,
+                '//': /^\s*(\/\/)\s*/,
+                '*': /^\s*[*.]\s*/,
+            },
+            findObserveGroups: function (input, begExcl, begIncl, endIncl, endExcl, beg2Excl, beg2Incl, end2Incl, end2Excl, combine) {
+                /** @type {{(input: string, pattern: string | RegExp): string | string[] | null;}} */
+                var _match = function (input, pattern) {
+                    if (typeof pattern === 'string') {
+                        if (input.indexOf(pattern) !== 0) {
+                            return null;
+                        }
+                        return pattern;
+                    }
+                    else {
+                        var match = input.match(pattern);
+                        if (!match) {
+                            return null;
+                        }
+                        return match[0];
+                    }
+                };
+                /** @type {{(input: string, i: number, endChars: string | RegExp): {endMatchBegin: number, endMatchEnd: number} | null;}} */
+                var _findObserveGroups = function (input, i, endChars) {
+                    var braces = 0;
+                    while (i < input.length) {
+                        var a = input.charAt(i);
+                        var match = _match(input.substr(i), endChars);
+                        if (match !== null && braces === 0) {
+                            return {
+                                endMatchBegin: i,
+                                endMatchEnd: i + match.length,
+                            };
+                        }
+                        else if (a === '{') {
+                            braces++;
+                        }
+                        else if (a === '}') {
+                            if (braces === 0) {
+                                throw [
+                                    'ExtraCloseMissingOpen',
+                                    'Extra close brace or missing open brace',
+                                ];
+                            }
+                            else {
+                                braces--;
+                            }
+                        }
+                        i++;
+                    }
+                    if (braces > 0) {
+                        return null;
+                    }
+                    return null;
+                };
+                var match = _match(input, begExcl);
+                if (match === null) {
+                    return null;
+                }
+                input = input.substr(match.length);
+                match = _match(input, begIncl);
+                if (match === null) {
+                    return null;
+                }
+                var e = _findObserveGroups(input, match.length, endIncl || endExcl);
+                if (e === null) {
+                    return null;
+                }
+                var match1 = input.substring(0, endIncl ? e.endMatchEnd : e.endMatchBegin);
+                if (!(beg2Excl || beg2Incl)) {
+                    return {
+                        match_: match1,
+                        remainder: input.substr(e.endMatchEnd),
+                    };
+                }
+                else {
+                    var group2 = this.findObserveGroups(input.substr(e.endMatchEnd), beg2Excl, beg2Incl, end2Incl, end2Excl);
+                    if (group2 === null) {
+                        return null;
+                    }
+                    /** @type {string[]} */
+                    var matchRet = [match1, group2.match_];
+                    return {
+                        match_: combine ? matchRet.join('') : matchRet,
+                        remainder: group2.remainder,
+                    };
+                }
+            },
+            //
+            // Matching function
+            // e.g. match("a", input) will look for the regexp called "a" and see if it matches
+            // returns null or {match_:"a", remainder:"bc"}
+            //
+            match_: function (m, input) {
+                var pattern = mhchemParser.patterns.patterns[m];
+                if (pattern === undefined) {
+                    throw [
+                        'MhchemBugP',
+                        'mhchem bug P. Please report. (' + m + ')',
+                    ]; // Trying to use non-existing pattern
+                }
+                else if (typeof pattern === 'function') {
+                    return mhchemParser.patterns.patterns[m](input); // cannot use cached var pattern here, because some pattern functions need this===mhchemParser
+                }
+                else {
+                    // RegExp
+                    var match = input.match(pattern);
+                    if (match) {
+                        var mm;
+                        if (match[2]) {
+                            mm = [match[1], match[2]];
+                        }
+                        else if (match[1]) {
+                            mm = match[1];
+                        }
+                        else {
+                            mm = match[0];
+                        }
+                        return {
+                            match_: mm,
+                            remainder: input.substr(match[0].length),
+                        };
+                    }
+                    return null;
+                }
+            },
+        },
+        //
+        // Generic state machine actions
+        //
+        actions: {
+            'a=': function (buffer, m) {
+                buffer.a = (buffer.a || '') + m;
+            },
+            'b=': function (buffer, m) {
+                buffer.b = (buffer.b || '') + m;
+            },
+            'p=': function (buffer, m) {
+                buffer.p = (buffer.p || '') + m;
+            },
+            'o=': function (buffer, m) {
+                buffer.o = (buffer.o || '') + m;
+            },
+            'q=': function (buffer, m) {
+                buffer.q = (buffer.q || '') + m;
+            },
+            'd=': function (buffer, m) {
+                buffer.d = (buffer.d || '') + m;
+            },
+            'rm=': function (buffer, m) {
+                buffer.rm = (buffer.rm || '') + m;
+            },
+            'text=': function (buffer, m) {
+                buffer.text_ = (buffer.text_ || '') + m;
+            },
+            insert: function (buffer, m, a) {
+                return { type_: a };
+            },
+            'insert+p1': function (buffer, m, a) {
+                return { type_: a, p1: m };
+            },
+            'insert+p1+p2': function (buffer, m, a) {
+                return { type_: a, p1: m[0], p2: m[1] };
+            },
+            copy: function (buffer, m) {
+                return m;
+            },
+            rm: function (buffer, m) {
+                return { type_: 'rm', p1: m || '' };
+            },
+            text: function (buffer, m) {
+                return mhchemParser.go(m, 'text');
+            },
+            '{text}': function (buffer, m) {
+                var ret = ['{'];
+                mhchemParser.concatArray(ret, mhchemParser.go(m, 'text'));
+                ret.push('}');
+                return ret;
+            },
+            'tex-math': function (buffer, m) {
+                return mhchemParser.go(m, 'tex-math');
+            },
+            'tex-math tight': function (buffer, m) {
+                return mhchemParser.go(m, 'tex-math tight');
+            },
+            bond: function (buffer, m, k) {
+                return { type_: 'bond', kind_: k || m };
+            },
+            'color0-output': function (buffer, m) {
+                return { type_: 'color0', color: m[0] };
+            },
+            ce: function (buffer, m) {
+                return mhchemParser.go(m);
+            },
+            '1/2': function (buffer, m) {
+                /** @type {ParserOutput[]} */
+                var ret = [];
+                if (m.match(/^[+\-]/)) {
+                    ret.push(m.substr(0, 1));
+                    m = m.substr(1);
+                }
+                var n = m.match(/^([0-9]+|\$[a-z]\$|[a-z])\/([0-9]+)(\$[a-z]\$|[a-z])?$/);
+                n[1] = n[1].replace(/\$/g, '');
+                ret.push({ type_: 'frac', p1: n[1], p2: n[2] });
+                if (n[3]) {
+                    n[3] = n[3].replace(/\$/g, '');
+                    ret.push({ type_: 'tex-math', p1: n[3] });
+                }
+                return ret;
+            },
+            '9,9': function (buffer, m) {
+                return mhchemParser.go(m, '9,9');
+            },
+        },
+        //
+        // createTransitions
+        // convert  { 'letter': { 'state': { action_: 'output' } } }  to  { 'state' => [ { pattern: 'letter', task: { action_: [{type_: 'output'}] } } ] }
+        // with expansion of 'a|b' to 'a' and 'b' (at 2 places)
+        //
+        createTransitions: function (o) {
+            var pattern, state;
+            /** @type {string[]} */
+            var stateArray;
+            var i;
+            //
+            // 1. Collect all states
+            //
+            /** @type {Transitions} */
+            var transitions = {};
+            for (pattern in o) {
+                for (state in o[pattern]) {
+                    stateArray = state.split('|');
+                    o[pattern][state].stateArray = stateArray;
+                    for (i = 0; i < stateArray.length; i++) {
+                        transitions[stateArray[i]] = [];
+                    }
+                }
+            }
+            //
+            // 2. Fill states
+            //
+            for (pattern in o) {
+                for (state in o[pattern]) {
+                    stateArray = o[pattern][state].stateArray || [];
+                    for (i = 0; i < stateArray.length; i++) {
+                        //
+                        // 2a. Normalize actions into array:  'text=' ==> [{type_:'text='}]
+                        // (Note to myself: Resolving the function here would be problematic. It would need .bind (for *this*) and currying (for *option*).)
+                        //
+                        /** @type {any} */
+                        var p = o[pattern][state];
+                        if (p.action_) {
+                            p.action_ = [].concat(p.action_);
+                            for (var k = 0; k < p.action_.length; k++) {
+                                if (typeof p.action_[k] === 'string') {
+                                    p.action_[k] = { type_: p.action_[k] };
+                                }
+                            }
+                        }
+                        else {
+                            p.action_ = [];
+                        }
+                        //
+                        // 2.b Multi-insert
+                        //
+                        var patternArray = pattern.split('|');
+                        for (var j = 0; j < patternArray.length; j++) {
+                            if (stateArray[i] === '*') {
+                                // insert into all
+                                for (var t in transitions) {
+                                    transitions[t].push({
+                                        pattern: patternArray[j],
+                                        task: p,
+                                    });
+                                }
+                            }
+                            else {
+                                transitions[stateArray[i]].push({
+                                    pattern: patternArray[j],
+                                    task: p,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return transitions;
+        },
+        stateMachines: {},
+    };
+    //
+    // Definition of state machines
+    //
+    mhchemParser.stateMachines = {
+        //
+        // \ce state machines
+        //
+        //#region ce
+        ce: {
+            // main parser
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                else: {
+                    '0|1|2': {
+                        action_: 'beginsWithBond=false',
+                        revisit: true,
+                        toContinue: true,
+                    },
+                },
+                oxidation$: {
+                    '0': { action_: 'oxidation-output' },
+                },
+                CMT: {
+                    r: { action_: 'rdt=', nextState: 'rt' },
+                    rd: { action_: 'rqt=', nextState: 'rdt' },
+                },
+                arrowUpDown: {
+                    '0|1|2|as': {
+                        action_: ['sb=false', 'output', 'operator'],
+                        nextState: '1',
+                    },
+                },
+                uprightEntities: {
+                    '0|1|2': { action_: ['o=', 'output'], nextState: '1' },
+                },
+                orbital: {
+                    '0|1|2|3': { action_: 'o=', nextState: 'o' },
+                },
+                '->': {
+                    '0|1|2|3': { action_: 'r=', nextState: 'r' },
+                    'a|as': { action_: ['output', 'r='], nextState: 'r' },
+                    '*': { action_: ['output', 'r='], nextState: 'r' },
+                },
+                '+': {
+                    o: { action_: 'd= kv', nextState: 'd' },
+                    'd|D': { action_: 'd=', nextState: 'd' },
+                    q: { action_: 'd=', nextState: 'qd' },
+                    'qd|qD': { action_: 'd=', nextState: 'qd' },
+                    dq: { action_: ['output', 'd='], nextState: 'd' },
+                    '3': {
+                        action_: ['sb=false', 'output', 'operator'],
+                        nextState: '0',
+                    },
+                },
+                amount: {
+                    '0|2': { action_: 'a=', nextState: 'a' },
+                },
+                'pm-operator': {
+                    '0|1|2|a|as': {
+                        action_: [
+                            'sb=false',
+                            'output',
+                            { type_: 'operator', option: '\\pm' },
+                        ],
+                        nextState: '0',
+                    },
+                },
+                operator: {
+                    '0|1|2|a|as': {
+                        action_: ['sb=false', 'output', 'operator'],
+                        nextState: '0',
+                    },
+                },
+                '-$': {
+                    'o|q': {
+                        action_: ['charge or bond', 'output'],
+                        nextState: 'qd',
+                    },
+                    d: { action_: 'd=', nextState: 'd' },
+                    D: {
+                        action_: ['output', { type_: 'bond', option: '-' }],
+                        nextState: '3',
+                    },
+                    q: { action_: 'd=', nextState: 'qd' },
+                    qd: { action_: 'd=', nextState: 'qd' },
+                    'qD|dq': {
+                        action_: ['output', { type_: 'bond', option: '-' }],
+                        nextState: '3',
+                    },
+                },
+                '-9': {
+                    '3|o': {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '3',
+                    },
+                },
+                '- orbital overlap': {
+                    o: {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '2',
+                    },
+                    d: {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '2',
+                    },
+                },
+                '-': {
+                    '0|1|2': {
+                        action_: [
+                            { type_: 'output', option: 1 },
+                            'beginsWithBond=true',
+                            { type_: 'bond', option: '-' },
+                        ],
+                        nextState: '3',
+                    },
+                    '3': { action_: { type_: 'bond', option: '-' } },
+                    a: {
+                        action_: ['output', { type_: 'insert', option: 'hyphen' }],
+                        nextState: '2',
+                    },
+                    as: {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            { type_: 'bond', option: '-' },
+                        ],
+                        nextState: '3',
+                    },
+                    b: { action_: 'b=' },
+                    o: {
+                        action_: { type_: '- after o/d', option: false },
+                        nextState: '2',
+                    },
+                    q: {
+                        action_: { type_: '- after o/d', option: false },
+                        nextState: '2',
+                    },
+                    'd|qd|dq': {
+                        action_: { type_: '- after o/d', option: true },
+                        nextState: '2',
+                    },
+                    'D|qD|p': {
+                        action_: ['output', { type_: 'bond', option: '-' }],
+                        nextState: '3',
+                    },
+                },
+                amount2: {
+                    '1|3': { action_: 'a=', nextState: 'a' },
+                },
+                letters: {
+                    '0|1|2|3|a|as|b|p|bp|o': { action_: 'o=', nextState: 'o' },
+                    'q|dq': { action_: ['output', 'o='], nextState: 'o' },
+                    'd|D|qd|qD': { action_: 'o after d', nextState: 'o' },
+                },
+                digits: {
+                    o: { action_: 'q=', nextState: 'q' },
+                    'd|D': { action_: 'q=', nextState: 'dq' },
+                    q: { action_: ['output', 'o='], nextState: 'o' },
+                    a: { action_: 'o=', nextState: 'o' },
+                },
+                'space A': {
+                    'b|p|bp': {},
+                },
+                space: {
+                    a: { nextState: 'as' },
+                    '0': { action_: 'sb=false' },
+                    '1|2': { action_: 'sb=true' },
+                    'r|rt|rd|rdt|rdq': { action_: 'output', nextState: '0' },
+                    '*': { action_: ['output', 'sb=true'], nextState: '1' },
+                },
+                '1st-level escape': {
+                    '1|2': {
+                        action_: [
+                            'output',
+                            { type_: 'insert+p1', option: '1st-level escape' },
+                        ],
+                    },
+                    '*': {
+                        action_: [
+                            'output',
+                            { type_: 'insert+p1', option: '1st-level escape' },
+                        ],
+                        nextState: '0',
+                    },
+                },
+                '[(...)]': {
+                    'r|rt': { action_: 'rd=', nextState: 'rd' },
+                    'rd|rdt': { action_: 'rq=', nextState: 'rdq' },
+                },
+                '...': {
+                    'o|d|D|dq|qd|qD': {
+                        action_: ['output', { type_: 'bond', option: '...' }],
+                        nextState: '3',
+                    },
+                    '*': {
+                        action_: [
+                            { type_: 'output', option: 1 },
+                            { type_: 'insert', option: 'ellipsis' },
+                        ],
+                        nextState: '1',
+                    },
+                },
+                '. |* ': {
+                    '*': {
+                        action_: [
+                            'output',
+                            { type_: 'insert', option: 'addition compound' },
+                        ],
+                        nextState: '1',
+                    },
+                },
+                'state of aggregation $': {
+                    '*': {
+                        action_: ['output', 'state of aggregation'],
+                        nextState: '1',
+                    },
+                },
+                '{[(': {
+                    'a|as|o': {
+                        action_: ['o=', 'output', 'parenthesisLevel++'],
+                        nextState: '2',
+                    },
+                    '0|1|2|3': {
+                        action_: ['o=', 'output', 'parenthesisLevel++'],
+                        nextState: '2',
+                    },
+                    '*': {
+                        action_: ['output', 'o=', 'output', 'parenthesisLevel++'],
+                        nextState: '2',
+                    },
+                },
+                ')]}': {
+                    '0|1|2|3|b|p|bp|o': {
+                        action_: ['o=', 'parenthesisLevel--'],
+                        nextState: 'o',
+                    },
+                    'a|as|d|D|q|qd|qD|dq': {
+                        action_: ['output', 'o=', 'parenthesisLevel--'],
+                        nextState: 'o',
+                    },
+                },
+                ', ': {
+                    '*': { action_: ['output', 'comma'], nextState: '0' },
+                },
+                '^_': {
+                    // ^ and _ without a sensible argument
+                    '*': {},
+                },
+                '^{(...)}|^($...$)': {
+                    '0|1|2|as': { action_: 'b=', nextState: 'b' },
+                    p: { action_: 'b=', nextState: 'bp' },
+                    '3|o': { action_: 'd= kv', nextState: 'D' },
+                    q: { action_: 'd=', nextState: 'qD' },
+                    'd|D|qd|qD|dq': { action_: ['output', 'd='], nextState: 'D' },
+                },
+                "^a|^\\x{}{}|^\\x{}|^\\x|'": {
+                    '0|1|2|as': { action_: 'b=', nextState: 'b' },
+                    p: { action_: 'b=', nextState: 'bp' },
+                    '3|o': { action_: 'd= kv', nextState: 'd' },
+                    q: { action_: 'd=', nextState: 'qd' },
+                    'd|qd|D|qD': { action_: 'd=' },
+                    dq: { action_: ['output', 'd='], nextState: 'd' },
+                },
+                '_{(state of aggregation)}$': {
+                    'd|D|q|qd|qD|dq': { action_: ['output', 'q='], nextState: 'q' },
+                },
+                '_{(...)}|_($...$)|_9|_\\x{}{}|_\\x{}|_\\x': {
+                    '0|1|2|as': { action_: 'p=', nextState: 'p' },
+                    b: { action_: 'p=', nextState: 'bp' },
+                    '3|o': { action_: 'q=', nextState: 'q' },
+                    'd|D': { action_: 'q=', nextState: 'dq' },
+                    'q|qd|qD|dq': { action_: ['output', 'q='], nextState: 'q' },
+                },
+                '=<>': {
+                    '0|1|2|3|a|as|o|q|d|D|qd|qD|dq': {
+                        action_: [{ type_: 'output', option: 2 }, 'bond'],
+                        nextState: '3',
+                    },
+                },
+                '#': {
+                    '0|1|2|3|a|as|o': {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            { type_: 'bond', option: '#' },
+                        ],
+                        nextState: '3',
+                    },
+                },
+                '{}': {
+                    '*': {
+                        action_: { type_: 'output', option: 1 },
+                        nextState: '1',
+                    },
+                },
+                '{...}': {
+                    '0|1|2|3|a|as|b|p|bp': { action_: 'o=', nextState: 'o' },
+                    'o|d|D|q|qd|qD|dq': {
+                        action_: ['output', 'o='],
+                        nextState: 'o',
+                    },
+                },
+                '$...$': {
+                    a: { action_: 'a=' },
+                    '0|1|2|3|as|b|p|bp|o': { action_: 'o=', nextState: 'o' },
+                    'as|o': { action_: 'o=' },
+                    'q|d|D|qd|qD|dq': { action_: ['output', 'o='], nextState: 'o' },
+                },
+                '\\bond{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'bond'],
+                        nextState: '3',
+                    },
+                },
+                '\\frac{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 1 }, 'frac-output'],
+                        nextState: '3',
+                    },
+                },
+                '\\overset{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'overset-output'],
+                        nextState: '3',
+                    },
+                },
+                '\\underset{(...)}': {
+                    '*': {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            'underset-output',
+                        ],
+                        nextState: '3',
+                    },
+                },
+                '\\underbrace{(...)}': {
+                    '*': {
+                        action_: [
+                            { type_: 'output', option: 2 },
+                            'underbrace-output',
+                        ],
+                        nextState: '3',
+                    },
+                },
+                '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'color-output'],
+                        nextState: '3',
+                    },
+                },
+                '\\color{(...)}0': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'color0-output'],
+                    },
+                },
+                '\\ce{(...)}': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 2 }, 'ce'],
+                        nextState: '3',
+                    },
+                },
+                '\\,': {
+                    '*': {
+                        action_: [{ type_: 'output', option: 1 }, 'copy'],
+                        nextState: '1',
+                    },
+                },
+                '\\x{}{}|\\x{}|\\x': {
+                    '0|1|2|3|a|as|b|p|bp|o|c0': {
+                        action_: ['o=', 'output'],
+                        nextState: '3',
+                    },
+                    '*': { action_: ['output', 'o=', 'output'], nextState: '3' },
+                },
+                others: {
+                    '*': {
+                        action_: [{ type_: 'output', option: 1 }, 'copy'],
+                        nextState: '3',
+                    },
+                },
+                else2: {
+                    a: { action_: 'a to o', nextState: 'o', revisit: true },
+                    as: {
+                        action_: ['output', 'sb=true'],
+                        nextState: '1',
+                        revisit: true,
+                    },
+                    'r|rt|rd|rdt|rdq': {
+                        action_: ['output'],
+                        nextState: '0',
+                        revisit: true,
+                    },
+                    '*': { action_: ['output', 'copy'], nextState: '3' },
+                },
+            }),
+            actions: {
+                'o after d': function (buffer, m) {
+                    var ret;
+                    if ((buffer.d || '').match(/^[0-9]+$/)) {
+                        var tmp = buffer.d;
+                        buffer.d = undefined;
+                        ret = this['output'](buffer);
+                        buffer.b = tmp;
+                    }
+                    else {
+                        ret = this['output'](buffer);
+                    }
+                    mhchemParser.actions['o='](buffer, m);
+                    return ret;
+                },
+                'd= kv': function (buffer, m) {
+                    buffer.d = m;
+                    buffer.dType = 'kv';
+                },
+                'charge or bond': function (buffer, m) {
+                    if (buffer['beginsWithBond']) {
+                        /** @type {ParserOutput[]} */
+                        var ret = [];
+                        mhchemParser.concatArray(ret, this['output'](buffer));
+                        mhchemParser.concatArray(ret, mhchemParser.actions['bond'](buffer, m, '-'));
+                        return ret;
+                    }
+                    else {
+                        buffer.d = m;
+                    }
+                },
+                '- after o/d': function (buffer, m, isAfterD) {
+                    var c1 = mhchemParser.patterns.match_('orbital', buffer.o || '');
+                    var c2 = mhchemParser.patterns.match_('one lowercase greek letter $', buffer.o || '');
+                    var c3 = mhchemParser.patterns.match_('one lowercase latin letter $', buffer.o || '');
+                    var c4 = mhchemParser.patterns.match_('$one lowercase latin letter$ $', buffer.o || '');
+                    var hyphenFollows = m === '-' &&
+                        ((c1 && c1.remainder === '') || c2 || c3 || c4);
+                    if (hyphenFollows &&
+                        !buffer.a &&
+                        !buffer.b &&
+                        !buffer.p &&
+                        !buffer.d &&
+                        !buffer.q &&
+                        !c1 &&
+                        c3) {
+                        buffer.o = '$' + buffer.o + '$';
+                    }
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    if (hyphenFollows) {
+                        mhchemParser.concatArray(ret, this['output'](buffer));
+                        ret.push({ type_: 'hyphen' });
+                    }
+                    else {
+                        c1 = mhchemParser.patterns.match_('digits', buffer.d || '');
+                        if (isAfterD && c1 && c1.remainder === '') {
+                            mhchemParser.concatArray(ret, mhchemParser.actions['d='](buffer, m));
+                            mhchemParser.concatArray(ret, this['output'](buffer));
+                        }
+                        else {
+                            mhchemParser.concatArray(ret, this['output'](buffer));
+                            mhchemParser.concatArray(ret, mhchemParser.actions['bond'](buffer, m, '-'));
+                        }
+                    }
+                    return ret;
+                },
+                'a to o': function (buffer) {
+                    buffer.o = buffer.a;
+                    buffer.a = undefined;
+                },
+                'sb=true': function (buffer) {
+                    buffer.sb = true;
+                },
+                'sb=false': function (buffer) {
+                    buffer.sb = false;
+                },
+                'beginsWithBond=true': function (buffer) {
+                    buffer['beginsWithBond'] = true;
+                },
+                'beginsWithBond=false': function (buffer) {
+                    buffer['beginsWithBond'] = false;
+                },
+                'parenthesisLevel++': function (buffer) {
+                    buffer['parenthesisLevel']++;
+                },
+                'parenthesisLevel--': function (buffer) {
+                    buffer['parenthesisLevel']--;
+                },
+                'state of aggregation': function (buffer, m) {
+                    return {
+                        type_: 'state of aggregation',
+                        p1: mhchemParser.go(m, 'o'),
+                    };
+                },
+                comma: function (buffer, m) {
+                    var a = m.replace(/\s*$/, '');
+                    var withSpace = a !== m;
+                    if (withSpace && buffer['parenthesisLevel'] === 0) {
+                        return { type_: 'comma enumeration L', p1: a };
+                    }
+                    else {
+                        return { type_: 'comma enumeration M', p1: a };
+                    }
+                },
+                output: function (buffer, m, entityFollows) {
+                    // entityFollows:
+                    //   undefined = if we have nothing else to output, also ignore the just read space (buffer.sb)
+                    //   1 = an entity follows, never omit the space if there was one just read before (can only apply to state 1)
+                    //   2 = 1 + the entity can have an amount, so output a\, instead of converting it to o (can only apply to states a|as)
+                    /** @type {ParserOutput | ParserOutput[]} */
+                    var ret;
+                    if (!buffer.r) {
+                        ret = [];
+                        if (!buffer.a &&
+                            !buffer.b &&
+                            !buffer.p &&
+                            !buffer.o &&
+                            !buffer.q &&
+                            !buffer.d &&
+                            !entityFollows) ;
+                        else {
+                            if (buffer.sb) {
+                                ret.push({ type_: 'entitySkip' });
+                            }
+                            if (!buffer.o &&
+                                !buffer.q &&
+                                !buffer.d &&
+                                !buffer.b &&
+                                !buffer.p &&
+                                entityFollows !== 2) {
+                                buffer.o = buffer.a;
+                                buffer.a = undefined;
+                            }
+                            else if (!buffer.o &&
+                                !buffer.q &&
+                                !buffer.d &&
+                                (buffer.b || buffer.p)) {
+                                buffer.o = buffer.a;
+                                buffer.d = buffer.b;
+                                buffer.q = buffer.p;
+                                buffer.a = buffer.b = buffer.p = undefined;
+                            }
+                            else {
+                                if (buffer.o &&
+                                    buffer.dType === 'kv' &&
+                                    mhchemParser.patterns.match_('d-oxidation$', buffer.d || '')) {
+                                    buffer.dType = 'oxidation';
+                                }
+                                else if (buffer.o &&
+                                    buffer.dType === 'kv' &&
+                                    !buffer.q) {
+                                    buffer.dType = undefined;
+                                }
+                            }
+                            ret.push({
+                                type_: 'chemfive',
+                                a: mhchemParser.go(buffer.a, 'a'),
+                                b: mhchemParser.go(buffer.b, 'bd'),
+                                p: mhchemParser.go(buffer.p, 'pq'),
+                                o: mhchemParser.go(buffer.o, 'o'),
+                                q: mhchemParser.go(buffer.q, 'pq'),
+                                d: mhchemParser.go(buffer.d, buffer.dType === 'oxidation'
+                                    ? 'oxidation'
+                                    : 'bd'),
+                                dType: buffer.dType,
+                            });
+                        }
+                    }
+                    else {
+                        // r
+                        /** @type {ParserOutput[]} */
+                        var rd;
+                        if (buffer.rdt === 'M') {
+                            rd = mhchemParser.go(buffer.rd, 'tex-math');
+                        }
+                        else if (buffer.rdt === 'T') {
+                            rd = [{ type_: 'text', p1: buffer.rd || '' }];
+                        }
+                        else {
+                            rd = mhchemParser.go(buffer.rd);
+                        }
+                        /** @type {ParserOutput[]} */
+                        var rq;
+                        if (buffer.rqt === 'M') {
+                            rq = mhchemParser.go(buffer.rq, 'tex-math');
+                        }
+                        else if (buffer.rqt === 'T') {
+                            rq = [{ type_: 'text', p1: buffer.rq || '' }];
+                        }
+                        else {
+                            rq = mhchemParser.go(buffer.rq);
+                        }
+                        ret = {
+                            type_: 'arrow',
+                            r: buffer.r,
+                            rd: rd,
+                            rq: rq,
+                        };
+                    }
+                    for (var p in buffer) {
+                        if (p !== 'parenthesisLevel' && p !== 'beginsWithBond') {
+                            delete buffer[p];
+                        }
+                    }
+                    return ret;
+                },
+                'oxidation-output': function (buffer, m) {
+                    var ret = ['{'];
+                    mhchemParser.concatArray(ret, mhchemParser.go(m, 'oxidation'));
+                    ret.push('}');
+                    return ret;
+                },
+                'frac-output': function (buffer, m) {
+                    return {
+                        type_: 'frac-ce',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'overset-output': function (buffer, m) {
+                    return {
+                        type_: 'overset',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'underset-output': function (buffer, m) {
+                    return {
+                        type_: 'underset',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'underbrace-output': function (buffer, m) {
+                    return {
+                        type_: 'underbrace',
+                        p1: mhchemParser.go(m[0]),
+                        p2: mhchemParser.go(m[1]),
+                    };
+                },
+                'color-output': function (buffer, m) {
+                    return {
+                        type_: 'color',
+                        color1: m[0],
+                        color2: mhchemParser.go(m[1]),
+                    };
+                },
+                'r=': function (buffer, m) {
+                    buffer.r = m;
+                },
+                'rdt=': function (buffer, m) {
+                    buffer.rdt = m;
+                },
+                'rd=': function (buffer, m) {
+                    buffer.rd = m;
+                },
+                'rqt=': function (buffer, m) {
+                    buffer.rqt = m;
+                },
+                'rq=': function (buffer, m) {
+                    buffer.rq = m;
+                },
+                operator: function (buffer, m, p1) {
+                    return { type_: 'operator', kind_: p1 || m };
+                },
+            },
+        },
+        a: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                '1/2$': {
+                    '0': { action_: '1/2' },
+                },
+                else: {
+                    '0': { nextState: '1', revisit: true },
+                },
+                '$(...)$': {
+                    '*': { action_: 'tex-math tight', nextState: '1' },
+                },
+                ',': {
+                    '*': { action_: { type_: 'insert', option: 'commaDecimal' } },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {},
+        },
+        o: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                '1/2$': {
+                    '0': { action_: '1/2' },
+                },
+                else: {
+                    '0': { nextState: '1', revisit: true },
+                },
+                letters: {
+                    '*': { action_: 'rm' },
+                },
+                '\\ca': {
+                    '*': { action_: { type_: 'insert', option: 'circa' } },
+                },
+                '\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'copy' },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '{(...)}': {
+                    '*': { action_: '{text}' },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {},
+        },
+        text: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '{...}': {
+                    '*': { action_: 'text=' },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '\\greek': {
+                    '*': { action_: ['output', 'rm'] },
+                },
+                '\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: ['output', 'copy'] },
+                },
+                else: {
+                    '*': { action_: 'text=' },
+                },
+            }),
+            actions: {
+                output: function (buffer) {
+                    if (buffer.text_) {
+                        /** @type {ParserOutput} */
+                        var ret = { type_: 'text', p1: buffer.text_ };
+                        for (var p in buffer) {
+                            delete buffer[p];
+                        }
+                        return ret;
+                    }
+                },
+            },
+        },
+        pq: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                'state of aggregation $': {
+                    '*': { action_: 'state of aggregation' },
+                },
+                i$: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                '(KV letters),': {
+                    '0': { action_: 'rm', nextState: '0' },
+                },
+                formula$: {
+                    '0': { nextState: 'f', revisit: true },
+                },
+                '1/2$': {
+                    '0': { action_: '1/2' },
+                },
+                else: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '{(...)}': {
+                    '*': { action_: 'text' },
+                },
+                'a-z': {
+                    f: { action_: 'tex-math' },
+                },
+                letters: {
+                    '*': { action_: 'rm' },
+                },
+                '-9.,9': {
+                    '*': { action_: '9,9' },
+                },
+                ',': {
+                    '*': {
+                        action_: {
+                            type_: 'insert+p1',
+                            option: 'comma enumeration S',
+                        },
+                    },
+                },
+                '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
+                    '*': { action_: 'color-output' },
+                },
+                '\\color{(...)}0': {
+                    '*': { action_: 'color0-output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: 'ce' },
+                },
+                '\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'copy' },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                'state of aggregation': function (buffer, m) {
+                    return {
+                        type_: 'state of aggregation subscript',
+                        p1: mhchemParser.go(m, 'o'),
+                    };
+                },
+                'color-output': function (buffer, m) {
+                    return {
+                        type_: 'color',
+                        color1: m[0],
+                        color2: mhchemParser.go(m[1], 'pq'),
+                    };
+                },
+            },
+        },
+        bd: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                x$: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                formula$: {
+                    '0': { nextState: 'f', revisit: true },
+                },
+                else: {
+                    '0': { nextState: '!f', revisit: true },
+                },
+                '-9.,9 no missing 0': {
+                    '*': { action_: '9,9' },
+                },
+                '.': {
+                    '*': { action_: { type_: 'insert', option: 'electron dot' } },
+                },
+                'a-z': {
+                    f: { action_: 'tex-math' },
+                },
+                x: {
+                    '*': { action_: { type_: 'insert', option: 'KV x' } },
+                },
+                letters: {
+                    '*': { action_: 'rm' },
+                },
+                "'": {
+                    '*': { action_: { type_: 'insert', option: 'prime' } },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                '{(...)}': {
+                    '*': { action_: 'text' },
+                },
+                '\\color{(...)}{(...)}1|\\color(...){(...)}2': {
+                    '*': { action_: 'color-output' },
+                },
+                '\\color{(...)}0': {
+                    '*': { action_: 'color0-output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: 'ce' },
+                },
+                '\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'copy' },
+                },
+                else2: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                'color-output': function (buffer, m) {
+                    return {
+                        type_: 'color',
+                        color1: m[0],
+                        color2: mhchemParser.go(m[1], 'bd'),
+                    };
+                },
+            },
+        },
+        oxidation: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                'roman numeral': {
+                    '*': { action_: 'roman-numeral' },
+                },
+                '${(...)}$|$(...)$': {
+                    '*': { action_: 'tex-math' },
+                },
+                else: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                'roman-numeral': function (buffer, m) {
+                    return { type_: 'roman numeral', p1: m || '' };
+                },
+            },
+        },
+        'tex-math': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: ['output', 'ce'] },
+                },
+                '{...}|\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'o=' },
+                },
+                else: {
+                    '*': { action_: 'o=' },
+                },
+            }),
+            actions: {
+                output: function (buffer) {
+                    if (buffer.o) {
+                        /** @type {ParserOutput} */
+                        var ret = { type_: 'tex-math', p1: buffer.o };
+                        for (var p in buffer) {
+                            delete buffer[p];
+                        }
+                        return ret;
+                    }
+                },
+            },
+        },
+        'tex-math tight': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '\\ce{(...)}': {
+                    '*': { action_: ['output', 'ce'] },
+                },
+                '{...}|\\,|\\x{}{}|\\x{}|\\x': {
+                    '*': { action_: 'o=' },
+                },
+                '-|+': {
+                    '*': { action_: 'tight operator' },
+                },
+                else: {
+                    '*': { action_: 'o=' },
+                },
+            }),
+            actions: {
+                'tight operator': function (buffer, m) {
+                    buffer.o = (buffer.o || '') + '{' + m + '}';
+                },
+                output: function (buffer) {
+                    if (buffer.o) {
+                        /** @type {ParserOutput} */
+                        var ret = { type_: 'tex-math', p1: buffer.o };
+                        for (var p in buffer) {
+                            delete buffer[p];
+                        }
+                        return ret;
+                    }
+                },
+            },
+        },
+        '9,9': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': {},
+                },
+                ',': {
+                    '*': { action_: 'comma' },
+                },
+                else: {
+                    '*': { action_: 'copy' },
+                },
+            }),
+            actions: {
+                comma: function () {
+                    return { type_: 'commaDecimal' };
+                },
+            },
+        },
+        //#endregion
+        //
+        // \pu state machines
+        //
+        //#region pu
+        pu: {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                space$: {
+                    '*': { action_: ['output', 'space'] },
+                },
+                '{[(|)]}': {
+                    '0|a': { action_: 'copy' },
+                },
+                '(-)(9)^(-9)': {
+                    '0': { action_: 'number^', nextState: 'a' },
+                },
+                '(-)(9.,9)(e)(99)': {
+                    '0': { action_: 'enumber', nextState: 'a' },
+                },
+                space: {
+                    '0|a': {},
+                },
+                'pm-operator': {
+                    '0|a': {
+                        action_: { type_: 'operator', option: '\\pm' },
+                        nextState: '0',
+                    },
+                },
+                operator: {
+                    '0|a': { action_: 'copy', nextState: '0' },
+                },
+                '//': {
+                    d: { action_: 'o=', nextState: '/' },
+                },
+                '/': {
+                    d: { action_: 'o=', nextState: '/' },
+                },
+                '{...}|else': {
+                    '0|d': { action_: 'd=', nextState: 'd' },
+                    a: { action_: ['space', 'd='], nextState: 'd' },
+                    '/|q': { action_: 'q=', nextState: 'q' },
+                },
+            }),
+            actions: {
+                enumber: function (buffer, m) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    if (m[0] === '+-' || m[0] === '+/-') {
+                        ret.push('\\pm ');
+                    }
+                    else if (m[0]) {
+                        ret.push(m[0]);
+                    }
+                    if (m[1]) {
+                        mhchemParser.concatArray(ret, mhchemParser.go(m[1], 'pu-9,9'));
+                        if (m[2]) {
+                            if (m[2].match(/[,.]/)) {
+                                mhchemParser.concatArray(ret, mhchemParser.go(m[2], 'pu-9,9'));
+                            }
+                            else {
+                                ret.push(m[2]);
+                            }
+                        }
+                        m[3] = m[4] || m[3];
+                        if (m[3]) {
+                            m[3] = m[3].trim();
+                            if (m[3] === 'e' || m[3].substr(0, 1) === '*') {
+                                ret.push({ type_: 'cdot' });
+                            }
+                            else {
+                                ret.push({ type_: 'times' });
+                            }
+                        }
+                    }
+                    if (m[3]) {
+                        ret.push('10^{' + m[5] + '}');
+                    }
+                    return ret;
+                },
+                'number^': function (buffer, m) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    if (m[0] === '+-' || m[0] === '+/-') {
+                        ret.push('\\pm ');
+                    }
+                    else if (m[0]) {
+                        ret.push(m[0]);
+                    }
+                    mhchemParser.concatArray(ret, mhchemParser.go(m[1], 'pu-9,9'));
+                    ret.push('^{' + m[2] + '}');
+                    return ret;
+                },
+                operator: function (buffer, m, p1) {
+                    return { type_: 'operator', kind_: p1 || m };
+                },
+                space: function () {
+                    return { type_: 'pu-space-1' };
+                },
+                output: function (buffer) {
+                    /** @type {ParserOutput | ParserOutput[]} */
+                    var ret;
+                    var md = mhchemParser.patterns.match_('{(...)}', buffer.d || '');
+                    if (md && md.remainder === '') {
+                        buffer.d = md.match_;
+                    }
+                    var mq = mhchemParser.patterns.match_('{(...)}', buffer.q || '');
+                    if (mq && mq.remainder === '') {
+                        buffer.q = mq.match_;
+                    }
+                    if (buffer.d) {
+                        buffer.d = buffer.d.replace(/\u00B0C|\^oC|\^{o}C/g, '{}^{\\circ}C');
+                        buffer.d = buffer.d.replace(/\u00B0F|\^oF|\^{o}F/g, '{}^{\\circ}F');
+                    }
+                    if (buffer.q) {
+                        // fraction
+                        buffer.q = buffer.q.replace(/\u00B0C|\^oC|\^{o}C/g, '{}^{\\circ}C');
+                        buffer.q = buffer.q.replace(/\u00B0F|\^oF|\^{o}F/g, '{}^{\\circ}F');
+                        var b5 = {
+                            d: mhchemParser.go(buffer.d, 'pu'),
+                            q: mhchemParser.go(buffer.q, 'pu'),
+                        };
+                        if (buffer.o === '//') {
+                            ret = { type_: 'pu-frac', p1: b5.d, p2: b5.q };
+                        }
+                        else {
+                            ret = b5.d;
+                            if (b5.d.length > 1 || b5.q.length > 1) {
+                                ret.push({ type_: ' / ' });
+                            }
+                            else {
+                                ret.push({ type_: '/' });
+                            }
+                            mhchemParser.concatArray(ret, b5.q);
+                        }
+                    }
+                    else {
+                        // no fraction
+                        ret = mhchemParser.go(buffer.d, 'pu-2');
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+            },
+        },
+        'pu-2': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '*': { action_: 'output' },
+                },
+                '*': {
+                    '*': { action_: ['output', 'cdot'], nextState: '0' },
+                },
+                '\\x': {
+                    '*': { action_: 'rm=' },
+                },
+                space: {
+                    '*': { action_: ['output', 'space'], nextState: '0' },
+                },
+                '^{(...)}|^(-1)': {
+                    '1': { action_: '^(-1)' },
+                },
+                '-9.,9': {
+                    '0': { action_: 'rm=', nextState: '0' },
+                    '1': { action_: '^(-1)', nextState: '0' },
+                },
+                '{...}|else': {
+                    '*': { action_: 'rm=', nextState: '1' },
+                },
+            }),
+            actions: {
+                cdot: function () {
+                    return { type_: 'tight cdot' };
+                },
+                '^(-1)': function (buffer, m) {
+                    buffer.rm += '^{' + m + '}';
+                },
+                space: function () {
+                    return { type_: 'pu-space-2' };
+                },
+                output: function (buffer) {
+                    /** @type {ParserOutput | ParserOutput[]} */
+                    var ret = [];
+                    if (buffer.rm) {
+                        var mrm = mhchemParser.patterns.match_('{(...)}', buffer.rm || '');
+                        if (mrm && mrm.remainder === '') {
+                            ret = mhchemParser.go(mrm.match_, 'pu');
+                        }
+                        else {
+                            ret = { type_: 'rm', p1: buffer.rm };
+                        }
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+            },
+        },
+        'pu-9,9': {
+            transitions: mhchemParser.createTransitions({
+                empty: {
+                    '0': { action_: 'output-0' },
+                    o: { action_: 'output-o' },
+                },
+                ',': {
+                    '0': { action_: ['output-0', 'comma'], nextState: 'o' },
+                },
+                '.': {
+                    '0': { action_: ['output-0', 'copy'], nextState: 'o' },
+                },
+                else: {
+                    '*': { action_: 'text=' },
+                },
+            }),
+            actions: {
+                comma: function () {
+                    return { type_: 'commaDecimal' };
+                },
+                'output-0': function (buffer) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    buffer.text_ = buffer.text_ || '';
+                    if (buffer.text_.length > 4) {
+                        var a = buffer.text_.length % 3;
+                        if (a === 0) {
+                            a = 3;
+                        }
+                        for (var i = buffer.text_.length - 3; i > 0; i -= 3) {
+                            ret.push(buffer.text_.substr(i, 3));
+                            ret.push({ type_: '1000 separator' });
+                        }
+                        ret.push(buffer.text_.substr(0, a));
+                        ret.reverse();
+                    }
+                    else {
+                        ret.push(buffer.text_);
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+                'output-o': function (buffer) {
+                    /** @type {ParserOutput[]} */
+                    var ret = [];
+                    buffer.text_ = buffer.text_ || '';
+                    if (buffer.text_.length > 4) {
+                        var a = buffer.text_.length - 3;
+                        for (var i = 0; i < a; i += 3) {
+                            ret.push(buffer.text_.substr(i, 3));
+                            ret.push({ type_: '1000 separator' });
+                        }
+                        ret.push(buffer.text_.substr(i));
+                    }
+                    else {
+                        ret.push(buffer.text_);
+                    }
+                    for (var p in buffer) {
+                        delete buffer[p];
+                    }
+                    return ret;
+                },
+            },
+        },
+    };
+    //
+    // texify: Take MhchemParser output and convert it to TeX
+    //
+    /** @type {Texify} */
+    var texify = {
+        go: function (input, isInner) {
+            // (recursive, max 4 levels)
+            if (!input) {
+                return '';
+            }
+            var res = '';
+            var cee = false;
+            for (var i = 0; i < input.length; i++) {
+                var inputi = input[i];
+                if (typeof inputi === 'string') {
+                    res += inputi;
+                }
+                else {
+                    res += texify._go2(inputi);
+                    if (inputi.type_ === '1st-level escape') {
+                        cee = true;
+                    }
+                }
+            }
+            if (!isInner && !cee && res) {
+                res = '{' + res + '}';
+            }
+            return res;
+        },
+        _goInner: function (input) {
+            if (!input) {
+                return input;
+            }
+            return texify.go(input, true);
+        },
+        _go2: function (buf) {
+            /** @type {undefined | string} */
+            var res;
+            switch (buf.type_) {
+                case 'chemfive':
+                    res = '';
+                    var b5 = {
+                        a: texify._goInner(buf.a),
+                        b: texify._goInner(buf.b),
+                        p: texify._goInner(buf.p),
+                        o: texify._goInner(buf.o),
+                        q: texify._goInner(buf.q),
+                        d: texify._goInner(buf.d),
+                    };
+                    //
+                    // a
+                    //
+                    if (b5.a) {
+                        if (b5.a.match(/^[+\-]/)) {
+                            b5.a = '{' + b5.a + '}';
+                        }
+                        res += b5.a + '\\,';
+                    }
+                    //
+                    // b and p
+                    //
+                    if (b5.b || b5.p) {
+                        res += '{\\vphantom{X}}';
+                        res +=
+                            '^{\\hphantom{' +
+                                (b5.b || '') +
+                                '}}_{\\hphantom{' +
+                                (b5.p || '') +
+                                '}}';
+                        res += '{\\vphantom{X}}';
+                        res +=
+                            '^{\\smash[t]{\\vphantom{2}}\\mathllap{' +
+                                (b5.b || '') +
+                                '}}';
+                        res +=
+                            '_{\\vphantom{2}\\mathllap{\\smash[t]{' +
+                                (b5.p || '') +
+                                '}}}';
+                    }
+                    //
+                    // o
+                    //
+                    if (b5.o) {
+                        if (b5.o.match(/^[+\-]/)) {
+                            b5.o = '{' + b5.o + '}';
+                        }
+                        res += b5.o;
+                    }
+                    //
+                    // q and d
+                    //
+                    if (buf.dType === 'kv') {
+                        if (b5.d || b5.q) {
+                            res += '{\\vphantom{X}}';
+                        }
+                        if (b5.d) {
+                            res += '^{' + b5.d + '}';
+                        }
+                        if (b5.q) {
+                            res += '_{\\smash[t]{' + b5.q + '}}';
+                        }
+                    }
+                    else if (buf.dType === 'oxidation') {
+                        if (b5.d) {
+                            res += '{\\vphantom{X}}';
+                            res += '^{' + b5.d + '}';
+                        }
+                        if (b5.q) {
+                            res += '{\\vphantom{X}}';
+                            res += '_{\\smash[t]{' + b5.q + '}}';
+                        }
+                    }
+                    else {
+                        if (b5.q) {
+                            res += '{\\vphantom{X}}';
+                            res += '_{\\smash[t]{' + b5.q + '}}';
+                        }
+                        if (b5.d) {
+                            res += '{\\vphantom{X}}';
+                            res += '^{' + b5.d + '}';
+                        }
+                    }
+                    break;
+                case 'rm':
+                    res = '\\mathrm{' + buf.p1 + '}';
+                    break;
+                case 'text':
+                    if (buf.p1.match(/[\^_]/)) {
+                        buf.p1 = buf.p1.replace(' ', '~').replace('-', '\\text{-}');
+                        res = '\\mathrm{' + buf.p1 + '}';
+                    }
+                    else {
+                        res = '\\text{' + buf.p1 + '}';
+                    }
+                    break;
+                case 'roman numeral':
+                    res = '\\mathrm{' + buf.p1 + '}';
+                    break;
+                case 'state of aggregation':
+                    res = '\\mskip2mu ' + texify._goInner(buf.p1);
+                    break;
+                case 'state of aggregation subscript':
+                    res = '\\mskip1mu ' + texify._goInner(buf.p1);
+                    break;
+                case 'bond':
+                    res = texify._getBond(buf.kind_);
+                    if (!res) {
+                        throw [
+                            'MhchemErrorBond',
+                            'mhchem Error. Unknown bond type (' + buf.kind_ + ')',
+                        ];
+                    }
+                    break;
+                case 'frac':
+                    var c = '\\frac{' + buf.p1 + '}{' + buf.p2 + '}';
+                    res =
+                        '\\mathchoice{\\textstyle' +
+                            c +
+                            '}{' +
+                            c +
+                            '}{' +
+                            c +
+                            '}{' +
+                            c +
+                            '}';
+                    break;
+                case 'pu-frac':
+                    var d = '\\frac{' +
+                        texify._goInner(buf.p1) +
+                        '}{' +
+                        texify._goInner(buf.p2) +
+                        '}';
+                    res =
+                        '\\mathchoice{\\textstyle' +
+                            d +
+                            '}{' +
+                            d +
+                            '}{' +
+                            d +
+                            '}{' +
+                            d +
+                            '}';
+                    break;
+                case 'tex-math':
+                    res = buf.p1 + ' ';
+                    break;
+                case 'frac-ce':
+                    res =
+                        '\\frac{' +
+                            texify._goInner(buf.p1) +
+                            '}{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'overset':
+                    res =
+                        '\\overset{' +
+                            texify._goInner(buf.p1) +
+                            '}{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'underset':
+                    res =
+                        '\\underset{' +
+                            texify._goInner(buf.p1) +
+                            '}{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'underbrace':
+                    res =
+                        '\\underbrace{' +
+                            texify._goInner(buf.p1) +
+                            '}_{' +
+                            texify._goInner(buf.p2) +
+                            '}';
+                    break;
+                case 'color':
+                    res =
+                        '{\\color{' +
+                            buf.color1 +
+                            '}{' +
+                            texify._goInner(buf.color2) +
+                            '}}';
+                    break;
+                case 'color0':
+                    res = '\\color{' + buf.color + '}';
+                    break;
+                case 'arrow':
+                    var b6 = {
+                        rd: texify._goInner(buf.rd),
+                        rq: texify._goInner(buf.rq),
+                    };
+                    var arrow = '\\x' + texify._getArrow(buf.r);
+                    if (b6.rq) {
+                        arrow += '[{' + b6.rq + '}]';
+                    }
+                    if (b6.rd) {
+                        arrow += '{' + b6.rd + '}';
+                    }
+                    else {
+                        arrow += '{}';
+                    }
+                    res = arrow;
+                    break;
+                case 'operator':
+                    res = texify._getOperator(buf.kind_);
+                    break;
+                case '1st-level escape':
+                    res = buf.p1 + ' '; // &, \\\\, \\hlin
+                    break;
+                case 'space':
+                    res = ' ';
+                    break;
+                case 'entitySkip':
+                    res = '~';
+                    break;
+                case 'pu-space-1':
+                    res = '~';
+                    break;
+                case 'pu-space-2':
+                    res = '\\mkern3mu ';
+                    break;
+                case '1000 separator':
+                    res = '\\mkern2mu ';
+                    break;
+                case 'commaDecimal':
+                    res = '{,}';
+                    break;
+                case 'comma enumeration L':
+                    res = '{' + buf.p1 + '}\\mkern6mu ';
+                    break;
+                case 'comma enumeration M':
+                    res = '{' + buf.p1 + '}\\mkern3mu ';
+                    break;
+                case 'comma enumeration S':
+                    res = '{' + buf.p1 + '}\\mkern1mu ';
+                    break;
+                case 'hyphen':
+                    res = '\\text{-}';
+                    break;
+                case 'addition compound':
+                    res = '\\,{\\cdot}\\,';
+                    break;
+                case 'electron dot':
+                    res = '\\mkern1mu \\bullet\\mkern1mu ';
+                    break;
+                case 'KV x':
+                    res = '{\\times}';
+                    break;
+                case 'prime':
+                    res = '\\prime ';
+                    break;
+                case 'cdot':
+                    res = '\\cdot ';
+                    break;
+                case 'tight cdot':
+                    res = '\\mkern1mu{\\cdot}\\mkern1mu ';
+                    break;
+                case 'times':
+                    res = '\\times ';
+                    break;
+                case 'circa':
+                    res = '{\\sim}';
+                    break;
+                case '^':
+                    res = 'uparrow';
+                    break;
+                case 'v':
+                    res = 'downarrow';
+                    break;
+                case 'ellipsis':
+                    res = '\\ldots ';
+                    break;
+                case '/':
+                    res = '/';
+                    break;
+                case ' / ':
+                    res = '\\,/\\,';
+                    break;
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.']; // Missing texify rule or unknown MhchemParser output
+            }
+            return res;
+        },
+        _getArrow: function (a) {
+            switch (a) {
+                case '->':
+                    return 'rightarrow';
+                case '\u2192':
+                    return 'rightarrow';
+                case '\u27F6':
+                    return 'rightarrow';
+                case '<-':
+                    return 'leftarrow';
+                case '<->':
+                    return 'leftrightarrow';
+                case '<-->':
+                    return 'rightleftarrows';
+                case '<=>':
+                    return 'rightleftharpoons';
+                case '\u21CC':
+                    return 'rightleftharpoons';
+                case '<=>>':
+                    return 'rightequilibrium';
+                case '<<=>':
+                    return 'leftequilibrium';
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.'];
+            }
+        },
+        _getBond: function (a) {
+            switch (a) {
+                case '-':
+                    return '{-}';
+                case '1':
+                    return '{-}';
+                case '=':
+                    return '{=}';
+                case '2':
+                    return '{=}';
+                case '#':
+                    return '{\\equiv}';
+                case '3':
+                    return '{\\equiv}';
+                case '~':
+                    return '{\\tripledash}';
+                case '~-':
+                    return '{\\mathrlap{\\raisebox{-.1em}{$-$}}\\raisebox{.1em}{$\\tripledash$}}';
+                case '~=':
+                    return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$\\tripledash$}}-}';
+                case '~--':
+                    return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$\\tripledash$}}-}';
+                case '-~-':
+                    return '{\\mathrlap{\\raisebox{-.2em}{$-$}}\\mathrlap{\\raisebox{.2em}{$-$}}\\tripledash}';
+                case '...':
+                    return '{{\\cdot}{\\cdot}{\\cdot}}';
+                case '....':
+                    return '{{\\cdot}{\\cdot}{\\cdot}{\\cdot}}';
+                case '->':
+                    return '{\\rightarrow}';
+                case '<-':
+                    return '{\\leftarrow}';
+                case '<':
+                    return '{<}';
+                case '>':
+                    return '{>}';
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.'];
+            }
+        },
+        _getOperator: function (a) {
+            switch (a) {
+                case '+':
+                    return ' {}+{} ';
+                case '-':
+                    return ' {}-{} ';
+                case '=':
+                    return ' {}={} ';
+                case '<':
+                    return ' {}<{} ';
+                case '>':
+                    return ' {}>{} ';
+                case '<<':
+                    return ' {}\\ll{} ';
+                case '>>':
+                    return ' {}\\gg{} ';
+                case '\\pm':
+                    return ' {}\\pm{} ';
+                case '\\approx':
+                    return ' {}\\approx{} ';
+                case '$\\approx$':
+                    return ' {}\\approx{} ';
+                case 'v':
+                    return ' \\downarrow{} ';
+                case '(v)':
+                    return ' \\downarrow{} ';
+                case '^':
+                    return ' \\uparrow{} ';
+                case '(^)':
+                    return ' \\uparrow{} ';
+                default:
+                    throw ['MhchemBugT', 'mhchem bug T. Please report.'];
+            }
+        },
+    };
+
+    const DEFINITIONS_INEQUALITIES = [
+        {
+            name: 'NotLess',
+            trigger: { infix: ['!', '<'] },
+            associativity: 'right',
+            precedence: 246,
+        },
+        {
+            name: 'NotLess',
+            trigger: { infix: '\\nless' },
+            associativity: 'right',
+            precedence: 246,
+        },
+        {
+            name: 'Less',
+            trigger: { infix: '<' },
+            associativity: 'right',
+            precedence: 245,
+        },
+        {
+            name: 'Less',
+            trigger: { infix: '\\lt' },
+            associativity: 'right',
+            precedence: 245,
+        },
+        {
+            name: 'LessEqual',
+            trigger: { infix: ['<', '='] },
+            associativity: 'right',
+            precedence: 241,
+        },
+        {
+            name: 'LessEqual',
+            trigger: { infix: '\\le' },
+            associativity: 'right',
+            precedence: 241,
+        },
+        {
+            name: 'LessEqual',
+            trigger: { infix: '\\leq' },
+            associativity: 'right',
+            precedence: 241,
+        },
+        {
+            name: 'LessEqual',
+            trigger: { infix: '\\leqslant' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'LessNotEqual',
+            trigger: { infix: '\\lneqq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'NotLessNotEqual',
+            trigger: { infix: '\\nleqq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'LessOverEqual',
+            trigger: { infix: '\\leqq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'GreaterOverEqual',
+            trigger: { infix: '\\geqq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'Equal',
+            trigger: { infix: '=' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'StarEqual',
+            trigger: { infix: ['*', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'StarEqual',
+            trigger: { infix: ['\\star', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'PlusEqual',
+            trigger: { infix: ['+', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'MinusEqual',
+            trigger: { infix: ['-', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'SlashEqual',
+            trigger: { infix: ['/', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'EqualEqual',
+            trigger: { infix: ['=', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'EqualEqualEqual',
+            trigger: { infix: ['=', '=', '='] },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'TildeFullEqual',
+            trigger: { infix: '\\cong' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'NotTildeFullEqual',
+            trigger: { infix: '\\ncong' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Assign',
+            trigger: { infix: [':', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Assign',
+            trigger: { infix: '\\coloneq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Approx',
+            trigger: { infix: '\\approx' },
+            associativity: 'right',
+            precedence: 247,
+        },
+        {
+            name: 'NotApprox',
+            trigger: { infix: '\\approx' },
+            associativity: 'right',
+            precedence: 247,
+        },
+        {
+            name: 'ApproxEqual',
+            trigger: { infix: '\\approxeq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'NotApproxEqual',
+            trigger: { infix: ['!', '\\approxeq'] },
+            associativity: 'right',
+            precedence: 250,
+        },
+        {
+            name: 'Unequal',
+            trigger: { infix: '\\ne' },
+            associativity: 'right',
+            precedence: 255,
+        },
+        {
+            name: 'Unequal',
+            trigger: { infix: ['!', '='] },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'GreaterEqual',
+            trigger: { infix: '\\ge' },
+            associativity: 'right',
+            precedence: 242,
+        },
+        {
+            name: 'GreaterEqual',
+            trigger: { infix: '\\geq' },
+            associativity: 'right',
+            precedence: 242,
+        },
+        {
+            name: 'GreaterEqual',
+            trigger: { infix: ['>', '='] },
+            associativity: 'right',
+            precedence: 243,
+        },
+        {
+            name: 'GreaterEqual',
+            trigger: { infix: '\\geqslant' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'GreaterNotEqual',
+            trigger: { infix: '\\gneqq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'NotGreaterNotEqual',
+            trigger: { infix: '\\ngeqq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Greater',
+            trigger: { infix: '>' },
+            associativity: 'right',
+            precedence: 245,
+        },
+        {
+            name: 'Greater',
+            trigger: { infix: '\\gt' },
+            associativity: 'right',
+            precedence: 245,
+        },
+        {
+            name: 'NotGreater',
+            trigger: { infix: '\\ngtr' },
+            associativity: 'right',
+            precedence: 244,
+        },
+        {
+            name: 'NotGreater',
+            trigger: { infix: ['!', '>'] },
+            associativity: 'right',
+            precedence: 244,
+        },
+        {
+            name: 'RingEqual',
+            trigger: { infix: '\\circeq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'TriangleEqual',
+            trigger: { infix: '\\triangleq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'DotEqual',
+            trigger: { infix: '\\doteq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'DotEqualDot',
+            trigger: { infix: '\\doteqdot' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'FallingDotEqual',
+            trigger: { infix: '\\fallingdotseq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'RisingDotEqual',
+            trigger: { infix: '\\fallingdotseq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'QuestionEqual',
+            trigger: { infix: '\\questeq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Equivalent',
+            trigger: { infix: '\\equiv' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'MuchLess',
+            trigger: { infix: '\\ll' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'MuchGreater',
+            trigger: { infix: '\\gg' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Precedes',
+            trigger: { infix: '\\prec' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'Succeeds',
+            trigger: { infix: '\\succ' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'PrecedesEqual',
+            trigger: { infix: '\\preccurlyeq' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'SucceedsEqual',
+            trigger: { infix: '\\curlyeqprec' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'NotPrecedes',
+            trigger: { infix: '\\nprec' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'NotSucceeds',
+            trigger: { infix: '\\nsucc' },
+            associativity: 'right',
+            precedence: 260,
+        },
+        {
+            name: 'ElementOf',
+            trigger: { infix: '\\in' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'NotElementOf',
+            trigger: { infix: '\\notin' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'Contains',
+            trigger: { infix: '\\ni' },
+            associativity: 'right',
+            precedence: 160,
+        },
+        {
+            name: 'Subset',
+            trigger: { infix: '\\subset' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SquareSubset',
+            trigger: { infix: '\\sqsubset' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'SquareSubsetEqal',
+            trigger: { infix: '\\sqsubseteq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'Superset',
+            trigger: { infix: '\\supset' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SquareSuperset',
+            trigger: { infix: '\\sqsupset' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'SquareSupersetEuqal',
+            trigger: { infix: '\\sqsupseteq' },
+            associativity: 'right',
+            precedence: 265,
+        },
+        {
+            name: 'NotSubset',
+            trigger: { infix: '\\nsubset' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'NotSuperset',
+            trigger: { infix: '\\nsupset' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SubsetEqual',
+            trigger: { infix: '\\subseteq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SupersetEqual',
+            trigger: { infix: '\\supseteq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'NotSubsetNotEqual',
+            trigger: { infix: '\\nsubseteq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'NotSupersetNotEqual',
+            trigger: { infix: '\\nsupseteq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SubsetNotEqual',
+            trigger: { infix: '\\subsetneq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SupersetNotEqual',
+            trigger: { infix: '\\supsetneq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SubsetNotEqual',
+            trigger: { infix: '\\varsupsetneqq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'SupersetNotEqual',
+            trigger: { infix: '\\varsupsetneq' },
+            associativity: 'right',
+            precedence: 240,
+        },
+        {
+            name: 'Between',
+            trigger: { infix: '\\between' },
+            associativity: 'right',
+            precedence: 265,
+        },
+    ];
+
+    const DEFINITIONS_OTHERS = [
+        {
+            name: 'Overscript',
+            trigger: { infix: '\\overset' },
+            precedence: 700,
+        },
+        {
+            name: 'Underscript',
+            trigger: { infix: '\\underset' },
+            precedence: 700,
+        },
+        {
+            name: 'Increment',
+            trigger: { postfix: ['+', '+'] },
+            precedence: 880,
+        },
+        {
+            name: 'Decrement',
+            trigger: { postfix: ['-', '-'] },
+            precedence: 880,
+        },
+        {
+            name: 'PreIncrement',
+            trigger: { prefix: ['+', '+'] },
+            precedence: 880,
+        },
+        {
+            name: 'PreDecrement',
+            trigger: { prefix: ['-', '-'] },
+            precedence: 880,
+        },
+        {
+            name: 'Ring',
+            trigger: { infix: '\\circ' },
+            precedence: 265,
+        },
+        {
+            // @todo: if lhs is a list/tensor
+            name: 'Transpose',
+            trigger: { superfix: 'T' },
+        },
+        {
+            // @todo: if lhs is a list/tensor
+            name: 'ConjugateTranspose',
+            trigger: { superfix: 'H' },
+        },
+        {
+            name: 'StringJoin',
+            trigger: { infix: ['\\lt', '\\gt'] },
+            precedence: 780,
+        },
+        {
+            name: 'Starstar',
+            trigger: { infix: ['\\star', '\\star'] },
+            precedence: 780,
+        },
+        {
+            // Partial derivative using a variation of the Euler notation: `∂_xf(x)`
+            // (the Euler notation uses `D_1f(x)` where "1" is for the first variable
+            // For the Leibniz notation see 'Divide' that handles `∂f/∂x`
+            name: 'PartialDerivative',
+            trigger: { prefix: '\\partial' },
+            parse: (_lhs, scanner, _minPrec, _latex) => {
+                var _a;
+                let done = false;
+                let sup = NOTHING;
+                let sub = NOTHING;
+                while (!done) {
+                    scanner.skipSpace();
+                    if (scanner.match('_')) {
+                        sub = scanner.matchRequiredLatexArgument();
+                    }
+                    else if (scanner.match('^')) {
+                        sup = scanner.matchRequiredLatexArgument();
+                    }
+                    else {
+                        done = true;
+                    }
+                }
+                if (getFunctionName(sub) === SEQUENCE) {
+                    sub = [LIST, ...getArgs(sub)];
+                }
+                let rhs = (_a = scanner.matchRequiredLatexArgument()) !== null && _a !== void 0 ? _a : NOTHING;
+                if (rhs !== NOTHING) {
+                    rhs = [rhs, ...scanner.matchArguments('group')];
+                }
+                return [null, ['PartialDerivative', rhs, sub, sup]];
+            },
+            emit: (emitter, expr) => {
+                let result = '\\partial';
+                const fn = getArg(expr, 1);
+                const vars = getArg(expr, 2);
+                const degree = getArg(expr, 3);
+                if (vars !== null && vars !== NOTHING) {
+                    if (getFunctionHead(vars) === LIST) {
+                        result +=
+                            '_{' + emitter.emit([SEQUENCE, ...getArgs(vars)]) + '}';
+                    }
+                    else {
+                        result += '_{' + emitter.emit(vars) + '}';
+                    }
+                }
+                if (degree !== null && degree !== NOTHING) {
+                    result += '^{' + emitter.emit(degree) + '}';
+                }
+                if (fn !== null && fn !== NOTHING) {
+                    result += emitter.emit(fn);
+                }
+                return result;
+            },
+            precedence: 740,
+        },
+        {
+            name: 'OverBar',
+            trigger: { symbol: '\\overline' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'UnderBar',
+            trigger: { symbol: '\\underline' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverVector',
+            trigger: { symbol: '\\vec' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverTile',
+            trigger: { symbol: '\\tilde' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverHat',
+            trigger: { symbol: '\\hat' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverHat',
+            trigger: { symbol: '\\hat' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverRightArrow',
+            trigger: { symbol: '\\overrightarrow' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverLeftArrow',
+            trigger: { symbol: '\\overleftarrow' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverRightDoubleArrow',
+            trigger: { symbol: '\\Overrightarrow' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverLeftHarpoon',
+            trigger: { symbol: '\\overleftharpoon' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverRightHarpoon',
+            trigger: { symbol: '\\overrightharpoon' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverLeftRightArrow',
+            trigger: { symbol: '\\overleftrightarrow' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverBrace',
+            trigger: { symbol: '\\overbrace' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverLineSegment',
+            trigger: { symbol: '\\overlinesegment' },
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'OverGroup',
+            trigger: { symbol: '\\overgroup' },
+            requiredLatexArg: 1,
+        },
+    ];
+    // https://reference.wolfram.com/language/tutorial/TextualInputAndOutput.html
+
+    function getApplyFunctionStyle(_expr, _level) {
+        return 'paren';
+    }
+    function getGroupStyle(_expr, _level) {
+        return 'paren';
+    }
+    function getRootStyle(_expr, level) {
+        if (level > 1)
+            return 'solidus';
+        return 'radical';
+    }
+    function getFractionStyle(_expr, level) {
+        if (level > 3)
+            return 'inline-solidus';
+        return 'quotient';
+    }
+
+    function emitGroup(emitter, expr) {
+        let sep = '';
+        let argString = '';
+        const anySubsequence = getArgs(expr).some((x) => getFunctionName(x) === SUBSEQUENCE);
+        for (const arg of getArgs(expr)) {
+            if (arg !== null) {
+                argString += sep + emitter.emit(arg);
+                sep = anySubsequence ? '; ' : ', ';
+            }
+        }
+        return emitter.wrapString(argString, getGroupStyle(expr, emitter.level));
+    }
+    function parseSequence(lhs, scanner, minPrec, _latex) {
+        if (minPrec >= 20)
+            return [lhs, null];
+        let args = [];
+        let row = [lhs !== null && lhs !== void 0 ? lhs : NOTHING];
+        let done = false;
+        while (!done) {
+            scanner.skipSpace();
+            const rhs = scanner.matchExpression(20);
+            if (rhs === null) {
+                scanner.skipSpace();
+                if (scanner.match(',')) {
+                    row.push(NOTHING);
+                }
+                else {
+                    done = true;
+                }
+            }
+            else {
+                if (getFunctionName(rhs) === SEQUENCE) {
+                    row = row.concat(getArgs(rhs));
+                }
+                else {
+                    row.push(rhs);
+                }
+                scanner.skipSpace();
+                if (scanner.match(',')) {
+                    scanner.skipSpace();
+                }
+                else if (scanner.match(';')) {
+                    args.push([SUBSEQUENCE, ...row]);
+                    row = [];
+                }
+                else {
+                    done = true;
+                }
+            }
+        }
+        if (args.length === 0) {
+            args = row;
+        }
+        else {
+            args.push([SUBSEQUENCE, ...row]);
+        }
+        return [null, [SUBSEQUENCE, ...args]];
+    }
+    function emitSequence(emitter, expr) {
+        if (getFunctionName(expr) === 'Sequence') {
+            const anySubsequence = getArgs(expr).some((x) => getFunctionName(x) === SUBSEQUENCE);
+            if (anySubsequence) {
+                return getArgs(expr)
+                    .map((x) => emitter.emit(x))
+                    .join('; ');
+            }
+        }
+        return getArgs(expr)
+            .map((x) => emitter.emit(x))
+            .join(', ');
+    }
+    function emitLatex(emitter, expr) {
+        if (expr === null)
+            return '';
+        const head = getFunctionHead(expr);
+        if (head !== null) {
+            const args = getArgs(expr);
+            if (head === LATEX) {
+                return args.map((x) => emitLatex(emitter, x)).join('');
+            }
+            if (args.length === 0)
+                return emitter.emit(head);
+            return (emitter.emit(head) +
+                args.map((x) => '{' + emitter.emit(x) + '}').join(''));
+        }
+        return emitter.emit(expr);
+    }
+    const DEFINITIONS_CORE = [
+        { name: LATEX, emit: emitLatex },
+        {
+            name: GROUP,
+            trigger: { matchfix: '(' },
+            parse: (lhs, scanner, _minPrec, _latex) => {
+                const originalIndex = scanner.getIndex();
+                //
+                // 1. Attempt to scan a base-n number
+                // i.e. `(deadbeef)_{16}`
+                //
+                let done = false;
+                let couldBeBaseNumber = true;
+                let maxDigit = 0;
+                let base = '';
+                while (!done && couldBeBaseNumber) {
+                    const token = scanner.next();
+                    if (scanner.atEnd() || token === ')') {
+                        done = true;
+                    }
+                    else if (!/^[0-9a-zA-Z]$/.test(token)) {
+                        couldBeBaseNumber = false;
+                    }
+                    else {
+                        maxDigit = Math.max(maxDigit, parseInt(token, 36));
+                        base += token;
+                    }
+                }
+                scanner.skipSpace();
+                if (couldBeBaseNumber && scanner.match('_')) {
+                    const radix = getNumberValue(scanner.matchRequiredLatexArgument());
+                    if (isFinite(radix) && maxDigit < radix) {
+                        return [lhs, ['BaseForm', parseInt(base, radix), radix]];
+                    }
+                }
+                //
+                // 2. It wasn't a number in a base. Scan a sequence
+                //
+                scanner.setIndex(originalIndex);
+                const [, seq] = parseSequence(scanner.matchExpression(20), scanner, 0);
+                if (!scanner.match(')')) {
+                    scanner.onError({
+                        code: 'unbalanced-matchfix-operator',
+                        arg: '()',
+                    });
+                }
+                return [lhs, [GROUP, seq]];
+            },
+            emit: emitGroup,
+            separator: ',',
+            closeFence: ')',
+            precedence: 20,
+        },
+        {
+            name: LIST,
+            trigger: { matchfix: '\\lbrack' },
+            separator: ',',
+            closeFence: '\\rbrack',
+            precedence: 20,
+        },
+        {
+            name: 'BaseForm',
+            emit: (emitter, expr) => {
+                const radix = getNumberValue(getArg(expr, 2));
+                if (isFinite(radix) && radix > 0 && radix <= 36) {
+                    const num = getNumberValue(getArg(expr, 1));
+                    if (isFinite(num)) {
+                        let digits = Number(num).toString(radix);
+                        let groupLength = 0;
+                        if (radix === 2) {
+                            groupLength = 4;
+                        }
+                        else if (radix === 10) {
+                            groupLength = 4;
+                        }
+                        else if (radix === 16) {
+                            groupLength = 2;
+                        }
+                        else if (radix > 16) {
+                            groupLength = 4;
+                        }
+                        if (groupLength > 0) {
+                            const oldDigits = digits;
+                            digits = '';
+                            for (let i = 0; i < oldDigits.length; i++) {
+                                if (i > 0 && i % groupLength === 0) {
+                                    digits = '\\; ' + digits;
+                                }
+                                digits =
+                                    oldDigits[oldDigits.length - i - 1] + digits;
+                            }
+                        }
+                        return ('\\mathtt{' +
+                            digits +
+                            '}_{' +
+                            Number(radix).toString() +
+                            '}');
+                    }
+                }
+                return ('\\operatorname{BaseForm}(' +
+                    emitter.emit(getArg(expr, 1)) +
+                    ', ' +
+                    emitter.emit(getArg(expr, 2)) +
+                    ')');
+            },
+        },
+        {
+            name: 'Set',
+            trigger: { matchfix: '\\lbrace' },
+            separator: ',',
+            closeFence: '\\rbrace',
+            precedence: 20,
+        },
+        {
+            name: SEQUENCE,
+            trigger: { infix: ',' },
+            // Unlike the matchfix version of List,
+            // when the comma operator is used, the lhs and rhs are flattened,
+            // i.e. `1,2,3` -> `["Sequence", 1, 2, 3],
+            // but `1, (2, 3)` -> ["Sequence", 1, ["Group", 2, 3]]`
+            parse: parseSequence,
+            emit: emitSequence,
+            precedence: 20,
+        },
+        {
+            name: SUBSEQUENCE,
+            trigger: { infix: ';' },
+            parse: parseSequence,
+            emit: emitSequence,
+            precedence: 20,
+        },
+        {
+            name: MISSING,
+            trigger: '\\placeholder',
+            emit: '\\placeholder',
+            requiredLatexArg: 1,
+        },
+        {
+            name: 'Subscript',
+            trigger: { infix: '_' },
+            precedence: 720,
+            emit: (emitter, expr) => {
+                if (getArgCount(expr) === 2) {
+                    return (emitter.emit(getArg(expr, 1)) +
+                        '_{' +
+                        emitter.emit(getArg(expr, 2)) +
+                        '}');
+                }
+                return '_{' + emitter.emit(getArg(expr, 1)) + '}';
+            },
+            parse: (lhs, scanner, _minPrec, _latex) => {
+                const rhs = scanner.matchRequiredLatexArgument();
+                return [null, ['Subscript', lhs, rhs]];
+            },
+        },
+        {
+            name: 'Superplus',
+            trigger: { superfix: '+' },
+        },
+        {
+            name: 'Subplus',
+            trigger: { subfix: '+' },
+        },
+        {
+            name: 'Superminus',
+            trigger: { superfix: '-' },
+        },
+        {
+            name: 'Subminus',
+            trigger: { subfix: '-' },
+        },
+        {
+            // @todo: when lhs is a complex number, 'Conjugate'
+            name: 'Superstar',
+            trigger: { superfix: '*' },
+        },
+        {
+            // @todo: when lhs is a complex number, 'Conjugate'
+            name: 'Superstar',
+            trigger: { superfix: '\\star' },
+        },
+        {
+            name: 'Substar',
+            trigger: { subfix: '*' },
+        },
+        {
+            name: 'Substar',
+            trigger: { subfix: '\\star' },
+        },
+        {
+            name: 'Superdagger',
+            trigger: { superfix: '\\dagger' },
+        },
+        {
+            name: 'Superdagger',
+            trigger: { superfix: '\\dag' },
+        },
+        {
+            name: PRIME,
+            trigger: { superfix: '\\prime' },
+            arguments: 'group',
+        },
+        {
+            // name: 'prime',
+            trigger: { superfix: '\\doubleprime' },
+            parse: (lhs) => {
+                return [null, [PRIME, lhs, 2]];
+            },
+            arguments: 'group',
+        },
+        {
+            name: INVERSE_FUNCTION,
+            emit: (emitter, expr) => {
+                return emitter.emit(getArg(expr, 1)) + '^{-1}';
+            },
+        },
+        {
+            name: DERIVATIVE,
+            trigger: 'D',
+            parse: (lhs, _scanner) => {
+                return [lhs, [DERIVATIVE, 1]];
+            },
+            emit: (emitter, expr) => {
+                const degree = getNumberValue(getArg(expr, 1));
+                if (!isFinite(degree))
+                    return '';
+                const base = emitter.emit(getArg(expr, 2));
+                if (degree === 1) {
+                    return base + '^{\\prime}';
+                }
+                else if (degree === 2) {
+                    return base + '^{\\doubleprime}';
+                }
+                return base + '^{(' + Number(degree).toString() + ')}';
+            },
+        },
+        {
+            name: 'Piecewise',
+            trigger: { environment: 'cases' },
+            parse: (_lhs, scanner) => {
+                return [null, ['piecewise', scanner.matchTabular()]];
+            },
+            emit: (emitter, expr) => {
+                if (getFunctionName(getArg(expr, 1)) !== LIST)
+                    return '';
+                const rows = getArgs(getArg(expr, 1));
+                let body = '';
+                let rowSep = '';
+                for (const row of rows) {
+                    body += rowSep;
+                    const arg1 = getArg(row, 1);
+                    if (arg1 !== null) {
+                        body += emitter.emit(arg1);
+                        const arg2 = getArg(row, 2);
+                        if (arg2 !== null)
+                            body += '&' + emitter.emit(arg2);
+                    }
+                    rowSep = '\\\\';
+                }
+                return '\\begin{cases}' + body + '\\end{cases}';
+            },
+        },
+    ];
+
+    function order(a, b) {
+        const lexA = getLex(a);
+        const lexB = getLex(b);
+        if (lexA < lexB)
+            return -1;
+        if (lexA > lexB)
+            return 1;
+        let valA = getExprValue(a);
+        if (isNaN(valA))
+            valA = Number(Infinity);
+        let valB = getExprValue(b);
+        if (isNaN(valB))
+            valB = Number(Infinity);
+        if (valA < valB)
+            return -1;
+        if (valA > valB)
+            return 1;
+        const lenA = getExprLength(a);
+        const lenB = getExprLength(b);
+        if (lenA === lenB) {
+            // Order arg by arg
+            for (let i = 1; i <= lenA; i++) {
+                const comp = order(getArg(a, i), getArg(b, i));
+                if (comp !== 0)
+                    return comp;
+            }
+        }
+        return lenB - lenA;
+    }
+    /**
+     * Return the (total) degree of the term
+     */
+    function degree(expr, sortedVars) {
+        if (expr === 0)
+            return -Infinity;
+        const name = getFunctionName(expr);
+        if (name === POWER) {
+            const exponent = getNumberValue(getArg(expr, 2));
+            if (isFinite(exponent))
+                return exponent;
+            return 0;
+        }
+        if (name === MULTIPLY) {
+            let result = 0;
+            getArgs(expr).forEach((x) => {
+                result += degree(x, sortedVars);
+            });
+            return result;
+        }
+        if (sortedVars.includes(getSymbolName(expr)))
+            return 1;
+        return 0;
+    }
+    /**
+     *  Return the degree of variable v
+     *  i.e. if "v" -> degree 1
+     *  if "v^2" -> degree 2
+     *  if "v^2v^3" -> degree 5
+     *  if "v^n" -> degree 0
+     */
+    function getDegree(expr, v) {
+        const name = getFunctionName(expr);
+        if (name === POWER) {
+            if (getSymbolName(getArg(expr, 1)) === v) {
+                const exponent = getNumberValue(getArg(expr, 2));
+                if (isFinite(exponent))
+                    return exponent;
+            }
+            return 0;
+        }
+        if (name === MULTIPLY) {
+            let result = 0;
+            for (const arg of getArgs(expr)) {
+                result += getDegree(arg, v);
+            }
+            return result;
+        }
+        if (getSymbolName(expr) === v)
+            return 1;
+        return 0;
+    }
+    /**
+     * Get a string representing, in order, all the symbols of the expression.
+     * This assumes that each of the argument of the expression, if any,
+     * have already been sorted.
+     */
+    function getLex(expr) {
+        if (getFunctionHead(expr)) {
+            return getArgs(expr).map(getLex).join(' ');
+        }
+        if (typeof expr === 'string')
+            return expr;
+        if (isSymbolObject(expr))
+            return expr.sym;
+        return '';
+    }
+    /**
+     * Get  the "length" of the expression, i.e. the number of arguments, recursively
+     *
+     */
+    function getExprLength(expr) {
+        if (getFunctionHead(expr)) {
+            return getArgs(expr)
+                .map(getExprLength)
+                .reduce((acc, x) => acc + x, 0);
+        }
+        if (typeof expr === 'string')
+            return 1;
+        if (getSymbolName(expr))
+            return 1;
+        return 0;
+    }
+    function getExprValue(expr) {
+        if (getFunctionHead(expr))
+            return NaN;
+        if (typeof expr === 'number')
+            return expr;
+        if (isNumberObject(expr))
+            return getNumberValue(expr);
+        return 0;
+    }
+    /**
+     * The deglex order is used for sum of factors:
+     * - first by total degree of each factor
+     * - then lexicographically for each variable
+     * - then lexicogaphcially for other symbols
+     * - then by length
+     * - then by value
+     *
+     */
+    function deglex(a, b, sortedVars) {
+        const aDeg = degree(a, sortedVars);
+        const bDeg = degree(b, sortedVars);
+        if (aDeg < bDeg)
+            return 1;
+        if (aDeg > bDeg)
+            return -1;
+        // Lexicographic order:
+        // Compare order of lexicographically sorted vars
+        // (i.e. "x" first, then "y", then "z", etc...
+        // a = 5 x^5 y^7
+        // b =   x^2 y^3
+        for (const x of sortedVars) {
+            const aDegX = getDegree(a, x);
+            const bDegX = getDegree(b, x);
+            if (aDegX !== bDegX)
+                return bDegX - aDegX;
+        }
+        const aLex = getLex(a);
+        const bLex = getLex(b);
+        if (aLex > bLex)
+            return -1;
+        if (aLex < bLex)
+            return 1;
+        // Inverse than the regular order: smaller first
+        // let valA = getExprValue(a);
+        // if (isNaN(valA)) valA = +Infinity;
+        // let valB = getExprValue(b);
+        // if (isNaN(valB)) valB = +Infinity;
+        // if (valA < valB) return -1;
+        // if (valA > valB) return 1;
+        return order(a, b);
+    }
+    function canonicalOrder(dic, sortedVars, expr) {
+        var _a;
+        let args = getArgs(expr);
+        if (args.length === 0)
+            return expr;
+        // Sort each of the arguments
+        args = args.map((x) => canonicalOrder(dic, sortedVars, x));
+        const name = getFunctionName(expr);
+        if (name === ADD) {
+            // Use the deglex sort order for sums
+            args.sort((a, b) => deglex(a, b, sortedVars));
+        }
+        else {
+            // Is the function commutative?
+            const def = findFunctionInDictionary(dic, name);
+            if ((_a = def === null || def === void 0 ? void 0 : def.isCommutative) !== null && _a !== void 0 ? _a : false) {
+                // Sort the argument list
+                args.sort(order);
+            }
+        }
+        return [getFunctionHead(expr), ...args];
+    }
+
+    function ungroup(expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head === GROUP && getArgCount(expr) === 1) {
+            return ungroup(getArg(expr, 1));
+        }
+        return mapArgs(expr, ungroup);
+    }
+    /**
+     * Return an expression that's the inverse (1/x) of the input
+     *
+     */
+    function applyInvert(expr) {
+        if (expr === null)
+            return null;
+        expr = ungroup(expr);
+        const head = getFunctionHead(expr);
+        if (head === POWER && getArgCount(expr) === 2) {
+            return [POWER, getArg(expr, 1), applyNegate(getArg(expr, 2))];
+        }
+        if (head === DIVIDE && getArgCount(expr) === 2) {
+            return [MULTIPLY, [POWER, getArg(expr, 1), -1], getArg(expr, 2)];
+        }
+        return [POWER, expr, -1];
+    }
+    function applyNegate(expr) {
+        if (expr === null)
+            return expr;
+        expr = ungroup(expr);
+        if (typeof expr === 'number') {
+            expr = -expr;
+        }
+        else if (expr && isNumberObject(expr)) {
+            if (expr.num[0] === '-') {
+                expr = { num: expr.num.slice(1) };
+            }
+            else {
+                expr = { num: '-' + expr.num };
+            }
+        }
+        else {
+            // [NEGATE, [NEGATE, x]] -> x
+            const name = getFunctionName(expr);
+            const argCount = getArgCount(expr);
+            if (name === NEGATE && argCount === 1) {
+                return getArg(expr, 1);
+            }
+            else if (name === MULTIPLY) {
+                let arg = getArg(expr, 1);
+                if (typeof arg === 'number') {
+                    arg = -arg;
+                }
+                else if (isNumberObject(arg)) {
+                    if (arg.num[0] === '-') {
+                        arg = { num: arg.num.slice(1) };
+                    }
+                    else {
+                        arg = { num: '-' + arg.num };
+                    }
+                }
+                else {
+                    arg = [NEGATE, arg];
+                }
+                return [MULTIPLY, arg, ...getArgs(expr).slice(1)];
+            }
+            else if (name === GROUP && argCount === 1) {
+                return applyNegate(getArg(getArg(expr, 1), 1));
+            }
+            expr = [NEGATE, expr];
+        }
+        return expr;
+    }
+    function flatten(expr, flatName) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        expr = mapArgs(expr, (x) => flatten(x, flatName));
+        if (head !== flatName)
+            return expr;
+        const args = getArgs(expr);
+        let newArgs = [];
+        for (let i = 0; i < args.length; i++) {
+            if (getFunctionName(args[i]) === flatName) {
+                // [f, a, [f, b, c]] -> [f, a, b, c]
+                // or [f, f[a]] -> f[a]
+                newArgs = newArgs.concat(getArgs(args[i]));
+            }
+            else {
+                newArgs.push(args[i]);
+            }
+        }
+        return [head, ...newArgs];
+    }
+    function flattenIdempotent(dic, expr) {
+        const name = getFunctionName(expr);
+        const def = findFunctionInDictionary(dic, name);
+        if (def === null || def === void 0 ? void 0 : def.isIdempotent)
+            return flatten(expr, name);
+        return mapArgs(expr, (x) => flattenIdempotent(dic, x));
+    }
+    function flattenAssociative(dic, expr) {
+        const name = getFunctionName(expr);
+        const def = findFunctionInDictionary(dic, name);
+        if (def === null || def === void 0 ? void 0 : def.isAssociative)
+            return flatten(expr, name);
+        return mapArgs(expr, (x) => flattenAssociative(dic, x));
+    }
+    function canonicalAddForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head !== ADD) {
+            return mapArgs(expr, (x) => canonicalAddForm(dic, x));
+        }
+        expr = flatten(ungroup(expr), ADD);
+        let args = getArgs(expr);
+        args = args
+            .map((x) => canonicalAddForm(dic, x))
+            .filter((x) => getNumberValue(x) !== 0);
+        const argCount = args.length;
+        if (argCount === 0)
+            return 0;
+        if (argCount === 1)
+            return args[0];
+        return [ADD, ...args];
+    }
+    function canonicalDivideForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head !== DIVIDE) {
+            return mapArgs(expr, (x) => canonicalDivideForm(dic, x));
+        }
+        if (getArgCount(expr) !== 2)
+            return expr;
+        const arg1 = canonicalDivideForm(dic, getArg(expr, 1));
+        const arg2 = canonicalDivideForm(dic, getArg(expr, 2));
+        const val2 = getNumberValue(arg2);
+        if (val2 === 1)
+            return arg1;
+        return [MULTIPLY, arg1, applyInvert(arg2)];
+    }
+    function canonicalExpForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head !== EXP) {
+            return mapArgs(expr, (x) => canonicalExpForm(dic, x));
+        }
+        if (getArgCount(expr) !== 1)
+            return expr;
+        return [POWER, EXPONENTIAL_E, canonicalExpForm(dic, getArg(expr, 1))];
+    }
+    function canonicalListForm(dic, expr) {
+        var _a;
+        if (isAtomic$1(expr))
+            return expr;
+        const name = getFunctionName(expr);
+        const isList = name === LIST;
+        const def = findFunctionInDictionary(dic, name);
+        const sequenceHold = (_a = def === null || def === void 0 ? void 0 : def.sequenceHold) !== null && _a !== void 0 ? _a : false;
+        const args = getArgs(expr);
+        const newArgs = [];
+        for (let arg of args) {
+            arg = canonicalListForm(dic, arg);
+            const name = getFunctionName(arg);
+            if (name === IDENTITY) {
+                const newArg = getArg(arg, 1);
+                if (newArg !== null && typeof newArg !== 'undefined') {
+                    newArgs.push(newArg);
+                }
+            }
+            else if (name === NOTHING) {
+                if (!isList) {
+                    newArgs.push(arg);
+                }
+                // Skip it...
+            }
+            else if (name === SEQUENCE && !sequenceHold) {
+                const head = getFunctionHead(expr);
+                for (const arg2 of getArgs(arg)) {
+                    if (getFunctionName(arg2) === SUBSEQUENCE) {
+                        newArgs.push([head, ...getArgs(arg2)]);
+                    }
+                    else {
+                        newArgs.push(arg2);
+                    }
+                }
+            }
+            else {
+                newArgs.push(arg);
+            }
+        }
+        return [getFunctionHead(expr), ...newArgs];
+    }
+    function getRootDegree(expr) {
+        const name = getFunctionName(expr);
+        if (name === SQRT)
+            return 2;
+        if (name === ROOT)
+            return getNumberValue(getArg(expr, 2));
+        if (name !== POWER)
+            return 1;
+        const exponent = getArg(expr, 2);
+        if (!exponent)
+            return 1;
+        if (getFunctionName(exponent) === POWER &&
+            getNumberValue(getArg(exponent, 2)) === -1) {
+            const val = getNumberValue(getArg(exponent, 1));
+            if (isFinite(val))
+                return val;
+        }
+        return 1;
+    }
+    /**
+     * Assuming that `expr` is a `"multiply"`, return in the first member
+     * of the tuples all the arguments that are square roots,
+     * and in the second member of the tuples all those that aren't
+     */
+    function getSquareRoots(expr) {
+        const args = getArgs(expr);
+        const roots = [];
+        const nonRoots = [];
+        for (const arg of args) {
+            if (getRootDegree(arg) === 2) {
+                roots.push(getArg(arg, 1));
+            }
+            else {
+                nonRoots.push(arg);
+            }
+        }
+        return [roots, nonRoots];
+    }
+    function canonicalMultiplyForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        expr = mapArgs(expr, (x) => canonicalMultiplyForm(dic, x));
+        if (head !== MULTIPLY)
+            return expr;
+        expr = flatten(ungroup(expr), MULTIPLY);
+        // Group all square roots together
+        const [squareRoots, nonSquareRoots] = getSquareRoots(expr);
+        let args;
+        if (squareRoots.length === 0) {
+            args = nonSquareRoots;
+        }
+        else if (squareRoots.length === 1) {
+            expr = [
+                MULTIPLY,
+                ...nonSquareRoots,
+                [POWER, squareRoots[0], [POWER, 2, -1]],
+            ];
+            args = getArgs(expr);
+        }
+        else {
+            expr = [
+                MULTIPLY,
+                ...nonSquareRoots,
+                [POWER, [MULTIPLY, ...squareRoots], [POWER, 2, -1]],
+            ];
+            args = getArgs(expr);
+        }
+        // Hoist any negative (numbers or `"negate"` function)
+        let isNegative = false;
+        let hasNegative = false;
+        args = args.map((x) => {
+            if (getFunctionName(x) === NEGATE) {
+                hasNegative = true;
+                isNegative = !isNegative;
+                return getArg(x, 1);
+            }
+            const val = getNumberValue(x);
+            if (val < 0) {
+                hasNegative = true;
+                isNegative = !isNegative;
+                return -val;
+            }
+            return x;
+        });
+        if (isNegative) {
+            const val = getNumberValue(args[0]);
+            if (isFinite(val)) {
+                // If the first argument is a finite number, negate it
+                args = getArgs(flatten([MULTIPLY, -val, ...args.slice(1)], MULTIPLY));
+            }
+            else {
+                args = getArgs(flatten([MULTIPLY, -1, ...args], MULTIPLY));
+            }
+        }
+        else if (hasNegative) {
+            // At least one term was hoisted, it could require flatening
+            // e.g. `[MULTIPLY, [NEGATE, [MULTIPLY, 2, 3]], 4]`
+            args = getArgs(flatten([MULTIPLY, ...args], MULTIPLY));
+        }
+        else {
+            args = getArgs(flatten([MULTIPLY, ...args], MULTIPLY));
+        }
+        // Any arg is 0? Return 0.
+        // WARNING: we can't do this. If any of the argument, or the result
+        // of the evaluation of any of the argument was non-finit, the
+        // result is undefined (NaN), not 0.
+        // if (args.some((x) => getNumberValue(x) === 0)) return 0;
+        // Any 1? Eliminate them.
+        args = args.filter((x) => getNumberValue(x) !== 1);
+        // If no arguments left, return 1
+        if (args.length === 0)
+            return 1;
+        // Only one argument, return it (`"multiply"` is idempotent)
+        if (args.length === 1)
+            return args[0];
+        return [MULTIPLY, ...args];
+    }
+    // @todo: see https://docs.sympy.org/1.6/modules/core.html#pow
+    function canonicalPowerForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head !== POWER) {
+            return mapArgs(expr, (x) => canonicalPowerForm(dic, x));
+        }
+        expr = ungroup(expr);
+        if (getArgCount(expr) !== 2)
+            return expr;
+        const arg1 = canonicalPowerForm(dic, getArg(expr, 1));
+        const val1 = getNumberValue(arg1);
+        const arg2 = canonicalPowerForm(dic, getArg(expr, 2));
+        const val2 = getNumberValue(arg2);
+        if (val2 === 0)
+            return 1;
+        if (val2 === 1)
+            return arg1;
+        if (val1 === -1 && val2 === -1)
+            return -1;
+        // -1 +oo           nan
+        // -1 -oo           nan
+        // 0 -1             zoo
+        // 0 oo             0
+        // 0 -oo            zoo
+        if (val1 === 1 && val2 === -1)
+            return 1;
+        if (val1 === 1)
+            return 1;
+        // 1 oo             nan
+        // 1 -oo            nan
+        // oo -1            0
+        // oo oo            oo
+        // oo -oo           0
+        // oo i             nan
+        // oo 1+i           zoo
+        // oo -1+i          0
+        // -oo -1           0
+        // -oo oo           nan
+        // -oo -oo          nan
+        // -oo i            nan
+        // -oo 1+i          zoo
+        // -oo -1+i         0
+        // b zoo            nan
+        return expr;
+    }
+    function canonicalNegateForm(dic, expr) {
+        const head = getFunctionName(expr);
+        if (head === NEGATE) {
+            expr = ungroup(expr);
+            const arg = getArg(expr, 1);
+            if (typeof arg === 'number') {
+                expr = -arg;
+            }
+            else if (arg && isNumberObject(arg)) {
+                if (getNumberValue(arg) === 0)
+                    return 0;
+                if (arg.num[0] === '-') {
+                    expr = { num: arg.num.slice(1) };
+                }
+                else {
+                    expr = { num: '-' + arg.num };
+                }
+            }
+            else if (getFunctionName(arg) === MULTIPLY) {
+                let fact = getArg(arg, 1);
+                if (typeof fact === 'number') {
+                    fact = -fact;
+                }
+                else if (isNumberObject(fact)) {
+                    if (fact.num[0] === '-') {
+                        fact = { num: fact.num.slice(1) };
+                    }
+                    else {
+                        fact = { num: '-' + fact.num };
+                    }
+                }
+                else {
+                    return [MULTIPLY, -1, fact, ...getArgs(arg).slice(1)];
+                }
+                return [MULTIPLY, fact, ...getArgs(arg).slice(1)];
+            }
+            else {
+                return [MULTIPLY, -1, arg];
+            }
+        }
+        else if (head) {
+            return mapArgs(expr, (x) => canonicalNegateForm(dic, x));
+        }
+        return expr;
+    }
+    function canonicalNumberForm(dic, expr) {
+        if (getFunctionHead(expr)) {
+            return mapArgs(expr, (x) => canonicalNumberForm(dic, x));
+        }
+        if (typeof expr === 'number') {
+            if (isNaN(expr)) {
+                return { num: 'NaN' };
+            }
+            else if (!isFinite(expr) && expr > 0) {
+                return { num: 'Infinity' };
+            }
+            else if (!isFinite(expr) && expr < 0) {
+                return { num: '-Infinity' };
+            }
+            // } else if (typeof expr === 'bigint') {
+            //     return { num: BigInt(expr).toString().slice(0, -1) };
+            // }
+        }
+        else if (isNumberObject(expr)) {
+            if (isNaN(Number(expr.num))) {
+                // Only return true if it's not a number
+                // If it's an overflow, Number() is Infinity
+                // If it's an underflow Number() is 0
+                return { num: 'NaN' };
+            }
+            if (expr.num.endsWith('n')) {
+                // It's a bigint string
+                return { num: expr.num.slice(0, -1) };
+            }
+            // if (typeof expr.num === 'bigint') {
+            //     return { num: BigInt(expr.num).toString().slice(0, -1) };
+            // }
+        }
+        return expr;
+    }
+    function canonicalSubtractForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head !== SUBTRACT) {
+            return mapArgs(expr, (x) => canonicalSubtractForm(dic, x));
+        }
+        if (getArgCount(expr) !== 2)
+            return expr;
+        const arg1 = canonicalSubtractForm(dic, getArg(expr, 1));
+        const val1 = getNumberValue(arg1);
+        const arg2 = canonicalSubtractForm(dic, getArg(expr, 2));
+        const val2 = getNumberValue(arg2);
+        if (val1 === 0) {
+            if (val2 === 0)
+                return 0;
+            return canonicalSubtractForm(dic, [ADD, arg1, applyNegate(arg2)]);
+        }
+        return canonicalSubtractForm(dic, [ADD, arg1, applyNegate(arg2)]);
+    }
+    function canonicalRootForm(dic, expr) {
+        const head = getFunctionHead(expr);
+        if (!head)
+            return expr;
+        if (head !== ROOT && head !== SQRT) {
+            return mapArgs(expr, (x) => canonicalRootForm(dic, x));
+        }
+        if (getArgCount(expr) < 1)
+            return expr;
+        const arg1 = canonicalRootForm(dic, getArg(expr, 1));
+        let arg2 = 2;
+        if (getArgCount(expr) > 1) {
+            arg2 = canonicalPowerForm(dic, getArg(expr, 2));
+        }
+        const val2 = getNumberValue(arg2);
+        if (val2 === 1) {
+            return arg1;
+        }
+        return [POWER, arg1, [DIVIDE, 1, arg2]];
+    }
+    /**
+     * Return num as a number if it's a valid JSON number (that is
+     * a valid JavaScript number but not NaN or +/-Infinity) or
+     * as a string otherwise
+     */
+    function isValidJSONNumber(num) {
+        const val = Number(num);
+        if (typeof num === 'string' && val.toString() === num) {
+            // If the number roundtrips, it can be represented by a
+            // JavaScript number
+            // However, NaN and Infinity cannot be represented by JSON
+            if (isNaN(val) || !isFinite(val)) {
+                return val.toString();
+            }
+            return val;
+        }
+        return num;
+    }
+    /**
+     * Transform the expression so that object literals for numbers, symbols and
+     * functions are used only when necessary, i.e. when they have associated
+     * metadata attributes. Otherwise, use a plain number, string or array
+     *
+     * For example:
+     * ```
+     * {num: 2} -> 2
+     * {sym: "x"} -> "x"
+     * {fn:['add', {num: 1}, {sym: "x"}]} -> ['add', 1, "x"]
+     * ```
+     *
+     */
+    function fullForm(dic, expr) {
+        if (expr === null)
+            return null;
+        if (Array.isArray(expr)) {
+            return expr.map((x, i) => {
+                if (i === 0) {
+                    return x;
+                }
+                return fullForm(dic, x);
+            });
+        }
+        if (typeof expr === 'object') {
+            const keys = Object.keys(expr);
+            if (keys.length === 1) {
+                if (isNumberObject(expr)) {
+                    // Exclude NaN and Infinity, which are not valid numbers in JSON
+                    const val = isValidJSONNumber(expr.num);
+                    if (typeof val === 'number')
+                        return val;
+                    return { num: val };
+                }
+                if (isFunctionObject(expr)) {
+                    return expr.fn.map((x) => fullForm(dic, x));
+                }
+                if (isSymbolObject(expr)) {
+                    return expr.sym;
+                }
+            }
+            else {
+                if (isFunctionObject(expr)) {
+                    expr.fn = expr.fn.map((x) => fullForm(dic, x));
+                }
+            }
+        }
+        return expr;
+    }
+    function strippedMetadataForm(dict, expr) {
+        if (typeof expr === 'number' || typeof expr === 'string') {
+            return expr;
+        }
+        if (Array.isArray(expr)) {
+            return mapArgs(expr, (x) => strippedMetadataForm(dict, x));
+        }
+        if (typeof expr === 'object') {
+            if ('num' in expr) {
+                const val = isValidJSONNumber(expr.num);
+                if (typeof val === 'number')
+                    return val;
+                return { num: val };
+            }
+            else if ('fn' in expr) {
+                return mapArgs(expr.fn, (x) => strippedMetadataForm(dict, x));
+            }
+        }
+        return null;
+    }
+    /**
+     * Transform the expression so that the arguments of functions that have the
+     * `isCommutative` attributes are ordered as per the following:
+     *
+     * - Real numbers
+     * - Complex numbers
+     * - Symbols
+     * - Functions
+     *
+     * Within Real Numbers:
+     * - by their value
+     *
+     * With Complex numbers:
+     * - by the value of their imaginary component,
+     * - then by the value of their real component
+     *
+     * With Symbols:
+     * - constants (`isConstant === true`) before non-constants
+     * - then alphabetically
+     *
+     * With Functions:
+     * - if a `[MULTIPLY]` or a `[POWER]`... @todo
+     *
+     */
+    function sortedForm(dic, expr) {
+        // Get the unique variables (not constants) in the expression
+        const v = vars(dic, expr);
+        return canonicalOrder(dic, Array.from(v).sort(), expr);
+    }
+    /**
+     *  Return the expression in canonical form:
+     *
+     * - `"divide"`, `"exp"`,` `"subtract"`, `"root"`, `"exp"` replaced with
+     *      `"add"`, `"multiply"`, "`power"`
+     * - some trivial simplifications (multiply by 1, addition of 0, division by 1)
+     * - terms sorted
+     *
+     */
+    function canonicalForm(dic, expr) {
+        return form(dic, expr, [
+            'canonical-number',
+            'canonical-exp',
+            'canonical-root',
+            'canonical-subtract',
+            'canonical-divide',
+            'canonical-power',
+            'canonical-multiply',
+            // some POWER functions, but they are 'safe' (don't need simplification)
+            'canonical-negate',
+            'canonical-add',
+            'flatten',
+            'canonical-list',
+            'sorted',
+            'full',
+        ]);
+    }
+    function flattenForm(dic, expr) {
+        return flattenAssociative(dic, flattenIdempotent(dic, expr));
+    }
+    /**
+     * Transform an expression by applying one or more rewriting rules to it,
+     * recursively.
+     *
+     * There are many ways to symbolically manipulate an expression, but
+     * transformations with `form` have the following charactersitics:
+     *
+     * - they don't require calculation or assumption above the domain of free
+     * variables or the value of constants
+     * - the output expression is expressed with more primitive functions,
+     * for example subtraction is replaced with addition
+     *
+     */
+    function form(dic, expr, forms) {
+        let result = expr;
+        forms.forEach((form) => {
+            const fn = {
+                canonical: canonicalForm,
+                'canonical-add': canonicalAddForm,
+                'canonical-divide': canonicalDivideForm,
+                'canonical-exp': canonicalExpForm,
+                'canonical-list': canonicalListForm,
+                'canonical-multiply': canonicalMultiplyForm,
+                'canonical-power': canonicalPowerForm,
+                'canonical-negate': canonicalNegateForm,
+                'canonical-number': canonicalNumberForm,
+                'canonical-root': canonicalRootForm,
+                'canonical-subtract': canonicalSubtractForm,
+                full: fullForm,
+                flatten: flattenForm,
+                sorted: sortedForm,
+                'stripped-metadata': strippedMetadataForm,
+            }[form];
+            if (!fn) {
+                console.error('Unknown form ' + form);
+                result = null;
+                return;
+            }
+            result = fn(dic, result);
+            // console.log(form + ' = ' + JSON.stringify(result));
+        });
+        return result;
+    }
+
+    /**
+     * If expression is a product, collect all the terms with a
+     * negative exponents in the denominator, and all the terms
+     * with a positive exponent (or no exponent) in the numerator.
+     */
+    function numeratorDenominator(expr) {
+        if (getFunctionName(expr) !== MULTIPLY)
+            return [null, null];
+        const numerator = [];
+        const denominator = [];
+        const args = getArgs(expr);
+        for (const arg of args) {
+            if (getFunctionName(arg) === POWER) {
+                if (getFunctionName(getArg(arg, 2)) === NEGATE) {
+                    denominator.push([
+                        POWER,
+                        getArg(arg, 1),
+                        getArg(getArg(arg, 2), 1),
+                    ]);
+                }
+                else {
+                    const exponentVal = getNumberValue(getArg(arg, 2));
+                    if (exponentVal === -1) {
+                        denominator.push(getArg(arg, 1));
+                    }
+                    else if (exponentVal < 0) {
+                        denominator.push([
+                            POWER,
+                            getArg(arg, 1),
+                            applyNegate(getArg(arg, 2)),
+                        ]);
+                    }
+                    else {
+                        numerator.push(arg);
+                    }
+                }
+            }
+            else {
+                numerator.push(arg);
+            }
+        }
+        return [numerator, denominator];
+    }
+    function emitRoot(emitter, style, base, degree) {
+        degree = degree !== null && degree !== void 0 ? degree : 2;
+        if (style === 'solidus') {
+            return emitter.wrapShort(base) + '^{1\\/' + emitter.emit(degree) + '}';
+        }
+        else if (style === 'quotient') {
+            return (emitter.wrapShort(base) +
+                '^{\\frac{1}{' +
+                emitter.emit(degree) +
+                '}}');
+        }
+        const degreeValue = getNumberValue(degree);
+        if (degreeValue === 2) {
+            return '\\sqrt{' + emitter.emit(base) + '}';
+        }
+        // It's the n-th root
+        return '\\sqrt[' + emitter.emit(degree) + ']{' + emitter.emit(base) + '}';
+    }
+    function parseRoot(lhs, scanner, _minPrec, _latex) {
+        const degree = scanner.matchOptionalLatexArgument();
+        const base = scanner.matchRequiredLatexArgument();
+        if (base === null)
+            return [lhs, [SQRT]];
+        if (degree !== null)
+            return [lhs, [ROOT, base !== null && base !== void 0 ? base : NOTHING, degree]];
+        return [lhs, [SQRT, base]];
+    }
+    function parseMinusSign(lhs, scanner, minPrec, _latex) {
+        if (276 < minPrec)
+            return [lhs, null];
+        const rhs = scanner.matchExpression(lhs === null ? 400 : 276);
+        if (rhs === null)
+            return [null, lhs];
+        if (lhs === null)
+            return [null, [NEGATE, rhs]];
+        return [null, [SUBTRACT, lhs, rhs]];
+    }
+    function parsePlusSign(lhs, scanner, minPrec, _latex) {
+        if (275 < minPrec)
+            return [lhs, null];
+        const rhs = scanner.matchExpression(lhs === null ? 400 : 275);
+        if (rhs === null)
+            return [null, lhs];
+        if (lhs === null)
+            return [null, rhs];
+        return scanner.applyOperator(ADD, lhs, rhs);
+    }
+    function emitAdd(emitter, expr) {
+        // "add" doesn't increase the "level" for styling purposes
+        // so, preventatively decrease it now.
+        emitter.level -= 1;
+        const name = getFunctionName(expr);
+        let result = '';
+        let arg = getArg(expr, 1);
+        let argWasNumber = !isNaN(getNumberValue(arg));
+        if (name === NEGATE) {
+            result = '-' + emitter.wrap(arg, 276);
+        }
+        else if (name === ADD) {
+            result = emitter.emit(arg);
+            const last = getArgCount(expr) + 1;
+            for (let i = 2; i < last; i++) {
+                arg = getArg(expr, i);
+                const val = getNumberValue(arg);
+                const argIsNumber = !isNaN(val);
+                if (arg !== null) {
+                    const [numer, denom] = getRationalValue(arg);
+                    if (argWasNumber &&
+                        isFinite(numer) &&
+                        isFinite(denom) &&
+                        denom !== 1) {
+                        // Don't include the '+' sign, it's a rational, use 'invisible plus'
+                        result += emitter.options.invisiblePlus + emitter.emit(arg);
+                    }
+                    else if (val < 0) {
+                        // Don't include the minus sign, it will be emitted for the arg
+                        result += emitter.emit(arg);
+                    }
+                    else if (getFunctionName(arg) === NEGATE) {
+                        result += emitter.wrap(arg, 275);
+                    }
+                    else {
+                        const term = emitter.wrap(arg, 275);
+                        if (term[0] === '-' || term[0] === '+') {
+                            result += term;
+                        }
+                        else {
+                            result = result + '+' + term;
+                        }
+                    }
+                }
+                argWasNumber = argIsNumber;
+            }
+        }
+        else if (name === SUBTRACT) {
+            const arg2 = getArg(expr, 2);
+            if (arg2 !== null) {
+                result = emitter.wrap(arg, 275) + '-' + emitter.wrap(arg2, 275);
+            }
+            else {
+                result = emitter.wrap(arg, 275);
+            }
+        }
+        // Restore the level
+        emitter.level += 1;
+        return result;
+    }
+    function emitMultiply(emitter, expr) {
+        if (expr === null)
+            return '';
+        // "multiply" doesn't increase the "level" for styling purposes
+        // so, preventatively decrease it now.
+        emitter.level -= 1;
+        let result = '';
+        //
+        // Is it a fraction?
+        // (i.e. does it have a denominator, i.e. some factors with a negative power)
+        //
+        const [numer, denom] = numeratorDenominator(expr);
+        if (numer !== null && denom !== null && denom.length > 0) {
+            if (denom.length === 1 && denom[0] === 1) {
+                if (numer.length === 0) {
+                    result = '1';
+                }
+                else if (numer.length === 1) {
+                    result = emitter.emit(numer[0]);
+                }
+                else {
+                    result = emitMultiply(emitter, [MULTIPLY, ...numer]);
+                }
+            }
+            else {
+                result = emitter.emit([
+                    DIVIDE,
+                    numer.length === 1 ? numer[0] : [MULTIPLY, ...numer],
+                    denom.length === 1 ? denom[0] : [MULTIPLY, ...denom],
+                ]);
+            }
+        }
+        if (result) {
+            // Restore the level
+            emitter.level += 1;
+            return result;
+        }
+        let isNegative = false;
+        let arg = null;
+        const count = getArgCount(expr) + 1;
+        for (let i = 1; i < count; i++) {
+            arg = getArg(expr, i);
+            if (arg !== null) {
+                let term;
+                //
+                // 1. Should the terms be separated by an explicit MULTIPLY?
+                //
+                if (typeof arg === 'number' || isNumberObject(arg)) {
+                    term = emitter.emit(arg);
+                    if (term[0] === '-') {
+                        term = term.slice(1);
+                        isNegative = !isNegative;
+                    }
+                    if (term !== '1') {
+                        if (!result) {
+                            // First term
+                            result = term;
+                        }
+                        else {
+                            result = result
+                                ? joinLatex([
+                                    result,
+                                    emitter.options.multiply,
+                                    term,
+                                ])
+                                : term;
+                        }
+                    }
+                }
+                else if (getFunctionName(arg) === POWER &&
+                    !isNaN(getNumberValue(getArg(arg, 1)))) {
+                    // It's a power and the base is a number...
+                    // add a multiply...
+                    result = result
+                        ? joinLatex([
+                            result,
+                            emitter.options.multiply,
+                            emitter.emit(arg),
+                        ])
+                        : emitter.emit(arg);
+                }
+                else {
+                    if (getFunctionName(arg) === NEGATE) {
+                        arg = getArg(arg, 1);
+                        isNegative = !isNegative;
+                    }
+                    // 2.1 Wrap the term if necessary
+                    // (if it's an operator of precedence less than 390)
+                    term = emitter.wrap(arg, 390);
+                    // 2.2. The terms can be separated by an invisible multiply.
+                    if (!result) {
+                        // First term
+                        result = term;
+                    }
+                    else {
+                        // Not first term, use invisible multiply
+                        if (!emitter.options.invisibleMultiply) {
+                            // Replace, joining the terms correctly
+                            // i.e. inserting a space between '\pi' and 'x'
+                            result = joinLatex([result, term]);
+                        }
+                        else {
+                            result = joinLatex([
+                                result,
+                                emitter.options.invisibleMultiply,
+                                term,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+        // Restore the level
+        emitter.level += 1;
+        return isNegative ? '-' + result : result;
+    }
+    function parseFraction(lhs, scanner, _minPrec, _latex) {
+        var _a, _b, _c, _d;
+        const numer = (_a = scanner.matchRequiredLatexArgument()) !== null && _a !== void 0 ? _a : MISSING;
+        const denom = (_b = scanner.matchRequiredLatexArgument()) !== null && _b !== void 0 ? _b : MISSING;
+        if (getFunctionName(numer) === 'PartialDerivative' &&
+            (getFunctionName(denom) === 'PartialDerivative' ||
+                (getFunctionName(denom) === MULTIPLY &&
+                    getFunctionName(getArg(denom, 1)) === 'PartialDerivative'))) {
+            // It's a Leibniz notation partial derivative
+            // `∂f(x)/∂x` or `∂^2f(x)/∂x∂y` or `∂/∂x f(x)`
+            const degree = (_c = getArg(numer, 3)) !== null && _c !== void 0 ? _c : NOTHING;
+            // Expect: getArg(numer, 2) === NOTHING -- no args
+            let fn = getArg(numer, 1);
+            if (fn === null || fn === NOTHING) {
+                fn = (_d = scanner.matchExpression()) !== null && _d !== void 0 ? _d : NOTHING;
+            }
+            let vars = [];
+            if (getFunctionName(denom) === MULTIPLY) {
+                // ?/∂x∂y
+                for (const arg of getArgs(denom)) {
+                    if (getFunctionHead(arg) === 'PartialDerivative') {
+                        vars.push(getArg(arg, 2));
+                    }
+                }
+            }
+            else {
+                // ?/∂x
+                vars.push(getArg(denom, 2));
+            }
+            if (vars.length > 1) {
+                vars = [LIST, ...vars];
+            }
+            return [
+                lhs,
+                ['PartialDerivative', fn, vars, degree === NOTHING ? 1 : degree],
+            ];
+        }
+        return [lhs, [DIVIDE, numer, denom]];
+    }
+    function emitFraction(emitter, expr) {
+        console.assert(getFunctionName(expr) === DIVIDE);
+        if (getArgCount(expr) === 1)
+            return emitter.emit(getArg(expr, 1));
+        const style = getFractionStyle(expr, emitter.level);
+        if (style === 'inline-solidus' || style === 'nice-solidus') {
+            const numerStr = emitter.wrapShort(getArg(expr, 1));
+            const denomStr = emitter.wrapShort(getArg(expr, 2));
+            if (style === 'nice-solidus') {
+                return `^{${numerStr}}\\!\\!/\\!_{${denomStr}}`;
+            }
+            return `${numerStr}\\/${denomStr}`;
+        }
+        else if (style === 'reciprocal') {
+            return (emitter.wrap(getArg(expr, 1)) +
+                emitter.wrap(getArg(expr, 2)) +
+                '^{-1}');
+        }
+        else if (style === 'factor') {
+            return ('\\frac{1}{' +
+                emitter.emit(getArg(expr, 2)) +
+                '}' +
+                emitter.wrap(getArg(expr, 1)));
+        }
+        // Quotient (default)
+        return ('\\frac{' +
+            emitter.emit(getArg(expr, 1)) +
+            '}{' +
+            emitter.emit(getArg(expr, 2)) +
+            '}');
+    }
+    function emitPower(emitter, expr) {
+        const arg1 = getArg(expr, 1);
+        const arg2 = getArg(expr, 2);
+        if (arg2 === null) {
+            return emitter.emit(arg1);
+        }
+        if (arg1 === null) {
+            return '';
+        }
+        const name = getFunctionName(expr);
+        if (name === SQRT || name === ROOT) {
+            const style = getRootStyle(expr, emitter.level);
+            return emitRoot(emitter, style, getArg(expr, 1), getArg(expr, 2));
+        }
+        const val2 = getNumberValue(arg2);
+        if (val2 === -1) {
+            return emitter.emit([DIVIDE, '1', arg1]);
+        }
+        else if (val2 < 0) {
+            return emitter.emit([DIVIDE, '1', [POWER, arg1, -val2]]);
+        }
+        else if (getFunctionName(arg2) === DIVIDE) {
+            if (getNumberValue(getArg(arg2, 1)) === 1) {
+                // It's x^{1/n} -> it's a root
+                const style = getRootStyle(expr, emitter.level);
+                return emitRoot(emitter, style, arg1, getArg(arg2, 2));
+            }
+        }
+        else if (getFunctionName(arg2) === POWER) {
+            if (getNumberValue(getArg(arg2, 2)) === -1) {
+                // It's x^{n^-1} -> it's a root
+                const style = getRootStyle(expr, emitter.level);
+                return emitRoot(emitter, style, arg1, getArg(arg2, 1));
+            }
+        }
+        return emitter.wrapShort(arg1) + '^{' + emitter.emit(arg2) + '}';
+    }
+    const DEFINITIONS_ARITHMETIC = [
+        { trigger: { symbol: '\\infty' }, parse: { num: 'Infinity' } },
+        {
+            name: COMPLEX_INFINITY,
+            trigger: { symbol: ['\\tilde', '\\infty'] },
+            emit: '\\tilde\\infty',
+        },
+        {
+            name: COMPLEX_INFINITY,
+            trigger: { symbol: ['\\tilde', '<{>', '\\infty', '<}>'] },
+            emit: '\\tilde\\infty',
+        },
+        { name: PI, trigger: { symbol: '\\pi' } },
+        { name: PI, trigger: { symbol: 'π' }, emit: '\\pi' },
+        { name: EXPONENTIAL_E, trigger: { symbol: 'e' }, emit: 'e' },
+        { name: IMAGINARY_I, trigger: { symbol: 'i' }, emit: '\\imaginaryI' },
+        { name: IMAGINARY_I, trigger: { symbol: '\\imaginaryI' } },
+        {
+            name: ADD,
+            trigger: { prefix: '+', infix: '+' },
+            parse: parsePlusSign,
+            emit: emitAdd,
+            associativity: 'both',
+            precedence: 275,
+        },
+        {
+            name: NEGATE,
+            trigger: { prefix: '-' },
+            parse: parseMinusSign,
+            associativity: 'left',
+            precedence: 275,
+        },
+        {
+            name: SUBTRACT,
+            trigger: { infix: '-' },
+            parse: parseMinusSign,
+            associativity: 'both',
+            precedence: 275,
+        },
+        {
+            name: MULTIPLY,
+            trigger: { infix: '\\times' },
+            emit: emitMultiply,
+            associativity: 'both',
+            precedence: 390,
+        },
+        {
+            name: MULTIPLY,
+            trigger: { infix: '\\cdot' },
+            emit: emitMultiply,
+            associativity: 'both',
+            precedence: 390,
+        },
+        {
+            name: MULTIPLY,
+            trigger: { infix: '*' },
+            emit: emitMultiply,
+            associativity: 'both',
+            precedence: 390,
+        },
+        {
+            name: DIVIDE,
+            trigger: '\\frac',
+            // For \frac specifically, not for \div, etc..
+            // handles Leibnitz notation for partial derivatives
+            parse: parseFraction,
+            emit: emitFraction,
+            requiredLatexArg: 2,
+        },
+        {
+            name: DIVIDE,
+            trigger: { infix: '\\/' },
+            emit: emitFraction,
+            associativity: 'non',
+            precedence: 660,
+        },
+        {
+            name: DIVIDE,
+            trigger: { infix: '/' },
+            emit: emitFraction,
+            associativity: 'non',
+            precedence: 660,
+        },
+        {
+            name: DIVIDE,
+            trigger: { infix: '\\div' },
+            emit: emitFraction,
+            associativity: 'non',
+            precedence: 660,
+        },
+        {
+            name: POWER,
+            trigger: { infix: '^' },
+            associativity: 'non',
+            precedence: 720,
+            emit: emitPower,
+        },
+        {
+            name: POWER,
+            trigger: { infix: ['*', '*'] },
+            associativity: 'non',
+            precedence: 720,
+            emit: emitPower,
+        },
+        {
+            name: SQRT,
+            trigger: '\\sqrt',
+            optionalLatexArg: 1,
+            requiredLatexArg: 1,
+            parse: parseRoot,
+            emit: emitPower,
+        },
+        {
+            name: ROOT,
+            trigger: '\\sqrt',
+            optionalLatexArg: 1,
+            requiredLatexArg: 1,
+            parse: parseRoot,
+        },
+        {
+            /** If the argument is a vector */
+            /** @todo: domain check */
+            name: 'Norm',
+            trigger: { matchfix: '\\lVert' },
+            closeFence: '\\rVert',
+        },
+        {
+            /** If the argument is a vector */
+            /** @todo: domain check */
+            name: 'Norm',
+            trigger: { matchfix: '\\|' },
+            closeFence: '\\|',
+        },
+        {
+            /** If the argument is a vector */
+            /** @todo: domain check */
+            name: 'Norm',
+            trigger: { matchfix: ['|', '|'] },
+            closeFence: ['|', '|'],
+        },
+        {
+            /** Could be the determinant if the argument is a matrix */
+            /** @todo: domain check */
+            /** If a literal matrix, the emit should be custom, the parens are
+             * replaced with bars */
+            name: 'Abs',
+            trigger: { matchfix: '|' },
+            closeFence: '|',
+        },
+        {
+            name: 'Abs',
+            trigger: { matchfix: '\\lvert' },
+            closeFence: '\\rvert',
+        },
+        {
+            name: 'Factorial',
+            trigger: { postfix: '!' },
+            precedence: 810,
+        },
+        {
+            name: 'Factorial2',
+            trigger: { postfix: ['!', '!'] },
+            precedence: 810,
+        },
+    ];
+
+    /**
+     * Trigonometric functions have some special conventions that require a
+     * custom parser: they can be followed by a "-1" superscript indicating
+     * that the inversion function should be used, i.e. "sin^{-1}" for "arcsin".
+     *
+     */
+    function parseTrig(_lhs, scanner, _minPrec, latex) {
+        var _a;
+        let isInverse = false;
+        let primeLevel = 0;
+        scanner.skipSpace();
+        if (scanner.match('^')) {
+            scanner.skipSpace();
+            if (scanner.match('<{>')) {
+                scanner.skipSpace();
+                // There's a superscript..., parse it.
+                if (scanner.match('-') && scanner.match('1')) {
+                    isInverse = true;
+                }
+                do {
+                    if (scanner.match('\\doubleprime')) {
+                        primeLevel += 2;
+                    }
+                    if (scanner.match('\\prime')) {
+                        primeLevel += 1;
+                    }
+                    if (scanner.match("'")) {
+                        primeLevel += 1;
+                    }
+                } while (!scanner.match('<}>') && !scanner.atEnd());
+            }
+            let done = false;
+            while (!done) {
+                scanner.skipSpace();
+                if (scanner.match('\\doubleprime')) {
+                    primeLevel += 2;
+                }
+                else if (scanner.match('\\prime')) {
+                    primeLevel += 1;
+                }
+                else if (scanner.match("'")) {
+                    primeLevel += 1;
+                }
+                else {
+                    done = true;
+                }
+            }
+        }
+        // Note: names as per NIST-DLMF
+        let head = (_a = {
+            '\\arcsin': 'Arcsin',
+            '\\arccos': 'Arccos',
+            '\\arctan': 'Arctan',
+            '\\arctg': 'Arctan',
+            '\\arcctg': 'Arctan',
+            '\\arcsec': 'Arcsec',
+            '\\arccsc': ' Arccsc',
+            '\\arsinh': 'Arsinh',
+            '\\arcosh': 'Arcosh',
+            '\\artanh': 'Artanh',
+            '\\arcsech': 'Arcsech',
+            '\\arccsch': 'Arcsch',
+            // '\\arg',
+            '\\ch': 'Cosh',
+            '\\cos': 'Cos',
+            '\\cosec': 'Csc',
+            '\\cosh': 'Csch',
+            '\\cot': 'Cot',
+            '\\cotg': 'Cot',
+            '\\coth': 'Coth',
+            '\\csc': 'Csc',
+            '\\ctg': 'Cot',
+            '\\cth': 'Coth',
+            '\\sec': 'Sec',
+            '\\sin': 'Sin',
+            '\\sinh': 'Sinh',
+            '\\sh': 'Sinh',
+            '\\tan': 'Tan',
+            '\\tanh': 'Tanh',
+            '\\tg': 'Tan',
+            '\\th': 'Tanh',
+        }[latex]) !== null && _a !== void 0 ? _a : latex;
+        if (isInverse) {
+            head = [INVERSE_FUNCTION, head];
+        }
+        if (primeLevel >= 1) {
+            head = [DERIVATIVE, primeLevel, head];
+        }
+        const args = scanner.matchArguments('implicit');
+        if (args === null) {
+            return [null, head];
+        }
+        return [null, [head, ...args]];
+    }
+    const DEFINITIONS_TRIGONOMETRY = [
+        {
+            name: 'Arcsin',
+            trigger: '\\arcsin',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arccos',
+            trigger: '\\arccos',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arctan',
+            trigger: '\\arctan',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arctan',
+            trigger: '\\arctg',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arccot',
+            trigger: '\\arcctg',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arcsec',
+            trigger: '\\arcsec',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arccsc',
+            trigger: '\\arccsc',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arsinh',
+            trigger: '\\arsinh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arcosh',
+            trigger: '\\arcosh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Artanh',
+            trigger: '\\artanh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arsech',
+            trigger: '\\arsech',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Arcsch',
+            trigger: '\\arcsch',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cosh',
+            trigger: '\\ch',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cosec',
+            trigger: '\\cosec',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cosh',
+            trigger: '\\cosh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cot',
+            trigger: '\\cot',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cot',
+            trigger: '\\cotg',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Coth',
+            trigger: '\\coth',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Csc',
+            trigger: '\\csc',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cot',
+            trigger: '\\ctg',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Coth',
+            trigger: '\\cth',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Sec',
+            trigger: '\\sec',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Sinh',
+            trigger: '\\sinh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Sinh',
+            trigger: '\\sh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Tan',
+            trigger: '\\tan',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Tanh',
+            trigger: '\\tanh',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Tan',
+            trigger: '\\tg',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Tanh',
+            trigger: '\\th',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Cos',
+            trigger: '\\cos',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Sin',
+            trigger: '\\sin',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+        {
+            name: 'Tan',
+            trigger: '\\tan',
+            arguments: 'implicit',
+            parse: parseTrig,
+        },
+    ];
+
+    const DEFINITIONS_ALGEBRA = [
+        {
+            name: 'To',
+            trigger: { infix: '\\to' },
+            precedence: 270,
+        },
+    ];
+
+    function parseIntegral(lhs, scanner, _minPrec, _latex) {
+        var _a;
+        // There could be some superscript and subscripts
+        let sup = NOTHING;
+        let sub = NOTHING;
+        let done = false;
+        while (!done) {
+            scanner.skipSpace();
+            if (scanner.match('_')) {
+                sub = scanner.matchRequiredLatexArgument();
+            }
+            else if (scanner.match('^')) {
+                sup = scanner.matchRequiredLatexArgument();
+            }
+            else {
+                done = true;
+            }
+        }
+        // Find the next
+        let fn = null;
+        if (scanner.match('<{>')) {
+            const start = scanner.getIndex();
+            let level = 1;
+            while (!scanner.atEnd() && level !== 0) {
+                if (scanner.match('<{>')) {
+                    level += 1;
+                }
+                else if (scanner.match('<}>')) {
+                    level -= 1;
+                }
+                else {
+                    scanner.next();
+                }
+            }
+            const exprScanner = scanner.clone(start, scanner.getIndex() - 1);
+            fn = (_a = exprScanner.matchExpression()) !== null && _a !== void 0 ? _a : '';
+        }
+        return [lhs, ['Integral', fn, sup, sub]];
+    }
+    function emitIntegral(_emitter, _expr) {
+        return '';
+    }
+    const DEFINITIONS_CALCULUS = [
+        { trigger: { symbol: '\\int' }, parse: parseIntegral, emit: emitIntegral },
+    ];
+
+    const DEFINITIONS_SYMBOLS = [
+        // Greek
+        { trigger: { symbol: '\\alpha' }, parse: '\u03b1' },
+        { trigger: { symbol: '\\beta' }, parse: '\u03b2' },
+        { trigger: { symbol: '\\gamma' }, parse: '\u03b3' },
+        { trigger: { symbol: '\\delta' }, parse: '\u03b4' },
+        { trigger: { symbol: '\\epsilon' }, parse: '\u03f5' },
+        { trigger: { symbol: '\\varepsilon' }, parse: '\u03b5' },
+        { trigger: { symbol: '\\zeta' }, parse: '\u03b6' },
+        { trigger: { symbol: '\\eta' }, parse: '\u03b7' },
+        { trigger: { symbol: '\\theta' }, parse: '\u03b8' },
+        { trigger: { symbol: '\\vartheta' }, parse: '\u03d1' },
+        { trigger: { symbol: '\\iota' }, parse: '\u03b9' },
+        { trigger: { symbol: '\\kappa' }, parse: '\u03ba' },
+        { trigger: { symbol: '\\varkappa' }, parse: '\u03f0' },
+        { trigger: { symbol: '\\lambda' }, parse: '\u03bb' },
+        { trigger: { symbol: '\\mu' }, parse: '\u03bc' },
+        { trigger: { symbol: '\\nu' }, parse: '\u03bd' },
+        { trigger: { symbol: '\\xi' }, parse: '\u03be' },
+        { trigger: { symbol: '\\omicron' }, parse: '\u03bf' },
+        // { trigger: { symbol: '\\pi' }, parse: '\u03c0' },
+        { trigger: { symbol: '\\varpi' }, parse: '\u03d6' },
+        { trigger: { symbol: '\\rho' }, parse: '\u03c1' },
+        { trigger: { symbol: '\\varrho' }, parse: '\u03f1' },
+        { trigger: { symbol: '\\sigma' }, parse: '\u03c3' },
+        { trigger: { symbol: '\\varsigma' }, parse: '\u03c2' },
+        { trigger: { symbol: '\\tau' }, parse: '\u03c4' },
+        { trigger: { symbol: '\\phi' }, parse: '\u03d5' },
+        { trigger: { symbol: '\\varphi' }, parse: '\u03c6' },
+        { trigger: { symbol: '\\upsilon' }, parse: '\u03c5' },
+        { trigger: { symbol: '\\chi' }, parse: '\u03c7' },
+        { trigger: { symbol: '\\psi' }, parse: '\u03c8' },
+        { trigger: { symbol: '\\omega' }, parse: '\u03c9' },
+        { trigger: { symbol: '\\Gamma' }, parse: '\u0393' },
+        { trigger: { symbol: '\\Delta' }, parse: '\u0394' },
+        { trigger: { symbol: '\\Theta' }, parse: '\u0398' },
+        { trigger: { symbol: '\\Lambda' }, parse: '\u039b' },
+        { trigger: { symbol: '\\Xi' }, parse: '\u039e' },
+        { trigger: { symbol: '\\Pi' }, parse: '\u03a0' },
+        { trigger: { symbol: '\\Sigma' }, parse: '\u03a3' },
+        { trigger: { symbol: '\\Upsilon' }, parse: '\u03a5' },
+        { trigger: { symbol: '\\Phi' }, parse: '\u03a6' },
+        { trigger: { symbol: '\\Psi' }, parse: '\u03a8' },
+        { trigger: { symbol: '\\Omega' }, parse: '\u03a9' },
+        { trigger: { symbol: '\\digamma' }, parse: '\u03dd' },
+        // Hebrew
+        { trigger: { symbol: '\\aleph' }, parse: '\u2135' },
+        { trigger: { symbol: '\\beth' }, parse: '\u2136' },
+        { trigger: { symbol: '\\daleth' }, parse: '\u2138' },
+        { trigger: { symbol: '\\gimel' }, parse: '\u2137' },
+        // Letter-like
+        { trigger: { symbol: '\\Finv' }, parse: '\u2132' },
+        { trigger: { symbol: '\\Game' }, parse: '\u2141' },
+        { trigger: { symbol: '\\wp' }, parse: '\u2118' },
+        { trigger: { symbol: '\\eth' }, parse: '\u00f0' },
+        { trigger: { symbol: '\\mho' }, parse: '\u2127' },
+        // Symbols
+        { trigger: { symbol: '\\clubsuit' }, parse: '\u2663' },
+        { trigger: { symbol: '\\heartsuit' }, parse: '\u2661' },
+        { trigger: { symbol: '\\spadesuit' }, parse: '\u2660' },
+        { trigger: { symbol: '\\diamondsuit' }, parse: '\u2662' },
+        { trigger: { symbol: '\\sharp' }, parse: '\u266f' },
+        { trigger: { symbol: '\\flat' }, parse: '\u266d' },
+        { trigger: { symbol: '\\natural' }, parse: '\u266e' },
+    ];
+
+    function triggerLength(trigger) {
+        if (Array.isArray(trigger))
+            return trigger.length;
+        return 1;
+    }
+    function triggerString(trigger) {
+        if (Array.isArray(trigger))
+            return tokensToString(trigger);
+        return trigger;
+    }
+    // function hasDef(dic: LatexDictionary, latex: string): boolean {
+    //     let result = false;
+    //     dic.forEach((x) => {
+    //         if (x.trigger) {
+    //             if (typeof x.trigger === 'string' && x.trigger === latex) {
+    //                 result = true;
+    //             } else if (
+    //                 typeof x.trigger !== 'string' &&
+    //                 (triggerString(x.trigger.infix) === latex ||
+    //                     triggerString(x.trigger.postfix) === latex ||
+    //                     triggerString(x.trigger.symbol) === latex ||
+    //                     triggerString(x.trigger.prefix) === latex ||
+    //                     triggerString(x.trigger.matchfix) === latex ||
+    //                     triggerString(x.closeFence) === latex)
+    //             ) {
+    //                 result = true;
+    //             }
+    //         }
+    //     });
+    //     return result;
+    // }
+    function indexLatexDictionary(dic, onError) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+        const result = {
+            lookahead: 1,
+            name: new Map(),
+            prefix: [],
+            infix: [],
+            postfix: [],
+            matchfix: [],
+            superfix: [],
+            subfix: [],
+            symbol: [],
+            environment: new Map(),
+        };
+        for (const x of dic) {
+            const record = x;
+            if (typeof record.parse === 'undefined') {
+                // By default, when a latex string triggers, the generated
+                // output is the name of this record, i.e. MULTIPLY
+                record.parse = record.name;
+            }
+            // If the trigger is a string, it's a shortcut for a symbol
+            if (typeof record.trigger === 'string') {
+                record.trigger = { symbol: record.trigger };
+            }
+            if (typeof record.emit === 'string') {
+                if (typeof ((_a = record.trigger) === null || _a === void 0 ? void 0 : _a.symbol) !== 'undefined') {
+                    if (/#[0-9]/.test(record.emit)) {
+                        onError({ code: 'unexpected-argument', arg: record.name });
+                    }
+                }
+            }
+            if (typeof record.emit === 'undefined') {
+                // By default, when latex is emitted for this record,
+                // it is the same as the trigger (note there could be multiple
+                // triggers, so we just pick one)
+                if (typeof ((_b = record.trigger) === null || _b === void 0 ? void 0 : _b.postfix) !== 'undefined') {
+                    record.emit = '#1' + triggerString(record.trigger.postfix);
+                }
+                else if (typeof ((_c = record.trigger) === null || _c === void 0 ? void 0 : _c.prefix) !== 'undefined') {
+                    record.emit = triggerString(record.trigger.prefix) + '#1';
+                }
+                else if (typeof ((_d = record.trigger) === null || _d === void 0 ? void 0 : _d.infix) !== 'undefined') {
+                    record.emit = '#1' + triggerString(record.trigger.infix) + '#2';
+                }
+                else if (typeof ((_e = record.trigger) === null || _e === void 0 ? void 0 : _e.symbol) !== 'undefined') {
+                    record.emit = triggerString(record.trigger.symbol);
+                }
+                else if (typeof ((_f = record.trigger) === null || _f === void 0 ? void 0 : _f.superfix) !== 'undefined') {
+                    record.emit =
+                        '#1^{' + triggerString((_g = record.trigger) === null || _g === void 0 ? void 0 : _g.superfix) + '}';
+                }
+                else if (typeof ((_h = record.trigger) === null || _h === void 0 ? void 0 : _h.subfix) !== 'undefined') {
+                    record.emit =
+                        '#1_{' + triggerString((_j = record.trigger) === null || _j === void 0 ? void 0 : _j.subfix) + '}';
+                }
+                else {
+                    record.emit = '';
+                }
+            }
+            if (typeof ((_k = record.trigger) === null || _k === void 0 ? void 0 : _k.infix) !== 'undefined') {
+                if (typeof record.precedence === 'undefined') {
+                    onError({
+                        code: 'syntax-error',
+                        arg: 'Infix operators require a precedence',
+                    });
+                }
+                if (!record.associativity) {
+                    record.associativity = 'non';
+                }
+            }
+            if (typeof ((_l = record.trigger) === null || _l === void 0 ? void 0 : _l.symbol) !== 'undefined') {
+                record.arguments = (_m = record.arguments) !== null && _m !== void 0 ? _m : '';
+                record.optionalLatexArg = (_o = record.optionalLatexArg) !== null && _o !== void 0 ? _o : 0;
+                record.requiredLatexArg = (_p = record.requiredLatexArg) !== null && _p !== void 0 ? _p : 0;
+            }
+            if (typeof ((_q = record.trigger) === null || _q === void 0 ? void 0 : _q.matchfix) !== 'undefined') {
+                if (record.parse !== 'function' && !record.closeFence) {
+                    onError({
+                        code: 'syntax-error',
+                        arg: 'Matchfix operators require a close fence or a custom parse function',
+                    });
+                }
+            }
+            if (typeof record.trigger !== 'undefined') {
+                [
+                    'infix',
+                    'prefix',
+                    'postfix',
+                    'symbol',
+                    'matchfix',
+                    'superfix',
+                    'subfix',
+                ].forEach((x) => {
+                    const n = triggerLength(record.trigger[x]);
+                    result.lookahead = Math.max(result.lookahead, n);
+                    if (typeof result[x][n] === 'undefined') {
+                        result[x][n] = new Map();
+                    }
+                    result[x][n].set(triggerString(record.trigger[x]), record);
+                });
+                if (typeof record.trigger.environment !== 'undefined') {
+                    result.environment.set(record.trigger.environment, record);
+                }
+            }
+            if (record.name) {
+                result.name.set(triggerString(record.name), record);
+            }
+            if (typeof record.trigger === 'undefined' && !record.name) {
+                // A trigger OR a name is required.
+                // The trigger maps latex -> json
+                // The name maps json -> latex
+                onError({
+                    code: 'syntax-error',
+                    arg: 'Need at least a trigger or a name',
+                });
+            }
+        }
+        return result;
+    }
+    function getDefaultLatexDictionary(domain = 'all') {
+        let result;
+        if (domain === 'all') {
+            result = [];
+            Object.keys(DEFAULT_LATEX_DICTIONARY).forEach((x) => {
+                result = [...result, ...DEFAULT_LATEX_DICTIONARY[x]];
+            });
+        }
+        else {
+            result = [...DEFAULT_LATEX_DICTIONARY[domain]];
+        }
+        return result;
+    }
+    // left-operators, supfix/subfix:
+    // subscript
+    // sub-plus     super-plus
+    // sub-minus    super-minus
+    // sub-star     super-star
+    //              super-dagger
+    // over-bar     under-bar
+    // over-vector
+    // over-tilde
+    // over-hat
+    // over-dot
+    // overscript   underscript
+    // matchfix:
+    // angle-brack
+    // floor
+    // ceiling
+    // infix operators:
+    // ->   rule
+    // :>   rule-delayed
+    // ==   eq
+    // !=   ne
+    // https://reference.wolfram.com/language/tutorial/OperatorInputForms.html
+    const DEFAULT_LATEX_DICTIONARY = {
+        algebra: DEFINITIONS_ALGEBRA,
+        arithmetic: DEFINITIONS_ARITHMETIC,
+        calculus: DEFINITIONS_CALCULUS,
+        core: DEFINITIONS_CORE,
+        inequalities: DEFINITIONS_INEQUALITIES,
+        other: DEFINITIONS_OTHERS,
+        physics: [
+            {
+                name: 'mu-0',
+                trigger: { symbol: ['\\mu', '_', '0'] },
+            },
+        ],
+        symbols: DEFINITIONS_SYMBOLS,
+        trigonometry: DEFINITIONS_TRIGONOMETRY,
+    };
+    // {
+    //     const defaultDic = getDefaultLatexDictionary();
+    //     let i = 0;
+    //     for (const x of Object.keys(FUNCTIONS)) {
+    //         if (x.startsWith('\\') && !hasDef(defaultDic, x)) {
+    //             i++;
+    //             console.log(i + ' No def for function ' + x);
+    //         }
+    //     }
+    //     for (const x of Object.keys(MATH_SYMBOLS)) {
+    //         if (x.startsWith('\\') && !hasDef(defaultDic, x)) {
+    //             i++;
+    //             console.log(i + ' No def for symbol ' + x);
+    //         }
+    //     }
+    // }
+    // {
+    //     const defaultLatexDic = indexLatexDictionary(
+    //         getDefaultLatexDictionary('all'),
+    //         () => {
+    //             return;
+    //         }
+    //     );
+    //     const defaultDic = getDefaultDictionary('all');
+    //     let i = 0;
+    //     Array.from(defaultLatexDic.name.keys()).forEach((x) => {
+    //         if (!findInDictionary(defaultDic, x)) {
+    //             console.log(Number(i++).toString() + ' No entry for ' + x);
+    //         }
+    //     });
+    // }
+
+    class Scanner {
+        constructor(tokens, options) {
+            var _a;
+            this.index = 0;
+            this.options = { ...DEFAULT_PARSE_LATEX_OPTIONS, ...options };
+            this.tokens = tokens;
+            this.onError = (err) => {
+                return options.onError({
+                    ...err,
+                    before: this.latexBefore(),
+                    after: this.latexAfter(),
+                });
+            };
+            this.dictionary = (_a = options.indexedLatexDictionary) !== null && _a !== void 0 ? _a : indexLatexDictionary(options.dictionary, options.onError);
+            let def;
+            this.invisibleOperatorPrecedence = 0;
+            if (this.options.invisibleOperator) {
+                def = this.dictionary.name.get(this.options.invisibleOperator);
+                if (typeof def === 'undefined') {
+                    options.onError({
+                        code: 'unknown-operator',
+                        arg: this.options.invisibleOperator,
+                    });
+                }
+                else if (typeof def.precedence === 'undefined') {
+                    options.onError({
+                        code: 'expected-operator',
+                        arg: this.options.invisibleOperator,
+                    });
+                }
+                else {
+                    this.invisibleOperatorPrecedence = def.precedence;
+                }
+            }
+        }
+        clone(start, end) {
+            const result = new Scanner(this.tokens.slice(start, end), {
+                ...this.options,
+                dictionary: [],
+                indexedLatexDictionary: this.dictionary,
+                onError: this.onError,
+            });
+            return result;
+        }
+        getIndex() {
+            return this.index;
+        }
+        setIndex(n) {
+            this.index = n;
+        }
+        atEnd() {
+            return this.index >= this.tokens.length;
+        }
+        peek() {
+            return this.tokens[this.index];
+        }
+        latex(start, end) {
+            return tokensToString(this.tokens.slice(start, end));
+        }
+        latexAhead(n) {
+            return tokensToString(this.tokens.slice(this.index, this.index + n));
+        }
+        latexBefore() {
+            return this.latex(0, this.index);
+        }
+        latexAfter() {
+            return this.latex(this.index);
+        }
+        /**
+         * Return at most `maxLookahead` strings made from the tokens
+         * ahead.
+         *
+         * The index in the returned array correspond to the number of tokens.
+         * Note that since a token can be longer than one char ('\\pi', but also
+         * some astral plane unicode characters), the length of the string
+         * does not match that index. However, knowing the index is important
+         * to know by how many tokens to advance.
+         *
+         */
+        lookAhead() {
+            let n = Math.min(this.dictionary.lookahead, this.tokens.length - this.index);
+            const result = [];
+            while (n > 0) {
+                result[n] = this.latexAhead(n--);
+            }
+            return result;
+        }
+        peekDefinition(kind) {
+            let defs;
+            if (kind === 'operator') {
+                defs = this.lookAhead().map((x, n) => { var _a, _b, _c, _d, _e; return (_d = (_b = (_a = this.dictionary.infix[n]) === null || _a === void 0 ? void 0 : _a.get(x)) !== null && _b !== void 0 ? _b : (_c = this.dictionary.postfix[n]) === null || _c === void 0 ? void 0 : _c.get(x)) !== null && _d !== void 0 ? _d : (_e = this.dictionary.prefix[n]) === null || _e === void 0 ? void 0 : _e.get(x); });
+            }
+            else {
+                defs = this.lookAhead().map((x, n) => { var _a; return (_a = this.dictionary[kind][n]) === null || _a === void 0 ? void 0 : _a.get(x); });
+            }
+            for (let i = defs.length; i > 0; i--) {
+                if (typeof defs[i] !== 'undefined')
+                    return [defs[i], i];
+            }
+            return [null, 0];
+        }
+        next() {
+            return this.tokens[this.index++];
+        }
+        skipSpace() {
+            if (!this.options.skipSpace)
+                return false;
+            let result = false;
+            while (this.match('<space>')) {
+                result = true;
+            }
+            return result;
+        }
+        match(target) {
+            if (this.tokens[this.index] === target) {
+                this.index++;
+                return true;
+            }
+            return false;
+        }
+        matchAll(target) {
+            let matched = true;
+            if (typeof target === 'string') {
+                target = [target];
+            }
+            let i = 0;
+            do {
+                matched = this.tokens[this.index + i] === target[i++];
+            } while (matched && i < target.length);
+            if (matched) {
+                this.index += i;
+            }
+            return matched;
+        }
+        matchAny(targets) {
+            if (targets.includes(this.tokens[this.index])) {
+                return this.tokens[this.index++];
+            }
+            return '';
+        }
+        matchWhile(targets) {
+            const result = [];
+            while (targets.includes(this.tokens[this.index])) {
+                result.push(this.tokens[this.index++]);
+            }
+            return result;
+        }
+        matchSign() {
+            let isNegative = false;
+            let done = false;
+            while (!done) {
+                if (this.skipSpace()) {
+                    done = false;
+                }
+                else if (this.match('-')) {
+                    isNegative = !isNegative;
+                    done = false;
+                }
+                else if (this.match('+')) {
+                    done = false;
+                }
+                else {
+                    done = true;
+                }
+            }
+            return isNegative ? '-' : '+';
+        }
+        matchDigits() {
+            var _a;
+            const result = this.matchWhile([
+                '0',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                (_a = this.options.groupSeparator) !== null && _a !== void 0 ? _a : '',
+            ]);
+            if (result !== null) {
+                return result
+                    .filter((x) => x !== this.options.groupSeparator)
+                    .join('');
+            }
+            return '';
+        }
+        matchSignedInteger() {
+            const savedIndex = this.index;
+            const sign = this.matchSign();
+            const result = this.matchDigits();
+            if (result)
+                return (sign === '-' ? '-' : '') + result;
+            this.index = savedIndex;
+            return '';
+        }
+        matchExponent() {
+            const savedIndex = this.index;
+            let result = '';
+            if (this.matchAny(['e', 'E', 'd', 'D'])) {
+                const exponent = this.matchSignedInteger();
+                if (exponent) {
+                    result = 'e' + exponent;
+                }
+            }
+            if (result)
+                return result;
+            if (this.match('\\times')) {
+                this.skipSpace();
+                if (this.match('1') && this.match('0') && this.match('^')) {
+                    if (/[0-9]/.test(this.peek())) {
+                        return 'e' + this.next();
+                    }
+                    if (this.match('<{>')) {
+                        this.skipSpace();
+                        const exponent = this.matchSignedInteger();
+                        this.skipSpace();
+                        if (this.match('<}>') && exponent) {
+                            return 'e' + exponent;
+                        }
+                    }
+                }
+            }
+            this.index = savedIndex;
+            return '';
+        }
+        matchNumber() {
+            var _a, _b, _c;
+            if (!this.options.parseNumbers)
+                return '';
+            const savedIndex = this.index;
+            let result = this.matchDigits();
+            if (!result)
+                return '';
+            if (this.match((_a = this.options.decimalMarker) !== null && _a !== void 0 ? _a : '')) {
+                result += '.' + ((_b = this.matchDigits()) !== null && _b !== void 0 ? _b : '');
+            }
+            result += (_c = this.matchExponent()) !== null && _c !== void 0 ? _c : '';
+            if (result)
+                return result;
+            this.index = savedIndex;
+            return '';
+        }
+        matchOperator(kind, lhs = null, minPrec = 0) {
+            const [def, n] = this.peekDefinition(kind);
+            if (def === null)
+                return null;
+            if (typeof def.parse === 'function') {
+                // Custom parser found
+                const latex = this.latexAhead(n);
+                this.index += n;
+                let rhs = null;
+                [lhs, rhs] = def.parse(lhs, this, minPrec, latex);
+                if (rhs === null) {
+                    this.index -= n;
+                    return null;
+                }
+                return this.applyInvisibleOperator(lhs, rhs);
+            }
+            let prec = def.precedence;
+            if (prec < minPrec)
+                return null;
+            prec += def.associativity === 'left' ? 1 : 0;
+            this.index += n;
+            const rhs = this.matchExpression(prec);
+            return this.applyInvisibleOperator(...this.applyOperator(def.parse, lhs, rhs));
+        }
+        matchArguments(kind) {
+            if (!kind)
+                return null;
+            const savedIndex = this.index;
+            let result = null;
+            const group = this.matchMatchfixOperator();
+            if (kind === 'group' && getFunctionName(group) === GROUP) {
+                // We got a group i.e. `f(a, b, c)`
+                result = getArgs(group);
+            }
+            else if (kind === 'implicit') {
+                // Does this function allow arguments with optional parentheses?
+                // (i.e. trig functions, as in `\cos x`.
+                if (getFunctionName(group) === GROUP) {
+                    result = getArgs(group);
+                }
+                else if (group !== null) {
+                    // There was a matchfix, the "group" is the argument, i.e.
+                    // `\sin [a, b, c]`
+                    result = [group];
+                }
+                else {
+                    // No group, but arguments without parentheses are allowed
+                    // Read a primary
+                    // (i.e. we interpret `\cos x + 1` as `\cos(x) + 1`)
+                    const primary = this.matchPrimary();
+                    if (primary !== null)
+                        result = [primary];
+                }
+            }
+            else {
+                // The element following the function does not match
+                // a possible argument list
+                // That's OK, but need to undo the parsing of the matchfix
+                // This is the case: `f[a]` or `f|a|`
+                this.index = savedIndex;
+            }
+            return result;
+        }
+        matchMatchfixOperator() {
+            const savedIndex = this.index;
+            const [def, n] = this.peekDefinition('matchfix');
+            if (def === null)
+                return null;
+            let result = null;
+            if (typeof def.parse === 'function') {
+                // Custom parser: invoke it.
+                const latex = this.latexAhead(n);
+                this.index += n;
+                return this.applyInvisibleOperator(...def.parse(null, this, 0, latex));
+            }
+            this.index += n;
+            result = [def.parse];
+            let foundClosefence = false;
+            let done = false;
+            while (!this.atEnd() && !done && !foundClosefence) {
+                this.skipSpace();
+                // In case of ambiguity, we prioritize close fence over open,
+                // e.g. `|2-a|+b+|3-b|` -> `(|2-a|)+b+(|3-b|)`
+                // So we check *first* if it's a closefence, before trying to
+                // match an expression which would interpret an open fence
+                if (this.matchAll(def.closeFence)) {
+                    foundClosefence = true;
+                }
+                else {
+                    const expr = this.matchExpression();
+                    if (expr === null) {
+                        // No expression. This could be two consecutive separators,
+                        // i.e. `(1,,3)` which is valid
+                        // but it could also be a syntax error, i.def.closeFencee.
+                        // `(?` when `?` is not a valid operator.
+                        if (this.match(def.separator)) {
+                            result.push(NOTHING);
+                        }
+                        else {
+                            done = true;
+                        }
+                    }
+                    else {
+                        result.push(expr);
+                        // Consume separator, if present
+                        // Note that for Groups, for example, the consumed expression
+                        // is a sequence, so the ',' separator is actually consumed
+                        // by the sequence, not by the group.
+                        // So by the time we reach here, we're at the closing fence.
+                        // @todo: maybe we dont' need def.separator for matchfix operators...
+                        this.skipSpace();
+                        if (!this.match(def.separator)) {
+                            done = true;
+                        }
+                    }
+                }
+            }
+            if (!foundClosefence && !this.matchAll(def.closeFence)) {
+                // If we didn't find a close fence, it may be because
+                // we mistook an open fence for a close fence (for `|a+|b|+c|`):
+                // backtrack
+                this.index = savedIndex;
+                return null;
+                // this.onError({
+                //     code: 'unbalanced-matchfix-operator',
+                //     arg:
+                //         typeof def.closeFence === 'string'
+                //             ? def.closeFence
+                //             : tokensToString(def.closeFence),
+                // });
+            }
+            return result;
+        }
+        matchDefinition(kind) {
+            // Find the longest string of tokens with a definition of the
+            // specified kind
+            const [def, tokenCount] = this.peekDefinition(kind);
+            // If there is a custom parsing function associated with this
+            // definition, invoke it.
+            if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'function') {
+                const latexName = this.latexAhead(tokenCount);
+                this.index += tokenCount;
+                const [, result] = def.parse(null, this, 0, latexName);
+                return [def, result];
+            }
+            this.index += tokenCount;
+            return [def, null];
+        }
+        /**
+         * A symbol can be:
+         * - a constant: `\pi`
+         * - a variable: `x`
+         * - a function with explicit arguments `f(x)`
+         * - a function with implicit arguments: `\cos x`
+         * - a command: `\frac{2}{3}`
+         */
+        matchSymbol() {
+            var _a, _b, _c, _d;
+            const [def, result] = this.matchDefinition('symbol');
+            // If a result is ready (because there was a parsing function associated
+            // with the definition), just
+            if (result !== null)
+                return result;
+            if (def === null) {
+                // This is an unknown symbol.
+                // Can we promote it?
+                if ((_a = this.options.promoteUnknownFunctions) === null || _a === void 0 ? void 0 : _a.test(this.peek())) {
+                    const name = this.next();
+                    // this.onError({ code: 'unknown-function', arg: name });
+                    const group = this.matchMatchfixOperator();
+                    // If no arguments, return it as a symbol
+                    if (group === null)
+                        return name;
+                    if (getFunctionName(group) !== GROUP)
+                        return null;
+                    return [name, ...getArgs(group)];
+                }
+                if ((_b = this.options.promoteUnknownSymbols) === null || _b === void 0 ? void 0 : _b.test(this.peek())) {
+                    // this.onError({ code: 'unknown-symbol', arg: this.peek() });
+                    return this.next();
+                }
+                // Not a symbol (punctuation or fence, maybe?)...
+                return this.matchUnknownLatexCommand();
+            }
+            //
+            // Is it a Latex function, e.g. `\frac{}{}`?
+            //
+            const requiredArgs = [];
+            const optionalArgs = [];
+            let arg;
+            let i = (_c = def.optionalLatexArg) !== null && _c !== void 0 ? _c : 0;
+            while (i > 0) {
+                arg = this.matchOptionalLatexArgument();
+                if (arg !== null)
+                    optionalArgs.push(arg);
+                i--;
+            }
+            i = (_d = def.requiredLatexArg) !== null && _d !== void 0 ? _d : 0;
+            while (i > 0) {
+                arg = this.matchRequiredLatexArgument();
+                // `null` indicate that no required argument was found
+                if (arg === null)
+                    this.onError({ code: 'expected-argument' });
+                // `""` indicate an empty argument, i.e. `{}` was found
+                if (arg !== null)
+                    requiredArgs.push(arg);
+                i--;
+            }
+            const args = this.matchArguments(def.arguments);
+            if (args === null) {
+                // Didn't get arguments
+                if (requiredArgs.length === 0 && optionalArgs.length === 0) {
+                    return def.parse;
+                }
+                return [def.parse, ...requiredArgs, ...optionalArgs];
+            }
+            return [def.parse, ...requiredArgs, ...args, ...optionalArgs];
+        }
+        matchOptionalLatexArgument() {
+            this.skipSpace();
+            if (this.match('[')) {
+                const start = this.index;
+                let level = 1;
+                while (!this.atEnd() && level !== 0) {
+                    if (this.match('[')) {
+                        level += 1;
+                    }
+                    else if (this.match(']')) {
+                        level -= 1;
+                    }
+                    else {
+                        this.next();
+                    }
+                }
+                const scanner = this.clone(start, this.index - 1);
+                return scanner.matchExpression();
+            }
+            return null;
+        }
+        /**
+         * Match a required latex argument:
+         * - either enclosed in `{}`
+         * - or a single token.
+         *
+         * Return null if an argument was not found
+         * Return '' if an empty argument `{}` was found
+         */
+        matchRequiredLatexArgument() {
+            var _a;
+            this.skipSpace();
+            if (this.match('<{>')) {
+                const start = this.index;
+                let level = 1;
+                while (!this.atEnd() && level !== 0) {
+                    if (this.match('<{>')) {
+                        level += 1;
+                    }
+                    else if (this.match('<}>')) {
+                        level -= 1;
+                    }
+                    else {
+                        this.next();
+                    }
+                }
+                const scanner = this.clone(start, this.index - 1);
+                return (_a = scanner.matchExpression()) !== null && _a !== void 0 ? _a : '';
+            }
+            // Is it a single digit?
+            if (/^[0-9]$/.test(this.peek())) {
+                // ... only match the digit, i.e. `x^23` is `x^{2}3`, not x^{23}
+                return parseFloat(this.next());
+            }
+            // Is it a single letter (but not a special letter)?
+            if (/^[^\\#]$/.test(this.peek())) {
+                return this.next();
+            }
+            // @todo: check. An expression might be too much, i.e. it
+            // allows \frac{1}2+1. Maybe just match a primary?
+            return this.matchExpression();
+        }
+        matchSupsub(lhs) {
+            let result = null;
+            this.skipSpace();
+            [
+                ['^', 'superfix'],
+                ['_', 'subfix'],
+            ].forEach((x) => {
+                var _a, _b, _c;
+                if (result !== null)
+                    return;
+                const [triggerChar, opKind] = x;
+                if (!this.match(triggerChar))
+                    return;
+                this.skipSpace();
+                const savedIndex = this.index;
+                let def;
+                let n = 0;
+                if (this.match('<{>')) {
+                    // Supsub with an argument
+                    this.skipSpace();
+                    [def, n] = this.peekDefinition(opKind);
+                    this.index += n;
+                    this.skipSpace();
+                    if ((def === null || def === void 0 ? void 0 : def.name) && this.match('<}>')) {
+                        //
+                        // It's a supfix/subfix operator (
+                        //  i.e. `^{*}` for `superstar`
+                        //
+                        if (typeof def.parse === 'function') {
+                            result = def.parse(lhs, this, 0, def.name)[1];
+                        }
+                        else {
+                            result = [(_a = def.parse) !== null && _a !== void 0 ? _a : def.name, lhs];
+                        }
+                    }
+                    else {
+                        // Not a supfix/subfix
+                        // For example, "^{-1}", start with `"-"` from `superminus`,
+                        // but the "1" after it makes it not match
+                        this.index = savedIndex;
+                    }
+                }
+                else {
+                    //
+                    // Single token argument for a sup/subfix
+                    //
+                    [def, n] = this.peekDefinition(opKind);
+                    if (def === null || def === void 0 ? void 0 : def.name) {
+                        this.index += n;
+                        if (typeof def.parse === 'function') {
+                            result = def.parse(lhs, this, 0, def.name)[1];
+                        }
+                        else {
+                            result = [(_b = def.parse) !== null && _b !== void 0 ? _b : def.name, lhs];
+                        }
+                    }
+                }
+                if (result === null) {
+                    def = (_c = this.dictionary.infix[1]) === null || _c === void 0 ? void 0 : _c.get(triggerChar);
+                    if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'function') {
+                        result = def.parse(lhs, this, 0, triggerChar)[1];
+                    }
+                    else if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'string') {
+                        [lhs, result] = this.applyOperator(def.parse, lhs, this.matchRequiredLatexArgument());
+                        result = this.applyInvisibleOperator(lhs, result);
+                    }
+                    else {
+                        result = this.applyInvisibleOperator(lhs, triggerChar);
+                    }
+                }
+                if (result !== null) {
+                    // There could be some arguments following the supsub, e.g.
+                    // `f^{-1}(x)`
+                    const args = this.matchArguments(def === null || def === void 0 ? void 0 : def.arguments);
+                    if (args !== null)
+                        result = [result, ...args];
+                }
+            });
+            return result;
+        }
+        matchPostfix(lhs) {
+            if (lhs === null)
+                return null;
+            const [def, n] = this.peekDefinition('postfix');
+            if (def === null)
+                return null;
+            if (typeof def.parse === 'function') {
+                const latex = this.latexAhead(n);
+                this.index += n;
+                [, lhs] = def.parse(lhs, this, 0, latex);
+                if (lhs === null) {
+                    this.index -= n;
+                    return null;
+                }
+                return lhs;
+            }
+            this.index += n;
+            return [def.parse, lhs];
+        }
+        matchString() {
+            let result = '';
+            let done = this.atEnd();
+            while (!done) {
+                if (this.match('<space>')) {
+                    result += ' ';
+                }
+                else {
+                    const token = this.peek();
+                    if (this.peek() === ']') {
+                        done = true;
+                    }
+                    else if (!/^<({|}|\$|\$\$|space)>$/.test(token)) {
+                        result += this.next();
+                    }
+                    else if (token[0] === '\\') {
+                        // TeX will give a 'Missing \endcsname inserted' error
+                        // if it encounters any command when expecting a string.
+                        // We're a bit more lax.
+                        this.onError({ code: 'unbalanced-braces' });
+                        result += this.next();
+                    }
+                    else {
+                        // It's '<{>', '<}>', '<$>' or '<$$>
+                        done = true;
+                    }
+                }
+                done = done || this.atEnd();
+            }
+            return result;
+        }
+        matchEnvironmentName(command, envName) {
+            if (this.match(command)) {
+                const savedIndex = this.index;
+                if (this.match('<{>')) {
+                    const name = this.matchString();
+                    if (this.match('<}>') && name === envName) {
+                        return true;
+                    }
+                }
+                this.index = savedIndex;
+            }
+            return false;
+        }
+        /**
+         * Match an expression in a tabular format,
+         * where row are separated by `\\` and columns by `&`
+         *
+         * Return rows of columns (might be sparse)
+         */
+        matchTabular() {
+            // return null;
+            const result = ['list'];
+            // debugger;
+            let row = ['list'];
+            let expr = null;
+            let done = false;
+            while (!this.atEnd() && !done) {
+                if (this.match('&')) {
+                    // new column
+                    // Push even if expr is NULL (it represent a skipped column)
+                    row.push(expr);
+                    expr = null;
+                }
+                else if (this.match('\\\\') || this.match('\\cr')) {
+                    // new row
+                    this.skipSpace();
+                    // Parse but drop optional argument (used to indicate spacing between lines)
+                    this.matchOptionalLatexArgument();
+                    if (expr !== null)
+                        row.push(expr);
+                    result.push(row);
+                    row = ['list'];
+                    expr = null;
+                }
+                else {
+                    const rhs = this.matchExpression();
+                    if (rhs === null)
+                        done = true;
+                    if (expr !== null) {
+                        expr = this.applyInvisibleOperator(expr, rhs);
+                    }
+                    else {
+                        expr = rhs;
+                    }
+                }
+            }
+            // Capture any leftover row
+            if (row.length > 1) {
+                result.push(row);
+            }
+            return result;
+        }
+        matchEnvironment() {
+            var _a;
+            if (this.match('\\begin')) {
+                if (this.match('<{>')) {
+                    const name = this.matchString();
+                    if (this.match('<}>')) {
+                        const start = this.index;
+                        let end = this.index;
+                        // Find the end of the environment
+                        let level = 1;
+                        while (!this.atEnd() && level !== 0) {
+                            end = this.index;
+                            if (this.matchEnvironmentName('\\begin', name)) {
+                                level += 1;
+                            }
+                            else if (this.matchEnvironmentName('\\end', name)) {
+                                level -= 1;
+                            }
+                            else {
+                                this.next();
+                            }
+                        }
+                        const def = this.dictionary.environment.get(name);
+                        if (typeof (def === null || def === void 0 ? void 0 : def.parse) === 'function') {
+                            return def.parse(null, this.clone(start, end), 0, name)[1];
+                        }
+                        return (_a = def === null || def === void 0 ? void 0 : def.parse) !== null && _a !== void 0 ? _a : null;
+                    }
+                }
+            }
+            return null;
+        }
+        /**
+         * Apply the operator `op` to the left-hand-side and right-hand-side
+         * expression. Applies the associativity rule specified by the definition,
+         * i.e. 'op(a, op(b, c))` -> `op(a, b, c)`, etc...
+         *
+         * `op` is the name of the operator which should have a corresponding
+         * definition.
+         *
+         * If `op` is an infix operator, it should have both a lhs and rhs.
+         * If `op` is a postfix operator, it should only have a lhs.
+         * If `op` is a prefix operator, the lhs is returned as the first element
+         * of the return tuple.
+         *
+         * @return a tuple: [lhs, rhs]
+         */
+        applyOperator(op, lhs, rhs) {
+            var _a, _b, _c, _d;
+            const def = this.dictionary.name.get(op);
+            if (typeof def === 'undefined') {
+                this.onError({ code: 'unknown-operator' });
+                return [lhs, rhs];
+            }
+            if (typeof ((_a = def.trigger) === null || _a === void 0 ? void 0 : _a.prefix) !== 'undefined' &&
+                lhs === null &&
+                rhs !== null) {
+                return [null, [def.name, rhs]];
+            }
+            if (typeof ((_b = def.trigger) === null || _b === void 0 ? void 0 : _b.postfix) !== 'undefined' && lhs !== null) {
+                return [null, [def.name, lhs]];
+            }
+            if ((typeof ((_c = def.trigger) === null || _c === void 0 ? void 0 : _c.matchfix) !== 'undefined' ||
+                typeof ((_d = def.trigger) === null || _d === void 0 ? void 0 : _d.infix) !== 'undefined') &&
+                lhs !== null &&
+                rhs !== null) {
+                // infix
+                if (def.associativity === 'non') {
+                    return [null, [op, lhs, rhs]];
+                }
+                if (getFunctionName(lhs) === op) {
+                    // Possible associativity
+                    if (def.associativity === 'both') {
+                        if (getFunctionName(rhs) === op) {
+                            // +(+(a, b), +(c, d)) -> +(a, b, c, d)
+                            if (Array.isArray(lhs)) {
+                                return [null, lhs.concat(getArgs(rhs))];
+                            }
+                            if (isFunctionObject(lhs)) {
+                                return [null, lhs.fn.concat(getArgs(rhs))];
+                            }
+                        }
+                        else {
+                            if (Array.isArray(lhs)) {
+                                lhs.push(rhs);
+                            }
+                            if (isFunctionObject(lhs)) {
+                                lhs.fn.push(rhs);
+                            }
+                        }
+                        return [null, lhs];
+                    }
+                    if (def.associativity === 'left') {
+                        return [null, [op, lhs, rhs]];
+                    }
+                    // Right-associative
+                    if (Array.isArray(lhs)) {
+                        return [null, [op, lhs[1], [op, lhs[2], rhs]]];
+                    }
+                    if (isFunctionObject(lhs)) {
+                        lhs.fn[2] = [op, lhs.fn[2], rhs];
+                    }
+                    return [null, lhs];
+                }
+                else if (getFunctionName(rhs) === op) {
+                    // Possible associativity
+                    if (def.associativity === 'both') {
+                        if (Array.isArray(rhs)) {
+                            rhs.splice(1, 0, lhs);
+                        }
+                        if (isFunctionObject(rhs)) {
+                            rhs.fn.splice(1, 0, lhs);
+                        }
+                        return [null, rhs];
+                    }
+                    if (def.associativity === 'right') {
+                        return [null, [op, lhs, rhs]];
+                    }
+                    // Left-associative
+                    if (Array.isArray(rhs)) {
+                        return [null, [op, rhs[1], [op, rhs[2], lhs]]];
+                    }
+                    if (isFunctionObject(rhs)) {
+                        rhs.fn[2] = [op, rhs.fn[2], lhs];
+                    }
+                    return [null, rhs];
+                }
+                return [null, [op, lhs, rhs]];
+            }
+            if (typeof def.trigger.infix !== 'undefined') {
+                // Infix, but either right or left operand missing
+                this.onError({ code: 'expected-operand' });
+                return [lhs, null];
+            }
+            return [lhs, null];
+        }
+        /**
+         * Apply an invisible operator between two expressions.
+         *
+         * If no `invisibleOperator` was specified, use the `latex` operator.
+         *
+         * If the lhs is a number and the rhs is a fraction, assume an
+         * 'invisible plus', that is '2 3/4' -> ['add', 2, [divide, 3, 4]]
+         * unless `invisiblePlusOperator` is empty
+         *
+         */
+        applyInvisibleOperator(lhs, rhs) {
+            if (lhs === null)
+                return rhs;
+            if (rhs === null)
+                return lhs;
+            // @todo: handle invisible plus
+            if (this.options.invisiblePlusOperator) {
+                if ((typeof lhs === 'number' || isNumberObject(lhs)) &&
+                    getFunctionName(rhs) === DIVIDE) {
+                    [lhs, rhs] = this.applyOperator(this.options.invisiblePlusOperator, lhs, rhs);
+                    if (lhs === null)
+                        return rhs;
+                    return null;
+                }
+            }
+            if (this.options.invisibleOperator) {
+                [lhs, rhs] = this.applyOperator(this.options.invisibleOperator, lhs, rhs);
+                if (lhs === null)
+                    return rhs;
+                return null;
+            }
+            // No invisible operator, use 'latex'
+            let fn = [LATEX];
+            if (getFunctionName(lhs) === LATEX) {
+                fn = fn.concat(getArgs(lhs));
+            }
+            else {
+                fn.push(lhs);
+            }
+            if (rhs !== null) {
+                if (getFunctionName(rhs) === LATEX) {
+                    fn = fn.concat(getArgs(rhs));
+                }
+                else {
+                    fn.push(rhs);
+                }
+            }
+            if (this.options.invisibleOperator) {
+                this.onError({ code: 'unexpected-sequence' });
+            }
+            return fn;
+        }
+        matchUnknownLatexCommand() {
+            const command = this.peek();
+            if (!command || command[0] !== '\\') {
+                return null;
+            }
+            this.next();
+            const optArgs = [];
+            const reqArgs = [];
+            let done = false;
+            do {
+                done = true;
+                let expr = this.matchOptionalLatexArgument();
+                if (expr !== null) {
+                    optArgs.push(expr);
+                    done = false;
+                }
+                this.skipSpace();
+                if (this.peek() === '<{>') {
+                    expr = this.matchRequiredLatexArgument();
+                    if (expr !== null) {
+                        reqArgs.push(expr);
+                        done = false;
+                    }
+                }
+            } while (!done);
+            if (optArgs.length > 0 || reqArgs.length > 0) {
+                return [command, ...reqArgs, ...optArgs];
+            }
+            return command;
+        }
+        /**
+         * <primary> :=
+         * (<number> | <symbol> | <environment> | <matchfix-expr>) <subsup>* <postfix-operator>*
+         *
+         * <symbol> ::= (<symbol-id> | (<latex-command><latex-arguments>)) <arguments>
+         *
+         * <matchfix-expr> :=
+         *  <matchfix-op-open> <expression> [<matchfix-op-separator> <expression>] <matchfix-op-close>
+         *
+         */
+        matchPrimary(_minPrec) {
+            let result = null;
+            const originalIndex = this.index;
+            //
+            // 1. Is it a number?
+            //
+            const num = this.matchNumber();
+            if (num)
+                result = { num: num };
+            //
+            // 2. Is it a symbol, a Latex command or a function call?
+            //    `x` or `\pi'
+            //    `f(x)` or `\sin(\pi)
+            //    `\frac{1}{2}`
+            //
+            if (result === null)
+                result = this.matchSymbol();
+            //
+            // 3. Is it an environment?
+            // `\begin{...}...\end{...}`
+            //
+            if (result === null)
+                result = this.matchEnvironment();
+            //
+            // 3. Is it a matchfix expression?
+            //    (group fence, absolute value, integral, etc...)
+            //
+            if (result === null)
+                result = this.matchMatchfixOperator();
+            //
+            // 4. Are there subsup or postfix operators?
+            //
+            let supsub = null;
+            do {
+                supsub = this.matchSupsub(result);
+                result = supsub !== null && supsub !== void 0 ? supsub : result;
+            } while (supsub !== null);
+            let postfix = null;
+            do {
+                postfix = this.matchPostfix(result);
+                result = postfix !== null && postfix !== void 0 ? postfix : result;
+            } while (postfix !== null);
+            return this.decorate(result, originalIndex);
+        }
+        /**
+         *  Parse an expression:
+         *
+         * <expresion> ::=
+         *  | <prefix-op> <primary>
+         *  | <primary>
+         *  | <primary> <infix-op> <expression>
+         *
+         * Stop when an operator of precedence less than `minPrec` is encountered
+         */
+        matchExpression(minPrec = 0) {
+            let lhs = null;
+            const originalIndex = this.index;
+            this.skipSpace();
+            //
+            // 1. Do we have a prefix operator?
+            //
+            lhs = this.matchOperator('prefix');
+            //
+            // 2. Do we have a primary?
+            //
+            if (lhs === null)
+                lhs = this.matchPrimary(minPrec);
+            if (lhs === null)
+                return null;
+            //
+            // 3. Are there some infix operators?
+            //
+            let done = false;
+            while (!this.atEnd() && !done) {
+                this.skipSpace();
+                let result = this.matchOperator('infix', lhs, minPrec);
+                if (result === null) {
+                    // We've encountered something else than an infix operator
+                    // OR an infix operator with a lower priority.
+                    // Could be "y" after "x": time to apply the invisible operator
+                    // if the next element is:
+                    // - a symbol: `2x`, `2f(x)` (after `2`)
+                    // - a number: `x2` (after `x`)
+                    // - a matchfix open: `x(n+1)` (after `x`)
+                    // (i.e. not an operator)
+                    const [op] = this.peekDefinition('operator');
+                    if (op === null) {
+                        const rhs = this.matchExpression(this.invisibleOperatorPrecedence);
+                        if (rhs === null) {
+                            done = true;
+                        }
+                        else {
+                            result = this.applyInvisibleOperator(lhs, rhs);
+                        }
+                    }
+                }
+                if (result !== null) {
+                    lhs = result;
+                }
+                else {
+                    // We could not apply the infix operator: the rhs may
+                    // have been a postfix operator, or something else
+                    done = true;
+                }
+            }
+            return this.decorate(lhs, originalIndex);
+        }
+        /**
+         * Add latex or other requested metadata to the expression
+         */
+        decorate(expr, start) {
+            if (this.options.preserveLatex) {
+                const latex = this.latex(start, this.index);
+                if (Array.isArray(expr)) {
+                    expr = { latex: latex, fn: expr };
+                }
+                else if (typeof expr === 'number') {
+                    expr = { latex: latex, num: Number(expr).toString() };
+                }
+                else if (typeof expr === 'string') {
+                    expr = { latex: latex, sym: expr };
+                }
+                else if (typeof expr === 'object' && expr !== null) {
+                    expr.latex = latex;
+                }
+            }
+            return expr;
+        }
+    }
+
+    /**
+     * Return a formatted mantissa:
+     * 1234567 -> 123 456 7...
+     * 1233333 -> 12(3)
+     */
+    function formatMantissa(m, config) {
+        const originalLength = m.length;
+        // The last digit may have been rounded, if it exceeds the precison,
+        // which could throw off the repeating pattern detection. Ignore it.
+        m = m.substr(0, config.precision - 2);
+        for (let i = 0; i < m.length - 16; i++) {
+            // Offset is the part of the mantissa that is not repeating
+            const offset = m.substr(0, i);
+            // Try to find a repeating pattern of length j
+            for (let j = 0; j < 17; j++) {
+                const cycle = m.substr(i, j + 1);
+                const times = Math.floor((m.length - offset.length) / cycle.length);
+                if (times > 1) {
+                    if ((offset + cycle.repeat(times + 1)).startsWith(m)) {
+                        // We've found a repeating pattern!
+                        if (cycle === '0') {
+                            return offset.replace(/(\d{3})/g, '$1' + config.groupSeparator);
+                        }
+                        return (offset.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
+                            config.beginRepeatingDigits +
+                            cycle.replace(/(\d{3})/g, '$1' + config.groupSeparator) +
+                            config.endRepeatingDigits);
+                    }
+                }
+            }
+        }
+        const hasDots = originalLength !== m.length;
+        m = m.replace(/(\d{3})/g, '$1' + config.groupSeparator);
+        if (m.endsWith(config.groupSeparator)) {
+            m = m.slice(0, -1);
+        }
+        return m + (hasDots ? '\\ldots' : '');
+    }
+    function formatExponent(exp, options) {
+        var _a;
+        if (!exp)
+            return '';
+        if (options.beginExponentMarker) {
+            return (options.beginExponentMarker +
+                exp +
+                ((_a = options.endExponentMarker) !== null && _a !== void 0 ? _a : ''));
+        }
+        return '10^{' + exp + '}';
+    }
+    function parseFloatToPrecision(num) {
+        return parseFloat(Number(num).toPrecision(15));
+    }
+    /*
+     * @param expr - A number, can be represented as a string
+     *  particularly useful for arbitrary precision numbers) or a number (-12.45)
+     * @return A LaTeX representation of the expression
+     */
+    function emitNumber(options, expr) {
+        var _a, _b;
+        let num;
+        if (typeof expr === 'number') {
+            num = expr;
+        }
+        else if (isNumberObject(expr)) {
+            num = expr.num;
+        }
+        else {
+            return '';
+        }
+        if (num === 'Infinity') {
+            return '\\infty';
+        }
+        else if (num === '-Infinity') {
+            return '-\\infty';
+        }
+        else if (num === 'NaN') {
+            return '\\mathtt{NaN}';
+        }
+        let result = '';
+        let value;
+        const config = options;
+        if (typeof num === 'number') {
+            value = parseFloatToPrecision(num);
+        }
+        else {
+            let sign = '';
+            let exponent = '';
+            if (num[0] === '-') {
+                sign = '-';
+                num = num.substr(1);
+            }
+            else if (num[0] === '+') {
+                num = num.substr(1);
+            }
+            if (num.indexOf('.') >= 0) {
+                const m = num.match(/(\d*)\.(\d*)([e|E]([-+]?[0-9]*))?/);
+                if (!m)
+                    return '';
+                const base = m[1];
+                const mantissa = m[2].substring(0, Math.min(config.precision - base.length, m[2].length));
+                exponent = (_a = m[4]) !== null && _a !== void 0 ? _a : '';
+                if (base === '0') {
+                    let p = 0; // Index of the first non-zero digit after the decimal
+                    while (mantissa[p] === '0' && p < mantissa.length) {
+                        p += 1;
+                    }
+                    let r = '';
+                    if (p <= 4) {
+                        r = '0' + config.decimalMarker;
+                        r += mantissa.substr(0, p);
+                        r += formatMantissa(num.substr(r.length), config);
+                    }
+                    else if (p + 1 >= config.precision) {
+                        r = '0';
+                        sign = '';
+                    }
+                    else {
+                        r = num[p];
+                        const f = formatMantissa(num.substr(p + 1), config);
+                        if (f) {
+                            r += config.decimalMarker + f;
+                        }
+                    }
+                    if (r !== '0') {
+                        if (num.length - 1 > config.precision &&
+                            !r.endsWith('}') &&
+                            !r.endsWith('\\ldots')) {
+                            r += '\\ldots';
+                        }
+                        if (p > 4) {
+                            r +=
+                                config.exponentProduct +
+                                    formatExponent((1 - p).toString(), options);
+                        }
+                    }
+                    num = r;
+                }
+                else {
+                    num = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+                    const f = formatMantissa(mantissa, config);
+                    if (f) {
+                        num += config.decimalMarker + f;
+                        // if (num.length - 1 > config.precision && !num.endsWith('}') && !num.endsWith('\\ldots')) {
+                        //     num += '\\ldots';
+                        // }
+                    }
+                }
+            }
+            else if (num.length > config.precision) {
+                const len = num.length;
+                let r = num[0];
+                const f = formatMantissa(num.substr(1), config);
+                if (f) {
+                    r += config.decimalMarker + f;
+                    if (r[r.length - 1] !== '}') {
+                        r += '\\ldots';
+                    }
+                }
+                if (r !== '1') {
+                    r += config.exponentProduct;
+                }
+                else {
+                    r = '';
+                }
+                num = r + formatExponent((len - 2).toString(), options);
+            }
+            else {
+                const m = num.match(/([0-9]*)\.?([0-9]*)([e|E]([-+]?[0-9]+))?/);
+                if (m) {
+                    num = m[1];
+                    if (m[2])
+                        num += options.decimalMarker + m[2];
+                    exponent = (_b = m[4]) !== null && _b !== void 0 ? _b : '';
+                }
+                num = num.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+            }
+            const exponentString = formatExponent(exponent, options);
+            return (sign +
+                num +
+                (exponentString ? options.exponentProduct + exponentString : ''));
+        }
+        if (config.notation === 'engineering') {
+            // Ensure the exponent is a multiple of 3
+            if (value === 0) {
+                result = '0';
+            }
+            else {
+                const y = Math.abs(value);
+                let exponent = Math.round(Math.log10(y));
+                exponent = exponent - (exponent % 3);
+                if (y < 1000)
+                    exponent = 0;
+                const mantissa = y / Math.pow(10, exponent);
+                let mantissaString = '';
+                const m = mantissa.toString().match(/^(.*)\.(.*)$/);
+                if ((m === null || m === void 0 ? void 0 : m[1]) && m[2]) {
+                    mantissaString = m[1] + config.decimalMarker + m[2];
+                }
+                if (config.groupSeparator) {
+                    mantissaString = formatMantissa(mantissa.toExponential(), config);
+                }
+                let exponentString = '';
+                if (exponent !== 0) {
+                    exponentString = formatExponent(exponent.toString(), options);
+                }
+                result = (value < 0 ? '-' : '') + mantissaString + exponentString;
+            }
+        }
+        else {
+            const valString = typeof num === 'string' ? num : num.toString();
+            let m = valString.match(/^(.*)[e|E]([-+]?[0-9]*)$/i);
+            let base;
+            let exponent;
+            let mantissa;
+            base = valString;
+            mantissa = '';
+            if ((m === null || m === void 0 ? void 0 : m[1]) && m[2]) {
+                // There is an exponent...
+                base = m[1];
+                exponent = formatExponent(m[2], options);
+                if (exponent) {
+                    exponent = options.exponentProduct + exponent;
+                }
+            }
+            m = base.match(/^(.*)\.(.*)$/);
+            if ((m === null || m === void 0 ? void 0 : m[1]) && m[2]) {
+                base = m[1];
+                mantissa = m[2];
+            }
+            if (config.groupSeparator) {
+                base = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
+                mantissa = formatMantissa(mantissa, config);
+            }
+            if (mantissa)
+                mantissa = config.decimalMarker + mantissa;
+            result = base + mantissa + (exponent !== null && exponent !== void 0 ? exponent : '');
+        }
+        return result;
+    }
+
+    function getSymbolStyle(expr, _level) {
+        console.assert(typeof expr === 'string' || isSymbolObject(expr));
+        const sym = getSymbolName(expr);
+        if (sym === null)
+            return 'asis';
+        return sym.length > 1 ? 'upright' : 'asis';
+    }
+    function emitMatchfix(emitter, expr, def) {
+        let segments = [];
+        if (typeof def.trigger.matchfix === 'string') {
+            segments.push(def.trigger.matchfix);
+        }
+        else if (Array.isArray(def.trigger.matchfix)) {
+            segments = [...def.trigger.matchfix];
+        }
+        if (getArgCount(expr) >= 1) {
+            let sep = '';
+            for (const arg of getArgs(expr)) {
+                if (arg) {
+                    segments.push(sep);
+                    segments.push(emitter.emit(arg));
+                    sep = def.separator;
+                }
+            }
+        }
+        if (Array.isArray(def.closeFence)) {
+            segments.push(tokensToString(def.closeFence));
+        }
+        else if (typeof def.closeFence === 'string') {
+            segments.push(def.closeFence);
+        }
+        return joinLatex(segments);
+    }
+    function emitOperator(emitter, expr, def) {
+        let result = '';
+        const count = getArgCount(expr);
+        const name = getFunctionName(expr);
+        if (def.trigger.superfix || def.trigger.subfix) {
+            if (count !== 1) {
+                emitter.onError({
+                    code: 'operator-requires-one-operand',
+                    arg: emitter.emitSymbol(name),
+                });
+            }
+            return replaceLatex(def.emit, [
+                emitter.emit(getArg(expr, 1)),
+            ]);
+        }
+        if (def.trigger.postfix) {
+            if (count !== 1) {
+                emitter.onError({
+                    code: 'postfix-operator-requires-one-operand',
+                    arg: emitter.emitSymbol(name),
+                });
+            }
+            return replaceLatex(def.emit, [
+                emitter.wrap(getArg(expr, 1), def.precedence),
+            ]);
+        }
+        if (def.trigger.prefix) {
+            if (count !== 1) {
+                emitter.onError({
+                    code: 'prefix-operator-requires-one-operand',
+                    arg: emitter.emitSymbol(name),
+                });
+            }
+            return replaceLatex(def.emit, [
+                emitter.wrap(getArg(expr, 1), def.precedence + 1),
+            ]);
+        }
+        if (def.trigger.infix) {
+            result = emitter.wrap(getArg(expr, 1), def.precedence);
+            for (let i = 2; i < count + 1; i++) {
+                const arg = getArg(expr, i);
+                if (arg !== null) {
+                    result = replaceLatex(def.emit, [
+                        result,
+                        emitter.wrap(arg, def.precedence),
+                    ]);
+                }
+            }
+        }
+        return result;
+    }
+    class Emitter {
+        constructor(options) {
+            this.level = -1;
+            this.options = options;
+            if (options.invisibleMultiply) {
+                if (!/#1/.test(options.invisibleMultiply) ||
+                    !/#2/.test(options.invisibleMultiply)) {
+                    options.onError({
+                        code: 'expected-argument',
+                        arg: 'invisibleMultiply',
+                    });
+                }
+            }
+            this.onError = options.onError;
+            this.dictionary = indexLatexDictionary(options.dictionary, options.onError);
+        }
+        /**
+         * Emit the expression, and if the expression is an operator
+         * of precedence less than or equal to prec, wrap it in some paren.
+         * @todo: don't wrap abs
+         */
+        wrap(expr, prec) {
+            if (expr === null)
+                return '';
+            if (typeof prec === 'undefined') {
+                return '(' + this.emit(expr) + ')';
+            }
+            if (typeof expr === 'number' ||
+                isNumberObject(expr) ||
+                typeof expr === 'string' ||
+                isSymbolObject(expr)) {
+                return this.emit(expr);
+            }
+            const name = getFunctionName(expr);
+            if (name) {
+                const def = this.dictionary.name.get(name);
+                if (def &&
+                    typeof def.precedence !== 'undefined' &&
+                    def.precedence < prec) {
+                    return this.wrapString(this.emit(expr), getApplyFunctionStyle(expr, this.level));
+                }
+            }
+            return this.emit(expr);
+        }
+        /** If this is a "short" expression (atomic), wrap it.
+         *
+         */
+        wrapShort(expr) {
+            const exprStr = this.emit(expr);
+            if (getFunctionName(expr) === GROUP)
+                return exprStr;
+            if (typeof expr !== 'number' &&
+                !isNumberObject(expr) &&
+                !/(^(.|\\[a-zA-Z*]+))$/.test(exprStr)) {
+                // It's a long expression, wrap it
+                return this.wrapString(exprStr, getGroupStyle(expr, this.level + 1));
+            }
+            return exprStr;
+        }
+        wrapString(s, style) {
+            if (style === 'none')
+                return s;
+            return '(' + s + ')';
+        }
+        emitSymbol(expr, def) {
+            const head = getFunctionHead(expr);
+            if (!head) {
+                console.assert(typeof expr === 'string' || isSymbolObject(expr));
+                // It's a symbol
+                if (typeof (def === null || def === void 0 ? void 0 : def.emit) === 'string') {
+                    return def.emit;
+                }
+                const name = getSymbolName(expr);
+                if (name === null)
+                    return '';
+                switch (getSymbolStyle(expr, this.level)) {
+                    case 'upright':
+                        return '\\operatorname{' + name + '}';
+                    //            case 'asis':
+                    default:
+                        return name;
+                }
+            }
+            //
+            // It's a function
+            //
+            const args = getArgs(expr);
+            if (!def) {
+                // We don't know anything about this function
+                if (typeof head === 'string' &&
+                    head.length > 0 &&
+                    head[0] === '\\') {
+                    //
+                    // 1. Is is an unknown latex command?
+                    //
+                    // This looks like a Latex command. Emit
+                    // the arguments as Latex arguments
+                    let result = head;
+                    for (const arg of args) {
+                        result += '{' + this.emit(arg) + '}';
+                    }
+                    return result;
+                }
+                //
+                // 2. Is is an unknown function call?
+                //
+                // It's a function we don't know.
+                // Maybe it came from `promoteUnknownSymbols`
+                // Emit the arguments as function arguments
+                return this.emit(head) + this.emit([GROUP, ...args]);
+            }
+            if (def.requiredLatexArg > 0) {
+                //
+                // 3. Is it a known Latex command?
+                //
+                // This looks like a Latex command. Emit
+                // the arguments as Latex arguments
+                let optionalArg = '';
+                let requiredArg = '';
+                let i = 0;
+                while (i < def.requiredLatexArg) {
+                    requiredArg += '{' + this.emit(args[i++]) + '}';
+                }
+                while (i <
+                    Math.min(args.length, def.optionalLatexArg + def.requiredLatexArg)) {
+                    const optValue = this.emit(args[1 + i++]);
+                    if (optValue) {
+                        optionalArg += '[' + optValue + ']';
+                    }
+                }
+                return def.emit + (optionalArg + requiredArg);
+            }
+            //
+            // 4. Is it a known function?
+            //
+            const style = getApplyFunctionStyle(expr, this.level);
+            return def.emit + this.emit([GROUP, ...args]);
+        }
+        emit(expr) {
+            if (expr === null)
+                return '';
+            this.level += 1;
+            //
+            // 1. Is it a number
+            //
+            let result = emitNumber(this.options, expr);
+            if (result) {
+                this.level -= 1;
+                return result;
+            }
+            //
+            // 2. Is it a named symbol (Latex token, constant, variable or
+            //    operator)
+            //
+            const name = getSymbolName(expr);
+            if (name === '<$>') {
+                result = '$';
+            }
+            else if (name === '<$$>') {
+                result = '$$';
+            }
+            else if (name === '<{>') {
+                result = '{';
+            }
+            else if (name === '<}>') {
+                result = '}';
+            }
+            else if (name === '<space>') {
+                result = ' ';
+            }
+            else if (name && (name[0] === '\\' || name[0] === '#')) {
+                //
+                // 2.1 Latex command
+                //
+                // possibly with arguments.
+                // This can happen if we encountered an unrecognized Latex command
+                // during parsing, e.g. "\foo{x + 1}"
+                this.level -= 1;
+                const args = getArgs(expr);
+                if (args.length === 0)
+                    return name;
+                return (name +
+                    '{' +
+                    args
+                        .map((x) => this.emit(x))
+                        .filter((x) => Boolean(x))
+                        .join('}{') +
+                    '}');
+            }
+            else if (name !== null) {
+                // It's a symbol
+                result = this.emitSymbol(expr, this.dictionary.name.get(name));
+            }
+            else {
+                //
+                // 2.2 A function, operator or matchfix operator
+                //
+                const def = this.dictionary.name.get(getFunctionName(expr));
+                if (def) {
+                    // If there is a custom emitter function, use it.
+                    if (typeof def.emit === 'function') {
+                        result = def.emit(this, expr);
+                    }
+                    else {
+                        if (!result &&
+                            (typeof def.precedence !== 'undefined' ||
+                                def.trigger.superfix ||
+                                def.trigger.subfix)) {
+                            result = emitOperator(this, expr, def);
+                        }
+                        if (!result && def.trigger.matchfix) {
+                            result = emitMatchfix(this, expr, def);
+                        }
+                        if (!result && def.trigger.symbol) {
+                            result = this.emitSymbol(expr, def);
+                        }
+                    }
+                }
+                else if (Array.isArray(expr) || isFunctionObject(expr)) {
+                    // It's a function, but without definition.
+                    // It could be a [['derive', "f"], x]
+                    result = this.emitSymbol(expr);
+                }
+                else {
+                    //  This doesn't look like a symbol, or a function,
+                    // or anything we were expecting.
+                    // This is an invalid expression, for example an
+                    // object literal with no know fields, or an invalid number:
+                    // `{num: 'not a number'}`
+                    // `{foo: 'not an expression}`
+                    this.onError({
+                        code: 'syntax-error',
+                        arg: JSON.stringify(expr),
+                    });
+                }
+            }
+            this.level -= 1;
+            return result;
+        }
+    }
+
+    function parseLatex(latex, options) {
+        var _a, _b, _c;
+        const scanner = new Scanner(tokenize(latex, []), {
+            ...DEFAULT_LATEX_NUMBER_OPTIONS,
+            ...DEFAULT_PARSE_LATEX_OPTIONS,
+            onError: (err) => {
+                if (typeof window !== 'undefined') {
+                    if (!err.before || !err.after) {
+                        console.warn(err.code + (err.arg ? ': ' + err.arg : ''));
+                    }
+                    else {
+                        console.warn(err.code +
+                            (err.arg ? ': ' + err.arg : '') +
+                            '\n' +
+                            '%c' +
+                            '|  ' +
+                            err.before +
+                            '%c' +
+                            err.after +
+                            '\n' +
+                            '%c' +
+                            '|  ' +
+                            String(' ').repeat(err.before.length) +
+                            '▲', 'font-weight: bold', 'font-weight: normal; color: rgba(160, 160, 160)', 'font-weight: bold; color: hsl(4deg, 90%, 50%)');
+                    }
+                }
+                return;
+            },
+            dictionary: getDefaultLatexDictionary('all'),
+            ...options,
+        });
+        const result = scanner.matchExpression();
+        if (!scanner.atEnd()) {
+            // eslint-disable-next-line no-unused-expressions
+            (_a = options === null || options === void 0 ? void 0 : options.onError) === null || _a === void 0 ? void 0 : _a.call(options, { code: 'syntax-error' });
+        }
+        let forms = (_b = options === null || options === void 0 ? void 0 : options.form) !== null && _b !== void 0 ? _b : ['canonical'];
+        if (!Array.isArray(forms)) {
+            forms = [forms];
+        }
+        return (_c = form(getDefaultDictionary('all'), result, forms)) !== null && _c !== void 0 ? _c : '';
+    }
+    function emitLatex$1(expr, options) {
+        const emitter = new Emitter({
+            ...DEFAULT_LATEX_NUMBER_OPTIONS,
+            ...DEFAULT_EMIT_LATEX_OPTIONS,
+            dictionary: getDefaultLatexDictionary(),
+            onError: (_err) => {
+                // console.error(err.code + (err.arg ? ': ' + err.arg : ''));
+            },
+            ...(options !== null && options !== void 0 ? options : {}),
+        });
+        return emitter.emit(expr);
+    }
 
     /**
      * This module parses and outputs an Abstract Syntax Tree representing the
@@ -25465,7 +33530,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         ',': 40,
         ';': 30,
     };
-    function getArg(ast, index) {
+    function getArg$1(ast, index) {
         return isArray(ast.arg) ? ast.arg[index] : undefined;
     }
     /**
@@ -25678,7 +33743,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (typeof node.num === 'object') {
                 result =
                     typeof node.num.re !== 'undefined'
-                        ? parseFloatToPrecision(node.num.re)
+                        ? parseFloatToPrecision$1(node.num.re)
                         : 0;
             }
             else {
@@ -25693,7 +33758,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             if (typeof node.num === 'object') {
                 result =
                     typeof node.num.im !== 'undefined'
-                        ? parseFloatToPrecision(node.num.im)
+                        ? parseFloatToPrecision$1(node.num.im)
                         : 0;
             }
         }
@@ -26461,8 +34526,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         lhs = wrapFn('bind', lhs);
                         if (subArg && subArg.fn === 'equal' && lhs.arg) {
                             // This is a subscript of the form "x=..."
-                            lhs.arg.push(getArg(subArg, 0));
-                            lhs.arg.push(getArg(subArg, 1));
+                            lhs.arg.push(getArg$1(subArg, 0));
+                            lhs.arg.push(getArg$1(subArg, 1));
                         }
                         else if (subArg &&
                             lhs.arg &&
@@ -26471,9 +34536,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                             let currentSym = { sym: 'x' };
                             for (let i = 0; i < subArg.arg.length; i++) {
                                 if (subArg.arg[i].fn === 'equal') {
-                                    currentSym = getArg(subArg.arg[i], 0);
+                                    currentSym = getArg$1(subArg.arg[i], 0);
                                     lhs.arg.push(currentSym);
-                                    lhs.arg.push(getArg(subArg.arg[i], 1));
+                                    lhs.arg.push(getArg$1(subArg.arg[i], 1));
                                 }
                                 else {
                                     lhs.arg.push(currentSym);
@@ -26512,7 +34577,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         }
                         else if (lhs && lhs.fn === 'subtract') {
                             // x-y - z      -> add(x, -y, -z)
-                            lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), negate(rhs));
+                            lhs = wrapFn('add', getArg$1(lhs, 0), negate(getArg$1(lhs, 1)), negate(rhs));
                         }
                         else if (isNumber$1(lhs) &&
                             !hasSup(lhs) &&
@@ -26538,7 +34603,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         fn = ASSOCIATIVE_FUNCTION[opName];
                         if (fn === 'add' && lhs && lhs.fn === 'subtract') {
                             // subtract(x, y) + z -> add(x, -y, z)
-                            lhs = wrapFn('add', getArg(lhs, 0), negate(getArg(lhs, 1)), rhs);
+                            lhs = wrapFn('add', getArg$1(lhs, 0), negate(getArg$1(lhs, 1)), rhs);
                         }
                         else if (fn && lhs && lhs.fn === fn && !hasSup(lhs)) {
                             // add(x,y) + z -> add(x, y, z)
@@ -26914,7 +34979,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
      * @param {Object.<string, any>} config
      * @private
      */
-    function formatMantissa(m, config) {
+    function formatMantissa$1(m, config) {
         const originalLength = m.length;
         // The last digit may have been rounded, if it exceeds the precison,
         // which could throw off the
@@ -26946,7 +35011,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         return m.replace(/(\d{3})/g, '$1' + config.groupSeparator);
     }
-    function parseFloatToPrecision(num) {
+    function parseFloatToPrecision$1(num) {
         return parseFloat(parseFloat(num).toPrecision(15));
     }
     /**
@@ -26960,7 +35025,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         let value;
         if (typeof config.precision === 'number') {
             if (typeof num === 'number') {
-                value = parseFloatToPrecision(num);
+                value = parseFloatToPrecision$1(num);
             }
             else {
                 let sign = '';
@@ -26986,7 +35051,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         if (p <= 4) {
                             r = '0' + config.decimalMarker;
                             r += mantissa.substr(0, p);
-                            r += formatMantissa(num.substr(r.length), config);
+                            r += formatMantissa$1(num.substr(r.length), config);
                         }
                         else if (p + 1 >= config.precision) {
                             r = '0';
@@ -26994,7 +35059,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                         }
                         else {
                             r = num[p];
-                            const f = formatMantissa(num.substr(p + 1), config);
+                            const f = formatMantissa$1(num.substr(p + 1), config);
                             if (f) {
                                 r += config.decimalMarker + f;
                             }
@@ -27019,7 +35084,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     }
                     else {
                         num = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
-                        const f = formatMantissa(mantissa, config);
+                        const f = formatMantissa$1(mantissa, config);
                         if (f) {
                             num += config.decimalMarker + f;
                             // if (num.length - 1 > config.precision && !num.endsWith('}') && !num.endsWith('\\ldots')) {
@@ -27031,7 +35096,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 else if (num.length > config.precision) {
                     const len = num.length;
                     let r = num[0];
-                    const f = formatMantissa(num.substr(2), config);
+                    const f = formatMantissa$1(num.substr(2), config);
                     if (f) {
                         r += config.decimalMarker + f;
                         if (r[r.length - 1] !== '}') {
@@ -27086,7 +35151,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                     mantissaString = m[1] + config.decimalMarker + m[2];
                 }
                 if (config.groupSeparator) {
-                    mantissaString = formatMantissa(mantissa.toExponential(), config);
+                    mantissaString = formatMantissa$1(mantissa.toExponential(), config);
                 }
                 let exponentString = '';
                 if (exponent === 0) {
@@ -27125,7 +35190,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             }
             if (config.groupSeparator) {
                 base = base.replace(/\B(?=(\d{3})+(?!\d))/g, config.groupSeparator);
-                mantissa = formatMantissa(mantissa, config);
+                mantissa = formatMantissa$1(mantissa, config);
             }
             if (mantissa)
                 mantissa = config.decimalMarker + mantissa;
@@ -27220,18 +35285,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         }
         else if (ast.fn) {
             if (ast.fn === 'bind') {
-                result = jsonToLatex(getArg(ast, 0), config) + '|_{';
+                result = jsonToLatex(getArg$1(ast, 0), config) + '|_{';
                 if (ast.arg && ast.arg.length === 2) {
-                    result += jsonToLatex(getArg(ast, 1));
+                    result += jsonToLatex(getArg$1(ast, 1));
                 }
                 else {
                     let sep = '';
                     for (let i = 1; i < ast.arg.length; i += 2) {
                         result +=
                             sep +
-                                jsonToLatex(getArg(ast, i)) +
+                                jsonToLatex(getArg$1(ast, i)) +
                                 ' = ' +
-                                jsonToLatex(getArg(ast, i + 1));
+                                jsonToLatex(getArg$1(ast, i + 1));
                         sep = ', ';
                     }
                 }
@@ -27240,19 +35305,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             else if (ast.fn === 'divide') {
                 result =
                     '\\frac{' +
-                        jsonToLatex(getArg(ast, 0), config) +
+                        jsonToLatex(getArg$1(ast, 0), config) +
                         '}{' +
-                        jsonToLatex(getArg(ast, 1), config) +
+                        jsonToLatex(getArg$1(ast, 1), config) +
                         '}';
             }
             else if (ast.fn === 'negate') {
-                result = '-' + jsonToLatex(getArg(ast, 0), config);
+                result = '-' + jsonToLatex(getArg$1(ast, 0), config);
             }
             else if (ast.fn === 'subtract') {
                 result =
-                    jsonToLatex(getArg(ast, 0), config) +
+                    jsonToLatex(getArg$1(ast, 0), config) +
                         ' - ' +
-                        jsonToLatex(getArg(ast, 1), config);
+                        jsonToLatex(getArg$1(ast, 1), config);
             }
             else if ((ast.fn === 'add' || ast.fn === 'multiply') &&
                 isArray(ast.arg)) {
@@ -27341,11 +35406,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             else if (ast.fn === 'pow' &&
                 isArray(ast.arg) &&
                 ast.arg.length >= 2) {
-                result = jsonToLatex(getArg(ast, 0), config);
-                if (!isNumber$1(getArg(ast, 0)) && !asSymbol(getArg(ast, 0))) {
+                result = jsonToLatex(getArg$1(ast, 0), config);
+                if (!isNumber$1(getArg$1(ast, 0)) && !asSymbol(getArg$1(ast, 0))) {
                     result = wrapFence(ast.fence || '(),', result);
                 }
-                result += '^{' + jsonToLatex(getArg(ast, 1), config) + '}';
+                result += '^{' + jsonToLatex(getArg$1(ast, 1), config) + '}';
             }
             else if (ast.fn === 'equal' && ast.arg && ast.arg.length > 2) {
                 result = ast.arg.map((x) => jsonToLatex(x, config)).join(' = ');
@@ -27363,8 +35428,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 }
                 else if (isArray(ast.arg) && ast.arg.length > 0) {
                     // The parenthesis may be optional...
-                    const arg0 = jsonToLatex(getArg(ast, 0), config);
-                    const arg1 = jsonToLatex(getArg(ast, 1), config);
+                    const arg0 = jsonToLatex(getArg$1(ast, 0), config);
+                    const arg1 = jsonToLatex(getArg$1(ast, 1), config);
                     const argsn = [...ast.arg];
                     if (/%0/.test(fn)) {
                         result = result.replace('%0', arg0);
@@ -27920,11 +35985,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 this.config.textToSpeechMarkup = saveTextToSpeechMarkup;
                 // this.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
             }
+            else if (format === 'mathjson') {
+                const json = parseLatex(root.toLatex(true), {
+                    form: 'canonical',
+                });
+                result = JSON.stringify(json);
+            }
             else if (format === 'json') {
                 const json = atomtoMathJson(root);
-                // const json = parseLatex(root.toLatex(true), {
-                //     form: 'canonical',
-                // });
                 result = JSON.stringify(json);
             }
             else if (format === 'json-2') {
@@ -28140,7 +36208,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
             deleteChar(this.model);
         }
         $applyStyle(style) {
-            applyStyle$3(this.model, style);
+            applyStyle$1(this.model, style);
         }
         $keystroke(keys, evt) {
             return onKeystroke(this, keys, evt);
@@ -29945,9 +38013,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
     metadata('Shapes', ['\\ast', '\\star'], COMMON);
     metadata('Shapes', ['\\diamond', '\\Diamond', '\\lozenge', '\\blacklozenge', '\\bigstar'], RARE);
 
-    // import { ErrorCode, Form, Expression, Dictionary } from './math-json/public';
-    // import { parseLatex, emitLatex } from './math-json/math-json';
-    // import { ParseLatexOptions, EmitLatexOptions } from './math-json/latex/public';
     function latexToMarkup$2(text, options) {
         var _a;
         options = options !== null && options !== void 0 ? options : {};
@@ -30007,27 +38072,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return jsonToLatex(typeof expr === 'string' ? JSON.parse(expr) : expr, options);
         // return emitLatex(expr, options);
     }
-    // function latexToAST(
-    //     latex: string,
-    //     options?: ParseLatexOptions & {
-    //         macros?: MacroDictionary;
-    //         onError?: ErrorListener<ErrorCode>;
-    //         form?: Form | Form[];
-    //     }
-    // ): Expression {
-    //     options = options ?? {};
-    //     options.macros = { ...MACROS, ...(options.macros ?? {}) };
-    //     return parseLatex(latex, options);
-    // }
-    // function astToLatex(
-    //     expr: Expression,
-    //     options: EmitLatexOptions & {
-    //         dictionary?: Dictionary;
-    //         onError?: ErrorListener<ErrorCode>;
-    //     }
-    // ): string {
-    //     return emitLatex(expr, options);
-    // }
+    function latexToMathjson(latex, options) {
+        var _a;
+        options = options !== null && options !== void 0 ? options : {};
+        options.macros = { ...MACROS, ...((_a = options.macros) !== null && _a !== void 0 ? _a : {}) };
+        return parseLatex(latex, options);
+    }
+    function mathjsonToLatex(expr, options) {
+        return emitLatex$1(expr, options);
+    }
     function latexToSpeakableText(latex, options) {
         var _a;
         options = options !== null && options !== void 0 ? options : {};
@@ -30097,7 +38150,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         return element.getAttribute('data-' + ((_a = options.namespace) !== null && _a !== void 0 ? _a : '') + 'original-content');
     }
     // This SDK_VERSION variable will be replaced during the build process.
-    const version = '0.55.0';
+    const version = '0.56.0';
     var mathlive = {
         version,
         latexToMarkup: latexToMarkup$2,
@@ -30132,6 +38185,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
         },
     };
 
-    return mathlive;
+    exports.default = mathlive;
+    exports.latexToMathjson = latexToMathjson;
+    exports.mathjsonToLatex = mathjsonToLatex;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
 
 })));

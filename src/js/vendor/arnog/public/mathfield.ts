@@ -17,6 +17,7 @@ import { ParseMode, MacroDictionary, Style } from './core';
 export type OutputFormat =
     | 'latex'
     | 'latex-expanded'
+    | 'mathjson' // Work progress next generation MathJson
     | 'json'
     | 'json-2'
     | 'spoken'
@@ -79,6 +80,8 @@ export type InsertOptions = {
 };
 
 export interface Mathfield {
+    mode: ParseMode;
+
     getConfig(keys: keyof MathfieldConfig): any;
     getConfig(keys: string[]): MathfieldConfig;
     getConfig(keys: keyof MathfieldConfig | string[]): any | MathfieldConfig;

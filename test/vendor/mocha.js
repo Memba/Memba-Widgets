@@ -1,7 +1,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
-	(global = global || self, global.mocha = factory());
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.mocha = factory());
 }(this, (function () { 'use strict';
 
 	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2944,6 +2944,39 @@
 	  }
 
 	  return _typeof(obj);
+	}
+
+	function _toConsumableArray(arr) {
+	  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+	}
+
+	function _arrayWithoutHoles(arr) {
+	  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+	}
+
+	function _iterableToArray(iter) {
+	  if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+	}
+
+	function _unsupportedIterableToArray(o, minLen) {
+	  if (!o) return;
+	  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+	  var n = Object.prototype.toString.call(o).slice(8, -1);
+	  if (n === "Object" && o.constructor) n = o.constructor.name;
+	  if (n === "Map" || n === "Set") return Array.from(o);
+	  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+	}
+
+	function _arrayLikeToArray(arr, len) {
+	  if (len == null || len > arr.length) len = arr.length;
+
+	  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+	  return arr2;
+	}
+
+	function _nonIterableSpread() {
+	  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 	}
 
 	var f$6 = wellKnownSymbol;
@@ -9973,14 +10006,14 @@
 	  }
 	});
 
-	var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
-
-	var escapeStringRegexp = function escapeStringRegexp(str) {
-	  if (typeof str !== 'string') {
+	var escapeStringRegexp = function escapeStringRegexp(string) {
+	  if (typeof string !== 'string') {
 	    throw new TypeError('Expected a string');
-	  }
+	  } // Escape characters with special meaning either inside or outside character sets.
+	  // Use a simple backslash escape when it’s always valid, and a \unnnn escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
 
-	  return str.replace(matchOperatorsRe, '\\$&');
+
+	  return string.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d');
 	};
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -17292,7 +17325,7 @@
 	   * Clamps a numeric value to an inclusive range.
 	   *
 	   * @param {number} value - Value to be clamped.
-	   * @param {numer[]} range - Two element array specifying [min, max] range.
+	   * @param {number[]} range - Two element array specifying [min, max] range.
 	   * @returns {number} clamped value
 	   */
 
@@ -17356,9 +17389,9 @@
 	   * doesn't support it. Recommended for use in Mocha's public APIs.
 	   *
 	   * @public
-	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map|MDN:Map}
+	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Custom_and_Null_objects|MDN:Map}
 	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create#Custom_and_Null_objects|MDN:Object.create - Custom objects}
-	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign|MDN:Object.assign}
+	   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Custom_and_Null_objects|MDN:Object.assign}
 	   * @param {...*} [obj] - Arguments to `Object.assign()`.
 	   * @returns {Object} An object with no prototype, having `...obj` properties
 	   */
@@ -17466,7 +17499,6 @@
 	 * implementations of `debug()`.
 	 */
 
-
 	function setup(env) {
 	  createDebug.debug = createDebug;
 	  createDebug["default"] = createDebug;
@@ -17527,13 +17559,13 @@
 	    var prevTime;
 
 	    function debug() {
+	      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
+	      }
+
 	      // Disabled?
 	      if (!debug.enabled) {
 	        return;
-	      }
-
-	      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
 	      }
 
 	      var self = debug; // Set `diff` timestamp
@@ -17607,7 +17639,9 @@
 	  }
 
 	  function extend(namespace, delimiter) {
-	    return createDebug(this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace);
+	    var newDebug = createDebug(this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace);
+	    newDebug.log = this.log;
+	    return newDebug;
 	  }
 	  /**
 	  * Enables a debug mode by namespaces. This can include modes
@@ -17649,12 +17683,17 @@
 	  /**
 	  * Disable debug output.
 	  *
+	  * @return {String} namespaces
 	  * @api public
 	  */
 
 
 	  function disable() {
+	    var namespaces = [].concat(_toConsumableArray(createDebug.names.map(toNamespace)), _toConsumableArray(createDebug.skips.map(toNamespace).map(function (namespace) {
+	      return '-' + namespace;
+	    }))).join(',');
 	    createDebug.enable('');
+	    return namespaces;
 	  }
 	  /**
 	  * Returns true if the given mode name is enabled, false otherwise.
@@ -17688,6 +17727,18 @@
 	    return false;
 	  }
 	  /**
+	  * Convert regexp to namespace
+	  *
+	  * @param {RegExp} regxep
+	  * @return {String} namespace
+	  * @api private
+	  */
+
+
+	  function toNamespace(regexp) {
+	    return regexp.toString().substring(2, regexp.toString().length - 2).replace(/\.\*\?$/, '*');
+	  }
+	  /**
 	  * Coerce `val`.
 	  *
 	  * @param {Mixed} val
@@ -17711,27 +17762,11 @@
 	var common = setup;
 
 	var browser$2 = createCommonjsModule(function (module, exports) {
-
-	  function _typeof$1(obj) {
-	    if (typeof Symbol === "function" && _typeof(Symbol.iterator) === "symbol") {
-	      _typeof$1 = function _typeof$1(obj) {
-	        return _typeof(obj);
-	      };
-	    } else {
-	      _typeof$1 = function _typeof$1(obj) {
-	        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof(obj);
-	      };
-	    }
-
-	    return _typeof$1(obj);
-	  }
 	  /* eslint-env browser */
 
 	  /**
 	   * This is the web browser implementation of `debug()`.
 	   */
-
-
 	  exports.log = log;
 	  exports.formatArgs = formatArgs;
 	  exports.save = save;
@@ -17818,11 +17853,11 @@
 
 
 	  function log() {
-	    var _console; // This hackery is required for IE8/9, where
+	    var _console;
+
+	    // This hackery is required for IE8/9, where
 	    // the `console.log` function doesn't have 'apply'
-
-
-	    return (typeof console === "undefined" ? "undefined" : _typeof$1(console)) === 'object' && console.log && (_console = console).log.apply(_console, arguments);
+	    return (typeof console === "undefined" ? "undefined" : _typeof(console)) === 'object' && console.log && (_console = console).log.apply(_console, arguments);
 	  }
 	  /**
 	   * Save `namespaces`.
@@ -17856,9 +17891,9 @@
 
 	    try {
 	      r = exports.storage.getItem('debug');
-	    } catch (error) {} // Swallow
-	    // XXX (@Qix-) should we be logging these?
-	    // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+	    } catch (error) {// Swallow
+	      // XXX (@Qix-) should we be logging these?
+	    } // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
 
 
 	    if (!r && typeof process$1 !== 'undefined' && 'env' in process$1) {
@@ -19750,7 +19785,7 @@
 	/**
 	 * Replacement for `target.removeListener(eventName, listener)` that also updates the bookkeeping.
 	 * @param {EventEmitter} target - The `EventEmitter`
-	 * @param {string} eventName - The event anme
+	 * @param {string} eventName - The event name
 	 * @param {function} listener - Listener function
 	 * @private
 	 */
@@ -23506,7 +23541,7 @@
 	});
 
 	var name = "mocha";
-	var version$2 = "8.1.1";
+	var version$2 = "8.1.2";
 	var homepage = "https://mochajs.org/";
 	var notifyLogo = "https://ibin.co/4QuRuGjXvl36.png";
 	var _package = {
@@ -25006,7 +25041,7 @@
 
 
 	  Mocha.unloadFile = function (file) {
-	    delete commonjsRequire.cache[commonjsRequire.resolve(file)];
+	    delete require.cache[require.resolve(file)];
 	  };
 	  /**
 	   * Unloads `files` from Node's `require` cache.
@@ -25377,7 +25412,7 @@
 	   *
 	   * @public
 	   * @see [CLI option](../#-async-only-a)
-	   * @param {boolean} [asyncOnly=true] - Wether to force `done` callback or promise.
+	   * @param {boolean} [asyncOnly=true] - Whether to force `done` callback or promise.
 	   * @return {Mocha} this
 	   * @chainable
 	   */
@@ -25420,7 +25455,7 @@
 	   * Delays root suite execution.
 	   *
 	   * @description
-	   * Used to perform asynch operations before any suites are run.
+	   * Used to perform async operations before any suites are run.
 	   *
 	   * @public
 	   * @see [delayed root suite](../#delayed-root-suite)
@@ -25909,8 +25944,8 @@
 	 * Expose mocha.
 	 */
 
-	mocha$1.Mocha = mocha;
-	mocha$1.mocha = mocha$1; // this allows test/acceptance/required-tokens.js to pass; thus,
+	commonjsGlobal.Mocha = mocha;
+	commonjsGlobal.mocha = mocha$1; // this allows test/acceptance/required-tokens.js to pass; thus,
 	// you can now do `const describe = require('mocha').describe` in a
 	// browser context (assuming browserification).  should fix #880
 

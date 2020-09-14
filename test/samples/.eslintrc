@@ -8,8 +8,9 @@
         "airbnb-base",
         "prettier"
     ],
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "plugins": [
+        "@babel",
         "prettier"
     ],
     "root": true,

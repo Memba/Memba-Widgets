@@ -23,6 +23,7 @@
         }]
     },
     "settings": {
+        "import/ignore": ["\\.(scss|less|css)$"],
         "import/resolver": {
             "babel-module": {}
         }

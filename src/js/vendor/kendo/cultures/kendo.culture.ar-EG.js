@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,13 +35,13 @@
         name: "ar-EG",
         numberFormat: {
             pattern: ["-n"],
-            decimals: 3,
+            decimals: 2,
             ",": ",",
             ".": ".",
             groupSize: [3],
             percent: {
                 pattern: ["-n%","n%"],
-                decimals: 3,
+                decimals: 2,
                 ",": ",",
                 ".": ".",
                 groupSize: [3],
@@ -66,8 +66,8 @@
                     namesShort: ["ح","ن","ث","ر","خ","ج","س"]
                 },
                 months: {
-                    names: ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليه","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],
-                    namesAbbr: ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليه","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"]
+                    names: ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],
+                    namesAbbr: ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"]
                 },
                 AM: ["ص","ص","ص"],
                 PM: ["م","م","م"],

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -144,6 +144,7 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
 if (kendo.ui.RecurrenceEditor) {
 kendo.ui.RecurrenceEditor.prototype.options.messages =
 $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
+  "repeat": "Ripeti",
   "daily": {
     "interval": "giorno(i)",
     "repeatEvery": "Ripeti ogni: "

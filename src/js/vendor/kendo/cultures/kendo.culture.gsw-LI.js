@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -69,8 +69,8 @@
                     names: ["Januar","Februar","März","April","Mai","Juni","Juli","Auguscht","Septämber","Oktoober","Novämber","Dezämber"],
                     namesAbbr: ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"]
                 },
-                AM: ["v.m.","v.m.","V.M."],
-                PM: ["n.m.","n.m.","N.M."],
+                AM: ["vorm.","vorm.","VORM."],
+                PM: ["nam.","nam.","NAM."],
                 patterns: {
                     d: "dd.MM.yyyy",
                     D: "dddd, d. MMMM yyyy",

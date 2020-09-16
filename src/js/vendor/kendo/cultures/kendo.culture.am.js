@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,8 +73,8 @@
                 PM: ["ከሰዓት","ከሰዓት","ከሰዓት"],
                 patterns: {
                     d: "dd/MM/yyyy",
-                    D: "dddd ፣d MMMM yyyy",
-                    F: "dddd ፣d MMMM yyyy h:mm:ss tt",
+                    D: "yyyy MMMM d, dddd",
+                    F: "yyyy MMMM d, dddd h:mm:ss tt",
                     g: "dd/MM/yyyy h:mm tt",
                     G: "dd/MM/yyyy h:mm:ss tt",
                     m: "MMMM d",

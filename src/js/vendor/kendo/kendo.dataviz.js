@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.2.617'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.3.915'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -8037,6 +8037,7 @@
                 that._pageSize = options.pageSize;
                 that._page = options.page || (options.pageSize ? 1 : undefined);
                 that._sort = normalizeSort(options.sort);
+                that._sortFields = sortFields(options.sort);
                 that._filter = normalizeFilter(options.filter);
                 that._group = normalizeGroup(options.group);
                 that._aggregate = options.aggregate;
@@ -8130,7 +8131,7 @@
                 return this._isServerGrouped() && this._groupPaging;
             },
             _isGroupPaged: function () {
-                var group = this.group() || [];
+                var group = this._group || [];
                 return this._groupPaging && group.length;
             },
             _pushCreate: function (result) {
@@ -9134,8 +9135,8 @@
                         that._ranges = [];
                         var query = new Query(result.data);
                         that._addRange(that._observe(result.data));
-                        if (options.skip > result.data.length / options.take + 1) {
-                            options.skip = 0;
+                        if (options.skip + options.take > result.data.length) {
+                            options.skip = result.data.length - options.take;
                         }
                         that.view(query.range(options.skip, options.take).toArray());
                     }
@@ -9428,7 +9429,11 @@
                         type: 'read'
                     });
                     that._fetchingGroupItems = false;
-                    group.subgroupCount = data[totalField];
+                    if (isFunction(totalField)) {
+                        group.subgroupCount = totalField(data);
+                    } else {
+                        group.subgroupCount = data[totalField];
+                    }
                     that.range(skip, take, callback, 'expandGroup');
                 };
             },
@@ -9656,8 +9661,12 @@
             },
             group: function (val) {
                 var that = this;
+                var options = { group: val };
+                if (that._groupPaging) {
+                    options.page = 1;
+                }
                 if (val !== undefined) {
-                    that._query({ group: val });
+                    that._query(options);
                     return;
                 }
                 return that._group;
@@ -11000,6 +11009,7 @@
             DataSource: DataSource,
             HierarchicalDataSource: HierarchicalDataSource,
             Node: Node,
+            Comparer: Comparer,
             ObservableObject: ObservableObject,
             ObservableArray: ObservableArray,
             LazyObservableArray: LazyObservableArray,
@@ -16525,6 +16535,7 @@
         }
         return ret;
     }
+    var DARK_TRESHOLD = 180;
     var Color = Class.extend({
         init: function (value) {
             var this$1 = this;
@@ -16586,6 +16597,9 @@
         },
         percBrightness: function () {
             return Math.sqrt(0.241 * this.r * this.r + 0.691 * this.g * this.g + 0.068 * this.b * this.b);
+        },
+        isDark: function () {
+            return this.percBrightness() < DARK_TRESHOLD;
         }
     });
     Color.fromBytes = function (r, g, b, a) {
@@ -16635,6 +16649,7 @@
     Color.namedColors = namedColors;
     kendo.deepExtend(kendo, {
         parseColor: parseColor,
+        namedColors: namedColors,
         Color: Color
     });
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -16965,7 +16980,6 @@
         function deg(radians) {
             return radians / DEG_TO_RAD;
         }
-        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         var fromCharCode = String.fromCharCode;
         function encodeUTF8(input) {
             var output = '';
@@ -16984,6 +16998,7 @@
             }
             return output;
         }
+        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         function encodeBase64(input) {
             var output = '';
             var i = 0;
@@ -17147,109 +17162,18 @@
                 }
             }
         }
-        var util = {
-            append: append,
-            arabicToRoman: arabicToRoman,
-            createPromise: createPromise,
-            defined: defined,
-            definitionId: definitionId,
-            deg: deg,
-            encodeBase64: encodeBase64,
-            eventCoordinates: eventCoordinates,
-            eventElement: eventElement,
-            isTransparent: isTransparent,
-            last: last,
-            limitValue: limitValue,
-            mergeSort: mergeSort,
-            promiseAll: promiseAll,
-            rad: rad,
-            round: round,
-            valueOrDefault: valueOrDefault,
-            bindEvents: bindEvents,
-            elementOffset: elementOffset,
-            elementSize: elementSize,
-            elementStyles: elementStyles,
-            unbindEvents: unbindEvents,
-            DEG_TO_RAD: DEG_TO_RAD,
-            MAX_NUM: MAX_NUM,
-            MIN_NUM: MIN_NUM
-        };
-        var toString = {}.toString;
-        var OptionsStore = Class.extend({
-            init: function (options, prefix) {
-                var this$1 = this;
-                if (prefix === void 0) {
-                    prefix = '';
-                }
-                this.prefix = prefix;
-                for (var field in options) {
-                    var member = options[field];
-                    member = this$1._wrap(member, field);
-                    this$1[field] = member;
-                }
-            },
-            get: function (field) {
-                var parts = field.split('.');
-                var result = this;
-                while (parts.length && result) {
-                    var part = parts.shift();
-                    result = result[part];
-                }
-                return result;
-            },
-            set: function (field, value) {
-                var current = this.get(field);
-                if (current !== value) {
-                    this._set(field, this._wrap(value, field));
-                    this.optionsChange({
-                        field: this.prefix + field,
-                        value: value
-                    });
-                }
-            },
-            _set: function (field, value) {
-                var this$1 = this;
-                var composite = field.indexOf('.') >= 0;
-                var parentObj = this;
-                var fieldName = field;
-                if (composite) {
-                    var parts = fieldName.split('.');
-                    var prefix = this.prefix;
-                    while (parts.length > 1) {
-                        fieldName = parts.shift();
-                        prefix += fieldName + '.';
-                        var obj = parentObj[fieldName];
-                        if (!obj) {
-                            obj = new OptionsStore({}, prefix);
-                            obj.addObserver(this$1);
-                            parentObj[fieldName] = obj;
-                        }
-                        parentObj = obj;
-                    }
-                    fieldName = parts[0];
-                }
-                parentObj._clear(fieldName);
-                parentObj[fieldName] = value;
-            },
-            _clear: function (field) {
-                var current = this[field];
-                if (current && current.removeObserver) {
-                    current.removeObserver(this);
-                }
-            },
-            _wrap: function (object, field) {
-                var type = toString.call(object);
-                var wrapped = object;
-                if (wrapped !== null && defined(wrapped) && type === '[object Object]') {
-                    if (!(object instanceof OptionsStore) && !(object instanceof Class)) {
-                        wrapped = new OptionsStore(wrapped, this.prefix + field + '.');
-                    }
-                    wrapped.addObserver(this);
-                }
-                return wrapped;
-            }
-        });
-        ObserversMixin.extend(OptionsStore.prototype);
+        function elementPadding(element) {
+            var ref = elementStyles(element, [
+                'paddingLeft',
+                'paddingTop'
+            ]);
+            var paddingLeft = ref.paddingLeft;
+            var paddingTop = ref.paddingTop;
+            return {
+                top: parseFloat(paddingTop),
+                left: parseFloat(paddingLeft)
+            };
+        }
         function setAccessor(field) {
             return function (value) {
                 if (this[field] !== value) {
@@ -17685,6 +17609,110 @@
             }
         };
         ObserversMixin.extend(Rect.prototype);
+        function ellipseExtremeAngles(center, rx, ry, matrix) {
+            var extremeX = 0;
+            var extremeY = 0;
+            if (matrix) {
+                extremeX = Math.atan2(matrix.c * ry, matrix.a * rx);
+                if (matrix.b !== 0) {
+                    extremeY = Math.atan2(matrix.d * ry, matrix.b * rx);
+                }
+            }
+            return {
+                x: extremeX,
+                y: extremeY
+            };
+        }
+        var PI_DIV_2 = Math.PI / 2;
+        var Circle = Class.extend({
+            init: function (center, radius) {
+                if (center === void 0) {
+                    center = new Point();
+                }
+                if (radius === void 0) {
+                    radius = 0;
+                }
+                this.setCenter(center);
+                this.setRadius(radius);
+            },
+            setCenter: function (value) {
+                this._observerField('center', Point.create(value));
+                this.geometryChange();
+                return this;
+            },
+            getCenter: function () {
+                return this.center;
+            },
+            equals: function (other) {
+                return other && other.center.equals(this.center) && other.radius === this.radius;
+            },
+            clone: function () {
+                return new Circle(this.center.clone(), this.radius);
+            },
+            pointAt: function (angle) {
+                return this._pointAt(rad(angle));
+            },
+            bbox: function (matrix) {
+                var this$1 = this;
+                var extremeAngles = ellipseExtremeAngles(this.center, this.radius, this.radius, matrix);
+                var minPoint = Point.maxPoint();
+                var maxPoint = Point.minPoint();
+                for (var i = 0; i < 4; i++) {
+                    var currentPointX = this$1._pointAt(extremeAngles.x + i * PI_DIV_2).transformCopy(matrix);
+                    var currentPointY = this$1._pointAt(extremeAngles.y + i * PI_DIV_2).transformCopy(matrix);
+                    var currentPoint = new Point(currentPointX.x, currentPointY.y);
+                    minPoint = Point.min(minPoint, currentPoint);
+                    maxPoint = Point.max(maxPoint, currentPoint);
+                }
+                return Rect.fromPoints(minPoint, maxPoint);
+            },
+            _pointAt: function (angle) {
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                return new Point(center.x + radius * Math.cos(angle), center.y + radius * Math.sin(angle));
+            },
+            containsPoint: function (point) {
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                var inCircle = Math.pow(point.x - center.x, 2) + Math.pow(point.y - center.y, 2) <= Math.pow(radius, 2);
+                return inCircle;
+            },
+            _isOnPath: function (point, width) {
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                var pointDistance = center.distanceTo(point);
+                return radius - width <= pointDistance && pointDistance <= radius + width;
+            }
+        });
+        defineAccessors(Circle.prototype, ['radius']);
+        ObserversMixin.extend(Circle.prototype);
+        var PRECISION = 10;
+        function close(a, b, tolerance) {
+            if (tolerance === void 0) {
+                tolerance = PRECISION;
+            }
+            return round(Math.abs(a - b), tolerance) === 0;
+        }
+        function closeOrLess(a, b, tolerance) {
+            return a < b || close(a, b, tolerance);
+        }
+        function lineIntersection(p0, p1, p2, p3) {
+            var s1x = p1.x - p0.x;
+            var s2x = p3.x - p2.x;
+            var s1y = p1.y - p0.y;
+            var s2y = p3.y - p2.y;
+            var nx = p0.x - p2.x;
+            var ny = p0.y - p2.y;
+            var d = s1x * s2y - s2x * s1y;
+            var s = (s1x * ny - s1y * nx) / d;
+            var t = (s2x * ny - s2y * nx) / d;
+            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+                return new Point(p0.x + t * s1x, p0.y + t * s1y);
+            }
+        }
         var Transformation = Class.extend({
             init: function (matrix) {
                 if (matrix === void 0) {
@@ -17759,339 +17787,9 @@
             }
             return new Transformation(matrix);
         }
-        var Element$1 = Class.extend({
-            init: function (options) {
-                this._initOptions(options);
-            },
-            _initOptions: function (options) {
-                if (options === void 0) {
-                    options = {};
-                }
-                var clip = options.clip;
-                var transform$$1 = options.transform;
-                if (transform$$1) {
-                    options.transform = transform(transform$$1);
-                }
-                if (clip && !clip.id) {
-                    clip.id = definitionId();
-                }
-                this.options = new OptionsStore(options);
-                this.options.addObserver(this);
-            },
-            transform: function (value) {
-                if (defined(value)) {
-                    this.options.set('transform', transform(value));
-                } else {
-                    return this.options.get('transform');
-                }
-            },
-            parentTransform: function () {
-                var element = this;
-                var parentMatrix;
-                while (element.parent) {
-                    element = element.parent;
-                    var transformation = element.transform();
-                    if (transformation) {
-                        parentMatrix = transformation.matrix().multiplyCopy(parentMatrix || Matrix.unit());
-                    }
-                }
-                if (parentMatrix) {
-                    return transform(parentMatrix);
-                }
-            },
-            currentTransform: function (parentTransform) {
-                if (parentTransform === void 0) {
-                    parentTransform = this.parentTransform();
-                }
-                var elementTransform = this.transform();
-                var elementMatrix = toMatrix(elementTransform);
-                var parentMatrix = toMatrix(parentTransform);
-                var combinedMatrix;
-                if (elementMatrix && parentMatrix) {
-                    combinedMatrix = parentMatrix.multiplyCopy(elementMatrix);
-                } else {
-                    combinedMatrix = elementMatrix || parentMatrix;
-                }
-                if (combinedMatrix) {
-                    return transform(combinedMatrix);
-                }
-            },
-            visible: function (value) {
-                if (defined(value)) {
-                    this.options.set('visible', value);
-                    return this;
-                }
-                return this.options.get('visible') !== false;
-            },
-            clip: function (value) {
-                var options = this.options;
-                if (defined(value)) {
-                    if (value && !value.id) {
-                        value.id = definitionId();
-                    }
-                    options.set('clip', value);
-                    return this;
-                }
-                return options.get('clip');
-            },
-            opacity: function (value) {
-                if (defined(value)) {
-                    this.options.set('opacity', value);
-                    return this;
-                }
-                return valueOrDefault(this.options.get('opacity'), 1);
-            },
-            clippedBBox: function (transformation) {
-                var bbox = this._clippedBBox(transformation);
-                if (bbox) {
-                    var clip = this.clip();
-                    return clip ? Rect.intersect(bbox, clip.bbox(transformation)) : bbox;
-                }
-            },
-            containsPoint: function (point, parentTransform) {
-                if (this.visible()) {
-                    var transform$$1 = this.currentTransform(parentTransform);
-                    var transformedPoint = point;
-                    if (transform$$1) {
-                        transformedPoint = point.transformCopy(transform$$1.matrix().invert());
-                    }
-                    return this._hasFill() && this._containsPoint(transformedPoint) || this._isOnPath && this._hasStroke() && this._isOnPath(transformedPoint);
-                }
-                return false;
-            },
-            _hasFill: function () {
-                var fill = this.options.fill;
-                return fill && !isTransparent(fill.color);
-            },
-            _hasStroke: function () {
-                var stroke = this.options.stroke;
-                return stroke && stroke.width > 0 && !isTransparent(stroke.color);
-            },
-            _clippedBBox: function (transformation) {
-                return this.bbox(transformation);
-            }
-        });
-        Element$1.prototype.nodeType = 'Element';
-        ObserversMixin.extend(Element$1.prototype);
-        function ellipseExtremeAngles(center, rx, ry, matrix) {
-            var extremeX = 0;
-            var extremeY = 0;
-            if (matrix) {
-                extremeX = Math.atan2(matrix.c * ry, matrix.a * rx);
-                if (matrix.b !== 0) {
-                    extremeY = Math.atan2(matrix.d * ry, matrix.b * rx);
-                }
-            }
-            return {
-                x: extremeX,
-                y: extremeY
-            };
-        }
-        var PI_DIV_2 = Math.PI / 2;
-        var Circle$2 = Class.extend({
-            init: function (center, radius) {
-                if (center === void 0) {
-                    center = new Point();
-                }
-                if (radius === void 0) {
-                    radius = 0;
-                }
-                this.setCenter(center);
-                this.setRadius(radius);
-            },
-            setCenter: function (value) {
-                this._observerField('center', Point.create(value));
-                this.geometryChange();
-                return this;
-            },
-            getCenter: function () {
-                return this.center;
-            },
-            equals: function (other) {
-                return other && other.center.equals(this.center) && other.radius === this.radius;
-            },
-            clone: function () {
-                return new Circle$2(this.center.clone(), this.radius);
-            },
-            pointAt: function (angle) {
-                return this._pointAt(rad(angle));
-            },
-            bbox: function (matrix) {
-                var this$1 = this;
-                var extremeAngles = ellipseExtremeAngles(this.center, this.radius, this.radius, matrix);
-                var minPoint = Point.maxPoint();
-                var maxPoint = Point.minPoint();
-                for (var i = 0; i < 4; i++) {
-                    var currentPointX = this$1._pointAt(extremeAngles.x + i * PI_DIV_2).transformCopy(matrix);
-                    var currentPointY = this$1._pointAt(extremeAngles.y + i * PI_DIV_2).transformCopy(matrix);
-                    var currentPoint = new Point(currentPointX.x, currentPointY.y);
-                    minPoint = Point.min(minPoint, currentPoint);
-                    maxPoint = Point.max(maxPoint, currentPoint);
-                }
-                return Rect.fromPoints(minPoint, maxPoint);
-            },
-            _pointAt: function (angle) {
-                var ref = this;
-                var center = ref.center;
-                var radius = ref.radius;
-                return new Point(center.x + radius * Math.cos(angle), center.y + radius * Math.sin(angle));
-            },
-            containsPoint: function (point) {
-                var ref = this;
-                var center = ref.center;
-                var radius = ref.radius;
-                var inCircle = Math.pow(point.x - center.x, 2) + Math.pow(point.y - center.y, 2) <= Math.pow(radius, 2);
-                return inCircle;
-            },
-            _isOnPath: function (point, width) {
-                var ref = this;
-                var center = ref.center;
-                var radius = ref.radius;
-                var pointDistance = center.distanceTo(point);
-                return radius - width <= pointDistance && pointDistance <= radius + width;
-            }
-        });
-        defineAccessors(Circle$2.prototype, ['radius']);
-        ObserversMixin.extend(Circle$2.prototype);
-        var GRADIENT = 'Gradient';
-        var Paintable = {
-            extend: function (proto) {
-                proto.fill = this.fill;
-                proto.stroke = this.stroke;
-            },
-            fill: function (color, opacity) {
-                var options = this.options;
-                if (defined(color)) {
-                    if (color && color.nodeType !== GRADIENT) {
-                        var newFill = { color: color };
-                        if (defined(opacity)) {
-                            newFill.opacity = opacity;
-                        }
-                        options.set('fill', newFill);
-                    } else {
-                        options.set('fill', color);
-                    }
-                    return this;
-                }
-                return options.get('fill');
-            },
-            stroke: function (color, width, opacity) {
-                if (defined(color)) {
-                    this.options.set('stroke.color', color);
-                    if (defined(width)) {
-                        this.options.set('stroke.width', width);
-                    }
-                    if (defined(opacity)) {
-                        this.options.set('stroke.opacity', opacity);
-                    }
-                    return this;
-                }
-                return this.options.get('stroke');
-            }
-        };
-        var IDENTITY_MATRIX_HASH = Matrix.IDENTITY.toString();
-        var Measurable = {
-            extend: function (proto) {
-                proto.bbox = this.bbox;
-                proto.geometryChange = this.geometryChange;
-            },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
-                var bbox;
-                if (this._bboxCache && this._matrixHash === matrixHash) {
-                    bbox = this._bboxCache.clone();
-                } else {
-                    bbox = this._bbox(combinedMatrix);
-                    this._bboxCache = bbox ? bbox.clone() : null;
-                    this._matrixHash = matrixHash;
-                }
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth && bbox) {
-                    bbox.expand(strokeWidth / 2);
-                }
-                return bbox;
-            },
-            geometryChange: function () {
-                delete this._bboxCache;
-                this.trigger('geometryChange', { element: this });
-            }
-        };
-        function geometryAccessor(name) {
-            var fieldName = '_' + name;
-            return function (value) {
-                if (defined(value)) {
-                    this._observerField(fieldName, value);
-                    this.geometryChange();
-                    return this;
-                }
-                return this[fieldName];
-            };
-        }
-        function defineGeometryAccessors(fn, names) {
-            for (var i = 0; i < names.length; i++) {
-                fn[names[i]] = geometryAccessor(names[i]);
-            }
-        }
-        var DEFAULT_STROKE = '#000';
-        var Circle = Element$1.extend({
-            init: function (geometry, options) {
-                if (geometry === void 0) {
-                    geometry = new Circle$2();
-                }
-                if (options === void 0) {
-                    options = {};
-                }
-                Element$1.fn.init.call(this, options);
-                this.geometry(geometry);
-                if (!defined(this.options.stroke)) {
-                    this.stroke(DEFAULT_STROKE);
-                }
-            },
-            rawBBox: function () {
-                return this._geometry.bbox();
-            },
-            _bbox: function (matrix) {
-                return this._geometry.bbox(matrix);
-            },
-            _containsPoint: function (point) {
-                return this.geometry().containsPoint(point);
-            },
-            _isOnPath: function (point) {
-                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
-            }
-        });
-        Circle.prototype.nodeType = 'Circle';
-        Paintable.extend(Circle.prototype);
-        Measurable.extend(Circle.prototype);
-        defineGeometryAccessors(Circle.prototype, ['geometry']);
-        var PRECISION = 10;
-        function close(a, b, tolerance) {
-            if (tolerance === void 0) {
-                tolerance = PRECISION;
-            }
-            return round(Math.abs(a - b), tolerance) === 0;
-        }
-        function closeOrLess(a, b, tolerance) {
-            return a < b || close(a, b, tolerance);
-        }
-        function lineIntersection(p0, p1, p2, p3) {
-            var s1x = p1.x - p0.x;
-            var s2x = p3.x - p2.x;
-            var s1y = p1.y - p0.y;
-            var s2y = p3.y - p2.y;
-            var nx = p0.x - p2.x;
-            var ny = p0.y - p2.y;
-            var d = s1x * s2y - s2x * s1y;
-            var s = (s1x * ny - s1y * nx) / d;
-            var t = (s2x * ny - s2y * nx) / d;
-            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                return new Point(p0.x + t * s1x, p0.y + t * s1y);
-            }
-        }
         var MAX_INTERVAL = 45;
         var pow$1 = Math.pow;
-        var Arc$2 = Class.extend({
+        var Arc = Class.extend({
             init: function (center, options) {
                 if (center === void 0) {
                     center = new Point();
@@ -18108,7 +17806,7 @@
                 this.xRotation = options.xRotation;
             },
             clone: function () {
-                return new Arc$2(this.center, {
+                return new Arc(this.center, {
                     radiusX: this.radiusX,
                     radiusY: this.radiusY,
                     startAngle: this.startAngle,
@@ -18262,7 +17960,7 @@
                 return inAngleRange && this.pointAt(angle).distanceTo(point) <= width;
             }
         });
-        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe, rotation) {
+        Arc.fromPoints = function (start, end, rx, ry, largeArc, swipe, rotation) {
             var arcParameters = normalizeArcParameters({
                 x1: start.x,
                 y1: start.y,
@@ -18274,7 +17972,7 @@
                 swipe: swipe,
                 rotation: rotation
             });
-            return new Arc$2(arcParameters.center, {
+            return new Arc(arcParameters.center, {
                 startAngle: arcParameters.startAngle,
                 endAngle: arcParameters.endAngle,
                 radiusX: arcParameters.radiusX,
@@ -18283,14 +17981,14 @@
                 anticlockwise: swipe === 0
             });
         };
-        defineAccessors(Arc$2.prototype, [
+        defineAccessors(Arc.prototype, [
             'radiusX',
             'radiusY',
             'startAngle',
             'endAngle',
             'anticlockwise'
         ]);
-        ObserversMixin.extend(Arc$2.prototype);
+        ObserversMixin.extend(Arc.prototype);
         function calculateAngle(cx, cy, rx, ry, x, y) {
             var cos = round((x - cx) / rx, 3);
             var sin = round((y - cy) / ry, 3);
@@ -18367,113 +18065,6 @@
             }
             return startAngle;
         }
-        var push = [].push;
-        var pop = [].pop;
-        var splice = [].splice;
-        var shift = [].shift;
-        var slice = [].slice;
-        var unshift = [].unshift;
-        var ElementsArray = Class.extend({
-            init: function (array) {
-                if (array === void 0) {
-                    array = [];
-                }
-                this.length = 0;
-                this._splice(0, array.length, array);
-            },
-            elements: function (value) {
-                if (value) {
-                    this._splice(0, this.length, value);
-                    this._change();
-                    return this;
-                }
-                return this.slice(0);
-            },
-            push: function () {
-                var elements = arguments;
-                var result = push.apply(this, elements);
-                this._add(elements);
-                return result;
-            },
-            slice: function () {
-                return slice.call(this);
-            },
-            pop: function () {
-                var length = this.length;
-                var result = pop.apply(this);
-                if (length) {
-                    this._remove([result]);
-                }
-                return result;
-            },
-            splice: function (index, howMany) {
-                var elements = slice.call(arguments, 2);
-                var result = this._splice(index, howMany, elements);
-                this._change();
-                return result;
-            },
-            shift: function () {
-                var length = this.length;
-                var result = shift.apply(this);
-                if (length) {
-                    this._remove([result]);
-                }
-                return result;
-            },
-            unshift: function () {
-                var elements = arguments;
-                var result = unshift.apply(this, elements);
-                this._add(elements);
-                return result;
-            },
-            indexOf: function (element) {
-                var this$1 = this;
-                var length = this.length;
-                for (var idx = 0; idx < length; idx++) {
-                    if (this$1[idx] === element) {
-                        return idx;
-                    }
-                }
-                return -1;
-            },
-            _splice: function (index, howMany, elements) {
-                var result = splice.apply(this, [
-                    index,
-                    howMany
-                ].concat(elements));
-                this._clearObserver(result);
-                this._setObserver(elements);
-                return result;
-            },
-            _add: function (elements) {
-                this._setObserver(elements);
-                this._change();
-            },
-            _remove: function (elements) {
-                this._clearObserver(elements);
-                this._change();
-            },
-            _setObserver: function (elements) {
-                var this$1 = this;
-                for (var idx = 0; idx < elements.length; idx++) {
-                    elements[idx].addObserver(this$1);
-                }
-            },
-            _clearObserver: function (elements) {
-                var this$1 = this;
-                for (var idx = 0; idx < elements.length; idx++) {
-                    elements[idx].removeObserver(this$1);
-                }
-            },
-            _change: function () {
-            }
-        });
-        ObserversMixin.extend(ElementsArray.prototype);
-        var GeometryElementsArray = ElementsArray.extend({
-            _change: function () {
-                this.geometryChange();
-            }
-        });
         function pointAccessor(name) {
             var fieldName = '_' + name;
             return function (value) {
@@ -18800,6 +18391,488 @@
                 max: max
             };
         }
+        var geometry = {
+            Circle: Circle,
+            Arc: Arc,
+            Rect: Rect,
+            Point: Point,
+            Segment: Segment,
+            Matrix: Matrix,
+            Size: Size,
+            toMatrix: toMatrix,
+            Transformation: Transformation,
+            transform: transform
+        };
+        var matrixRegexp = /matrix\((.*)\)/;
+        function parseMatrix(matrixString) {
+            var match = matrixString.match(matrixRegexp);
+            if (match === null || match.length !== 2) {
+                return Matrix.unit();
+            }
+            var members = match[1].split(',').map(function (x) {
+                return parseFloat(x);
+            });
+            return new (Function.prototype.bind.apply(Matrix, [null].concat(members)))();
+        }
+        function transformMatrix(element) {
+            var transform$$1 = getComputedStyle(element).transform;
+            if (transform$$1 === 'none') {
+                return Matrix.unit();
+            }
+            return parseMatrix(transform$$1);
+        }
+        function elementScale(element) {
+            if (!element) {
+                return Matrix.unit();
+            }
+            var matrix = transformMatrix(element);
+            var parent = element.parentElement;
+            while (parent) {
+                var parentMatrix = transformMatrix(parent);
+                matrix = matrix.multiplyCopy(parentMatrix);
+                parent = parent.parentElement;
+            }
+            matrix.b = matrix.c = matrix.e = matrix.f = 0;
+            return matrix;
+        }
+        var util = {
+            append: append,
+            arabicToRoman: arabicToRoman,
+            createPromise: createPromise,
+            defined: defined,
+            definitionId: definitionId,
+            deg: deg,
+            encodeBase64: encodeBase64,
+            eventCoordinates: eventCoordinates,
+            eventElement: eventElement,
+            isTransparent: isTransparent,
+            last: last,
+            limitValue: limitValue,
+            mergeSort: mergeSort,
+            promiseAll: promiseAll,
+            rad: rad,
+            round: round,
+            valueOrDefault: valueOrDefault,
+            bindEvents: bindEvents,
+            elementOffset: elementOffset,
+            elementSize: elementSize,
+            elementStyles: elementStyles,
+            unbindEvents: unbindEvents,
+            elementPadding: elementPadding,
+            elementScale: elementScale,
+            DEG_TO_RAD: DEG_TO_RAD,
+            MAX_NUM: MAX_NUM,
+            MIN_NUM: MIN_NUM
+        };
+        var toString = {}.toString;
+        var OptionsStore = Class.extend({
+            init: function (options, prefix) {
+                var this$1 = this;
+                if (prefix === void 0) {
+                    prefix = '';
+                }
+                this.prefix = prefix;
+                for (var field in options) {
+                    var member = options[field];
+                    member = this$1._wrap(member, field);
+                    this$1[field] = member;
+                }
+            },
+            get: function (field) {
+                var parts = field.split('.');
+                var result = this;
+                while (parts.length && result) {
+                    var part = parts.shift();
+                    result = result[part];
+                }
+                return result;
+            },
+            set: function (field, value) {
+                var current = this.get(field);
+                if (current !== value) {
+                    this._set(field, this._wrap(value, field));
+                    this.optionsChange({
+                        field: this.prefix + field,
+                        value: value
+                    });
+                }
+            },
+            _set: function (field, value) {
+                var this$1 = this;
+                var composite = field.indexOf('.') >= 0;
+                var parentObj = this;
+                var fieldName = field;
+                if (composite) {
+                    var parts = fieldName.split('.');
+                    var prefix = this.prefix;
+                    while (parts.length > 1) {
+                        fieldName = parts.shift();
+                        prefix += fieldName + '.';
+                        var obj = parentObj[fieldName];
+                        if (!obj) {
+                            obj = new OptionsStore({}, prefix);
+                            obj.addObserver(this$1);
+                            parentObj[fieldName] = obj;
+                        }
+                        parentObj = obj;
+                    }
+                    fieldName = parts[0];
+                }
+                parentObj._clear(fieldName);
+                parentObj[fieldName] = value;
+            },
+            _clear: function (field) {
+                var current = this[field];
+                if (current && current.removeObserver) {
+                    current.removeObserver(this);
+                }
+            },
+            _wrap: function (object, field) {
+                var type = toString.call(object);
+                var wrapped = object;
+                if (wrapped !== null && defined(wrapped) && type === '[object Object]') {
+                    if (!(object instanceof OptionsStore) && !(object instanceof Class)) {
+                        wrapped = new OptionsStore(wrapped, this.prefix + field + '.');
+                    }
+                    wrapped.addObserver(this);
+                }
+                return wrapped;
+            }
+        });
+        ObserversMixin.extend(OptionsStore.prototype);
+        var Element$1 = Class.extend({
+            init: function (options) {
+                this._initOptions(options);
+            },
+            _initOptions: function (options) {
+                if (options === void 0) {
+                    options = {};
+                }
+                var clip = options.clip;
+                var transform$$1 = options.transform;
+                if (transform$$1) {
+                    options.transform = transform(transform$$1);
+                }
+                if (clip && !clip.id) {
+                    clip.id = definitionId();
+                }
+                this.options = new OptionsStore(options);
+                this.options.addObserver(this);
+            },
+            transform: function (value) {
+                if (defined(value)) {
+                    this.options.set('transform', transform(value));
+                } else {
+                    return this.options.get('transform');
+                }
+            },
+            parentTransform: function () {
+                var element = this;
+                var parentMatrix;
+                while (element.parent) {
+                    element = element.parent;
+                    var transformation = element.transform();
+                    if (transformation) {
+                        parentMatrix = transformation.matrix().multiplyCopy(parentMatrix || Matrix.unit());
+                    }
+                }
+                if (parentMatrix) {
+                    return transform(parentMatrix);
+                }
+            },
+            currentTransform: function (parentTransform) {
+                if (parentTransform === void 0) {
+                    parentTransform = this.parentTransform();
+                }
+                var elementTransform = this.transform();
+                var elementMatrix = toMatrix(elementTransform);
+                var parentMatrix = toMatrix(parentTransform);
+                var combinedMatrix;
+                if (elementMatrix && parentMatrix) {
+                    combinedMatrix = parentMatrix.multiplyCopy(elementMatrix);
+                } else {
+                    combinedMatrix = elementMatrix || parentMatrix;
+                }
+                if (combinedMatrix) {
+                    return transform(combinedMatrix);
+                }
+            },
+            visible: function (value) {
+                if (defined(value)) {
+                    this.options.set('visible', value);
+                    return this;
+                }
+                return this.options.get('visible') !== false;
+            },
+            clip: function (value) {
+                var options = this.options;
+                if (defined(value)) {
+                    if (value && !value.id) {
+                        value.id = definitionId();
+                    }
+                    options.set('clip', value);
+                    return this;
+                }
+                return options.get('clip');
+            },
+            opacity: function (value) {
+                if (defined(value)) {
+                    this.options.set('opacity', value);
+                    return this;
+                }
+                return valueOrDefault(this.options.get('opacity'), 1);
+            },
+            clippedBBox: function (transformation) {
+                var bbox = this._clippedBBox(transformation);
+                if (bbox) {
+                    var clip = this.clip();
+                    return clip ? Rect.intersect(bbox, clip.bbox(transformation)) : bbox;
+                }
+            },
+            containsPoint: function (point, parentTransform) {
+                if (this.visible()) {
+                    var transform$$1 = this.currentTransform(parentTransform);
+                    var transformedPoint = point;
+                    if (transform$$1) {
+                        transformedPoint = point.transformCopy(transform$$1.matrix().invert());
+                    }
+                    return this._hasFill() && this._containsPoint(transformedPoint) || this._isOnPath && this._hasStroke() && this._isOnPath(transformedPoint);
+                }
+                return false;
+            },
+            _hasFill: function () {
+                var fill = this.options.fill;
+                return fill && !isTransparent(fill.color);
+            },
+            _hasStroke: function () {
+                var stroke = this.options.stroke;
+                return stroke && stroke.width > 0 && !isTransparent(stroke.color);
+            },
+            _clippedBBox: function (transformation) {
+                return this.bbox(transformation);
+            }
+        });
+        Element$1.prototype.nodeType = 'Element';
+        ObserversMixin.extend(Element$1.prototype);
+        var GRADIENT = 'Gradient';
+        var Paintable = {
+            extend: function (proto) {
+                proto.fill = this.fill;
+                proto.stroke = this.stroke;
+            },
+            fill: function (color, opacity) {
+                var options = this.options;
+                if (defined(color)) {
+                    if (color && color.nodeType !== GRADIENT) {
+                        var newFill = { color: color };
+                        if (defined(opacity)) {
+                            newFill.opacity = opacity;
+                        }
+                        options.set('fill', newFill);
+                    } else {
+                        options.set('fill', color);
+                    }
+                    return this;
+                }
+                return options.get('fill');
+            },
+            stroke: function (color, width, opacity) {
+                if (defined(color)) {
+                    this.options.set('stroke.color', color);
+                    if (defined(width)) {
+                        this.options.set('stroke.width', width);
+                    }
+                    if (defined(opacity)) {
+                        this.options.set('stroke.opacity', opacity);
+                    }
+                    return this;
+                }
+                return this.options.get('stroke');
+            }
+        };
+        var IDENTITY_MATRIX_HASH = Matrix.IDENTITY.toString();
+        var Measurable = {
+            extend: function (proto) {
+                proto.bbox = this.bbox;
+                proto.geometryChange = this.geometryChange;
+            },
+            bbox: function (transformation) {
+                var combinedMatrix = toMatrix(this.currentTransform(transformation));
+                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
+                var bbox;
+                if (this._bboxCache && this._matrixHash === matrixHash) {
+                    bbox = this._bboxCache.clone();
+                } else {
+                    bbox = this._bbox(combinedMatrix);
+                    this._bboxCache = bbox ? bbox.clone() : null;
+                    this._matrixHash = matrixHash;
+                }
+                var strokeWidth = this.options.get('stroke.width');
+                if (strokeWidth && bbox) {
+                    bbox.expand(strokeWidth / 2);
+                }
+                return bbox;
+            },
+            geometryChange: function () {
+                delete this._bboxCache;
+                this.trigger('geometryChange', { element: this });
+            }
+        };
+        function geometryAccessor(name) {
+            var fieldName = '_' + name;
+            return function (value) {
+                if (defined(value)) {
+                    this._observerField(fieldName, value);
+                    this.geometryChange();
+                    return this;
+                }
+                return this[fieldName];
+            };
+        }
+        function defineGeometryAccessors(fn, names) {
+            for (var i = 0; i < names.length; i++) {
+                fn[names[i]] = geometryAccessor(names[i]);
+            }
+        }
+        var DEFAULT_STROKE = '#000';
+        var Circle$1 = Element$1.extend({
+            init: function (geometry, options) {
+                if (geometry === void 0) {
+                    geometry = new Circle();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
+                this.geometry(geometry);
+                if (!defined(this.options.stroke)) {
+                    this.stroke(DEFAULT_STROKE);
+                }
+            },
+            rawBBox: function () {
+                return this._geometry.bbox();
+            },
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
+            },
+            _containsPoint: function (point) {
+                return this.geometry().containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
+            }
+        });
+        Circle$1.prototype.nodeType = 'Circle';
+        Paintable.extend(Circle$1.prototype);
+        Measurable.extend(Circle$1.prototype);
+        defineGeometryAccessors(Circle$1.prototype, ['geometry']);
+        var push = [].push;
+        var pop = [].pop;
+        var splice = [].splice;
+        var shift = [].shift;
+        var slice = [].slice;
+        var unshift = [].unshift;
+        var ElementsArray = Class.extend({
+            init: function (array) {
+                if (array === void 0) {
+                    array = [];
+                }
+                this.length = 0;
+                this._splice(0, array.length, array);
+            },
+            elements: function (value) {
+                if (value) {
+                    this._splice(0, this.length, value);
+                    this._change();
+                    return this;
+                }
+                return this.slice(0);
+            },
+            push: function () {
+                var elements = arguments;
+                var result = push.apply(this, elements);
+                this._add(elements);
+                return result;
+            },
+            slice: function () {
+                return slice.call(this);
+            },
+            pop: function () {
+                var length = this.length;
+                var result = pop.apply(this);
+                if (length) {
+                    this._remove([result]);
+                }
+                return result;
+            },
+            splice: function (index, howMany) {
+                var elements = slice.call(arguments, 2);
+                var result = this._splice(index, howMany, elements);
+                this._change();
+                return result;
+            },
+            shift: function () {
+                var length = this.length;
+                var result = shift.apply(this);
+                if (length) {
+                    this._remove([result]);
+                }
+                return result;
+            },
+            unshift: function () {
+                var elements = arguments;
+                var result = unshift.apply(this, elements);
+                this._add(elements);
+                return result;
+            },
+            indexOf: function (element) {
+                var this$1 = this;
+                var length = this.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (this$1[idx] === element) {
+                        return idx;
+                    }
+                }
+                return -1;
+            },
+            _splice: function (index, howMany, elements) {
+                var result = splice.apply(this, [
+                    index,
+                    howMany
+                ].concat(elements));
+                this._clearObserver(result);
+                this._setObserver(elements);
+                return result;
+            },
+            _add: function (elements) {
+                this._setObserver(elements);
+                this._change();
+            },
+            _remove: function (elements) {
+                this._clearObserver(elements);
+                this._change();
+            },
+            _setObserver: function (elements) {
+                var this$1 = this;
+                for (var idx = 0; idx < elements.length; idx++) {
+                    elements[idx].addObserver(this$1);
+                }
+            },
+            _clearObserver: function (elements) {
+                var this$1 = this;
+                for (var idx = 0; idx < elements.length; idx++) {
+                    elements[idx].removeObserver(this$1);
+                }
+            },
+            _change: function () {
+            }
+        });
+        ObserversMixin.extend(ElementsArray.prototype);
+        var GeometryElementsArray = ElementsArray.extend({
+            _change: function () {
+                this.geometryChange();
+            }
+        });
         function elementsBoundingBox(elements, applyTransform, transformation) {
             var boundingBox;
             for (var i = 0; i < elements.length; i++) {
@@ -19155,7 +19228,7 @@
                     var anchor = lastSegment.anchor();
                     var start = rad(startAngle);
                     var center = new Point(anchor.x - radiusX * Math.cos(start), anchor.y - radiusY * Math.sin(start));
-                    var arc = new Arc$2(center, {
+                    var arc = new Arc(center, {
                         startAngle: startAngle,
                         endAngle: endAngle,
                         radiusX: radiusX,
@@ -19170,7 +19243,7 @@
                 if (this.segments.length > 0) {
                     var lastSegment = last(this.segments);
                     var anchor = lastSegment.anchor();
-                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
+                    var arc = Arc.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
                     this._addArcSegments(arc);
                 }
                 return this;
@@ -19281,10 +19354,10 @@
             return PathParser.current.parse(str, options);
         };
         var DEFAULT_STROKE$1 = '#000';
-        var Arc = Element$1.extend({
+        var Arc$2 = Element$1.extend({
             init: function (geometry, options) {
                 if (geometry === void 0) {
-                    geometry = new Arc$2();
+                    geometry = new Arc();
                 }
                 if (options === void 0) {
                     options = {};
@@ -19319,10 +19392,10 @@
                 return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
             }
         });
-        Arc.prototype.nodeType = 'Arc';
-        Paintable.extend(Arc.prototype);
-        Measurable.extend(Arc.prototype);
-        defineGeometryAccessors(Arc.prototype, ['geometry']);
+        Arc$2.prototype.nodeType = 'Arc';
+        Paintable.extend(Arc$2.prototype);
+        Measurable.extend(Arc$2.prototype);
+        defineGeometryAccessors(Arc$2.prototype, ['geometry']);
         var DEFAULT_FONT = '12px sans-serif';
         var DEFAULT_FILL = '#000';
         var Text = Element$1.extend({
@@ -20277,18 +20350,13 @@
             },
             _elementOffset: function () {
                 var element = this.element;
-                var ref = elementStyles(element, [
-                    'paddingLeft',
-                    'paddingTop'
-                ]);
-                var paddingLeft = ref.paddingLeft;
-                var paddingTop = ref.paddingTop;
-                var ref$1 = elementOffset(element);
-                var left = ref$1.left;
-                var top = ref$1.top;
+                var padding = elementPadding(element);
+                var ref = elementOffset(element);
+                var left = ref.left;
+                var top = ref.top;
                 return {
-                    left: left + parseInt(paddingLeft, 10),
-                    top: top + parseInt(paddingTop, 10)
+                    left: left + padding.left,
+                    top: top + padding.top
                 };
             },
             _surfacePoint: function (e) {
@@ -20296,7 +20364,9 @@
                 var coord = eventCoordinates(e);
                 var x = coord.x - offset.left;
                 var y = coord.y - offset.top;
-                return new Point(x, y);
+                var inverseTransform = elementScale(this.element).invert();
+                var point = new Point(x, y).transform(inverseTransform);
+                return point;
             }
         });
         Surface.create = function (element, options) {
@@ -21446,18 +21516,6 @@
             }
         });
         NODE_MAP.MultiPath = MultiPathNode;
-        var geometry = {
-            Circle: Circle$2,
-            Arc: Arc$2,
-            Rect: Rect,
-            Point: Point,
-            Segment: Segment,
-            Matrix: Matrix,
-            Size: Size,
-            toMatrix: toMatrix,
-            Transformation: Transformation,
-            transform: transform
-        };
         function exportGroup(group) {
             var root = new RootNode({ skipBaseHref: true });
             var bbox = group.clippedBBox();
@@ -21649,23 +21707,27 @@
                 this.loadElements(elements, pos, cors);
                 this._invalidate();
             },
-            _rescale: function () {
+            _rescale: function (scale) {
                 var ref = this;
                 var canvas = ref.canvas;
                 var size = ref.size;
-                var scale = 1;
-                if (typeof window.devicePixelRatio === 'number') {
-                    scale = window.devicePixelRatio;
-                }
                 canvas.width = size.width * scale;
                 canvas.height = size.height * scale;
                 this.ctx.scale(scale, scale);
             },
-            _invalidate: function () {
+            _devicePixelRatio: function () {
+                if (window.devicePixelRatio === 'number') {
+                    return window.devicePixelRatio;
+                }
+                return 1;
+            },
+            _invalidate: function (options) {
                 if (!this.ctx) {
                     return;
                 }
-                this._rescale();
+                var fixedScale = options && options.fixedScale;
+                var scale = fixedScale ? 1 : this._devicePixelRatio();
+                this._rescale(scale);
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.renderTo(this.ctx);
             }
@@ -22082,7 +22144,7 @@
                 });
                 var promise = createPromise();
                 var resolveDataURL = function () {
-                    root._invalidate();
+                    root._invalidate({ fixedScale: true });
                     try {
                         var data = rootElement.toDataURL();
                         promise.resolve(data);
@@ -22821,7 +22883,7 @@
                     if (keepTogether(element)) {
                         return;
                     }
-                    var style = getComputedStyle(element);
+                    var style = getComputedStyle$1(element);
                     var bottomPadding = parseFloat(getPropertyValue(style, 'padding-bottom'));
                     var bottomBorder = parseFloat(getPropertyValue(style, 'border-bottom-width'));
                     var saveAdjust = adjust;
@@ -22838,7 +22900,7 @@
                                 splitElement(el);
                                 continue;
                             }
-                            if (!/^(?:static|relative)$/.test(getPropertyValue(getComputedStyle(el), 'position'))) {
+                            if (!/^(?:static|relative)$/.test(getPropertyValue(getComputedStyle$1(el), 'position'))) {
                                 continue;
                             }
                             var fall = fallsOnMargin(el);
@@ -22999,7 +23061,7 @@
                 element: element,
                 group: group
             };
-            pushNodeInfo(element, getComputedStyle(element), group);
+            pushNodeInfo(element, getComputedStyle$1(element), group);
             if (element.firstChild.nodeType == 3) {
                 renderText(element, element.firstChild, group);
             } else {
@@ -23391,7 +23453,7 @@
                 if (/^img$/i.test(element.tagName)) {
                     add(element.src);
                 }
-                parseBackgroundImage(getPropertyValue(getComputedStyle(element), 'background-image')).forEach(function (bg) {
+                parseBackgroundImage(getPropertyValue(getComputedStyle$1(element), 'background-image')).forEach(function (bg) {
                     if (bg.type == 'url') {
                         add(bg.url);
                     }
@@ -23492,7 +23554,7 @@
                 return true;
             }
         }
-        function getComputedStyle(element, pseudoElt) {
+        function getComputedStyle$1(element, pseudoElt) {
             return window.getComputedStyle(element, pseudoElt || null);
         }
         function getPropertyValue(style, prop, defa) {
@@ -23563,7 +23625,7 @@
         function innerBox(box, prop, element) {
             var style, wt, wr, wb, wl;
             if (typeof prop == 'string') {
-                style = getComputedStyle(element);
+                style = getComputedStyle$1(element);
                 wt = parseFloat(getPropertyValue(style, prop.replace('*', 'top')));
                 wr = parseFloat(getPropertyValue(style, prop.replace('*', 'right')));
                 wb = parseFloat(getPropertyValue(style, prop.replace('*', 'bottom')));
@@ -23620,7 +23682,7 @@
             shape.clip(clipPath);
         }
         function addArcToPath(path, x, y, options) {
-            var points = new Arc$2([
+            var points = new Arc([
                     x,
                     y
                 ], options).curvePoints(), i = 1;
@@ -23670,7 +23732,7 @@
             };
         }
         function elementRoundBox(element, box, type) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             var rTL = getBorderRadius(style, 'top-left');
             var rTR = getBorderRadius(style, 'top-right');
             var rBL = getBorderRadius(style, 'bottom-left');
@@ -23834,7 +23896,7 @@
             }
             var fake = [];
             function pseudo(kind, place) {
-                var style = getComputedStyle(element, kind), content = style.content;
+                var style = getComputedStyle$1(element, kind), content = style.content;
                 updateCounters(style);
                 if (content && content != 'normal' && content != 'none' && style.width != '0px') {
                     var psel = element.ownerDocument.createElement(KENDO_PSEUDO_ELEMENT);
@@ -23859,7 +23921,7 @@
             }
         }
         function _renderElement(element, group) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             var top = getBorder(style, 'top');
             var right = getBorder(style, 'right');
             var bottom = getBorder(style, 'bottom');
@@ -24556,8 +24618,8 @@
             group.append(image);
         }
         function zIndexSort(a, b) {
-            var sa = getComputedStyle(a);
-            var sb = getComputedStyle(b);
+            var sa = getComputedStyle$1(a);
+            var sb = getComputedStyle$1(b);
             var za = parseFloat(getPropertyValue(sa, 'z-index'));
             var zb = parseFloat(getPropertyValue(sb, 'z-index'));
             var pa = getPropertyValue(sa, 'position');
@@ -24592,7 +24654,7 @@
             return element.options[element.selectedIndex];
         }
         function renderCheckbox(element, group) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             var color = getPropertyValue(style, 'color');
             var box = element.getBoundingClientRect();
             if (element.type == 'checkbox') {
@@ -24607,12 +24669,12 @@
                     group.append(new Path().stroke(color, 1.2).moveTo(box.left + 0.22 * box.width, box.top + 0.55 * box.height).lineTo(box.left + 0.45 * box.width, box.top + 0.75 * box.height).lineTo(box.left + 0.78 * box.width, box.top + 0.22 * box.width));
                 }
             } else {
-                group.append(new Circle(new Circle$2([
+                group.append(new Circle$1(new Circle([
                     (box.left + box.right) / 2,
                     (box.top + box.bottom) / 2
                 ], Math.min(box.width - 2, box.height - 2) / 2)).stroke(color, 1));
                 if (element.checked) {
-                    group.append(new Circle(new Circle$2([
+                    group.append(new Circle$1(new Circle([
                         (box.left + box.right) / 2,
                         (box.top + box.bottom) / 2
                     ], Math.min(box.width - 8, box.height - 8) / 2)).fill(color).stroke(null));
@@ -24628,7 +24690,7 @@
             var doc = element.ownerDocument;
             var el = doc.createElement(KENDO_PSEUDO_ELEMENT);
             var option;
-            el.style.cssText = getCssText(getComputedStyle(element));
+            el.style.cssText = getCssText(getComputedStyle$1(element));
             if (tag == 'input') {
                 el.style.whiteSpace = 'pre';
             }
@@ -24639,7 +24701,7 @@
                 if (element.multiple) {
                     for (var i = 0; i < element.options.length; ++i) {
                         option = doc.createElement(KENDO_PSEUDO_ELEMENT);
-                        option.style.cssText = getCssText(getComputedStyle(element.options[i]));
+                        option.style.cssText = getCssText(getComputedStyle$1(element.options[i]));
                         option.style.display = 'block';
                         option.textContent = element.options[i].textContent;
                         el.appendChild(option);
@@ -24690,7 +24752,7 @@
                         }
                         break;
                     case 1:
-                        var style = getComputedStyle(i);
+                        var style = getComputedStyle$1(i);
                         var floating = getPropertyValue(style, 'float');
                         var position = getPropertyValue(style, 'position');
                         if (position != 'static') {
@@ -24718,7 +24780,7 @@
             if (emptyClipbox()) {
                 return;
             }
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             if (parseFloat(getPropertyValue(style, 'text-indent')) < -500) {
                 return;
             }
@@ -24960,7 +25022,7 @@
             return tmp;
         }
         function renderElement(element, container) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             updateCounters(style);
             if (/^(style|script|link|meta|iframe|svg|col|colgroup)$/i.test(element.tagName)) {
                 return;
@@ -25048,8 +25110,8 @@
             ShapesQuadTree: ShapesQuadTree,
             ObserversMixin: ObserversMixin,
             Element: Element$1,
-            Circle: Circle,
-            Arc: Arc,
+            Circle: Circle$1,
+            Arc: Arc$2,
             Path: Path,
             MultiPath: MultiPath,
             Text: Text,
@@ -25757,6 +25819,9 @@
             },
             parseDate: function (value) {
                 return new Date(value);
+            },
+            firstDay: function () {
+                return 0;
             }
         };
         var current = defaultImplementation;
@@ -26076,6 +26141,39 @@
                     return item;
                 }
             }
+        }
+        var Matrix = geometry.Matrix;
+        var matrixRegexp = /matrix\((.*)\)/;
+        function parseMatrix(matrixString) {
+            var match = matrixString.match(matrixRegexp);
+            if (match === null || match.length !== 2) {
+                return Matrix.unit();
+            }
+            var members = match[1].split(',').map(function (x) {
+                return parseFloat(x);
+            });
+            return new (Function.prototype.bind.apply(Matrix, [null].concat(members)))();
+        }
+        function transformMatrix(element) {
+            var transform = getComputedStyle(element).transform;
+            if (transform === 'none') {
+                return Matrix.unit();
+            }
+            return parseMatrix(transform);
+        }
+        function elementScale(element) {
+            if (!element) {
+                return Matrix.unit();
+            }
+            var matrix = transformMatrix(element);
+            var parent = element.parentElement;
+            while (parent) {
+                var parentMatrix = transformMatrix(parent);
+                matrix = matrix.multiplyCopy(parentMatrix);
+                parent = parent.parentElement;
+            }
+            matrix.b = matrix.c = matrix.e = matrix.f = 0;
+            return matrix;
         }
         function autoMajorUnit(min, max) {
             var diff = round(max - min, DEFAULT_PRECISION - 1);
@@ -28154,12 +28252,18 @@
                 for (var idx = 0; idx < plotBands.length; idx++) {
                     var item = plotBands[idx];
                     var slotX = void 0, slotY = void 0;
+                    var labelOptions = item.label;
+                    var label = void 0;
                     if (vertical) {
                         slotX = (altAxis || plotArea.axisX).lineBox();
                         slotY = this$1.getSlot(item.from, item.to, true);
                     } else {
                         slotX = this$1.getSlot(item.from, item.to, true);
                         slotY = (altAxis || plotArea.axisY).lineBox();
+                    }
+                    if (labelOptions) {
+                        labelOptions.vAlign = labelOptions.position || LEFT;
+                        label = this$1.createPlotBandLabel(labelOptions, item, new Box(slotX.x1, slotY.y1, slotX.x2, slotY.y2));
                     }
                     if (slotX.width() !== 0 && slotY.height() !== 0) {
                         var bandRect = new Rect([
@@ -28177,9 +28281,37 @@
                             stroke: null
                         });
                         group.append(path);
+                        if (label) {
+                            group.append(label);
+                        }
                     }
                 }
                 this.appendVisual(group);
+            },
+            createPlotBandLabel: function (label, item, box) {
+                if (label.visible === false) {
+                    return null;
+                }
+                var text = label.text;
+                var textbox;
+                if (defined(label) && label.visible) {
+                    var labelTemplate = getTemplate(label);
+                    if (labelTemplate) {
+                        text = labelTemplate({
+                            text: text,
+                            item: item
+                        });
+                    } else if (label.format) {
+                        text = this.chartService.format.auto(label.format, text);
+                    }
+                    if (!label.color) {
+                        label.color = this.options.labels.color;
+                    }
+                }
+                textbox = new TextBox(text, label);
+                textbox.reflow(box);
+                textbox.renderVisual();
+                return textbox.visual;
             },
             createGridLines: function (altAxis) {
                 var options = this.options;
@@ -28764,6 +28896,15 @@
                 return result;
             }
             return parseDate(intlService, dates);
+        }
+        function firstDay(options, intlService) {
+            if (isNumber(options.weekStartDay)) {
+                return options.weekStartDay;
+            }
+            if (intlService && intlService.firstDay) {
+                return intlService.firstDay();
+            }
+            return 0;
         }
         var MIN_CATEGORY_POINTS_RANGE = 0.01;
         function indexOf(value, arr) {
@@ -29539,7 +29680,8 @@
                 options = deepExtend({ roundToBaseUnit: true }, options, {
                     categories: categories,
                     min: parseDate(intlService, options.min),
-                    max: parseDate(intlService, options.max)
+                    max: parseDate(intlService, options.max),
+                    weekStartDay: firstDay(options, intlService)
                 });
                 if (chartService.panning && chartService.isPannable(options.vertical ? Y : X)) {
                     options.roundToBaseUnit = false;
@@ -30280,7 +30422,8 @@
                 options = deepExtend(options || {}, {
                     min: parseDate(intlService, options.min),
                     max: parseDate(intlService, options.max),
-                    axisCrossingValue: parseDates(intlService, options.axisCrossingValues || options.axisCrossingValue)
+                    axisCrossingValue: parseDates(intlService, options.axisCrossingValues || options.axisCrossingValue),
+                    weekStartDay: firstDay(options, intlService)
                 });
                 options = applyDefaults(min, max, options);
                 Axis.fn.init.call(this, options, chartService);
@@ -31716,6 +31859,7 @@
             sparseArrayLimits: sparseArrayLimits,
             styleValue: styleValue,
             find: find,
+            elementScale: elementScale,
             append: append,
             bindEvents: bindEvents,
             Class: Class,
@@ -31748,7 +31892,8 @@
             toDate: toDate,
             parseDate: parseDate,
             parseDates: parseDates,
-            toTime: toTime
+            toTime: toTime,
+            firstDay: firstDay
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -31822,7 +31967,10 @@
                 return kendo.format.apply(null, [format].concat(Array.prototype.slice.call(arguments, 1)));
             },
             toString: kendo.toString,
-            parseDate: kendo.parseDate
+            parseDate: kendo.parseDate,
+            firstDay: function () {
+                return kendo.culture().calendars.standard.firstDay;
+            }
         });
         services.TemplateService.register({ compile: kendo.template });
         dataviz.Point2D = dataviz.Point;
@@ -32158,7 +32306,7 @@
                 return cache;
             }
             var theme = { chart: kendo.dataviz.chartBaseTheme() };
-            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
+            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
             function mapColor(key, varName) {
                 set(key, queryStyle(varName, 'backgroundColor'));
             }
@@ -42147,10 +42295,11 @@
                     ])) {
                     this.options.position = RIGHT;
                 }
-                this.createContainer();
+                this.createContainers();
+                this.createLegendTitle(options.title);
                 this.createItems();
             },
-            createContainer: function () {
+            createContainers: function () {
                 var options = this.options;
                 var position = options.position;
                 var userAlign = options.align;
@@ -42187,6 +42336,16 @@
                     zIndex: options.zIndex,
                     shrinkToFit: true
                 });
+                if (this.hasTitle()) {
+                    this.itemsContainer = new BoxElement({
+                        vAlign: vAlign,
+                        align: align,
+                        zIndex: options.zIndex,
+                        shrinkToFit: true
+                    });
+                } else {
+                    this.itemsContainer = this.container;
+                }
                 this.append(this.container);
             },
             createItems: function () {
@@ -42212,7 +42371,7 @@
                     }, options.item, item)));
                 }
                 innerElement.render();
-                this.container.append(innerElement);
+                this.itemsContainer.append(innerElement);
             },
             isVertical: function () {
                 var ref = this.options;
@@ -42239,6 +42398,9 @@
                     this.box = legendBox;
                 } else {
                     this.containerReflow(legendBox);
+                }
+                if (this.hasTitle()) {
+                    this.title.reflow(new Box(this.container.box.x1, this.title.box.y1, this.container.box.x2, this.title.box.y2));
                 }
             },
             containerReflow: function (targetBox) {
@@ -42267,7 +42429,7 @@
                 var box = containerBox.clone();
                 if (options.offsetX || options.offsetY) {
                     containerBox.translate(options.offsetX, options.offsetY);
-                    this.container.reflow(containerBox);
+                    container.reflow(containerBox);
                 }
                 box[pos + 1] = targetBox[pos + 1];
                 box[pos + 2] = targetBox[pos + 2];
@@ -42295,6 +42457,48 @@
             renderVisual: function () {
                 if (this.hasItems()) {
                     ChartElement.fn.renderVisual.call(this);
+                }
+            },
+            createLegendTitle: function (title) {
+                var titleOptions = deepExtend({}, {
+                    color: BLACK,
+                    position: TOP,
+                    align: CENTER
+                }, title);
+                var text = titleOptions.text;
+                if (!title || title.visible === false) {
+                    return;
+                }
+                if (defined(titleOptions) && titleOptions.visible) {
+                    var labelTemplate = getTemplate(titleOptions);
+                    if (labelTemplate) {
+                        text = labelTemplate({ text: text });
+                    } else if (titleOptions.format) {
+                        text = this.chartService.format.auto(titleOptions.format, text);
+                    }
+                }
+                this.title = new TextBox(text, titleOptions);
+                this.createTitleLayout();
+                this.appendTitleLayoutContent();
+            },
+            createTitleLayout: function () {
+                this.layout = new dataviz.FloatElement({
+                    vertical: true,
+                    wrap: false
+                });
+                this.container.append(this.layout);
+            },
+            hasTitle: function () {
+                return Boolean(this.options.title && this.options.title.visible !== false);
+            },
+            appendTitleLayoutContent: function () {
+                var options = this.options;
+                if (options.title.position === BOTTOM) {
+                    this.layout.append(this.itemsContainer);
+                    this.layout.append(this.title);
+                } else {
+                    this.layout.append(this.title);
+                    this.layout.append(this.itemsContainer);
                 }
             }
         });
@@ -44365,7 +44569,8 @@
                     pointType = LineSegment;
                 }
                 var segment = new pointType(linePoints, currentSeries, seriesIx);
-                if (linePoints.length === currentSeries.data.length) {
+                var missingValues = this.seriesMissingValues(currentSeries);
+                if (linePoints.length === currentSeries.data.length || missingValues === INTERPOLATE) {
                     segment.options.closed = true;
                 }
                 return segment;
@@ -46013,7 +46218,9 @@
                 var element = this.element;
                 var offset = dataviz.elementOffset(element);
                 var padding = this._elementPadding();
-                return new Point(clientX - offset.left - padding.left, clientY - offset.top - padding.top);
+                var inverseTransform = dataviz.elementScale(element).invert();
+                var point = new GeometryPoint(clientX - offset.left - padding.left, clientY - offset.top - padding.top).transform(inverseTransform);
+                return new Point(point.x, point.y);
             },
             _tap: function (e) {
                 var this$1 = this;
@@ -46181,19 +46388,19 @@
                     this._sharedHighlight = false;
                 }
             },
-            hideElements: function () {
+            hideElements: function (options) {
                 var plotArea = this._plotArea;
                 this._mousemove.cancel();
                 plotArea.hideCrosshairs();
-                this._unsetActivePoint();
+                this._unsetActivePoint(options);
             },
-            _unsetActivePoint: function () {
+            _unsetActivePoint: function (options) {
                 var ref = this;
                 var tooltip = ref._tooltip;
                 var highlight = ref._highlight;
                 this._activePoint = null;
                 this._hoveredPoint = null;
-                if (tooltip) {
+                if (tooltip && !(options && options.keepTooltipOpen)) {
                     tooltip.hide();
                 }
                 this._tooltipCategoryIx = null;
@@ -46763,9 +46970,11 @@
         var NOTE_CLICK = constants.NOTE_CLICK;
         var NOTE_HOVER = constants.NOTE_HOVER;
         var NOTE_LEAVE = constants.NOTE_LEAVE;
+        var DOCUMENT_ELEMENT = $(document.documentElement);
         var CHANGE = 'change';
         var DATABOUND = 'dataBound';
         var LEAVE = 'leave';
+        var MOUSEDOWN = 'down';
         var VALUE = constants.VALUE;
         var PIE = constants.PIE;
         var DONUT = constants.DONUT;
@@ -47013,7 +47222,7 @@
                 var tooltip = this._tooltip;
                 var target = e.relatedTarget;
                 if (!(target && $(target).closest(tooltip.element).length) && instance && !instance.handlingTap) {
-                    instance.hideElements();
+                    instance.hideElements({ keepTooltipOpen: !tooltip.options.autoHide });
                 }
             },
             _getThemeOptions: function (userOptions) {
@@ -47391,7 +47600,7 @@
                 tooltip.chartElement = chartElement;
                 tooltip.template = Tooltip.template;
                 if (!tooltip.template) {
-                    tooltip.template = Tooltip.template = kendo.template('<div class=\'k-tooltip k-chart-tooltip#= d.rtl ? " k-rtl" : ""#\' ' + 'style=\'display:none; position: absolute; font: #= d.font #;' + '#if (d.border) {# border: #= d.border.width #px solid; #}#' + 'opacity: #= d.opacity #; filter: alpha(opacity=#= d.opacity * 100 #);\'>' + '</div>', {
+                    tooltip.template = Tooltip.template = kendo.template('<div class=\'k-tooltip #if (!d.autoHide) {# k-tooltip-closable#}# k-chart-tooltip#= d.rtl ? " k-rtl" : ""#\' ' + 'style=\'display:none; position: absolute; font: #= d.font #;' + '#if (d.border) {# border: #= d.border.width #px solid; #}#' + 'opacity: #= d.opacity #; filter: alpha(opacity=#= d.opacity * 100 #);\'>' + '<div class="k-tooltip-content"></div>' + '#if (!d.autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close" title="Close"></a></div> #}#' + '</div>', {
                         useWithBlock: false,
                         paramName: 'd'
                     });
@@ -47401,9 +47610,13 @@
                 tooltip._mouseleave = proxy(tooltip._mouseleave, tooltip);
                 var mobileScrollerSelector = kendo.format('[{0}=\'content\'],[{0}=\'scroller\']', kendo.attr('role'));
                 tooltip._mobileScroller = chartElement.closest(mobileScrollerSelector).data('kendoMobileScroller');
+                tooltip.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
+                tooltip._closeTooltipHandler = proxy(tooltip._closeTooltip, tooltip);
             },
             destroy: function () {
+                var tooltip = this;
                 this._clearShowTimeout();
+                DOCUMENT_ELEMENT.off(tooltip.downEvent, tooltip._closeTooltipHandler);
                 if (this.element) {
                     this.element.off(MOUSELEAVE_NS).remove();
                     this.element = null;
@@ -47416,7 +47629,8 @@
                 opacity: 1,
                 animation: { duration: TOOLTIP_ANIMATION_DURATION },
                 sharedTemplate: '<table>' + '<th colspan=\'#= colspan #\'>#= categoryText #</th>' + '# for(var i = 0; i < points.length; i++) { #' + '# var point = points[i]; #' + '<tr>' + '# if(colorMarker) { # ' + '<td><span class=\'k-chart-shared-tooltip-marker\' style=\'background-color:#:point.series.color#\'></span></td>' + '# } #' + '# if(nameColumn) { # ' + '<td> #if (point.series.name) {# #: point.series.name #: #} else {# &nbsp; #}#</td>' + '# } #' + '<td>#= content(point) #</td>' + '</tr>' + '# } #' + '</table>',
-                categoryFormat: '{0:d}'
+                categoryFormat: '{0:d}',
+                autoHide: true
             },
             move: function () {
                 var tooltip = this, options = tooltip.options, element = tooltip.element, offset;
@@ -47484,12 +47698,17 @@
                 };
             },
             show: function (e) {
+                var tooltip = this;
                 this.anchor = e.anchor;
                 this.element.css(normalizeStyle(e.style));
                 this.element.toggleClass(TOOLTIP_INVERSE, !!e.className);
                 this.element.toggleClass(SHARED_TOOLTIP_CLASS, !!e.shared);
                 var content = e.shared ? this._sharedContent(e) : this._pointContent(e.point);
-                this.element.html(content);
+                this.element.find('.k-tooltip-content').html(content);
+                if (!tooltip.options.autoHide) {
+                    tooltip.element.off('click' + NS).on('click' + NS, '.k-tooltip-button', tooltip._closeTooltipHandler);
+                    DOCUMENT_ELEMENT.off(tooltip.downEvent, tooltip._closeTooltipHandler).on(tooltip.downEvent, tooltip._closeTooltipHandler);
+                }
                 this._clearShowTimeout();
                 this.showTimeout = setTimeout(this.move, TOOLTIP_SHOW_DELAY);
             },
@@ -47501,6 +47720,15 @@
                     tooltip.point = null;
                     tooltip.visible = false;
                     tooltip.index = null;
+                    DOCUMENT_ELEMENT.off(tooltip.downEvent, tooltip._closeTooltipHandler);
+                }
+            },
+            _closeTooltip: function (e) {
+                var target = $(e.target);
+                if (!target.is('.k-chart-tooltip, .k-tooltip-content')) {
+                    e.preventDefault();
+                    this.chartElement.data('kendoChart')._instance.hideElements();
+                    this.hide();
                 }
             },
             _sharedContent: function (e) {
@@ -67393,7 +67621,7 @@
         var kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, proxy = $.proxy, isFunction = kendo.isFunction, keys = kendo.keys, outerWidth = kendo._outerWidth, ns = '.kendoToolBar', TOOLBAR = 'k-toolbar', BUTTON = 'k-button', OVERFLOW_BUTTON = 'k-overflow-button', TOGGLE_BUTTON = 'k-toggle-button', BUTTON_GROUP = 'k-button-group', SPLIT_BUTTON = 'k-split-button', SEPARATOR = 'k-separator', SPACER_CLASS = 'k-spacer', SPACER = 'spacer', POPUP = 'k-popup', RESIZABLE_TOOLBAR = 'k-toolbar-resizable', STATE_ACTIVE = 'k-state-active', STATE_DISABLED = 'k-state-disabled', STATE_HIDDEN = 'k-state-hidden', HIDDEN = 'k-hidden', GROUP_START = 'k-group-start', GROUP_END = 'k-group-end', PRIMARY = 'k-primary', ARIA_DISABLED = 'aria-disabled', ARIA_PRESSED = 'aria-pressed', ICON = 'k-icon', ICON_PREFIX = 'k-i-', BUTTON_ICON = 'k-button-icon', BUTTON_ICON_TEXT = 'k-button-icontext', LIST_CONTAINER = 'k-list-container k-split-container', SPLIT_BUTTON_ARROW = 'k-split-button-arrow', OVERFLOW_ANCHOR = 'k-overflow-anchor', OVERFLOW_CONTAINER = 'k-overflow-container', FIRST_TOOLBAR_VISIBLE = 'k-toolbar-first-visible', LAST_TOOLBAR_VISIBLE = 'k-toolbar-last-visible', CLICK = 'click', TOGGLE = 'toggle', OPEN = 'open', CLOSE = 'close', OVERFLOW_OPEN = 'overflowOpen', OVERFLOW_CLOSE = 'overflowClose', OVERFLOW_NEVER = 'never', OVERFLOW_AUTO = 'auto', OVERFLOW_ALWAYS = 'always', OVERFLOW_HIDDEN = 'k-overflow-hidden', OPTION_LIST_SUFFIX = '_optionlist', KENDO_UID_ATTR = kendo.attr('uid');
         kendo.toolbar = {};
         var components = {
-            overflowAnchor: '<div tabindex="0" class="k-overflow-anchor k-button"></div>',
+            overflowAnchor: '<div tabindex="0" class="k-overflow-anchor k-button" title="More tools" role="button"></div>',
             overflowContainer: '<ul class="k-overflow-container k-list-container"></ul>'
         };
         kendo.toolbar.registerComponent = function (name, toolbar, overflow) {
@@ -72239,7 +72467,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, support = kendo.support, activeElement = kendo._activeElement, ObservableObject = kendo.data.ObservableObject, keys = kendo.keys, ns = '.kendoDropDownList', nsFocusEvent = ns + 'FocusEvent', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', FOCUSED = 'k-state-focused', DEFAULT = 'k-state-default', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', CLICKEVENTS = 'click' + ns + ' touchend' + ns, HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', MSG_INVALID_OPTION_LABEL = 'The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel', proxy = $.proxy;
+        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, support = kendo.support, activeElement = kendo._activeElement, ObservableObject = kendo.data.ObservableObject, keys = kendo.keys, ns = '.kendoDropDownList', nsFocusEvent = ns + 'FocusEvent', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', FOCUSED = 'k-state-focused', DEFAULT = 'k-state-default', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', CLICKEVENTS = 'click' + ns + ' touchend' + ns, HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', MSG_INVALID_OPTION_LABEL = 'The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel', proxy = $.proxy;
         var DropDownList = Select.extend({
             init: function (element, options) {
                 var that = this;
@@ -72704,7 +72932,7 @@
                 if (!readonly && !disable) {
                     element.removeAttr(DISABLED).removeAttr(READONLY);
                     dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
-                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).on('keydown' + ns, that, proxy(that._keydown, that)).on(kendo.support.mousedown + ns, proxy(that._wrapperMousedown, that)).on('paste' + ns, proxy(that._filterPaste, that));
+                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false).on('keydown' + ns, that, proxy(that._keydown, that)).on(kendo.support.mousedown + ns, proxy(that._wrapperMousedown, that)).on('paste' + ns, proxy(that._filterPaste, that));
                     that.wrapper.on('click' + ns, proxy(that._wrapperClick, that));
                     if (!that.filterInput) {
                         wrapper.on('keypress' + ns, proxy(that._keypress, that));
@@ -72718,7 +72946,7 @@
                     dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED);
                 }
                 element.attr(DISABLED, disable).attr(READONLY, readonly);
-                wrapper.attr(ARIA_DISABLED, disable);
+                wrapper.attr(ARIA_DISABLED, disable).attr(ARIA_READONLY, readonly);
             },
             _keydown: function (e) {
                 var that = this;
@@ -73593,7 +73821,7 @@
                 year: 1,
                 decade: 2,
                 century: 3
-            }, HEADERSELECTOR = '.k-header, .k-calendar-header', CLASSIC_HEADER_TEMPLATE = '<div class="k-header">' + '<a href="\\#" ' + kendo.attr('action') + '="prev" role="button" class="k-link k-nav-prev" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="\\#" ' + kendo.attr('action') + '="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-link k-nav-fast"></a>' + '<a href="\\#" ' + kendo.attr('action') + '="next" role="button" class="k-link k-nav-next" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</div>', MODERN_HEADER_TEMPLATE = '<div class="k-calendar-header">' + '<a href="\\#" ' + kendo.attr('action') + '="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-button k-title"></a>' + '<span class="k-calendar-nav">' + '<a ' + kendo.attr('action') + '="prev" class="k-button k-button-icon k-prev-view">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a ' + kendo.attr('action') + '="today" class="k-today">#=messages.today#</a>' + '<a ' + kendo.attr('action') + '="next" class="k-button k-button-icon k-next-view">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>' + '</span>' + '</div>';
+            }, HEADERSELECTOR = '.k-header, .k-calendar-header', CLASSIC_HEADER_TEMPLATE = '<div class="k-header">' + '<a href="\\#" #=actionAttr#="prev" role="button" class="k-link k-nav-prev" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="\\#" #=actionAttr#="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-link k-nav-fast"></a>' + '<a href="\\#" #=actionAttr#="next" role="button" class="k-link k-nav-next" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</div>', MODERN_HEADER_TEMPLATE = '<div class="k-calendar-header">' + '<a href="\\#" #=actionAttr#="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-button k-title"></a>' + '<span class="k-calendar-nav">' + '<a #=actionAttr#="prev" class="k-button k-button-icon k-prev-view">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a #=actionAttr#="today" class="k-today">#=messages.today#</a>' + '<a #=actionAttr#="next" class="k-button k-button-icon k-next-view">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>' + '</span>' + '</div>';
         var Calendar = Widget.extend({
             init: function (element, options) {
                 var that = this, value, id;
@@ -73691,7 +73919,8 @@
                 messages: {
                     weekColumnHeader: '',
                     today: 'Today'
-                }
+                },
+                componentType: 'classic'
             },
             events: [
                 CHANGE,
@@ -74367,7 +74596,7 @@
             _header: function () {
                 var that = this, element = that.element, linksSelector = that.options.linksSelector;
                 if (!element.find(HEADERSELECTOR)[0]) {
-                    element.html(kendo.template(that.options.header.template)(that.options));
+                    element.html(kendo.template(that.options.header.template)($.extend(true, {}, that.options, { actionAttr: kendo.attr('action') })));
                 }
                 element.find(linksSelector).on(MOUSEENTER_WITH_NS + ' ' + MOUSELEAVE + ' ' + FOCUS_WITH_NS + ' ' + BLUR, mousetoggle).on(CLICK + ' touchend' + ns, function () {
                     return false;
@@ -75823,7 +76052,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, parse = kendo.parseDate, keys = kendo.keys, support = kendo.support, template = kendo.template, activeElement = kendo._activeElement, DIV = '<div />', SPAN = '<span />', ns = '.kendoDatePicker', CLICK = 'click' + ns, UP = support.mouseAndTouchPresent ? kendo.applyEventMap('up', ns.slice(1)) : CLICK, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, MOUSEDOWN = 'mousedown' + ns, ID = 'id', MIN = 'min', MAX = 'max', MONTH = 'month', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', calendar = kendo.calendar, isInRange = calendar.isInRange, restrictValue = calendar.restrictValue, isEqualDatePart = calendar.isEqualDatePart, extend = $.extend, proxy = $.proxy, DATE = Date;
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, parse = kendo.parseDate, keys = kendo.keys, support = kendo.support, template = kendo.template, activeElement = kendo._activeElement, DIV = '<div />', SPAN = '<span />', ns = '.kendoDatePicker', CLICK = 'click' + ns, UP = support.mouseAndTouchPresent ? kendo.applyEventMap('up', ns.slice(1)) : CLICK, OPEN = 'open', CLOSE = 'close', CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', HOVER = 'k-state-hover', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, MOUSEDOWN = 'mousedown' + ns, ID = 'id', MIN = 'min', MAX = 'max', MONTH = 'month', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', calendar = kendo.calendar, isInRange = calendar.isInRange, restrictValue = calendar.restrictValue, isEqualDatePart = calendar.isEqualDatePart, extend = $.extend, proxy = $.proxy, DATE = Date;
         function normalize(options) {
             var parseFormats = options.parseFormats, format = options.format;
             calendar.normalize(options);
@@ -76085,7 +76314,8 @@
                 disableDates: null,
                 ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "D")#',
                 dateInput: false,
-                weekNumber: false
+                weekNumber: false,
+                componentType: 'classic'
             },
             setOptions: function (options) {
                 var that = this;
@@ -76112,13 +76342,13 @@
                         element[0].removeAttribute(DISABLED);
                         element[0].removeAttribute(READONLY);
                     }
-                    element.attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusout' + ns, proxy(that._blur, that)).on('focus' + ns, function () {
+                    element.attr(ARIA_DISABLED, false).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusout' + ns, proxy(that._blur, that)).on('focus' + ns, function () {
                         that._inputWrapper.addClass(FOCUSED);
                     });
                     icon.on(UP, proxy(that._click, that)).on(MOUSEDOWN, preventDefault);
                 } else {
                     wrapper.addClass(disable ? STATEDISABLED : DEFAULT).removeClass(disable ? DEFAULT : STATEDISABLED);
-                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable);
+                    element.attr(DISABLED, disable).attr(READONLY, readonly).attr(ARIA_DISABLED, disable).attr(ARIA_READONLY, readonly);
                 }
             },
             readonly: function (readonly) {
@@ -76494,6 +76724,7 @@
                             that._toggleText(false);
                             element.focus();
                         }
+                        that.selectValue();
                     });
                 }
                 element.attr('aria-valuemin', options.min !== NULL ? options.min * options.factor : options.min).attr('aria-valuemax', options.max !== NULL ? options.max * options.factor : options.max);
@@ -76710,7 +76941,13 @@
                     }
                     that._focusin();
                     caret(that.element[0], caretPosition);
+                    that.selectValue();
                 });
+            },
+            selectValue: function () {
+                if (this.options.selectOnFocus) {
+                    this.element[0].select();
+                }
             },
             _change: function (value) {
                 var that = this, factor = that.options.factor;
@@ -77387,12 +77624,13 @@
                 }
             },
             reset: function () {
-                var that = this, inputs = that.element.find('.' + INVALIDINPUT);
+                var that = this, inputs = that.element.find('.' + INVALIDINPUT), labels = that.element.find('.' + INVALIDLABEL);
                 that._errors = [];
                 that.hideMessages();
                 that.hideValidationSummary();
                 inputs.removeAttr(ARIAINVALID);
                 inputs.removeClass(INVALIDINPUT);
+                labels.removeClass(INVALIDLABEL);
             },
             _findMessageContainer: function (fieldName) {
                 var locators = kendo.ui.validator.messageLocators, name, containers = $();
@@ -77615,7 +77853,7 @@
             if (inArray(type, specialRules) >= 0) {
                 attr[DATATYPE] = type;
             }
-            attr[BINDING] = 'value:' + options.field;
+            attr[BINDING] = (type === 'boolean' ? 'checked:' : 'value:') + options.field;
             return attr;
         }
         function addIdAttribute(container, attr) {
@@ -77694,7 +77932,8 @@
             },
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
+                var element = $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
+                renderHiddenForМvcCheckbox(element, container, options);
             },
             'values': function (container, options) {
                 var attr = createAttributes(options);
@@ -77707,8 +77946,9 @@
                 var type = options.editor;
                 var editor = 'kendo' + type;
                 var editorOptions = options.editorOptions;
-                var tag = getEditorTag(type, editorOptions);
-                $(tag).attr(attr).appendTo(container)[editor](editorOptions);
+                var tagElement = getEditorTag(type, editorOptions);
+                var element = $(tagElement).attr(attr).appendTo(container)[editor](editorOptions);
+                renderHiddenForМvcCheckbox(element, container, options);
             }
         };
         var mobileEditors = {
@@ -77753,6 +77993,13 @@
                 if (isFunction(descriptor)) {
                     rules[rule] = descriptor;
                 }
+            }
+        }
+        function renderHiddenForМvcCheckbox(tag, container, field) {
+            var addHidden = field ? field.shouldRenderHidden || false : false;
+            if (addHidden) {
+                tag.val(true);
+                container.append($('<input type=\'hidden\' name=\'' + field.field + '\' value=\'false\' data-skip=\'true\' data-validate=\'false\'/>'));
             }
         }
         var Editable = Widget.extend({
@@ -81134,7 +81381,8 @@
                     var item = toolService.hoveredItem;
                     this.trigger('click', {
                         item: item,
-                        point: point
+                        point: point,
+                        meta: this._meta(e.event)
                     });
                     if (selectable && item.options.selectable !== false) {
                         var multiple = selectable.multiple !== false;

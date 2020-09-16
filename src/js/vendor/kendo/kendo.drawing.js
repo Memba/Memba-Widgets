@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -367,7 +367,6 @@
         function deg(radians) {
             return radians / DEG_TO_RAD;
         }
-        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         var fromCharCode = String.fromCharCode;
         function encodeUTF8(input) {
             var output = '';
@@ -386,6 +385,7 @@
             }
             return output;
         }
+        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         function encodeBase64(input) {
             var output = '';
             var i = 0;
@@ -549,109 +549,18 @@
                 }
             }
         }
-        var util = {
-            append: append,
-            arabicToRoman: arabicToRoman,
-            createPromise: createPromise,
-            defined: defined,
-            definitionId: definitionId,
-            deg: deg,
-            encodeBase64: encodeBase64,
-            eventCoordinates: eventCoordinates,
-            eventElement: eventElement,
-            isTransparent: isTransparent,
-            last: last,
-            limitValue: limitValue,
-            mergeSort: mergeSort,
-            promiseAll: promiseAll,
-            rad: rad,
-            round: round,
-            valueOrDefault: valueOrDefault,
-            bindEvents: bindEvents,
-            elementOffset: elementOffset,
-            elementSize: elementSize,
-            elementStyles: elementStyles,
-            unbindEvents: unbindEvents,
-            DEG_TO_RAD: DEG_TO_RAD,
-            MAX_NUM: MAX_NUM,
-            MIN_NUM: MIN_NUM
-        };
-        var toString = {}.toString;
-        var OptionsStore = Class.extend({
-            init: function (options, prefix) {
-                var this$1 = this;
-                if (prefix === void 0) {
-                    prefix = '';
-                }
-                this.prefix = prefix;
-                for (var field in options) {
-                    var member = options[field];
-                    member = this$1._wrap(member, field);
-                    this$1[field] = member;
-                }
-            },
-            get: function (field) {
-                var parts = field.split('.');
-                var result = this;
-                while (parts.length && result) {
-                    var part = parts.shift();
-                    result = result[part];
-                }
-                return result;
-            },
-            set: function (field, value) {
-                var current = this.get(field);
-                if (current !== value) {
-                    this._set(field, this._wrap(value, field));
-                    this.optionsChange({
-                        field: this.prefix + field,
-                        value: value
-                    });
-                }
-            },
-            _set: function (field, value) {
-                var this$1 = this;
-                var composite = field.indexOf('.') >= 0;
-                var parentObj = this;
-                var fieldName = field;
-                if (composite) {
-                    var parts = fieldName.split('.');
-                    var prefix = this.prefix;
-                    while (parts.length > 1) {
-                        fieldName = parts.shift();
-                        prefix += fieldName + '.';
-                        var obj = parentObj[fieldName];
-                        if (!obj) {
-                            obj = new OptionsStore({}, prefix);
-                            obj.addObserver(this$1);
-                            parentObj[fieldName] = obj;
-                        }
-                        parentObj = obj;
-                    }
-                    fieldName = parts[0];
-                }
-                parentObj._clear(fieldName);
-                parentObj[fieldName] = value;
-            },
-            _clear: function (field) {
-                var current = this[field];
-                if (current && current.removeObserver) {
-                    current.removeObserver(this);
-                }
-            },
-            _wrap: function (object, field) {
-                var type = toString.call(object);
-                var wrapped = object;
-                if (wrapped !== null && defined(wrapped) && type === '[object Object]') {
-                    if (!(object instanceof OptionsStore) && !(object instanceof Class)) {
-                        wrapped = new OptionsStore(wrapped, this.prefix + field + '.');
-                    }
-                    wrapped.addObserver(this);
-                }
-                return wrapped;
-            }
-        });
-        ObserversMixin.extend(OptionsStore.prototype);
+        function elementPadding(element) {
+            var ref = elementStyles(element, [
+                'paddingLeft',
+                'paddingTop'
+            ]);
+            var paddingLeft = ref.paddingLeft;
+            var paddingTop = ref.paddingTop;
+            return {
+                top: parseFloat(paddingTop),
+                left: parseFloat(paddingLeft)
+            };
+        }
         function setAccessor(field) {
             return function (value) {
                 if (this[field] !== value) {
@@ -1087,6 +996,110 @@
             }
         };
         ObserversMixin.extend(Rect.prototype);
+        function ellipseExtremeAngles(center, rx, ry, matrix) {
+            var extremeX = 0;
+            var extremeY = 0;
+            if (matrix) {
+                extremeX = Math.atan2(matrix.c * ry, matrix.a * rx);
+                if (matrix.b !== 0) {
+                    extremeY = Math.atan2(matrix.d * ry, matrix.b * rx);
+                }
+            }
+            return {
+                x: extremeX,
+                y: extremeY
+            };
+        }
+        var PI_DIV_2 = Math.PI / 2;
+        var Circle = Class.extend({
+            init: function (center, radius) {
+                if (center === void 0) {
+                    center = new Point();
+                }
+                if (radius === void 0) {
+                    radius = 0;
+                }
+                this.setCenter(center);
+                this.setRadius(radius);
+            },
+            setCenter: function (value) {
+                this._observerField('center', Point.create(value));
+                this.geometryChange();
+                return this;
+            },
+            getCenter: function () {
+                return this.center;
+            },
+            equals: function (other) {
+                return other && other.center.equals(this.center) && other.radius === this.radius;
+            },
+            clone: function () {
+                return new Circle(this.center.clone(), this.radius);
+            },
+            pointAt: function (angle) {
+                return this._pointAt(rad(angle));
+            },
+            bbox: function (matrix) {
+                var this$1 = this;
+                var extremeAngles = ellipseExtremeAngles(this.center, this.radius, this.radius, matrix);
+                var minPoint = Point.maxPoint();
+                var maxPoint = Point.minPoint();
+                for (var i = 0; i < 4; i++) {
+                    var currentPointX = this$1._pointAt(extremeAngles.x + i * PI_DIV_2).transformCopy(matrix);
+                    var currentPointY = this$1._pointAt(extremeAngles.y + i * PI_DIV_2).transformCopy(matrix);
+                    var currentPoint = new Point(currentPointX.x, currentPointY.y);
+                    minPoint = Point.min(minPoint, currentPoint);
+                    maxPoint = Point.max(maxPoint, currentPoint);
+                }
+                return Rect.fromPoints(minPoint, maxPoint);
+            },
+            _pointAt: function (angle) {
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                return new Point(center.x + radius * Math.cos(angle), center.y + radius * Math.sin(angle));
+            },
+            containsPoint: function (point) {
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                var inCircle = Math.pow(point.x - center.x, 2) + Math.pow(point.y - center.y, 2) <= Math.pow(radius, 2);
+                return inCircle;
+            },
+            _isOnPath: function (point, width) {
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                var pointDistance = center.distanceTo(point);
+                return radius - width <= pointDistance && pointDistance <= radius + width;
+            }
+        });
+        defineAccessors(Circle.prototype, ['radius']);
+        ObserversMixin.extend(Circle.prototype);
+        var PRECISION = 10;
+        function close(a, b, tolerance) {
+            if (tolerance === void 0) {
+                tolerance = PRECISION;
+            }
+            return round(Math.abs(a - b), tolerance) === 0;
+        }
+        function closeOrLess(a, b, tolerance) {
+            return a < b || close(a, b, tolerance);
+        }
+        function lineIntersection(p0, p1, p2, p3) {
+            var s1x = p1.x - p0.x;
+            var s2x = p3.x - p2.x;
+            var s1y = p1.y - p0.y;
+            var s2y = p3.y - p2.y;
+            var nx = p0.x - p2.x;
+            var ny = p0.y - p2.y;
+            var d = s1x * s2y - s2x * s1y;
+            var s = (s1x * ny - s1y * nx) / d;
+            var t = (s2x * ny - s2y * nx) / d;
+            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+                return new Point(p0.x + t * s1x, p0.y + t * s1y);
+            }
+        }
         var Transformation = Class.extend({
             init: function (matrix) {
                 if (matrix === void 0) {
@@ -1161,339 +1174,9 @@
             }
             return new Transformation(matrix);
         }
-        var Element$1 = Class.extend({
-            init: function (options) {
-                this._initOptions(options);
-            },
-            _initOptions: function (options) {
-                if (options === void 0) {
-                    options = {};
-                }
-                var clip = options.clip;
-                var transform$$1 = options.transform;
-                if (transform$$1) {
-                    options.transform = transform(transform$$1);
-                }
-                if (clip && !clip.id) {
-                    clip.id = definitionId();
-                }
-                this.options = new OptionsStore(options);
-                this.options.addObserver(this);
-            },
-            transform: function (value) {
-                if (defined(value)) {
-                    this.options.set('transform', transform(value));
-                } else {
-                    return this.options.get('transform');
-                }
-            },
-            parentTransform: function () {
-                var element = this;
-                var parentMatrix;
-                while (element.parent) {
-                    element = element.parent;
-                    var transformation = element.transform();
-                    if (transformation) {
-                        parentMatrix = transformation.matrix().multiplyCopy(parentMatrix || Matrix.unit());
-                    }
-                }
-                if (parentMatrix) {
-                    return transform(parentMatrix);
-                }
-            },
-            currentTransform: function (parentTransform) {
-                if (parentTransform === void 0) {
-                    parentTransform = this.parentTransform();
-                }
-                var elementTransform = this.transform();
-                var elementMatrix = toMatrix(elementTransform);
-                var parentMatrix = toMatrix(parentTransform);
-                var combinedMatrix;
-                if (elementMatrix && parentMatrix) {
-                    combinedMatrix = parentMatrix.multiplyCopy(elementMatrix);
-                } else {
-                    combinedMatrix = elementMatrix || parentMatrix;
-                }
-                if (combinedMatrix) {
-                    return transform(combinedMatrix);
-                }
-            },
-            visible: function (value) {
-                if (defined(value)) {
-                    this.options.set('visible', value);
-                    return this;
-                }
-                return this.options.get('visible') !== false;
-            },
-            clip: function (value) {
-                var options = this.options;
-                if (defined(value)) {
-                    if (value && !value.id) {
-                        value.id = definitionId();
-                    }
-                    options.set('clip', value);
-                    return this;
-                }
-                return options.get('clip');
-            },
-            opacity: function (value) {
-                if (defined(value)) {
-                    this.options.set('opacity', value);
-                    return this;
-                }
-                return valueOrDefault(this.options.get('opacity'), 1);
-            },
-            clippedBBox: function (transformation) {
-                var bbox = this._clippedBBox(transformation);
-                if (bbox) {
-                    var clip = this.clip();
-                    return clip ? Rect.intersect(bbox, clip.bbox(transformation)) : bbox;
-                }
-            },
-            containsPoint: function (point, parentTransform) {
-                if (this.visible()) {
-                    var transform$$1 = this.currentTransform(parentTransform);
-                    var transformedPoint = point;
-                    if (transform$$1) {
-                        transformedPoint = point.transformCopy(transform$$1.matrix().invert());
-                    }
-                    return this._hasFill() && this._containsPoint(transformedPoint) || this._isOnPath && this._hasStroke() && this._isOnPath(transformedPoint);
-                }
-                return false;
-            },
-            _hasFill: function () {
-                var fill = this.options.fill;
-                return fill && !isTransparent(fill.color);
-            },
-            _hasStroke: function () {
-                var stroke = this.options.stroke;
-                return stroke && stroke.width > 0 && !isTransparent(stroke.color);
-            },
-            _clippedBBox: function (transformation) {
-                return this.bbox(transformation);
-            }
-        });
-        Element$1.prototype.nodeType = 'Element';
-        ObserversMixin.extend(Element$1.prototype);
-        function ellipseExtremeAngles(center, rx, ry, matrix) {
-            var extremeX = 0;
-            var extremeY = 0;
-            if (matrix) {
-                extremeX = Math.atan2(matrix.c * ry, matrix.a * rx);
-                if (matrix.b !== 0) {
-                    extremeY = Math.atan2(matrix.d * ry, matrix.b * rx);
-                }
-            }
-            return {
-                x: extremeX,
-                y: extremeY
-            };
-        }
-        var PI_DIV_2 = Math.PI / 2;
-        var Circle$2 = Class.extend({
-            init: function (center, radius) {
-                if (center === void 0) {
-                    center = new Point();
-                }
-                if (radius === void 0) {
-                    radius = 0;
-                }
-                this.setCenter(center);
-                this.setRadius(radius);
-            },
-            setCenter: function (value) {
-                this._observerField('center', Point.create(value));
-                this.geometryChange();
-                return this;
-            },
-            getCenter: function () {
-                return this.center;
-            },
-            equals: function (other) {
-                return other && other.center.equals(this.center) && other.radius === this.radius;
-            },
-            clone: function () {
-                return new Circle$2(this.center.clone(), this.radius);
-            },
-            pointAt: function (angle) {
-                return this._pointAt(rad(angle));
-            },
-            bbox: function (matrix) {
-                var this$1 = this;
-                var extremeAngles = ellipseExtremeAngles(this.center, this.radius, this.radius, matrix);
-                var minPoint = Point.maxPoint();
-                var maxPoint = Point.minPoint();
-                for (var i = 0; i < 4; i++) {
-                    var currentPointX = this$1._pointAt(extremeAngles.x + i * PI_DIV_2).transformCopy(matrix);
-                    var currentPointY = this$1._pointAt(extremeAngles.y + i * PI_DIV_2).transformCopy(matrix);
-                    var currentPoint = new Point(currentPointX.x, currentPointY.y);
-                    minPoint = Point.min(minPoint, currentPoint);
-                    maxPoint = Point.max(maxPoint, currentPoint);
-                }
-                return Rect.fromPoints(minPoint, maxPoint);
-            },
-            _pointAt: function (angle) {
-                var ref = this;
-                var center = ref.center;
-                var radius = ref.radius;
-                return new Point(center.x + radius * Math.cos(angle), center.y + radius * Math.sin(angle));
-            },
-            containsPoint: function (point) {
-                var ref = this;
-                var center = ref.center;
-                var radius = ref.radius;
-                var inCircle = Math.pow(point.x - center.x, 2) + Math.pow(point.y - center.y, 2) <= Math.pow(radius, 2);
-                return inCircle;
-            },
-            _isOnPath: function (point, width) {
-                var ref = this;
-                var center = ref.center;
-                var radius = ref.radius;
-                var pointDistance = center.distanceTo(point);
-                return radius - width <= pointDistance && pointDistance <= radius + width;
-            }
-        });
-        defineAccessors(Circle$2.prototype, ['radius']);
-        ObserversMixin.extend(Circle$2.prototype);
-        var GRADIENT = 'Gradient';
-        var Paintable = {
-            extend: function (proto) {
-                proto.fill = this.fill;
-                proto.stroke = this.stroke;
-            },
-            fill: function (color, opacity) {
-                var options = this.options;
-                if (defined(color)) {
-                    if (color && color.nodeType !== GRADIENT) {
-                        var newFill = { color: color };
-                        if (defined(opacity)) {
-                            newFill.opacity = opacity;
-                        }
-                        options.set('fill', newFill);
-                    } else {
-                        options.set('fill', color);
-                    }
-                    return this;
-                }
-                return options.get('fill');
-            },
-            stroke: function (color, width, opacity) {
-                if (defined(color)) {
-                    this.options.set('stroke.color', color);
-                    if (defined(width)) {
-                        this.options.set('stroke.width', width);
-                    }
-                    if (defined(opacity)) {
-                        this.options.set('stroke.opacity', opacity);
-                    }
-                    return this;
-                }
-                return this.options.get('stroke');
-            }
-        };
-        var IDENTITY_MATRIX_HASH = Matrix.IDENTITY.toString();
-        var Measurable = {
-            extend: function (proto) {
-                proto.bbox = this.bbox;
-                proto.geometryChange = this.geometryChange;
-            },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
-                var bbox;
-                if (this._bboxCache && this._matrixHash === matrixHash) {
-                    bbox = this._bboxCache.clone();
-                } else {
-                    bbox = this._bbox(combinedMatrix);
-                    this._bboxCache = bbox ? bbox.clone() : null;
-                    this._matrixHash = matrixHash;
-                }
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth && bbox) {
-                    bbox.expand(strokeWidth / 2);
-                }
-                return bbox;
-            },
-            geometryChange: function () {
-                delete this._bboxCache;
-                this.trigger('geometryChange', { element: this });
-            }
-        };
-        function geometryAccessor(name) {
-            var fieldName = '_' + name;
-            return function (value) {
-                if (defined(value)) {
-                    this._observerField(fieldName, value);
-                    this.geometryChange();
-                    return this;
-                }
-                return this[fieldName];
-            };
-        }
-        function defineGeometryAccessors(fn, names) {
-            for (var i = 0; i < names.length; i++) {
-                fn[names[i]] = geometryAccessor(names[i]);
-            }
-        }
-        var DEFAULT_STROKE = '#000';
-        var Circle = Element$1.extend({
-            init: function (geometry, options) {
-                if (geometry === void 0) {
-                    geometry = new Circle$2();
-                }
-                if (options === void 0) {
-                    options = {};
-                }
-                Element$1.fn.init.call(this, options);
-                this.geometry(geometry);
-                if (!defined(this.options.stroke)) {
-                    this.stroke(DEFAULT_STROKE);
-                }
-            },
-            rawBBox: function () {
-                return this._geometry.bbox();
-            },
-            _bbox: function (matrix) {
-                return this._geometry.bbox(matrix);
-            },
-            _containsPoint: function (point) {
-                return this.geometry().containsPoint(point);
-            },
-            _isOnPath: function (point) {
-                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
-            }
-        });
-        Circle.prototype.nodeType = 'Circle';
-        Paintable.extend(Circle.prototype);
-        Measurable.extend(Circle.prototype);
-        defineGeometryAccessors(Circle.prototype, ['geometry']);
-        var PRECISION = 10;
-        function close(a, b, tolerance) {
-            if (tolerance === void 0) {
-                tolerance = PRECISION;
-            }
-            return round(Math.abs(a - b), tolerance) === 0;
-        }
-        function closeOrLess(a, b, tolerance) {
-            return a < b || close(a, b, tolerance);
-        }
-        function lineIntersection(p0, p1, p2, p3) {
-            var s1x = p1.x - p0.x;
-            var s2x = p3.x - p2.x;
-            var s1y = p1.y - p0.y;
-            var s2y = p3.y - p2.y;
-            var nx = p0.x - p2.x;
-            var ny = p0.y - p2.y;
-            var d = s1x * s2y - s2x * s1y;
-            var s = (s1x * ny - s1y * nx) / d;
-            var t = (s2x * ny - s2y * nx) / d;
-            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                return new Point(p0.x + t * s1x, p0.y + t * s1y);
-            }
-        }
         var MAX_INTERVAL = 45;
         var pow$1 = Math.pow;
-        var Arc$2 = Class.extend({
+        var Arc = Class.extend({
             init: function (center, options) {
                 if (center === void 0) {
                     center = new Point();
@@ -1510,7 +1193,7 @@
                 this.xRotation = options.xRotation;
             },
             clone: function () {
-                return new Arc$2(this.center, {
+                return new Arc(this.center, {
                     radiusX: this.radiusX,
                     radiusY: this.radiusY,
                     startAngle: this.startAngle,
@@ -1664,7 +1347,7 @@
                 return inAngleRange && this.pointAt(angle).distanceTo(point) <= width;
             }
         });
-        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe, rotation) {
+        Arc.fromPoints = function (start, end, rx, ry, largeArc, swipe, rotation) {
             var arcParameters = normalizeArcParameters({
                 x1: start.x,
                 y1: start.y,
@@ -1676,7 +1359,7 @@
                 swipe: swipe,
                 rotation: rotation
             });
-            return new Arc$2(arcParameters.center, {
+            return new Arc(arcParameters.center, {
                 startAngle: arcParameters.startAngle,
                 endAngle: arcParameters.endAngle,
                 radiusX: arcParameters.radiusX,
@@ -1685,14 +1368,14 @@
                 anticlockwise: swipe === 0
             });
         };
-        defineAccessors(Arc$2.prototype, [
+        defineAccessors(Arc.prototype, [
             'radiusX',
             'radiusY',
             'startAngle',
             'endAngle',
             'anticlockwise'
         ]);
-        ObserversMixin.extend(Arc$2.prototype);
+        ObserversMixin.extend(Arc.prototype);
         function calculateAngle(cx, cy, rx, ry, x, y) {
             var cos = round((x - cx) / rx, 3);
             var sin = round((y - cy) / ry, 3);
@@ -1769,113 +1452,6 @@
             }
             return startAngle;
         }
-        var push = [].push;
-        var pop = [].pop;
-        var splice = [].splice;
-        var shift = [].shift;
-        var slice = [].slice;
-        var unshift = [].unshift;
-        var ElementsArray = Class.extend({
-            init: function (array) {
-                if (array === void 0) {
-                    array = [];
-                }
-                this.length = 0;
-                this._splice(0, array.length, array);
-            },
-            elements: function (value) {
-                if (value) {
-                    this._splice(0, this.length, value);
-                    this._change();
-                    return this;
-                }
-                return this.slice(0);
-            },
-            push: function () {
-                var elements = arguments;
-                var result = push.apply(this, elements);
-                this._add(elements);
-                return result;
-            },
-            slice: function () {
-                return slice.call(this);
-            },
-            pop: function () {
-                var length = this.length;
-                var result = pop.apply(this);
-                if (length) {
-                    this._remove([result]);
-                }
-                return result;
-            },
-            splice: function (index, howMany) {
-                var elements = slice.call(arguments, 2);
-                var result = this._splice(index, howMany, elements);
-                this._change();
-                return result;
-            },
-            shift: function () {
-                var length = this.length;
-                var result = shift.apply(this);
-                if (length) {
-                    this._remove([result]);
-                }
-                return result;
-            },
-            unshift: function () {
-                var elements = arguments;
-                var result = unshift.apply(this, elements);
-                this._add(elements);
-                return result;
-            },
-            indexOf: function (element) {
-                var this$1 = this;
-                var length = this.length;
-                for (var idx = 0; idx < length; idx++) {
-                    if (this$1[idx] === element) {
-                        return idx;
-                    }
-                }
-                return -1;
-            },
-            _splice: function (index, howMany, elements) {
-                var result = splice.apply(this, [
-                    index,
-                    howMany
-                ].concat(elements));
-                this._clearObserver(result);
-                this._setObserver(elements);
-                return result;
-            },
-            _add: function (elements) {
-                this._setObserver(elements);
-                this._change();
-            },
-            _remove: function (elements) {
-                this._clearObserver(elements);
-                this._change();
-            },
-            _setObserver: function (elements) {
-                var this$1 = this;
-                for (var idx = 0; idx < elements.length; idx++) {
-                    elements[idx].addObserver(this$1);
-                }
-            },
-            _clearObserver: function (elements) {
-                var this$1 = this;
-                for (var idx = 0; idx < elements.length; idx++) {
-                    elements[idx].removeObserver(this$1);
-                }
-            },
-            _change: function () {
-            }
-        });
-        ObserversMixin.extend(ElementsArray.prototype);
-        var GeometryElementsArray = ElementsArray.extend({
-            _change: function () {
-                this.geometryChange();
-            }
-        });
         function pointAccessor(name) {
             var fieldName = '_' + name;
             return function (value) {
@@ -2202,6 +1778,488 @@
                 max: max
             };
         }
+        var geometry = {
+            Circle: Circle,
+            Arc: Arc,
+            Rect: Rect,
+            Point: Point,
+            Segment: Segment,
+            Matrix: Matrix,
+            Size: Size,
+            toMatrix: toMatrix,
+            Transformation: Transformation,
+            transform: transform
+        };
+        var matrixRegexp = /matrix\((.*)\)/;
+        function parseMatrix(matrixString) {
+            var match = matrixString.match(matrixRegexp);
+            if (match === null || match.length !== 2) {
+                return Matrix.unit();
+            }
+            var members = match[1].split(',').map(function (x) {
+                return parseFloat(x);
+            });
+            return new (Function.prototype.bind.apply(Matrix, [null].concat(members)))();
+        }
+        function transformMatrix(element) {
+            var transform$$1 = getComputedStyle(element).transform;
+            if (transform$$1 === 'none') {
+                return Matrix.unit();
+            }
+            return parseMatrix(transform$$1);
+        }
+        function elementScale(element) {
+            if (!element) {
+                return Matrix.unit();
+            }
+            var matrix = transformMatrix(element);
+            var parent = element.parentElement;
+            while (parent) {
+                var parentMatrix = transformMatrix(parent);
+                matrix = matrix.multiplyCopy(parentMatrix);
+                parent = parent.parentElement;
+            }
+            matrix.b = matrix.c = matrix.e = matrix.f = 0;
+            return matrix;
+        }
+        var util = {
+            append: append,
+            arabicToRoman: arabicToRoman,
+            createPromise: createPromise,
+            defined: defined,
+            definitionId: definitionId,
+            deg: deg,
+            encodeBase64: encodeBase64,
+            eventCoordinates: eventCoordinates,
+            eventElement: eventElement,
+            isTransparent: isTransparent,
+            last: last,
+            limitValue: limitValue,
+            mergeSort: mergeSort,
+            promiseAll: promiseAll,
+            rad: rad,
+            round: round,
+            valueOrDefault: valueOrDefault,
+            bindEvents: bindEvents,
+            elementOffset: elementOffset,
+            elementSize: elementSize,
+            elementStyles: elementStyles,
+            unbindEvents: unbindEvents,
+            elementPadding: elementPadding,
+            elementScale: elementScale,
+            DEG_TO_RAD: DEG_TO_RAD,
+            MAX_NUM: MAX_NUM,
+            MIN_NUM: MIN_NUM
+        };
+        var toString = {}.toString;
+        var OptionsStore = Class.extend({
+            init: function (options, prefix) {
+                var this$1 = this;
+                if (prefix === void 0) {
+                    prefix = '';
+                }
+                this.prefix = prefix;
+                for (var field in options) {
+                    var member = options[field];
+                    member = this$1._wrap(member, field);
+                    this$1[field] = member;
+                }
+            },
+            get: function (field) {
+                var parts = field.split('.');
+                var result = this;
+                while (parts.length && result) {
+                    var part = parts.shift();
+                    result = result[part];
+                }
+                return result;
+            },
+            set: function (field, value) {
+                var current = this.get(field);
+                if (current !== value) {
+                    this._set(field, this._wrap(value, field));
+                    this.optionsChange({
+                        field: this.prefix + field,
+                        value: value
+                    });
+                }
+            },
+            _set: function (field, value) {
+                var this$1 = this;
+                var composite = field.indexOf('.') >= 0;
+                var parentObj = this;
+                var fieldName = field;
+                if (composite) {
+                    var parts = fieldName.split('.');
+                    var prefix = this.prefix;
+                    while (parts.length > 1) {
+                        fieldName = parts.shift();
+                        prefix += fieldName + '.';
+                        var obj = parentObj[fieldName];
+                        if (!obj) {
+                            obj = new OptionsStore({}, prefix);
+                            obj.addObserver(this$1);
+                            parentObj[fieldName] = obj;
+                        }
+                        parentObj = obj;
+                    }
+                    fieldName = parts[0];
+                }
+                parentObj._clear(fieldName);
+                parentObj[fieldName] = value;
+            },
+            _clear: function (field) {
+                var current = this[field];
+                if (current && current.removeObserver) {
+                    current.removeObserver(this);
+                }
+            },
+            _wrap: function (object, field) {
+                var type = toString.call(object);
+                var wrapped = object;
+                if (wrapped !== null && defined(wrapped) && type === '[object Object]') {
+                    if (!(object instanceof OptionsStore) && !(object instanceof Class)) {
+                        wrapped = new OptionsStore(wrapped, this.prefix + field + '.');
+                    }
+                    wrapped.addObserver(this);
+                }
+                return wrapped;
+            }
+        });
+        ObserversMixin.extend(OptionsStore.prototype);
+        var Element$1 = Class.extend({
+            init: function (options) {
+                this._initOptions(options);
+            },
+            _initOptions: function (options) {
+                if (options === void 0) {
+                    options = {};
+                }
+                var clip = options.clip;
+                var transform$$1 = options.transform;
+                if (transform$$1) {
+                    options.transform = transform(transform$$1);
+                }
+                if (clip && !clip.id) {
+                    clip.id = definitionId();
+                }
+                this.options = new OptionsStore(options);
+                this.options.addObserver(this);
+            },
+            transform: function (value) {
+                if (defined(value)) {
+                    this.options.set('transform', transform(value));
+                } else {
+                    return this.options.get('transform');
+                }
+            },
+            parentTransform: function () {
+                var element = this;
+                var parentMatrix;
+                while (element.parent) {
+                    element = element.parent;
+                    var transformation = element.transform();
+                    if (transformation) {
+                        parentMatrix = transformation.matrix().multiplyCopy(parentMatrix || Matrix.unit());
+                    }
+                }
+                if (parentMatrix) {
+                    return transform(parentMatrix);
+                }
+            },
+            currentTransform: function (parentTransform) {
+                if (parentTransform === void 0) {
+                    parentTransform = this.parentTransform();
+                }
+                var elementTransform = this.transform();
+                var elementMatrix = toMatrix(elementTransform);
+                var parentMatrix = toMatrix(parentTransform);
+                var combinedMatrix;
+                if (elementMatrix && parentMatrix) {
+                    combinedMatrix = parentMatrix.multiplyCopy(elementMatrix);
+                } else {
+                    combinedMatrix = elementMatrix || parentMatrix;
+                }
+                if (combinedMatrix) {
+                    return transform(combinedMatrix);
+                }
+            },
+            visible: function (value) {
+                if (defined(value)) {
+                    this.options.set('visible', value);
+                    return this;
+                }
+                return this.options.get('visible') !== false;
+            },
+            clip: function (value) {
+                var options = this.options;
+                if (defined(value)) {
+                    if (value && !value.id) {
+                        value.id = definitionId();
+                    }
+                    options.set('clip', value);
+                    return this;
+                }
+                return options.get('clip');
+            },
+            opacity: function (value) {
+                if (defined(value)) {
+                    this.options.set('opacity', value);
+                    return this;
+                }
+                return valueOrDefault(this.options.get('opacity'), 1);
+            },
+            clippedBBox: function (transformation) {
+                var bbox = this._clippedBBox(transformation);
+                if (bbox) {
+                    var clip = this.clip();
+                    return clip ? Rect.intersect(bbox, clip.bbox(transformation)) : bbox;
+                }
+            },
+            containsPoint: function (point, parentTransform) {
+                if (this.visible()) {
+                    var transform$$1 = this.currentTransform(parentTransform);
+                    var transformedPoint = point;
+                    if (transform$$1) {
+                        transformedPoint = point.transformCopy(transform$$1.matrix().invert());
+                    }
+                    return this._hasFill() && this._containsPoint(transformedPoint) || this._isOnPath && this._hasStroke() && this._isOnPath(transformedPoint);
+                }
+                return false;
+            },
+            _hasFill: function () {
+                var fill = this.options.fill;
+                return fill && !isTransparent(fill.color);
+            },
+            _hasStroke: function () {
+                var stroke = this.options.stroke;
+                return stroke && stroke.width > 0 && !isTransparent(stroke.color);
+            },
+            _clippedBBox: function (transformation) {
+                return this.bbox(transformation);
+            }
+        });
+        Element$1.prototype.nodeType = 'Element';
+        ObserversMixin.extend(Element$1.prototype);
+        var GRADIENT = 'Gradient';
+        var Paintable = {
+            extend: function (proto) {
+                proto.fill = this.fill;
+                proto.stroke = this.stroke;
+            },
+            fill: function (color, opacity) {
+                var options = this.options;
+                if (defined(color)) {
+                    if (color && color.nodeType !== GRADIENT) {
+                        var newFill = { color: color };
+                        if (defined(opacity)) {
+                            newFill.opacity = opacity;
+                        }
+                        options.set('fill', newFill);
+                    } else {
+                        options.set('fill', color);
+                    }
+                    return this;
+                }
+                return options.get('fill');
+            },
+            stroke: function (color, width, opacity) {
+                if (defined(color)) {
+                    this.options.set('stroke.color', color);
+                    if (defined(width)) {
+                        this.options.set('stroke.width', width);
+                    }
+                    if (defined(opacity)) {
+                        this.options.set('stroke.opacity', opacity);
+                    }
+                    return this;
+                }
+                return this.options.get('stroke');
+            }
+        };
+        var IDENTITY_MATRIX_HASH = Matrix.IDENTITY.toString();
+        var Measurable = {
+            extend: function (proto) {
+                proto.bbox = this.bbox;
+                proto.geometryChange = this.geometryChange;
+            },
+            bbox: function (transformation) {
+                var combinedMatrix = toMatrix(this.currentTransform(transformation));
+                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
+                var bbox;
+                if (this._bboxCache && this._matrixHash === matrixHash) {
+                    bbox = this._bboxCache.clone();
+                } else {
+                    bbox = this._bbox(combinedMatrix);
+                    this._bboxCache = bbox ? bbox.clone() : null;
+                    this._matrixHash = matrixHash;
+                }
+                var strokeWidth = this.options.get('stroke.width');
+                if (strokeWidth && bbox) {
+                    bbox.expand(strokeWidth / 2);
+                }
+                return bbox;
+            },
+            geometryChange: function () {
+                delete this._bboxCache;
+                this.trigger('geometryChange', { element: this });
+            }
+        };
+        function geometryAccessor(name) {
+            var fieldName = '_' + name;
+            return function (value) {
+                if (defined(value)) {
+                    this._observerField(fieldName, value);
+                    this.geometryChange();
+                    return this;
+                }
+                return this[fieldName];
+            };
+        }
+        function defineGeometryAccessors(fn, names) {
+            for (var i = 0; i < names.length; i++) {
+                fn[names[i]] = geometryAccessor(names[i]);
+            }
+        }
+        var DEFAULT_STROKE = '#000';
+        var Circle$1 = Element$1.extend({
+            init: function (geometry, options) {
+                if (geometry === void 0) {
+                    geometry = new Circle();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
+                this.geometry(geometry);
+                if (!defined(this.options.stroke)) {
+                    this.stroke(DEFAULT_STROKE);
+                }
+            },
+            rawBBox: function () {
+                return this._geometry.bbox();
+            },
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
+            },
+            _containsPoint: function (point) {
+                return this.geometry().containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
+            }
+        });
+        Circle$1.prototype.nodeType = 'Circle';
+        Paintable.extend(Circle$1.prototype);
+        Measurable.extend(Circle$1.prototype);
+        defineGeometryAccessors(Circle$1.prototype, ['geometry']);
+        var push = [].push;
+        var pop = [].pop;
+        var splice = [].splice;
+        var shift = [].shift;
+        var slice = [].slice;
+        var unshift = [].unshift;
+        var ElementsArray = Class.extend({
+            init: function (array) {
+                if (array === void 0) {
+                    array = [];
+                }
+                this.length = 0;
+                this._splice(0, array.length, array);
+            },
+            elements: function (value) {
+                if (value) {
+                    this._splice(0, this.length, value);
+                    this._change();
+                    return this;
+                }
+                return this.slice(0);
+            },
+            push: function () {
+                var elements = arguments;
+                var result = push.apply(this, elements);
+                this._add(elements);
+                return result;
+            },
+            slice: function () {
+                return slice.call(this);
+            },
+            pop: function () {
+                var length = this.length;
+                var result = pop.apply(this);
+                if (length) {
+                    this._remove([result]);
+                }
+                return result;
+            },
+            splice: function (index, howMany) {
+                var elements = slice.call(arguments, 2);
+                var result = this._splice(index, howMany, elements);
+                this._change();
+                return result;
+            },
+            shift: function () {
+                var length = this.length;
+                var result = shift.apply(this);
+                if (length) {
+                    this._remove([result]);
+                }
+                return result;
+            },
+            unshift: function () {
+                var elements = arguments;
+                var result = unshift.apply(this, elements);
+                this._add(elements);
+                return result;
+            },
+            indexOf: function (element) {
+                var this$1 = this;
+                var length = this.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (this$1[idx] === element) {
+                        return idx;
+                    }
+                }
+                return -1;
+            },
+            _splice: function (index, howMany, elements) {
+                var result = splice.apply(this, [
+                    index,
+                    howMany
+                ].concat(elements));
+                this._clearObserver(result);
+                this._setObserver(elements);
+                return result;
+            },
+            _add: function (elements) {
+                this._setObserver(elements);
+                this._change();
+            },
+            _remove: function (elements) {
+                this._clearObserver(elements);
+                this._change();
+            },
+            _setObserver: function (elements) {
+                var this$1 = this;
+                for (var idx = 0; idx < elements.length; idx++) {
+                    elements[idx].addObserver(this$1);
+                }
+            },
+            _clearObserver: function (elements) {
+                var this$1 = this;
+                for (var idx = 0; idx < elements.length; idx++) {
+                    elements[idx].removeObserver(this$1);
+                }
+            },
+            _change: function () {
+            }
+        });
+        ObserversMixin.extend(ElementsArray.prototype);
+        var GeometryElementsArray = ElementsArray.extend({
+            _change: function () {
+                this.geometryChange();
+            }
+        });
         function elementsBoundingBox(elements, applyTransform, transformation) {
             var boundingBox;
             for (var i = 0; i < elements.length; i++) {
@@ -2557,7 +2615,7 @@
                     var anchor = lastSegment.anchor();
                     var start = rad(startAngle);
                     var center = new Point(anchor.x - radiusX * Math.cos(start), anchor.y - radiusY * Math.sin(start));
-                    var arc = new Arc$2(center, {
+                    var arc = new Arc(center, {
                         startAngle: startAngle,
                         endAngle: endAngle,
                         radiusX: radiusX,
@@ -2572,7 +2630,7 @@
                 if (this.segments.length > 0) {
                     var lastSegment = last(this.segments);
                     var anchor = lastSegment.anchor();
-                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
+                    var arc = Arc.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
                     this._addArcSegments(arc);
                 }
                 return this;
@@ -2683,10 +2741,10 @@
             return PathParser.current.parse(str, options);
         };
         var DEFAULT_STROKE$1 = '#000';
-        var Arc = Element$1.extend({
+        var Arc$2 = Element$1.extend({
             init: function (geometry, options) {
                 if (geometry === void 0) {
-                    geometry = new Arc$2();
+                    geometry = new Arc();
                 }
                 if (options === void 0) {
                     options = {};
@@ -2721,10 +2779,10 @@
                 return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
             }
         });
-        Arc.prototype.nodeType = 'Arc';
-        Paintable.extend(Arc.prototype);
-        Measurable.extend(Arc.prototype);
-        defineGeometryAccessors(Arc.prototype, ['geometry']);
+        Arc$2.prototype.nodeType = 'Arc';
+        Paintable.extend(Arc$2.prototype);
+        Measurable.extend(Arc$2.prototype);
+        defineGeometryAccessors(Arc$2.prototype, ['geometry']);
         var DEFAULT_FONT = '12px sans-serif';
         var DEFAULT_FILL = '#000';
         var Text = Element$1.extend({
@@ -3679,18 +3737,13 @@
             },
             _elementOffset: function () {
                 var element = this.element;
-                var ref = elementStyles(element, [
-                    'paddingLeft',
-                    'paddingTop'
-                ]);
-                var paddingLeft = ref.paddingLeft;
-                var paddingTop = ref.paddingTop;
-                var ref$1 = elementOffset(element);
-                var left = ref$1.left;
-                var top = ref$1.top;
+                var padding = elementPadding(element);
+                var ref = elementOffset(element);
+                var left = ref.left;
+                var top = ref.top;
                 return {
-                    left: left + parseInt(paddingLeft, 10),
-                    top: top + parseInt(paddingTop, 10)
+                    left: left + padding.left,
+                    top: top + padding.top
                 };
             },
             _surfacePoint: function (e) {
@@ -3698,7 +3751,9 @@
                 var coord = eventCoordinates(e);
                 var x = coord.x - offset.left;
                 var y = coord.y - offset.top;
-                return new Point(x, y);
+                var inverseTransform = elementScale(this.element).invert();
+                var point = new Point(x, y).transform(inverseTransform);
+                return point;
             }
         });
         Surface.create = function (element, options) {
@@ -4848,18 +4903,6 @@
             }
         });
         NODE_MAP.MultiPath = MultiPathNode;
-        var geometry = {
-            Circle: Circle$2,
-            Arc: Arc$2,
-            Rect: Rect,
-            Point: Point,
-            Segment: Segment,
-            Matrix: Matrix,
-            Size: Size,
-            toMatrix: toMatrix,
-            Transformation: Transformation,
-            transform: transform
-        };
         function exportGroup(group) {
             var root = new RootNode({ skipBaseHref: true });
             var bbox = group.clippedBBox();
@@ -5051,23 +5094,27 @@
                 this.loadElements(elements, pos, cors);
                 this._invalidate();
             },
-            _rescale: function () {
+            _rescale: function (scale) {
                 var ref = this;
                 var canvas = ref.canvas;
                 var size = ref.size;
-                var scale = 1;
-                if (typeof window.devicePixelRatio === 'number') {
-                    scale = window.devicePixelRatio;
-                }
                 canvas.width = size.width * scale;
                 canvas.height = size.height * scale;
                 this.ctx.scale(scale, scale);
             },
-            _invalidate: function () {
+            _devicePixelRatio: function () {
+                if (window.devicePixelRatio === 'number') {
+                    return window.devicePixelRatio;
+                }
+                return 1;
+            },
+            _invalidate: function (options) {
                 if (!this.ctx) {
                     return;
                 }
-                this._rescale();
+                var fixedScale = options && options.fixedScale;
+                var scale = fixedScale ? 1 : this._devicePixelRatio();
+                this._rescale(scale);
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.renderTo(this.ctx);
             }
@@ -5484,7 +5531,7 @@
                 });
                 var promise = createPromise();
                 var resolveDataURL = function () {
-                    root._invalidate();
+                    root._invalidate({ fixedScale: true });
                     try {
                         var data = rootElement.toDataURL();
                         promise.resolve(data);
@@ -6223,7 +6270,7 @@
                     if (keepTogether(element)) {
                         return;
                     }
-                    var style = getComputedStyle(element);
+                    var style = getComputedStyle$1(element);
                     var bottomPadding = parseFloat(getPropertyValue(style, 'padding-bottom'));
                     var bottomBorder = parseFloat(getPropertyValue(style, 'border-bottom-width'));
                     var saveAdjust = adjust;
@@ -6240,7 +6287,7 @@
                                 splitElement(el);
                                 continue;
                             }
-                            if (!/^(?:static|relative)$/.test(getPropertyValue(getComputedStyle(el), 'position'))) {
+                            if (!/^(?:static|relative)$/.test(getPropertyValue(getComputedStyle$1(el), 'position'))) {
                                 continue;
                             }
                             var fall = fallsOnMargin(el);
@@ -6401,7 +6448,7 @@
                 element: element,
                 group: group
             };
-            pushNodeInfo(element, getComputedStyle(element), group);
+            pushNodeInfo(element, getComputedStyle$1(element), group);
             if (element.firstChild.nodeType == 3) {
                 renderText(element, element.firstChild, group);
             } else {
@@ -6793,7 +6840,7 @@
                 if (/^img$/i.test(element.tagName)) {
                     add(element.src);
                 }
-                parseBackgroundImage(getPropertyValue(getComputedStyle(element), 'background-image')).forEach(function (bg) {
+                parseBackgroundImage(getPropertyValue(getComputedStyle$1(element), 'background-image')).forEach(function (bg) {
                     if (bg.type == 'url') {
                         add(bg.url);
                     }
@@ -6894,7 +6941,7 @@
                 return true;
             }
         }
-        function getComputedStyle(element, pseudoElt) {
+        function getComputedStyle$1(element, pseudoElt) {
             return window.getComputedStyle(element, pseudoElt || null);
         }
         function getPropertyValue(style, prop, defa) {
@@ -6965,7 +7012,7 @@
         function innerBox(box, prop, element) {
             var style, wt, wr, wb, wl;
             if (typeof prop == 'string') {
-                style = getComputedStyle(element);
+                style = getComputedStyle$1(element);
                 wt = parseFloat(getPropertyValue(style, prop.replace('*', 'top')));
                 wr = parseFloat(getPropertyValue(style, prop.replace('*', 'right')));
                 wb = parseFloat(getPropertyValue(style, prop.replace('*', 'bottom')));
@@ -7022,7 +7069,7 @@
             shape.clip(clipPath);
         }
         function addArcToPath(path, x, y, options) {
-            var points = new Arc$2([
+            var points = new Arc([
                     x,
                     y
                 ], options).curvePoints(), i = 1;
@@ -7072,7 +7119,7 @@
             };
         }
         function elementRoundBox(element, box, type) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             var rTL = getBorderRadius(style, 'top-left');
             var rTR = getBorderRadius(style, 'top-right');
             var rBL = getBorderRadius(style, 'bottom-left');
@@ -7236,7 +7283,7 @@
             }
             var fake = [];
             function pseudo(kind, place) {
-                var style = getComputedStyle(element, kind), content = style.content;
+                var style = getComputedStyle$1(element, kind), content = style.content;
                 updateCounters(style);
                 if (content && content != 'normal' && content != 'none' && style.width != '0px') {
                     var psel = element.ownerDocument.createElement(KENDO_PSEUDO_ELEMENT);
@@ -7261,7 +7308,7 @@
             }
         }
         function _renderElement(element, group) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             var top = getBorder(style, 'top');
             var right = getBorder(style, 'right');
             var bottom = getBorder(style, 'bottom');
@@ -7958,8 +8005,8 @@
             group.append(image);
         }
         function zIndexSort(a, b) {
-            var sa = getComputedStyle(a);
-            var sb = getComputedStyle(b);
+            var sa = getComputedStyle$1(a);
+            var sb = getComputedStyle$1(b);
             var za = parseFloat(getPropertyValue(sa, 'z-index'));
             var zb = parseFloat(getPropertyValue(sb, 'z-index'));
             var pa = getPropertyValue(sa, 'position');
@@ -7994,7 +8041,7 @@
             return element.options[element.selectedIndex];
         }
         function renderCheckbox(element, group) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             var color = getPropertyValue(style, 'color');
             var box = element.getBoundingClientRect();
             if (element.type == 'checkbox') {
@@ -8009,12 +8056,12 @@
                     group.append(new Path().stroke(color, 1.2).moveTo(box.left + 0.22 * box.width, box.top + 0.55 * box.height).lineTo(box.left + 0.45 * box.width, box.top + 0.75 * box.height).lineTo(box.left + 0.78 * box.width, box.top + 0.22 * box.width));
                 }
             } else {
-                group.append(new Circle(new Circle$2([
+                group.append(new Circle$1(new Circle([
                     (box.left + box.right) / 2,
                     (box.top + box.bottom) / 2
                 ], Math.min(box.width - 2, box.height - 2) / 2)).stroke(color, 1));
                 if (element.checked) {
-                    group.append(new Circle(new Circle$2([
+                    group.append(new Circle$1(new Circle([
                         (box.left + box.right) / 2,
                         (box.top + box.bottom) / 2
                     ], Math.min(box.width - 8, box.height - 8) / 2)).fill(color).stroke(null));
@@ -8030,7 +8077,7 @@
             var doc = element.ownerDocument;
             var el = doc.createElement(KENDO_PSEUDO_ELEMENT);
             var option;
-            el.style.cssText = getCssText(getComputedStyle(element));
+            el.style.cssText = getCssText(getComputedStyle$1(element));
             if (tag == 'input') {
                 el.style.whiteSpace = 'pre';
             }
@@ -8041,7 +8088,7 @@
                 if (element.multiple) {
                     for (var i = 0; i < element.options.length; ++i) {
                         option = doc.createElement(KENDO_PSEUDO_ELEMENT);
-                        option.style.cssText = getCssText(getComputedStyle(element.options[i]));
+                        option.style.cssText = getCssText(getComputedStyle$1(element.options[i]));
                         option.style.display = 'block';
                         option.textContent = element.options[i].textContent;
                         el.appendChild(option);
@@ -8092,7 +8139,7 @@
                         }
                         break;
                     case 1:
-                        var style = getComputedStyle(i);
+                        var style = getComputedStyle$1(i);
                         var floating = getPropertyValue(style, 'float');
                         var position = getPropertyValue(style, 'position');
                         if (position != 'static') {
@@ -8120,7 +8167,7 @@
             if (emptyClipbox()) {
                 return;
             }
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             if (parseFloat(getPropertyValue(style, 'text-indent')) < -500) {
                 return;
             }
@@ -8362,7 +8409,7 @@
             return tmp;
         }
         function renderElement(element, container) {
-            var style = getComputedStyle(element);
+            var style = getComputedStyle$1(element);
             updateCounters(style);
             if (/^(style|script|link|meta|iframe|svg|col|colgroup)$/i.test(element.tagName)) {
                 return;
@@ -8450,8 +8497,8 @@
             ShapesQuadTree: ShapesQuadTree,
             ObserversMixin: ObserversMixin,
             Element: Element$1,
-            Circle: Circle,
-            Arc: Arc,
+            Circle: Circle$1,
+            Arc: Arc$2,
             Path: Path,
             MultiPath: MultiPath,
             Text: Text,

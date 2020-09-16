@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -45,7 +45,7 @@
                 ",": ",",
                 ".": ".",
                 groupSize: [3],
-                symbol: "٪"
+                symbol: "%"
             },
             currency: {
                 name: "Israeli New Shekel",
@@ -63,7 +63,7 @@
                 days: {
                     names: ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
                     namesAbbr: ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
-                    namesShort: ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"]
+                    namesShort: ["أحد","إثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"]
                 },
                 months: {
                     names: ["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"],
@@ -73,8 +73,8 @@
                 PM: ["م","م","م"],
                 patterns: {
                     d: "d/M/yyyy",
-                    D: "dddd، d MMMM، yyyy",
-                    F: "dddd، d MMMM، yyyy h:mm:ss tt",
+                    D: "dddd، d MMMM yyyy",
+                    F: "dddd، d MMMM yyyy h:mm:ss tt",
                     g: "d/M/yyyy h:mm tt",
                     G: "d/M/yyyy h:mm:ss tt",
                     m: "d MMMM",

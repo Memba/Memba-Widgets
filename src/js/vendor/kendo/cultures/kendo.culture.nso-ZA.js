@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -50,7 +50,7 @@
             currency: {
                 name: "South African Rand",
                 abbr: "ZAR",
-                pattern: ["-$n","$n"],
+                pattern: ["-$ n","$ n"],
                 decimals: 2,
                 ",": " ",
                 ".": ".",
@@ -61,13 +61,13 @@
         calendars: {
             standard: {
                 days: {
-                    names: ["Sontaga","Mosupalogo","Labobedi","Laboraro","Labone","Labohlano","Mokibelo"],
-                    namesAbbr: ["Son","Mos","Bed","Rar","Ne","Hla","Mok"],
-                    namesShort: ["Son","Mos","Bed","Rar","Ne","Hla","Mok"]
+                    names: ["Lamorena","Musopologo","Labobedi","Laboraro","Labone","Labohlano","Mokibelo"],
+                    namesAbbr: ["Lam","Mos","Bed","Rar","Ne","Hla","Mok"],
+                    namesShort: ["Lam","Mos","Bed","Rar","Ne","Hla","Mok"]
                 },
                 months: {
-                    names: ["Janaware","Feberware","Matšhe","Aporele","Mei","June","Julae","Agostose","Setemere","Oktobore","Nofemere","Disemere"],
-                    namesAbbr: ["Jan","Feb","Mat","Apo","Mei","Jun","Jul","Ago","Set","Okt","Nof","Dis"]
+                    names: ["Pherekgong","Dibokwane","Hlakola","Moranang","Mopitlo","Phupu","Mosegemanye","Phato","Lewedi","Diphalane","Dibatsela","Manthole"],
+                    namesAbbr: ["Phere","Dibo","Hlak","Mora","Mopi","Phupu","Mose","Phato","Lewe","Dipha","Diba","Manth"]
                 },
                 AM: ["AM","am","AM"],
                 PM: ["PM","pm","PM"],

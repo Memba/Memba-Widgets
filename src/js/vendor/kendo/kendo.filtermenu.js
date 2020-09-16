@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -193,6 +193,7 @@
                 if (!options.appendToElement) {
                     that.popup = that.form[POPUP]({
                         anchor: that.link,
+                        copyAnchorStyles: false,
                         open: proxy(that._open, that),
                         activate: proxy(that._activate, that),
                         close: function () {
@@ -821,6 +822,7 @@
                     if (!options.appendToElement) {
                         that.popup = that.form.kendoPopup({
                             anchor: that._link,
+                            copyAnchorStyles: false,
                             open: proxy(that._open, that),
                             activate: proxy(that._activate, that),
                             close: function () {

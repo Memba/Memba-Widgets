@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -145,7 +145,7 @@
                 formatLabel: null,
                 focusFirst: false
             },
-            _fieldTemplate: '<div class=\'#:styles.field#  #if (colSpan) { #  k-colspan-#:colSpan# # } #\'>' + '# if (label) { # ' + '<label class=\'#:styles.label#\' for=\'#:id#\' id=\'#:id#-form-label\'>' + '#: label.text || label #' + '# if (label.optional) { # <span class=\'#:styles.optional#\'>#:optional#</span>  #}#' + '</label>' + '# } #' + '<div class=\'k-form-field-wrap\' data-container-for=\'#:field#\'></div>' + '</div>',
+            _fieldTemplate: '<div class=\'#:styles.field#  #if (colSpan) { #  k-colspan-#:colSpan# # } #\'>' + '# if (label) { # ' + '<label class=\'#:styles.label#\' for=\'#:id#\' id=\'#:id#-form-label\'>' + '# if (typeof label.encoded != \'undefined\' && label.encoded === false) {#' + '#= label.text || label #' + '# } else { #' + '#: label.text || label #' + '# } #' + '# if (label.optional) { # <span class=\'#:styles.optional#\'>#:optional#</span>  #}#' + '</label>' + '# } #' + '<div class=\'k-form-field-wrap\' data-container-for=\'#:field#\'></div>' + '</div>',
             _groupTemplate: '<fieldset class=\'#:styles.fieldset# #if (colSpan) { #  k-colspan-#:colSpan# # }#\'>' + '<legend class=\'#:styles.legend#\'>#:label.text || label #</legend>' + '</fieldset>',
             _buttonsTemplate: '<button class=\'k-button k-primary #:styles.submit#\' type=\'submit\'>#:messages.submit#</button>' + '<button class=\'k-button #:styles.clear#\'>#:messages.clear#</button>',
             _errorTemplate: '<span class=\'k-form-error\' id=\'#=field#-form-error\'><div>#=message#</div></span>',
@@ -188,7 +188,7 @@
             },
             _formatLabel: function (field, label) {
                 var that = this, text = $.isPlainObject(label) ? label.text : label;
-                if (text.length) {
+                if (text !== undefined) {
                     return label;
                 }
                 return that._defaultLabel(field);
@@ -268,7 +268,7 @@
                     styles: formStyles,
                     id: item.id || item.field || '',
                     field: item.field || '',
-                    label: that._formatLabel(item.field, item.label || ''),
+                    label: that._formatLabel(item.field, item.label),
                     colSpan: item.colSpan || '',
                     optional: that.options.messages.optional
                 });
@@ -387,7 +387,7 @@
             _setEvents: function () {
                 var that = this, validator = that.validator;
                 validator.bind(VALIDATEINPUT, proxy(that._validateField, that)).bind(VALIDATE, proxy(that._validate, that));
-                that.wrapper.on(SUBMIT, proxy(that._submit, that)).on(CLEAR, proxy(that._clear, that)).on(CLICK, DOT + formStyles.clear, proxy(that._clear, that));
+                that.wrapper.on(SUBMIT + NS, proxy(that._submit, that)).on(CLEAR + NS, proxy(that._clear, that)).on(CLICK + NS, DOT + formStyles.clear, proxy(that._clear, that));
                 that._model.bind(CHANGE, proxy(that._change, that));
             },
             _validateField: function (ev) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -62,15 +62,15 @@
             standard: {
                 days: {
                     names: ["жексенбі","дүйсенбі","сейсенбі","сәрсенбі","бейсенбі","жұма","сенбі"],
-                    namesAbbr: ["Жс","Дс","Сс","Ср","Бс","Жм","Сб"],
-                    namesShort: ["Жс","Дс","Сс","Ср","Бс","Жм","Сб"]
+                    namesAbbr: ["жс","дс","сс","ср","бс","жм","сб"],
+                    namesShort: ["жс","дс","сс","ср","бс","жм","сб"]
                 },
                 months: {
                     names: ["Қаңтар","Ақпан","Наурыз","Сәуір","Мамыр","Маусым","Шілде","Тамыз","Қыркүйек","Қазан","Қараша","Желтоқсан"],
-                    namesAbbr: ["Қаң.","Ақп.","Нау.","Сәу.","Мам.","Мау.","Шіл.","Там.","Қыр.","Қаз.","Қар.","Жел."]
+                    namesAbbr: ["қаң.","ақп.","нау.","сәу.","мам.","мау.","шіл.","там.","қыр.","қаз.","қар.","жел."]
                 },
-                AM: ["таңғы","таңғы","ТАҢҒЫ"],
-                PM: ["түскі/кешкі","түскі/кешкі","ТҮСКІ/КЕШКІ"],
+                AM: ["AM","am","AM"],
+                PM: ["PM","pm","PM"],
                 patterns: {
                     d: "dd.MM.yyyy",
                     D: "yyyy 'ж'. d MMMM, dddd",

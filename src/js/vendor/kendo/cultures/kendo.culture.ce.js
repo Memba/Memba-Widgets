@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -61,9 +61,9 @@
         calendars: {
             standard: {
                 days: {
-                    names: ["кӀиранан де","оршотан де","шинарин де","кхаарин де","еарин де","пӀераскан де","шот де"],
-                    namesAbbr: ["кӀиранан де","оршотан де","шинарин де","кхаарин де","еарин де","пӀераскан де","шот де"],
-                    namesShort: ["кӀиранан де","оршотан де","шинарин де","кхаарин де","еарин де","пӀераскан де","шот де"]
+                    names: ["кӀира","оршот","шинара","кхаара","еара","пӀераска","шуот"],
+                    namesAbbr: ["кӀи","ор","ши","кха","еа","пӀе","шуо"],
+                    namesShort: ["кӀи","ор","ши","кха","еа","пӀе","шуо"]
                 },
                 months: {
                     names: ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"],

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -399,7 +399,8 @@
                     if (that.options.encoded && domElement.defaultValue && domElement.defaultValue.trim().length) {
                         value = domElement.defaultValue;
                     }
-                    comments = dom.getAllComments($('<div></div>').html(value)[0]);
+                    var deserializedRoot = editorNS.Serializer.htmlToDom(value, $('<div></div>')[0], that.options.deserialization);
+                    comments = dom.getAllComments(deserializedRoot);
                     value = EditorUtils.cacheComments(value, comments);
                     value = value.replace(/[\r\n\v\f\t ]+/gi, ' ');
                     value = EditorUtils.retrieveComments(value, comments);
@@ -553,6 +554,9 @@
                     domainScript = '<script>document.domain="' + domain + '"</script>';
                     src = 'javascript:document.write(\'' + domainScript + '\')';
                     iframe.src = src;
+                }
+                if (!iframe.src) {
+                    iframe.src = '';
                 }
                 wnd = iframe.contentWindow || iframe;
                 doc = wnd.document || iframe.contentDocument;
@@ -4529,7 +4533,7 @@
         var outerWidth = kendo._outerWidth;
         var outerHeight = kendo._outerHeight;
         var OVERFLOWANCHOR = 'overflowAnchor';
-        var focusable = '.k-tool-group:visible .k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-colorpicker,' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
+        var focusable = '.k-tool-group:visible .k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-colorpicker:not(input),' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
         var toolNamesByCssClass = {
             'k-i-sup-script': 'superscript',
             'k-i-sub-script': 'subscript',
@@ -10994,7 +10998,9 @@
                 var editor = this.editor;
                 var range = editor.getRange();
                 range.selectNodeContents(editor.body);
-                editor.selectRange(range);
+                setTimeout(function () {
+                    editor.selectRange(range);
+                });
             },
             _toSelectableImmutables: function () {
                 var editor = this.editor, body = editor.body, immutable = editorNS.Immutables.immutable, emptyTextNode = dom.emptyTextNode, first = body.firstChild, last = body.lastChild;
@@ -11380,7 +11386,7 @@
                         dom.attr(blockParent, attr);
                     }
                 }
-                if (blockStyles.length === 2 && blockParent.tagName !== 'LI' && formatTag === 'LI') {
+                if (blockParent && blockStyles.length === 2 && blockParent.tagName !== 'LI' && formatTag === 'LI') {
                     listItems = [];
                     while (dom.is(wrapper, 'li')) {
                         listItems.push(wrapper);
@@ -11392,7 +11398,7 @@
                     for (i = 1, len = listItems.length; i < len; i++) {
                         dom.insertBefore(listItems[i], outerWrapper.firstChild);
                     }
-                } else if (blockStyles.length === 2 && blockParent.tagName !== 'LI') {
+                } else if (blockParent && blockStyles.length === 2 && blockParent.tagName !== 'LI') {
                     outerWrapper = dom.create(document, blockStyles[1].tags[0], blockStyles[1].attr);
                     dom.wrap(wrapper, outerWrapper);
                 }
@@ -13133,43 +13139,21 @@
                 var tableRows = $(table.rows).toArray();
                 var tableProp = data.tableProperties;
                 var rows = tableProp.rows;
-                var columns = tableProp.columns;
                 var tHead = table.tHead;
-                var last = function (collection) {
-                    return collection[collection.length - 1];
-                };
+                var last = cmd._lastInCollection;
+                var lastSelectedRow, cellProp;
                 while (selectedCells.length > 1) {
                     selectedCells.pop();
                 }
-                var lastSelectedRow = selectedCells.length ? last(selectedCells).parentNode : last(tableRows);
-                var row, parent;
+                lastSelectedRow = selectedCells.length ? last(selectedCells).parentNode : last(tableRows);
                 cmd._deleteTableRows(tableRows, tableRows.length - rows);
                 if (tableRows.length < rows) {
-                    var rowIndex = $(lastSelectedRow).index();
-                    var cellsLength = lastSelectedRow.cells.length;
-                    var newRowsCount = rows - tableRows.length;
-                    parent = lastSelectedRow.parentNode;
-                    while (newRowsCount) {
-                        row = parent.insertRow(rowIndex + 1);
-                        cmd._insertCells(cellsLength - row.cells.length, row);
-                        newRowsCount--;
-                    }
+                    cmd._addRows(lastSelectedRow, rows, tableRows);
                 }
-                if (tableRows[0].cells.length > columns) {
-                    $(tableRows).each(function (i, row) {
-                        while (row.cells.length > columns) {
-                            row.deleteCell(-1);
-                        }
-                    });
-                }
-                if (tableRows[0].cells.length < columns) {
-                    var cellIndex = $(last(selectedCells) || last(lastSelectedRow.cells)).index();
-                    $(tableRows).each(function (i, row) {
-                        cmd._insertCells(columns - row.cells.length, row, cellIndex + 1);
-                    });
-                }
+                dom.reMapTableColumns(table, COL_INDEX);
+                cmd._updateColumns(tableRows, tableProp.columns, selectedCells, lastSelectedRow);
                 cmd._updateTableProperties(table, tableProp);
-                var cellProp = data.cellProperties;
+                cellProp = data.cellProperties;
                 if (selectedCells[0]) {
                     dom.attr(selectedCells[0], { id: cellProp.id || null });
                 }
@@ -13177,7 +13161,6 @@
                     cmd._updateCellProperties(cell, cellProp);
                 });
                 cmd._updateCaption(table, tableProp);
-                dom.reMapTableColumns(table, COL_INDEX);
                 if (tHead) {
                     cmd._updateHeadersWithThead(table, data);
                 } else {
@@ -13281,6 +13264,47 @@
                         }
                         cmd._updateCellProperties(cell, cellPropToAll || r === 0 && c === 0 ? cellProp : {});
                     }
+                }
+            },
+            _addRows: function (lastSelectedRow, rows, tableRows) {
+                var cmd = this;
+                var rowIndex = $(lastSelectedRow).index();
+                var cellsLength = lastSelectedRow.cells.length;
+                var newRowsCount = rows - tableRows.length;
+                var parent = lastSelectedRow.parentNode;
+                var row;
+                while (newRowsCount) {
+                    row = parent.insertRow(rowIndex + 1);
+                    cmd._insertCells(cellsLength - row.cells.length, row);
+                    newRowsCount--;
+                }
+            },
+            _updateColumns: function (tableRows, columns, selectedCells, lastSelectedRow) {
+                var cmd = this;
+                var last = cmd._lastInCollection;
+                var firstRowLastCell = last(tableRows[0].cells);
+                var numberOfColumns = Number(firstRowLastCell.getAttribute(COL_INDEX)) + firstRowLastCell.colSpan;
+                if (numberOfColumns > columns) {
+                    $(tableRows).each(function (i, row) {
+                        var lastCurrentCell = last(row.cells);
+                        var rowColumns = Number(lastCurrentCell.getAttribute(COL_INDEX)) + lastCurrentCell.colSpan;
+                        while (rowColumns > columns) {
+                            if (lastCurrentCell.colSpan && lastCurrentCell.colSpan > 1) {
+                                lastCurrentCell.colSpan -= 1;
+                            } else {
+                                row.deleteCell(-1);
+                            }
+                            lastCurrentCell = last(row.cells);
+                            rowColumns = Number(lastCurrentCell.getAttribute(COL_INDEX)) + lastCurrentCell.colSpan;
+                        }
+                    });
+                }
+                if (numberOfColumns < columns) {
+                    var cellIndex = $(last(selectedCells) || last(lastSelectedRow.cells)).index();
+                    $(tableRows).each(function (i, row) {
+                        var lastCurrentCell = last(row.cells);
+                        cmd._insertCells(columns - Number(lastCurrentCell.getAttribute(COL_INDEX)) - lastCurrentCell.colSpan, row, cellIndex + 1);
+                    });
                 }
             },
             _updateTableProperties: function (table, data) {
@@ -13605,6 +13629,9 @@
             _selectedCells: function (range) {
                 var nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
                 return cellsFormatFinder.findSuitable(nodes);
+            },
+            _lastInCollection: function (collection) {
+                return collection[collection.length - 1];
             }
         });
         var TableWizardTool = Editor.Tool.extend({

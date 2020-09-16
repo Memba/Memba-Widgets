@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -269,7 +269,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, TreeView = ui._dropdowntree, ObservableArray = kendo.data.ObservableArray, ObservableObject = kendo.data.ObservableObject, extend = $.extend, activeElement = kendo._activeElement, ns = '.kendoDropDownTree', keys = kendo.keys, support = kendo.support, HIDDENCLASS = 'k-hidden', WIDTH = 'width', browser = support.browser, outerWidth = kendo._outerWidth, DOT = '.', DISABLED = 'disabled', READONLY = 'readonly', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', HOVER = 'k-state-hover', FOCUSED = 'k-state-focused', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', CLICK = 'click', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', quotRegExp = /"/g, proxy = $.proxy;
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, TreeView = ui._dropdowntree, ObservableArray = kendo.data.ObservableArray, ObservableObject = kendo.data.ObservableObject, extend = $.extend, activeElement = kendo._activeElement, ns = '.kendoDropDownTree', keys = kendo.keys, support = kendo.support, HIDDENCLASS = 'k-hidden', WIDTH = 'width', browser = support.browser, outerWidth = kendo._outerWidth, DOT = '.', DISABLED = 'disabled', READONLY = 'readonly', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', HOVER = 'k-state-hover', FOCUSED = 'k-state-focused', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', CLICK = 'click', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', quotRegExp = /"/g, proxy = $.proxy;
         var DropDownTree = kendo.ui.Widget.extend({
             init: function (element, options) {
                 this.ns = ns;
@@ -1396,7 +1396,7 @@
                     element.removeAttr(DISABLED).removeAttr(READONLY);
                     dropDownWrapper.removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
                     that._clear.on('click' + ns, proxy(that._clearClick, that));
-                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
+                    wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
                     that.wrapper.on(CLICK + ns, proxy(that._wrapperClick, that));
                     if (this._isMultipleSelection()) {
                         that.tagList.on(CLICK + ns, 'li.k-button', function (e) {
@@ -1415,7 +1415,7 @@
                     wrapper.on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
                 }
                 element.attr(DISABLED, disable).attr(READONLY, readonly);
-                wrapper.attr(ARIA_DISABLED, disable);
+                wrapper.attr(ARIA_DISABLED, disable).attr(ARIA_READONLY, readonly);
             },
             _focusinHandler: function () {
                 this._inputWrapper.addClass(FOCUSED);

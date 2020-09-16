@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,7 +48,7 @@
                 symbol: "%"
             },
             currency: {
-                name: "Philippine Peso",
+                name: "Philippine Piso",
                 abbr: "PHP",
                 pattern: ["-$n","$n"],
                 decimals: 2,
@@ -69,8 +69,8 @@
                     names: ["January","February","March","April","May","June","July","August","September","October","November","December"],
                     namesAbbr: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
                 },
-                AM: ["AM","am","AM"],
-                PM: ["PM","pm","PM"],
+                AM: ["am","am","AM"],
+                PM: ["pm","pm","PM"],
                 patterns: {
                     d: "dd/MM/yyyy",
                     D: "dddd, d MMMM yyyy",

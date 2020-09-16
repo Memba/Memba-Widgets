@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -62,8 +62,8 @@
             standard: {
                 days: {
                     names: ["Tshipi","Mosopulogo","Labobedi","Laboraro","Labone","Labotlhano","Matlhatso"],
-                    namesAbbr: ["Tsh","Mos","Bed","Rar","Ne","Tla","Mat"],
-                    namesShort: ["Tsh","Mos","Bed","Rar","Ne","Tla","Mat"]
+                    namesAbbr: ["Tsh","Mos","Labb","Labr","Labn","Labt","Mat"],
+                    namesShort: ["Tsh","Mos","Labb","Labr","Labn","Labt","Mat"]
                 },
                 months: {
                     names: ["Ferikgong","Tlhakole","Mopitlo","Moranang","Motsheganang","Seetebosigo","Phukwi","Phatwe","Lwetse","Diphalane","Ngwanatsele","Sedimonthole"],

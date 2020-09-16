@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -96,7 +96,7 @@
             if (inArray(type, specialRules) >= 0) {
                 attr[DATATYPE] = type;
             }
-            attr[BINDING] = 'value:' + options.field;
+            attr[BINDING] = (type === 'boolean' ? 'checked:' : 'value:') + options.field;
             return attr;
         }
         function addIdAttribute(container, attr) {
@@ -175,7 +175,8 @@
             },
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
-                $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
+                var element = $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
+                renderHiddenForМvcCheckbox(element, container, options);
             },
             'values': function (container, options) {
                 var attr = createAttributes(options);
@@ -188,8 +189,9 @@
                 var type = options.editor;
                 var editor = 'kendo' + type;
                 var editorOptions = options.editorOptions;
-                var tag = getEditorTag(type, editorOptions);
-                $(tag).attr(attr).appendTo(container)[editor](editorOptions);
+                var tagElement = getEditorTag(type, editorOptions);
+                var element = $(tagElement).attr(attr).appendTo(container)[editor](editorOptions);
+                renderHiddenForМvcCheckbox(element, container, options);
             }
         };
         var mobileEditors = {
@@ -234,6 +236,13 @@
                 if (isFunction(descriptor)) {
                     rules[rule] = descriptor;
                 }
+            }
+        }
+        function renderHiddenForМvcCheckbox(tag, container, field) {
+            var addHidden = field ? field.shouldRenderHidden || false : false;
+            if (addHidden) {
+                tag.val(true);
+                container.append($('<input type=\'hidden\' name=\'' + field.field + '\' value=\'false\' data-skip=\'true\' data-validate=\'false\'/>'));
             }
         }
         var Editable = Widget.extend({

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -177,7 +177,7 @@
                 }
                 that._resizeHandler = proxy(that.resize, that, true);
                 $(window).on('resize' + NS, that._resizeHandler);
-                sizeClassName = that._getWidthSizeClass(that.element.width());
+                sizeClassName = that._getWidthSizeClass(that.element.outerWidth());
                 if (sizeClassName) {
                     that.element.addClass(sizeClassName);
                 }
@@ -250,7 +250,7 @@
                 this.dataSource = kendo.data.DataSource.create(options.dataSource);
             },
             refresh: function (e) {
-                var that = this, idx, end, start = 1, reminder, page = that.page(), html = '', selectHtml = '', options = that.options, pageSize = that.pageSize(), collapsedTotal = that._collapsedTotal(), total = that.dataSource._isGroupPaged() ? that.dataSource.groupsTotal() : that.dataSource.total(), totalPages = that.totalPages(), linkTemplate = that.linkTemplate, numericSelectItemTemplate = that.numericSelectItemTemplate, buttonCount = options.buttonCount;
+                var that = this, idx, end, start = 1, reminder, page = that.page(), html = '', selectHtml = '', options = that.options, pageSize = that.pageSize(), collapsedTotal = that._collapsedTotal(), total = that.dataSource._isGroupPaged() ? that.dataSource.groupsTotal(true) : that.dataSource.total(), totalPages = that.totalPages(), linkTemplate = that.linkTemplate, numericSelectItemTemplate = that.numericSelectItemTemplate, buttonCount = options.buttonCount;
                 if (e && e.action == 'itemchange') {
                     return;
                 }

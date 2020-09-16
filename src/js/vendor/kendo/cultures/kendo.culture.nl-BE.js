@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -36,13 +36,13 @@
         numberFormat: {
             pattern: ["-n"],
             decimals: 2,
-            ",": " ",
+            ",": ".",
             ".": ",",
             groupSize: [3],
             percent: {
                 pattern: ["-n%","n%"],
                 decimals: 2,
-                ",": " ",
+                ",": ".",
                 ".": ",",
                 groupSize: [3],
                 symbol: "%"
@@ -50,7 +50,7 @@
             currency: {
                 name: "Euro",
                 abbr: "EUR",
-                pattern: ["-n $","n $"],
+                pattern: ["-$ n","$ n"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",

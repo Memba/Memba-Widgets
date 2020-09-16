@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -7579,10 +7579,11 @@
                     ])) {
                     this.options.position = RIGHT;
                 }
-                this.createContainer();
+                this.createContainers();
+                this.createLegendTitle(options.title);
                 this.createItems();
             },
-            createContainer: function () {
+            createContainers: function () {
                 var options = this.options;
                 var position = options.position;
                 var userAlign = options.align;
@@ -7619,6 +7620,16 @@
                     zIndex: options.zIndex,
                     shrinkToFit: true
                 });
+                if (this.hasTitle()) {
+                    this.itemsContainer = new BoxElement({
+                        vAlign: vAlign,
+                        align: align,
+                        zIndex: options.zIndex,
+                        shrinkToFit: true
+                    });
+                } else {
+                    this.itemsContainer = this.container;
+                }
                 this.append(this.container);
             },
             createItems: function () {
@@ -7644,7 +7655,7 @@
                     }, options.item, item)));
                 }
                 innerElement.render();
-                this.container.append(innerElement);
+                this.itemsContainer.append(innerElement);
             },
             isVertical: function () {
                 var ref = this.options;
@@ -7671,6 +7682,9 @@
                     this.box = legendBox;
                 } else {
                     this.containerReflow(legendBox);
+                }
+                if (this.hasTitle()) {
+                    this.title.reflow(new Box(this.container.box.x1, this.title.box.y1, this.container.box.x2, this.title.box.y2));
                 }
             },
             containerReflow: function (targetBox) {
@@ -7699,7 +7713,7 @@
                 var box = containerBox.clone();
                 if (options.offsetX || options.offsetY) {
                     containerBox.translate(options.offsetX, options.offsetY);
-                    this.container.reflow(containerBox);
+                    container.reflow(containerBox);
                 }
                 box[pos + 1] = targetBox[pos + 1];
                 box[pos + 2] = targetBox[pos + 2];
@@ -7727,6 +7741,48 @@
             renderVisual: function () {
                 if (this.hasItems()) {
                     ChartElement.fn.renderVisual.call(this);
+                }
+            },
+            createLegendTitle: function (title) {
+                var titleOptions = deepExtend({}, {
+                    color: BLACK,
+                    position: TOP,
+                    align: CENTER
+                }, title);
+                var text = titleOptions.text;
+                if (!title || title.visible === false) {
+                    return;
+                }
+                if (defined(titleOptions) && titleOptions.visible) {
+                    var labelTemplate = getTemplate(titleOptions);
+                    if (labelTemplate) {
+                        text = labelTemplate({ text: text });
+                    } else if (titleOptions.format) {
+                        text = this.chartService.format.auto(titleOptions.format, text);
+                    }
+                }
+                this.title = new TextBox(text, titleOptions);
+                this.createTitleLayout();
+                this.appendTitleLayoutContent();
+            },
+            createTitleLayout: function () {
+                this.layout = new dataviz.FloatElement({
+                    vertical: true,
+                    wrap: false
+                });
+                this.container.append(this.layout);
+            },
+            hasTitle: function () {
+                return Boolean(this.options.title && this.options.title.visible !== false);
+            },
+            appendTitleLayoutContent: function () {
+                var options = this.options;
+                if (options.title.position === BOTTOM) {
+                    this.layout.append(this.itemsContainer);
+                    this.layout.append(this.title);
+                } else {
+                    this.layout.append(this.title);
+                    this.layout.append(this.itemsContainer);
                 }
             }
         });
@@ -9797,7 +9853,8 @@
                     pointType = LineSegment;
                 }
                 var segment = new pointType(linePoints, currentSeries, seriesIx);
-                if (linePoints.length === currentSeries.data.length) {
+                var missingValues = this.seriesMissingValues(currentSeries);
+                if (linePoints.length === currentSeries.data.length || missingValues === INTERPOLATE) {
                     segment.options.closed = true;
                 }
                 return segment;
@@ -11445,7 +11502,9 @@
                 var element = this.element;
                 var offset = dataviz.elementOffset(element);
                 var padding = this._elementPadding();
-                return new Point(clientX - offset.left - padding.left, clientY - offset.top - padding.top);
+                var inverseTransform = dataviz.elementScale(element).invert();
+                var point = new GeometryPoint(clientX - offset.left - padding.left, clientY - offset.top - padding.top).transform(inverseTransform);
+                return new Point(point.x, point.y);
             },
             _tap: function (e) {
                 var this$1 = this;
@@ -11613,19 +11672,19 @@
                     this._sharedHighlight = false;
                 }
             },
-            hideElements: function () {
+            hideElements: function (options) {
                 var plotArea = this._plotArea;
                 this._mousemove.cancel();
                 plotArea.hideCrosshairs();
-                this._unsetActivePoint();
+                this._unsetActivePoint(options);
             },
-            _unsetActivePoint: function () {
+            _unsetActivePoint: function (options) {
                 var ref = this;
                 var tooltip = ref._tooltip;
                 var highlight = ref._highlight;
                 this._activePoint = null;
                 this._hoveredPoint = null;
-                if (tooltip) {
+                if (tooltip && !(options && options.keepTooltipOpen)) {
                     tooltip.hide();
                 }
                 this._tooltipCategoryIx = null;
@@ -12195,9 +12254,11 @@
         var NOTE_CLICK = constants.NOTE_CLICK;
         var NOTE_HOVER = constants.NOTE_HOVER;
         var NOTE_LEAVE = constants.NOTE_LEAVE;
+        var DOCUMENT_ELEMENT = $(document.documentElement);
         var CHANGE = 'change';
         var DATABOUND = 'dataBound';
         var LEAVE = 'leave';
+        var MOUSEDOWN = 'down';
         var VALUE = constants.VALUE;
         var PIE = constants.PIE;
         var DONUT = constants.DONUT;
@@ -12445,7 +12506,7 @@
                 var tooltip = this._tooltip;
                 var target = e.relatedTarget;
                 if (!(target && $(target).closest(tooltip.element).length) && instance && !instance.handlingTap) {
-                    instance.hideElements();
+                    instance.hideElements({ keepTooltipOpen: !tooltip.options.autoHide });
                 }
             },
             _getThemeOptions: function (userOptions) {
@@ -12823,7 +12884,7 @@
                 tooltip.chartElement = chartElement;
                 tooltip.template = Tooltip.template;
                 if (!tooltip.template) {
-                    tooltip.template = Tooltip.template = kendo.template('<div class=\'k-tooltip k-chart-tooltip#= d.rtl ? " k-rtl" : ""#\' ' + 'style=\'display:none; position: absolute; font: #= d.font #;' + '#if (d.border) {# border: #= d.border.width #px solid; #}#' + 'opacity: #= d.opacity #; filter: alpha(opacity=#= d.opacity * 100 #);\'>' + '</div>', {
+                    tooltip.template = Tooltip.template = kendo.template('<div class=\'k-tooltip #if (!d.autoHide) {# k-tooltip-closable#}# k-chart-tooltip#= d.rtl ? " k-rtl" : ""#\' ' + 'style=\'display:none; position: absolute; font: #= d.font #;' + '#if (d.border) {# border: #= d.border.width #px solid; #}#' + 'opacity: #= d.opacity #; filter: alpha(opacity=#= d.opacity * 100 #);\'>' + '<div class="k-tooltip-content"></div>' + '#if (!d.autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close" title="Close"></a></div> #}#' + '</div>', {
                         useWithBlock: false,
                         paramName: 'd'
                     });
@@ -12833,9 +12894,13 @@
                 tooltip._mouseleave = proxy(tooltip._mouseleave, tooltip);
                 var mobileScrollerSelector = kendo.format('[{0}=\'content\'],[{0}=\'scroller\']', kendo.attr('role'));
                 tooltip._mobileScroller = chartElement.closest(mobileScrollerSelector).data('kendoMobileScroller');
+                tooltip.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
+                tooltip._closeTooltipHandler = proxy(tooltip._closeTooltip, tooltip);
             },
             destroy: function () {
+                var tooltip = this;
                 this._clearShowTimeout();
+                DOCUMENT_ELEMENT.off(tooltip.downEvent, tooltip._closeTooltipHandler);
                 if (this.element) {
                     this.element.off(MOUSELEAVE_NS).remove();
                     this.element = null;
@@ -12848,7 +12913,8 @@
                 opacity: 1,
                 animation: { duration: TOOLTIP_ANIMATION_DURATION },
                 sharedTemplate: '<table>' + '<th colspan=\'#= colspan #\'>#= categoryText #</th>' + '# for(var i = 0; i < points.length; i++) { #' + '# var point = points[i]; #' + '<tr>' + '# if(colorMarker) { # ' + '<td><span class=\'k-chart-shared-tooltip-marker\' style=\'background-color:#:point.series.color#\'></span></td>' + '# } #' + '# if(nameColumn) { # ' + '<td> #if (point.series.name) {# #: point.series.name #: #} else {# &nbsp; #}#</td>' + '# } #' + '<td>#= content(point) #</td>' + '</tr>' + '# } #' + '</table>',
-                categoryFormat: '{0:d}'
+                categoryFormat: '{0:d}',
+                autoHide: true
             },
             move: function () {
                 var tooltip = this, options = tooltip.options, element = tooltip.element, offset;
@@ -12916,12 +12982,17 @@
                 };
             },
             show: function (e) {
+                var tooltip = this;
                 this.anchor = e.anchor;
                 this.element.css(normalizeStyle(e.style));
                 this.element.toggleClass(TOOLTIP_INVERSE, !!e.className);
                 this.element.toggleClass(SHARED_TOOLTIP_CLASS, !!e.shared);
                 var content = e.shared ? this._sharedContent(e) : this._pointContent(e.point);
-                this.element.html(content);
+                this.element.find('.k-tooltip-content').html(content);
+                if (!tooltip.options.autoHide) {
+                    tooltip.element.off('click' + NS).on('click' + NS, '.k-tooltip-button', tooltip._closeTooltipHandler);
+                    DOCUMENT_ELEMENT.off(tooltip.downEvent, tooltip._closeTooltipHandler).on(tooltip.downEvent, tooltip._closeTooltipHandler);
+                }
                 this._clearShowTimeout();
                 this.showTimeout = setTimeout(this.move, TOOLTIP_SHOW_DELAY);
             },
@@ -12933,6 +13004,15 @@
                     tooltip.point = null;
                     tooltip.visible = false;
                     tooltip.index = null;
+                    DOCUMENT_ELEMENT.off(tooltip.downEvent, tooltip._closeTooltipHandler);
+                }
+            },
+            _closeTooltip: function (e) {
+                var target = $(e.target);
+                if (!target.is('.k-chart-tooltip, .k-tooltip-content')) {
+                    e.preventDefault();
+                    this.chartElement.data('kendoChart')._instance.hideElements();
+                    this.hide();
                 }
             },
             _sharedContent: function (e) {

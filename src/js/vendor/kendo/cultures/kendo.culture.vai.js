@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -66,8 +66,8 @@
                     namesShort: ["ꕞꕌꔵ","ꗳꗡꘉ","ꕚꕞꕚ","ꕉꕞꕒ","ꕉꔤꕆꕢ","ꕉꔤꕀꕮ","ꔻꔬꔳ"]
                 },
                 months: {
-                    names: ["ꖨꕪꖃ ꔞꕮ","ꕒꕡꖝꖕ","ꕾꖺ","ꖢꖕ","ꖑꕱ","6","7","ꗛꔕ","ꕢꕌ","ꕭꖃ","ꔞꘋꕔꕿ ꕸꖃꗏ","ꖨꕪꕱ ꗏꕮ"],
-                    namesAbbr: ["ꖨꕪꖃ ꔞꕮ","ꕒꕡꖝꖕ","ꕾꖺ","ꖢꖕ","ꖑꕱ","6","7","ꗛꔕ","ꕢꕌ","ꕭꖃ","ꔞꘋꕔꕿ ꕸꖃꗏ","ꖨꕪꕱ ꗏꕮ"]
+                    names: ["ꖨꖕ ꕪꕴ ꔞꔀꕮꕊ","ꕒꕡꖝꖕ","ꕾꖺ","ꖢꖕ","ꖑꕱ","ꖱꘋ","ꖱꕞꔤ","ꗛꔕ","ꕢꕌ","ꕭꖃ","ꔞꘋꕔꕿ ꕸꖃꗏ","ꖨꖕ ꕪꕴ ꗏꖺꕮꕊ"],
+                    namesAbbr: ["ꖨꖕꔞ","ꕒꕡ","ꕾꖺ","ꖢꖕ","ꖑꕱ","ꖱꘋ","ꖱꕞ","ꗛꔕ","ꕢꕌ","ꕭꖃ","ꔞꘋ","ꖨꖕꗏ"]
                 },
                 AM: ["AM","am","AM"],
                 PM: ["PM","pm","PM"],

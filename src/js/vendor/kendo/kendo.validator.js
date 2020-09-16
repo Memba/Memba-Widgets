@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -361,12 +361,13 @@
                 }
             },
             reset: function () {
-                var that = this, inputs = that.element.find('.' + INVALIDINPUT);
+                var that = this, inputs = that.element.find('.' + INVALIDINPUT), labels = that.element.find('.' + INVALIDLABEL);
                 that._errors = [];
                 that.hideMessages();
                 that.hideValidationSummary();
                 inputs.removeAttr(ARIAINVALID);
                 inputs.removeClass(INVALIDINPUT);
+                labels.removeClass(INVALIDLABEL);
             },
             _findMessageContainer: function (fieldName) {
                 var locators = kendo.ui.validator.messageLocators, name, containers = $();

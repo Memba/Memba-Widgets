@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.2.617'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.3.915'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -7609,6 +7609,7 @@
                 that._pageSize = options.pageSize;
                 that._page = options.page || (options.pageSize ? 1 : undefined);
                 that._sort = normalizeSort(options.sort);
+                that._sortFields = sortFields(options.sort);
                 that._filter = normalizeFilter(options.filter);
                 that._group = normalizeGroup(options.group);
                 that._aggregate = options.aggregate;
@@ -7702,7 +7703,7 @@
                 return this._isServerGrouped() && this._groupPaging;
             },
             _isGroupPaged: function () {
-                var group = this.group() || [];
+                var group = this._group || [];
                 return this._groupPaging && group.length;
             },
             _pushCreate: function (result) {
@@ -8706,8 +8707,8 @@
                         that._ranges = [];
                         var query = new Query(result.data);
                         that._addRange(that._observe(result.data));
-                        if (options.skip > result.data.length / options.take + 1) {
-                            options.skip = 0;
+                        if (options.skip + options.take > result.data.length) {
+                            options.skip = result.data.length - options.take;
                         }
                         that.view(query.range(options.skip, options.take).toArray());
                     }
@@ -9000,7 +9001,11 @@
                         type: 'read'
                     });
                     that._fetchingGroupItems = false;
-                    group.subgroupCount = data[totalField];
+                    if (isFunction(totalField)) {
+                        group.subgroupCount = totalField(data);
+                    } else {
+                        group.subgroupCount = data[totalField];
+                    }
                     that.range(skip, take, callback, 'expandGroup');
                 };
             },
@@ -9228,8 +9233,12 @@
             },
             group: function (val) {
                 var that = this;
+                var options = { group: val };
+                if (that._groupPaging) {
+                    options.page = 1;
+                }
                 if (val !== undefined) {
-                    that._query({ group: val });
+                    that._query(options);
                     return;
                 }
                 return that._group;
@@ -10572,6 +10581,7 @@
             DataSource: DataSource,
             HierarchicalDataSource: HierarchicalDataSource,
             Node: Node,
+            Comparer: Comparer,
             ObservableObject: ObservableObject,
             ObservableArray: ObservableArray,
             LazyObservableArray: LazyObservableArray,
@@ -12582,12 +12592,13 @@
                 }
             },
             reset: function () {
-                var that = this, inputs = that.element.find('.' + INVALIDINPUT);
+                var that = this, inputs = that.element.find('.' + INVALIDINPUT), labels = that.element.find('.' + INVALIDLABEL);
                 that._errors = [];
                 that.hideMessages();
                 that.hideValidationSummary();
                 inputs.removeAttr(ARIAINVALID);
                 inputs.removeClass(INVALIDINPUT);
+                labels.removeClass(INVALIDLABEL);
             },
             _findMessageContainer: function (fieldName) {
                 var locators = kendo.ui.validator.messageLocators, name, containers = $();

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -52,14 +52,14 @@
         var KBUTTONICONTEXT = 'k-button-icontext';
         var KBUTTONICON = 'k-button-icon';
         var ACTIVE = 'k-state-active';
-        var FOCUSED = 'k-state-focused';
         var DISABLED = 'k-state-disabled';
         var SELECT = 'select';
         var CLICK = 'click';
         var KEYDOWN = 'keydown';
         var FOCUS = 'focus';
-        var BLUR = 'blur';
+        var FOCUSOUT = 'focusout';
         var MOUSEDOWN = 'mousedown';
+        var isIE = kendo.support.browser.msie;
         var templates = {
             item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
             image: template('<img alt="icon" src="#=data.imageUrl#" />'),
@@ -75,7 +75,10 @@
                 badgeOptions = { text: badgeOptions };
             }
             if (badgeOptions.position === undefined || badgeOptions.position === '') {
-                badgeOptions.position = 'inline';
+                badgeOptions.position = 'edge';
+                if (badgeOptions.align === undefined || badgeOptions.align === '') {
+                    badgeOptions.align = 'top end';
+                }
             }
             badgeOptions._classNames = ['k-button-badge'];
             item.addClass('k-badge-container');
@@ -101,12 +104,7 @@
                     that.element.attr('aria-disabled', true).addClass(DISABLED);
                 }
                 that.select(that.options.index);
-                that.element.on(CLICK + NS, '.' + KBUTTON, proxy(that._click, that)).on(FOCUS + NS, proxy(that._focus, that)).on(KEYDOWN + NS, proxy(that._keyDown, that)).on(BLUR + NS, function () {
-                    that.preventFocus = false;
-                    that.element.find('.' + KBUTTON).removeClass(FOCUSED);
-                }).on(MOUSEDOWN + NS, function () {
-                    that.preventFocus = true;
-                });
+                that._attachEvents();
             },
             events: [SELECT],
             options: {
@@ -118,6 +116,10 @@
             },
             current: function () {
                 return this.element.find('.' + ACTIVE);
+            },
+            _attachEvents: function () {
+                var that = this;
+                that.element.on(CLICK + NS, '.' + KBUTTON, proxy(that._click, that)).on(FOCUS + NS, proxy(that._focus, that)).on(FOCUSOUT + NS, proxy(that._focusout, that)).on(KEYDOWN + NS, proxy(that._keyDown, that)).on(MOUSEDOWN + NS, proxy(that._mouseDown, that));
             },
             _renderItems: function (items) {
                 var that = this;
@@ -144,34 +146,59 @@
                     renderedItem.appendTo(that.element);
                 });
             },
+            _mouseDown: function (e) {
+                var x = e.clientX, y = e.clientY, elementMouseIsOver = document.elementFromPoint(x, y);
+                if (elementMouseIsOver !== this.element[0]) {
+                    this.preventFocus = true;
+                    this.preventFocusOut = true;
+                }
+                if (isIE) {
+                    this._focus();
+                }
+            },
             _focus: function () {
                 var element = $(this.element);
+                element.removeAttr('tabindex');
+                element.find('[role=\'button\']').attr('tabindex', '0');
                 if (this.preventFocus) {
+                    this.preventFocus = false;
                     return;
                 }
                 if (element.find('.' + ACTIVE).length) {
-                    element.find('.' + ACTIVE).first().focus().addClass(FOCUSED);
+                    element.find('.' + ACTIVE).first().focus();
                 } else {
-                    element.children().first().focus().addClass(FOCUSED);
+                    element.children().first().focus();
                 }
+            },
+            _focusout: function () {
+                var that = this;
+                var wrapper = that.wrapper;
+                if (this.preventFocusOut) {
+                    this.preventFocusOut = false;
+                    return;
+                }
+                setTimeout(function () {
+                    if (!wrapper[0].contains(document.activeElement)) {
+                        wrapper.attr('tabindex', '0');
+                        wrapper.find('[role=\'button\']').removeAttr('tabindex');
+                    }
+                });
             },
             _keyDown: function (e) {
                 var that = this;
                 var buttonGroup = $(that.element);
                 var focusableItems = buttonGroup.find('.' + KBUTTON);
-                var focusedElement = buttonGroup.find('.' + FOCUSED);
+                var focusedElement = buttonGroup.find(':focus');
                 var currentIndex = focusableItems.index(focusedElement);
                 var isRtl = kendo.support.isRtl(that.element);
                 var itemToFocus;
                 if (e.keyCode === keys.LEFT && !isRtl || e.keyCode === keys.RIGHT && isRtl) {
-                    focusedElement.removeClass(FOCUSED);
                     itemToFocus = currentIndex === 0 ? focusableItems.eq(focusableItems.length - 1) : $(focusableItems[currentIndex - 1]);
-                    itemToFocus.focus().addClass(FOCUSED);
+                    itemToFocus.focus();
                     e.preventDefault();
                 } else if (e.keyCode === keys.LEFT && isRtl || e.keyCode === keys.RIGHT && !isRtl) {
-                    focusedElement.removeClass(FOCUSED);
                     itemToFocus = currentIndex + 1 === focusableItems.length ? focusableItems.eq(0) : $(focusableItems[currentIndex + 1]);
-                    itemToFocus.focus().addClass(FOCUSED);
+                    itemToFocus.focus();
                     e.preventDefault();
                 } else if (e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) {
                     that._select(focusedElement);
@@ -183,7 +210,6 @@
                 if (button === undefined || button === -1) {
                     return;
                 }
-                that.element.find('.' + KBUTTON).removeClass(FOCUSED);
                 if (typeof button === 'number') {
                     index = button;
                     button = that.element.children().eq(button);
@@ -205,7 +231,6 @@
                     button.attr('aria-pressed', true).addClass(ACTIVE);
                     that.selectedIndices.push(index);
                 }
-                that.trigger(SELECT, { indices: that.selectedIndices });
             },
             badge: function (item, value) {
                 var buttongroup = this.element;
@@ -217,7 +242,7 @@
                 }
                 badge = button.children('.k-badge').eq(0).data('kendoBadge');
                 if (!badge && validValue) {
-                    createBadge({ value: kendo.htmlEncode(value) }, button);
+                    createBadge({ text: kendo.htmlEncode(value) }, button);
                     return kendo.htmlEncode(value);
                 }
                 if (validValue) {
@@ -281,17 +306,16 @@
                 if (e.isDefaultPrevented()) {
                     return;
                 }
+                e.target.focus();
                 this._select(target);
             },
             _select: function (target) {
                 var button = target;
-                this.element.find('.' + KBUTTON).removeClass(FOCUSED);
                 if (!this._enable || button.is('.' + DISABLED)) {
-                    button.addClass(FOCUSED);
                     return;
                 }
                 this.select(target[0]);
-                button.addClass(FOCUSED);
+                this.trigger(SELECT, { indices: this.selectedIndices });
             }
         });
         ui.plugin(ButtonGroup);

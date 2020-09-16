@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -55,7 +55,7 @@
                 ",": ".",
                 ".": ",",
                 groupSize: [3],
-                symbol: "RON"
+                symbol: "lei"
             }
         },
         calendars: {
@@ -63,7 +63,7 @@
                 days: {
                     names: ["duminică","luni","marți","miercuri","joi","vineri","sâmbătă"],
                     namesAbbr: ["dum.","lun.","mar.","mie.","joi","vin.","sâm."],
-                    namesShort: ["du.","lu.","ma.","mi.","jo.","vi.","sâ."]
+                    namesShort: ["du.","lu.","ma.","mi.","joi","vi.","sâ."]
                 },
                 months: {
                     names: ["ianuarie","februarie","martie","aprilie","mai","iunie","iulie","august","septembrie","octombrie","noiembrie","decembrie"],

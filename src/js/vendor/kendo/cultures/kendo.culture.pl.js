@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -63,7 +63,7 @@
                 days: {
                     names: ["niedziela","poniedziałek","wtorek","środa","czwartek","piątek","sobota"],
                     namesAbbr: ["niedz.","pon.","wt.","śr.","czw.","pt.","sob."],
-                    namesShort: ["niedz.","pon.","wt.","śr.","czw.","pt.","sob."]
+                    namesShort: ["nie","pon","wto","śro","czw","pią","sob"]
                 },
                 months: {
                     names: ["styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"],

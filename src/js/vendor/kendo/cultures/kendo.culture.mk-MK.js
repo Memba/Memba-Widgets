@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -50,7 +50,7 @@
             currency: {
                 name: "Macedonian Denar",
                 abbr: "MKD",
-                pattern: ["-$ n","$ n"],
+                pattern: ["-n $","n $"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -69,8 +69,8 @@
                     names: ["јануари","февруари","март","април","мај","јуни","јули","август","септември","октомври","ноември","декември"],
                     namesAbbr: ["јан.","фев.","мар.","апр.","мај","јун.","јул.","авг.","септ.","окт.","ноем.","дек."]
                 },
-                AM: ["претпладне","претпладне","ПРЕТПЛАДНЕ"],
-                PM: ["попладне","попладне","ПОПЛАДНЕ"],
+                AM: ["претпл.","претпл.","ПРЕТПЛ."],
+                PM: ["попл.","попл.","ПОПЛ."],
                 patterns: {
                     d: "dd.M.yyyy",
                     D: "dddd, dd MMMM yyyy",

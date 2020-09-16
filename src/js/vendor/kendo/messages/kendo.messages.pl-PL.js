@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1049,6 +1049,22 @@ if (kendo.ui.MultiColumnComboBox) {
     kendo.ui.MultiColumnComboBox.prototype.options.messages =
     $.extend(true, kendo.ui.MultiColumnComboBox.prototype.options.messages, kendo.ui.List.prototype.options.messages);
 }
-  
+
+/* Validator */
+if (kendo.ui.Validator) {
+kendo.ui.Validator.prototype.options.messages =
+$.extend(true, kendo.ui.Validator.prototype.options.messages, {
+	required: 'Wartość {0} jest wymagana',
+	pattern: 'Wartość {0} jest nieprawidłowa',
+	min: '{0} musi być nie mniejsze niż {1}',
+	max: '{0} musi być nie większe niż {1}',
+	step: 'Wartość {0} jest nieprawidłowa',
+	email: 'Nieprawidłowy email: {0}',
+	url: 'Nieprawidłowy URL: {0}',
+	date: 'Nieprawidłowa data: {0}',
+	dateCompare: 'Data początkowa nie może być późniejsza niż końcowa.'
+});
+}
+ 
 })(window.kendo.jQuery);
 }));

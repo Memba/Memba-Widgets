@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1923,7 +1923,7 @@
         function clearImageCache() {
             IMAGE_CACHE = {};
         }
-        function loadImage(url, size, cont) {
+        function loadImage(url, size, cont, options) {
             var img = IMAGE_CACHE[url], bloburl, blob;
             if (img) {
                 cont(img);
@@ -1992,10 +1992,10 @@
                     }
                     alpha.writeByte(a);
                 }
-                if (hasAlpha) {
+                if (hasAlpha || options.keepPNG) {
                     img = new PDFRawImage(size.width, size.height, rgb, alpha);
                 } else {
-                    var data = canvas.toDataURL('image/jpeg');
+                    var data = canvas.toDataURL('image/jpeg', options.jpegQuality);
                     data = data.substr(data.indexOf(';base64,') + 8);
                     var stream = BinaryStream();
                     stream.writeBase64(data);
@@ -2046,7 +2046,11 @@
             };
         }
         var loadFonts = manyLoader(loadFont);
-        var loadImages = function (images, callback) {
+        var loadImages = function (images, callback, options) {
+            options = $.extend({
+                jpegQuality: 0.92,
+                keepPNG: false
+            }, options);
             var urls = Object.keys(images), n = urls.length;
             if (n === 0) {
                 return callback();
@@ -2057,7 +2061,7 @@
                 }
             }
             urls.forEach(function (url) {
-                loadImage(url, images[url], next);
+                loadImage(url, images[url], next, options);
             });
         };
         PDFDocument.prototype = {
@@ -2215,13 +2219,22 @@
         }, {
             render: function (out) {
                 var txt = this.value;
-                if (txt.length > 0) {
-                    txt = this.value.replace(/([\(\)\\])/g, '\\$1');
-                    if (this.utf16be) {
-                        txt = BOM + encodeUTF16BE(txt);
+                if (this.utf16be) {
+                    txt = BOM + encodeUTF16BE(txt);
+                    txt = txt.replace(/([\(\)\\])/g, '\\$1');
+                    out('(', txt, ')');
+                } else {
+                    var data = [40];
+                    for (var i = 0; i < txt.length; ++i) {
+                        var code = txt.charCodeAt(i) & 255;
+                        if (code == 40 || code == 41 || code == 92) {
+                            data.push(92);
+                        }
+                        data.push(code);
                     }
+                    data.push(41);
+                    out.writeData(data);
                 }
-                out('(', txt, ')');
             },
             toString: function () {
                 return this.value;
@@ -3452,7 +3465,10 @@
             }
             var count = 2;
             loadFonts(fonts, doIt);
-            loadImages(images, doIt);
+            loadImages(images, doIt, {
+                jpegQuality: getOption('jpegQuality', 0.92),
+                keepPNG: getOption('keepPNG', false)
+            });
         }
         function toDataURL(group, callback) {
             render(group, function (data) {

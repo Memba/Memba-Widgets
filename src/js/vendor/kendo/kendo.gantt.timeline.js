@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,6 +73,8 @@
         var RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper# k-gantt-resize-hint">' + '<div class="#=styles.tooltipContent#">' + '<div>#=messages.start#: #=kendo.toString(start, format)#</div>' + '<div>#=messages.end#: #=kendo.toString(end, format)#</div>' + '</div>' + '</div>');
         var PERCENT_RESIZE_TOOLTIP_TEMPLATE = kendo.template('<div style="z-index: 100002;" class="#=styles.tooltipWrapper#" >' + '<div class="#=styles.tooltipContent#">#=text#%</div>' + '<div class="#=styles.tooltipCallout#" style="left:13px;"></div>' + '</div>');
         var TASK_TOOLTIP_TEMPLATE = kendo.template('<div class="#=kendo.htmlEncode(styles.taskDetails)#">' + '<strong>#=kendo.htmlEncode(task.title)#</strong>' + '<div class="#=styles.taskDetailsPercent#">#=kendo.toString(task.percentComplete, "p0")#</div>' + '<ul class="#=styles.reset#">' + '<li>#=messages.start#: #=kendo.toString(task.start, "h:mm tt ddd, MMM d")#</li>' + '<li>#=messages.end#: #=kendo.toString(task.end, "h:mm tt ddd, MMM d")#</li>' + '</ul>' + '</div>');
+        var OFFSET_TOOLTIP_TEMPLATE = kendo.template('<span>#=offsetPrefix#: #=offsetText#</span>');
+        var PLANNED_TOOLTIP_TEMPLATE = kendo.template('<div class="k-task-content">' + '<div>#=plannedStart#: #=startDate#</div>' + '<div>#=plannedEnd#: #=endDate#</div>' + '</div>');
         var SIZE_CALCULATION_TEMPLATE = '<table style=\'visibility: hidden;\'>' + '<tbody>' + '<tr style=\'height:{0}\'>' + '<td>&nbsp;</td>' + '</tr>' + '</tbody>' + '</table>';
         var defaultViews = {
             day: { type: 'kendo.ui.GanttDayView' },
@@ -127,6 +129,16 @@
             taskSummary: 'k-task-summary',
             taskWrap: 'k-task-wrap',
             taskMilestoneWrap: 'k-milestone-wrap',
+            taskSummaryWrap: 'k-summary-wrap',
+            taskPlanned: 'k-task-planned',
+            taskPlannedMoment: 'k-task-moment',
+            taskPlannedDuration: 'k-task-duration',
+            taskPlannedMomentLeft: 'k-moment-left',
+            taskAdvanced: 'k-task-advanced',
+            taskDelayed: 'k-task-delayed',
+            taskOffset: 'k-task-offset',
+            taskOffsetWrap: 'k-task-offset-wrap',
+            taskInnerWrap: 'k-task-inner-wrap',
             resourcesWrap: 'k-resources-wrap',
             taskDot: 'k-task-dot',
             taskDotStart: 'k-task-start',
@@ -159,7 +171,10 @@
             tooltipCallout: 'k-callout k-callout-s',
             callout: 'k-callout',
             marquee: 'k-marquee k-gantt-marquee',
-            marqueeColor: 'k-marquee-color'
+            marqueeColor: 'k-marquee-color',
+            offsetTooltipAdvanced: 'k-offset-tooltip-advanced',
+            offsetTooltipDelay: 'k-offset-tooltip-delayed',
+            plannedTooltip: 'k-planned-tooltip'
         };
         var GanttView = kendo.ui.GanttView = Widget.extend({
             init: function (element, options) {
@@ -315,6 +330,7 @@
                 var row;
                 var cell;
                 var position;
+                var plannedPosition;
                 var task;
                 var styles = GanttView.styles;
                 var coordinates = this._taskCoordinates = {};
@@ -330,6 +346,7 @@
                 var resourcesMargin = this._calculateResourcesMargin();
                 var taskBorderWidth = this._calculateTaskBorderWidth();
                 var resourceStyle;
+                var showPlannedTasks = this.options.showPlannedTasks;
                 var addCoordinates = function (rowIndex) {
                     var taskLeft;
                     var taskRight;
@@ -348,11 +365,15 @@
                 for (var i = 0, l = tasks.length; i < l; i++) {
                     task = tasks[i];
                     position = this._taskPosition(task);
+                    if (showPlannedTasks) {
+                        plannedPosition = this._taskPositionPlanned(task);
+                        plannedPosition.borderWidth = taskBorderWidth;
+                    }
                     position.borderWidth = taskBorderWidth;
                     row = kendoDomElement('tr', null);
                     cell = kendoDomElement('td');
                     if (task.start <= this.end && task.end >= this.start) {
-                        cell.children.push(this._renderTask(tasks[i], position));
+                        cell.children.push(this._renderTask(tasks[i], position, plannedPosition));
                         if (task[resourcesField] && task[resourcesField].length) {
                             if (isRtl) {
                                 resourcesPosition = this._tableWidth - position.left;
@@ -444,11 +465,8 @@
                 task.remove();
                 return width;
             },
-            _renderTask: function (task, position) {
-                var taskWrapper;
-                var taskElement;
+            _renderTask: function (task, position, plannedPosition) {
                 var editable = this.options.editable;
-                var progressHandleOffset;
                 var taskLeft = position.left;
                 var styles = GanttView.styles;
                 var wrapClassName = styles.taskWrap;
@@ -458,24 +476,98 @@
                     className: wrapClassName,
                     style: { left: taskLeft + 'px' }
                 };
+                var children = [];
+                var endTaskDotRight = 0;
+                var taskFullWidth = position.width;
+                var taskWrapper, taskElement, progressHandleOffset, plannedElement;
+                var endTaskDotLeft, taskOffsetWrap, offsetElement, offsetWidth;
                 if (calculatedSize) {
                     taskWrapAttr.style.height = calculatedSize.cell + 'px';
                 }
+                if (plannedPosition) {
+                    if (task.isMilestone()) {
+                        plannedElement = this._renderPlannedMilestone(position, plannedPosition);
+                    } else {
+                        plannedElement = this._renderPlannedSingleTask(position, plannedPosition, task);
+                    }
+                    children.push(plannedElement);
+                    if (isRtl && plannedPosition.left <= position.left) {
+                        taskWrapAttr.style.left = plannedPosition.left + 'px';
+                    }
+                }
                 if (task.summary) {
-                    taskElement = this._renderSummary(task, position);
+                    taskElement = this._renderSummary(task, position, plannedPosition);
+                    taskWrapAttr.className += ' ' + styles.taskSummaryWrap;
                 } else if (task.isMilestone()) {
                     taskElement = this._renderMilestone(task, position);
                     taskWrapAttr.className += ' ' + styles.taskMilestoneWrap;
                 } else {
-                    taskElement = this._renderSingleTask(task, position);
+                    taskElement = this._renderSingleTask(task, position, plannedPosition);
                 }
-                taskWrapper = kendoDomElement('div', taskWrapAttr, [taskElement]);
+                if (plannedPosition && !task.isMilestone() && task.plannedStart < task.end && task.plannedEnd > task.start && task.plannedEnd < task.end) {
+                    if (isRtl) {
+                        taskFullWidth = position.left + position.width - plannedPosition.left;
+                    } else {
+                        taskFullWidth = plannedPosition.left + plannedPosition.width - position.left;
+                    }
+                    if (isRtl) {
+                        offsetWidth = plannedPosition.left - position.left;
+                    } else {
+                        offsetWidth = position.left + position.width - (plannedPosition.left + plannedPosition.width);
+                    }
+                    offsetElement = kendoDomElement('div', {
+                        className: styles.taskOffset,
+                        style: { width: offsetWidth - 2 * plannedPosition.borderWidth + 'px' }
+                    });
+                    if (editable && editable.resize !== false && editable.update !== false && !task.summary) {
+                        if (editable.destroy !== false) {
+                            offsetElement.children.push(kendoDomElement('span', { className: styles.taskActions }, [kendoDomElement('a', {
+                                    className: styles.link + ' ' + styles.taskDelete,
+                                    href: '#',
+                                    'aria-label': 'Delete'
+                                }, [kendoDomElement('span', { className: styles.icon + ' ' + styles.iconDelete })])]));
+                        }
+                        if (isRtl) {
+                            offsetElement.children.push(kendoDomElement('span', {
+                                className: styles.taskResizeHandle + ' ' + styles.taskResizeHandleWest,
+                                style: { right: position.width - 5 + 'px' }
+                            }));
+                        } else {
+                            offsetElement.children.push(kendoDomElement('span', { className: styles.taskResizeHandle + ' ' + styles.taskResizeHandleEast }));
+                        }
+                    }
+                    taskOffsetWrap = kendoDomElement('div', { className: styles.taskOffsetWrap + ' ' + styles.taskInnerWrap }, [
+                        taskElement,
+                        offsetElement
+                    ]);
+                    children.push(taskOffsetWrap);
+                } else if (plannedPosition) {
+                    children.push(kendoDomElement('div', { className: styles.taskInnerWrap }, [taskElement]));
+                } else {
+                    children.push(taskElement);
+                }
+                taskWrapper = kendoDomElement('div', taskWrapAttr, children);
                 if (editable && editable.dependencyCreate !== false) {
+                    if (plannedPosition && task.plannedEnd > task.end) {
+                        endTaskDotRight = plannedPosition.left + plannedPosition.width - position.left - position.width - 3 + 'px';
+                    }
                     taskWrapper.children.push(kendoDomElement('div', { className: styles.taskDot + ' ' + styles.taskDotStart }));
-                    taskWrapper.children.push(kendoDomElement('div', { className: styles.taskDot + ' ' + styles.taskDotEnd }));
+                    if (isRtl) {
+                        endTaskDotRight = 'auto';
+                        if (plannedPosition && task.plannedEnd > task.end) {
+                            endTaskDotLeft = position.left - plannedPosition.left + 'px';
+                        }
+                    }
+                    taskWrapper.children.push(kendoDomElement('div', {
+                        className: styles.taskDot + ' ' + styles.taskDotEnd,
+                        style: {
+                            right: endTaskDotRight,
+                            left: endTaskDotLeft
+                        }
+                    }));
                 }
                 if (!task.summary && !task.isMilestone() && editable && editable.dragPercentComplete !== false && editable.update !== false && this._taskTemplate === null) {
-                    progressHandleOffset = Math.round(position.width * task.percentComplete);
+                    progressHandleOffset = Math.round(taskFullWidth * task.percentComplete);
                     dragHandleStyle[isRtl ? 'right' : 'left'] = progressHandleOffset + 'px';
                     taskWrapper.children.push(kendoDomElement('div', {
                         className: styles.taskDragHandle,
@@ -484,12 +576,28 @@
                 }
                 return taskWrapper;
             },
-            _renderSingleTask: function (task, position) {
+            _renderSingleTask: function (task, position, plannedPosition) {
                 var styles = GanttView.styles;
-                var progressWidth = Math.round(position.width * task.percentComplete);
+                var progressWidth;
                 var taskChildren = [];
                 var taskContent;
                 var editable = this.options.editable;
+                var classes = styles.task + ' ' + styles.taskSingle;
+                var widthExceptDelay = position.width;
+                if (plannedPosition) {
+                    if (task.plannedEnd && task.plannedEnd <= task.start) {
+                        classes += ' ' + styles.taskDelayed;
+                    } else if (task.plannedEnd && task.plannedEnd > task.end) {
+                        classes += ' ' + styles.taskAdvanced;
+                    } else if (task.plannedEnd && task.plannedEnd < task.end) {
+                        if (!isRtl) {
+                            widthExceptDelay = widthExceptDelay - (position.left + position.width - plannedPosition.left - plannedPosition.width);
+                        } else {
+                            widthExceptDelay = widthExceptDelay + position.left - plannedPosition.left;
+                        }
+                    }
+                }
+                progressWidth = Math.round(widthExceptDelay * task.percentComplete);
                 if (this._taskTemplate !== null) {
                     taskContent = kendoHtmlElement(this._taskTemplate(task));
                 } else {
@@ -502,7 +610,7 @@
                 var content = kendoDomElement('div', { className: styles.taskContent }, [kendoDomElement('div', { className: styles.taskTemplate }, [taskContent])]);
                 taskChildren.push(content);
                 if (editable) {
-                    if (editable.destroy !== false) {
+                    if (editable.destroy !== false && (!plannedPosition || !task.plannedEnd || (task.end <= task.plannedEnd || task.start >= task.plannedEnd))) {
                         content.children.push(kendoDomElement('span', { className: styles.taskActions }, [kendoDomElement('a', {
                                 className: styles.link + ' ' + styles.taskDelete,
                                 href: '#',
@@ -515,27 +623,49 @@
                     }
                 }
                 var element = kendoDomElement('div', {
-                    className: styles.task + ' ' + styles.taskSingle,
+                    className: classes,
                     'data-uid': task.uid,
-                    style: { width: Math.max(position.width - position.borderWidth * 2, 0) + 'px' }
+                    style: { width: Math.max(widthExceptDelay - position.borderWidth * 2, 0) + 'px' }
                 }, taskChildren);
                 return element;
             },
             _renderMilestone: function (task) {
                 var styles = GanttView.styles;
-                var element = kendoDomElement('div', {
-                    className: styles.task + ' ' + styles.taskMilestone,
+                var classes = styles.task + ' ' + styles.taskMilestone;
+                var showPlanned = this.options.showPlannedTasks;
+                if (showPlanned && task.plannedEnd && task.plannedEnd < task.start) {
+                    classes += ' ' + styles.taskDelayed;
+                } else if (task.plannedStart && task.plannedStart > task.end) {
+                    classes += ' ' + styles.taskAdvanced;
+                }
+                return kendoDomElement('div', {
+                    className: classes,
                     'data-uid': task.uid
                 });
-                return element;
             },
-            _renderSummary: function (task, position) {
+            _renderSummary: function (task, position, plannedPosition) {
                 var styles = GanttView.styles;
-                var progressWidth = Math.round(position.width * task.percentComplete);
+                var widthExceptDelay = position.width;
+                var progressWidth;
+                var classes = styles.task + ' ' + styles.taskSummary;
+                if (plannedPosition) {
+                    if (task.plannedEnd && task.plannedEnd <= task.start) {
+                        classes += ' ' + styles.taskDelayed;
+                    } else if (task.plannedEnd && task.plannedEnd > task.end) {
+                        classes += ' ' + styles.taskAdvanced;
+                    } else if (task.plannedEnd && task.plannedEnd < task.end) {
+                        if (!isRtl) {
+                            widthExceptDelay = widthExceptDelay - (position.left + position.width - plannedPosition.left - plannedPosition.width);
+                        } else {
+                            widthExceptDelay = widthExceptDelay + position.left - plannedPosition.left;
+                        }
+                    }
+                }
+                progressWidth = Math.round(widthExceptDelay * task.percentComplete);
                 var element = kendoDomElement('div', {
-                    className: styles.task + ' ' + styles.taskSummary,
+                    className: classes,
                     'data-uid': task.uid,
-                    style: { width: position.width + 'px' }
+                    style: { width: widthExceptDelay + 'px' }
                 }, [kendoDomElement('div', {
                         className: styles.taskSummaryProgress,
                         style: { width: progressWidth + 'px' }
@@ -543,6 +673,51 @@
                             className: styles.taskSummaryComplete,
                             style: { width: position.width + 'px' }
                         })])]);
+                return element;
+            },
+            _renderPlannedSingleTask: function (position, plannedPosition, task) {
+                var styles = GanttView.styles;
+                var children = [];
+                var style = {};
+                if (task.plannedStart && task.plannedEnd) {
+                    children.push(kendoDomElement('div', { className: styles.taskPlannedMoment + ' ' + styles.taskPlannedMomentLeft }));
+                    children.push(kendoDomElement('div', {
+                        className: styles.taskPlannedDuration,
+                        style: { width: Math.max(plannedPosition.width - plannedPosition.borderWidth * 2 - 16, 0) + 'px' }
+                    }));
+                    children.push(kendoDomElement('div', { className: styles.taskPlannedMoment }));
+                } else if (task.plannedStart) {
+                    children.push(kendoDomElement('div', { className: styles.taskPlannedMoment + ' ' + styles.taskPlannedMomentLeft }));
+                } else if (task.plannedEnd) {
+                    children.push(kendoDomElement('div', {
+                        className: styles.taskPlannedMoment,
+                        style: { 'margin-left': Math.max(plannedPosition.width - 5, 0) + 'px' }
+                    }));
+                }
+                if (isRtl) {
+                    style = { 'margin-right': position.left - plannedPosition.left + position.width - plannedPosition.width + 'px' };
+                } else {
+                    style = { 'margin-left': plannedPosition.left - position.left + 'px' };
+                }
+                var element = kendoDomElement('div', {
+                    className: styles.taskPlanned,
+                    style: style
+                }, children);
+                return element;
+            },
+            _renderPlannedMilestone: function (position, plannedPosition) {
+                var styles = GanttView.styles;
+                var style = {};
+                var element;
+                if (isRtl) {
+                    style = { 'margin-right': position.left - plannedPosition.left + 'px' };
+                } else {
+                    style = { 'margin-left': plannedPosition.left - position.left + 'px' };
+                }
+                element = kendoDomElement('div', {
+                    className: styles.taskPlanned,
+                    style: style
+                }, [kendoDomElement('div', { className: styles.taskPlannedMoment })]);
                 return element;
             },
             _renderResources: function (resources, className) {
@@ -564,6 +739,15 @@
                 var round = Math.round;
                 var startLeft = round(this._offset(isRtl ? task.end : task.start));
                 var endLeft = round(this._offset(isRtl ? task.start : task.end));
+                return {
+                    left: startLeft,
+                    width: endLeft - startLeft
+                };
+            },
+            _taskPositionPlanned: function (task) {
+                var round = Math.round;
+                var startLeft = round(this._offset(isRtl ? task.plannedEnd : task.plannedStart));
+                var endLeft = round(this._offset(isRtl ? task.plannedStart : task.plannedEnd));
                 return {
                     left: startLeft,
                     width: endLeft - startLeft
@@ -845,8 +1029,19 @@
                 return kendoDomElement('colgroup', null, cols);
             },
             _createDragHint: function (element) {
-                this._dragHint = element.clone().addClass(GanttView.styles.dragHint).css('cursor', 'move');
-                element.parent().append(this._dragHint);
+                var styles = GanttView.styles;
+                var plannedElement;
+                this._dragHint = element.clone().addClass(styles.dragHint).css({ 'cursor': 'move' });
+                plannedElement = this._dragHint.find(DOT + styles.taskPlanned);
+                plannedElement.css({ 'visibility': 'hidden' });
+                if (isRtl && element.find(DOT + styles.taskAdvanced).length > 0) {
+                    plannedElement.css({
+                        'margin-right': 'auto',
+                        'width': 0
+                    });
+                    this._dragHint.find(DOT + styles.taskDotEnd).css({ 'left': 0 });
+                }
+                element.closest('td').append(this._dragHint);
             },
             _updateDragHint: function (start) {
                 var left = this._offset(start);
@@ -996,7 +1191,6 @@
                 var options = this.options;
                 var content = this.content;
                 var contentOffset = content.offset();
-                var contentWidth = content.width();
                 var contentScrollLeft = kendo.scrollLeft(content);
                 var row = $(element).parents('tr').first();
                 var rowOffset = row.offset();
@@ -1004,7 +1198,6 @@
                 var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar()) : mouseLeft - (contentOffset.left - contentScrollLeft);
                 var top = rowOffset.top + outerHeight(row) - contentOffset.top + content.scrollTop();
                 var tooltip = this._taskTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + '" >' + '<div class="' + styles.taskContent + '"></div></div>');
-                var tooltipWidth;
                 tooltip.css({
                     'left': left,
                     'top': top
@@ -1013,6 +1206,91 @@
                     task: task,
                     messages: options.messages.views
                 }));
+                this._adjustTooltipDimensions(tooltip, rowOffset, contentOffset, left, contentScrollLeft);
+            },
+            _removeTaskTooltip: function () {
+                if (this._taskTooltip) {
+                    this._taskTooltip.remove();
+                }
+                this._taskTooltip = null;
+            },
+            _createOffsetTooltip: function (task, element, mouseLeft) {
+                var styles = GanttView.styles;
+                var content = this.content;
+                var contentOffset = content.offset();
+                var contentScrollLeft = kendo.scrollLeft(content);
+                var row = element.parents('tr').first();
+                var rowOffset = row.offset();
+                var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar()) : mouseLeft - (contentOffset.left - contentScrollLeft);
+                var top = rowOffset.top + outerHeight(row) - contentOffset.top + content.scrollTop();
+                var tooltip = this._offsetTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + '" ></div>');
+                var offsetValue = Math.round((task.end.getTime() - task.plannedEnd.getTime()) / 60000);
+                var plannedTasksMessages = this.options.messages.plannedTasks;
+                var minutes = offsetValue % 60;
+                var offsetText = minutes + ' ' + plannedTasksMessages.minutes;
+                var hours, days;
+                if (offsetValue >= 60) {
+                    hours = offsetValue = Math.floor(offsetValue / 60);
+                    offsetText = hours + ' ' + plannedTasksMessages.hours;
+                    if (minutes !== 0) {
+                        offsetText += ' ' + minutes + ' ' + plannedTasksMessages.minutes;
+                    }
+                    if (offsetValue >= 24) {
+                        hours = offsetValue % 24;
+                        days = offsetValue = Math.floor(offsetValue / 24);
+                        offsetText = days + ' ' + plannedTasksMessages.days;
+                        if (hours !== 0) {
+                            offsetText += ' ' + hours + ' ' + plannedTasksMessages.hours;
+                        }
+                    }
+                }
+                tooltip.css({
+                    'left': left,
+                    'top': top
+                }).addClass(styles.offsetTooltipDelay).appendTo(content).append(OFFSET_TOOLTIP_TEMPLATE({
+                    offsetPrefix: plannedTasksMessages.offsetTooltipDelay,
+                    offsetText: offsetText
+                }));
+                this._adjustTooltipDimensions(tooltip, rowOffset, contentOffset, left, contentScrollLeft);
+            },
+            _removeOffsetTooltip: function () {
+                if (this._offsetTooltip) {
+                    this._offsetTooltip.remove();
+                }
+                this._offsetTooltip = null;
+            },
+            _createPlannedTooltip: function (task, element, mouseLeft) {
+                var styles = GanttView.styles;
+                var content = this.content;
+                var contentOffset = content.offset();
+                var contentScrollLeft = kendo.scrollLeft(content);
+                var row = element.parents('tr').first();
+                var rowOffset = row.offset();
+                var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar()) : mouseLeft - (contentOffset.left - contentScrollLeft);
+                var top = rowOffset.top + outerHeight(row) - contentOffset.top + content.scrollTop();
+                var tooltip = this._plannedTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + ' ' + styles.plannedTooltip + '" ></div>');
+                var editorMessages = this.options.messages.editor;
+                tooltip.css({
+                    'left': left,
+                    'top': top
+                }).appendTo(content).append(PLANNED_TOOLTIP_TEMPLATE({
+                    plannedStart: editorMessages.plannedStart,
+                    startDate: kendo.toString(task.plannedStart, 'H:mm tt ddd, MMM dd'),
+                    plannedEnd: editorMessages.plannedEnd,
+                    endDate: kendo.toString(task.plannedEnd, 'H:mm tt ddd, MMM dd')
+                }));
+                this._adjustTooltipDimensions(tooltip, rowOffset, contentOffset, left, contentScrollLeft);
+            },
+            _removePlannedTooltip: function () {
+                if (this._plannedTooltip) {
+                    this._plannedTooltip.remove();
+                }
+                this._plannedTooltip = null;
+            },
+            _adjustTooltipDimensions: function (tooltip, rowOffset, contentOffset, left, contentScrollLeft) {
+                var content = this.content;
+                var contentWidth = content.width();
+                var tooltipWidth;
                 if (outerHeight(tooltip) < rowOffset.top - contentOffset.top) {
                     tooltip.css('top', rowOffset.top - contentOffset.top - outerHeight(tooltip) + content.scrollTop());
                 }
@@ -1024,12 +1302,6 @@
                     }
                     tooltip.css('left', left);
                 }
-            },
-            _removeTaskTooltip: function () {
-                if (this._taskTooltip) {
-                    this._taskTooltip.remove();
-                }
-                this._taskTooltip = null;
             },
             _scrollTo: function (element) {
                 var elementLeft = element.offset().left;
@@ -1471,6 +1743,9 @@
             tasksWrapper: 'k-gantt-tables',
             dependenciesWrapper: 'k-gantt-dependencies',
             task: 'k-task',
+            taskOffset: 'k-task-offset',
+            taskOffsetWrap: 'k-task-offset-wrap',
+            taskPlanned: 'k-task-planned',
             line: 'k-gantt-line',
             taskResizeHandle: 'k-resize-handle',
             taskResizeHandleWest: 'k-resize-w',
@@ -1749,14 +2024,14 @@
                 }
                 this._moveDraggable = new kendo.ui.Draggable(this.wrapper, {
                     distance: 0,
-                    filter: DOT + styles.task,
+                    filter: DOT + styles.task + ',' + DOT + styles.taskOffset,
                     holdToDrag: kendo.support.mobileOS,
                     ignore: DOT + styles.taskResizeHandle
                 });
                 this._moveDraggable.bind('dragstart', function (e) {
                     var view = that.view();
-                    element = e.currentTarget.parent();
-                    task = that._taskByUid(e.currentTarget.attr('data-uid'));
+                    element = e.currentTarget.closest(DOT + styles.taskWrap);
+                    task = that._taskByUid(e.currentTarget.parent().find(DOT + styles.task).attr('data-uid'));
                     if (that.trigger('moveStart', { task: task })) {
                         e.preventDefault();
                         return;
@@ -1825,7 +2100,7 @@
                     if (isRtl) {
                         resizeStart = !resizeStart;
                     }
-                    element = e.currentTarget.closest(DOT + styles.task);
+                    element = e.currentTarget.closest(DOT + styles.taskWrap).find(DOT + styles.task);
                     task = that._taskByUid(element.attr('data-uid'));
                     if (that.trigger('resizeStart', { task: task })) {
                         e.preventDefault();
@@ -1897,7 +2172,12 @@
                     that.dragInProgress = false;
                 };
                 var updateElement = function (width) {
-                    taskElement.find(DOT + styles.taskComplete).width(width).end().siblings(DOT + styles.taskDragHandle).css(isRtl ? 'right' : 'left', width);
+                    var taskDragHandle = taskElement.siblings(DOT + styles.taskDragHandle);
+                    if (!taskDragHandle.length) {
+                        taskDragHandle = taskElement.closest(DOT + styles.taskWrap).find(DOT + styles.taskDragHandle);
+                    }
+                    taskDragHandle.css(isRtl ? 'right' : 'left', width);
+                    taskElement.find(DOT + styles.taskComplete).width(width);
                 };
                 if (!editable || editable.dragPercentComplete === false || editable.update === false) {
                     return;
@@ -1913,6 +2193,9 @@
                         return;
                     }
                     taskElement = e.currentTarget.siblings(DOT + styles.task);
+                    if (!taskElement.length) {
+                        taskElement = e.currentTarget.closest(DOT + styles.taskWrap).find(DOT + styles.task);
+                    }
                     task = that._taskByUid(taskElement.attr('data-uid'));
                     currentPercentComplete = task.percentComplete;
                     taskElementOffset = taskElement.offset();
@@ -2023,8 +2306,16 @@
                         var fromStart = originalHandle.hasClass(styles.taskDotStart);
                         var toStart = hoveredHandle.hasClass(styles.taskDotStart);
                         var type = fromStart ? toStart ? 3 : 2 : toStart ? 1 : 0;
-                        var predecessor = that._taskByUid(originalHandle.siblings(DOT + styles.task).attr('data-uid'));
-                        var successor = that._taskByUid(hoveredHandle.siblings(DOT + styles.task).attr('data-uid'));
+                        var predecessorElement = originalHandle.siblings(DOT + styles.task);
+                        if (!predecessorElement.length) {
+                            predecessorElement = originalHandle.closest(DOT + styles.taskWrap).find(DOT + styles.task);
+                        }
+                        var predecessor = that._taskByUid(predecessorElement.attr('data-uid'));
+                        var successorElement = hoveredHandle.siblings(DOT + styles.task);
+                        if (!successorElement.length) {
+                            successorElement = hoveredHandle.closest(DOT + styles.taskWrap).find(DOT + styles.task);
+                        }
+                        var successor = that._taskByUid(successorElement.attr('data-uid'));
                         if (predecessor !== successor) {
                             that.trigger('dependencyDragEnd', {
                                 type: type,
@@ -2044,10 +2335,14 @@
                 var that = this;
                 var styles = GanttTimeline.styles;
                 if (this.options.selectable) {
-                    this.wrapper.on(CLICK + NS, DOT + styles.task, function (e) {
+                    this.wrapper.on(CLICK + NS, DOT + styles.task + ',' + DOT + styles.taskOffset, function (e) {
                         e.stopPropagation();
+                        var uid = $(this).attr('data-uid');
+                        if (!uid) {
+                            uid = $(this).closest(DOT + styles.taskWrap).find(DOT + styles.task).data('uid');
+                        }
                         if (!e.ctrlKey) {
-                            that.trigger('select', { uid: $(this).attr('data-uid') });
+                            that.trigger('select', { uid: uid });
                         } else {
                             that.trigger('clear');
                         }
@@ -2111,7 +2406,7 @@
                 if (editable) {
                     this._tabindex();
                     this.wrapper.on(CLICK + NS, DOT + styles.taskDelete, function (e) {
-                        that.trigger('removeTask', { uid: $(this).closest(DOT + styles.task).attr('data-uid') });
+                        that.trigger('removeTask', { uid: $(this).closest(DOT + styles.taskWrap).find(DOT + styles.task).attr('data-uid') });
                         e.stopPropagation();
                         e.preventDefault();
                     }).on(KEYDOWN + NS, function (e) {
@@ -2126,19 +2421,19 @@
                         }
                     });
                     if (!kendo.support.mobileOS) {
-                        this.wrapper.on(DBLCLICK + NS, DOT + styles.task, function (e) {
+                        this.wrapper.on(DBLCLICK + NS, DOT + styles.task + ',' + DOT + styles.taskOffset, function (e) {
                             if (that.options.editable.update !== false) {
-                                that.trigger('editTask', { uid: $(this).attr('data-uid') });
+                                that.trigger('editTask', { uid: $(this).closest(DOT + styles.taskWrap).find(DOT + styles.task).attr('data-uid') });
                                 e.stopPropagation();
                                 e.preventDefault();
                             }
                         });
                     } else {
                         this.touch = this.wrapper.kendoTouch({
-                            filter: DOT + styles.task,
+                            filter: DOT + styles.task + ',' + DOT + styles.taskOffset,
                             doubletap: function (e) {
                                 if (that.options.editable.update !== false) {
-                                    that.trigger('editTask', { uid: $(e.touch.currentTarget).attr('data-uid') });
+                                    that.trigger('editTask', { uid: $(e.touch.currentTarget).closest(DOT + styles.taskWrap).find(DOT + styles.task).attr('data-uid') });
                                 }
                             }
                         }).data('kendoTouch');
@@ -2171,6 +2466,31 @@
                         clearTimeout(that._tooltipTimeout);
                         that.view()._removeTaskTooltip();
                         $(this).off(MOUSEMOVE, mouseMoveHandler);
+                    }).on(MOUSEENTER + NS, DOT + styles.taskOffset, function () {
+                        var taskElement = $(this).closest(DOT + styles.taskWrap).find(DOT + styles.task);
+                        var task = that._taskByUid(taskElement.attr('data-uid'));
+                        if (that.dragInProgress) {
+                            return;
+                        }
+                        that._offsetTooltipTimeout = setTimeout(function () {
+                            that.view()._createOffsetTooltip(task, taskElement, currentMousePosition);
+                        }, 800);
+                        $(this).on(MOUSEMOVE, mouseMoveHandler);
+                    }).on(MOUSELEAVE + NS, DOT + styles.taskOffset, function () {
+                        clearTimeout(that._offsetTooltipTimeout);
+                        that.view()._removeOffsetTooltip();
+                        $(this).off(MOUSEMOVE, mouseMoveHandler);
+                    }).on(MOUSEENTER + NS, DOT + styles.taskPlanned, function () {
+                        var taskElement = $(this).closest(DOT + styles.taskWrap).find(DOT + styles.task);
+                        var task = that._taskByUid(taskElement.attr('data-uid'));
+                        that._plannedTooltipTimeout = setTimeout(function () {
+                            that.view()._createPlannedTooltip(task, taskElement, currentMousePosition);
+                        }, 800);
+                        $(this).on(MOUSEMOVE, mouseMoveHandler);
+                    }).on(MOUSELEAVE + NS, DOT + styles.taskPlanned, function () {
+                        clearTimeout(that._plannedTooltipTimeout);
+                        that.view()._removePlannedTooltip();
+                        $(this).off(MOUSEMOVE, mouseMoveHandler);
                     });
                 } else {
                     this.wrapper.on(CLICK + NS, DOT + styles.taskDelete, function (e) {
@@ -2181,21 +2501,45 @@
                         if (parents.length === 0) {
                             that.view()._removeTaskTooltip();
                         }
+                    }).on(MOUSELEAVE + NS, DOT + styles.taskOffset, function (e) {
+                        var parents = $(e.relatedTarget).parents(DOT + styles.taskWrap, DOT + styles.task);
+                        if (parents.length === 0) {
+                            that.view()._removeOffsetTooltip();
+                        }
+                    }).on(MOUSELEAVE + NS, DOT + styles.taskPlanned, function (e) {
+                        var parents = $(e.relatedTarget).parents(DOT + styles.taskWrap, DOT + styles.task);
+                        if (parents.length === 0) {
+                            that.view()._removePlannedTooltip();
+                        }
                     });
                     if (this.touch) {
                         this.touch.bind('tap', function (e) {
-                            var element = e.touch.target;
-                            var task = that._taskByUid($(element).attr('data-uid'));
+                            var element = $(e.touch.target);
                             var currentPosition = e.touch.x.client;
-                            if (that.view()._taskTooltip) {
-                                that.view()._removeTaskTooltip();
+                            var task;
+                            if (!element.hasClass(styles.task)) {
+                                task = that._taskByUid(element.closest(DOT + styles.taskWrap).find(DOT + styles.task).attr('data-uid'));
+                                if (that.view()._offsetTooltip) {
+                                    that.view()._removeOffsetTooltip();
+                                }
+                                that.view()._createOffsetTooltip(task, element, currentPosition);
+                            } else {
+                                task = that._taskByUid(element.attr('data-uid'));
+                                if (that.view()._taskTooltip) {
+                                    that.view()._removeTaskTooltip();
+                                }
+                                that.view()._createTaskTooltip(task, element, currentPosition);
                             }
-                            that.view()._createTaskTooltip(task, element, currentPosition);
                         }).bind('doubletap', function () {
                             that.view()._removeTaskTooltip();
+                            that.view()._removeOffsetTooltip();
                         });
                     }
                 }
+            },
+            _setPlanned: function (value) {
+                this.options.showPlannedTasks = value;
+                this.view().options.showPlannedTasks = value;
             }
         });
         extend(true, GanttTimeline, { styles: timelineStyles });

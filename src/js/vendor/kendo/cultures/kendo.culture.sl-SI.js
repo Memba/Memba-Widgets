@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
             ".": ",",
             groupSize: [3],
             percent: {
-                pattern: ["-n%","n%"],
+                pattern: ["-n %","n %"],
                 decimals: 2,
                 ",": ".",
                 ".": ",",
@@ -67,7 +67,7 @@
                 },
                 months: {
                     names: ["januar","februar","marec","april","maj","junij","julij","avgust","september","oktober","november","december"],
-                    namesAbbr: ["jan","feb","mar","apr","maj","jun","jul","avg","sep","okt","nov","dec"]
+                    namesAbbr: ["jan.","feb.","mar.","apr.","maj","jun.","jul.","avg.","sep.","okt.","nov.","dec."]
                 },
                 AM: ["dop.","dop.","DOP."],
                 PM: ["pop.","pop.","POP."],
@@ -77,8 +77,8 @@
                     F: "dddd, dd. MMMM yyyy HH:mm:ss",
                     g: "d. MM. yyyy HH:mm",
                     G: "d. MM. yyyy HH:mm:ss",
-                    m: "d MMMM",
-                    M: "d MMMM",
+                    m: "d. MMMM",
+                    M: "d. MMMM",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "HH:mm",
                     T: "HH:mm:ss",

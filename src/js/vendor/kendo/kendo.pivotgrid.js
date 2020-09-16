@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,7 +76,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
+        var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Comparer = kendo.data.Comparer, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
                 return o;
             }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div></div>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "deny" : "hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
         var AXIS_ROWS = 'rows';
@@ -359,7 +359,44 @@
                     tuples: result
                 };
             },
-            _expandedTuples: function (map, expanded, measureAggregators) {
+            _sortMap: function (map, sortDescriptors) {
+                var sortedMaps = [];
+                var sortTree = [];
+                var flattenTree = [];
+                var mapItem;
+                var key;
+                for (key in map) {
+                    if (!map[key].directParentName) {
+                        sortTree.push($.extend({}, {
+                            name: key,
+                            parentName: map[key].parentName
+                        }));
+                    }
+                }
+                if (!sortTree.length) {
+                    for (key in map) {
+                        sortTree.push($.extend({}, {
+                            name: key,
+                            parentName: map[key].parentName
+                        }));
+                    }
+                }
+                fillSortTree(sortTree, map);
+                for (var i = 0; i < sortDescriptors.length; i++) {
+                    sortItemsTree(sortDescriptors[i].field.split('.').pop(), sortTree, Comparer.create({
+                        field: 'name',
+                        dir: sortDescriptors[i].dir
+                    }));
+                }
+                flattenTree = flatColumns(sortTree);
+                for (var j = 0; j < flattenTree.length; j++) {
+                    mapItem = map[flattenTree[j].name];
+                    mapItem.index = j;
+                    sortedMaps[j] = mapItem;
+                }
+                return sortedMaps;
+            },
+            _expandedTuples: function (map, expanded, measureAggregators, sortDescriptors) {
                 var aggregatorsLength = measureAggregators.length || 1;
                 var dimensionsSchema = this.dimensions || [];
                 var measureIdx;
@@ -375,6 +412,9 @@
                 var parts;
                 var name;
                 var idx;
+                if (sortDescriptors && sortDescriptors.length && !$.isEmptyObject(map)) {
+                    map = this._sortMap(map, sortDescriptors);
+                }
                 for (key in map) {
                     mapItem = map[key];
                     memberInfo = this._findExpandedMember(expanded, mapItem.uniquePath);
@@ -445,10 +485,10 @@
                     }
                 }
             },
-            _asTuples: function (map, descriptor, measureAggregators) {
+            _asTuples: function (map, descriptor, measureAggregators, sortDescriptors) {
                 measureAggregators = measureAggregators || [];
                 var rootInfo = this._rootTuples(descriptor.root, measureAggregators);
-                var expandedInfo = this._expandedTuples(map, descriptor.expanded, measureAggregators);
+                var expandedInfo = this._expandedTuples(map, descriptor.expanded, measureAggregators, sortDescriptors);
                 return {
                     keys: [].concat.apply(rootInfo.keys, expandedInfo.keys),
                     tuples: [].concat.apply(rootInfo.tuples, expandedInfo.tuples)
@@ -591,9 +631,14 @@
                         index: state.columnIndex,
                         parentName: parentName,
                         name: name,
+                        directParentName: path.indexOf('&') !== -1 ? path : '',
                         uniquePath: path + parentName,
+                        childrenMap: {},
                         value: value
                     };
+                    if (path && columns[path] && !columns[path].childrenMap[path + parentName + '&' + value]) {
+                        columns[path].childrenMap[path + parentName + '&' + value] = true;
+                    }
                     totalItem = rowTotal.items[key] || { aggregates: {} };
                     rowTotal.items[key] = {
                         index: column.index,
@@ -802,8 +847,8 @@
                             expanded: []
                         };
                     }
-                    columnsInfo = this._asTuples(columns, columnDescriptors, measuresRowAxis ? [] : measureAggregators);
-                    rowsInfo = this._asTuples(rows, rowDescriptors, measuresRowAxis ? measureAggregators : []);
+                    columnsInfo = this._asTuples(columns, columnDescriptors, measuresRowAxis ? [] : measureAggregators, options.sort ? options.sort : []);
+                    rowsInfo = this._asTuples(rows, rowDescriptors, measuresRowAxis ? measureAggregators : [], options.sort ? options.sort : []);
                     columns = columnsInfo.tuples;
                     rows = rowsInfo.tuples;
                     aggregatedData = this._toDataArray(aggregatedData, this._measuresInfo(measureAggregators, measuresRowAxis), rowsInfo.keys, columnsInfo.keys);
@@ -1723,6 +1768,42 @@
                 return options;
             }
         });
+        function flatColumns(columns) {
+            var result = [];
+            for (var idx = 0; idx < columns.length; idx++) {
+                result.push(columns[idx]);
+                if (columns[idx].children) {
+                    result = result.concat(flatColumns(columns[idx].children));
+                }
+            }
+            return result;
+        }
+        function sortItemsTree(field, items, sortFunction) {
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].children && items[i].children.length) {
+                    sortItemsTree(field, items[i].children, sortFunction);
+                }
+            }
+            if (items[0].parentName != field) {
+                return;
+            }
+            items = items.sort(sortFunction);
+        }
+        function fillSortTree(items, map) {
+            for (var i = 0; i < items.length; i++) {
+                var currentItem = map[items[i].name];
+                if (!$.isEmptyObject(currentItem.childrenMap)) {
+                    items[i].children = [];
+                    for (var name in currentItem.childrenMap) {
+                        items[i].children.push($.extend({}, {
+                            name: name,
+                            parentName: map[name].parentName
+                        }));
+                    }
+                    fillSortTree(items[i].children, map);
+                }
+            }
+        }
         function addEmptyDataItem(result) {
             result[result.length] = {
                 value: '',

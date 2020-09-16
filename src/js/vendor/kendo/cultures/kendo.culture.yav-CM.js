@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -69,8 +69,8 @@
                     names: ["pikítíkítie, oólí ú kutúan","siɛyɛ́, oóli ú kándíɛ","ɔnsúmbɔl, oóli ú kátátúɛ","mesiŋ, oóli ú kénie","ensil, oóli ú kátánuɛ","ɔsɔn","efute","pisuyú","imɛŋ i puɔs","imɛŋ i putúk,oóli ú kátíɛ","makandikɛ","pilɔndɔ́"],
                     namesAbbr: ["o.1","o.2","o.3","o.4","o.5","o.6","o.7","o.8","o.9","o.10","o.11","o.12"]
                 },
-                AM: ["AM","am","AM"],
-                PM: ["PM","pm","PM"],
+                AM: ["kiɛmɛ́ɛm","kiɛmɛ́ɛm","KIƐMƐ́ƐM"],
+                PM: ["kisɛ́ndɛ","kisɛ́ndɛ","KISƐ́NDƐ"],
                 patterns: {
                     d: "d/M/yyyy",
                     D: "dddd d MMMM yyyy",

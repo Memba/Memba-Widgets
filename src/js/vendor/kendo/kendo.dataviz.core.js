@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -371,6 +371,9 @@
             },
             parseDate: function (value) {
                 return new Date(value);
+            },
+            firstDay: function () {
+                return 0;
             }
         };
         var current = defaultImplementation;
@@ -690,6 +693,39 @@
                     return item;
                 }
             }
+        }
+        var Matrix = geometry.Matrix;
+        var matrixRegexp = /matrix\((.*)\)/;
+        function parseMatrix(matrixString) {
+            var match = matrixString.match(matrixRegexp);
+            if (match === null || match.length !== 2) {
+                return Matrix.unit();
+            }
+            var members = match[1].split(',').map(function (x) {
+                return parseFloat(x);
+            });
+            return new (Function.prototype.bind.apply(Matrix, [null].concat(members)))();
+        }
+        function transformMatrix(element) {
+            var transform = getComputedStyle(element).transform;
+            if (transform === 'none') {
+                return Matrix.unit();
+            }
+            return parseMatrix(transform);
+        }
+        function elementScale(element) {
+            if (!element) {
+                return Matrix.unit();
+            }
+            var matrix = transformMatrix(element);
+            var parent = element.parentElement;
+            while (parent) {
+                var parentMatrix = transformMatrix(parent);
+                matrix = matrix.multiplyCopy(parentMatrix);
+                parent = parent.parentElement;
+            }
+            matrix.b = matrix.c = matrix.e = matrix.f = 0;
+            return matrix;
         }
         function autoMajorUnit(min, max) {
             var diff = round(max - min, DEFAULT_PRECISION - 1);
@@ -2768,12 +2804,18 @@
                 for (var idx = 0; idx < plotBands.length; idx++) {
                     var item = plotBands[idx];
                     var slotX = void 0, slotY = void 0;
+                    var labelOptions = item.label;
+                    var label = void 0;
                     if (vertical) {
                         slotX = (altAxis || plotArea.axisX).lineBox();
                         slotY = this$1.getSlot(item.from, item.to, true);
                     } else {
                         slotX = this$1.getSlot(item.from, item.to, true);
                         slotY = (altAxis || plotArea.axisY).lineBox();
+                    }
+                    if (labelOptions) {
+                        labelOptions.vAlign = labelOptions.position || LEFT;
+                        label = this$1.createPlotBandLabel(labelOptions, item, new Box(slotX.x1, slotY.y1, slotX.x2, slotY.y2));
                     }
                     if (slotX.width() !== 0 && slotY.height() !== 0) {
                         var bandRect = new Rect([
@@ -2791,9 +2833,37 @@
                             stroke: null
                         });
                         group.append(path);
+                        if (label) {
+                            group.append(label);
+                        }
                     }
                 }
                 this.appendVisual(group);
+            },
+            createPlotBandLabel: function (label, item, box) {
+                if (label.visible === false) {
+                    return null;
+                }
+                var text = label.text;
+                var textbox;
+                if (defined(label) && label.visible) {
+                    var labelTemplate = getTemplate(label);
+                    if (labelTemplate) {
+                        text = labelTemplate({
+                            text: text,
+                            item: item
+                        });
+                    } else if (label.format) {
+                        text = this.chartService.format.auto(label.format, text);
+                    }
+                    if (!label.color) {
+                        label.color = this.options.labels.color;
+                    }
+                }
+                textbox = new TextBox(text, label);
+                textbox.reflow(box);
+                textbox.renderVisual();
+                return textbox.visual;
             },
             createGridLines: function (altAxis) {
                 var options = this.options;
@@ -3378,6 +3448,15 @@
                 return result;
             }
             return parseDate(intlService, dates);
+        }
+        function firstDay(options, intlService) {
+            if (isNumber(options.weekStartDay)) {
+                return options.weekStartDay;
+            }
+            if (intlService && intlService.firstDay) {
+                return intlService.firstDay();
+            }
+            return 0;
         }
         var MIN_CATEGORY_POINTS_RANGE = 0.01;
         function indexOf(value, arr) {
@@ -4153,7 +4232,8 @@
                 options = deepExtend({ roundToBaseUnit: true }, options, {
                     categories: categories,
                     min: parseDate(intlService, options.min),
-                    max: parseDate(intlService, options.max)
+                    max: parseDate(intlService, options.max),
+                    weekStartDay: firstDay(options, intlService)
                 });
                 if (chartService.panning && chartService.isPannable(options.vertical ? Y : X)) {
                     options.roundToBaseUnit = false;
@@ -4894,7 +4974,8 @@
                 options = deepExtend(options || {}, {
                     min: parseDate(intlService, options.min),
                     max: parseDate(intlService, options.max),
-                    axisCrossingValue: parseDates(intlService, options.axisCrossingValues || options.axisCrossingValue)
+                    axisCrossingValue: parseDates(intlService, options.axisCrossingValues || options.axisCrossingValue),
+                    weekStartDay: firstDay(options, intlService)
                 });
                 options = applyDefaults(min, max, options);
                 Axis.fn.init.call(this, options, chartService);
@@ -6330,6 +6411,7 @@
             sparseArrayLimits: sparseArrayLimits,
             styleValue: styleValue,
             find: find,
+            elementScale: elementScale,
             append: append,
             bindEvents: bindEvents,
             Class: Class,
@@ -6362,7 +6444,8 @@
             toDate: toDate,
             parseDate: parseDate,
             parseDates: parseDates,
-            toTime: toTime
+            toTime: toTime,
+            firstDay: firstDay
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -6436,7 +6519,10 @@
                 return kendo.format.apply(null, [format].concat(Array.prototype.slice.call(arguments, 1)));
             },
             toString: kendo.toString,
-            parseDate: kendo.parseDate
+            parseDate: kendo.parseDate,
+            firstDay: function () {
+                return kendo.culture().calendars.standard.firstDay;
+            }
         });
         services.TemplateService.register({ compile: kendo.template });
         dataviz.Point2D = dataviz.Point;

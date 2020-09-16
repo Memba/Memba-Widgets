@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -10426,7 +10426,8 @@
                     var item = toolService.hoveredItem;
                     this.trigger('click', {
                         item: item,
-                        point: point
+                        point: point,
+                        meta: this._meta(e.event)
                     });
                     if (selectable && item.options.selectable !== false) {
                         var multiple = selectable.multiple !== false;

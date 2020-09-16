@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -41,7 +41,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, grep = $.grep, map = $.map, inArray = $.inArray, ACTIVE = 'k-state-selected', ASC = 'asc', DESC = 'desc', CHANGE = 'change', INIT = 'init', OPEN = 'open', SELECT = 'select', POPUP = 'kendoPopup', FILTERMENU = 'kendoFilterMenu', MENU = 'kendoMenu', NS = '.kendoColumnMenu', Widget = ui.Widget;
+        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, extend = $.extend, grep = $.grep, map = $.map, inArray = $.inArray, ACTIVE = 'k-state-selected', ASC = 'asc', DESC = 'desc', CHANGE = 'change', INIT = 'init', OPEN = 'open', SELECT = 'select', STICK = 'stick', UNSTICK = 'unstick', POPUP = 'kendoPopup', FILTERMENU = 'kendoFilterMenu', MENU = 'kendoMenu', NS = '.kendoColumnMenu', Widget = ui.Widget;
         function trim(text) {
             return kendo.trim(text).replace(/&nbsp;/gi, '');
         }
@@ -148,6 +148,7 @@
                 that._columns();
                 that._filter();
                 that._lockColumns();
+                that._stickyColumns();
                 that.trigger(INIT, {
                     field: that.field,
                     container: that.wrapper
@@ -157,7 +158,9 @@
                 INIT,
                 OPEN,
                 'sort',
-                'filtering'
+                'filtering',
+                STICK,
+                UNSTICK
             ],
             options: {
                 name: 'ColumnMenu',
@@ -172,8 +175,11 @@
                     cancel: 'Cancel',
                     done: 'Done',
                     settings: 'Edit Column Settings',
-                    lock: 'Lock',
-                    unlock: 'Unlock'
+                    lock: 'Lock Column',
+                    unlock: 'Unlock Column',
+                    stick: 'Stick Column',
+                    unstick: 'Unstick Column',
+                    setColumnPosition: 'Set Column Position'
                 },
                 filter: '',
                 columns: true,
@@ -191,10 +197,12 @@
                     filterable: options.filterable,
                     columns: that._ownerColumns(),
                     showColumns: options.columns,
-                    lockedColumns: options.lockedColumns
+                    hasLockableColumns: options.hasLockableColumns,
+                    hasStickableColumns: options.hasStickableColumns
                 }));
                 that.popup = that.wrapper[POPUP]({
                     anchor: that.link,
+                    copyAnchorStyles: false,
                     open: proxy(that._open, that),
                     activate: proxy(that._activate, that),
                     deactivate: proxy(that._deactivate, that),
@@ -227,7 +235,8 @@
                     filterable: options.filterable,
                     columns: that._ownerColumns(),
                     showColumns: options.columns,
-                    lockedColumns: options.lockedColumns
+                    hasLockableColumns: options.hasLockableColumns,
+                    hasStickableColumns: options.hasStickableColumns
                 });
                 that.view = that.pane.append(html);
                 that.view.state = { columns: {} };
@@ -253,8 +262,11 @@
                 });
                 that.view.bind('showStart', function () {
                     var view = that.view || { columns: {} };
-                    if (that.options.lockedColumns) {
+                    if (that.options.hasLockableColumns) {
                         that._updateLockedColumns();
+                    }
+                    if (that.options.hasStickableColumns) {
+                        that._updateStickyColumns();
                     }
                     if (view.element.find('.k-sort-asc.k-state-selected').length) {
                         view.state.initialSort = 'asc';
@@ -419,8 +431,11 @@
                         that.close();
                     }
                 });
-                if (that.options.lockedColumns) {
+                if (that.options.hasLockableColumns) {
                     that._updateLockedColumns();
+                }
+                if (that.options.hasStickableColumns) {
+                    that._updateStickyColumns();
                 }
             },
             _activate: function () {
@@ -549,7 +564,7 @@
                         if (input.attr('disabled')) {
                             return;
                         }
-                        column = columns[columnIndexMap[parseInt(input.attr(indexAttr), 10)]];
+                        column = columns[parseInt(input.attr(indexAttr), 10)];
                         if (column.hidden === true) {
                             that.owner.showColumn(column);
                         } else {
@@ -684,6 +699,30 @@
                     }
                 });
             },
+            _stickyColumns: function () {
+                var that = this;
+                that.menu.bind(SELECT, function (e) {
+                    var item = $(e.item);
+                    var field = that.field;
+                    var columns = that.owner.columns;
+                    var column = grep(columns, function (column) {
+                        return column.field == field || column.title == field;
+                    })[0];
+                    if (item.hasClass('k-stick')) {
+                        that.owner.stickColumn(that.field);
+                        that.trigger(STICK, { column: column });
+                        if (!that._isMobile) {
+                            that.close();
+                        }
+                    } else if (item.hasClass('k-unstick')) {
+                        that.owner.unstickColumn(that.field);
+                        that.trigger(UNSTICK, { column: column });
+                        if (!that._isMobile) {
+                            that.close();
+                        }
+                    }
+                });
+            },
             _updateLockedColumns: function () {
                 var field = this.field;
                 var columns = this.owner.columns;
@@ -697,15 +736,40 @@
                 var length = grep(columns, function (column) {
                     return !column.hidden && (column.locked && locked || !column.locked && !locked);
                 }).length;
+                var notLockable = column.lockable === false;
                 var lockItem = this.wrapper.find('.k-lock').removeClass('k-state-disabled');
                 var unlockItem = this.wrapper.find('.k-unlock').removeClass('k-state-disabled');
-                if (locked || length == 1) {
+                if (locked || length == 1 || notLockable) {
                     lockItem.addClass('k-state-disabled');
                 }
-                if (!locked || length == 1) {
+                if (!locked || length == 1 || notLockable) {
                     unlockItem.addClass('k-state-disabled');
                 }
                 this._updateColumnsLockedState();
+            },
+            _updateStickyColumns: function () {
+                var field = this.field;
+                var columns = this.owner.columns;
+                var column = grep(columns, function (column) {
+                    return column.field == field || column.title == field;
+                })[0];
+                if (!column) {
+                    return;
+                }
+                var sticky = column.sticky === true;
+                var stickable = column.stickable === true;
+                var locked = column.locked === true;
+                var length = grep(columns, function (column) {
+                    return !column.hidden && (column.locked && locked || !column.locked && !locked);
+                }).length;
+                var stickItem = this.wrapper.find('.k-stick').removeClass('k-state-disabled');
+                var unstickItem = this.wrapper.find('.k-unstick').removeClass('k-state-disabled');
+                if (sticky || !stickable || locked && length === 1) {
+                    stickItem.addClass('k-state-disabled');
+                }
+                if (!sticky || !stickable) {
+                    unstickItem.addClass('k-state-disabled');
+                }
             },
             refresh: function () {
                 var that = this, sort = that.options.dataSource.sort() || [], descriptor, field = that.field, idx, length;
@@ -736,8 +800,8 @@
                 return found;
             }
         });
-        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" title="#=columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || lockedColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(lockedColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(lockedColumns){#' + '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#}#' + '</ul>';
-        var mobileTemplate = '<div data-#=ns#role="view" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '${messages.settings}' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<div class="k-column-menu">' + '<ul class="k-reset">' + '<li>' + '<span class="k-list-title">#=messages.column#: ${title}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#if(sortable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>' + '#}#' + '#if(lockedColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>' + '#}#' + '#if(filterable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '<span class="k-item-title">${messages.filter}</span>' + '<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item">' + '<span class="k-listgroup-form-row">' + '<span class="k-listgroup-form-field-label k-item-title">' + '#=columns[idx].title#' + '</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type="checkbox" title="#=columns[idx].title#" ' + ' data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#"' + ' data-#=ns#index="#=columns[idx].index#"' + ' data-#=ns#uid="#=columns[idx].uid#"' + ' data-#=ns#locked="#=columns[idx].locked#" />' + '</span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#}#' + '<li class="k-item k-clear-wrap">' + '<span class="k-list-title">&nbsp;</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '<li class="k-listgroup-item">' + '<span class="k-link k-label k-clear" title="#=messages.clear#" aria-label="#=messages.clear#">' + '#=messages.clear#' + '</span>' + '</li>' + '</ul>' + '</li>' + '</ul>' + '</div>' + '</div>';
+        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" title="#=columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || hasLockableColumns || hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(hasLockableColumns || hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(hasLockableColumns || hasStickableColumns){#' + '<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span>${messages.setColumnPosition}</span><ul>' + '#if(hasLockableColumns){#' + '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#if(hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(hasStickableColumns){#' + '<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span>${messages.stick}</span></li>' + '<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span>${messages.unstick}</span></li>' + '#}#' + '</ul></li>' + '#}#' + '</ul>';
+        var mobileTemplate = '<div data-#=ns#role="view" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '${messages.settings}' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<div class="k-column-menu">' + '<ul class="k-reset">' + '<li>' + '<span class="k-list-title">#=messages.column#: ${title}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#if(sortable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>' + '#}#' + '#if(hasLockableColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>' + '#}#' + '#if(hasStickableColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-stick"><span class="k-link"><span class="k-icon k-i-stick"></span><span class="k-item-title">${messages.stick}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unstick"><span class="k-link"><span class="k-icon k-i-unstick"></span><span class="k-item-title">${messages.unstick}</span></span></li>' + '#}#' + '#if(filterable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '<span class="k-item-title">${messages.filter}</span>' + '<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item">' + '<span class="k-listgroup-form-row">' + '<span class="k-listgroup-form-field-label k-item-title">' + '#=columns[idx].title#' + '</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type="checkbox" title="#=columns[idx].title#" ' + ' data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#"' + ' data-#=ns#index="#=columns[idx].index#"' + ' data-#=ns#uid="#=columns[idx].uid#"' + ' data-#=ns#locked="#=columns[idx].locked#" />' + '</span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#}#' + '<li class="k-item k-clear-wrap">' + '<span class="k-list-title">&nbsp;</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '<li class="k-listgroup-item">' + '<span class="k-link k-label k-clear" title="#=messages.clear#" aria-label="#=messages.clear#">' + '#=messages.clear#' + '</span>' + '</li>' + '</ul>' + '</li>' + '</ul>' + '</div>' + '</div>';
         var MobileMenu = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -822,8 +886,11 @@
                     for (var i = selectedItems.length - 1; i >= 0; i--) {
                         that.trigger(SELECT, { item: selectedItems[i] });
                     }
-                    if (menu.options.lockedColumns) {
+                    if (menu.options.hasLockableColumns) {
                         menu._updateLockedColumns();
+                    }
+                    if (menu.options.hasStickableColumns) {
+                        menu._updateStickyColumns();
                     }
                 }
                 that.options.columnMenu.view.state = { columns: {} };

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1045,6 +1045,7 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "clearSelectedFiles": "Smazat",
   "uploadSelectedFiles": "Nahrát soubory",
   "dropFilesHere": "Pro nahrání přetáhněte soubory sem",
+  "invalidFiles": "Neplatné soubory. Zkontrolujte požadavky na nahrání souborů.",
   "statusUploading": "nahrávám",
   "statusUploaded": "nahráno",
   "statusWarning": "varování",
@@ -1053,7 +1054,7 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "headerStatusUploaded": "Hotovo",
   "invalidMaxFileSize": "Soubor je příliš velký.",
   "invalidMinFileSize": "Soubor je příliš malý.",
-  "invalidFileExtension": "tento typ souboru není povolen."
+  "invalidFileExtension": "Tento typ souboru není povolen."
 });
 }
 

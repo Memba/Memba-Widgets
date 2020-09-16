@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -51,7 +51,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, CHANGE = 'change', KENDO_KEYDOWN = 'kendoKeydown', CANCEL = 'cancel', DATABOUND = 'dataBound', DATABINDING = 'dataBinding', Widget = kendo.ui.Widget, keys = kendo.keys, EMPTY_STRING = '', FOCUSSELECTOR = '.k-listview-content > *:not(.k-loading-mask)', PROGRESS = 'progress', ERROR = 'error', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', KEDITITEM = 'k-edit-item', EDIT = 'edit', REMOVE = 'remove', SAVE = 'save', MOUSEDOWN = 'mousedown', CLICK = 'click', TOUCHSTART = 'touchstart', NS = '.kendoListView', proxy = $.proxy, activeElement = kendo._activeElement, progress = kendo.ui.progress, DataSource = kendo.data.DataSource;
+        var kendo = window.kendo, CHANGE = 'change', KENDO_KEYDOWN = 'kendoKeydown', CANCEL = 'cancel', DATABOUND = 'dataBound', DATABINDING = 'dataBinding', Widget = kendo.ui.Widget, keys = kendo.keys, EMPTY_STRING = '', FOCUSSELECTOR = '> *:not(.k-loading-mask)', PROGRESS = 'progress', ERROR = 'error', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', KEDITITEM = 'k-edit-item', EDIT = 'edit', REMOVE = 'remove', SAVE = 'save', MOUSEDOWN = 'mousedown', CLICK = 'click', TOUCHSTART = 'touchstart', NS = '.kendoListView', proxy = $.proxy, activeElement = kendo._activeElement, progress = kendo.ui.progress, DataSource = kendo.data.DataSource;
         var ListView = kendo.ui.DataBoundWidget.extend({
             init: function (element, options) {
                 var that = this;
@@ -96,6 +96,7 @@
                 altTemplate: EMPTY_STRING,
                 editTemplate: EMPTY_STRING,
                 contentTemplate: '<div data-content=\'true\' />',
+                contentElement: 'div',
                 bordered: true,
                 borders: '',
                 layout: '',
@@ -164,8 +165,17 @@
             _element: function () {
                 var options = this.options;
                 var height = options.height;
-                this.element.addClass('k-widget k-listview').attr('role', 'listbox');
-                this.content = $('<div />').appendTo(this.element);
+                this.element.addClass('k-widget k-listview');
+                if (options.navigatable || options.selectable) {
+                    this.element.attr('role', 'listbox');
+                } else {
+                    this.element.attr('role', 'list');
+                }
+                if (options.contentElement) {
+                    this.content = $(document.createElement(options.contentElement)).appendTo(this.element);
+                } else {
+                    this.content = this.element;
+                }
                 if (height) {
                     this.element.css('height', height);
                 }
@@ -228,7 +238,7 @@
                 that.content.addClass(contentClassNames.join(' '));
             },
             refresh: function (e) {
-                var that = this, view = that.dataSource.view(), data, items, item, html = '', idx, length, template = that.template, altTemplate = that.altTemplate, active = activeElement(), endlessAppend = that._endlessFetchInProgress, index = endlessAppend ? that._skipRerenderItemsCount : 0, scrollable = that.options.scrollable;
+                var that = this, view = that.dataSource.view(), data, items, item, html = '', idx, length, template = that.template, altTemplate = that.altTemplate, options = that.options, role = options.selectable || options.navigatable ? 'option' : 'listitem', active = activeElement(), endlessAppend = that._endlessFetchInProgress, index = endlessAppend ? that._skipRerenderItemsCount : 0, scrollable = that.options.scrollable;
                 e = e || {};
                 if (e.action === 'itemchange') {
                     if (!that._hasBindingTarget() && !that.editable) {
@@ -281,7 +291,11 @@
                 }
                 items = that.items().not('.k-loading-mask');
                 for (idx = index, length = view.length; idx < length; idx++) {
-                    items.eq(idx).attr(kendo.attr('uid'), view[idx].uid).attr('role', 'option').attr('aria-selected', 'false');
+                    item = items.eq(idx);
+                    item.attr(kendo.attr('uid'), view[idx].uid).attr('role', role);
+                    if (that.options.selectable) {
+                        item.attr('aria-selected', 'false');
+                    }
                 }
                 if (that.content[0] === active && that.options.navigatable) {
                     if (that._focusNext) {
@@ -319,7 +333,7 @@
                     that.selectable = new kendo.ui.Selectable(that.element, {
                         aria: true,
                         multiple: multi,
-                        filter: FOCUSSELECTOR,
+                        filter: that.options.contentElement ? '.k-listview-content ' + FOCUSSELECTOR : FOCUSSELECTOR,
                         change: function () {
                             that.trigger(CHANGE);
                         }
@@ -508,7 +522,7 @@
                             that.current(that.items().eq(idx));
                         }
                     });
-                    element.on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, FOCUSSELECTOR, proxy(clickCallback, that));
+                    element.on(MOUSEDOWN + NS + ' ' + TOUCHSTART + NS, that.options.contentElement ? '.k-listview-content ' + FOCUSSELECTOR : FOCUSSELECTOR, proxy(clickCallback, that));
                 }
             },
             clearSelection: function () {
@@ -541,7 +555,7 @@
                 return this.dataSource.getByUid(uid);
             },
             _closeEditable: function () {
-                var that = this, editable = that.editable, data, item, index, template = that.template;
+                var that = this, editable = that.editable, options = that.options, role = options.selectable || options.navigatable ? 'option' : 'listitem', data, item, index, template = that.template;
                 if (editable) {
                     if (editable.element.index() % 2) {
                         template = that.altTemplate;
@@ -555,7 +569,7 @@
                     editable.element.replaceWith(template(data));
                     item = that.items().eq(index);
                     item.attr(kendo.attr('uid'), data.uid);
-                    item.attr('role', 'option');
+                    item.attr('role', role);
                     if (that._hasBindingTarget()) {
                         kendo.bind(item, data);
                     }

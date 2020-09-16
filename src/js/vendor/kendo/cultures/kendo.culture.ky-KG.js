@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -77,8 +77,8 @@
                     F: "dd-MMMM yyyy'-ж.' HH:mm:ss",
                     g: "d-MMM yy HH:mm",
                     G: "d-MMM yy HH:mm:ss",
-                    m: "MMMM d",
-                    M: "MMMM d",
+                    m: "d-MMMM",
+                    M: "d-MMMM",
                     s: "yyyy'-'MM'-'dd'T'HH':'mm':'ss",
                     t: "HH:mm",
                     T: "HH:mm:ss",

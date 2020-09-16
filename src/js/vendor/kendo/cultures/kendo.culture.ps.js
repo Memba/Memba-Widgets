@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -69,8 +69,8 @@
                     names: ["وری","غويی","غبرګولی","چنګاښ","زمری","وږی","تله","لړم","ليندۍ","مرغومی","سلواغه","كب"],
                     namesAbbr: ["وری","غويی","غبرګولی","چنګاښ","زمری","وږی","تله","لړم","ليندۍ","مرغومی","سلواغه","كب"]
                 },
-                AM: ["AM","am","AM"],
-                PM: ["PM","pm","PM"],
+                AM: ["غ.م.","غ.م.","غ.م."],
+                PM: ["غ.و.","غ.و.","غ.و."],
                 patterns: {
                     d: "yyyy/M/d",
                     D: "d MMMM yyyy",

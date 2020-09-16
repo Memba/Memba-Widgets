@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -12559,8 +12559,10 @@
                 context: context,
                 error: String(ex)
             };
-            if (sheet) {
+            if (sheet && sheet.name) {
                 err.sheet = sheet.name();
+            } else if (sheet) {
+                err.sheet = sheet;
             }
             if (ref) {
                 err.location = String(ref);
@@ -12886,7 +12888,7 @@
                     } else if (tag == 'u') {
                         font.underline = attrs.val == null || attrs.val == 'single';
                     } else if (tag == 'color') {
-                        font.color = getColor(attrs);
+                        font.color = getColor(attrs, null);
                     }
                 } else if (this.is(SEL_FILL)) {
                     styles.fills.push(fill = {});
@@ -12897,9 +12899,9 @@
                     if (tag == 'patternFill') {
                         fill.type = attrs.patternType;
                     } else if (tag == 'fgColor' && fill.type === 'solid') {
-                        fill.color = getColor(attrs);
+                        fill.color = getColor(attrs, INDEXED_COLORS[0]);
                     } else if (tag == 'bgColor' && fill.type !== 'solid') {
-                        fill.color = getColor(attrs);
+                        fill.color = getColor(attrs, INDEXED_COLORS[0]);
                     }
                 } else if (this.is(SEL_BORDER)) {
                     styles.borders.push(border = {});
@@ -12912,7 +12914,7 @@
                     }
                     if (tag == 'color') {
                         var side = this.stack[this.stack.length - 2].$tag;
-                        border[side].color = getColor(attrs);
+                        border[side].color = getColor(attrs, INDEXED_COLORS[0]);
                     }
                 } else if (this.is(SEL_NAMED_STYLE)) {
                     xf = getXf(attrs);
@@ -12978,7 +12980,7 @@
             }
             return xf;
         }
-        function getColor(attrs) {
+        function getColor(attrs, defaultThemeColor) {
             if (attrs.rgb) {
                 return toCSSColor(attrs.rgb);
             } else if (attrs.indexed) {
@@ -12986,7 +12988,7 @@
             } else if (attrs.theme) {
                 var themeColor = theme.colorScheme[integer(attrs.theme)];
                 if (!themeColor) {
-                    return INDEXED_COLORS[0];
+                    return defaultThemeColor;
                 }
                 var color = kendo.parseColor(themeColor);
                 if (attrs.tint) {
@@ -14105,9 +14107,7 @@
             '*+mousedrag': 'onMouseDrag',
             '*+mouseup': 'onMouseUp',
             '*+dblclick': 'onDblClick',
-            'mousemove': 'onMouseMove',
-            'touchmove': 'onTouchMove',
-            'touchend': 'onTouchEnd'
+            'mousemove': 'onMouseMove'
         };
         var CLIPBOARD_EVENTS = {
             'pageup': 'onPageUp',
@@ -14192,6 +14192,7 @@
                 this.editor.bind('update', this.onEditorUpdate.bind(this));
                 $(view.scroller).on('scroll', this.onScroll.bind(this));
                 this.listener = new kendo.spreadsheet.EventListener(this.container, this, CONTAINER_EVENTS);
+                $(view.scroller).on('mousedown', this.onMouseDown.bind(this));
                 this._enableEditorEvents();
                 if (this.sheetsbar) {
                     this.sheetsbar.bind('select', this.onSheetBarSelect.bind(this));
@@ -14414,12 +14415,6 @@
                 }
                 this.scrollWith(deltaX, deltaY);
                 event.preventDefault();
-            },
-            onTouchMove: function () {
-                this.view.forceScrollerStackingOrder(2);
-            },
-            onTouchEnd: function () {
-                this.view.forceScrollerStackingOrder(1);
             },
             onAction: function (event, action) {
                 var sheet = this._workbook.activeSheet();
@@ -16126,7 +16121,7 @@
                 });
                 if (this.editor.isActive()) {
                     this.editor.toggleTooltip(this.activeCellRectangle());
-                } else if (!(reason.resize || reason.scroll || reason.comment || sheet.selectionInProgress() || sheet.resizingInProgress() || sheet.draggingInProgress() || sheet.isInEditMode())) {
+                } else if (!(reason.resize || reason.comment || sheet.selectionInProgress() || sheet.resizingInProgress() || sheet.draggingInProgress() || sheet.isInEditMode())) {
                     this.renderClipboardContents();
                 }
             },
@@ -16204,9 +16199,6 @@
                 }));
                 pane.refresh(this.scroller.clientWidth, this.scroller.clientHeight);
                 return pane;
-            },
-            forceScrollerStackingOrder: function (value) {
-                $(this.scroller).css('z-index', value);
             }
         });
         var paneClassNames = {
@@ -16835,6 +16827,7 @@
             function open() {
                 create();
                 var date = context.range.value();
+                var sheet = context.range.sheet();
                 if (date != null) {
                     calendar.value(kendo.spreadsheet.numberToDate(date));
                 } else {
@@ -16844,19 +16837,43 @@
                 if (val) {
                     var min = kendo.ui.Calendar.fn.options.min;
                     var max = kendo.ui.Calendar.fn.options.max;
+                    var fromValidation = val.from;
+                    var toValidation = val.to;
+                    var formula = kendo.spreadsheet.calc.runtime.Formula;
                     if (/^(?:greaterThan|between)/.test(val.comparerType)) {
-                        min = kendo.spreadsheet.numberToDate(val.from.value);
+                        if (fromValidation instanceof formula && _rowAndColPresent(fromValidation.value)) {
+                            min = kendo.spreadsheet.numberToDate(sheet.range(fromValidation.value.row, fromValidation.value.col).value());
+                        } else {
+                            min = kendo.spreadsheet.numberToDate(fromValidation.value);
+                        }
                     }
                     if (val.comparerType == 'between') {
-                        max = kendo.spreadsheet.numberToDate(val.to.value);
+                        if (toValidation instanceof formula && _rowAndColPresent(toValidation.value)) {
+                            max = kendo.spreadsheet.numberToDate(sheet.range(toValidation.value.row, toValidation.value.col).value());
+                        } else {
+                            max = kendo.spreadsheet.numberToDate(val.to.value);
+                        }
                     }
-                    if (val.comparerType == 'lessThan') {
-                        max = kendo.spreadsheet.numberToDate(val.from.value);
+                    if (val.comparerType == 'lessThan' || val.comparerType == 'lessThanOrEqualTo') {
+                        if (fromValidation instanceof formula && _rowAndColPresent(fromValidation.value)) {
+                            max = kendo.spreadsheet.numberToDate(sheet.range(fromValidation.value.row, fromValidation.value.col).value());
+                        } else {
+                            max = kendo.spreadsheet.numberToDate(val.from.value);
+                        }
                     }
                     calendar.setOptions({
                         disableDates: function (date) {
-                            var from = val.from ? val.from.value | 0 : 0;
-                            var to = val.to ? val.to.value | 0 : 0;
+                            var from, to;
+                            if (fromValidation && fromValidation instanceof formula && _rowAndColPresent(fromValidation.value)) {
+                                from = sheet.range(fromValidation.value.row, fromValidation.value.col).value();
+                            } else {
+                                from = fromValidation ? fromValidation.value | 0 : 0;
+                            }
+                            if (toValidation && toValidation instanceof formula && _rowAndColPresent(toValidation.value)) {
+                                to = sheet.range(toValidation.value.row, toValidation.value.col).value();
+                            } else {
+                                to = toValidation ? toValidation.value | 0 : 0;
+                            }
                             date = kendo.spreadsheet.dateToNumber(date) | 0;
                             return !kendo.spreadsheet.validation.validationComparers[val.comparerType](date, from, to);
                         },
@@ -16871,6 +16888,9 @@
                     });
                 }
                 popup.open();
+            }
+            function _rowAndColPresent(value) {
+                return value && value.row !== null && value.col !== null && value.row > -1 && value.col > -1;
             }
             return {
                 edit: function (options) {
@@ -31920,7 +31940,7 @@
                 },
                 defaultCellStyle: {
                     fontFamily: 'Arial',
-                    fontSize: '12'
+                    fontSize: 12
                 },
                 useCultureDecimals: false
             },

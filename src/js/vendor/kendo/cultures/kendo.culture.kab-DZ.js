@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -63,14 +63,14 @@
                 days: {
                     names: ["Yanass","Sanass","Kraḍass","Kuẓass","Samass","Sḍisass","Sayass"],
                     namesAbbr: ["Yan","San","Kraḍ","Kuẓ","Sam","Sḍis","Say"],
-                    namesShort: ["Yan","San","Kraḍ","Kuẓ","Sam","Sḍis","Say"]
+                    namesShort: ["Cr","Ri","Ra","Hd","Mh","Sm","Sd"]
                 },
                 months: {
-                    names: ["Yennayer","Fuṛar","Meɣres","Yebrir","Mayyu","Yunyu","Yulyu","Ɣuct","Ctembeṛ","Tubeṛ","Nunembeṛ","Duǧembeṛ"],
-                    namesAbbr: ["Yen","Fur","Meɣ","Yeb","May","Yun","Yul","Ɣuc","Cte","Tub","Nun","Duǧ"]
+                    names: ["Yennayer","Fuṛar","Meɣres","Yebrir","Mayyu","Yunyu","Yulyu","Ɣuct","Ctembeṛ","Tubeṛ","Wambeṛ","Duǧembeṛ"],
+                    namesAbbr: ["Yen","Fur","Meɣ","Yeb","May","Yun","Yul","Ɣuc","Cte","Tub","Wam","Duj"]
                 },
-                AM: ["AM","am","AM"],
-                PM: ["PM","pm","PM"],
+                AM: ["n tufat","n tufat","N TUFAT"],
+                PM: ["n tmeddit","n tmeddit","N TMEDDIT"],
                 patterns: {
                     d: "d/M/yyyy",
                     D: "dddd d MMMM yyyy",

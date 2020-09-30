@@ -11,6 +11,7 @@ import * as utils from './lib/utils.js';
 import * as MODES from './lib/modes.js';
 import { compileLanguage } from './lib/mode_compiler.js';
 import * as packageJSON from '../package.json';
+import { VuePlugin } from "./plugins/vue";
 
 const escape = utils.escapeHTML;
 const inherit = utils.inherit;
@@ -261,6 +262,14 @@ const HLJS = function(hljs) {
     }
 
     /**
+     * Advance a single character
+     */
+    function advanceOne() {
+      mode_buffer += codeToHighlight[index];
+      index += 1;
+    }
+
+    /**
      * Handle matching but then ignoring a sequence of text
      *
      * @param {string} lexeme - string containing full match text
@@ -274,7 +283,7 @@ const HLJS = function(hljs) {
       } else {
         // no need to move the cursor, we still have additional regexes to try and
         // match at this very spot
-        continueScanAtSamePosition = true;
+        resumeScanAtSamePosition = true;
         return 0;
       }
     }
@@ -477,23 +486,25 @@ const HLJS = function(hljs) {
     var relevance = 0;
     var index = 0;
     var iterations = 0;
-    var continueScanAtSamePosition = false;
+    var resumeScanAtSamePosition = false;
 
     try {
       top.matcher.considerAll();
 
       for (;;) {
         iterations++;
-        if (continueScanAtSamePosition) {
+        if (resumeScanAtSamePosition) {
           // only regexes not matched previously will now be
           // considered for a potential match
-          continueScanAtSamePosition = false;
+          resumeScanAtSamePosition = false;
         } else {
-          top.matcher.lastIndex = index;
           top.matcher.considerAll();
         }
+        top.matcher.lastIndex = index;
+
         const match = top.matcher.exec(codeToHighlight);
         // console.log("match", match[0], match.rule && match.rule.begin)
+
         if (!match) break;
 
         const beforeMatch = codeToHighlight.substring(index, match.index);
@@ -830,12 +841,19 @@ const HLJS = function(hljs) {
     });
   }
 
-  /* Interface definition */
+  /* fixMarkup is deprecated and will be removed entirely in v11 */
+  function deprecate_fixMarkup(arg) {
+    console.warn("fixMarkup is deprecated and will be removed entirely in v11.0")
+    console.warn("Please see https://github.com/highlightjs/highlight.js/issues/2534")
 
+    return fixMarkup(arg)
+  }
+
+  /* Interface definition */
   Object.assign(hljs, {
     highlight,
     highlightAuto,
-    fixMarkup,
+    fixMarkup: deprecate_fixMarkup,
     highlightBlock,
     configure,
     initHighlighting,
@@ -847,7 +865,9 @@ const HLJS = function(hljs) {
     requireLanguage,
     autoDetection,
     inherit,
-    addPlugin
+    addPlugin,
+    // plugins for frameworks
+    vuePlugin: VuePlugin
   });
 
   hljs.debugMode = function() { SAFE_MODE = false; };

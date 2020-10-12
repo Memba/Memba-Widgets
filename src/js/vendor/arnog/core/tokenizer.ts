@@ -137,14 +137,14 @@ class Tokenizer {
             if (this.peek() === '^') {
                 // It might be a ^^ command (inline hex character)
                 this.get();
-                let hex = this.match(/^\^\^[0-9a-f][0-9a-f][0-9a-f][0-9a-f]/);
+                // There can be zero to six carets with the same number of hex digits
+                const hex = this.match(
+                    /^(\^(\^(\^(\^[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f])?[0-9a-f][0-9a-f]/
+                );
                 if (hex) {
-                    // It's a ^^^^ hex char
-                    return String.fromCodePoint(parseInt(hex.slice(2), 16));
-                }
-                hex = this.match(/^[0-9a-f][0-9a-f]/);
-                if (hex) {
-                    return String.fromCodePoint(parseInt(hex, 16));
+                    return String.fromCodePoint(
+                        parseInt(hex.slice(hex.lastIndexOf('^') + 1), 16)
+                    );
                 }
             }
             return next;
@@ -317,5 +317,45 @@ export function tokenize(s: string, args: string[]): Token[] {
         result = result.concat(expand(tokenizer, args));
     } while (!tokenizer.end());
 
+    return result;
+}
+
+export function joinLatex(segments: string[]): string {
+    let sep = '';
+    let result = '';
+    for (const segment of segments) {
+        if (segment) {
+            if (/[a-zA-Z*]/.test(segment[0])) {
+                // If the segment begins with a char that *could* be in a command
+                // name... insert a separator (if one was needed for the previous segment)
+                result += sep;
+            }
+            // If the segment ends in a command...
+            if (/\\[a-zA-Z]+\*?$/.test(segment)) {
+                // ... potentially add a space before the next segment
+                sep = ' ';
+            } else {
+                sep = '';
+            }
+            result += segment;
+        }
+    }
+    return result;
+}
+
+export function tokensToString(tokens: Token[]): string {
+    const result = joinLatex(
+        tokens.map((token) => {
+            return (
+                {
+                    '<space>': ' ',
+                    '<$$>': '$$',
+                    '<$>': '$',
+                    '<{>': '{',
+                    '<}>': '}',
+                }[token] ?? token
+            );
+        })
+    );
     return result;
 }

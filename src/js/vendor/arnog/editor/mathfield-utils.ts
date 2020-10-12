@@ -79,7 +79,7 @@ export function releaseSharedElement(el: HTMLElement): void {
 
 /**
  * Checks if the argument is a valid Mathfield.
- * After a Mathfield has been destroyed (for example by calling revertToOriginalContent()
+ * After a Mathfield has been destroyed (for example by calling `dispose()`
  * the Mathfield is no longer valid. However, there may be some pending
  * operations invoked via requestAnimationFrame() for example, that would
  * need to ensure the mathfield is still valid by the time they're executed.
@@ -112,7 +112,7 @@ function findElementWithCaret(el: Element): Element {
  */
 export function getCaretPosition(
     el: Element
-): { x: number; y: number; height: number } {
+): { x: number; y: number; height: number } | null {
     const caret = findElementWithCaret(el);
     if (caret) {
         const bounds = caret.getBoundingClientRect();

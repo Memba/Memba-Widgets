@@ -1,14 +1,13 @@
 /**
  * The mode that indicates how a portion of content is interpreted
  *
- * @deprecated The 'command'mode will be dropped in a future release
  */
 export type ParseMode = 'math' | 'text' | 'command' | 'chem';
 
 /**
  * Error code passed to the [[`ErrorListener`]] function.
  *
- * See [[`MathfieldConfig`]], [[`latexToMarkup`]],  [[`latexToMathML`]],  [[`latexToAST`]],
+ * See [[`MathfieldOptions`]], [[`convertLatexToMarkup`]]
  *
  *
     |  | |
@@ -63,7 +62,7 @@ export type ErrorListener<T> = (err: {
  * Variants indicate a stylistic alternate for some characters.
  *
  * Typically, those are controlled with explicit commands, such as `\mathbb{}` or
- * `\mathfrak{}`. This type is used with the [[`$applyStyle`]] method to change
+ * `\mathfrak{}`. This type is used with the [[`applyStyle`]] method to change
  * the styling of a range of selected characters.
  *
  * In mathematical notation these variants are used not only for visual
@@ -83,6 +82,9 @@ export type ErrorListener<T> = (err: {
  * letter shape and spacing (a bit more space after the "f" for example), so
  * it's not completely equivalent to a `main` variant with `italic` variant style
  * applied.
+ *
+ * **See Also**
+ * * [[`Style`]]
  */
 export type Variant =
     | 'ams'
@@ -134,6 +136,12 @@ export interface Style {
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
 }
 
+/**
+ * **See Also**
+ * * [[`MacroDictionary`]]
+ * * [Macros Example](/mathlive/examples/macros/)
+ *
+ */
 export type MacroDefinition = { def: string; args?: number };
 
 /**
@@ -141,7 +149,7 @@ export type MacroDefinition = { def: string; args?: number };
  *
  * For example:
 ```typescript
-mf.$setConfig({
+mf.setOptions({
     macros: {
         smallfrac: '^{#1}\\!\\!/\\!_{#2}',
     },
@@ -151,5 +159,7 @@ The code above will support the following notation:
 ```latex
 \smallfrac{5}{16}
 ```
-*/
+ * **See Also**
+ * * [Macros Example](/mathlive/examples/macros/)
+ */
 export type MacroDictionary = { [name: string]: string | MacroDefinition };

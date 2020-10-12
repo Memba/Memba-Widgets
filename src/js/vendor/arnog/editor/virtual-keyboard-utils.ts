@@ -11,7 +11,9 @@ import type { MathfieldPrivate } from './mathfield-class';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
+// @ts-ignore
 import virtualKeyboardStylesheet from '../../css/virtual-keyboard.less';
+import { VirtualKeyboardLayer } from '../public/options';
 
 const KEYBOARDS = {
     numeric: {
@@ -861,9 +863,9 @@ function latexToMarkup(latex: string, arg, mf: MathfieldPrivate): string {
             decompose(
                 {
                     mathstyle: MATHSTYLES.displaystyle,
-                    macros: mf.config.macros,
+                    macros: mf.options.macros,
                 },
-                parseString(latex, 'math', arg, mf.config.macros)
+                parseString(latex, 'math', arg, mf.options.macros)
             ),
             'ML__base'
         ),
@@ -885,7 +887,7 @@ function makeKeyboardToolbar(
     if (keyboardList.length > 1) {
         const keyboards = {
             ...KEYBOARDS,
-            ...(mf.config.customVirtualKeyboards ?? {}),
+            ...(mf.options.customVirtualKeyboards ?? {}),
         };
         for (const keyboard of keyboardList) {
             if (!keyboards[keyboard]) {
@@ -993,7 +995,7 @@ export function makeKeycap(
                 '</aside>';
         }
         if (typeof html !== 'undefined') {
-            el.innerHTML = mf.config.createHTML(html);
+            el.innerHTML = mf.options.createHTML(html);
         }
         if (el.getAttribute('data-classes')) {
             el.classList.add(el.getAttribute('data-classes'));
@@ -1127,8 +1129,8 @@ function expandLayerMarkup(mf: MathfieldPrivate, layer): string {
             'upper-3': '^ZXCVBKM~',
         },
     };
-    const layout = ROWS[mf.config.virtualKeyboardLayout]
-        ? ROWS[mf.config.virtualKeyboardLayout]
+    const layout = ROWS[mf.options.virtualKeyboardLayout]
+        ? ROWS[mf.options.virtualKeyboardLayout]
         : ROWS['qwerty'];
 
     let result = layer;
@@ -1296,7 +1298,7 @@ export function makeKeyboard(
 
     let markup = svgIcons;
 
-    injectStylesheet(mf.element, virtualKeyboardStylesheet);
+    injectStylesheet(null, virtualKeyboardStylesheet);
 
     // Auto-populate the ALT_KEYS table
     ALT_KEYS_BASE['foreground-color'] = [];
@@ -1425,7 +1427,7 @@ export function makeKeyboard(
         });
     }
 
-    let keyboardIDs = mf.config.virtualKeyboards;
+    let keyboardIDs = mf.options.virtualKeyboards;
     if (!keyboardIDs) {
         keyboardIDs = 'all';
     }
@@ -1434,13 +1436,15 @@ export function makeKeyboard(
         'numeric functions symbols roman  greek'
     );
 
-    const layers = {
+    const layers: {
+        [layerName: string]: string | VirtualKeyboardLayer;
+    } = {
         ...LAYERS,
-        ...(mf.config.customVirtualKeyboardLayers ?? {}),
+        ...(mf.options.customVirtualKeyboardLayers ?? {}),
     };
     const keyboards = {
         ...KEYBOARDS,
-        ...(mf.config.customVirtualKeyboards ?? {}),
+        ...(mf.options.customVirtualKeyboards ?? {}),
     };
 
     const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
@@ -1457,103 +1461,103 @@ export function makeKeyboard(
         }
         keyboardLayers = Array.from(new Set(keyboardLayers));
 
-        for (const layer of keyboardLayers) {
-            if (!layers[layer]) {
+        for (const layerName of keyboardLayers) {
+            if (!layers[layerName]) {
                 console.error(
-                    'Unknown virtual keyboard layer: "' + layer + '"'
+                    'Unknown virtual keyboard layer: "' + layerName + '"'
                 );
                 break;
             }
 
-            if (typeof layers[layer] === 'object') {
+            if (typeof layers[layerName] === 'object') {
+                const layer = layers[layerName] as VirtualKeyboardLayer;
                 // Process JSON layer to web element based layer.
 
-                let tempLayer = ``;
-                if (layers[layer].styles) {
-                    tempLayer += `<style>${layers[layer].styles}</style>`;
+                let tempLayer = '';
+                if (layer.styles) {
+                    tempLayer += `<style>${layer.styles}</style>`;
                 }
 
-                if (layers[layer].backdrop) {
-                    tempLayer += `<div class='${layers[layer].backdrop}'>`;
+                if (layer.backdrop) {
+                    tempLayer += `<div class='${layer.backdrop}'>`;
                 }
 
-                if (layers[layer].container) {
-                    tempLayer += `<div class='${layers[layer].container}'>`;
+                if (layer.container) {
+                    tempLayer += `<div class='${layer.container}'>`;
                 }
 
-                if (layers[layer].rows) {
+                if (layer.rows) {
                     tempLayer += `<div class='rows'>`;
-                    for (const row of layers[layer].rows) {
+                    for (const row of layer.rows) {
                         tempLayer += `<ul>`;
-                        for (const col of row) {
+                        for (const keycap of row) {
                             tempLayer += `<li`;
-                            if (col.class) {
-                                tempLayer += ` class="${col.class}"`;
+                            if (keycap.class) {
+                                tempLayer += ` class="${keycap.class}"`;
                             }
-                            if (col.key) {
-                                tempLayer += ` data-key="${col.key}"`;
+                            if (keycap.key) {
+                                tempLayer += ` data-key="${keycap.key}"`;
                             }
 
-                            if (col.command) {
-                                if (typeof col.command === 'string') {
-                                    tempLayer += ` data-command='"${col.command}"'`;
+                            if (keycap.command) {
+                                if (typeof keycap.command === 'string') {
+                                    tempLayer += ` data-command='"${keycap.command}"'`;
                                 } else {
                                     tempLayer += ` data-command='`;
-                                    tempLayer += JSON.stringify(col.command);
+                                    tempLayer += JSON.stringify(keycap.command);
                                     tempLayer += `'`;
                                 }
                             }
-                            if (col.insert) {
-                                tempLayer += ` data-insert="${col.insert}"`;
+                            if (keycap.insert) {
+                                tempLayer += ` data-insert="${keycap.insert}"`;
                             }
 
-                            if (col.latex) {
-                                tempLayer += ` data-latex="${col.latex}"`;
+                            if (keycap.latex) {
+                                tempLayer += ` data-latex="${keycap.latex}"`;
                             }
 
-                            if (col.aside) {
-                                tempLayer += ` data-aside="${col.aside}"`;
+                            if (keycap.aside) {
+                                tempLayer += ` data-aside="${keycap.aside}"`;
                             }
 
-                            if (col.altKeys) {
-                                tempLayer += ` data-alt-keys="${col.altKeys}"`;
+                            if (keycap.altKeys) {
+                                tempLayer += ` data-alt-keys="${keycap.altKeys}"`;
                             }
 
-                            if (col.shifted) {
-                                tempLayer += ` data-shifted="${col.shifted}"`;
+                            if (keycap.shifted) {
+                                tempLayer += ` data-shifted="${keycap.shifted}"`;
                             }
 
-                            if (col.shiftedCommand) {
-                                tempLayer += ` data-shifted-command="${col.shiftedCommand}"`;
+                            if (keycap.shiftedCommand) {
+                                tempLayer += ` data-shifted-command="${keycap.shiftedCommand}"`;
                             }
 
-                            tempLayer += `>${col.label ? col.label : ''}</li>`;
+                            tempLayer += `>${
+                                keycap.label ? keycap.label : ''
+                            }</li>`;
                         }
                         tempLayer += `</ul>`;
                     }
                     tempLayer += `</div>`;
                 }
 
-                if (layers[layer].container) {
+                if (layer.container) {
                     tempLayer += '</div>';
                 }
 
-                if (layers[layer].backdrop) {
+                if (layer.backdrop) {
                     tempLayer += '</div>';
                 }
 
-                layers[layer] = tempLayer;
+                layers[layerName] = tempLayer;
             }
 
             markup +=
                 `<div tabindex="-1" class='keyboard-layer' data-layer='` +
-                layer +
+                layerName +
                 `'>`;
             markup += makeKeyboardToolbar(mf, keyboardIDs, keyboard);
-            const layerMarkup =
-                typeof layers[layer] === 'function'
-                    ? layers[layer]()
-                    : layers[layer];
+            const layerMarkup = layers[layerName];
             // A layer can contain 'shortcuts' (i.e. <row> tags) that need to
             // be expanded
             markup += expandLayerMarkup(mf, layerMarkup);
@@ -1565,10 +1569,10 @@ export function makeKeyboard(
     result.className = 'ML__keyboard';
     if (theme) {
         result.classList.add(theme);
-    } else if (mf.config.virtualKeyboardTheme) {
-        result.classList.add(mf.config.virtualKeyboardTheme);
+    } else if (mf.options.virtualKeyboardTheme) {
+        result.classList.add(mf.options.virtualKeyboardTheme);
     }
-    result.innerHTML = mf.config.createHTML(markup);
+    result.innerHTML = mf.options.createHTML(markup);
 
     // Attach the element handlers
     makeKeycap(
@@ -1678,12 +1682,12 @@ export function unshiftKeyboardLayer(mathfield: MathfieldPrivate): boolean {
             const keycap = keycaps[i];
             const content = keycap.getAttribute('data-unshifted-content');
             if (content) {
-                keycap.innerHTML = mathfield.config.createHTML(content);
+                keycap.innerHTML = mathfield.options.createHTML(content);
             }
             const command = keycap.getAttribute('data-unshifted-command');
             if (command) {
                 keycap.setAttribute(
-                    'data-' + mathfield.config.namespace + 'command',
+                    'data-' + mathfield.options.namespace + 'command',
                     command
                 );
             }

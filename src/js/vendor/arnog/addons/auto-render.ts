@@ -5,8 +5,7 @@ import { AutoRenderOptions } from '../public/mathlive';
 import { ErrorListener, ParserErrorCode } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
-// import coreStylesheet from '../../css/core.less';
-import coreStylesheet from '../../../../styles/vendor/arnog/core.less';
+import coreStylesheet from '../../css/core.less';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
     /** A function that will convert any LaTeX found to

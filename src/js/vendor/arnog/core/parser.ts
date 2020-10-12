@@ -8,9 +8,9 @@ import {
 } from './definitions';
 import { stringToColor } from './color';
 import { convertDimenToEm } from './font-metrics';
-import { Token, tokenize } from './tokenizer';
+import { Token, tokenize, tokensToString } from './tokenizer';
 import { Atom, Colspec, BBoxParam } from './atom';
-import { parseTokens, tokensToString } from './modes-utils';
+import { parseTokens } from './modes-utils';
 import { FunctionDefinition, SymbolDefinition } from './definitions-utils';
 import {
     ErrorListener,
@@ -882,7 +882,7 @@ class Parser {
         // consider the `\right` missing and set the `rightDelim` to undefined
         const rightDelim = this.scanDelim();
 
-        const result = new Atom(this.parseMode, 'leftright');
+        const result = new Atom(this.parseMode, 'leftright', '', this.style);
         result.leftDelim = leftDelim;
         result.rightDelim = rightDelim ?? undefined;
         result.inner = close === 'right';
@@ -1472,7 +1472,8 @@ class Parser {
         );
         atom.captureSelection = true;
         atom.symbol = macro;
-        atom.latex = macro + tokensToString(this.tokens.slice(initialIndex));
+        atom.latex =
+            macro + tokensToString(this.tokens.slice(initialIndex, this.index));
         return atom;
     }
     /**

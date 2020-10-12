@@ -1,6 +1,6 @@
 import type { Selector } from '../public/commands';
 import { suggest } from '../core/definitions';
-import { makeRoot } from '../core/atom';
+import { Atom, makeRoot } from '../core/atom';
 import { parseString } from '../core/parser';
 import { ModelPrivate, removeSuggestion } from './model';
 import { moveAfterParent } from './model-selection';
@@ -14,17 +14,16 @@ import {
 import { hidePopover, showPopoverWithLatex } from './popover';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION } from './commands';
-import { getAnchorStyle, setPath } from './model-selection';
+import { getAnchorStyle } from './model-selection-utils';
 import { insertSuggestion } from './autocomplete';
 import {
     decorateCommandStringAroundInsertionPoint,
     extractCommandStringAroundInsertionPoint,
 } from './model-command-mode';
-import { insertSmartFence } from './model-smartfence';
 
-import { contentDidChange, contentWillChange } from './model-listeners';
+import { contentDidChange, selectionDidChange } from './model-listeners';
 
-import { insert } from './model-insert';
+import { insert, insertSmartFence, normalizeModel } from './model-insert';
 import { requestUpdate } from './mathfield-render';
 
 import type { MathfieldPrivate } from './mathfield-class';
@@ -45,7 +44,7 @@ export function showKeystroke(
         const bounds = mathfield.element.getBoundingClientRect();
         vb.style.left = bounds.left + 'px';
         vb.style.top = bounds.top - 64 + 'px';
-        vb.innerHTML = mathfield.config.createHTML(
+        vb.innerHTML = mathfield.options.createHTML(
             '<span>' +
                 (getKeybindingMarkup(keystroke) || keystroke) +
                 '</span>' +
@@ -81,10 +80,10 @@ export function onKeystroke(
         console.log('Switching to keyboard layout ' + activeLayout.id);
         mathfield.keyboardLayout = activeLayout.id;
         mathfield.keybindings = normalizeKeybindings(
-            mathfield.config.keybindings,
+            mathfield.options.keybindings,
             (e) => {
-                if (typeof mathfield.config.onError === 'function') {
-                    mathfield.config.onError({
+                if (typeof mathfield.options.onError === 'function') {
+                    mathfield.options.onError({
                         code: 'invalid-keybinding',
                         arg: e.join('\n'),
                     });
@@ -102,8 +101,8 @@ export function onKeystroke(
 
     // 4. Give a chance to the custom keystroke handler to intercept the event
     if (
-        mathfield.config.onKeystroke &&
-        !mathfield.config.onKeystroke(mathfield, keystroke, evt)
+        mathfield.options.onKeystroke &&
+        !mathfield.options.onKeystroke(mathfield, keystroke, evt)
     ) {
         if (evt?.preventDefault) {
             evt.preventDefault();
@@ -115,7 +114,7 @@ export function onKeystroke(
     // 5. Let's try to find a matching shortcut or command
     let shortcut: string;
     let stateIndex: number;
-    let selector: Selector | '' | any[];
+    let selector: Selector | '' | [Selector, ...any[]];
     let resetKeystrokeBuffer = false;
     // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
     // would match a long shortcut (i.e. '~~')
@@ -125,7 +124,12 @@ export function onKeystroke(
         mathfield.mode !== 'command' &&
         (!evt || (!evt.ctrlKey && !evt.metaKey))
     ) {
-        if (!mightProducePrintableCharacter(evt)) {
+        if (keystroke === '[Backspace]') {
+            // Special case for backspace
+            mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
+            mathfield.keystrokeBufferStates.pop();
+            mathfield.resetKeystrokeBuffer({ defer: true });
+        } else if (!mightProducePrintableCharacter(evt)) {
             // It was a non-alpha character (PageUp, End, etc...)
             mathfield.resetKeystrokeBuffer();
         } else {
@@ -134,48 +138,43 @@ export function onKeystroke(
             const candidate = mathfield.keystrokeBuffer + c;
             let i = 0;
             while (!shortcut && i < candidate.length) {
-                let siblings;
+                let siblings: Atom[];
                 if (mathfield.keystrokeBufferStates[i]) {
-                    const mathlist = new ModelPrivate();
-                    mathlist.root = makeRoot(
+                    const iter = new ModelPrivate();
+                    iter.root = makeRoot(
                         'math',
                         parseString(
                             mathfield.keystrokeBufferStates[i].latex,
-                            mathfield.config.defaultMode,
+                            mathfield.options.defaultMode,
                             null,
-                            mathfield.config.macros
+                            mathfield.options.macros
                         )
                     );
-                    setPath(
-                        mathlist,
-                        mathfield.keystrokeBufferStates[i].selection
-                    );
-                    siblings = mathlist.siblings();
+                    normalizeModel(iter);
+                    iter.selection =
+                        mathfield.keystrokeBufferStates[i].selection;
+                    siblings = iter.siblings();
                 } else {
                     siblings = mathfield.model.siblings();
                 }
                 shortcut = getInlineShortcut(
                     siblings,
                     candidate.slice(i),
-                    mathfield.config.inlineShortcuts
+                    mathfield.options.inlineShortcuts
                 );
                 i += 1;
             }
-            stateIndex = i - 1;
+            stateIndex =
+                mathfield.keystrokeBufferStates.length - (candidate.length - i);
             mathfield.keystrokeBuffer += c;
             mathfield.keystrokeBufferStates.push(mathfield.getUndoRecord());
             if (
-                getInlineShortcutsStartingWith(candidate, mathfield.config)
+                getInlineShortcutsStartingWith(candidate, mathfield.options)
                     .length <= 1
             ) {
                 resetKeystrokeBuffer = true;
             } else {
-                if (mathfield.config.inlineShortcutTimeout) {
-                    // Set a timer to reset the shortcut buffer
-                    mathfield.keystrokeBufferResetTimer = setTimeout(() => {
-                        mathfield.resetKeystrokeBuffer();
-                    }, mathfield.config.inlineShortcutTimeout);
-                }
+                mathfield.resetKeystrokeBuffer({ defer: true });
             }
         }
     }
@@ -183,7 +182,7 @@ export function onKeystroke(
     // Need to check this before determing if there's a valid shortcut
     // since if we switch to math mode, we may want to apply the shortcut
     // e.g. "slope = rise/run"
-    if (mathfield.config.smartMode) {
+    if (mathfield.options.smartMode) {
         const previousMode = mathfield.mode;
         if (shortcut) {
             // If we found a shortcut (e.g. "alpha"),
@@ -196,9 +195,9 @@ export function onKeystroke(
         // Notify of mode change
         if (
             mathfield.mode !== previousMode &&
-            typeof mathfield.config.onModeChange === 'function'
+            typeof mathfield.options.onModeChange === 'function'
         ) {
-            mathfield.config.onModeChange(mathfield, mathfield.mode);
+            mathfield.options.onModeChange(mathfield, mathfield.mode);
         }
     }
     // 5.3 Check if this matches a keybinding
@@ -212,28 +211,52 @@ export function onKeystroke(
             keystroke
         );
     }
+    if (
+        !shortcut &&
+        !selector &&
+        (keystroke === '[Enter]' || keystroke === '[Return]')
+    ) {
+        // No matching keybinding: trigger a commit
+        if (typeof mathfield.options.onCommit === 'function') {
+            mathfield.options.onCommit(mathfield);
+            if (evt?.preventDefault) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+            return false;
+        }
+    }
+
     // No shortcut :( We're done.
     if (!shortcut && !selector) {
         return true;
     }
-    if (mathfield.config.readOnly && selector[0] === 'insert') {
+    if (mathfield.options.readOnly && selector[0] === 'insert') {
         return true;
     }
 
-    // 6. Perform the action matching this shortcut
+    //
+    // 6. Perform the action matching this selector or insert the shortcut
+    //
+
+    //
     // 6.1 Remove any error indicator (wavy underline) on the current command
     // sequence (if there are any)
+    //
     decorateCommandStringAroundInsertionPoint(mathfield.model, false);
+
+    //
     // 6.2 If we have a `moveAfterParent` selector (usually triggered with
     // `spacebar), and we're at the end of a smart fence, close the fence with
     // an empty (.) right delimiter
+    //
     const parent = mathfield.model.parent();
     if (
         selector === 'moveAfterParent' &&
         parent &&
         parent.type === 'leftright' &&
         mathfield.model.endOffset() === mathfield.model.siblings().length - 1 &&
-        mathfield.config.smartFence &&
+        mathfield.options.smartFence &&
         insertSmartFence(mathfield.model, '.', mathfield.style)
     ) {
         // Pressing the space bar (moveAfterParent selector) when at the end
@@ -241,8 +264,10 @@ export function onKeystroke(
         selector = '';
         requestUpdate(mathfield); // Re-render the closed smartFence
     }
+    //
     // 6.3 If this is the Spacebar and we're just before or right after
     // a text zone, insert the space inside the text zone
+    //
     if (mathfield.mode === 'math' && keystroke === '[Spacebar]' && !shortcut) {
         const nextSibling = mathfield.model.sibling(1);
         const previousSibling = mathfield.model.sibling(-1);
@@ -253,14 +278,22 @@ export function onKeystroke(
             insert(mathfield.model, ' ', { mode: 'text' });
         }
     }
+    //
     // 6.4 If there's a selector, perform it.
+    //
     if (selector) {
-        mathfield.$perform(selector);
+        mathfield.executeCommand(selector);
     } else if (shortcut) {
-        // 5.5 Insert the shortcut
+        //
+        // 6.5 Insert the shortcut
         // If the shortcut is a mandatory escape sequence (\}, etc...)
         // don't make it undoable, this would result in syntactically incorrect
         // formulas
+        //
+        const style = {
+            ...getAnchorStyle(mathfield.model),
+            ...mathfield.style,
+        };
         if (
             !/^(\\{|\\}|\\[|\\]|\\@|\\#|\\$|\\%|\\^|\\_|\\backslash)$/.test(
                 shortcut
@@ -268,16 +301,12 @@ export function onKeystroke(
         ) {
             // To enable the substitution to be undoable,
             // insert the character before applying the substitution
-            const style = {
-                ...getAnchorStyle(mathfield.model),
-                ...mathfield.style,
-            };
+            const saveMode = mathfield.mode;
             insert(mathfield.model, eventToChar(evt), {
                 suppressChangeNotifications: true,
                 mode: mathfield.mode,
                 style: style,
             });
-            const saveMode = mathfield.mode;
             // Create a snapshot with the inserted character
             mathfield.snapshotAndCoalesce();
             // Revert to the state before the beginning of the shortcut
@@ -287,14 +316,9 @@ export function onKeystroke(
             );
             mathfield.mode = saveMode;
         }
-        contentWillChange(mathfield.model);
         const save = mathfield.model.suppressChangeNotifications;
         mathfield.model.suppressChangeNotifications = true;
         // Insert the substitute, possibly as a smart fence
-        const style = {
-            ...getAnchorStyle(mathfield.model),
-            ...mathfield.style,
-        };
         insert(mathfield.model, shortcut, {
             format: 'latex',
             mode: mathfield.mode,
@@ -311,8 +335,9 @@ export function onKeystroke(
         }
         mathfield.model.suppressChangeNotifications = save;
         contentDidChange(mathfield.model);
+        selectionDidChange(mathfield.model);
         mathfield.snapshot();
-        requestUpdate(mathfield);
+        mathfield.dirty = true; // Mark the field as dirty. It will get rendered in scrollIntoView()
         mathfield.model.announce('replacement');
         // If we're done with the shortcuts (found a unique one), reset it.
         if (resetKeystrokeBuffer) {
@@ -320,11 +345,15 @@ export function onKeystroke(
         }
     }
 
+    //
     // 7. Make sure the insertion point is scrolled into view
+    //
     mathfield.scrollIntoView();
 
+    //
     // 8. Keystroke has been handled, if it wasn't caught in the default
     // case, so prevent propagation
+    //
     if (evt?.preventDefault) {
         evt.preventDefault();
         evt.stopPropagation();
@@ -356,17 +385,17 @@ export function onTypedText(
         simulateKeystroke?: boolean;
     }
 ): void {
-    if (mathfield.config.readOnly) {
+    if (mathfield.options.readOnly) {
         mathfield.model.announce('plonk');
         return;
     }
     options = options ?? {};
     // Focus, then provide audio and haptic feedback
     if (options.focus) {
-        mathfield.$focus();
+        mathfield.focus();
     }
     if (options.feedback) {
-        if (mathfield.config.keypressVibration && navigator?.vibrate) {
+        if (mathfield.options.keypressVibration && navigator?.vibrate) {
             navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
         if (mathfield.keypressSound) {
@@ -399,7 +428,7 @@ export function onTypedText(
         // Interpret `text` as a 'smart' expression (could be LaTeX, could be
         // UnicodeMath)
         insert(mathfield.model, text, {
-            smartFence: mathfield.config.smartFence,
+            smartFence: mathfield.options.smartFence,
             mode: 'math',
         });
     } else {
@@ -459,7 +488,7 @@ export function onTypedText(
                     if (selector === 'moveToSuperscript') {
                         if (
                             superscriptDepth(mathfield) >=
-                            mathfield.config.scriptDepth[1]
+                            mathfield.options.scriptDepth[1]
                         ) {
                             mathfield.model.announce('plonk');
                             return;
@@ -467,16 +496,16 @@ export function onTypedText(
                     } else if (selector === 'moveToSubscript') {
                         if (
                             subscriptDepth(mathfield) >=
-                            mathfield.config.scriptDepth[0]
+                            mathfield.options.scriptDepth[0]
                         ) {
                             mathfield.model.announce('plonk');
                             return;
                         }
                     }
-                    mathfield.$perform(selector);
+                    mathfield.executeCommand(selector);
                 } else {
                     if (
-                        mathfield.config.smartSuperscript &&
+                        mathfield.options.smartSuperscript &&
                         mathfield.model.relation() === 'superscript' &&
                         /[0-9]/.test(c) &&
                         mathfield.model
@@ -495,7 +524,7 @@ export function onTypedText(
                         insert(mathfield.model, c, {
                             mode: 'math',
                             style: style,
-                            smartFence: mathfield.config.smartFence,
+                            smartFence: mathfield.options.smartFence,
                         });
                     }
                 }

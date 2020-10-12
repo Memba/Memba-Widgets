@@ -1,4 +1,4 @@
-import type { TextToSpeechOptions, MathfieldConfig } from '../public/config';
+import type { TextToSpeechOptions, MathfieldOptions } from '../public/options';
 import type { SpeechScope } from '../public/commands';
 
 import type { Atom } from '../core/atom';
@@ -135,10 +135,10 @@ function speak(
     }
     const atoms = getAtoms(mathfield, scope);
     if (atoms === null) {
-        mathfield.config.speakHook(getFailedSpeech(scope), mathfield.config);
+        mathfield.options.speakHook(getFailedSpeech(scope), mathfield.options);
         return false;
     }
-    const options = { ...mathfield.config };
+    const options = { ...mathfield.options };
     if (speakOptions.withHighlighting || options.speechEngine === 'amazon') {
         options.textToSpeechMarkup =
             window['sre'] && options.textToSpeechRules === 'sre'
@@ -149,23 +149,26 @@ function speak(
     if (speakOptions.withHighlighting) {
         window['mathlive'].readAloudMathField = mathfield;
         render(mathfield, { forHighlighting: true });
-        if (mathfield.config.readAloudHook) {
-            mathfield.config.readAloudHook(
+        if (mathfield.options.readAloudHook) {
+            mathfield.options.readAloudHook(
                 mathfield.field,
                 text,
-                mathfield.config
+                mathfield.options
             );
         }
     } else {
-        if (mathfield.config.speakHook) {
-            mathfield.config.speakHook(text, options);
+        if (mathfield.options.speakHook) {
+            mathfield.options.speakHook(text, options);
         }
     }
 
     return false;
 }
 
-export function defaultSpeakHook(text: string, config: MathfieldConfig): void {
+export function defaultSpeakHook(
+    text: string,
+    config?: Partial<MathfieldOptions>
+): void {
     if (!config && window && window['mathlive']) {
         config = window['mathlive'].config;
     }

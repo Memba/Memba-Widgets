@@ -1,4 +1,4 @@
-import type { InlineShortcutDefinition } from '../public/config';
+import type { InlineShortcutDefinition } from '../public/options';
 
 /**
  * These shortcut strings are replaced with the corresponding LaTeX expression
@@ -56,7 +56,7 @@ export const INLINE_SHORTCUTS: {
     '∑': { mode: 'math', value: '\\sum' },
     sum: { mode: 'math', value: '\\sum_{#?}^{#?}' },
     prod: { mode: 'math', value: '\\prod_{#?}^{#?}' },
-    sqrt: { mode: 'math', value: '\\sqrt' },
+    sqrt: { mode: 'math', value: '\\sqrt{#?}' },
     // '∫':                    '\\int',             // There's a alt-B command for this
     '∆': { mode: 'math', value: '\\differentialD' }, // @TODO: is \\diffD most common?
     '∂': { mode: 'math', value: '\\differentialD' },

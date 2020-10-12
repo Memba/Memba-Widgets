@@ -1,4 +1,4 @@
-import type { MathfieldConfig } from '../public/config';
+import type { MathfieldOptions } from '../public/options';
 
 import { isArray } from '../common/types';
 
@@ -18,8 +18,8 @@ const NO_OP_LISTENER = (): void => {
     return;
 };
 
-export type MathfieldConfigPrivate = MathfieldConfig & {
-    onAnnounce?: (
+export type MathfieldOptionsPrivate = MathfieldOptions & {
+    onAnnounce: (
         target: MathfieldPrivate,
         command: string, // verb
         modelBefore: ModelPrivate,
@@ -53,13 +53,13 @@ function unloadSound(
 }
 
 export function update(
-    current: Required<MathfieldConfigPrivate>,
-    updates: MathfieldConfigPrivate
-): Required<MathfieldConfigPrivate> {
-    const result: Required<MathfieldConfigPrivate> = get(
+    current: Required<MathfieldOptionsPrivate>,
+    updates: Partial<MathfieldOptionsPrivate>
+): Required<MathfieldOptionsPrivate> {
+    const result: Required<MathfieldOptionsPrivate> = get(
         current,
         Object.keys(current)
-    ) as Required<MathfieldConfigPrivate>;
+    ) as Required<MathfieldOptionsPrivate>;
     Object.keys(updates).forEach((key) => {
         switch (key) {
             case 'scriptDepth':
@@ -92,10 +92,14 @@ export function update(
                 break;
             case 'locale':
                 result.locale =
-                    updates.locale === 'auto' ? l10n.locale : updates.locale;
+                    updates.locale === 'auto'
+                        ? navigator?.language.slice(0, 5) ?? 'en'
+                        : updates.locale;
+                l10n.locale = result.locale;
                 break;
             case 'strings':
                 l10n.merge(updates.strings);
+                result.strings = l10n.strings;
                 break;
             case 'virtualKeyboardLayout':
                 if (updates.virtualKeyboardLayout === 'auto') {
@@ -193,6 +197,7 @@ export function update(
             case 'onUndoStateWillChange':
             case 'onUndoStateDidChange':
             case 'onModeChange':
+            case 'onCommit':
             case 'onVirtualKeyboardToggle':
             case 'onReadAloudStatus':
             case 'onError':
@@ -230,9 +235,9 @@ export function update(
 }
 
 export function get(
-    config: Required<MathfieldConfigPrivate>,
-    keys?: keyof MathfieldConfigPrivate | string[]
-): any | MathfieldConfigPrivate {
+    config: Required<MathfieldOptionsPrivate>,
+    keys?: keyof MathfieldOptionsPrivate | string[]
+): any | Partial<MathfieldOptionsPrivate> {
     let resolvedKeys: string[];
     if (typeof keys === 'string') {
         resolvedKeys = [keys];
@@ -241,7 +246,7 @@ export function get(
     } else {
         resolvedKeys = keys;
     }
-    const result: MathfieldConfigPrivate = {};
+    const result: Partial<MathfieldOptionsPrivate> = {};
     resolvedKeys.forEach((x) => {
         if (isArray(result[x])) {
             result[x] = [...result[x]];
@@ -258,7 +263,7 @@ export function get(
     return result;
 }
 
-export function getDefault(): Required<MathfieldConfigPrivate> {
+export function getDefault(): Required<MathfieldOptionsPrivate> {
     return {
         namespace: '',
         substituteTextArea: undefined,
@@ -279,7 +284,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         ignoreSpacebarInMathMode: true,
 
         locale: l10n.locale,
-        strings: {},
+        strings: l10n.strings,
 
         keybindings: DEFAULT_KEYBINDINGS,
 
@@ -325,6 +330,7 @@ export function getDefault(): Required<MathfieldConfigPrivate> {
         onModeChange: NO_OP_LISTENER,
         onVirtualKeyboardToggle: NO_OP_LISTENER,
         onReadAloudStatus: NO_OP_LISTENER,
+        onCommit: NO_OP_LISTENER,
 
         onError: (): void => {
             return;

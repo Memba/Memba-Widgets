@@ -26,10 +26,16 @@ export type SpeechScope =
 // @revisit: maybe a command attribute instead?
 /**
  * Commands return true if they resulted in a dirty state
- * @command mathfield.perform
+ * @command executeCommand
  */
 export interface Commands {
+    /**
+     * @category Undo/Redo
+     */
     undo: (mathfield: Mathfield) => boolean;
+    /**
+     * @category Undo/Redo
+     */
     redo: (mathfield: Mathfield) => boolean;
 
     /**
@@ -38,6 +44,8 @@ export interface Commands {
      * for example for commands from the virtual keyboard
      */
     performWithFeedback: (mathfield: Mathfield, command: string) => boolean;
+
+    commit: (mathfield: Mathfield) => boolean;
 
     /**
      * @category Auto-complete
@@ -49,7 +57,6 @@ export interface Commands {
     nextSuggestion: (mathfield: Mathfield) => boolean;
     /**
      * @category Auto-complete
-
      */
     previousSuggestion: (mathfield: Mathfield) => boolean;
 

@@ -1,6 +1,55 @@
 import { Selector } from './commands';
-import { MathfieldConfig } from './config';
+import { MathfieldOptions } from './options';
 import { ParseMode, MacroDictionary, Style } from './core';
+
+/**
+ * A pair of boundary points that can be used to denote a fragment of an
+ * expression such as the selection.
+ *
+ * A range can be collapsed (empty) in which case it points to a single
+ * location in an expression and its content is empty.
+ *
+ * A range can also have a direction. While many operations are insensitive
+ * to the direction, a few are. For example, when selecting a fragment of an
+ * expression from left to right, the direction of this range will be "forward".
+ * Pressing the left arrow key will sets the insertion at the start of the range.
+ * Conversely, if the selectionis made from right to left, the direction is
+ * "backward" and pressing the left arrow key will set the insertion point at
+ * the end of the range.
+ *
+ * **See Also**
+ * * [[`selection`]]
+ */
+export interface Range {
+    /**
+     * An offset indicating where the range starts.
+     *
+     * 0 is the first possible offset.
+     */
+    start: number;
+    /**
+     * An offset indicating where the range ends.
+     *
+     * `end` should be greater than or equal to `start`
+     */
+    end?: number;
+    /**
+     *
+     */
+    direction?: 'forward' | 'backward' | 'none';
+    /**
+     * True when `start === end`, that is an empty range with no content, a single
+     * insertion point.
+     */
+    collapsed?: boolean;
+    /**
+     * The depth of the common ancestor of the start and end offsets.
+     *
+     * Depth starts at 0 and increase for each fraction, root, superscript
+     * and subscript.
+     */
+    depth?: number;
+}
 
 /**
  * | Format              | Description             |
@@ -82,11 +131,33 @@ export type InsertOptions = {
 export interface Mathfield {
     mode: ParseMode;
 
-    getConfig(keys: keyof MathfieldConfig): any;
-    getConfig(keys: string[]): MathfieldConfig;
-    getConfig(keys: keyof MathfieldConfig | string[]): any | MathfieldConfig;
+    /**
+     * @deprecated Use [[`getOptions`]]
+     */
+    getConfig?<K extends keyof MathfieldOptions>(
+        keys: K[]
+    ): Pick<MathfieldOptions, K>;
+    /**
+     * @deprecated Use [[`getOptions`]]
+     */
+    getConfig?<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
+    /**
+     * @deprecated Use [[`getOptions`]]
+     */
+    getConfig?(): MathfieldOptions;
 
-    $setConfig(config: MathfieldConfig): void;
+    getOptions(): MathfieldOptions;
+    getOptions<K extends keyof MathfieldOptions>(
+        keys: K[]
+    ): Pick<MathfieldOptions, K>;
+    getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K];
+
+    /**
+     * @deprecated Use [[`setOptions`]]
+     */
+    setConfig?(options: Partial<MathfieldOptions>): void;
+
+    setOptions(options: Partial<MathfieldOptions>): void;
 
     /**
      * Reverts this mathfield to its original content.
@@ -95,39 +166,50 @@ export interface Mathfield {
      * the object.
      *
      * To turn the element back into a mathfield, call
-     * `MathLive.makeMathField()` on the element again to get a new mathfield object.
+     * `makeMathField()` on the element again to get a new mathfield object.
+     *
+     * @deprecated
      */
-    $revertToOriginalContent(): void;
+    $revertToOriginalContent?(): void;
 
     /**
-     * Performs a command defined by a selector.
-     *
-     *
+     * Execute a [[`Commands`|command]] defined by a selector.
+     * ```javascript
+     * mfe.executeCommand('add-column-after');
+     * mfe.executeCommand(['switch-mode', 'math']);
+     * ```
      *
      * @param command - A selector, or an array whose first element
      * is a selector, and whose subsequent elements are arguments to the selector.
      *
-     * Note that selectors do not include a final "_". They can be passed either
-     * in camelCase or kebab-case.
+     * Selectors can be passed either in camelCase or kebab-case.
      *
      * ```javascript
-     * mathfield.$perform('selectAll');
-     * mathfield.$perform('select-all');
+     * // Both calls do the same thing
+     * mfe.executeCommand('selectAll');
+     * mfe.executeCommand('select-all');
      * ```
-     * In the above example, both calls invoke the same selector.
-     *
      */
-    $perform(command: Selector | any[]): boolean;
+    executeCommand(command: Selector | [Selector, ...any[]]): boolean;
+
+    /**
+     * @deprecated Use [[`executeCommand`]]
+     */
+    $perform?(command: Selector | [Selector, ...any[]]): boolean;
 
     /**
      * Returns a textual representation of the mathfield.
      *
      * @param format - The format of the result.
      * **Default** = `"latex"`
-     * @return {string}
      * @category Accessing the Content
      */
-    $text(format?: OutputFormat): string;
+    getValue(format?: OutputFormat): string;
+
+    /**
+     * @deprecated Use [[`getValue`]]
+     */
+    $text?(format?: OutputFormat): string;
 
     /**
      * Returns a textual representation of the selection in the mathfield.
@@ -135,20 +217,31 @@ export interface Mathfield {
      * @param format - The format of the result.
      * **Default** = `"latex"`
      * @category Accessing the Content
+     * @deprecated
      */
-    $selectedText(format?: OutputFormat): string;
+    $selectedText?(format?: OutputFormat): string;
 
-    $select(): void;
+    select(): void;
 
-    $clearSelection(): void;
+    /**
+     * @deprecated Use [[`executeCommand`]]
+     */
+    $select?(): void;
+
+    /**
+     * @deprecated Use [[`executeCommand`]]
+     */
+    $clearSelection?(): void;
 
     /**
      * Checks if the selection is collapsed.
      *
      * @return True if the length of the selection is 0, that is, if it is a single
      * insertion point.
+     *
+     * @deprecated Use `selection[0].collapsed`
      */
-    $selectionIsCollapsed(): boolean;
+    $selectionIsCollapsed?(): boolean;
 
     /**
      * Returns the depth of the selection group.
@@ -158,18 +251,34 @@ export interface Mathfield {
      * If the selection is a portion of the numerator of a fraction
      * which is at the root level, return 1. Note that in that case, the numerator
      * would be the "selection group".
+     *
+     * @deprecated Use `mf.selection[0].depth`
      */
-    $selectionDepth(): number;
+    $selectionDepth?(): number;
 
     /**
      * Checks if the selection starts at the beginning of the selection group.
+     *
+     * @deprecated
+     *
      */
-    $selectionAtStart(): boolean;
+    $selectionAtStart?(): boolean;
 
     /**
      * Checks if the selection extends to the end of the selection group.
+     *
+     * @deprecated
      */
-    $selectionAtEnd(): boolean;
+    $selectionAtEnd?(): boolean;
+
+    /**
+     * Sets the content of the mathfield to the
+     * text interpreted as a LaTeX expression.
+     *
+     * @category Accessing the Content
+     */
+    setValue(latex?: string, options?: InsertOptions): void;
+
     /**
      * Sets or gets the content of the mathfield.
      *
@@ -180,42 +289,70 @@ export interface Mathfield {
      * LaTeX expression.
      *
      * @category Accessing the Content
+     *
+     * @deprecated Use [[`setValue`]] and [[`getValue`]]
      */
-    $latex(text?: string, options?: InsertOptions): string;
+    $latex?(text?: string, options?: InsertOptions): string;
 
     /**
      * Return the DOM element associated with this mathfield.
      *
      * Note that `this.$el().mathfield === this`
+     *
+     * @deprecated
      */
-    $el(): HTMLElement;
+    $el?(): HTMLElement;
 
     /**
      * Inserts a block of text at the current insertion point.
      *
      * This method can be called explicitly or invoked as a selector with
-     * `$perform("insert")`.
+     * `executeCommand("insert")`.
      *
      * After the insertion, the selection will be set according to the
      * `options.selectionMode`.
      *
-     *
      * @category Changing the Content
      */
-    $insert(s: string, options?: InsertOptions): boolean;
+
+    insert(s: string, options?: InsertOptions): boolean;
+
+    /**
+     *
+     * @deprecated Use [[`insert`]]
+     */
+    $insert?(s: string, options?: InsertOptions): boolean;
+
+    /**
+     * @category Focus
+     *
+     * @deprecated Use [[`hasFocus`]]
+     */
+    $hasFocus?(): boolean;
+    /**
+     * @category Focus
+     *
+     */
+    hasFocus(): boolean;
+    /**
+     * @category Focus
+     * @deprecated Use [[`focus`]]
+     */
+    $focus?(): void;
+    /**
+     * @category Focus
+     * @deprecated Use [[`blur`]]
+     */
+    $blur?(): void;
 
     /**
      * @category Focus
      */
-    $hasFocus(): boolean;
+    focus?(): void;
     /**
      * @category Focus
      */
-    $focus(): void;
-    /**
-     * @category Focus
-     */
-    $blur(): void;
+    blur?(): void;
 
     /**
      * Updates the style (color, bold, italic, etc...) of the selection or sets
@@ -230,7 +367,11 @@ export interface Mathfield {
      * If there is no selection, the style will apply to the next character typed.
      *
      */
-    $applyStyle(style: Style): void;
+    applyStyle(style: Style): void;
+    /**
+     * @deprecated Use [[`applyStyle`]]
+     */
+    $applyStyle?(style: Style): void;
 
     /**
      * @param keys - A string representation of a key combination.
@@ -246,16 +387,21 @@ export interface Mathfield {
      * click or other event not involving a keyboard), omit it.
      * @return Return true if the field need to be re-rendered
      * @category Changing the Content
+     * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
      */
-    $keystroke(keys: string, evt?: KeyboardEvent): boolean;
+    $keystroke?(keys: string, evt?: KeyboardEvent): boolean;
 
     /**
      * Simulates a user typing the keys indicated by text.
      *
      * @param text - A sequence of one or more characters.
      * @category Changing the Content
+     * @deprecated Use [[`executeCommand`]] or [[`setValue`]]
      */
-    $typedText(text: string): void;
+    $typedText?(text: string): void;
+
+    getCaretPosition(): { x: number; y: number } | null;
+    setCaretPosition(x: number, y: number): boolean;
 }
 
 export interface Model {

@@ -1,5 +1,5 @@
 import { render } from './mathfield-render';
-import { MathfieldConfig } from '../public/config';
+import { MathfieldOptions } from '../public/options';
 
 function removeHighlight(element: Element): void {
     element.classList.remove('ML__highlight');
@@ -47,7 +47,7 @@ function highlightAtomID(element: Element, atomID?: string): void {
 export function defaultReadAloudHook(
     element: HTMLElement,
     text: string,
-    config: MathfieldConfig
+    config: Partial<MathfieldOptions>
 ): void {
     if (!window) {
         return;
@@ -55,7 +55,6 @@ export function defaultReadAloudHook(
     if (!config && window['mathlive']) {
         config = window['mathlive'].config;
     }
-    config = config ?? {};
 
     if (config.speechEngine !== 'amazon') {
         console.warn('Use Amazon TTS Engine for synchronized highlighting');

@@ -46,9 +46,15 @@ registerCommand({
         return true;
     },
     insert: (mathfield: MathfieldPrivate, s: string, options) =>
-        mathfield.$insert(s, options),
+        mathfield.insert(s, options),
     typedText: (mathfield: MathfieldPrivate, text: string) => {
         onTypedText(mathfield, text);
+        return true;
+    },
+    commit: (mathfield: MathfieldPrivate) => {
+        if (typeof mathfield.options.onCommit === 'function') {
+            mathfield.options.onCommit(mathfield);
+        }
         return true;
     },
 });

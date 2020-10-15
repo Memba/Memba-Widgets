@@ -3,9 +3,18 @@
         .k-tabstrip.k-tabstrip-left {
             border: none;
 
+            // Tabs on the left
+            .k-tabstrip-items {
+                // TODO add background color
+                li.k-first {
+                    top: 0.5em;
+                }
+            }
+
+            // Tab content on the right
             > div.k-content {
                 padding: 0;
-                border-radius: 0;
+                border: 0;
 
                 .k-filebrowser {
                     padding: 0.5em;
@@ -58,25 +67,28 @@
                     }
 
                     .k-listview.k-tiles {
-                        // border-top-style: none;
+                        border-top-width: 1px;
                         height: 400px;
                         margin: 0;
                         overflow: auto;
 
-                        .k-tile {
-                            // width: 88px;
-                            .k-image {
-                                width: 80px;
-                                height: auto;
+                        .k-listview-content {
+                            display: flex;
+                            flex-wrap: wrap;
+
+                            .k-tile {
+                                // width: 88px;
+                                .k-image {
+                                    width: 80px;
+                                    height: auto;
+                                }
                             }
                         }
                     }
 
-                    /*
                     .k-pager-wrap.k-floatwrap {
                         border-top: 0;
                     }
-                    */
                 }
             }
         }

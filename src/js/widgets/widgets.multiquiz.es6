@@ -37,11 +37,11 @@ const NS = '.kendoMultiQuiz';
 const WIDGET_CLASS = 'kj-multiquiz'; // 'k-widget kj-multiquiz',
 
 const MULTISELECT_TMPL =
-    '<span class="kj-multiquiz-item kj-multiquiz-multiselect"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"/># } #<span class="k-text">#: data.{0} #</span></span>';
-const BUTTON_TMPL = `<button class="k-button kj-multiquiz-item kj-multiquiz-button" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"/># } #<span class="k-text">#: data.{0} #</span></button>`;
+    '<span class="kj-multiquiz-item kj-multiquiz-multiselect"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></span>';
+const BUTTON_TMPL = `<button class="k-button kj-multiquiz-item kj-multiquiz-button" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></button>`;
 const IMAGE_TMPL = `<div class="k-widget kj-multiquiz-item kj-multiquiz-image" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #"><div class="k-image" style="background-image:url(#: data.{1} #)"></div></div>`;
 const LINK_TMPL = `<span class="kj-multiquiz-item kj-multiquiz-link" data-${ns}uid="#: data.uid #" data-${ns}value="#: data.{0} #">#: data.{0} #</span>`;
-const CHECKBOX_TMPL = `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${ns}uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"/># } #<span class="k-text">#: data.{0} #</span></label></div>`;
+const CHECKBOX_TMPL = `<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-${ns}uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>`;
 const BUTTON_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-button';
 const IMAGE_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-image';
 const LINK_SELECTOR = '.kj-multiquiz-item.kj-multiquiz-link';

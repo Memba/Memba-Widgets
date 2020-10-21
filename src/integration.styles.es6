@@ -15,16 +15,15 @@ import { PageComponentDataSource } from './js/data/data.pagecomponent.es6';
 // import tools from './js/tools/tools.es6';
 
 // Component data
-import { getComponentArray } from './js/helpers/helpers.data.es6';
+import { componentGenerator, getComponentArray } from './js/helpers/helpers.data.es6';
 import tools from './js/tools/tools.es6';
 
 const { bind, observable } = window.kendo;
 
-// Get components
-const data = getComponentArray();
 // Load tools
-const promises = data.map((component) => tools.load(component.tool));
+const promises = Object.keys(componentGenerator).map((tool) => tools.load(tool));
 $.when(...promises).then(() => {
+    const data = getComponentArray();
     const pageComponentDataSource = new PageComponentDataSource({ data });
     const viewModel = observable({
         items: pageComponentDataSource,

@@ -27,14 +27,11 @@
             ])
                 .then(function (modules) {
                     var kendo = window.kendo;
-                    var data = modules[2].getComponentArray();
                     var PageComponentDataSource = modules[3].PageComponentDataSource;
                     var tools = modules[4].default;
-                    var promises = data.map(function (component) {
-                        // Load tool
-                        return tools.load(component.tool);
-                    });
+                    var promises = Object.keys(modules[2].componentGenerator).map((tool) => tools.load(tool));
                     $.when.apply($, promises).then(() => {
+                        var data = modules[2].getComponentArray();
                         var pageComponentDataSource = new PageComponentDataSource({ data });
                         var viewModel = kendo.observable({
                             components: pageComponentDataSource,

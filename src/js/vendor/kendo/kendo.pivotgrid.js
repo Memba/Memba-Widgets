@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3381,7 +3381,7 @@
                     if (touchScroller && touchScroller.movable) {
                         that.touchScroller = touchScroller;
                         touchScroller.movable.bind('change', function (e) {
-                            that.columnsHeader.scrollLeft(-e.sender.x);
+                            kendo.scrollLeft(that.columnsHeader, -e.sender.x);
                             that.rowsHeader.scrollTop(-e.sender.y);
                         });
                     }
@@ -3394,7 +3394,7 @@
                 var columnsHeader = that.columnsHeader;
                 var rowsHeader = that.rowsHeader;
                 that.content.scroll(function () {
-                    columnsHeader.scrollLeft(this.scrollLeft);
+                    kendo.scrollLeft(columnsHeader, this.scrollLeft);
                     rowsHeader.scrollTop(this.scrollTop);
                 });
                 rowsHeader.bind('DOMMouseScroll' + NS + ' mousewheel' + NS, $.proxy(that._wheelScroll, that));

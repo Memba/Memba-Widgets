@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -176,7 +176,7 @@
             'boolean': function (container, options) {
                 var attr = createAttributes(options);
                 var element = $('<input type="checkbox" />').attr(attr).addClass('k-checkbox').appendTo(container);
-                renderHiddenForМvcCheckbox(element, container, options);
+                renderHiddenForMvcCheckbox(element, container, options);
             },
             'values': function (container, options) {
                 var attr = createAttributes(options);
@@ -191,7 +191,7 @@
                 var editorOptions = options.editorOptions;
                 var tagElement = getEditorTag(type, editorOptions);
                 var element = $(tagElement).attr(attr).appendTo(container)[editor](editorOptions);
-                renderHiddenForМvcCheckbox(element, container, options);
+                renderHiddenForMvcCheckbox(element, container, options);
             }
         };
         var mobileEditors = {
@@ -238,7 +238,7 @@
                 }
             }
         }
-        function renderHiddenForМvcCheckbox(tag, container, field) {
+        function renderHiddenForMvcCheckbox(tag, container, field) {
             var addHidden = field ? field.shouldRenderHidden || false : false;
             if (addHidden) {
                 tag.val(true);

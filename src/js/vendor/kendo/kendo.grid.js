@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -384,7 +384,7 @@
                         },
                         move: function (e) {
                             that.verticalScrollbar.scrollTop(that.verticalScrollbar.scrollTop() - e.y.delta);
-                            wrapper.scrollLeft(wrapper.scrollLeft() - e.x.delta);
+                            kendo.scrollLeft(wrapper, kendo.scrollLeft(wrapper) - e.x.delta);
                             e.preventDefault();
                         }
                     });
@@ -1613,10 +1613,10 @@
                 if (scrollable) {
                     if (scrollable.virtual) {
                         scrollableContent = that.content.find('>.k-virtual-scrollable-wrap');
-                        scrollableContent.scrollLeft(leftMostPosition(scrollableContent, isRtl));
+                        kendo.scrollLeft(scrollableContent, leftMostPosition(scrollableContent, isRtl));
                     } else {
                         scrollableContent = that.tbody;
-                        that.content.scrollLeft(leftMostPosition(scrollableContent, isRtl));
+                        kendo.scrollLeft(that.content, leftMostPosition(scrollableContent, isRtl));
                     }
                 }
                 if (that.options.groupable) {
@@ -1649,6 +1649,7 @@
                 pageable: false,
                 persistSelection: false,
                 editable: false,
+                encodeTitles: false,
                 groupable: false,
                 rowTemplate: '',
                 altRowTemplate: '',
@@ -1819,6 +1820,10 @@
                 kendo.deepExtend(currentOptions, options);
                 if (!options.dataSource) {
                     currentOptions.dataSource = this.dataSource;
+                } else {
+                    if (options.dataSource.filter) {
+                        currentOptions.dataSource.filter = options.dataSource.filter;
+                    }
                 }
                 var wrapper = this.wrapper;
                 var events = this._events;
@@ -1943,7 +1948,10 @@
                     resizeHandle = that.resizeHandle = $('<div class="k-resize-handle"><div class="k-resize-handle-inner"></div></div>');
                     container.append(resizeHandle);
                 }
-                scrollLeft = container.scrollLeft();
+                scrollLeft = kendo.scrollLeft(container);
+                if (isRtl && (browser.mozilla || browser.webkit && browser.version >= 85)) {
+                    scrollLeft = scrollLeft * -1;
+                }
                 leftBorderWidth = parseFloat(container.css('borderLeftWidth'));
                 left = th.offset().left + scrollLeft - parseFloat(th.css('marginLeft')) - (container.offset().left + leftBorderWidth);
                 if (!isRtl) {
@@ -1954,8 +1962,8 @@
                         headerWrap = th.closest('.k-grid-header-wrap, .k-grid-header-locked');
                         invisibleSpace = headerWrap[0].scrollWidth - headerWrap[0].offsetWidth;
                         leftMargin = parseFloat(headerWrap.css('marginLeft'));
-                        ieCorrection = browser.msie ? 2 * headerWrap.scrollLeft() + leftBorderWidth - leftMargin - rtlCorrection : 0;
-                        webkitCorrection = browser.webkit ? invisibleSpace - rtlCorrection - leftMargin + leftBorderWidth : 0;
+                        ieCorrection = browser.msie ? 2 * kendo.scrollLeft(headerWrap) + leftBorderWidth - leftMargin - rtlCorrection : 0;
+                        webkitCorrection = -rtlCorrection;
                         firefoxCorrection = browser.mozilla ? leftBorderWidth - leftMargin - rtlCorrection : 0;
                         left -= webkitCorrection + firefoxCorrection + ieCorrection;
                     }
@@ -2239,9 +2247,9 @@
                         dragstart: function () {
                             header.children('.k-grid-header-wrap').unbind('scroll' + NS + 'scrolling').bind('scroll' + NS + 'scrolling', function (e) {
                                 if (that.virtualScrollable) {
-                                    that.content.find('>.k-virtual-scrollable-wrap').scrollLeft(this.scrollLeft);
+                                    kendo.scrollLeft(that.content.find('>.k-virtual-scrollable-wrap'), this.scrollLeft);
                                 } else {
-                                    that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                                    kendo.scrollLeft(that.scrollables.not(e.currentTarget), this.scrollLeft);
                                 }
                             });
                         },
@@ -2452,7 +2460,7 @@
                     col = headerTable.find(notGroupOrHierarchyCol).eq(index).add(contentTable.children('colgroup').find(notGroupOrHierarchyCol).eq(index)).add(footerTable.find('colgroup').find(notGroupOrHierarchyCol).eq(index));
                     if (!isLocked) {
                         contentDiv = contentTable.parent();
-                        scrollLeft = contentDiv.scrollLeft();
+                        scrollLeft = kendo.scrollLeft(contentDiv);
                     }
                 } else {
                     col = contentTable.children('colgroup').find(notGroupOrHierarchyCol).eq(index);
@@ -2504,7 +2512,7 @@
                 }
                 tables.removeClass('k-autofitting');
                 if (scrollLeft) {
-                    contentDiv.scrollLeft(scrollLeft);
+                    kendo.scrollLeft(contentDiv, scrollLeft);
                 }
                 that.trigger(COLUMNRESIZE, {
                     column: column,
@@ -3143,7 +3151,7 @@
                         }
                         if (!column.command) {
                             if (!that._isMobile) {
-                                html += '<div class="k-edit-label"><label for="' + column.field + '">' + (column.title || column.field || '') + '</label></div>';
+                                html += '<div class="k-edit-label"><label for="' + column.field + '">' + (column.title && (that.options.encodeTitles ? htmlEncode(column.title) : column.title) || column.field || '') + '</label></div>';
                                 if (isColumnEditable(column, model)) {
                                     fields.push({
                                         field: column.field,
@@ -3175,7 +3183,7 @@
                                         values: column.values
                                     });
                                     html += '<label class="k-label k-listgroup-form-row">';
-                                    html += '<span class="k-item-title k-listgroup-form-field-label">' + (column.title || column.field || '') + '</span>';
+                                    html += '<span class="k-item-title k-listgroup-form-field-label">' + (column.title && (that.options.encodeTitles ? htmlEncode(column.title, true) : column.title) || column.field || '') + '</span>';
                                     html += '<div class="k-listgroup-form-field-wrapper" id="' + column.field + '_' + editMenuGuid + '" ' + kendo.attr('container-for') + '="' + column.field + '"></div>';
                                     html += '</label>';
                                 } else {
@@ -3188,7 +3196,7 @@
                                         tmpl = proxy(tmpl, state.storage);
                                     }
                                     html += '<label class="k-label k-listgroup-form-row k-no-click">';
-                                    html += '<span class="k-item-title k-listgroup-form-field-label">' + (column.title || column.field || '') + '</span>';
+                                    html += '<span class="k-item-title k-listgroup-form-field-label">' + (column.title && (that.options.encodeTitles ? htmlEncode(column.title, true) : column.title) || column.field || '') + '</span>';
                                     html += '<span class="k-no-editor k-listgroup-form-field-wrapper">' + tmpl(model) + '</span>';
                                     html += '</label>';
                                 }
@@ -4699,6 +4707,7 @@
             },
             _updateCurrentAttr: function (current, next) {
                 var headerId = $(current).data('headerId');
+                var nextId;
                 $(current).removeClass(FOCUSED).closest('table').removeAttr('aria-activedescendant');
                 if (headerId) {
                     headerId = headerId.replace(this._cellId, '');
@@ -4706,7 +4715,11 @@
                 } else {
                     $(current).removeAttr('id');
                 }
-                next.data('headerId', next.attr('id')).attr('id', this._cellId).addClass(FOCUSED).closest('table').attr('aria-activedescendant', this._cellId);
+                nextId = next.attr('id');
+                if (nextId != this._cellId) {
+                    next.data('headerId', nextId);
+                }
+                next.attr('id', this._cellId).addClass(FOCUSED).closest('table').attr('aria-activedescendant', this._cellId);
                 this._current = next;
             },
             _scrollCurrent: function () {
@@ -4790,7 +4803,7 @@
                 if (isRtl && isHorizontal) {
                     if (browser.msie || browser.edge) {
                         ieCorrection = table.offsetLeft;
-                    } else if (browser.mozilla) {
+                    } else if (browser.mozilla || browser.webkit && browser.version > 85) {
                         firefoxCorrection = table.offsetLeft - kendo.support.scrollbar();
                     }
                 }
@@ -4906,7 +4919,7 @@
                     e.preventDefault();
                     e.stopPropagation();
                 }
-                that.content.scrollLeft(scrollWidth);
+                kendo.scrollLeft(that.content, scrollWidth);
                 return true;
             },
             _tableKeyDown: function (e) {
@@ -5598,7 +5611,7 @@
                 that.tbody = tbody.attr('role', 'rowgroup');
             },
             _scrollable: function () {
-                var that = this, header, table, options = that.options, scrollable = options.scrollable, hasVirtualScroll = scrollable !== true && scrollable.virtual && !that.virtualScrollable, virtualScroll = hasVirtualScroll ? parseVirtualSettings(scrollable.virtual) : {}, scrollbar = !kendo.support.kineticScrollNeeded || virtualScroll.rows ? kendo.support.scrollbar() : 0, headerWrap;
+                var that = this, header, table, options = that.options, scrollable = options.scrollable, hasVirtualScroll = scrollable !== true && scrollable.virtual, virtualScroll = hasVirtualScroll ? parseVirtualSettings(scrollable.virtual) : null, scrollbar = !kendo.support.kineticScrollNeeded || virtualScroll.rows ? kendo.support.scrollbar() : 0, headerWrap;
                 if (scrollable) {
                     header = that.wrapper.children('.k-grid-header');
                     if (!header[0]) {
@@ -5620,10 +5633,10 @@
                     if (!that.content.is('.k-grid-content, .k-virtual-scrollable-wrap')) {
                         that.content = that.table.wrap('<div class="k-grid-content k-auto-scrollable" />').parent();
                     }
-                    if (virtualScroll.rows) {
+                    if (virtualScroll && virtualScroll.rows && !that.virtualScrollable) {
                         that._createVirtualScrollable();
                     }
-                    if (virtualScroll.columns) {
+                    if (virtualScroll && virtualScroll.columns) {
                         that.table.css({ width: sumWidths(visibleLeafColumns(visibleNonLockedColumns(that.columns))) });
                     }
                     headerWrap = header.children('.k-grid-header-wrap');
@@ -5634,14 +5647,14 @@
                     }
                     headerWrap.unbind('scroll' + NS).bind('scroll' + NS, function (e) {
                         if (that._scrollLeft !== this.scrollLeft) {
-                            that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                            kendo.scrollLeft(that.scrollables.not(e.currentTarget), this.scrollLeft);
                         }
                     });
-                    if (virtualScroll.rows) {
+                    if (virtualScroll && virtualScroll.rows) {
                         that.content.find('>.k-virtual-scrollable-wrap').unbind('scroll' + NS).bind('scroll' + NS, function () {
                             var isScrollingLeft = this.scrollLeft != that._scrollLeft;
                             that._scrollLeft = this.scrollLeft;
-                            that.scrollables.scrollLeft(this.scrollLeft);
+                            kendo.scrollLeft(that.scrollables, this.scrollLeft);
                             if (that.lockedContent) {
                                 that.lockedContent[0].scrollTop = this.scrollTop;
                             }
@@ -5658,7 +5671,7 @@
                         that.content.unbind('scroll' + NS).bind('scroll' + NS, function (e) {
                             var isScrollingLeft = this.scrollLeft != that._scrollLeft;
                             that._scrollLeft = this.scrollLeft;
-                            that.scrollables.not(e.currentTarget).scrollLeft(that._scrollLeft);
+                            kendo.scrollLeft(that.scrollables.not(e.currentTarget), that._scrollLeft);
                             if (that.lockedContent && e.currentTarget == that.content[0]) {
                                 that.lockedContent[0].scrollTop = this.scrollTop;
                             }
@@ -5671,7 +5684,7 @@
                                     that.dataSource.pageSize(that._endlessPageSize);
                                 }
                             }
-                            if (virtualScroll.columns && isScrollingLeft) {
+                            if (virtualScroll && virtualScroll.columns && isScrollingLeft) {
                                 that._virtualColScroll = true;
                                 that._cacheEditableState();
                                 that.refresh();
@@ -5687,7 +5700,7 @@
                         if (touchScroller && touchScroller.movable) {
                             that.touchScroller = touchScroller;
                             touchScroller.movable.bind('change', function (e) {
-                                that.scrollables.scrollLeft(-e.sender.x);
+                                kendo.scrollLeft(that.scrollables, -e.sender.x);
                                 if (that.lockedContent) {
                                     that.lockedContent.scrollTop(-e.sender.y);
                                 }
@@ -5899,7 +5912,7 @@
                         if (that.thead) {
                             expander.width(that.thead.width());
                             if (!isNaN(parseFloat(scrollLeft, 10))) {
-                                that.content.scrollLeft(scrollLeft);
+                                kendo.scrollLeft(that.content, scrollLeft);
                             }
                         }
                     } else if (expander[0]) {
@@ -6175,11 +6188,11 @@
                         footer.find('table').css('width', that._footerWidth);
                     }
                     if (footerWrap) {
-                        var offset = that.content.scrollLeft();
-                        if (options.scrollable !== true && that.virtualScroll.rows) {
-                            offset = that.wrapper.find('.k-virtual-scrollable-wrap').scrollLeft();
+                        var offset = kendo.scrollLeft(that.content);
+                        if (options.scrollable !== true && that.virtualScroll && that.virtualScroll.rows) {
+                            offset = kendo.scrollLeft(that.wrapper.find('.k-virtual-scrollable-wrap'));
                         }
-                        footerWrap.scrollLeft(offset);
+                        kendo.scrollLeft(footerWrap, offset);
                     }
                 }
                 if (that.lockedContent) {
@@ -6288,7 +6301,8 @@
                                 filtering: filterHandler,
                                 filter: isMobile ? ':not(.k-column-active)' : '',
                                 hasLockableColumns: lockedColumns(columns).length > 0 && hasLockableColumns && !hasMultiColumnHeaders,
-                                hasStickableColumns: hasStickableColumns && !hasMultiColumnHeaders
+                                hasStickableColumns: hasStickableColumns && !hasMultiColumnHeaders,
+                                encodeTitles: that.options.encodeTitles
                             };
                             if ($angular) {
                                 menuOptions.$angular = $angular;
@@ -6686,7 +6700,7 @@
                 return '';
             },
             _headerCellText: function (column) {
-                var that = this, settings = extend({}, kendo.Template, that.options.templateSettings), template = column.headerTemplate, type = typeof template, text = column.title || column.field || '';
+                var that = this, settings = extend({}, kendo.Template, that.options.templateSettings), template = column.headerTemplate, type = typeof template, text = column.title && (that.options.encodeTitles ? htmlEncode(column.title) : column.title) || column.field || '';
                 if (type === FUNCTION) {
                     text = kendo.template(template, settings)({});
                 } else if (type === STRING) {
@@ -6758,7 +6772,7 @@
                 var widths = $.map(columns, function (c) {
                     return c.hidden ? 0 : parseInt(c.width, 10);
                 });
-                var scrollLeft = that.virtualScrollable ? that.content.find('>.k-virtual-scrollable-wrap').scrollLeft() : that.content.scrollLeft();
+                var scrollLeft = that.virtualScrollable ? kendo.scrollLeft(that.content.find('>.k-virtual-scrollable-wrap')) : kendo.scrollLeft(that.content);
                 var tableWidth = outerWidth(that.content);
                 var sumOfWidths = sumWidths(columns);
                 var colsToRender = [];
@@ -7134,7 +7148,7 @@
                             html += kendo.attr('colspan') + '=\'' + columns[idx].colSpan + '\'';
                         }
                         if (th.title) {
-                            title = th.title.replace('"', '&quot;').replace(/'/g, '\'');
+                            title = th.title && (that.options.encodeTitles ? htmlEncode(th.title, true) : th.title);
                             html += kendo.attr('title') + '="' + title + '" ';
                         }
                         if (th.groupable !== undefined) {
@@ -7460,7 +7474,7 @@
                     return;
                 }
                 var content = this.content;
-                if (this.virtualScroll.rows) {
+                if (this.virtualScroll && this.virtualScroll.rows) {
                     content = this.virtualScrollable.verticalScrollbar;
                 }
                 var scrollTop = content.scrollTop(), delta = kendo.wheelDeltaY(e);
@@ -7599,7 +7613,7 @@
             _groupRowHtml: function (group, colspan, level, groupHeaderBuilder, templates, skipColspan, skipLastGroup) {
                 var that = this, html = '', idx, length, field = group.field, column = grep(leafColumns(that.columns), function (column) {
                         return column.field == field;
-                    })[0] || {}, firstColumn = visibleColumns(that.columns)[0], firstVisibleColumnGroupHeaderTemplate = firstColumn ? firstColumn.groupHeaderColumnTemplate : null, template = column.groupHeaderTemplate ? column.groupHeaderTemplate : firstVisibleColumnGroupHeaderTemplate, text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), groupItems = group.currentItems || group.items, groups = that._groups(), groupFooterTemplate = templates.groupFooterTemplate, groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate, groupData, expanded = that.dataSource._isGroupPaged() ? that.dataSource._groupsState[group.uid] : true;
+                    })[0] || {}, firstColumn = visibleColumns(that.columns)[0], firstVisibleColumnGroupHeaderTemplate = firstColumn ? firstColumn.groupHeaderColumnTemplate : null, template = column.groupHeaderTemplate ? column.groupHeaderTemplate : firstVisibleColumnGroupHeaderTemplate, text = (column.title && (that.options.encodeTitles ? htmlEncode(column.title, true) : column.title) || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded), groupItems = group.currentItems || group.items, groups = that._groups(), groupFooterTemplate = templates.groupFooterTemplate, groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate, groupData, expanded = that.dataSource._isGroupPaged() ? that.dataSource._groupsState[group.uid] : true;
                 if (that.options.editable && group.items && group.items[0] && group.items[0].isNew && group.items[0].isNew()) {
                     expanded = true;
                 }
@@ -8201,7 +8215,7 @@
                     that._groupRows = groupRows(data);
                 }
                 if (that.content) {
-                    contentScrollLeft = that.content.scrollLeft();
+                    contentScrollLeft = kendo.scrollLeft(that.content);
                 }
                 cachedItemsToSkip = that._skipRerenderItemsCount;
                 that._renderContent(data, colspan, groups);
@@ -8245,8 +8259,6 @@
                 }
                 if (that.options.persistSelection && (that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell || that._checkBoxSelection) && (that.items().length || that.dataSource._isGroupPaged())) {
                     that._restoreSelection();
-                } else {
-                    that._selectedIds = {};
                 }
                 that.trigger(DATABOUND);
             },
@@ -8424,7 +8436,7 @@
                     })[0] || {};
                     firstColumnGroupData = !column.groupHeaderTemplate && visibleColumns(that.columns)[0].groupHeaderColumnTemplate ? visibleColumns(that.columns)[0] : false;
                     template = column.groupHeaderTemplate ? column.groupHeaderTemplate : visibleColumns(that.columns)[0].groupHeaderColumnTemplate;
-                    text = (column.title || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded);
+                    text = (column.title && (that.options.encodeTitles ? htmlEncode(column.title, true) : column.title) || field) + ': ' + formatGroupValue(group.value, column.format, column.values, column.encoded);
                     groups = groups;
                     groupHeaderData = that._groupData(group, false, firstColumnGroupData);
                     groupHeaderColumnTemplate = isInLockedContainer ? that.lockedGroupHeaderColumnTemplate : that.groupHeaderColumnTemplate;
@@ -8729,9 +8741,9 @@
         function focusTable(table, direct) {
             if (direct === true) {
                 table = $(table);
-                var scrollLeft = table.parent().scrollLeft();
+                var scrollLeft = kendo.scrollLeft(table.parent());
                 kendo.focusElement(table);
-                table.parent().scrollLeft(scrollLeft);
+                kendo.scrollLeft(table.parent(), scrollLeft);
             } else {
                 $(table).one('focusin', function (e) {
                     e.preventDefault();
@@ -8853,6 +8865,15 @@
             } else {
                 row.style.display = 'none';
             }
+        }
+        function htmlEncode(value, backslashEscapeQuotes) {
+            var ampRegExp = /&/g, ltRegExp = /</g, quoteRegExp = /"/g, aposRegExp = /'/g, gtRegExp = />/g;
+            return ('' + value).replace(ampRegExp, '&amp;').replace(ltRegExp, '&lt;').replace(gtRegExp, '&gt;').replace(quoteRegExp, function (match) {
+                if (backslashEscapeQuotes) {
+                    return '\\' + match;
+                }
+                return '&quot;';
+            }).replace(aposRegExp, '&#39;');
         }
         ui.plugin(Grid);
         ui.plugin(VirtualScrollable);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -159,11 +159,8 @@
                             if (file) {
                                 delete file._uploading;
                                 var model = that._insertFileToList(file);
-                                if (model._override) {
-                                    model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
-                                    model.set(sizeField, e.response[that._getFieldName(sizeField)]);
-                                    that.listView.dataSource.pushUpdate(model);
-                                }
+                                model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
+                                model.set(sizeField, e.response[that._getFieldName(sizeField)]);
                                 that._tiles = that.listView.items().filter('[' + kendo.attr('type') + '=f]');
                                 that._scroll();
                             }
@@ -176,7 +173,7 @@
             },
             _content: function () {
                 var that = this;
-                that.list = $('<div class="k-filemanager-listview" />').appendTo(that.element).on('scroll' + NS, proxy(that._scroll, that)).on('dblclick' + NS, '.k-listview-item', proxy(that._dblClick, that));
+                that.list = $('<div class="k-filemanager-listview" />').appendTo(that.element).on('dblclick' + NS, '.k-listview-item', proxy(that._dblClick, that));
                 that.listView = new kendo.ui.ListView(that.list, {
                     layout: 'flex',
                     flex: {
@@ -205,6 +202,7 @@
                     },
                     change: proxy(that._listViewChange, that)
                 });
+                that.listView.content.on('scroll' + NS, proxy(that._scroll, that));
             },
             _dataSource: function () {
                 var that = this, options = that.options, transport = options.transport, typeSortOrder = extend({}, DEFAULTSORTORDER), nameSortOrder = {
@@ -262,7 +260,7 @@
                 if (that.options.transport && that.options.transport.thumbnailUrl) {
                     clearTimeout(that._timeout);
                     that._timeout = setTimeout(function () {
-                        var height = kendo._outerHeight(that.list), viewTop = that.list.scrollTop(), viewBottom = viewTop + height;
+                        var height = kendo._outerHeight(that.listView.content), viewTop = that.listView.content.scrollTop(), viewBottom = viewTop + height;
                         that._tiles.each(function () {
                             var top = offsetTop(this), bottom = top + this.offsetHeight;
                             if (top >= viewTop && top < viewBottom || bottom >= viewTop && bottom < viewBottom) {

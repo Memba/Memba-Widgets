@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2014,14 +2014,14 @@
                     var scrollables = this.thead.closest('.k-grid-header-wrap');
                     var lockedContent = $(this.lockedContent).bind('DOMMouseScroll' + NS + ' mousewheel' + NS, proxy(this._wheelScroll, this));
                     this.content.bind('scroll' + NS, function () {
-                        scrollables.scrollLeft(this.scrollLeft);
+                        kendo.scrollLeft(scrollables, this.scrollLeft);
                         lockedContent.scrollTop(this.scrollTop);
                     });
                     var touchScroller = kendo.touchScroller(this.content);
                     if (touchScroller && touchScroller.movable) {
                         this._touchScroller = touchScroller;
                         touchScroller.movable.bind('change', function (e) {
-                            scrollables.scrollLeft(-e.sender.x);
+                            kendo.scrollLeft(scrollables, -e.sender.x);
                             if (lockedContent) {
                                 lockedContent.scrollTop(-e.sender.y);
                             }
@@ -2613,7 +2613,7 @@
                 if (isRtl && isHorizontal) {
                     if (browser.msie || browser.edge) {
                         ieCorrection = table.offsetLeft;
-                    } else if (browser.mozilla) {
+                    } else if (browser.mozilla || browser.webkit && browser.version > 85) {
                         firefoxCorrection = table.offsetLeft - kendo.support.scrollbar();
                     }
                 }
@@ -4343,10 +4343,20 @@
                 var resizeHandle = this.resizeHandle;
                 var position = th.position();
                 var left;
+                var rtlCorrection = 0;
+                var headerWrap;
+                var ieCorrection;
+                var webkitCorrection;
+                var firefoxCorrection;
+                var leftMargin;
+                var invisibleSpace;
+                var leftBorderWidth;
+                var scrollLeft;
                 var cellWidth = outerWidth(th);
                 var container = th.closest('div');
                 var button = typeof e.buttons !== 'undefined' ? e.buttons : e.which || e.button;
                 var indicatorWidth = this.options.columnResizeHandleWidth || 3;
+                var halfResizeHandle = indicatorWidth * 3 / 2;
                 left = cellWidth;
                 if (typeof button !== 'undefined' && button !== 0) {
                     return;
@@ -4356,7 +4366,20 @@
                 }
                 var cells = leafDataCells(th.closest('thead')).filter(':visible');
                 if (isRtl) {
-                    left = th.position().left;
+                    scrollLeft = kendo.scrollLeft(container);
+                    if (browser.mozilla || browser.webkit && browser.version >= 85) {
+                        scrollLeft = scrollLeft * -1;
+                    }
+                    leftBorderWidth = parseFloat(container.css('borderLeftWidth'));
+                    left = th.offset().left + scrollLeft - parseFloat(th.css('marginLeft')) - (container.offset().left + leftBorderWidth);
+                    rtlCorrection = left <= scrollLeft ? halfResizeHandle : 0;
+                    headerWrap = th.closest('.k-grid-header-wrap, .k-grid-header-locked');
+                    invisibleSpace = headerWrap[0].scrollWidth - headerWrap[0].offsetWidth;
+                    leftMargin = parseFloat(headerWrap.css('marginLeft'));
+                    ieCorrection = browser.msie ? 2 * kendo.scrollLeft(headerWrap) + leftBorderWidth - leftMargin - rtlCorrection : 0;
+                    webkitCorrection = browser.webkit && browser.version < 85 ? invisibleSpace - rtlCorrection - leftMargin + leftBorderWidth : -rtlCorrection;
+                    firefoxCorrection = browser.mozilla ? leftBorderWidth - leftMargin - rtlCorrection : 0;
+                    left -= webkitCorrection + firefoxCorrection + ieCorrection;
                 } else {
                     for (var idx = 0; idx < cells.length; idx++) {
                         if (cells[idx] == th[0]) {
@@ -4368,7 +4391,7 @@
                 container.append(resizeHandle);
                 resizeHandle.show().css({
                     top: position.top,
-                    left: left - indicatorWidth * 3 / 2,
+                    left: left - halfResizeHandle,
                     height: outerHeight(th),
                     width: indicatorWidth * 3
                 }).data('th', th);
@@ -6061,9 +6084,9 @@
                 table = $(table);
                 var scrollTop, scrollLeft;
                 scrollTop = table.parent().scrollTop();
-                scrollLeft = table.parent().scrollLeft();
+                scrollLeft = kendo.scrollLeft(table.parent());
                 kendo.focusElement(table);
-                table.parent().scrollTop(scrollTop).scrollLeft(scrollLeft);
+                kendo.scrollLeft(table.parent().scrollTop(scrollTop), scrollLeft);
             } else {
                 $(table).one('focusin', function (e) {
                     e.preventDefault();

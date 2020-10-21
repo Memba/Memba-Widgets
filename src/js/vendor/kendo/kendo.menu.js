@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -571,7 +571,7 @@
                 });
             },
             _toggleScrollButtons: function (scrollElement, backwardBtn, forwardBtn, horizontal) {
-                var currentScroll = horizontal ? scrollElement.scrollLeft() : scrollElement.scrollTop();
+                var currentScroll = horizontal ? kendo.scrollLeft(scrollElement) : scrollElement.scrollTop();
                 var scrollSize = horizontal ? SCROLLWIDTH : SCROLLHEIGHT;
                 var offset = horizontal ? OFFSETWIDTH : OFFSETHEIGHT;
                 backwardBtn.toggle(currentScroll !== 0);

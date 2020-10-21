@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1399,7 +1399,7 @@
                 ], searchExpression = 'if (found) {' + ' return true ' + '} else {' + 'return false' + '}';
             if (dates[0] instanceof DATE) {
                 disabledDates = convertDatesArray(dates);
-                body = 'var found = date && window.kendo.jQuery.inArray(date.setHours(0, 0, 0, 0),[' + disabledDates + ']) > -1;' + searchExpression;
+                body = 'var clonedDate = new Date(date); var found = date && window.kendo.jQuery.inArray(clonedDate.setHours(0, 0, 0, 0),[' + disabledDates + ']) > -1;' + searchExpression;
             } else {
                 for (var i = 0; i < dates.length; i++) {
                     var day = dates[i].slice(0, 2).toLowerCase();
@@ -1408,7 +1408,7 @@
                         disabledDates.push(index);
                     }
                 }
-                body = 'var found = date && window.kendo.jQuery.inArray(date.getDay(),[' + disabledDates + ']) > -1;' + searchExpression;
+                body = 'var clonedDate = new Date(date); var found = date && window.kendo.jQuery.inArray(clonedDate.getDay(),[' + disabledDates + ']) > -1;' + searchExpression;
             }
             callback = new Function('date', body);
             return callback;

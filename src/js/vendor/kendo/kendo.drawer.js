@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -96,7 +96,7 @@
                 var drawerElement = this.drawerElement;
                 var element = this.element;
                 var contentElement = this.contentElement;
-                var drawerItemsWrapper = this.drawerItemsWrapper = drawerElement.wrap('<div class=\'k-drawer-items\'></div>').parent();
+                var drawerItemsWrapper = this.drawerItemsWrapper = drawerElement.wrapAll('<div class=\'k-drawer-items\'></div>').parent();
                 var drawerWrapper = this.drawerWrapper = drawerItemsWrapper.wrap('<div class=\'k-drawer-wrapper\'></div>').parent();
                 var drawerContainer = this.drawerContainer = element.wrap('<div class=\'k-drawer-container\'></div>').parent();
                 if (options.mini) {

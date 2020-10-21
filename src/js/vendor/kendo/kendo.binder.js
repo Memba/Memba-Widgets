@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -212,7 +212,7 @@
         });
         var TypedBinder = Binder.extend({
             dataType: function () {
-                var dataType = this.element.getAttribute('data-type') || this.element.type || 'text';
+                var dataType = this.element.getAttribute('data-' + kendo.ns + 'type') || this.element.type || 'text';
                 return dataType.toLowerCase();
             },
             parsedValue: function () {
@@ -313,7 +313,7 @@
         binders.text = Binder.extend({
             refresh: function () {
                 var text = this.bindings.text.get();
-                var dataFormat = this.element.getAttribute('data-format') || '';
+                var dataFormat = this.element.getAttribute('data-' + kendo.ns + 'format') || '';
                 if (text == null) {
                     text = '';
                 }
@@ -1249,6 +1249,21 @@
                                 bindElement(elements[idx], data[idx], this._ns(e.ns), [data[idx]].concat(parents));
                             }
                         }
+                    }
+                })
+            },
+            badge: {
+                text: Binder.extend({
+                    init: function (widget, bindings, options) {
+                        Binder.fn.init.call(this, widget.element[0], bindings, options);
+                        this.widget = widget;
+                    },
+                    refresh: function () {
+                        var text = this.bindings.text.get();
+                        if (text == null) {
+                            text = '';
+                        }
+                        this.widget.text(text);
                     }
                 })
             }

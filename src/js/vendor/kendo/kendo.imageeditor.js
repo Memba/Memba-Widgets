@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -476,7 +476,7 @@
                 };
             },
             canvasUI: function () {
-                var that = this, canvasContainer = that.imageeditor.canvasContainer, cropOverlay = $('<div></div>').addClass(paneStyles.cropOverlay), cropElement = $('<div></div>').addClass(paneStyles.crop), handle = '<span class=\'' + paneStyles.resizeHandle + '\'></span>', handles = [
+                var that = this, imageeditor = that.imageeditor, canvasContainer = that.imageeditor.canvasContainer, cropOverlay = $('<div></div>').addClass(paneStyles.cropOverlay), cropElement = $('<div></div>').addClass(paneStyles.crop), handle = '<span class=\'' + paneStyles.resizeHandle + '\'></span>', handles = [
                         'nw',
                         'n',
                         'ne',
@@ -491,11 +491,19 @@
                     that._initResizeHandle(handleElm);
                     cropElement.append(handleElm);
                 }
-                that.cropElement = cropElement.css({
-                    width: that._model.width * zoomLevel,
-                    height: that._model.height * zoomLevel
-                });
+                that.cropElement = cropElement;
                 that._canvasUI = cropOverlay.append(cropElement).appendTo(canvasContainer);
+                var width = Math.round(that._model.width * zoomLevel);
+                var height = Math.round(that._model.height * zoomLevel);
+                var borderWidth = parseInt(that.cropElement.css('border-top-width'), 10);
+                that.cropElement.css({
+                    width: width,
+                    height: height,
+                    backgroundImage: 'url(\'' + imageeditor._image.src + '\')',
+                    backgroundSize: kendo.format('{0}px {1}px', width, height),
+                    backgroundClip: 'content-box',
+                    backgroundPosition: kendo.format('-{0}px -{0}px', borderWidth)
+                });
                 that.cropElement.kendoDraggable({
                     ignore: '.' + paneStyles.resizeHandle,
                     drag: function (ev) {

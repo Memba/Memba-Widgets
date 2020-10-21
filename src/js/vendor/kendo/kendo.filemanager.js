@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -26,7 +26,7 @@
     define('filemanager/commands', ['kendo.core'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, Class = kendo.Class;
+        var kendo = window.kendo, extend = $.extend, deferred = $.Deferred, proxy = $.proxy, Class = kendo.Class;
         var Command = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -38,8 +38,14 @@
                 Command.fn.init.call(this, options);
             },
             exec: function () {
+                var that = this, filemanager = that.filemanager, commandStack = filemanager._commandStack, dataSource = filemanager._viewDataSource || filemanager.dataSource, removeProxy = proxy(that._remove, that);
+                that._item = dataSource._createNewModel();
+                commandStack.push({ item: that._item.toJSON() }).fail(removeProxy);
+                dataSource.add(that._item);
+            },
+            _remove: function () {
                 var that = this, filemanager = that.filemanager, dataSource = filemanager._viewDataSource || filemanager.dataSource;
-                dataSource.add();
+                dataSource.pushDestroy(that._item);
             }
         });
         var RenameCommand = Command.extend({
@@ -47,20 +53,28 @@
                 Command.fn.init.call(this, options);
             },
             exec: function () {
-                var that = this, target = that.options.target, viewItem = that.filemanager._view.widgetComponent.dataItem(target);
+                var that = this, target = that.options.target, filemanager = that.filemanager, commandStack = filemanager._commandStack, viewItem = filemanager._view.widgetComponent.dataItem(target);
                 if (target && viewItem) {
+                    commandStack.push({
+                        target: target,
+                        item: viewItem
+                    });
                     that.filemanager._view.edit(target);
                 } else {
                     that._renameTreeViewItem(target);
                 }
             },
             _renameTreeViewItem: function (target) {
-                var that = this, uid = target.data('uid'), item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid), realItem = that.filemanager.dataSource.get(item.id);
+                var that = this, filemanager = that.filemanager, commandStack = filemanager._commandStack, uid = target.data('uid'), item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid), realItem = that.filemanager.dataSource.get(item.id);
                 that.filemanager._prompt({
                     type: 'rename',
                     defaultInput: realItem.name,
                     target: target
                 }).done(function (newName) {
+                    commandStack.push({
+                        target: target,
+                        item: realItem
+                    });
                     realItem.set('name', newName);
                 });
             }
@@ -89,9 +103,15 @@
                 });
             },
             removeItems: function (items) {
-                var itemsToRemove = Array.isArray(items) ? items : [items];
-                for (var i = 0; i < itemsToRemove.length; i++) {
-                    this.filemanager.dataSource.remove(itemsToRemove[i]);
+                var that = this;
+                that._itemsToRemove = Array.isArray(items) ? items : [items];
+                that._removeItem();
+            },
+            _removeItem: function () {
+                var that = this, filemanager = that.filemanager, commandStack = filemanager._commandStack, dataSource = filemanager.dataSource, itemToRemove = !!that._itemsToRemove.length && that._itemsToRemove.splice(0, 1)[0];
+                if (itemToRemove) {
+                    commandStack.push({ item: itemToRemove }).then(proxy(that._removeItem, that), proxy(that._removeItem, that));
+                    dataSource.remove(itemToRemove);
                 }
             }
         });
@@ -100,26 +120,48 @@
                 Command.fn.init.call(this, options);
             },
             exec: function () {
-                var that = this, filemanager = that.filemanager, dataSource = filemanager.dataSource, items = that.options.items, target = dataSource.get(that.options.target), targetDataSource = target.children;
+                var that = this, filemanager = that.filemanager, dataSource = filemanager.dataSource, commandStack = filemanager._commandStack, items = that.options.items, target = dataSource.get(that.options.target), targetDataSource = target.children;
                 for (var i = 0; i < items.length; i++) {
                     var item = dataSource.get(items[i]).toJSON();
                     item.fileManagerNewItem = true;
+                    commandStack.push({
+                        item: item,
+                        target: target
+                    });
                     targetDataSource.add(item);
                 }
             }
         });
         var MoveCommand = Command.extend({
             init: function (options) {
-                Command.fn.init.call(this, options);
+                var that = this;
+                Command.fn.init.call(that, options);
+                that._itemsToRemove = [];
             },
             exec: function () {
-                var that = this, filemanager = that.filemanager, dataSource = filemanager.dataSource, items = that.options.items, target = dataSource.get(that.options.target), targetDataSource = target.children;
+                var that = this, filemanager = that.filemanager, commandStack = filemanager._commandStack, dataSource = filemanager.dataSource, items = that.options.items, target = dataSource.get(that.options.target), targetDataSource = target.children, promises = [];
                 for (var i = 0; i < items.length; i++) {
                     var item = dataSource.get(items[i]);
                     var cloning = item.toJSON();
                     cloning.fileManagerNewItem = true;
+                    var promise = commandStack.push({
+                        item: item,
+                        target: target
+                    }).then(proxy(that._delete, that));
+                    promises.push(promise);
                     targetDataSource.add(cloning);
-                    dataSource.remove(item);
+                }
+                kendo.whenAll(promises).always(proxy(that._removeItem, that));
+            },
+            _delete: function (data) {
+                var that = this;
+                that._itemsToRemove.push(data.item);
+            },
+            _removeItem: function () {
+                var that = this, filemanager = that.filemanager, commandStack = filemanager._commandStack, dataSource = filemanager.dataSource, itemToRemove = !!that._itemsToRemove.length && that._itemsToRemove.splice(0, 1)[0];
+                if (itemToRemove) {
+                    commandStack.push({ item: itemToRemove }).then(proxy(that._removeItem, that), proxy(that._removeItem, that));
+                    dataSource.remove(itemToRemove);
                 }
             }
         });
@@ -196,9 +238,47 @@
                 return filemanager._resizeDraggable[type];
             }
         });
+        var CommandStack = Class.extend({
+            init: function () {
+                var that = this;
+                that._stack = {};
+                that._keys = [];
+            },
+            push: function (data) {
+                var that = this, guid = kendo.guid();
+                that._keys.push(guid);
+                that._stack[guid] = {
+                    guid: guid,
+                    data: data,
+                    deferred: deferred()
+                };
+                return that._stack[guid].deferred;
+            },
+            next: function () {
+                var that = this, key = that.keys().splice(0, 1), nextCommand = that._stack[key];
+                return nextCommand;
+            },
+            resolve: function (command) {
+                var that = this;
+                delete that._stack[command.guid];
+                command.deferred.resolve(command.data);
+            },
+            reject: function (command) {
+                var that = this;
+                delete that._stack[command.guid];
+                command.deferred.reject(command.data);
+            },
+            keys: function () {
+                return this._keys;
+            },
+            empty: function () {
+                return this.keys().length === 0;
+            }
+        });
         extend(kendo.ui, {
             filemanager: {
                 FileManagerCommand: Command,
+                CommandStack: CommandStack,
                 commands: {
                     CreateFolderCommand: CreateFolderCommand,
                     RenameCommand: RenameCommand,
@@ -374,8 +454,15 @@
                 listView.bind('edit', function (ev) {
                     var sender = ev.sender;
                     ev.item.find('input').on('blur', function () {
+                        var isDirty = sender._modelFromElement(sender.editable.element).dirty;
                         sender._closeEditable();
+                        if (!isDirty) {
+                            that.trigger('cancel');
+                        }
                     });
+                });
+                listView.bind('cancel', function () {
+                    that.trigger('cancel');
                 });
                 Component.fn._bindEvents.call(this);
             },
@@ -387,6 +474,7 @@
                 var that = this;
                 if (ev.keyCode === kendo.keys.ESC) {
                     that.listView._closeEditable();
+                    that.trigger('cancel');
                 }
             },
             _keydownAction: function (ev) {
@@ -595,7 +683,7 @@
                                 title: messages.nameField || 'Name',
                                 template: function (item) {
                                     var icon = !item.isDirectory ? kendo.getFileGroup(item.extension, true) : 'folder';
-                                    var template = '<div class=\'file-group-icon\'>' + '<span class=\'k-icon k-i-' + icon + '\'></span>' + '</div>' + '<div class=\'file-name\'>' + item.name + item.extension + '<div>';
+                                    var template = '<div class=\'file-group-icon\'>' + '<span class=\'k-icon k-i-' + icon + '\'></span>' + '</div>' + '<div class=\'file-name\'>' + kendo.htmlEncode(item.name + item.extension) + '<div>';
                                     return template;
                                 }
                             },
@@ -628,6 +716,9 @@
                     grid.bind('edit', function () {
                         that._toggleFocusable(true);
                     });
+                    grid.bind('cancel', function () {
+                        that.trigger('cancel');
+                    });
                     grid.saveRow = $.noop;
                     Component.fn._bindEvents.call(this);
                 },
@@ -635,6 +726,9 @@
                     var that = this, current = that.grid.current(), node = current ? current.closest('tr[data-uid]') : null;
                     if (node && ev.keyCode === keys.ENTER && !ev.preventKendoKeydown) {
                         that._triggerOpen(node);
+                        ev.preventKendoKeydown = true;
+                    }
+                    if (ev.keyCode === keys.F2) {
                         ev.preventKendoKeydown = true;
                     }
                 },
@@ -660,6 +754,7 @@
                     }
                     if (ev.keyCode === kendo.keys.ESC) {
                         grid.cancelChanges();
+                        that.trigger('cancel');
                     }
                 },
                 _mousedown: function (ev) {
@@ -697,6 +792,7 @@
                         container = that.grid._editContainer;
                         that.grid._destroyEditable();
                         that.grid._displayRow(container);
+                        that.trigger('cancel');
                     }
                 },
                 _select: function () {
@@ -1398,7 +1494,7 @@
             }]
     };
     (function ($, undefined) {
-        var ui = kendo.ui, extend = $.extend, isPlainObject = $.isPlainObject, isArray = $.isArray, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, template = kendo.template, outerHeight = kendo._outerHeight, NAVIGATE = 'navigate', SELECT = 'select', OPEN = 'open', ERROR = 'error', CHANGE = 'change', UPLOAD = 'upload', SUCCESS = 'success', CLOSE = 'close', HIDE = 'hide', LOAD = 'load', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', DROP = 'drop', EXECUTE = 'execute', KEYDOWNACTION = 'keydownAction', TREE_TYPE = 'tree', DOT = '.';
+        var ui = kendo.ui, extend = $.extend, isPlainObject = $.isPlainObject, isArray = $.isArray, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, template = kendo.template, outerHeight = kendo._outerHeight, NAVIGATE = 'navigate', SELECT = 'select', OPEN = 'open', ERROR = 'error', CHANGE = 'change', UPLOAD = 'upload', SUCCESS = 'success', CLOSE = 'close', HIDE = 'hide', LOAD = 'load', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', DROP = 'drop', EXECUTE = 'execute', COMMAND = 'command', KEYDOWNACTION = 'keydownAction', CANCEL = 'cancel', TREE_TYPE = 'tree', DOT = '.';
         var fileManagerStyles = {
             wrapper: 'k-widget k-filemanager',
             header: 'k-filemanager-header',
@@ -1438,9 +1534,9 @@
             grid: 'grid',
             list: 'list'
         };
-        var NO_FILE_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-none"></span>' + '</div>' + '<span class="#=styles.fileName#" k-no-file-selected>#= messages.noFileSelected #</span>' + '</div>';
-        var SINGLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-#= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' + '</div>' + '<span class="#=styles.fileName#">#=selection[0].name#</span>' + '#if(metaFields){#' + '<dl class="#=styles.fileMeta#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#=styles.metaLabel#">#=messages[field]#: </dt>' + '<dd class="#=styles.metaValue# #=styles[field]#">' + '#if(field == "size"){#' + ' #=kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #=kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #= !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' + '#} else {#' + ' #=selection[0][field]#' + '#}#' + '</dd>' + '<dd class="k-line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
-        var MULTIPLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#=styles.fileInfo#">' + '<div class="#=styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-file"></span>' + '</div>' + '<span class="#=styles.fileName#">' + '#=selection.length# ' + '#=messages.items#' + '</span>' + '</div>';
+        var NO_FILE_PREVIEW_TEMPLATE = '' + '<div class="#:styles.fileInfo#">' + '<div class="#:styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-none"></span>' + '</div>' + '<span class="#:styles.fileName#" k-no-file-selected>#: messages.noFileSelected #</span>' + '</div>';
+        var SINGLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#:styles.fileInfo#">' + '<div class="#:styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-#: !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension, true) : "folder" #"></span>' + '</div>' + '<span class="#:styles.fileName#">#:selection[0].name#</span>' + '#if(metaFields){#' + '<dl class="#:styles.fileMeta#">' + '#for(var i = 0; i < metaFields.length; i+=1){#' + '#var field = metaFields[i]#' + '<dt class="#:styles.metaLabel#">#:messages[field]#: </dt>' + '<dd class="#:styles.metaValue# #:styles[field]#">' + '#if(field == "size"){#' + ' #:kendo.getFileSizeMessage(selection[0][field])#' + '#} else if(selection[0][field] instanceof Date) {#' + ' #:kendo.toString(selection[0][field], "G")#' + '#} else if(field == "extension") {#' + ' #: !selection[0].isDirectory ? kendo.getFileGroup(selection[0].extension) : "folder"#' + '#} else {#' + ' #:selection[0][field]#' + '#}#' + '</dd>' + '<dd class="k-line-break"></dd>' + '# } #' + '</dl>' + '#}#' + '</div>';
+        var MULTIPLE_FILES_PREVIEW_TEMPLATE = '' + '<div class="#:styles.fileInfo#">' + '<div class="#:styles.filePreview#">' + '<span class="k-file-icon k-icon k-i-file"></span>' + '</div>' + '<span class="#:styles.fileName#">' + '#:selection.length# ' + '#:messages.items#' + '</span>' + '</div>';
         var FileManager = DataBoundWidget.extend({
             init: function (element, options) {
                 var that = this;
@@ -1454,6 +1550,7 @@
                     field: 'isDirectory',
                     dir: 'desc'
                 };
+                that._commandStack = new ui.filemanager.CommandStack();
                 that._dataSource();
                 that._wrapper();
                 that._renderHeader();
@@ -1471,7 +1568,7 @@
                 name: 'FileManager',
                 height: 500,
                 resizable: true,
-                initialView: 'list',
+                initialView: viewTypes.list,
                 toolbar: { resizable: true },
                 contextMenu: {},
                 upload: {},
@@ -1583,7 +1680,8 @@
                 DATABOUND,
                 ERROR,
                 DROP,
-                EXECUTE
+                EXECUTE,
+                COMMAND
             ],
             _dataSource: function () {
                 var that = this, options = that.options, dataSourceOptions = options.dataSource || {}, typeSortOrder = that.folderSortOption, nameSortOrder = that.defaultSortOption, dataSource;
@@ -1625,7 +1723,7 @@
             },
             _error: function (ev) {
                 if (!this.trigger(ERROR, ev)) {
-                    throw new Error('Error! The requested URL returned ' + ev.xhr.status + ' - ' + ev.xhr.statusText);
+                    window.console.warn('Error! The requested URL returned ' + ev.xhr.status + ' - ' + ev.xhr.statusText);
                 }
             },
             _wrapper: function () {
@@ -1763,7 +1861,7 @@
                         options: { target: ev.target }
                     });
                 }
-                if (keyCode === keys.F2 && that._viewType !== viewTypes.grid) {
+                if (keyCode === keys.F2) {
                     that.executeCommand({
                         command: 'RenameCommand',
                         options: { target: ev.target }
@@ -2011,6 +2109,7 @@
                 that._view.bind(DATABOUND, proxy(that._bound, that));
                 that._view.bind(DROP, proxy(that._drop, that));
                 that._view.bind(KEYDOWNACTION, proxy(that._keydownAction, that));
+                that._view.bind(CANCEL, proxy(that._cancel, that));
                 that._view.element.addClass(fileManagerStyles[type]);
                 that.viewWrapper.removeClass(Object.keys(ui.filemanager.ViewComponents).map(function (el) {
                     return fileManagerStyles.view + '-' + el;
@@ -2046,8 +2145,17 @@
                     that._navigate({ path: entry.id });
                 }
             },
+            _cancel: function () {
+                var that = this, commandStack = that._commandStack, command = commandStack.next();
+                commandStack.reject(command);
+                that.trigger(COMMAND, {
+                    status: 'cancel',
+                    action: 'itemchange',
+                    data: command.data
+                });
+            },
             _change: function (ev) {
-                var that = this, targetDataSource = ev.node ? ev.node.children : that.dataSource;
+                var that = this, commandStack = that._commandStack, targetDataSource = ev.node ? ev.node.children : that.dataSource;
                 if (that.trigger(DATABINDING, {
                         source: 'tree',
                         action: ev.action,
@@ -2058,7 +2166,28 @@
                 }
                 that.treeView._refreshDataSource(ev);
                 if (ev.action === 'remove' || ev.action === 'itemchange' || ev.action === 'add') {
-                    targetDataSource.sync();
+                    if (commandStack.empty()) {
+                        targetDataSource.sync();
+                    } else {
+                        var command = commandStack.next();
+                        targetDataSource.sync().then(function (res) {
+                            commandStack.resolve(command);
+                            that.trigger(COMMAND, {
+                                status: 'success',
+                                action: ev.action,
+                                data: command.data,
+                                response: res
+                            });
+                        }).fail(function (res) {
+                            commandStack.reject(command);
+                            that.trigger(COMMAND, {
+                                status: 'fail',
+                                action: ev.action,
+                                data: command.data,
+                                response: res
+                            });
+                        });
+                    }
                 }
                 if (ev.action === 'remove' && that._viewDataSource && that._viewDataSource.parent() && ev.items[0] === that._viewDataSource.parent()) {
                     that._navigateToParent(ev.items[0]);

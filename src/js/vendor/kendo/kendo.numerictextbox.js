@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -96,7 +96,7 @@
                     }
                 }
                 that.value(value);
-                disabled = element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
+                disabled = !options.enable || element.is('[disabled]') || $(that.element).parents('fieldset').is(':disabled');
                 if (disabled) {
                     that.enable(false);
                 } else {
@@ -111,6 +111,7 @@
             options: {
                 name: 'NumericTextBox',
                 decimals: NULL,
+                enable: true,
                 restrictDecimals: false,
                 min: NULL,
                 max: NULL,

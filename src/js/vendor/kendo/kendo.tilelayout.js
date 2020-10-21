@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -330,7 +330,7 @@
                         }
                     });
                     that.resizable = new ui.Resizable(that.element, {
-                        handle: '.k-resize-handle',
+                        handle: 'div.k-tilelayout-item > .k-resize-handle',
                         start: function (e) {
                             var resizeHandle = $(e.currentTarget);
                             currentContainer = resizeHandle.data('div');
@@ -453,9 +453,11 @@
                 var originalElement;
                 var itemSelector = selector(TileLayout.styles.item);
                 var headerSelector = selector(TileLayout.styles.itemHeader);
+                var group = kendo.guid();
                 this._draggableInstance = new Draggable(this.element, {
                     filter: headerSelector,
                     autoScroll: true,
+                    group: group,
                     hint: function (target) {
                         var item = target.closest(itemSelector);
                         var width = item.width();
@@ -576,6 +578,7 @@
                     }
                 });
                 element.find(itemSelector).kendoDropTarget({
+                    group: group,
                     dragenter: function (e) {
                         if (that._isresizing) {
                             return;

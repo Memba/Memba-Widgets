@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -23,14 +23,20 @@
 
 */
 (function (f, define) {
-    define('kendo.gantt.list', ['kendo.treelist'], f);
+    define('kendo.gantt.list', [
+        'kendo.treelist',
+        'kendo.treeview.draganddrop'
+    ], f);
 }(function () {
     var __meta__ = {
         id: 'gantt.list',
         name: 'Gantt List',
         category: 'web',
         description: 'The Gantt List',
-        depends: ['treelist'],
+        depends: [
+            'treelist',
+            'treeview.draganddrop'
+        ],
         hidden: true
     };
     (function ($) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -342,6 +342,7 @@
                     return options[option];
                 }
                 value = parse(value, options.parseFormats, options.culture);
+                timeViewOptions.maxSet = false;
                 if (!value) {
                     return;
                 }
@@ -366,6 +367,7 @@
                             return;
                         } else if (!minDateEqual) {
                             timeViewOptions.min = MIN;
+                            timeViewOptions.maxSet = true;
                         }
                     }
                 } else {
@@ -406,6 +408,7 @@
                 if (date) {
                     old = that._old;
                     timeViewOptions = timeView.options;
+                    timeViewOptions.maxSet = false;
                     if (dates[0]) {
                         dates = $.grep(dates, function (d) {
                             return isEqualDatePart(date, d);
@@ -427,6 +430,7 @@
                                 skip = true;
                             } else {
                                 timeViewOptions.max = max;
+                                timeViewOptions.maxSet = true;
                                 if (!rebind) {
                                     timeViewOptions.min = MIN;
                                 }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -362,8 +362,9 @@
                     this.dataSource.filter(expression);
                 }
             },
-            clear: function () {
-                var that = this, expression = that.dataSource.filter() || { filters: [] };
+            clear: function (expression) {
+                var that = this;
+                expression = expression || that.dataSource.filter() || { filters: [] };
                 if (this.trigger('change', {
                         filter: null,
                         field: that.field
@@ -433,7 +434,7 @@
                         currentExpression.filters.push(expression);
                         expression = currentExpression;
                     }
-                    this._removeFilter(expression);
+                    this.clear(expression);
                 }
                 this._closeForm();
             },
@@ -652,7 +653,7 @@
                     if (field) {
                         if (field.type == 'number') {
                             this._parse = function (value) {
-                                if (typeof value === 'string' && value.toLowerCase() === 'null') {
+                                if (typeof value === 'string' && (value.toLowerCase() === 'null' || this._foreignKeyValues() && value === '')) {
                                     return null;
                                 }
                                 return parseFloat(value);
@@ -970,7 +971,7 @@
                         field: that.field
                     };
                 });
-                if (expression.filters.length && this.trigger('change', {
+                if (this.trigger('change', {
                         filter: expression,
                         field: that.field
                     })) {
@@ -980,7 +981,7 @@
                 if (expression.filters.length) {
                     this.dataSource.filter(expression);
                 } else {
-                    this.clear();
+                    that._removeFilter(that.dataSource.filter() || { filters: [] });
                 }
                 this._closeForm();
             },

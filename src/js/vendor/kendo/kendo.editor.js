@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -6139,7 +6139,7 @@
                         this.attributes.title = title;
                     }
                     if (textInput.is(':visible')) {
-                        text = textInput.val();
+                        text = kendo.trim(textInput.val());
                         if (!text && !this._initialText) {
                             this.attributes.innerText = href;
                         } else if (text && text !== this._initialText) {
@@ -10724,7 +10724,7 @@
                     }
                     return true;
                 }
-                if (editorNS.RangeUtils.isStartOf(range, block) && (parseInt(block.style.marginLeft, 10) > 0 || parseInt(block.style.marginRight, 10) > 0)) {
+                if (editorNS.RangeUtils.isStartOf(range, block) && parseInt(block.style.marginLeft, 10) > 0) {
                     editor.exec('outdent');
                     return true;
                 }
@@ -11887,11 +11887,15 @@
                 var handleWidth = options.handle.width;
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
-                var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
+                var scrollLeftOffset = rootElement.is(BODY) ? 0 : kendo.scrollLeft(rootElement);
                 var columnWidthOffset = rtl ? 0 : outerWidth(column);
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 var columnOffsetLeft = column.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(column.css('marginLeft'));
                 var innerElementOffsetTop = tableInnerElement.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(tableInnerElement.css('marginTop'));
+                var browser = kendo.support.browser;
+                if (rtl && (browser.mozilla || browser.webkit && browser.version >= 85)) {
+                    scrollLeftOffset = scrollLeftOffset * -1;
+                }
                 that.resizeHandle.css({
                     top: innerElementOffsetTop + scrollTopOffset,
                     left: columnOffsetLeft + columnWidthOffset + (scrollLeftOffset - scrollBarWidth) - handleWidth / 2,
@@ -11920,9 +11924,13 @@
                 var columnLeftOffset = column.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(column.css('marginLeft'));
                 var adjacentColumnWidth = outerWidth(column.next());
                 var resizeHandle = $(that.resizeHandle);
-                var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
+                var scrollLeftOffset = rootElement.is(BODY) ? 0 : kendo.scrollLeft(rootElement);
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 var resizeHandleOffsetLeft = resizeHandle.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(resizeHandle.css('marginLeft'));
+                var browser = kendo.support.browser;
+                if (rtl && (browser.mozilla || browser.webkit && browser.version >= 85)) {
+                    scrollLeftOffset = scrollLeftOffset * -1;
+                }
                 var handleOffset = constrain({
                     value: resizeHandleOffsetLeft + (scrollLeftOffset - scrollBarWidth) + e.x.delta,
                     min: columnLeftOffset + (scrollLeftOffset - scrollBarWidth) - (rtl ? adjacentColumnWidth : 0) + min,
@@ -12113,10 +12121,14 @@
                 var handleHeight = options.handle[HEIGHT];
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
-                var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
+                var scrollLeftOffset = rootElement.is(BODY) ? 0 : kendo.scrollLeft(rootElement);
                 var scrollBarWidth = options.rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 var rowOffsetLeft = row.offset().left - (rootElement.offset().left + parseFloat(rootElement.css('borderLeftWidth'))) - parseFloat(row.css('marginLeft'));
                 var rowOffsetTop = row.offset().top - (rootElement.offset().top + parseFloat(rootElement.css('borderTopWidth'))) - parseFloat(row.css('marginTop'));
+                var browser = kendo.support.browser;
+                if (options.rtl && (browser.mozilla || browser.webkit && browser.version >= 85)) {
+                    scrollLeftOffset = scrollLeftOffset * -1;
+                }
                 that.resizeHandle.css({
                     top: rowOffsetTop + outerHeight(row) + scrollTopOffset - handleHeight / 2,
                     left: rowOffsetLeft + (scrollLeftOffset - scrollBarWidth),
@@ -12443,10 +12455,16 @@
                 var options = this.options;
                 var rootElement = $(options.rootElement);
                 var scrollBarWidth = options.rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                var browser = kendo.support.browser;
+                var rootLeft;
                 if (!rootElement.is(BODY)) {
+                    rootLeft = kendo.scrollLeft(rootElement) || 0;
+                    if (options.rtl && (browser.mozilla || browser.webkit && browser.version >= 85)) {
+                        rootLeft = rootLeft * -1;
+                    }
                     return {
                         top: position.top + (rootElement.scrollTop() || 0),
-                        left: position.left + (rootElement.scrollLeft() || 0) - scrollBarWidth
+                        left: position.left + rootLeft - scrollBarWidth
                     };
                 }
                 return position;
@@ -12847,7 +12865,7 @@
                 var parent = $(that.element).parent();
                 var parentElement = parent[0];
                 var parentDimension = parent[dimensionLowercase]();
-                var parentScrollOffset = rtlModifier * (dimension === WIDTH ? parent.scrollLeft() : parent.scrollTop());
+                var parentScrollOffset = rtlModifier * (dimension === WIDTH ? kendo.scrollLeft(parent) : parent.scrollTop());
                 if (parentElement === element.closest(COLUMN)[0]) {
                     if (parentElement.style[dimensionLowercase] === '' && !inPercentages(that.element.style[dimensionLowercase])) {
                         return Infinity;

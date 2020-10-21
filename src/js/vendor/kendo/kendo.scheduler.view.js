@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1704,7 +1704,7 @@
             _scroller: function () {
                 var that = this;
                 this.content.bind('scroll' + NS, function () {
-                    that.datesHeader.find('>.k-scheduler-header-wrap').scrollLeft(this.scrollLeft);
+                    kendo.scrollLeft(that.datesHeader.find('>.k-scheduler-header-wrap'), this.scrollLeft);
                     that.times.scrollTop(this.scrollTop);
                     if (that._isVirtualized()) {
                         that._tryRenderContent();
@@ -1719,7 +1719,7 @@
                     this._touchScroller = touchScroller;
                     this.content = touchScroller.scrollElement;
                     touchScroller.movable.bind('change', function (e) {
-                        that.datesHeader.find('>.k-scheduler-header-wrap').scrollLeft(-e.sender.x);
+                        kendo.scrollLeft(that.datesHeader.find('>.k-scheduler-header-wrap'), -e.sender.x);
                         that.times.scrollTop(-e.sender.y);
                         if (that._isVirtualized()) {
                             that._tryRenderContent();

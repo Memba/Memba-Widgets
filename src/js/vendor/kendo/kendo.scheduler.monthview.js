@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -740,10 +740,11 @@
                 var eventSpacing = options.eventSpacing;
                 var moreButtonHeight = options.moreButtonHeight;
                 var firstCell = this.content.find('table tr td')[0];
-                var dateHeader = firstCell.firstChild;
-                if (eventHeight === 'auto') {
+                var dateHeader;
+                if (eventHeight === 'auto' || !firstCell) {
                     return undefined;
                 }
+                dateHeader = firstCell.firstChild;
                 return Math.round(firstCell.offsetHeight - firstCell.clientHeight + dateHeader.offsetTop + dateHeader.offsetHeight + CELL_INNER_SPACING + eventsPerDay * eventHeight + (eventsPerDay - 1) * eventSpacing + (CELL_INNER_SPACING + moreButtonHeight) + CELL_INNER_SPACING);
             },
             _initSlotHeight: function () {

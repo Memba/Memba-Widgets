@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -999,8 +999,15 @@
                 }).bind('expand', function (e) {
                     e.preventDefault();
                     e.model.set('expanded', true);
-                }).bind('dragend', function () {
-                    that.dataSource.sync();
+                }).bind('dragend', function (e) {
+                    var dataSource = that.dataSource, task, updateInfo;
+                    if (e.position === 'over') {
+                        updateInfo = { parentId: e.source.parentId };
+                        dataSource.cancelChanges();
+                        task = dataSource.get(e.source.id);
+                        dataSource.update(task, updateInfo);
+                    }
+                    dataSource.sync();
                 }).bind('dataBound', function () {
                     if (that.dataSource.sort().length === 0) {
                         that.dataSource.sort([{
@@ -1748,7 +1755,7 @@
                     'start': function () {
                         treeListWidth = treeListWrapper.width();
                         timelineWidth = timelineWrapper.width();
-                        timelineScroll = timelineWrapper.find(contentSelector).scrollLeft();
+                        timelineScroll = kendo.scrollLeft(timelineWrapper.find(contentSelector));
                     },
                     'resize': function (e) {
                         var delta = e.x.initialDelta;
@@ -1760,7 +1767,7 @@
                         }
                         treeListWrapper.width(treeListWidth + delta);
                         timelineWrapper.width(timelineWidth - delta);
-                        timelineWrapper.find(contentSelector).scrollLeft(timelineScroll + delta);
+                        kendo.scrollLeft(timelineWrapper.find(contentSelector), timelineScroll + delta);
                         that.timeline.view()._renderCurrentTime();
                     }
                 }).data('kendoResizable');
@@ -1779,11 +1786,11 @@
                 }
                 timelineContent.on('scroll', function () {
                     that.scrollTop = this.scrollTop;
-                    timelineHeader.scrollLeft(this.scrollLeft);
+                    kendo.scrollLeft(timelineHeader, this.scrollLeft);
                     treeListContent.scrollTop(this.scrollTop);
                 });
                 treeListContent.on('scroll', function () {
-                    treeListHeader.scrollLeft(this.scrollLeft);
+                    kendo.scrollLeft(treeListHeader, this.scrollLeft);
                 }).on('DOMMouseScroll' + NS + ' mousewheel' + NS, function (e) {
                     var scrollTop = timelineContent.scrollTop();
                     var delta = kendo.wheelDeltaY(e);
@@ -1814,7 +1821,7 @@
                 };
                 var scroll = function (reverse) {
                     var width = that.timeline.view()._timeSlots()[0].offsetWidth;
-                    timelineContent.scrollLeft(timelineContent.scrollLeft() + (reverse ? -width : width));
+                    kendo.scrollLeft(timelineContent, kendo.scrollLeft(timelineContent) + (reverse ? -width : width));
                 };
                 var scrollVertical = function (reverse) {
                     var height = that.timeline.view()._rowHeight;

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -267,7 +267,7 @@
                 if (commandName !== SCROLL_LEFT_NAME && commandName !== SCROLL_RIGHT_NAME) {
                     return;
                 }
-                that.buttonList.scrollLeft(scrollValue);
+                kendo.scrollLeft(that.buttonList, scrollValue);
                 that._refreshScrollButtons(scrollValue);
             },
             _refreshScrollButtons: function (value) {
@@ -300,7 +300,7 @@
                 this._refreshScrollButtons();
             },
             currentScrollLeft: function () {
-                return Math.round(this.buttonList.scrollLeft());
+                return Math.round(kendo.scrollLeft(this.buttonList));
             },
             maxScrollSize: function () {
                 return Math.round(this.buttonList[0].scrollWidth - this.buttonList[0].clientWidth);
@@ -497,9 +497,9 @@
                 var lastCard = scrollContainer.find(DOT + viewStyles.card).last();
                 var cardWidth = lastCard.outerWidth(true);
                 if (scrollToLeft) {
-                    scrollContainer.scrollLeft(scrollContainer.scrollLeft() - cardWidth);
+                    kendo.scrollLeft(scrollContainer, kendo.scrollLeft(scrollContainer) - cardWidth);
                 } else {
-                    scrollContainer.scrollLeft(scrollContainer.scrollLeft() + cardWidth);
+                    kendo.scrollLeft(scrollContainer, kendo.scrollLeft(scrollContainer) + cardWidth);
                 }
             },
             getTemplate: function (templateName) {

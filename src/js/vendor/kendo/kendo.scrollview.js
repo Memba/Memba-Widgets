@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -158,12 +158,12 @@
                 var pageWidth = innerNavigationContainer.find('li.k-link:eq(0)').outerWidth(true) / 2;
                 this.items().removeClass(className(CURRENT_PAGE_CLASS)).eq(e.nextPage).addClass(className(CURRENT_PAGE_CLASS));
                 var itemOffset = this.items().eq(e.nextPage).length > 0 ? this.items().eq(e.nextPage).position().left : 0;
-                if (itemOffset > scrollViewWidth / 2 || itemOffset < innerNavigationContainer.scrollLeft() + scrollViewWidth / 2) {
+                if (itemOffset > scrollViewWidth / 2 || itemOffset < kendo.scrollLeft(innerNavigationContainer) + scrollViewWidth / 2) {
                     var translate = 0;
                     if (itemOffset > scrollViewWidth / 2) {
-                        translate = innerNavigationContainer.scrollLeft() + itemOffset - scrollViewWidth / 2;
+                        translate = kendo.scrollLeft(innerNavigationContainer) + itemOffset - scrollViewWidth / 2;
                     } else {
-                        translate = innerNavigationContainer.scrollLeft() - (scrollViewWidth / 2 - itemOffset);
+                        translate = kendo.scrollLeft(innerNavigationContainer) - (scrollViewWidth / 2 - itemOffset);
                     }
                     translate += containerOffset + pageWidth;
                     innerNavigationContainer.animate({ 'scrollLeft': translate }, 300);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.3.915'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.3.1021'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1478,22 +1478,30 @@
         function scrollLeft(element, value) {
             var webkit = support.browser.webkit;
             var mozila = support.browser.mozilla;
-            var el = element instanceof $ ? element[0] : element;
-            var isRtl;
-            if (!element) {
+            var browserVersion = support.browser.version;
+            var el, isRtl;
+            if (element instanceof $ && value !== undefined) {
+                element.each(function (i, e) {
+                    scrollLeft(e, value);
+                });
+                return;
+            } else {
+                el = element instanceof $ ? element[0] : element;
+            }
+            if (!el) {
                 return;
             }
             isRtl = support.isRtl(element);
             if (value !== undefined) {
-                if (isRtl && webkit) {
+                if (isRtl && webkit && (browserVersion < 85 || support.browser.safari)) {
                     el.scrollLeft = el.scrollWidth - el.clientWidth - value;
-                } else if (isRtl && mozila) {
+                } else if (isRtl && (mozila || webkit) && value > 0) {
                     el.scrollLeft = -value;
                 } else {
                     el.scrollLeft = value;
                 }
             } else {
-                if (isRtl && webkit) {
+                if (isRtl && webkit && (browserVersion < 85 || support.browser.safari)) {
                     return el.scrollWidth - el.clientWidth - el.scrollLeft;
                 } else {
                     return Math.abs(el.scrollLeft);
@@ -2468,7 +2476,7 @@
                     if (!mask.length) {
                         isRtl = support.isRtl(container);
                         leftRight = isRtl ? 'right' : 'left';
-                        containerScrollLeft = container.scrollLeft();
+                        containerScrollLeft = kendo.scrollLeft(container);
                         webkitCorrection = browser.webkit ? !isRtl ? 0 : container[0].scrollWidth - container.width() - 2 * containerScrollLeft : 0;
                         mask = $(kendo.format('<div class=\'{0}\'><span class=\'k-loading-text\'>{1}</span><div class=\'k-loading-image\'></div><div class=\'k-loading-color\'></div></div>', cssClass, kendo.ui.progress.messages.loading)).width(options.width).height(options.height).css('top', options.top).css(leftRight, Math.abs(containerScrollLeft) + webkitCorrection).prependTo(container);
                     }
@@ -3700,6 +3708,32 @@
         };
         kendo.selectorFromClasses = function (classes) {
             return '.' + classes.split(' ').join('.');
+        };
+        kendo.whenAll = function (array) {
+            var resolveValues = arguments.length == 1 && $.isArray(array) ? array : Array.prototype.slice.call(arguments), length = resolveValues.length, remaining = length, deferred = $.Deferred(), i = 0, failed = 0, rejectContexts = Array(length), rejectValues = Array(length), resolveContexts = Array(length), value;
+            function updateFunc(index, contexts, values) {
+                return function () {
+                    if (values != resolveValues) {
+                        failed++;
+                    }
+                    deferred.notifyWith(contexts[index] = this, values[index] = Array.prototype.slice.call(arguments));
+                    if (!--remaining) {
+                        deferred[(!failed ? 'resolve' : 'reject') + 'With'](contexts, values);
+                    }
+                };
+            }
+            for (; i < length; i++) {
+                if ((value = resolveValues[i]) && $.isFunction(value.promise)) {
+                    value.promise().done(updateFunc(i, resolveContexts, resolveValues)).fail(updateFunc(i, rejectContexts, rejectValues));
+                } else {
+                    deferred.notifyWith(this, value);
+                    --remaining;
+                }
+            }
+            if (!remaining) {
+                deferred.resolveWith(resolveContexts, resolveValues);
+            }
+            return deferred.promise();
         };
         (function () {
             function postToProxy(dataURI, fileName, proxyURL, proxyTarget) {
@@ -5193,7 +5227,7 @@
             return requestBody;
         }
         function createBatchRequest(transport, colections) {
-            var options = {};
+            var options = extend({}, transport.options.batch);
             var boundary = createBoundary('sf_batch_');
             var requestBody = '';
             var changeId = 0;
@@ -5201,7 +5235,7 @@
             var changeset = createBoundary('sf_changeset_');
             options.type = transport.options.batch.type;
             options.url = isFunction(batchURL) ? batchURL() : batchURL;
-            options.headers = { 'Content-Type': 'multipart/mixed; boundary=' + boundary };
+            options.headers = extend(options.headers || {}, { 'Content-Type': 'multipart/mixed; boundary=' + boundary });
             if (colections.updated.length) {
                 requestBody += processCollection(colections.updated, boundary, changeset, changeId, transport, 'update', false);
                 changeId += colections.updated.length;
@@ -5386,6 +5420,11 @@
                         if (type == 'read') {
                             result.$count = true;
                             delete result.$inlinecount;
+                        }
+                        if (result.$filter) {
+                            result.$filter = result.$filter.replace(/('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')/gi, function (x) {
+                                return x.substring(1, x.length - 1);
+                            });
                         }
                         return result;
                     },
@@ -5661,7 +5700,7 @@
                 DESTROY
             ], identity = function (o) {
                 return o;
-            }, getter = kendo.getter, stringify = kendo.stringify, math = Math, push = [].push, join = [].join, pop = [].pop, splice = [].splice, shift = [].shift, slice = [].slice, unshift = [].unshift, toString = {}.toString, stableSort = kendo.support.stableSort, dateRegExp = /^\/Date\((.*?)\)\/$/;
+            }, getter = kendo.getter, stringify = kendo.stringify, math = Math, push = [].push, join = [].join, pop = [].pop, splice = [].splice, shift = [].shift, slice = [].slice, unshift = [].unshift, toString = {}.toString, stableSort = kendo.support.stableSort, dateRegExp = /^\/Date\((.*?)\)\/$/, objectKeys = [];
         var ObservableArray = Observable.extend({
             init: function (array, type) {
                 var that = this;
@@ -5948,20 +5987,34 @@
                 context.trigger(type, event);
             };
         }
+        function ownKeys(value, ignoreObjectKeys) {
+            var props = [];
+            value = value || {};
+            while (value) {
+                Object.getOwnPropertyNames(value).forEach(function (prop) {
+                    if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || objectKeys.indexOf(prop) < 0)) {
+                        props.push(prop);
+                    }
+                });
+                value = Object.getPrototypeOf(value);
+            }
+            return props;
+        }
+        objectKeys = ownKeys({}, false);
         var ObservableObject = Observable.extend({
             init: function (value) {
-                var that = this, member, field, parent = function () {
+                var that = this, member, keys = ownKeys(value, true), parent = function () {
                         return that;
                     };
                 Observable.fn.init.call(this);
                 this._handlers = {};
-                for (field in value) {
+                keys.forEach(function (field) {
                     member = value[field];
                     if (typeof member === 'object' && member && !member.getTime && field.charAt(0) != '_') {
                         member = that.wrap(member, field, parent);
                     }
                     that[field] = member;
-                }
+                });
                 that.uid = kendo.guid();
             },
             shouldSerialize: function (field, serializeFunctions) {
@@ -10881,7 +10934,7 @@
         });
         var TypedBinder = Binder.extend({
             dataType: function () {
-                var dataType = this.element.getAttribute('data-type') || this.element.type || 'text';
+                var dataType = this.element.getAttribute('data-' + kendo.ns + 'type') || this.element.type || 'text';
                 return dataType.toLowerCase();
             },
             parsedValue: function () {
@@ -10982,7 +11035,7 @@
         binders.text = Binder.extend({
             refresh: function () {
                 var text = this.bindings.text.get();
-                var dataFormat = this.element.getAttribute('data-format') || '';
+                var dataFormat = this.element.getAttribute('data-' + kendo.ns + 'format') || '';
                 if (text == null) {
                     text = '';
                 }
@@ -11918,6 +11971,21 @@
                                 bindElement(elements[idx], data[idx], this._ns(e.ns), [data[idx]].concat(parents));
                             }
                         }
+                    }
+                })
+            },
+            badge: {
+                text: Binder.extend({
+                    init: function (widget, bindings, options) {
+                        Binder.fn.init.call(this, widget.element[0], bindings, options);
+                        this.widget = widget;
+                    },
+                    refresh: function () {
+                        var text = this.bindings.text.get();
+                        if (text == null) {
+                            text = '';
+                        }
+                        this.widget.text(text);
                     }
                 })
             }
@@ -16166,7 +16234,7 @@
             },
             scrollTo: function (x, y) {
                 if (this._native) {
-                    this.scrollElement.scrollLeft(abs(x));
+                    kendo.scrollLeft(this.scrollElement, abs(x));
                     this.scrollElement.scrollTop(abs(y));
                 } else {
                     this.dimensions.refresh();

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -226,7 +226,7 @@
             return requestBody;
         }
         function createBatchRequest(transport, colections) {
-            var options = {};
+            var options = extend({}, transport.options.batch);
             var boundary = createBoundary('sf_batch_');
             var requestBody = '';
             var changeId = 0;
@@ -234,7 +234,7 @@
             var changeset = createBoundary('sf_changeset_');
             options.type = transport.options.batch.type;
             options.url = isFunction(batchURL) ? batchURL() : batchURL;
-            options.headers = { 'Content-Type': 'multipart/mixed; boundary=' + boundary };
+            options.headers = extend(options.headers || {}, { 'Content-Type': 'multipart/mixed; boundary=' + boundary });
             if (colections.updated.length) {
                 requestBody += processCollection(colections.updated, boundary, changeset, changeId, transport, 'update', false);
                 changeId += colections.updated.length;
@@ -419,6 +419,11 @@
                         if (type == 'read') {
                             result.$count = true;
                             delete result.$inlinecount;
+                        }
+                        if (result.$filter) {
+                            result.$filter = result.$filter.replace(/('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')/gi, function (x) {
+                                return x.substring(1, x.length - 1);
+                            });
                         }
                         return result;
                     },

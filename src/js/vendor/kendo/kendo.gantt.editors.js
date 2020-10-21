@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -197,7 +197,8 @@
             'grid',
             'datetimepicker',
             'numerictextbox'
-        ]
+        ],
+        hidden: true
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, browser = kendo.support.browser, Observable = kendo.Observable, Widget = ui.Widget, outerWidth = kendo._outerWidth, keys = $.extend({ F10: 121 }, kendo.keys), proxy = $.proxy, extend = $.extend, isPlainObject = $.isPlainObject, NS = '.kendoGantt', PERCENTAGE_FORMAT = 'p0', TABINDEX = 'tabIndex', CLICK = 'click', WIDTH = 'width', STRING = 'string', ARIA_DESCENDANT = 'aria-activedescendant', ACTIVE_OPTION = 'action-option-focused', DOT = '.', DIRECTIONS = {

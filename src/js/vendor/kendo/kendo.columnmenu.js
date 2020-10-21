@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -185,7 +185,8 @@
                 columns: true,
                 sortable: true,
                 filterable: true,
-                animations: { left: 'slide' }
+                animations: { left: 'slide' },
+                encodeTitles: false
             },
             _createMenu: function () {
                 var that = this, options = that.options;
@@ -198,7 +199,8 @@
                     columns: that._ownerColumns(),
                     showColumns: options.columns,
                     hasLockableColumns: options.hasLockableColumns,
-                    hasStickableColumns: options.hasStickableColumns
+                    hasStickableColumns: options.hasStickableColumns,
+                    encodeTitles: options.encodeTitles
                 }));
                 that.popup = that.wrapper[POPUP]({
                     anchor: that.link,
@@ -356,7 +358,11 @@
                 var that = this;
                 if (that.options.columns) {
                     that._setMenuItemsVisibility();
-                    that._reorderMenuItems();
+                    if (!that.options.columns.sort) {
+                        that._reorderMenuItems();
+                    } else {
+                        that._updateDataIndexes();
+                    }
                 }
             },
             _setMenuItemsVisibility: function () {
@@ -380,9 +386,19 @@
             },
             _updateDataIndexes: function () {
                 var that = this;
-                var renderedList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group').first();
+                var renderedList = that._isMobile && that.view ? $(that.view.element).find('.k-columns-item').children('ul') : $(that.wrapper).find('.k-menu-group').first(), mappedColumns = that._ownerColumns(true).map(function (x) {
+                        return x.title || x.field;
+                    });
                 renderedList.find('span.' + (this._isMobile ? 'k-listgroup-form-field-wrapper' : 'k-menu-link') + ' input').each(function (i) {
-                    $(this).attr(kendo.attr('index'), i);
+                    var columns;
+                    var index;
+                    if (that.options.columns.sort) {
+                        columns = that._ownerColumns();
+                        index = mappedColumns.indexOf(columns[i].title);
+                        $(this).attr(kendo.attr('index'), index);
+                    } else {
+                        $(this).attr(kendo.attr('index'), i);
+                    }
                 });
             },
             _eachRenderedMenuItem: function (callback) {
@@ -445,15 +461,15 @@
                     container: this.wrapper
                 });
             },
-            _ownerColumns: function () {
+            _ownerColumns: function (omitSort) {
                 var columns = leafColumns(this.owner.columns), menuColumns = grep(columns, function (col) {
                         var result = true, title = trim(col.title || '');
                         if (col.menu === false || !col.field && !title.length) {
                             result = false;
                         }
                         return result;
-                    });
-                return map(menuColumns, function (col) {
+                    }), result, sort = this.options.columns.sort;
+                result = map(menuColumns, function (col) {
                     return {
                         originalField: col.field,
                         field: col.field || col.title,
@@ -466,6 +482,18 @@
                         uid: col.headerAttributes.id
                     };
                 });
+                if (sort && !omitSort) {
+                    result.sort(function (a, b) {
+                        if (a.title < b.title) {
+                            return sort === 'asc' ? -1 : 1;
+                        }
+                        if (a.title > b.title) {
+                            return sort === 'asc' ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                }
+                return result;
             },
             _sort: function () {
                 var that = this;
@@ -800,7 +828,7 @@
                 return found;
             }
         });
-        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" title="#=columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || hasLockableColumns || hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(hasLockableColumns || hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(hasLockableColumns || hasStickableColumns){#' + '<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span>${messages.setColumnPosition}</span><ul>' + '#if(hasLockableColumns){#' + '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#if(hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(hasStickableColumns){#' + '<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span>${messages.stick}</span></li>' + '<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span>${messages.unstick}</span></li>' + '#}#' + '</ul></li>' + '#}#' + '</ul>';
+        var template = '<ul id="#=uid#">' + '#if(sortable){#' + '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span>${messages.sortAscending}</span></li>' + '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span>${messages.sortDescending}</span></li>' + '#if(showColumns || filterable){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(showColumns){#' + '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span>${messages.columns}</span><ul>' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</li>' + '#}#' + '</ul></li>' + '#if(filterable || hasLockableColumns || hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(filterable){#' + '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span>${messages.filter}</span><ul>' + '<li><div class="k-filterable"></div></li>' + '</ul></li>' + '#if(hasLockableColumns || hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(hasLockableColumns || hasStickableColumns){#' + '<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span>${messages.setColumnPosition}</span><ul>' + '#if(hasLockableColumns){#' + '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span>${messages.lock}</span></li>' + '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span>${messages.unlock}</span></li>' + '#if(hasStickableColumns){#' + '<li class="k-separator k-menu-separator" role="presentation"></li>' + '#}#' + '#}#' + '#if(hasStickableColumns){#' + '<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span>${messages.stick}</span></li>' + '<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span>${messages.unstick}</span></li>' + '#}#' + '</ul></li>' + '#}#' + '</ul>';
         var mobileTemplate = '<div data-#=ns#role="view" class="k-grid-column-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '${messages.settings}' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<div class="k-column-menu">' + '<ul class="k-reset">' + '<li>' + '<span class="k-list-title">#=messages.column#: ${title}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#if(sortable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-asc"><span class="k-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-item-title">${messages.sortAscending}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-sort-desc"><span class="k-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-item-title">${messages.sortDescending}</span></span></li>' + '#}#' + '#if(hasLockableColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-lock"><span class="k-link"><span class="k-icon k-i-lock"></span><span class="k-item-title">${messages.lock}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unlock"><span class="k-link"><span class="k-icon k-i-unlock"></span><span class="k-item-title">${messages.unlock}</span></span></li>' + '#}#' + '#if(hasStickableColumns){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-stick"><span class="k-link"><span class="k-icon k-i-stick"></span><span class="k-item-title">${messages.stick}</span></span></li>' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-unstick"><span class="k-link"><span class="k-icon k-i-unstick"></span><span class="k-item-title">${messages.unstick}</span></span></li>' + '#}#' + '#if(filterable){#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item k-filter-item">' + '<span class="k-link k-filterable">' + '<span class="k-icon k-i-filter"></span>' + '<span class="k-item-title">${messages.filter}</span>' + '<span class="k-select"><span class="k-icon k-i-arrow-chevron-right"></span></span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#if(showColumns){#' + '<li class="k-columns-item"><span class="k-list-title">${messages.columnVisibility}</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '#for (var idx = 0; idx < columns.length; idx++) {#' + '<li id="#=kendo.guid()#" class="k-item k-listgroup-item">' + '<span class="k-listgroup-form-row">' + '<span class="k-listgroup-form-field-label k-item-title">' + '#=columns[idx].title#' + '</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type="checkbox" title="#=columns[idx].title#" ' + ' data-#=ns#field="#=columns[idx].field.replace(/"/g,"&\\#34;")#"' + ' data-#=ns#index="#=columns[idx].index#"' + ' data-#=ns#uid="#=columns[idx].uid#"' + ' data-#=ns#locked="#=columns[idx].locked#" />' + '</span>' + '</span>' + '</li>' + '#}#' + '</ul>' + '</li>' + '#}#' + '<li class="k-item k-clear-wrap">' + '<span class="k-list-title">&nbsp;</span>' + '<ul class="k-listgroup k-listgroup-flush">' + '<li class="k-listgroup-item">' + '<span class="k-link k-label k-clear" title="#=messages.clear#" aria-label="#=messages.clear#">' + '#=messages.clear#' + '</span>' + '</li>' + '</ul>' + '</li>' + '</ul>' + '</div>' + '</div>';
         var MobileMenu = Widget.extend({
             init: function (element, options) {

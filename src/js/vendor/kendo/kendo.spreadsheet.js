@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -10123,7 +10123,7 @@
                 var that = this;
                 var ul = that._sheetsGroup();
                 var wrapper = that._sheetsWrapper();
-                var scrollLeft = ul.scrollLeft();
+                var scrollLeft = kendo.scrollLeft(ul);
                 var prev = wrapper.find(DOT + SheetsBar.classNames.sheetsBarPrev);
                 var next = wrapper.find(DOT + SheetsBar.classNames.sheetsBarNext);
                 if (toggle === false) {
@@ -10321,7 +10321,7 @@
                     return;
                 }
                 var sheetsGroup = that._sheetsGroup();
-                var currentScrollOffset = sheetsGroup.scrollLeft();
+                var currentScrollOffset = kendo.scrollLeft(sheetsGroup);
                 var itemWidth = outerWidth(item);
                 var itemOffset = that._isRtl ? item.position().left : item.position().left - sheetsGroup.children().first().position().left;
                 var sheetsGroupWidth = sheetsGroup[0].offsetWidth;
@@ -10353,7 +10353,7 @@
             _scrollSheetsByDelta: function (delta) {
                 var that = this;
                 var sheetsGroup = that._sheetsGroup();
-                var scrLeft = sheetsGroup.scrollLeft();
+                var scrLeft = kendo.scrollLeft(sheetsGroup);
                 sheetsGroup.finish().animate({ 'scrollLeft': scrLeft + delta }, 'fast', 'linear', function () {
                     if (that._nowScrollingSheets) {
                         that._scrollSheetsByDelta(delta);
@@ -14724,7 +14724,7 @@
                 } else {
                     var frame = this.originFrame._grid;
                     if (object.x > frame.right) {
-                        this.scrollLeft();
+                        kendo.scrollLeft(this);
                     }
                     if (object.y > frame.bottom) {
                         this.scrollTop();
@@ -16092,15 +16092,24 @@
                 }
                 var sheet = this._sheet;
                 var focus = sheet.focus();
+                var scrollbarSize = kendo.support.scrollbar();
+                var contentWidth = this.wrapper[0].clientWidth - scrollbarSize;
+                var contentHeight = this.wrapper[0].clientHeight - scrollbarSize;
                 if (focus && this.scrollIntoView(focus)) {
                     return;
                 }
                 var resizeDirection = !sheet.resizingInProgress() ? 'none' : sheet.resizeHandlePosition().col === -Infinity ? 'column' : 'row';
                 this.wrapper.toggleClass(viewClassNames.editContainer, this.editor.isActive()).toggleClass(viewClassNames.horizontalResize, resizeDirection == 'row').toggleClass(viewClassNames.verticalResize, resizeDirection == 'column');
                 var grid = sheet._grid;
-                var scroller = this.scroller;
-                var result = this.panes.map(function (pane) {
-                    return pane.render(scroller);
+                var content = [];
+                var args = {
+                    scroller: this.scroller,
+                    toplevelElements: content,
+                    contentWidth: contentWidth,
+                    contentHeight: contentHeight
+                };
+                this.panes.forEach(function (pane) {
+                    content.push(pane.render(args));
                 });
                 var topCorner = kendo.dom.element('div', {
                     style: {
@@ -16109,15 +16118,14 @@
                     },
                     className: View.classNames.topCorner
                 });
-                result.push(topCorner);
+                content.push(topCorner);
                 if (sheet.resizeHandlePosition() && sheet.resizeHintPosition()) {
-                    result.push(this.renderResizeHint());
+                    content.push(this.renderResizeHint());
                 }
-                this.tree.render(result);
-                var scrollbar = kendo.support.scrollbar();
+                this.tree.render(content);
                 $(this.container).css({
-                    width: this.wrapper[0].clientWidth - scrollbar,
-                    height: this.wrapper[0].clientHeight - scrollbar
+                    width: contentWidth,
+                    height: contentHeight
                 });
                 if (this.editor.isActive()) {
                     this.editor.toggleTooltip(this.activeCellRectangle());
@@ -16250,7 +16258,8 @@
             isVisible: function (scrollLeft, scrollTop, ref) {
                 return this._grid.view(scrollLeft, scrollTop).ref.intersects(ref);
             },
-            render: function (scroller) {
+            render: function (args) {
+                var scroller = args.scroller;
                 var scrollLeft = scroller.scrollLeft;
                 var scrollTop = scroller.scrollTop;
                 if (scrollTop < 0) {
@@ -16267,7 +16276,7 @@
                 this._currentRect = this._rectangle(view.ref);
                 this._selectedHeaders = sheet.selectedHeaders();
                 var children = [];
-                children.push(this.renderData());
+                children.push(this.renderData(args));
                 if (!sheet._activeDrawing) {
                     children.push(this.renderSelection(scroller));
                 }
@@ -16358,7 +16367,7 @@
                 }
                 return className;
             },
-            renderData: function () {
+            renderData: function (args) {
                 var sheet = this._sheet;
                 var view = this._currentView;
                 var cont = kendo.dom.element('div', {
@@ -16371,6 +16380,7 @@
                 });
                 var rect = this._currentRect;
                 var layout = kendo.spreadsheet.draw.doLayout(sheet, view.ref, { forScreen: true }), prev;
+                var grid = this._grid;
                 var showGridLines = sheet._showGridLines;
                 if (showGridLines) {
                     prev = null;
@@ -16425,14 +16435,18 @@
                     drawCell(cont.children, cell, cls, showGridLines);
                     if (cell.comment && sheet._commentRef && absRow == sheet._commentRef.row && absCol == sheet._commentRef.col) {
                         var ttOffset = 4;
+                        var left = cell.right + grid.left + view.columnOffset + ttOffset;
+                        var style = { top: cell.top + grid.top + view.rowOffset + 'px' };
+                        if (left + 200 > args.contentWidth) {
+                            style.right = args.contentWidth - grid.left - cell.left - view.columnOffset + ttOffset + 'px';
+                        } else {
+                            style.left = left + 'px';
+                        }
                         var div = kendo.dom.element('div', {
                             className: 'k-tooltip k-spreadsheet-cell-comment',
-                            style: {
-                                left: cell.right + ttOffset + 'px',
-                                top: cell.top + 'px'
-                            }
+                            style: style
                         }, [kendo.dom.text(cell.comment)]);
-                        cont.children.push(div);
+                        args.toplevelElements.push(div);
                     }
                 }, this);
                 borders.vert.forEach(function (a) {

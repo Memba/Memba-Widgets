@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -36,7 +36,8 @@
         depends: [
             'data',
             'treelist'
-        ]
+        ],
+        hidden: true
     };
     (function ($, undefined) {
         var isArray = $.isArray, extend = $.extend, map = $.map, kendoData = kendo.data, Query = kendoData.Query, DataSource = kendoData.DataSource, TreeListDataSource = kendoData.TreeListDataSource, TreeListModel = kendoData.TreeListModel, PARENTIDFIELD = 'parentId';
@@ -358,7 +359,9 @@
                         break;
                     case 'plannedStart':
                         that._resolveSummaryPlannedStart(that.taskParent(model));
-                        offsetChildrenPlanned(model, model.get(field).getTime() - oldValue.getTime());
+                        if (model.get(field) && oldValue) {
+                            offsetChildrenPlanned(model, model.get(field).getTime() - oldValue.getTime());
+                        }
                         break;
                     case 'plannedEnd':
                         that._resolveSummaryPlannedEnd(that.taskParent(model));
@@ -384,7 +387,13 @@
                 task.bind('change', modelChangeHandler);
                 for (var field in taskInfo) {
                     oldValue = task.get(field);
-                    task.set(field, taskInfo[field]);
+                    if (field === 'plannedStart' || field === 'plannedEnd') {
+                        if (oldValue !== undefined || taskInfo[field] !== null) {
+                            task.set(field, taskInfo[field]);
+                        }
+                    } else {
+                        task.set(field, taskInfo[field]);
+                    }
                 }
                 task.unbind('change', modelChangeHandler);
             },

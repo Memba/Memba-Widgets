@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -127,10 +127,12 @@
                 if (browser.msie || browser.edge) {
                     markerWidth -= 1;
                 }
-                if (this._isRtl) {
-                    position = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);
-                } else {
-                    position = lastTimesCell.position().left;
+                if (firstTimesCell.length > 0 && lastTimesCell.length > 0) {
+                    if (this._isRtl) {
+                        position = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);
+                    } else {
+                        position = lastTimesCell.position().left;
+                    }
                 }
                 for (var groupIndex = 0; groupIndex < groupsCount; groupIndex++) {
                     var currentGroup = this.groups[groupIndex];

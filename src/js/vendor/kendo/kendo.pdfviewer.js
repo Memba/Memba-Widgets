@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.915 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -260,7 +260,7 @@
     define('pdfviewer/pager', ['kendo.core'], f);
 }(function () {
     (function ($, undefined) {
-        var NS = '.kendoPDFViewer', Widget = kendo.ui.Widget, CHANGE = 'change', KEYDOWN = 'keydown', CLICK = kendo.support.click, SHRINKWIDTH = 480, kendoAttr = kendo.attr, proxy = $.proxy, extend = $.extend, DOT = '.';
+        var NS = '.kendoPDFViewer', Widget = kendo.ui.Widget, CHANGE = 'change', KEYDOWN = 'keydown', CLICK = kendo.support.click, SHRINKWIDTH = 480, kendoAttr = kendo.attr, proxy = $.proxy, extend = $.extend, DOT = '.', ARIA_DISABLED = 'aria-disabled';
         var pagerStyles = {
             wrapperClass: 'k-pager-wrap',
             iconFirst: 'k-i-arrow-end-left',
@@ -322,9 +322,14 @@
                     that.nextLink.toggleClass(pagerStyles.disabled, total || options.page === options.total);
                     that.lastLink.toggleClass(pagerStyles.disabled, total || options.page === options.total);
                     that.firstLink.toggleClass(pagerStyles.disabled, total || options.page === 1);
+                    that.prevLink.attr(ARIA_DISABLED, total || options.page === 1);
+                    that.firstLink.attr(ARIA_DISABLED, total || options.page === 1);
+                    that.nextLink.attr(ARIA_DISABLED, options.page === options.total);
+                    that.lastLink.attr(ARIA_DISABLED, options.page === options.total);
                 }
                 if (that.input) {
                     that.input.toggleClass(pagerStyles.disabled, options.total <= 1);
+                    that.input.attr(ARIA_DISABLED, options.total <= 1);
                 }
             },
             _attachEvents: function () {
@@ -449,7 +454,7 @@
                 overflowHidden: 'k-overflow-hidden'
             };
         var ZOOM_BUTTON_TEMPLATE = kendo.template('<a href="\\#" aria-label="#=text#" title="#=text#" data-command="#=command#" class="k-button #=className#"><span class="k-icon #= iconClass #"></span> ${showText ? text : ""}</a>');
-        var ZOOM_COMBOBOX_TEMPLATE = kendo.template('<select>' + '#for(var zoomIndex in zoomLevels){#' + '# var zoomLevel = zoomLevels[zoomIndex]; #' + '<option value="#= zoomLevel.percent || (zoomLevel + "%") #">${zoomLevel.text ? zoomLevel.text : zoomLevel + "%"}</option>' + '#}#' + '</select>');
+        var ZOOM_COMBOBOX_TEMPLATE = kendo.template('<select title="#=zoomLevel#">' + '#for(var zoomIndex in zoomLevels){#' + '# var zoomLevel = zoomLevels[zoomIndex]; #' + '<option value="#= zoomLevel.percent || (zoomLevel + "%") #">${zoomLevel.text ? zoomLevel.text : zoomLevel + "%"}</option>' + '#}#' + '</select>');
         var DefaultTools = {
             pager: {
                 type: 'pager',
@@ -640,7 +645,10 @@
                         }
                     ];
                 zoomLevels = zoomLevels.concat(comboOptions.zoomLevels);
-                combobox = $(ZOOM_COMBOBOX_TEMPLATE({ zoomLevels: zoomLevels }));
+                combobox = $(ZOOM_COMBOBOX_TEMPLATE({
+                    zoomLevels: zoomLevels,
+                    zoomLevel: messages.zoomLevel
+                }));
                 if (!kendo.support.mobileOS) {
                     combobox = combobox.kendoComboBox(extend({
                         autoWidth: true,
@@ -1892,7 +1900,7 @@
                 if (preventZoom || viewer.trigger(ZOOMSTART, { scale: scale })) {
                     return;
                 }
-                if (options.updateComboBox) {
+                if (options.updateComboBox && viewer.toolbar) {
                     viewer.toolbar._updateZoomComboBox(scale);
                 }
                 return scaleValue;
@@ -2098,6 +2106,7 @@
                     defaultFileName: 'Document',
                     toolbar: {
                         zoom: {
+                            zoomLevel: 'zoom level',
                             zoomOut: 'Zoom Out',
                             zoomIn: 'Zoom In',
                             actualWidth: 'Actual Width',

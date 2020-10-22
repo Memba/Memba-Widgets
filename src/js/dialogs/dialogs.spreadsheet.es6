@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import 'kendo.spreadsheet';
+// import 'kendo.spreadsheet';
 import __ from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import './widgets.basedialog.es6';

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>dialogs.imageeditor</title>
+    <script>
+        window.DEBUG = true;
+    </script>
+    <!-- Kidoju fonts -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Kidoju theme -->
+    <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
+    <script src="../helpers/system.config.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.import('./dialogs.imageeditor.es6').then(function (module) {
+                var kendo = window.kendo;
+                var openImageEditor = module.default;
+                $(function () {
+                    $('#button1').click(function () {
+                        openImageEditor({
+                            title: 'My Image Editor',
+                            data: {
+                                imageUrl: '../../../test/data/images/miscellaneous/self-portrait-1907.jpg'
+                            }
+                        }).then(function(result) {
+                            $("#console1").append(
+                                kendo.format(
+                                    '<div>action `{0}` with data `{1}` at {2}</div>',
+                                    result.action,
+                                    JSON.stringify(result.data).substr(0, 40), new Date().toLocaleTimeString()
+                                )
+                            );
+                        });
+                    });
+                });
+            });
+        }());
+    </script>
+    <style type="text/css">
+        .highlight-section {
+            margin-top: 10px;
+            width: 600px;
+            padding: 7px 7px 7px 7px;
+            min-height: 35px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>dialogs.imageeditor</h1>
+
+<h2>openImageEditor</h2>
+<button id="button1" class="k-button">Show Me!</button>
+<div id="console1" class="highlight-section k-block" style="margin-top: 20px;"></div>
+
+</body>
+</html>

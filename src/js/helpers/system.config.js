@@ -5,7 +5,6 @@ const baseURL = new Array(count - 2).fill('../').join('');
 SystemJS.config({
     baseURL,
     bundles: {
-        kendogrid: ['kendo.grid'],
         kendoaspnetmvc: ['kendo.aspnetmvc'],
         kendodatavizbarcode: ['kendo.dataviz.barcode'],
         kendodatavizchart: ['kendo.dataviz.chart'],
@@ -21,6 +20,8 @@ SystemJS.config({
         kendodrawing: ['kendo.drawing'],
         kendoeditor: ['kendo.editor'],
         kendogantt: ['kendo.gantt'],
+        kendogrid: ['kendo.grid'],
+        kendoimageeditor: ['kendo.imageeditor'],
         kendopdf: ['kendo.pdf'],
         kendoscheduler: ['kendo.scheduler'],
         kendospreadsheet: ['kendo.spreadsheet'],
@@ -78,7 +79,7 @@ SystemJS.config({
         'kendo.gantt.timeline': 'src/js/vendor/kendo/kendo.gantt.timeline.js',
         'kendo.groupable': 'src/js/vendor/kendo/kendo.groupable.js',
         'kendo.imagebrowser': 'src/js/vendor/kendo/kendo.imagebrowser.js',
-        'kendo.imageeditor': 'src/js/vendor/kendo/kendo.imageeditor.js',
+        // 'kendo.imageeditor': 'src/js/vendor/kendo/kendo.imageeditor.js',
         'kendo.list': 'src/js/vendor/kendo/kendo.list.js',
         'kendo.listbox': 'src/js/vendor/kendo/kendo.listbox.js',
         'kendo.listview': 'src/js/vendor/kendo/kendo.listview.js',
@@ -194,6 +195,7 @@ SystemJS.config({
         kendoeditor: 'src/js/vendor/kendo/kendo.editor.js',
         kendogantt: 'src/js/vendor/kendo/kendo.gantt.js',
         kendogrid: 'src/js/vendor/kendo/kendo.grid.js',
+        kendoimageeditor: 'src/js/vendor/kendo/kendo.imageeditor.js',
         kendopdf: 'src/js/vendor/kendo/kendo.pdf.js',
         kendoscheduler: 'src/js/vendor/kendo/kendo.scheduler.js',
         kendospreadsheet: 'src/js/vendor/kendo/kendo.spreadsheet.js',

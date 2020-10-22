@@ -56,8 +56,10 @@ function openImageEditor(options = {}) {
                     .find(roleSelector('imageeditor'))
                     .kendoImageEditor({
                         imageUrl: '',
-                        execute: (e) => {
-                            debugger;
+                        execute: (evt) => {
+                            if (evt.command !== 'ZoomImageEditorCommand') {
+                                window.alert(evt.command);
+                            }
                         },
                         ...e.sender.options.data,
                     });
@@ -79,7 +81,7 @@ function openImageEditor(options = {}) {
                     .data('kendoImageEditor');
                 dfd.resolve({
                     action: e.action,
-                    data: imageEditor.imageUrl,
+                    data: { imageUrl: imageEditor.options.imageUrl },
                 });
             });
 

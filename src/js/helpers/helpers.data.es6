@@ -19,12 +19,12 @@ const boxGenerator = () => {
     const minWidth = 60;
     const maxWidth = 1024;
     const ratio = 0.6;
-    const height = JSC.integer(minHeight, Math.ceil(ratio * maxHeight));
-    const width = JSC.integer(minWidth, Math.ceil(ratio * maxWidth));
+    const height = JSC.integer(minHeight, Math.ceil(ratio * maxHeight))();
+    const width = JSC.integer(minWidth, Math.ceil(ratio * maxWidth))();
     return {
         height,
-        left: JSC.integer(maxWidth - width),
-        top: JSC.integer(maxHeight - height),
+        left: JSC.integer(maxWidth - width)(),
+        top: JSC.integer(maxHeight - height)(),
         width,
     };
 };

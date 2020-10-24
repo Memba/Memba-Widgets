@@ -25,7 +25,7 @@ import '../../../src/js/widgets/widgets.explorer.es6';
 import {
     componentGenerator,
     getComponentArray,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {

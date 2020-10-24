@@ -23,7 +23,7 @@ import { BaseTool } from '../../../src/js/tools/tools.base.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 // Component data
-import { getMathInput } from '../../../src/js/helpers/helpers.components.es6';
+import { getMathInput } from '../../../src/js/helpers/helpers.data.es6';
 
 const { describe, it, xit } = window;
 const { expect } = chai;

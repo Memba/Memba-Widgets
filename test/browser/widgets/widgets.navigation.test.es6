@@ -23,7 +23,7 @@ import '../../../src/js/widgets/widgets.navigation.es6';
 import {
     componentGenerator,
     getPageArray,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
 const {

@@ -23,7 +23,7 @@ import openCodeEditor from '../../../src/js/dialogs/dialogs.codeeditor.es6';
 import {
     getTextBox,
     getValidationLibrary,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 

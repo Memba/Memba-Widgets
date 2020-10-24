@@ -24,7 +24,7 @@ import { tryCatch } from '../_misc/test.util.es6';
 import {
     componentGenerator,
     getStream,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 
 const { describe, it, xit } = window;
 const {

@@ -27,7 +27,7 @@ import {
     componentGenerator,
     getStream,
     getComponentArray,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
 
 const { describe, it, xit } = window;

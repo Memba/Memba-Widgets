@@ -17,7 +17,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import { getValidationLibrary } from '../../../src/js/helpers/helpers.components.es6';
+import { getValidationLibrary } from '../../../src/js/helpers/helpers.data.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import '../../../src/js/widgets/widgets.codeinput.es6';
 

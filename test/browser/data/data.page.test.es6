@@ -25,7 +25,7 @@ import {
     getComponentArray,
     getPage,
     getPageArray,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 import {
     getErrorTransport,
     // getSpyingTransport

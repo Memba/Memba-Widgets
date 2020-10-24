@@ -30,7 +30,7 @@ import { assertBaseModel, tryCatch } from '../_misc/test.util.es6';
 import {
     getComponentArray,
     getPage,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 import { getSpyingTransport } from '../_misc/test.transports.es6';
 
 const { describe, it } = window;

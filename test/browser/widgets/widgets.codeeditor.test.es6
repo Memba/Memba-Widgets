@@ -21,7 +21,7 @@ import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import {
     getTextBox,
     getValidationLibrary,
-} from '../../../src/js/helpers/helpers.components.es6';
+} from '../../../src/js/helpers/helpers.data.es6';
 import tools from '../../../src/js/tools/tools.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
 import CodeMirror from '../../../src/js/vendor/codemirror/lib/codemirror';

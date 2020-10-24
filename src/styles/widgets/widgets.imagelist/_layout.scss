@@ -20,13 +20,13 @@
 
     // Cursor
     body > .k-list-item > .kj-handle,
-    .kj-imagelist > .k-listview:not(.k-state-disabled) > .k-list-item > .kj-handle {
+    .kj-imagelist > .k-listview:not(.k-state-disabled) > .k-listview-content > .k-list-item > .kj-handle {
         cursor: move;
     }
 
     // we also need body > k-list-item for draggable hints
     body,
-    .kj-imagelist > .k-listview {
+    .kj-imagelist > .k-listview > .k-listview-content {
         > .k-list-item {
             align-items: center;
             display: flex;

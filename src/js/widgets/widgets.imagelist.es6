@@ -336,7 +336,8 @@ const ImageList = DataBoundWidget.extend({
             this.sortable = this.ul
                 .kendoSortable({
                     cursor: 'move',
-                    filter: '>.k-list-item',
+                    // filter: '> .k-listview-content > .k-list-item',
+                    filter: '.k-list-item',
                     handler: '.kj-handle, .kj-handle *',
                     holdToDrag: support.touch,
                     ignore: 'input', // otherwise focus and selections won't work properly in inputs

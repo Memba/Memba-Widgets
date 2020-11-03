@@ -19749,6 +19749,46 @@
 	  })(commonjsGlobal);
 	});
 
+	var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+
+	// `Object.{ entries, values }` methods implementation
+	var createMethod$5 = function (TO_ENTRIES) {
+	  return function (it) {
+	    var O = toIndexedObject(it);
+	    var keys = objectKeys(O);
+	    var length = keys.length;
+	    var i = 0;
+	    var result = [];
+	    var key;
+	    while (length > i) {
+	      key = keys[i++];
+	      if (!descriptors || propertyIsEnumerable.call(O, key)) {
+	        result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
+	      }
+	    }
+	    return result;
+	  };
+	};
+
+	var objectToArray = {
+	  // `Object.entries` method
+	  // https://tc39.github.io/ecma262/#sec-object.entries
+	  entries: createMethod$5(true),
+	  // `Object.values` method
+	  // https://tc39.github.io/ecma262/#sec-object.values
+	  values: createMethod$5(false)
+	};
+
+	var $values = objectToArray.values;
+
+	// `Object.values` method
+	// https://tc39.github.io/ecma262/#sec-object.values
+	_export({ target: 'Object', stat: true }, {
+	  values: function values(O) {
+	    return $values(O);
+	  }
+	});
+
 	var format$1 = util.format;
 	/**
 	 * Contains error codes, factory functions to create throwable error objects,
@@ -19881,6 +19921,7 @@
 	   */
 	  INVALID_PLUGIN_DEFINITION: 'ERR_MOCHA_INVALID_PLUGIN_DEFINITION'
 	};
+	var MOCHA_ERRORS = new Set(Object.values(constants));
 	/**
 	 * Creates an error object to be thrown when no files to be tested could be found using specified pattern.
 	 *
@@ -20183,6 +20224,18 @@
 	  err.pluginImpl = pluginImpl;
 	  return err;
 	}
+	/**
+	 * Returns `true` if an error came out of Mocha.
+	 * _Can suffer from false negatives, but not false positives._
+	 * @public
+	 * @param {*} err - Error, or anything
+	 * @returns {boolean}
+	 */
+
+
+	var isMochaError = function isMochaError(err) {
+	  return Boolean(err && _typeof(err) === 'object' && MOCHA_ERRORS.has(err.code));
+	};
 
 	var errors = {
 	  constants: constants,
@@ -20204,6 +20257,7 @@
 	  createNoFilesMatchPatternError: createNoFilesMatchPatternError,
 	  createUnsupportedError: createUnsupportedError,
 	  deprecate: deprecate$1,
+	  isMochaError: isMochaError,
 	  warn: warn
 	};
 
@@ -22724,9 +22778,11 @@
 	var sQuote = utils.sQuote;
 	var stackFilter = utils.stackTraceFilter();
 	var stringify = utils.stringify;
-	var createInvalidExceptionError$2 = errors.createInvalidExceptionError;
-	var createUnsupportedError$1 = errors.createUnsupportedError;
-	var createFatalError$1 = errors.createFatalError;
+	var createInvalidExceptionError$2 = errors.createInvalidExceptionError,
+	    createUnsupportedError$1 = errors.createUnsupportedError,
+	    createFatalError$1 = errors.createFatalError,
+	    isMochaError$1 = errors.isMochaError,
+	    errorConstants = errors.constants;
 	/**
 	 * Non-enumerable globals.
 	 * @private
@@ -22901,6 +22957,25 @@
 	    _this.globals(_this.globalProps());
 
 	    _this.uncaught = _this._uncaught.bind(_assertThisInitialized(_this));
+
+	    _this.unhandled = function (reason, promise) {
+	      if (isMochaError$1(reason)) {
+	        debug$2('trapped unhandled rejection coming out of Mocha; forwarding to uncaught handler:', reason);
+
+	        _this.uncaught(reason);
+	      } else {
+	        debug$2('trapped unhandled rejection from (probably) user code; re-emitting on process');
+
+	        _this._removeEventListener(process$1, 'unhandledRejection', _this.unhandled);
+
+	        try {
+	          process$1.emit('unhandledRejection', reason, promise);
+	        } finally {
+	          _this._addEventListener(process$1, 'unhandledRejection', _this.unhandled);
+	        }
+	      }
+	    };
+
 	    return _this;
 	  }
 
@@ -23141,7 +23216,7 @@
 	  }
 
 	  if (this.state === constants$3.STATE_STOPPED) {
-	    if (err.code === errors.constants.MULTIPLE_DONE) {
+	    if (err.code === errorConstants.MULTIPLE_DONE) {
 	      throw err;
 	    }
 
@@ -23777,20 +23852,7 @@
 
 	    debug$2('run(): emitted %s', constants$3.EVENT_RUN_BEGIN);
 
-	    _this2.runSuite(rootSuite, /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-	      return regeneratorRuntime.wrap(function _callee$(_context) {
-	        while (1) {
-	          switch (_context.prev = _context.next) {
-	            case 0:
-	              end();
-
-	            case 1:
-	            case "end":
-	              return _context.stop();
-	          }
-	        }
-	      }, _callee);
-	    })));
+	    _this2.runSuite(rootSuite, end);
 	  };
 
 	  var prepare = function prepare() {
@@ -23828,11 +23890,11 @@
 
 	  this._removeEventListener(process$1, 'uncaughtException', this.uncaught);
 
-	  this._removeEventListener(process$1, 'unhandledRejection', this.uncaught);
+	  this._removeEventListener(process$1, 'unhandledRejection', this.unhandled);
 
 	  this._addEventListener(process$1, 'uncaughtException', this.uncaught);
 
-	  this._addEventListener(process$1, 'unhandledRejection', this.uncaught);
+	  this._addEventListener(process$1, 'unhandledRejection', this.unhandled);
 
 	  if (this._delay) {
 	    // for reporters, I guess.
@@ -23885,26 +23947,26 @@
 
 
 	Runner.prototype.runAsync = /*#__PURE__*/function () {
-	  var _runAsync = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+	  var _runAsync = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
 	    var _this3 = this;
 
 	    var opts,
-	        _args2 = arguments;
-	    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+	        _args = arguments;
+	    return regeneratorRuntime.wrap(function _callee$(_context) {
 	      while (1) {
-	        switch (_context2.prev = _context2.next) {
+	        switch (_context.prev = _context.next) {
 	          case 0:
-	            opts = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : {};
-	            return _context2.abrupt("return", new Promise(function (resolve) {
+	            opts = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
+	            return _context.abrupt("return", new Promise(function (resolve) {
 	              _this3.run(resolve, opts);
 	            }));
 
 	          case 2:
 	          case "end":
-	            return _context2.stop();
+	            return _context.stop();
 	        }
 	      }
-	    }, _callee2);
+	    }, _callee);
 	  }));
 
 	  function runAsync() {
@@ -26838,7 +26900,7 @@
 	});
 
 	var name = "mocha";
-	var version$2 = "8.2.0";
+	var version$2 = "8.2.1";
 	var homepage = "https://mochajs.org/";
 	var notifyLogo = "https://ibin.co/4QuRuGjXvl36.png";
 	var _package = {

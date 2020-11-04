@@ -14,13 +14,14 @@ import Logger from '../common/window.logger.es6';
 const {
     destroy,
     format,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.countdown');
 const CHANGE = 'change';
 const CLICK = 'click';
 const NS = '.kendoCountDown';
 const WIDGET_CLASS = 'k-widget kj-countdown';
+const TTL = 500;
 
 /**
  * CountDown
@@ -36,12 +37,13 @@ const CountDown = Widget.extend({
      */
     init(element, options) {
         Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this.setOptions({
             enabled: this.element.prop('disabled')
                 ? false
                 : this.options.enabled,
-            value: this.options.value
+            value: this.options.value,
         });
     },
 
@@ -59,7 +61,7 @@ const CountDown = Widget.extend({
         name: 'CountDown',
         enabled: true,
         text: '{1:00}:{2:00}:{3:00}',
-        value: 3600 * 1000 // in milliseconds
+        value: 3600 * 1000, // in milliseconds
     },
 
     /**
@@ -70,7 +72,6 @@ const CountDown = Widget.extend({
     setOptions(options) {
         this.enable(options.enabled);
         this.value(options.value);
-        this.start();
     },
 
     /**
@@ -105,15 +106,9 @@ const CountDown = Widget.extend({
     _render() {
         this.wrapper = this.element;
         this.element.addClass(`${WIDGET_CLASS} k-info`);
+        $(`<${CONSTANTS.SPAN}/>`).addClass('k-text').appendTo(this.element);
         $(`<${CONSTANTS.SPAN}/>`)
             .addClass('k-icon k-i-play')
-            .appendTo(this.element);
-        $(`<${CONSTANTS.SPAN}/>`)
-            .addClass('k-icon k-i-pause')
-            .appendTo(this.element)
-            .hide();
-        $(`<${CONSTANTS.SPAN}/>`)
-            .addClass('k-text')
             .appendTo(this.element);
     },
 
@@ -121,12 +116,24 @@ const CountDown = Widget.extend({
      * Resume
      */
     resume() {
+        this._counting = true;
         this._initial = this.value();
         this._start = Date.now();
         this._interval = setInterval(() => {
             this.value(this._initial + (this._start - Date.now()));
             this.refresh();
-        }, 1000);
+        }, TTL);
+        this.element
+            .children('.k-icon')
+            .toggleClass('k-i-pause', true)
+            .toggleClass('k-i-play', false);
+    },
+
+    /**
+     * Resume
+     */
+    pause() {
+        this.stop(true);
     },
 
     /**
@@ -139,10 +146,16 @@ const CountDown = Widget.extend({
     /**
      * Stop
      */
-    stop() {
-        clearInterval(this._interval);
+    stop(paused) {
+        this._counting = false;
+        this._initial = paused ? this.value() : undefined;
         this._start = undefined;
+        clearInterval(this._interval);
         this._interval = undefined;
+        this.element
+            .children('.k-icon')
+            .toggleClass('k-i-pause', false)
+            .toggleClass('k-i-play', true);
     },
 
     /**
@@ -166,6 +179,7 @@ const CountDown = Widget.extend({
             this.element
                 .children('.k-text')
                 .text(format(this.options.text, days, hours, minutes, seconds));
+            logger.debug({ method: 'refresh', message: 'widget refreshed' });
         });
     },
 
@@ -192,7 +206,11 @@ const CountDown = Widget.extend({
      * @private
      */
     _onClick() {
-        this.value('');
+        if (this._counting) {
+            this.pause();
+        } else {
+            this.resume();
+        }
         this.trigger(CHANGE);
     },
 
@@ -203,7 +221,8 @@ const CountDown = Widget.extend({
     destroy() {
         Widget.fn.destroy.call(this);
         destroy(this.element);
-    }
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
+    },
 });
 
 /**

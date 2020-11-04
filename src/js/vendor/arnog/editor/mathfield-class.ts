@@ -14,7 +14,7 @@ import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
 
 import { ModelPrivate } from './model';
 import { applyStyle } from './model-styling';
-import { delegateKeyboardEvents } from './keyboard';
+import { delegateKeyboardEvents, KeyboardDelegate } from './keyboard';
 import { UndoRecord, UndoManager } from './undo';
 import { hidePopover, updatePopoverPosition } from './popover';
 import { atomToAsciiMath } from './atom-to-ascii-math';
@@ -41,7 +41,7 @@ import {
     getDefault as getDefaultOptions,
     get as getOptions,
 } from './options';
-import { insert } from './model-insert';
+import { insert, removeComposition, updateComposition } from './model-insert';
 import { deleteChar } from './model-delete';
 import { addRowAfter, addColumnAfter } from './model-array';
 import { onTypedText, onKeystroke } from './mathfield-keyboard-input';
@@ -51,7 +51,7 @@ import './mathfield-commands';
 import './mathfield-styling';
 
 import {
-    getCaretPosition,
+    getCaretPoint,
     getSelectionBounds,
     getSharedElement,
     releaseSharedElement,
@@ -77,7 +77,7 @@ import {
 
 import { atomToSpeakableText } from './atom-to-speakable-text';
 import { atomsToMathML } from '../addons/math-ml';
-import { updateUndoRedoButtons } from './virtual-keyboard';
+import { VirtualKeyboard, updateUndoRedoButtons } from './virtual-keyboard';
 
 // @ts-ignore
 import mathfieldStylesheet from '../../css/mathfield.less';
@@ -103,7 +103,6 @@ export class MathfieldPrivate implements Mathfield {
     // the `onCommit` listener is triggered
     private valueOnFocus: string;
     dirty: boolean; // If true, need to be redrawn
-    pasteInProgress: boolean;
     smartModeSuppressed: boolean;
     private resizeTimer: number; // Timer handle
 
@@ -113,7 +112,7 @@ export class MathfieldPrivate implements Mathfield {
 
     private stylesheets: Stylesheet[] = [];
 
-    textarea: HTMLElement;
+    keyboardDelegate: KeyboardDelegate;
     field: HTMLElement;
     virtualKeyboardToggle: HTMLElement;
     ariaLiveText: HTMLElement;
@@ -124,7 +123,7 @@ export class MathfieldPrivate implements Mathfield {
     keystrokeCaption: HTMLElement;
 
     virtualKeyboardVisible: boolean;
-    virtualKeyboard: HTMLElement;
+    virtualKeyboard: VirtualKeyboard;
 
     keybindings: Keybinding[]; // Normalized keybindings (raw ones in config)
     keyboardLayout: KeyboardLayoutName;
@@ -249,10 +248,11 @@ export class MathfieldPrivate implements Mathfield {
         this.element.innerHTML = this.options.createHTML(markup);
 
         let iChild = 0; // index of child -- used to make changes below easier
+        let textarea: HTMLElement;
         if (typeof this.options.substituteTextArea === 'function') {
-            this.textarea = this.options.substituteTextArea();
+            textarea = this.options.substituteTextArea();
         } else {
-            this.textarea = this.element.children[iChild++]
+            textarea = this.element.children[iChild++]
                 .firstElementChild as HTMLElement;
         }
         this.field = this.element.children[iChild].children[0] as HTMLElement;
@@ -318,26 +318,33 @@ export class MathfieldPrivate implements Mathfield {
         // enters a mode changing command.
         this.mode = this.options.defaultMode;
         this.smartModeSuppressed = false;
-        // Current style (color, weight, italic, etc...)
-        // Reflects the style to be applied on next insertion, if any
+        // Current style (color, weight, italic, etc...):
+        // reflects the style to be applied on next insertion.
         this.style = {};
         // Focus/blur state
         this.blurred = true;
         on(this.element, 'focus', this);
         on(this.element, 'blur', this);
         // Capture clipboard events
-        on(this.textarea, 'cut', this);
-        on(this.textarea, 'copy', this);
-        on(this.textarea, 'paste', this);
         // Delegate keyboard events
-        delegateKeyboardEvents(this.textarea as HTMLTextAreaElement, {
-            allowDeadKey: () => this.mode === 'text',
-            typedText: (text: string): void => onTypedText(this, text),
-            paste: () => onPaste(this),
-            keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
-            focus: () => this.onFocus(),
-            blur: () => this.onBlur(),
-        });
+        this.keyboardDelegate = delegateKeyboardEvents(
+            textarea as HTMLTextAreaElement,
+            {
+                typedText: (text: string): void => onTypedText(this, text),
+                cut: () => onCut(this),
+                copy: (ev) => onCopy(this, ev),
+                paste: (ev) => onPaste(this, ev),
+                keystroke: (keystroke, e) => onKeystroke(this, keystroke, e),
+                focus: () => this.onFocus(),
+                blur: () => this.onBlur(),
+                compositionStart: (composition: string) =>
+                    this.onCompositionStart(composition),
+                compositionUpdate: (composition: string) =>
+                    this.onCompositionUpdate(composition),
+                compositionEnd: (composition: string) =>
+                    this.onCompositionEnd(composition),
+            }
+        );
 
         // Delegate mouse and touch events
         if (window.PointerEvent) {
@@ -576,19 +583,10 @@ export class MathfieldPrivate implements Mathfield {
                     window.cancelAnimationFrame(this.resizeTimer);
                 }
                 this.resizeTimer = window.requestAnimationFrame(
-                    () => isValidMathfield(this) && this._onResize()
+                    () => isValidMathfield(this) && this.onResize()
                 );
                 break;
             }
-            case 'cut':
-                onCut(this);
-                break;
-            case 'copy':
-                onCopy(this, evt as ClipboardEvent);
-                break;
-            case 'paste':
-                onPaste(this);
-                break;
             default:
                 console.warn('Unexpected event type', evt.type);
         }
@@ -605,22 +603,17 @@ export class MathfieldPrivate implements Mathfield {
         delete this.accessibleNode;
         delete this.ariaLiveText;
         delete this.field;
-        off(this.textarea, 'cut', this);
-        off(this.textarea, 'copy', this);
-        off(this.textarea, 'paste', this);
-        this.textarea.remove();
-        delete this.textarea;
+        delete this.keyboardDelegate;
         this.virtualKeyboardToggle.remove();
         delete this.virtualKeyboardToggle;
         releaseSharedElement(this.popover);
         delete this.popover;
         releaseSharedElement(this.keystrokeCaption);
         delete this.keystrokeCaption;
-        releaseSharedElement(this.virtualKeyboard);
-        delete this.virtualKeyboard;
-        releaseSharedElement(
-            document.getElementById('mathlive-alternate-keys-panel')
-        );
+        if (this.virtualKeyboard) {
+            this.virtualKeyboard.dispose();
+            delete this.virtualKeyboard;
+        }
         off(this.element, 'pointerdown', this);
         off(this.element, 'touchstart:active mousedown', this);
         off(this.element, 'focus', this);
@@ -654,18 +647,9 @@ export class MathfieldPrivate implements Mathfield {
         const result = selectionIsCollapsed(this.model)
             ? ''
             : makeRoot('math', getSelectedAtoms(this.model)).toLatex(false);
-        const textarea = this.textarea as HTMLInputElement;
-        if (result) {
-            textarea.value = result;
-            // The textarea may be a span (on mobile, for example), so check that
-            // it has a select() before calling it.
-            if (this.hasFocus() && textarea.select) {
-                textarea.select();
-            }
-        } else {
-            textarea.value = '';
-            textarea.setAttribute('aria-label', '');
-        }
+
+        this.keyboardDelegate.setValue(result);
+
         // Update the mode
         {
             const previousMode = this.mode;
@@ -695,11 +679,7 @@ export class MathfieldPrivate implements Mathfield {
         if (this.options.readOnly) return;
         if (this.blurred) {
             this.blurred = false;
-            // The textarea may be a span (on mobile, for example), so check that
-            // it has a focus() before calling it.
-            if (this.textarea.focus) {
-                this.textarea.focus();
-            }
+            this.keyboardDelegate.focus();
             if (this.options.virtualKeyboardMode === 'onfocus') {
                 showVirtualKeyboard(this);
             }
@@ -735,7 +715,29 @@ export class MathfieldPrivate implements Mathfield {
             }
         }
     }
-    private _onResize(): void {
+    private onCompositionStart(_composition: string): void {
+        // Clear the selection if there is one
+        deleteChar(this.model);
+        requestAnimationFrame(() => {
+            render(this); // Recalculate the position of the caret
+            // Synchronize the location and style of textarea
+            // so that the IME candidate window can align with the composition
+            const caretPoint = getCaretPoint(this.field);
+            if (!caretPoint) return;
+            this.keyboardDelegate.moveTo(caretPoint.x, caretPoint.y);
+        });
+    }
+    private onCompositionUpdate(composition: string): void {
+        updateComposition(this.model, composition);
+        requestUpdate(this);
+    }
+    private onCompositionEnd(composition: string): void {
+        removeComposition(this.model);
+        onTypedText(this, composition, {
+            simulateKeystroke: true,
+        });
+    }
+    private onResize(): void {
         this.element.classList.remove(
             'ML__isNarrowWidth',
             'ML__isWideWidth',
@@ -825,9 +827,9 @@ export class MathfieldPrivate implements Mathfield {
 
     getValue(): string;
     getValue(format: OutputFormat): string;
-    getValue(start: number, end: number, format: OutputFormat): string;
-    getValue(range: Range, format: OutputFormat): string;
-    getValue(ranges: Range[], format: OutputFormat): string;
+    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(range: Range, format?: OutputFormat): string;
+    getValue(ranges: Range[], format?: OutputFormat): string;
     getValue(
         arg1?: number | OutputFormat | Range | Range[],
         arg2?: number | OutputFormat,
@@ -838,35 +840,39 @@ export class MathfieldPrivate implements Mathfield {
         }
         let format: OutputFormat;
         if (typeof arg1 === 'string') {
+            // Output format only
             format = arg1;
             return this.atomToString(this.model.root, format);
         }
         let ranges: Range[];
-        if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+        if (
+            typeof arg1 === 'number' &&
+            (typeof arg2 === 'number' || typeof arg2 === 'undefined')
+        ) {
             ranges = [
                 {
                     start: arg1,
-                    end: arg2,
+                    end: arg2 ?? -1,
                 },
             ];
             format = arg3 ?? 'latex';
         } else if (Array.isArray(arg1)) {
             ranges = arg1;
+            format = arg2 as OutputFormat;
         } else {
             ranges = [arg1 as Range];
+            format = arg2 as OutputFormat;
         }
         const iter = new PositionIterator(this.model.root);
         const result = ranges
             .map((range): string => {
                 let res = '';
-                range = normalizeRange(iter, range, {
-                    accessibleAtomsOnly: true,
-                });
-                if (range.start >= 0 && !range.collapsed) {
+                range = normalizeRange(iter, range);
+                if (!range.collapsed) {
                     const depth = iter.at(range.start).depth;
                     for (let i = range.start + 1; i <= range.end; i++) {
                         if (iter.at(i).depth === depth) {
-                            res += this.atomToString(iter.at(i).atom, 'latex');
+                            res += this.atomToString(iter.at(i).atom, format);
                         }
                     }
                 }
@@ -890,6 +896,42 @@ export class MathfieldPrivate implements Mathfield {
         });
         this.undoManager.snapshot(this.options);
         requestUpdate(this);
+    }
+
+    find(latex: string): Range[] {
+        const result = [];
+        const iter = new PositionIterator(this.model.root);
+        const lastPosition = iter.lastPosition;
+
+        for (let i = 0; i < lastPosition; i++) {
+            const depth = iter.at(i).depth;
+            // @todo: adjust for depth, use the smallest depth of start and end
+            // and adjust start/end to be at the same depth
+            // if parent of start and end is not the same,
+            // look at common ancestor, if start's parent is common ancestor,
+            // use start, otherwise start =  position of common ancestor.
+            // if end's parent is common ancestor, use end, otherwise use position
+            // of common ancestor + 1.
+            // And maybe that "adjustment" need to be in getValue()? but then
+            // the range result might include duplicates
+            for (let j = i; j < lastPosition; j++) {
+                let value = '';
+                for (let k = i + 1; k <= j; k++) {
+                    if (iter.at(k).depth === depth) {
+                        value += this.atomToString(iter.at(k).atom, 'latex');
+                        console.log(
+                            `value(${
+                                i + 1
+                            }, ${j}) = "${value}" = '${this.getValue(i, j)}'`
+                        );
+                    }
+                }
+                if (value === latex) {
+                    result.push(normalizeRange(iter, { start: i, end: j }));
+                }
+            }
+        }
+        return result;
     }
 
     /** @deprecated */
@@ -963,19 +1005,19 @@ export class MathfieldPrivate implements Mathfield {
         if (this.dirty) {
             render(this);
         }
-        let pos: number = getCaretPosition(this.field)?.x;
+        let caretPoint: number = getCaretPoint(this.field)?.x;
         const fieldBounds = this.field.getBoundingClientRect();
-        if (typeof pos === 'undefined') {
+        if (typeof caretPoint === 'undefined') {
             const selectionBounds = getSelectionBounds(this.field);
             if (selectionBounds !== null) {
-                pos =
+                caretPoint =
                     selectionBounds.right +
                     fieldBounds.left -
                     this.field.scrollLeft;
             }
         }
-        if (typeof pos !== 'undefined') {
-            const x = pos - window.scrollX;
+        if (typeof caretPoint !== 'undefined') {
+            const x = caretPoint - window.scrollX;
             if (x < fieldBounds.left) {
                 this.field.scroll({
                     top: 0,
@@ -1034,6 +1076,7 @@ export class MathfieldPrivate implements Mathfield {
         return false;
     }
     switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
+        if (this.mode === mode) return;
         this.resetKeystrokeBuffer();
         // Suppress (temporarily) smart mode if switching to/from text or math
         // This prevents switching to/from command mode from supressing smart mode.
@@ -1078,25 +1121,17 @@ export class MathfieldPrivate implements Mathfield {
         return this.hasFocus();
     }
     hasFocus(): boolean {
-        return (
-            document.hasFocus() && deepActiveElement(document) === this.textarea
-        );
+        return document.hasFocus() && this.keyboardDelegate.hasFocus();
     }
     focus(): void {
         if (!this.hasFocus()) {
-            // The textarea may be a span (on mobile, for example), so check that
-            // it has a focus() before calling it.
-            if (typeof this.textarea.focus === 'function') {
-                this.textarea.focus();
-            }
+            this.keyboardDelegate.focus();
             this.model.announce('line');
         }
     }
     blur(): void {
         if (this.hasFocus()) {
-            if (typeof this.textarea.blur === 'function') {
-                this.textarea.blur();
-            }
+            this.keyboardDelegate.blur();
         }
     }
     /** @deprecated */
@@ -1142,13 +1177,13 @@ export class MathfieldPrivate implements Mathfield {
         onTypedText(this, text);
     }
 
-    getCaretPosition(): { x: number; y: number } | null {
-        const caretPosition = getCaretPosition(this.field);
+    getCaretPoint(): { x: number; y: number } | null {
+        const caretPosition = getCaretPoint(this.field);
         return caretPosition
             ? { x: caretPosition.x, y: caretPosition.y }
             : null;
     }
-    setCaretPosition(x: number, y: number): boolean {
+    setCaretPoint(x: number, y: number): boolean {
         const oldPath = this.model.clone();
         const anchor = pathFromPoint(this, x, y, { bias: 0 });
         const result = setPath(this.model, anchor, 0);
@@ -1211,15 +1246,6 @@ export class MathfieldPrivate implements Mathfield {
             },
         });
     }
-}
-
-function deepActiveElement(
-    root: DocumentOrShadowRoot = document
-): Element | null {
-    if (root.activeElement?.shadowRoot?.activeElement) {
-        return deepActiveElement(root.activeElement.shadowRoot);
-    }
-    return root.activeElement;
 }
 
 function deprecated(method: string) {

@@ -175,7 +175,10 @@ function latexToAST(
 }
 
 /** @deprecated Use MathJSON */
-function astToLatex(expr: MathJson, options: MathJsonLatexOptions): string {
+export function astToLatex(
+    expr: MathJson,
+    options: MathJsonLatexOptions
+): string {
     return jsonToLatex(
         typeof expr === 'string' ? JSON.parse(expr) : expr,
         options
@@ -222,7 +225,7 @@ function latexToSpeakableText(
     return convertLatexToSpeakableText(latex, options);
 }
 
-function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
+export function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
     renderMathInElement(document.body, options);
 }
 
@@ -237,7 +240,7 @@ function getElement(element: string | HTMLElement): HTMLElement {
     return element;
 }
 
-function renderMathInElement(
+export function renderMathInElement(
     element: HTMLElement,
     options: AutoRenderOptionsPrivate
 ): void {

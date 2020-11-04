@@ -56,17 +56,35 @@ export type MathErrorEvent = {
     after?: string;
 };
 
+/**
+ * The `keystroke` event is fired when a keystroke is about to be procesed.
+ * The event is cancellable, which wills suprress further handling of the event.
+ *
+ */
 export type KeystrokeEvent = {
+    /** A string descring the keystroke, for example `"Alt-KeyU". See [W3C UIEvents](https://www.w3.org/TR/uievents/#keys-keyvalues)
+     * for more information on the format of the descriptor.
+     *
+     */
     keystroke: string;
-    event: KeyboardEvent;
+    /** The native keyboard event */
+    event?: KeyboardEvent;
 };
 
 /**
- * This event signals that the mathfield has lost focus through keyboard
+ * The `focus-out` event signals that the mathfield has lost focus through keyboard
  * navigation with arrow keys or the tab key.
  *
  * The event `detail.direction` property indicates the direction the cursor
  * was moving which can be useful to decide which element to focus next.
+ *
+ * The event is cancelable, which will prevent the field from losing focus.
+ *
+ * ```javascript
+ * mfe.addEventListener('focus-out', (ev) => {
+ *  console.log("Losing focus ", ev.detail.direction);
+ * });
+ * ```
  */
 export type FocusOutEvent = {
     direction: 'forward' | 'backward' | 'upward' | 'downward';
@@ -95,11 +113,9 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 :host([disabled]) {
     opacity:  .5;
 }
-:host(:host:focus), :host(:host:focus-within) {
+:host(:focus), :host(:focus-within) {
+    outline: Highlight auto 1px;    /* For Firefox */
     outline: -webkit-focus-ring-color auto 1px;
-}
-:host(:host:focus:not(:focus-visible)) {
-    outline: none;
 }
 </style>
 <div></div><slot style="display:none"></slot>`;
@@ -124,29 +140,37 @@ const gDeferredState = new WeakMap<
  * elements.
  *
  * It inherits many useful properties and methods from [[`HTMLElement`]] such
- * as `style`, `tabIndex`, `addListener()`, etc...
+ * as `style`, `tabIndex`, `addEventListener()`, `getAttribute()`,  etc...
  *
  * To create a new `MathfieldElement`:
  *
  * ```javascript
- * // Create a new MathfieldElement
+ * // 1. Create a new MathfieldElement
  * const mfe = new MathfieldElement();
- * // Attach it to the document
+ * // 2. Attach it to the DOM
  * document.body.appendChild(mfe);
  * ```
  *
  * The `MathfieldElement` constructor has an optional argument of
  * [[`MathfieldOptions`]] to configure the element. The options can also
  * be modified later:
+ *
  * ```javascript
+ * // Setting options during construction
+ * const mfe = new MathfieldElement({smartFence: false});
+ * // Modifying options after construction
  * mfe.setOptions({smartFence: true});
  * ```
  *
  * ### CSS Variables
  *
- * The following CSS variables, if applied to the mathfield element or
- * to one of its ancestors, can be used to customize the appearance of the
- * mathfield.
+ * To customize the appearance of the mathfield, declare the following CSS
+ * variables (custom properties) in a ruleset that applied to the mathfield.
+ * ```css
+ * math-field {
+ *  --hue: 10       // Set the highlight color and caret to a reddish hue
+ * }
+ * ```
  *
  * | CSS Variable | Usage |
  * |:---|:---|
@@ -160,8 +184,8 @@ const gDeferredState = new WeakMap<
  *
  * ### CSS Parts
  *
- * The `virtual-keyboard-toggle` CSS part can be used to style the virtual
- * keyboard toggle. To use it, define a CSS style with a `::part()` selector
+ * To style the virtual keyboard toggle, use the `virtual-keyboard-toggle` CSS
+ * part. To use it, define a CSS rule with a `::part()` selector
  * for example:
  * ```css
  * math-field::part(virtual-keyboard-toggle) {
@@ -172,32 +196,37 @@ const gDeferredState = new WeakMap<
  *
  * ### Attributes
  *
- * An attribute is a key-value pair set as part of the tag, for example in
- * `<math-field locale="fr"></math-field>`, `locale` is an attribute.
+ * An attribute is a key-value pair set as part of the tag:
+ *
+ * ```html
+ * <math-field locale="fr"></math-field>
+ * ```
  *
  * The supported attributes are listed in the table below with their correspnding
- * property. The property can be changed either directly on the
- * `MathfieldElement` object, or using `setOptions()` when it is prefixed with
+ * property.
+ *
+ * The property can be changed either directly on the
+ * `MathfieldElement` object, or using `setOptions()` if it is prefixed with
  * `options.`, for example
- * ```
+ * ```javascript
  *  getElementById('mf').value = '\\sin x';
  *  getElementById('mf').setOptions({horizontalSpacingScale: 1.1});
  * ```
  *
- * Most properties are reflected: changing the attribute will also change the
- * property and vice versa) except for `value` whose attribute value is not
- * updated.
+ * The values of attributes and properties are reflected, which means you can change one or the
+ * other, for example:
+ * ```javascript
+ * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
+ * console.log(getElementById('mf').getOption('virtualKeyboardMode'));
+ * // Result: "manual"
+ * getElementById('mf').setOptions({virtualKeyboardMode: 'onfocus');
+ * console.log(getElementById('mf').getAttribute('virtual-keyboard-mode');
+ * // Result: 'onfocus'
+ * ```
  *
+ * An exception is the `value` property, which is not reflected on the `value`
+ * attribute: the `value` attribute remains at its initial value.
  *
- * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
- * can also be used:
- * - `class`
- * - `data-*`
- * - `hidden`
- * - `id`
- * - `item*`
- * - `style`
- * - `tabindex`
  *
  * | Attribute | Property |
  * |:---|:---|
@@ -220,34 +249,46 @@ const gDeferredState = new WeakMap<
  * | `speech-engine-voice` | `options.speechEngineVoice` |
  * | `text-to-speech-markup` | `options.textToSpeechMarkup` |
  * | `text-to-speech-rules` | `options.textToSpeechRules` |
+ * | `value` | value |
  * | `virtual-keyboard-layout` | `options.keyboardLayout` |
  * | `virtual-keyboard-mode` | `options.keyboardMode` |
  * | `virtual-keyboard-theme` | `options.keyboardTheme` |
  * | `virtual-keyboards` | `options.keyboards` |
  *
- *  See [[`MathfieldOptions`]] for more details about these options.
+ * See [[`MathfieldOptions`]] for more details about these options.
+ *
+ * In addition, the following [global attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes)
+ * can also be used:
+ * - `class`
+ * - `data-*`
+ * - `hidden`
+ * - `id`
+ * - `item*`
+ * - `style`
+ * - `tabindex`
+ *
  *
  * ### Events
  *
  * Listen to these events by using `addEventListener()`. For events with additional
  * arguments, the arguments are availble in `event.detail`.
  *
- * | Event Name | Event Arguments | Description |
- * |:---|:---|:---|
- * | `input |  | The value of the mathfield has been modified |
- * | `change` |  | The user has commited the value of the mathfield |
- * | `selection-change` |  | The selection of the mathfield has changed |
- * | `mode-change` |  | The mode of the mathfield has changed |
- * | `undo-state-change` |  | The state of the undo stack has changed |
- * | `read-aloud-status-change` |  | The status of a read aloud operation has changed |
- * | `virtual-keyboard-toggle` |  | The visibility of the virtual keyboard has changed |
- * | `blur` |  | The mathfield is losing focus |
- * | `focus` |  | The mathfield is gaining focus |
- * | `focus-out` | `(direction: 'forward' | 'backward' | 'upward' | 'downward'): boolean` | The user is navigating out of the mathfield, typically using the keyboard |
- * | `math-error` | `ErrorListener<ParserErrorCode | MathfieldErrorCode>` | A parsing or configuration error happened |
- * | `keystroke` | `(keystroke: string, event: KeyboardEvent): boolean` | The user typed a keystroke with a physical keyboard |
- * | `mount` | | Fired once when the element has been attached to the DOM |
- * | `unmount` | | Fired once when the element is about to be removed from the DOM |
+ * | Event Name  | Description |
+ * |:---|:---|
+ * | `input` | The value of the mathfield has been modified. This happens on almost every keystroke in the mathfield.  |
+ * | `change` | The user has commited the value of the mathfield. This happens when the user presses **Return** or leaves the mathfield. |
+ * | `selection-change` | The selection (or caret position) in the mathfield has changed |
+ * | `mode-change` | The mode (`math`, `text`) of the mathfield has changed |
+ * | `undo-state-change` |  The state of the undo stack has changed |
+ * | `read-aloud-status-change` | The status of a read aloud operation has changed |
+ * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed |
+ * | `blur` | The mathfield is losing focus |
+ * | `focus` | The mathfield is gaining focus |
+ * | `focus-out` | The user is navigating out of the mathfield, typically using the keyboard<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `math-error` | A parsing or configuration error happened <br> `detail: ErrorListener<ParserErrorCode | MathfieldErrorCode>` |
+ * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
+ * | `mount` | The element has been attached to the DOM |
+ * | `unmount` | The element is about to be removed from the DOM |
  *
  */
 export class MathfieldElement extends HTMLElement implements Mathfield {
@@ -294,7 +335,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     #mathfield: MathfieldPrivate;
 
     /**
-     * A new mathfield can be created using
+     * To create programmatically a new mahfield use:
      * ```javascript
     let mfe = new MathfieldElement();
     // Set initial value and options
@@ -305,7 +346,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     mfe.setOptions({
         virtualKeyboardMode: 'manual',
     });
-    // Attach the element
+    // Attach the element to the DOM
     document.body.appendChild(mfe);
     * ```
     */
@@ -404,6 +445,9 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             keys
         );
     }
+    /**
+     *  @category Options
+     */
     getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K] {
         return (this.getOptions([key]) as unknown) as MathfieldOptions[K];
     }
@@ -459,20 +503,57 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
-    getValue(format?: OutputFormat): string {
+    getValue(format?: OutputFormat): string;
+    getValue(start: number, end?: number, format?: OutputFormat): string;
+    getValue(range: Range, format?: OutputFormat): string;
+    getValue(ranges: Range[], format?: OutputFormat): string;
+    getValue(
+        arg1?: number | OutputFormat | Range | Range[],
+        arg2?: number | OutputFormat,
+        arg3?: OutputFormat
+    ): string {
+        let ranges: Range[];
+        let format: OutputFormat;
+        if (typeof arg1 === 'undefined') {
+            format = 'latex';
+            ranges = [{ start: 0, end: -1 }];
+        } else if (typeof arg1 === 'string') {
+            format = arg1;
+            ranges = [{ start: 0, end: -1 }];
+        } else if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+            ranges = [
+                {
+                    start: arg1,
+                    end: arg2 ?? -1,
+                },
+            ];
+            format = arg3 ?? 'latex';
+        } else if (Array.isArray(arg1)) {
+            ranges = arg1;
+            format = (arg2 as OutputFormat) ?? 'latex';
+        } else {
+            ranges = [arg1 as Range];
+            format = (arg2 as OutputFormat) ?? 'latex';
+        }
         if (this.#mathfield) {
-            return this.#mathfield.getValue(format);
+            return this.#mathfield.getValue(ranges, format);
         }
         if (gDeferredState.has(this)) {
-            return gDeferredState.get(this).value;
+            const fullRange =
+                ranges.length === 1 &&
+                ranges[0].start === 0 &&
+                ranges[0].end === -1;
+            if (format === 'latex' && fullRange) {
+                return gDeferredState.get(this).value;
+            }
         }
-        return '';
+        return undefined;
     }
 
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     setValue(value?: string, options?: InsertOptions): void {
         if (this.#mathfield) {
@@ -540,7 +621,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * After the insertion, the selection will be set according to the
      * `options.selectionMode`.
      *
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     insert(s: string, options?: InsertOptions): boolean {
         return this.#mathfield?.insert(s, options) ?? false;
@@ -559,25 +640,46 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      *
      * If there is no selection, the style will apply to the next character typed.
      *
-     * @category Accessing and Changing the content
+     * @category Accessing and changing the content
      */
     applyStyle(style: Style): void {
         return this.#mathfield?.applyStyle(style);
     }
 
     /**
+     * The bottom location of the caret (insertion point) in viewport
+     * coordinates.
+     *
+     * See also [[`setCaretPoint`]]
      * @category Selection
      */
-    getCaretPosition(): { x: number; y: number } {
-        return this.#mathfield?.getCaretPosition() ?? null;
+    get caretPoint(): { x: number; y: number } {
+        return this.#mathfield?.getCaretPoint() ?? null;
+    }
+    set caretPoint(point: { x: number; y: number }) {
+        this.#mathfield?.setCaretPoint(point.x, point.y);
     }
     /**
+     * `x` and `y` are in viewport coordinates.
+     *
+     * Return true if the location of the point is a valid caret location.
+     *
+     * See also [[`caretPoint`]]
      * @category Selection
      */
-    setCaretPosition(x: number, y: number): boolean {
-        return this.#mathfield?.setCaretPosition(x, y) ?? false;
+    setCaretPoint(x: number, y: number): boolean {
+        return this.#mathfield?.setCaretPoint(x, y) ?? false;
     }
 
+    /**
+     *  Return an array of ranges matching the argument.
+     *
+     * An array is always returned, but it has no element if there are no
+     * matching items.
+     */
+    find(latex: string): Range[] {
+        return this.#mathfield?.find(latex) ?? [];
+    }
     /**
      * Custom elements lifecycle hooks
      * @internal
@@ -776,7 +878,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         // Save the state (in case the elements get reconnected later)
         const options = {};
         Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-            options[toCamelCase(x)] = this.#mathfield.getConfig(
+            options[toCamelCase(x)] = this.#mathfield.getOption(
                 toCamelCase(x) as any
             );
         });
@@ -838,7 +940,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     set value(value: string) {
         this.setValue(value);
@@ -849,7 +951,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
      * ```
      * document.querySelector('mf').value = '\\frac{1}{\\pi}'
      * ```
-     *  @category Accessing and Changing the content
+     *  @category Accessing and changing the content
      */
     get value(): string {
         return this.getValue();
@@ -875,7 +977,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     /**
-     * Change the selection
      *
      * @category Selection
      */

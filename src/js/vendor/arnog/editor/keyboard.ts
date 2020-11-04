@@ -106,13 +106,15 @@ const PRINTABLE_KEYCODE = [
 
 export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
     if (evt.ctrlKey || evt.metaKey) {
-        // ignore ctrl/cmd-combination but not shift/alt-combinatios
+        // ignore ctrl/cmd-combination but not shift/alt-combinations
         return false;
     }
 
-    if (evt.key === 'Dead') {
-        return false;
-    }
+    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+    if (evt.key === 'Dead') return false;
+
+    // When issued via a composition, the `code` field is empty
+    if (evt.code === '') return true;
 
     return PRINTABLE_KEYCODE.indexOf(evt.code) >= 0;
 }
@@ -144,6 +146,16 @@ function keyboardEventToString(evt: KeyboardEvent): string {
     return modifiers.join('+');
 }
 
+export interface KeyboardDelegate {
+    cancelComposition: () => void;
+    blur: () => void;
+    focus: () => void;
+    hasFocus: () => boolean;
+    setValue: (value: string) => void;
+    setAriaLabel: (value: string) => void;
+    moveTo: (x: number, y: number) => void;
+}
+
 /**
  * Setup to capture the keyboard events from a `TextArea` and redispatch them to
  * handlers.
@@ -171,20 +183,23 @@ function keyboardEventToString(evt: KeyboardEvent): string {
 export function delegateKeyboardEvents(
     textarea: HTMLTextAreaElement,
     handlers: {
-        allowDeadKey: () => boolean;
         typedText: (text: string) => void;
-        paste: (text: string) => void;
-        keystroke: (keystroke: string, e: KeyboardEvent) => void;
+        cut: () => void;
+        copy: (ev: ClipboardEvent) => void;
+        paste: (ev: ClipboardEvent) => void;
+        keystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
         focus: () => void;
         blur: () => void;
+        compositionStart: (composition: string) => void;
+        compositionUpdate: (composition: string) => void;
+        compositionEnd: (composition: string) => void;
     }
-): void {
+): KeyboardDelegate {
     let keydownEvent = null;
     let keypressEvent = null;
     let compositionInProgress = false;
     let focusInProgress = false;
     let blurInProgress = false;
-    let deadKey = false;
 
     // This callback is invoked after a keyboard event has been processed
     // by the textarea
@@ -199,7 +214,7 @@ export function delegateKeyboardEvents(
 
     function handleTypedText(): void {
         // Some browsers (Firefox, Opera) fire a keypress event for commands
-        // such as command-C where there might be a non-empty selection.
+        // such as cmd+C where there might be a non-empty selection.
         // We need to ignore these.
         if (textarea.selectionStart !== textarea.selectionEnd) return;
 
@@ -212,47 +227,32 @@ export function delegateKeyboardEvents(
 
     target.addEventListener(
         'keydown',
-        (e) => {
-            const allowDeadKey = handlers.allowDeadKey();
+        (e: KeyboardEvent): void => {
+            // "Process" key indicates commit of IME session (on Firefox)
+            // It's handled with compositionEnd so it can be safely ignored
             if (
-                !allowDeadKey &&
-                (e.key === 'Dead' ||
-                    e.key === 'Unidentified' ||
-                    e.keyCode === 229)
+                compositionInProgress ||
+                e.key === 'Process' ||
+                e.code === 'CapsLock' ||
+                /(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)
             ) {
-                deadKey = true;
-                compositionInProgress = false;
-                // This sequence seems to cancel dead keys
-                // but don't call our blur/focus handlers
-                const savedBlur = handlers.blur;
-                const savedFocus = handlers.focus;
-                handlers.blur = null;
-                handlers.focus = null;
-                if (typeof textarea.blur === 'function') {
-                    textarea.blur();
-                    textarea.focus();
-                }
-                handlers.blur = savedBlur;
-                handlers.focus = savedFocus;
-            } else {
-                deadKey = false;
+                keydownEvent = null;
+                return;
             }
-            if (
-                !compositionInProgress &&
-                e.code !== 'CapsLock' &&
-                !/(Control|Meta|Alt|Shift)(Left|Right)/.test(e.code)
-            ) {
-                keydownEvent = e;
-                keypressEvent = null;
-                return handlers.keystroke(keyboardEventToString(e), e);
+
+            keydownEvent = e;
+            keypressEvent = null;
+            if (!handlers.keystroke(keyboardEventToString(e), e)) {
+                keydownEvent = null;
+                textarea.value = '';
             }
-            return true;
         },
         true
     );
     target.addEventListener(
         'keypress',
         (e) => {
+            if (compositionInProgress) return;
             // If this is not the first keypress after a keydown, that is,
             // if this is a repeated keystroke, call the keystroke handler.
             if (!compositionInProgress) {
@@ -272,9 +272,10 @@ export function delegateKeyboardEvents(
     target.addEventListener(
         'keyup',
         () => {
+            if (compositionInProgress) return;
             // If we've received a keydown, but no keypress, check what's in the
             // textarea field.
-            if (!compositionInProgress && keydownEvent && !keypressEvent) {
+            if (keydownEvent && !keypressEvent) {
                 handleTypedText();
             }
         },
@@ -282,62 +283,105 @@ export function delegateKeyboardEvents(
     );
     target.addEventListener(
         'paste',
-        () => {
+        (ev: ClipboardEvent) => {
             // In some cases (Linux browsers), the text area might not be focused
             // when doing a middle-click paste command.
             textarea.focus();
-            const text = textarea.value;
             textarea.value = '';
-            if (text.length > 0) handlers.paste(text);
+            handlers.paste(ev);
+        },
+        true
+    );
+    target.addEventListener(
+        'cut',
+        () => {
+            handlers.cut();
+        },
+        true
+    );
+    target.addEventListener(
+        'copy',
+        (ev) => {
+            handlers.copy(ev);
         },
         true
     );
     target.addEventListener(
         'blur',
         (_ev) => {
-            if (!blurInProgress && !focusInProgress) {
-                blurInProgress = true;
-                keydownEvent = null;
-                keypressEvent = null;
-                if (handlers.blur) handlers.blur();
-                blurInProgress = false;
-            }
+            if (blurInProgress || focusInProgress) return;
+
+            blurInProgress = true;
+            keydownEvent = null;
+            keypressEvent = null;
+            if (handlers.blur) handlers.blur();
+            blurInProgress = false;
         },
         true
     );
     target.addEventListener(
         'focus',
         (_ev) => {
-            if (!blurInProgress && !focusInProgress) {
-                focusInProgress = true;
-                if (handlers.focus) handlers.focus();
-                focusInProgress = false;
-            }
+            if (blurInProgress || focusInProgress) return;
+
+            focusInProgress = true;
+            if (handlers.focus) handlers.focus();
+            focusInProgress = false;
         },
         true
     );
     target.addEventListener(
         'compositionstart',
-        () => {
+        (ev: CompositionEvent) => {
             compositionInProgress = true;
+            textarea.value = '';
+
+            if (handlers.compositionStart) handlers.compositionStart(ev.data);
+        },
+        true
+    );
+    target.addEventListener(
+        'compositionupdate',
+        (ev: CompositionEvent) => {
+            if (!compositionInProgress) return;
+            if (handlers.compositionUpdate) handlers.compositionUpdate(ev.data);
         },
         true
     );
     target.addEventListener(
         'compositionend',
-        () => {
+        (ev: CompositionEvent) => {
+            textarea.value = '';
+            if (!compositionInProgress) return;
             compositionInProgress = false;
-            if (deadKey && handlers.allowDeadKey()) {
-                defer(handleTypedText);
-            }
+            if (handlers.compositionEnd) handlers.compositionEnd(ev.data);
         },
         true
     );
 
     // The `input` handler gets called when the field is changed,
-    // for example with input methods or emoji input...
-    target.addEventListener('input', () => {
-        if (deadKey) {
+    // but no other relevant events have been triggered
+    // for example with emoji input...
+    target.addEventListener('input', (ev: InputEvent) => {
+        if (compositionInProgress) return;
+        // If this was an `input` event sent as a result of a commit of
+        // IME, ignore it.
+        // (This is what FireFox does, even though the spec says it shouldn't happen)
+        // See https://github.com/w3c/uievents/issues/202
+        if (ev.inputType === 'insertCompositionText') return;
+
+        // Paste is handled in paste handler
+        if (ev.inputType === 'insertFromPaste') {
+            ev.preventDefault();
+            ev.stopPropagation();
+            return;
+        }
+
+        defer(handleTypedText);
+    });
+
+    return {
+        cancelComposition: (): void => {
             const savedBlur = handlers.blur;
             const savedFocus = handlers.focus;
             handlers.blur = null;
@@ -346,15 +390,53 @@ export function delegateKeyboardEvents(
             textarea.focus();
             handlers.blur = savedBlur;
             handlers.focus = savedFocus;
-            deadKey = false;
-            compositionInProgress = false;
-            if (handlers.allowDeadKey()) {
-                defer(handleTypedText);
+        },
+        blur: (): void => {
+            if (typeof textarea.blur === 'function') {
+                textarea.blur();
             }
-        } else if (!compositionInProgress) {
-            defer(handleTypedText);
-        }
-    });
+        },
+        focus: (): void => {
+            if (typeof textarea.blur === 'function') {
+                textarea.focus();
+            }
+        },
+        hasFocus: (): boolean => {
+            return deepActiveElement(document) === textarea;
+        },
+        setValue: (value: string): void => {
+            if (value) {
+                textarea.value = value;
+                // The textarea may be a span (on mobile, for example), so check that
+                // it has a select() before calling it.
+                if (
+                    deepActiveElement(document) === textarea &&
+                    textarea.select
+                ) {
+                    textarea.select();
+                }
+            } else {
+                textarea.value = '';
+                textarea.setAttribute('aria-label', '');
+            }
+        },
+        setAriaLabel: (value: string): void => {
+            textarea.setAttribute('aria-label', 'after: ' + value);
+        },
+        moveTo: (x: number, y: number): void => {
+            textarea.style.top = y + 'px';
+            textarea.style.left = x + 'px';
+        },
+    };
+}
+
+function deepActiveElement(
+    root: DocumentOrShadowRoot = document
+): Element | null {
+    if (root.activeElement?.shadowRoot?.activeElement) {
+        return deepActiveElement(root.activeElement.shadowRoot);
+    }
+    return root.activeElement;
 }
 
 export function eventToChar(evt: KeyboardEvent): string {

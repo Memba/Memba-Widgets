@@ -725,6 +725,19 @@ body.ML__fonts-loading .ML__base {
     background-position: 0 98%;
 }
 
+.ML__composition {
+    background: #fff1c2;
+    color: black;
+    text-decoration: underline var(--caret, hsl(var(--hue, 212), 40%, 49%));
+}
+
+@media (prefers-color-scheme: dark) {
+    .ML__composition {
+        background: #69571c;
+        color: white;
+    }
+}
+
 .ML__placeholder {
     opacity: 0.7;
     padding-left: 0.4ex;

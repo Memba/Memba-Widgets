@@ -99,8 +99,9 @@ module.exports = (config) => {
             },
             // Mocha tests
             {
-                pattern: 'test/browser/**/*.test.es6',
-                // pattern: 'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
+                // pattern: 'test/browser/**/*.test.es6',
+                pattern:
+                    'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
                 // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
                 included: true, // They need to be included!
@@ -123,12 +124,13 @@ module.exports = (config) => {
             // @see https://github.com/istanbuljs/babel-plugin-istanbul#karma
             // '/src/js/*.js': ['coverage'],
             '/src/js/**/*.es6': ['coverage'],
+            // @see https://github.com/demerzel3/karma-sourcemap-loader
             'test/browser/**/*.test.es6': ['webpack', 'sourcemap'],
         },
 
         webpack: {
             context: path.join(__dirname, '/'),
-            devtool: 'inline-source-map', // Requires --max-old-space-size=4096
+            devtool: 'inline-source-map', // Requires --max-old-space-size=4096 (nodejs)
             externals: {
                 // CDN modules
                 jquery: 'jQuery',
@@ -169,7 +171,7 @@ module.exports = (config) => {
                         },
                     },
                     {
-                        // Prepend var jQuery = require("jquery"); to jquery.simulate.js.js.
+                        // Prepend var jQuery = require("jquery"); to jquery.simulate.js.
                         // @see https://webpack.js.org/loaders/imports-loader/#usage
                         test: require.resolve(
                             path.join(
@@ -222,6 +224,12 @@ module.exports = (config) => {
                     */
                 ],
             },
+            /*
+            optimization: {
+                mergeDuplicateChunks: true,
+                // splitChunks: { minChunks: 10 },
+            },
+             */
             resolve: {
                 extensions: ['.es6', '.js'],
                 modules: [
@@ -231,6 +239,7 @@ module.exports = (config) => {
                     'node_modules',
                 ],
             },
+            stats: 'verbose',
         },
 
         /*

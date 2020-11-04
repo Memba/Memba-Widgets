@@ -8,12 +8,14 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import lottie from '../vendor/airbnb/lottie';
 
 const {
     destroy,
     ui: { plugin, Widget },
 } = window.kendo;
+const logger = new Logger('widgets.lottie');
 const NS = '.kendoLottie';
 const WIDGET_CLASS = 'k-widget kj-lottie';
 
@@ -31,6 +33,7 @@ const Lottie = Widget.extend({
      */
     init(element, options) {
         Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this.setOptions({
             enabled: this.element.prop('disabled')
@@ -101,10 +104,10 @@ const Lottie = Widget.extend({
             autoplay: options.autoplay, // Optional
             container: element.get(0), // Required
             loop: options.loop, // Optional
-            name: "Hello World", // Name for future reference. Optional.
+            name: 'Hello World', // Name for future reference. Optional.
             path: options.path, // Required
             renderer: options.renderer, // Required
-        })
+        });
     },
 
     /**
@@ -151,6 +154,7 @@ const Lottie = Widget.extend({
     destroy() {
         Widget.fn.destroy.call(this);
         destroy(this.element);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
     },
 });
 

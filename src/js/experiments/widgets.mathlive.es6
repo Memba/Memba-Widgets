@@ -7,19 +7,21 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-// import MathLive from '../vendor/arnog/mathlive.mjs'; // <-- does not work
-import MathLive from '../vendor/arnog/mathlive';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
+// import MathLive from '../vendor/arnog/mathlive.mjs'; // <-- does not work
+import { MathfieldElement } from '../vendor/arnog/mathlive';
 
 const {
     destroy,
     ui: { plugin, Widget },
 } = window.kendo;
+const logger = new Logger('widgets.mathlive');
 const CHANGE = 'change';
 // const CLICK = 'click';
 const NS = '.kendoMathInput';
 const UNDEFINED = 'undefined';
-const WIDGET_CLASS = 'k-widget k-multiselect-wrap kj-mathinput';
+const WIDGET_CLASS = 'k-widget k-textarea kj-mathinput';
 
 /**
  * MathInput
@@ -35,6 +37,7 @@ const MathInput = Widget.extend({
      */
     init(element, options) {
         Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', messages: 'widget initialized' });
         this._render();
         this.setOptions({
             enabled: this.element.prop('disabled')
@@ -79,9 +82,9 @@ const MathInput = Widget.extend({
     value(value) {
         let ret;
         if ($.type(value) === UNDEFINED) {
-            ret = this._mathField.$latex();
+            ret = this._mathField.getValue();
         } else if (this._value !== value) {
-            this._mathField.$latex(value, {
+            this._mathField.setValue(value, {
                 suppressChangeNotifications: true,
             });
         }
@@ -94,14 +97,9 @@ const MathInput = Widget.extend({
      * @private
      */
     _config() {
-        const that = this;
         return {
             fontsDirectory: '../../../styles/vendor/khan/fonts',
             // fontsDirectory: '../../../styles/vendor/arnog/fonts',
-            onContentDidChange(mathField) {
-                that.trigger(CONSTANTS.CHANGE);
-                mathField.$focus();
-            },
             virtualKeyboardMode: 'onfocus',
         };
     },
@@ -113,10 +111,9 @@ const MathInput = Widget.extend({
     _render() {
         this.wrapper = this.element;
         this.element.addClass(WIDGET_CLASS);
-        this._mathField = MathLive.makeMathField(
-            this.element[0],
-            this._config()
-        );
+        this._mathField = new MathfieldElement(this._config());
+        this._mathField.style.width = '100%';
+        this.element.append(this._mathField);
     },
 
     /**
@@ -126,26 +123,17 @@ const MathInput = Widget.extend({
      */
     enable(enable) {
         const enabled = $.type(enable) === UNDEFINED ? true : !!enable;
-        const { element } = this;
-        element.off(NS);
-        element.css('cursor', 'default');
+        const { _mathField } = this;
+        $(_mathField).css('cursor', 'default').off(NS);
         if (enabled) {
-            // element.on(CLICK + NS, this._onClick.bind(this));
-            element.css('cursor', 'pointer');
+            $(_mathField)
+                .css('cursor', 'text')
+                .on(`input${NS}`, (e) => {
+                    this.trigger(CONSTANTS.CHANGE);
+                    e.target.focus();
+                });
         }
     },
-
-    /**
-     * _onClick
-     * @method _onClick
-     * @private
-     */
-    /*
-    _onClick() {
-        this.value('');
-        this.trigger(CHANGE);
-    },
-    */
 
     /**
      * Destroy
@@ -154,6 +142,7 @@ const MathInput = Widget.extend({
     destroy() {
         Widget.fn.destroy.call(this);
         destroy(this.element);
+        logger.debug({ method: 'destroy', messages: 'widget destroyed' });
     },
 });
 

@@ -5,12 +5,9 @@
 
 @include exports( "widgets.mathlive/layout" ) {
     .kj-mathinput {
-        .ML__fieldcontainer__field {
-            // line-height: initial;
-
-            .ML__mathlive {
-                // line-height: initial;
-            }
+        // math-field:focus-within {
+        > *:focus-within {
+            outline: 0 !important;
         }
     }
 }

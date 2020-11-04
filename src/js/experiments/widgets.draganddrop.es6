@@ -22,7 +22,7 @@ const {
     keys,
     support,
     ui: { Widget, plugin },
-    UserEvents
+    UserEvents,
 } = window.kendo;
 
 const { document } = window;
@@ -93,12 +93,12 @@ function containerBoundaries(container, element) {
     return {
         x: {
             min: minX,
-            max: maxX
+            max: maxX,
         },
         y: {
             min: minY,
-            max: maxY
-        }
+            max: maxY,
+        },
     };
 }
 // TODO kendo.containerBoundaries = containerBoundaries;
@@ -115,7 +115,7 @@ function checkTarget(target, targets, areas) {
             if (theTarget.element[0] === target) {
                 return {
                     target: theTarget,
-                    targetElement: target
+                    targetElement: target,
                 };
             }
         }
@@ -127,7 +127,7 @@ function checkTarget(target, targets, areas) {
             ) {
                 return {
                     target: theFilter,
-                    targetElement: target
+                    targetElement: target,
                 };
             }
         }
@@ -175,7 +175,7 @@ function scrollableViewPort(element) {
             top,
             left,
             bottom: top + $window.height(),
-            right: left + $window.width()
+            right: left + $window.width(),
         };
     }
     const offset = element.offset();
@@ -206,7 +206,7 @@ function findScrollableParent(element) {
 function autoScrollVelocity(mouseX, mouseY, rect) {
     const velocity = {
         x: 0,
-        y: 0
+        y: 0,
     };
     const AUTO_SCROLL_AREA = 50;
     if (mouseX - rect.left < AUTO_SCROLL_AREA) {
@@ -250,7 +250,7 @@ const DropTargetEx = Widget.extend({
     events: [DRAGENTER, DRAGLEAVE, DROP],
     options: {
         name: 'DropTargetEx',
-        group: 'default'
+        group: 'default',
     },
     destroy() {
         destroyDroppable(dropTargets, this);
@@ -264,7 +264,7 @@ const DropTargetEx = Widget.extend({
                 eventName,
                 extend({}, e.event, {
                     draggable,
-                    dropTarget: e.dropTarget
+                    dropTarget: e.dropTarget,
                 })
             );
         }
@@ -281,9 +281,10 @@ const DropTargetEx = Widget.extend({
         if (draggable) {
             draggable.dropped = !that._trigger(DROP, e);
         }
-    }
+    },
 });
-DropTargetEx.destroyGroup = function(groupName) {
+
+DropTargetEx.destroyGroup = function destroyGroup(groupName) {
     const group = dropTargets[groupName] || dropAreas[groupName];
     let i;
     if (group) {
@@ -319,8 +320,8 @@ const DropTargetAreaEx = DropTargetEx.extend({
     options: {
         name: 'DropTargetAreaEx',
         group: 'default',
-        filter: null
-    }
+        filter: null,
+    },
 });
 
 /**
@@ -343,7 +344,7 @@ const DraggableEx = Widget.extend({
             move: proxy(that._drag, that),
             end: proxy(that._end, that),
             cancel: proxy(that._cancel, that),
-            select: proxy(that._select, that)
+            select: proxy(that._select, that),
         });
         that._afterEndHandler = proxy(that._afterEnd, that);
         that._captureEscape = proxy(that._captureEscape, that);
@@ -360,7 +361,7 @@ const DraggableEx = Widget.extend({
         ignore: null,
         holdToDrag: false,
         autoScroll: false,
-        dropped: false
+        dropped: false,
     },
     cancelHold() {
         this._activated = false;
@@ -377,12 +378,12 @@ const DraggableEx = Widget.extend({
         let coordinates;
         const {
             boundaries,
-            options: { axis, cursorOffset }
+            options: { axis, cursorOffset },
         } = that;
         if (cursorOffset) {
             coordinates = {
                 left: e.x.location + cursorOffset.left,
-                top: e.y.location + cursorOffset.top
+                top: e.y.location + cursorOffset.top,
             };
         } else {
             that.hintOffset.left += e.x.delta;
@@ -440,7 +441,7 @@ const DraggableEx = Widget.extend({
                     position: 'absolute',
                     zIndex: 20000,
                     left: offset.left,
-                    top: offset.top
+                    top: offset.top,
                 })
                 .appendTo(document.body);
             that.angular('compile', () => {
@@ -454,7 +455,7 @@ const DraggableEx = Widget.extend({
                 }
                 return {
                     elements: that.hint.get(),
-                    scopeFrom: scopeTarget.data('$$kendoScope')
+                    scopeFrom: scopeTarget.data('$$kendoScope'),
                 };
             });
         }
@@ -518,7 +519,7 @@ const DraggableEx = Widget.extend({
                     lastDropTarget._trigger(
                         DRAGLEAVE,
                         extend(e, {
-                            dropTarget: $(lastDropTarget.targetElement)
+                            dropTarget: $(lastDropTarget.targetElement),
                         })
                     );
                     lastDropTarget = null;
@@ -544,7 +545,7 @@ const DraggableEx = Widget.extend({
             DRAG,
             extend(e, {
                 dropTarget: lastDropTarget,
-                elementUnderCursor: cursorElement
+                elementUnderCursor: cursorElement,
             })
         );
     },
@@ -636,7 +637,7 @@ const DraggableEx = Widget.extend({
                 currentTarget: that.currentTarget,
                 initialTarget: e.touch ? e.touch.initialTouch : null,
                 dropTarget: e.dropTarget,
-                elementUnderCursor: e.elementUnderCursor
+                elementUnderCursor: e.elementUnderCursor,
             })
         );
     },
@@ -686,21 +687,21 @@ const DraggableEx = Widget.extend({
         that.trigger('destroy');
         that.trigger(HINTDESTROYED);
         $(document).off(KEYUP, that._captureEscape);
-    }
+    },
 });
 
 /**
  * Registration
  */
 // if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DropTargetEx')) {
-    // Prevents loading several times in karma
-    plugin(DropTargetEx);
+// Prevents loading several times in karma
+plugin(DropTargetEx);
 // }
 // if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DropTargetAreaEx')) {
-    // Prevents loading several times in karma
-    plugin(DropTargetAreaEx);
+// Prevents loading several times in karma
+plugin(DropTargetAreaEx);
 // }
 // if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DraggableEx')) {
-    // Prevents loading several times in karma
-    plugin(DraggableEx);
+// Prevents loading several times in karma
+plugin(DraggableEx);
 // }

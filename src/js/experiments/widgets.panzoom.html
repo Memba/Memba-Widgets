@@ -42,18 +42,25 @@
 <body>
 <h1>widgets.panzoom</h1>
 <h2>Code initialization</h2>
-<div id="panzoom" style="height:500px; width:500px;"></div>
+<div id="panzoom" style="height: 500px; width: 500px;"></div>
 <h2>Bound to observable</h2>
-<div data-role="panzoom" data-bind="value: paths, visible: visible, enabled: enabled" style="height:500px; width:500px;" /></div>
+<div data-role="panzoom" data-bind="value: paths, visible: visible, enabled: enabled" style="height: 500px; width: 500px;"></div>
 <div>
-    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
-    <input type="checkbox" data-bind="checked: enabled" />Enabled
+    <label>
+        <input type="checkbox" data-bind="checked: visible" />
+        Visible
+    </label>
+    &nbsp;
+    <label>
+        <input type="checkbox" data-bind="checked: enabled" />
+        Enabled
+    </label>
 </div>
 <pre>
     {
-        value: <span data-bind="text: length$"></span>,
-        visible: <span data-bind="text: visible"></span>,
-        enabled: <span data-bind="text: enabled"></span>
+        value: <span data-bind="text: length$" />,
+        visible: <span data-bind="text: visible"/>,
+        enabled: <span data-bind="text: enabled"/>
     }
 </pre>
 </body>

@@ -17,7 +17,6 @@ const {
     destroy,
     ui: { plugin, Widget, MarkdownToolBar },
 } = window.kendo;
-debugger;
 const {
     exampleSetup: { exampleSetup }, // Menu
     markdown: { schema, defaultMarkdownParser, defaultMarkdownSerializer },
@@ -122,11 +121,15 @@ const Markdown = Widget.extend({
         if (!(this.toolbar instanceof MarkdownToolBar)) {
             this.toolbar = $(`<${CONSTANTS.DIV}/>`)
                 .appendTo(this.element)
-                .kendoMarkdownToolBar({})
+                .kendoMarkdownToolBar({
+                    command: this._onCommand.bind(this),
+                })
                 .data('kendoMarkdownToolBar');
         }
         if (!(this.view instanceof EditorView)) {
-            const $editorElement = $(`<${CONSTANTS.DIV}/>`).appendTo(this.element)
+            const $editorElement = $(`<${CONSTANTS.DIV}/>`).appendTo(
+                this.element
+            );
             const state = EditorState.create({
                 ...schema,
                 doc: defaultMarkdownParser.parse(
@@ -134,17 +137,23 @@ const Markdown = Widget.extend({
                 ),
                 plugins: exampleSetup({ schema }),
             });
-            this.view = new EditorView(
-                $editorElement[0],
-                {
-                    state,
-                    dispatchTransaction: this._dispatchTransaction.bind(this),
-                    editable: this._editable.bind(this),
-                    // filterTransaction: this._filterTransaction.bind(this),
-                    // handleDoubleClick() { console.log("Double click!") }
-                }
-            );
+            this.view = new EditorView($editorElement[0], {
+                state,
+                dispatchTransaction: this._dispatchTransaction.bind(this),
+                editable: this._editable.bind(this),
+                // filterTransaction: this._filterTransaction.bind(this),
+                // handleDoubleClick() { console.log("Double click!") }
+            });
         }
+    },
+
+    /**
+     * _onCommand
+     * @param e
+     * @private
+     */
+    _onCommand(e) {
+        console.log(e.command);
     },
 
     /**

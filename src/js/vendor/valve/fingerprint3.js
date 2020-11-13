@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.0.0 - Copyright (c) FingerprintJS, Inc, 2020 (https://fingerprintjs.com)
+ * FingerprintJS v3.0.3 - Copyright (c) FingerprintJS, Inc, 2020 (https://fingerprintjs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -133,7 +133,8 @@ var FingerprintJS = (function (exports) {
         var k2 = [0, 0];
         var c1 = [0x87c37b91, 0x114253d5];
         var c2 = [0x4cf5ad43, 0x2745937f];
-        for (var i = 0; i < bytes; i = i + 16) {
+        var i;
+        for (i = 0; i < bytes; i = i + 16) {
             k1 = [
                 (key.charCodeAt(i + 4) & 0xff) |
                     ((key.charCodeAt(i + 5) & 0xff) << 8) |
@@ -255,6 +256,17 @@ var FingerprintJS = (function (exports) {
     PERFORMANCE OF THIS SOFTWARE.
     ***************************************************************************** */
 
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
     function __awaiter(thisArg, _arguments, P, generator) {
         function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
         return new (P || (P = Promise))(function (resolve, reject) {
@@ -265,12 +277,40 @@ var FingerprintJS = (function (exports) {
         });
     }
 
-    var version = "3.0.0";
+    function __generator(thisArg, body) {
+        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f) throw new TypeError("Generator is already executing.");
+            while (_) try {
+                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+                if (y = 0, t) op = [op[0] & 2, t.value];
+                switch (op[0]) {
+                    case 0: case 1: t = op; break;
+                    case 4: _.label++; return { value: op[1], done: false };
+                    case 5: _.label++; y = op[1]; op = [0]; continue;
+                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                    default:
+                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                        if (t[2]) _.ops.pop();
+                        _.trys.pop(); continue;
+                }
+                op = body.call(thisArg, _);
+            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    }
+
+    var version = "3.0.3";
 
     function requestIdleCallbackIfAvailable(fallbackTimeout) {
-        return new Promise((resolve) => {
+        return new Promise(function (resolve) {
             if (window.requestIdleCallback) {
-                window.requestIdleCallback(() => resolve());
+                window.requestIdleCallback(function () { return resolve(); });
             }
             else {
                 setTimeout(resolve, fallbackTimeout);
@@ -285,7 +325,7 @@ var FingerprintJS = (function (exports) {
      * Does the same as Array.prototype.includes but has better typing
      */
     function includes(haystack, needle) {
-        for (let i = 0, l = haystack.length; i < l; ++i) {
+        for (var i = 0, l = haystack.length; i < l; ++i) {
             if (haystack[i] === needle) {
                 return true;
             }
@@ -307,79 +347,279 @@ var FingerprintJS = (function (exports) {
         }
         return parseInt(value);
     }
+    /**
+     * Be careful, NaN can return
+     */
+    function toFloat(value) {
+        if (typeof value === 'number') {
+            return value;
+        }
+        return parseFloat(value);
+    }
     function countTruthy(values) {
-        return values.reduce((sum, value) => sum + (value ? 1 : 0), 0);
+        return values.reduce(function (sum, value) { return sum + (value ? 1 : 0); }, 0);
     }
 
-    const n = navigator;
-    const w = window;
+    /*
+     * Functions to help with browser features
+     */
+    var w = window;
+    var n = navigator;
+    var d = document;
+    /**
+     * Checks whether the browser is based on Trident (the Internet Explorer engine) without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isTrident() {
+        // The properties are checked to be in IE 10, IE 11 and not to be in other browsers in October 2020
+        return (countTruthy([
+            'MSCSSMatrix' in w,
+            'msSetImmediate' in w,
+            'msIndexedDB' in w,
+            'msMaxTouchPoints' in n,
+            'msPointerEnabled' in n,
+        ]) >= 4);
+    }
+    /**
+     * Checks whether the browser is based on EdgeHTML (the pre-Chromium Edge engine) without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isEdgeHTML() {
+        // Based on research in October 2020
+        return (countTruthy(['msWriteProfilerMark' in w, 'MSStream' in w, 'msLaunchUri' in n, 'msSaveBlob' in n]) >= 3 &&
+            !isTrident());
+    }
+    /**
+     * Checks whether the browser is based on Chromium without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isChromium() {
+        // Based on research in October 2020. Tested to detect Chromium 42-86.
+        return (countTruthy([
+            'webkitPersistentStorage' in n,
+            'webkitTemporaryStorage' in n,
+            n.vendor.indexOf('Google') === 0,
+            'webkitResolveLocalFileSystemURL' in w,
+            'BatteryManager' in w,
+            'webkitMediaStream' in w,
+            'webkitSpeechGrammar' in w,
+        ]) >= 5);
+    }
+    /**
+     * Checks whether the browser is based on mobile or desktop Safari without using user-agent.
+     * All iOS browsers use WebKit (the Safari engine).
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isWebKit() {
+        // Based on research in September 2020
+        return (countTruthy([
+            'ApplePayError' in w,
+            'CSSPrimitiveValue' in w,
+            'Counter' in w,
+            n.vendor.indexOf('Apple') === 0,
+            'getStorageUpdates' in n,
+            'WebKitMediaKeys' in w,
+        ]) >= 4);
+    }
+    /**
+     * Checks whether the WebKit browser is a desktop Safari.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isDesktopSafari() {
+        return (countTruthy([
+            'safari' in w,
+            !('DeviceMotionEvent' in w),
+            !('ongestureend' in w),
+            !('standalone' in n),
+        ]) >= 3);
+    }
+    /**
+     * Checks whether the browser is based on Gecko (Firefox engine) without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function isGecko() {
+        var _a;
+        // Based on research in September 2020
+        return (countTruthy([
+            'buildID' in n,
+            ((_a = d.documentElement) === null || _a === void 0 ? void 0 : _a.style) && 'MozAppearance' in d.documentElement.style,
+            'MediaRecorderErrorEvent' in w,
+            'mozInnerScreenX' in w,
+            'CSSMozDocumentRule' in w,
+            'CanvasCaptureMediaStream' in w,
+        ]) >= 4);
+    }
+    /**
+     * Checks whether the browser is based on Chromium version ≥86 without using user-agent.
+     * It doesn't check that the browser is based on Chromium, there is a separate function for this.
+     */
+    function isChromium86OrNewer() {
+        // Checked in Chrome 85 vs Chrome 86 both on desktop and Android
+        return (countTruthy([
+            !('MediaSettingsRange' in w),
+            'RTCEncodedAudioFrame' in w,
+            '' + w.Intl === '[object Intl]',
+            '' + w.Reflect === '[object Reflect]',
+        ]) >= 3);
+    }
+    /**
+     * Checks whether the browser is based on WebKit version ≥606 (Safari ≥12) without using user-agent.
+     * It doesn't check that the browser is based on WebKit, there is a separate function for this.
+     *
+     * @link https://en.wikipedia.org/wiki/Safari_version_history#Release_history Safari-WebKit versions map
+     */
+    function isWebKit606OrNewer() {
+        // Checked in Safari 9–14
+        return (countTruthy([
+            'DOMRectList' in w,
+            'RTCPeerConnectionIceEvent' in w,
+            'SVGGeometryElement' in w,
+            'ontransitioncancel' in w,
+        ]) >= 3);
+    }
+
+    var w$1 = window;
+    var d$1 = document;
     // Inspired by and based on https://github.com/cozylife/audio-fingerprint
     function getAudioFingerprint() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // On iOS 11, audio context can only be used in response to user interaction.
-            // We require users to explicitly enable audio fingerprinting on iOS 11.
-            // See https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
-            if (n.userAgent.match(/OS 11.+Version\/11.+Safari/)) {
-                // See comment for excludeUserAgent and https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
-                return -1;
-            }
-            const AudioContext = w.OfflineAudioContext || w.webkitOfflineAudioContext;
-            if (!AudioContext) {
-                return -2;
-            }
-            const context = new AudioContext(1, 44100, 44100);
-            const oscillator = context.createOscillator();
-            oscillator.type = 'triangle';
-            oscillator.frequency.setValueAtTime(10000, context.currentTime);
-            const compressor = context.createDynamicsCompressor();
-            for (const [param, value] of [
-                ['threshold', -50],
-                ['knee', 40],
-                ['ratio', 12],
-                ['reduction', -20],
-                ['attack', 0],
-                ['release', 0.25],
-            ]) {
-                if (typeof compressor[param].setValueAtTime === 'function') {
-                    compressor[param].setValueAtTime(value, context.currentTime);
-                }
-            }
-            oscillator.connect(compressor);
-            compressor.connect(context.destination);
-            oscillator.start(0);
-            context.startRendering();
-            return new Promise((resolve) => {
-                const audioTimeoutId = setTimeout(() => {
-                    context.oncomplete = () => { };
-                    resolve(-3);
-                }, 1000);
-                context.oncomplete = (event) => {
-                    let afp;
-                    try {
-                        clearTimeout(audioTimeoutId);
-                        afp = event.renderedBuffer
-                            .getChannelData(0)
-                            .slice(4500, 5000)
-                            .reduce((acc, val) => acc + Math.abs(val), 0);
+        return __awaiter(this, void 0, void 0, function () {
+            var AudioContext, context, oscillator, compressor, buffer, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        // In some browsers, audio context always stays suspended unless the context is started in response to a user action
+                        // (e.g. a click or a tap). It prevents audio fingerprint from being taken at an arbitrary moment of time.
+                        // Such browsers are old and unpopular, so the audio fingerprinting is just skipped in them.
+                        // See a similar case explanation at https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
+                        if (doesCurrentBrowserSuspendAudioContext()) {
+                            return [2 /*return*/, -1];
+                        }
+                        AudioContext = w$1.OfflineAudioContext || w$1.webkitOfflineAudioContext;
+                        if (!AudioContext) {
+                            return [2 /*return*/, -2];
+                        }
+                        context = new AudioContext(1, 44100, 44100);
+                        oscillator = context.createOscillator();
+                        oscillator.type = 'triangle';
+                        setAudioParam(context, oscillator.frequency, 10000);
+                        compressor = context.createDynamicsCompressor();
+                        setAudioParam(context, compressor.threshold, -50);
+                        setAudioParam(context, compressor.knee, 40);
+                        setAudioParam(context, compressor.ratio, 12);
+                        setAudioParam(context, compressor.reduction, -20);
+                        setAudioParam(context, compressor.attack, 0);
+                        setAudioParam(context, compressor.release, 0.25);
+                        oscillator.connect(compressor);
+                        compressor.connect(context.destination);
+                        oscillator.start(0);
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, 4, 5]);
+                        return [4 /*yield*/, renderAudio(context)];
+                    case 2:
+                        buffer = _a.sent();
+                        return [3 /*break*/, 5];
+                    case 3:
+                        error_1 = _a.sent();
+                        if (error_1.name === "timeout" /* Timeout */ || error_1.name === "suspended" /* Suspended */) {
+                            return [2 /*return*/, -3];
+                        }
+                        throw error_1;
+                    case 4:
                         oscillator.disconnect();
                         compressor.disconnect();
-                    }
-                    catch (error) {
-                        resolve(-4);
-                        return;
-                    }
-                    resolve(afp);
-                };
+                        return [7 /*endfinally*/];
+                    case 5: return [2 /*return*/, getHash(buffer.getChannelData(0))];
+                }
             });
         });
     }
+    /**
+     * Checks if the current browser is known to always suspend audio context
+     */
+    function doesCurrentBrowserSuspendAudioContext() {
+        return isWebKit() && !isDesktopSafari() && !isWebKit606OrNewer();
+    }
+    function setAudioParam(context, param, value) {
+        var isAudioParam = function (value) {
+            return value && typeof value.setValueAtTime === 'function';
+        };
+        if (isAudioParam(param)) {
+            param.setValueAtTime(value, context.currentTime);
+        }
+    }
+    function renderAudio(context) {
+        var resumeTriesMaxCount = 3;
+        var resumeRetryDelay = 500;
+        var runningTimeout = 1000;
+        return new Promise(function (resolve, reject) {
+            context.oncomplete = function (event) { return resolve(event.renderedBuffer); };
+            var resumeTriesLeft = resumeTriesMaxCount;
+            var tryResume = function () {
+                context.startRendering();
+                switch (context.state) {
+                    case 'running':
+                        setTimeout(function () { return reject(makeInnerError("timeout" /* Timeout */)); }, runningTimeout);
+                        break;
+                    // Sometimes the audio context doesn't start after calling `startRendering` (in addition to the cases where
+                    // audio context doesn't start at all). A known case is starting an audio context when the browser tab is in
+                    // background on iPhone. Retries usually help in this case.
+                    case 'suspended':
+                        // The audio context can reject starting until the tab is in foreground. Long fingerprint duration
+                        // in background isn't a problem, therefore the retry attempts don't count in background. It can lead to
+                        // a situation when a fingerprint takes very long time and finishes successfully. FYI, the audio context
+                        // can be suspended when `document.hidden === false` and start running after a retry.
+                        if (!d$1.hidden) {
+                            resumeTriesLeft--;
+                        }
+                        if (resumeTriesLeft > 0) {
+                            setTimeout(tryResume, resumeRetryDelay);
+                        }
+                        else {
+                            reject(makeInnerError("suspended" /* Suspended */));
+                        }
+                        break;
+                }
+            };
+            tryResume();
+        });
+    }
+    function getHash(signal) {
+        var hash = 0;
+        for (var i = 4500; i < 5000; ++i) {
+            hash += Math.abs(signal[i]);
+        }
+        return hash;
+    }
+    function makeInnerError(name) {
+        var error = new Error(name);
+        error.name = name;
+        return error;
+    }
 
-    const d = document;
-    // a font will be compared against all the three default fonts.
-    // and if it doesn't match all 3 then that font is not available.
-    const baseFonts = ['monospace', 'sans-serif', 'serif'];
-    const fontList = [
-        // this is android-specific font from "Roboto" family
+    var d$2 = document;
+    // We use m or w because these two characters take up the maximum width.
+    // And we use a LLi so that the same matching fonts can get separated.
+    var testString = 'mmMwWLliI0O&1';
+    // We test using 48px font size, we may use any size. I guess larger the better.
+    var testSize = '48px';
+    // A font will be compared against all the three default fonts.
+    // And if it doesn't match all 3 then that font is not available.
+    var baseFonts = ['monospace', 'sans-serif', 'serif'];
+    var fontList = [
+        // This is android-specific font from "Roboto" family
         'sans-serif-thin',
         'ARNO PRO',
         'Agency FB',
@@ -433,7 +673,8 @@ var FingerprintJS = (function (exports) {
         'Vrinda',
         'ZWAdobeF',
     ];
-    const fontResetStyles = {
+    var fontSpanStyle = {
+        // CSS font reset to reset external styles
         fontStyle: 'normal',
         fontWeight: 'normal',
         letterSpacing: 'normal',
@@ -446,89 +687,86 @@ var FingerprintJS = (function (exports) {
         whiteSpace: 'normal',
         wordBreak: 'normal',
         wordSpacing: 'normal',
+        // We need this css as in some weird browser this span elements shows up for a microSec which creates
+        // a bad user experience
+        position: 'absolute',
+        left: '-9999px',
+        fontSize: testSize,
     };
-    // we use m or w because these two characters take up the maximum width.
-    // And we use a LLi so that the same matching fonts can get separated
-    const testString = 'mmMwWLliI0O&1';
-    // we test using 48px font size, we may use any size. I guess larger the better.
-    const testSize = '48px';
     // kudos to http://www.lalit.org/lab/javascript-css-font-detect/
     function getFonts() {
-        const h = d.body;
+        var h = d$2.body;
         // div to load spans for the base fonts
-        const baseFontsDiv = d.createElement('div');
+        var baseFontsDiv = d$2.createElement('div');
         // div to load spans for the fonts to detect
-        const fontsDiv = d.createElement('div');
-        const defaultWidth = {};
-        const defaultHeight = {};
+        var fontsDiv = d$2.createElement('div');
+        var defaultWidth = {};
+        var defaultHeight = {};
         // creates a span where the fonts will be loaded
-        const createSpan = () => {
-            const s = d.createElement('span');
-            Object.assign(s.style, 
-            // css font reset to reset external styles
-            fontResetStyles, 
-            /*
-             * We need this css as in some weird browser this
-             * span elements shows up for a microSec which creates a
-             * bad user experience
-             */
-            {
-                position: 'absolute',
-                left: '-9999px',
-                fontSize: testSize,
-            });
-            s.textContent = testString;
-            return s;
+        var createSpan = function () {
+            var span = d$2.createElement('span');
+            span.textContent = testString;
+            for (var _i = 0, _a = Object.keys(fontSpanStyle); _i < _a.length; _i++) {
+                var prop = _a[_i];
+                span.style[prop] = fontSpanStyle[prop];
+            }
+            return span;
         };
         // creates a span and load the font to detect and a base font for fallback
-        const createSpanWithFonts = (fontToDetect, baseFont) => {
-            const s = createSpan();
-            s.style.fontFamily = `'${fontToDetect}',${baseFont}`;
+        var createSpanWithFonts = function (fontToDetect, baseFont) {
+            var s = createSpan();
+            s.style.fontFamily = "'" + fontToDetect + "'," + baseFont;
             return s;
         };
         // creates spans for the base fonts and adds them to baseFontsDiv
-        const initializeBaseFontsSpans = () => {
-            return baseFonts.map((baseFont) => {
-                const s = createSpan();
+        var initializeBaseFontsSpans = function () {
+            return baseFonts.map(function (baseFont) {
+                var s = createSpan();
                 s.style.fontFamily = baseFont;
                 baseFontsDiv.appendChild(s);
                 return s;
             });
         };
         // creates spans for the fonts to detect and adds them to fontsDiv
-        const initializeFontsSpans = () => {
+        var initializeFontsSpans = function () {
             // Stores {fontName : [spans for that font]}
-            const spans = {};
-            for (const font of fontList) {
-                spans[font] = baseFonts.map((baseFont) => {
-                    const s = createSpanWithFonts(font, baseFont);
+            var spans = {};
+            var _loop_1 = function (font) {
+                spans[font] = baseFonts.map(function (baseFont) {
+                    var s = createSpanWithFonts(font, baseFont);
                     fontsDiv.appendChild(s);
                     return s;
                 });
+            };
+            for (var _i = 0, fontList_1 = fontList; _i < fontList_1.length; _i++) {
+                var font = fontList_1[_i];
+                _loop_1(font);
             }
             return spans;
         };
         // checks if a font is available
-        const isFontAvailable = (fontSpans) => {
-            return baseFonts.some(((baseFont, baseFontIndex) => (fontSpans[baseFontIndex].offsetWidth !== defaultWidth[baseFont] ||
-                fontSpans[baseFontIndex].offsetHeight !== defaultHeight[baseFont])));
+        var isFontAvailable = function (fontSpans) {
+            return baseFonts.some(function (baseFont, baseFontIndex) {
+                return fontSpans[baseFontIndex].offsetWidth !== defaultWidth[baseFont] ||
+                    fontSpans[baseFontIndex].offsetHeight !== defaultHeight[baseFont];
+            });
         };
         // create spans for base fonts
-        const baseFontsSpans = initializeBaseFontsSpans();
+        var baseFontsSpans = initializeBaseFontsSpans();
         // add the spans to the DOM
         h.appendChild(baseFontsDiv);
         // get the default width for the three base fonts
-        for (let index = 0, length = baseFonts.length; index < length; index++) {
+        for (var index = 0, length_1 = baseFonts.length; index < length_1; index++) {
             defaultWidth[baseFonts[index]] = baseFontsSpans[index].offsetWidth; // width for the default font
             defaultHeight[baseFonts[index]] = baseFontsSpans[index].offsetHeight; // height for the default font
         }
         // create spans for fonts to detect
-        const fontsSpans = initializeFontsSpans();
+        var fontsSpans = initializeFontsSpans();
         // add all the spans to the DOM
         h.appendChild(fontsDiv);
         // check available fonts
-        const available = [];
-        for (let i = 0, l = fontList.length; i < l; i++) {
+        var available = [];
+        for (var i = 0, l = fontList.length; i < l; i++) {
             if (isFontAvailable(fontsSpans[fontList[i]])) {
                 available.push(fontList[i]);
             }
@@ -540,18 +778,22 @@ var FingerprintJS = (function (exports) {
     }
 
     function getPlugins() {
+        if (isTrident()) {
+            return [];
+        }
         if (!navigator.plugins) {
             return undefined;
         }
-        const plugins = [];
+        var plugins = [];
         // Safari 10 doesn't support iterating navigator.plugins with for...of
-        for (let i = 0; i < navigator.plugins.length; ++i) {
-            const plugin = navigator.plugins[i];
+        for (var i = 0; i < navigator.plugins.length; ++i) {
+            var plugin = navigator.plugins[i];
             if (!plugin) {
                 continue;
             }
-            const mimeTypes = [];
-            for (const mimeType of plugin) {
+            var mimeTypes = [];
+            for (var j = 0; j < plugin.length; ++j) {
+                var mimeType = plugin[j];
                 mimeTypes.push({
                     type: mimeType.type,
                     suffixes: mimeType.suffixes,
@@ -560,14 +802,14 @@ var FingerprintJS = (function (exports) {
             plugins.push({
                 name: plugin.name,
                 description: plugin.description,
-                mimeTypes,
+                mimeTypes: mimeTypes,
             });
         }
         return plugins;
     }
 
     function makeCanvasContext() {
-        const canvas = document.createElement('canvas');
+        var canvas = document.createElement('canvas');
         canvas.width = 240;
         canvas.height = 140;
         canvas.style.display = 'inline';
@@ -583,7 +825,7 @@ var FingerprintJS = (function (exports) {
     }
     // https://www.browserleaks.com/canvas#how-does-it-work
     function getCanvasFingerprint() {
-        const [canvas, context] = makeCanvasContext();
+        var _a = makeCanvasContext(), canvas = _a[0], context = _a[1];
         if (!isSupported(canvas, context)) {
             return { winding: false, data: '' };
         }
@@ -592,7 +834,7 @@ var FingerprintJS = (function (exports) {
         // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/canvas/winding.js
         context.rect(0, 0, 10, 10);
         context.rect(2, 2, 6, 6);
-        const winding = !context.isPointInPath(5, 5, 'evenodd');
+        var winding = !context.isPointInPath(5, 5, 'evenodd');
         context.textBaseline = 'alphabetic';
         context.fillStyle = '#f60';
         context.fillRect(125, 1, 62, 20);
@@ -603,7 +845,7 @@ var FingerprintJS = (function (exports) {
         // the choice of emojis has a gigantic impact on rendering performance (especially in FF)
         // some newer emojis cause it to slow down 50-200 times
         // context.fillText("Cw爨m fjordbank \ud83d\ude03 gly", 2, 15)
-        const printedText = 'Cwm fjordbank \ud83d\ude03 gly';
+        var printedText = 'Cwm fjordbank \ud83d\ude03 gly';
         context.fillText(printedText, 2, 15);
         context.fillStyle = 'rgba(102, 204, 0, 0.2)';
         context.font = '18pt Arial';
@@ -635,13 +877,13 @@ var FingerprintJS = (function (exports) {
         context.arc(75, 75, 25, 0, Math.PI * 2, true);
         context.fill('evenodd');
         return {
-            winding,
-            data: save(canvas)
+            winding: winding,
+            data: save(canvas),
         };
     }
 
-    const n$1 = navigator;
-    const w$1 = window;
+    var n$1 = navigator;
+    var w$2 = window;
     /**
      * This is a crude and primitive touch screen detection. It's not possible to currently reliably detect the availability
      * of a touch screen with a JS, without actually subscribing to a touch event.
@@ -650,8 +892,8 @@ var FingerprintJS = (function (exports) {
      * @see https://github.com/Modernizr/Modernizr/issues/548
      */
     function getTouchSupport() {
-        let maxTouchPoints = 0;
-        let touchEvent;
+        var maxTouchPoints = 0;
+        var touchEvent;
         if (n$1.maxTouchPoints !== undefined) {
             maxTouchPoints = toInt(n$1.maxTouchPoints);
         }
@@ -665,11 +907,11 @@ var FingerprintJS = (function (exports) {
         catch (_) {
             touchEvent = false;
         }
-        const touchStart = 'ontouchstart' in w$1;
+        var touchStart = 'ontouchstart' in w$2;
         return {
-            maxTouchPoints,
-            touchEvent,
-            touchStart,
+            maxTouchPoints: maxTouchPoints,
+            touchEvent: touchEvent,
+            touchStart: touchStart,
         };
     }
 
@@ -677,101 +919,22 @@ var FingerprintJS = (function (exports) {
         return navigator.oscpu;
     }
 
-    /*
-     * Functions to help with browser features
-     */
-    const w$2 = window;
-    const n$2 = navigator;
-    const d$1 = document;
-    /**
-     * Checks whether the browser is Internet Explorer or pre-Chromium Edge without using user-agent.
-     *
-     * Warning for package users:
-     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
-     */
-    function isIEOrOldEdge() {
-        // The properties are checked to be in IE 10, IE 11 and Edge 18 and not to be in other browsers
-        return countTruthy([
-            'msWriteProfilerMark' in w$2,
-            'msLaunchUri' in n$2,
-            'msSaveBlob' in n$2,
-        ]) >= 2;
-    }
-    /**
-     * Checks whether the browser is based on Chromium without using user-agent.
-     *
-     * Warning for package users:
-     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
-     */
-    function isChromium() {
-        // Based on research in September 2020
-        return countTruthy([
-            'userActivation' in n$2,
-            'mediaSession' in n$2,
-            n$2.vendor.indexOf('Google') === 0,
-            'BackgroundFetchManager' in w$2,
-            'BatteryManager' in w$2,
-            'webkitMediaStream' in w$2,
-            'webkitSpeechGrammar' in w$2,
-        ]) >= 5;
-    }
-    /**
-     * Checks whether the WebKit browser is a desktop Safari.
-     *
-     * Warning for package users:
-     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
-     */
-    function isDesktopSafari() {
-        return 'safari' in w$2;
-    }
-    /**
-     * Checks whether the browser is based on Gecko (Firefox engine) without using user-agent.
-     *
-     * Warning for package users:
-     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
-     */
-    function isGecko() {
-        var _a;
-        // Based on research in September 2020
-        return countTruthy([
-            'buildID' in n$2,
-            ((_a = d$1.documentElement) === null || _a === void 0 ? void 0 : _a.style) && 'MozAppearance' in d$1.documentElement.style,
-            'MediaRecorderErrorEvent' in w$2,
-            'mozInnerScreenX' in w$2,
-            'CSSMozDocumentRule' in w$2,
-            'CanvasCaptureMediaStream' in w$2,
-        ]) >= 4;
-    }
-    /**
-     * Checks whether the browser is based on Chromium version ≥86 without using user-agent.
-     * It doesn't check that the browser is based on Chromium, there is a separate function for this.
-     */
-    function isChromium86OrNewer() {
-        // Checked in Chrome 85 vs Chrome 86 both on desktop and Android
-        return countTruthy([
-            !('MediaSettingsRange' in w$2),
-            !('PhotoCapabilities' in w$2),
-            'RTCEncodedAudioFrame' in w$2,
-            ('' + w$2.Intl) === '[object Intl]',
-        ]) >= 2;
-    }
-
-    const n$3 = navigator;
+    var n$2 = navigator;
     function getLanguages() {
-        const result = [];
-        const language = n$3.language || n$3.userLanguage || n$3.browserLanguage || n$3.systemLanguage;
+        var result = [];
+        var language = n$2.language || n$2.userLanguage || n$2.browserLanguage || n$2.systemLanguage;
         if (language !== undefined) {
             result.push([language]);
         }
-        if (Array.isArray(n$3.languages)) {
+        if (Array.isArray(n$2.languages)) {
             // Starting from Chromium 86, there is only a single value in `navigator.language` in Incognito mode:
             // the value of `navigator.language`. Therefore the value is ignored in this browser.
             if (!(isChromium() && isChromium86OrNewer())) {
-                result.push(n$3.languages);
+                result.push(n$2.languages);
             }
         }
-        else if (typeof n$3.languages === 'string') {
-            const languages = n$3.languages;
+        else if (typeof n$2.languages === 'string') {
+            var languages = n$2.languages;
             if (languages) {
                 result.push(languages.split(','));
             }
@@ -787,21 +950,21 @@ var FingerprintJS = (function (exports) {
         return navigator.deviceMemory;
     }
 
-    const w$3 = window;
+    var w$3 = window;
     function getScreenResolution() {
         // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
         // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-        const dimensions = [toInt(w$3.screen.width), toInt(w$3.screen.height)];
+        var dimensions = [toInt(w$3.screen.width), toInt(w$3.screen.height)];
         dimensions.sort().reverse();
         return dimensions;
     }
 
-    const w$4 = window;
+    var w$4 = window;
     function getAvailableScreenResolution() {
         if (w$4.screen.availWidth && w$4.screen.availHeight) {
             // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
             // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-            const dimensions = [toInt(w$4.screen.availWidth), toInt(w$4.screen.availHeight)];
+            var dimensions = [toInt(w$4.screen.availWidth), toInt(w$4.screen.availHeight)];
             dimensions.sort().reverse();
             return dimensions;
         }
@@ -811,7 +974,7 @@ var FingerprintJS = (function (exports) {
     function getHardwareConcurrency() {
         try {
             // sometimes hardware concurrency is a string
-            const concurrency = toInt(navigator.hardwareConcurrency);
+            var concurrency = toInt(navigator.hardwareConcurrency);
             return isNaN(concurrency) ? 1 : concurrency;
         }
         catch (e) {
@@ -820,10 +983,17 @@ var FingerprintJS = (function (exports) {
     }
 
     function getTimezoneOffset() {
-        return new Date().getTimezoneOffset();
+        var currentYear = new Date().getFullYear();
+        // The timezone offset may change over time due to daylight saving time (DST) shifts.
+        // The non-DST timezone offset is used as the result timezone offset.
+        // Since the DST season differs in the northern and the southern hemispheres,
+        // both January and July timezones offsets are considered.
+        return Math.max(
+        // `getTimezoneOffset` returns a number as a string in some unidentified cases
+        toFloat(new Date(currentYear, 0, 1).getTimezoneOffset()), toFloat(new Date(currentYear, 6, 1).getTimezoneOffset()));
     }
 
-    const w$5 = window;
+    var w$5 = window;
     function getTimezone() {
         var _a;
         if ((_a = w$5.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat) {
@@ -856,7 +1026,7 @@ var FingerprintJS = (function (exports) {
     function getIndexedDB() {
         // IE and Edge don't allow accessing indexedDB in private mode, therefore IE and Edge will have different
         // visitor identifier in normal and private modes.
-        if (isIEOrOldEdge()) {
+        if (isTrident() || isEdgeHTML()) {
             return undefined;
         }
         try {
@@ -915,7 +1085,7 @@ var FingerprintJS = (function (exports) {
         return window.chrome !== undefined;
     }
 
-    const d$2 = document;
+    var d$3 = document;
     /**
      * navigator.cookieEnabled cannot detect custom or nuanced cookie blocking configurations. For example, when blocking
      * cookies via the Advanced Privacy Settings in IE9, it always returns true. And there have been issues in the past with
@@ -924,15 +1094,19 @@ var FingerprintJS = (function (exports) {
      * @see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cookies.js Taken from here
      */
     function areCookiesEnabled() {
+        // Taken from here: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cookies.js
+        // navigator.cookieEnabled cannot detect custom or nuanced cookie blocking configurations. For example, when blocking
+        // cookies via the Advanced Privacy Settings in IE9, it always returns true. And there have been issues in the past
+        // with site-specific exceptions. Don't rely on it.
         // try..catch because some in situations `document.cookie` is exposed but throws a
         // SecurityError if you try to access it; e.g. documents created from data URIs
         // or in sandboxed iframes (depending on flags/context)
         try {
             // Create cookie
-            d$2.cookie = 'cookietest=1';
-            const result = d$2.cookie.indexOf('cookietest=') !== -1;
+            d$3.cookie = 'cookietest=1';
+            var result = d$3.cookie.indexOf('cookietest=') !== -1;
             // Delete cookie
-            d$2.cookie = 'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+            d$3.cookie = 'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
             return result;
         }
         catch (e) {
@@ -946,8 +1120,8 @@ var FingerprintJS = (function (exports) {
      * This value isn't restricted by Semantic Versioning, i.e. it may be changed without bumping minor or major version of
      * this package.
      */
-    const sources = {
-        // Expected errors and default values must be handled inside the functions
+    var sources = {
+        // Expected errors and default values must be handled inside the functions. Unexpected errors must be thrown.
         osCpu: getOsCpu,
         languages: getLanguages,
         colorDepth: getColorDepth,
@@ -985,26 +1159,46 @@ var FingerprintJS = (function (exports) {
      * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
      */
     function getComponents(sources, sourceOptions, excludeSources) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let timestamp = Date.now();
-            const components = {};
-            for (const sourceKey of Object.keys(sources)) {
-                if (!excludes(excludeSources, sourceKey)) {
-                    continue;
+        return __awaiter(this, void 0, void 0, function () {
+            var timestamp, components, _i, _a, sourceKey, result, error_1, nextTimestamp;
+            var _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        timestamp = Date.now();
+                        components = {};
+                        _i = 0, _a = Object.keys(sources);
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 7];
+                        sourceKey = _a[_i];
+                        if (!excludes(excludeSources, sourceKey)) {
+                            return [3 /*break*/, 6];
+                        }
+                        result = void 0;
+                        _c.label = 2;
+                    case 2:
+                        _c.trys.push([2, 4, , 5]);
+                        _b = {};
+                        return [4 /*yield*/, sources[sourceKey](sourceOptions)];
+                    case 3:
+                        result = (_b.value = _c.sent(), _b);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        error_1 = _c.sent();
+                        result = error_1 && typeof error_1 === 'object' && 'message' in error_1 ? { error: error_1 } : { error: { message: error_1 } };
+                        return [3 /*break*/, 5];
+                    case 5:
+                        nextTimestamp = Date.now();
+                        components[sourceKey] = __assign(__assign({}, result), { duration: nextTimestamp - timestamp }); // TypeScript has beaten me here
+                        timestamp = nextTimestamp;
+                        _c.label = 6;
+                    case 6:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 7: return [2 /*return*/, components];
                 }
-                let result;
-                let nextTimestamp;
-                try {
-                    result = { value: yield sources[sourceKey](sourceOptions) };
-                }
-                catch (error) {
-                    result = error && typeof error === 'object' && 'message' in error ? { error } : { error: { message: error } };
-                }
-                nextTimestamp = Date.now();
-                components[sourceKey] = Object.assign(Object.assign({}, result), { duration: nextTimestamp - timestamp }); // TypeScript has beaten me here
-                timestamp = nextTimestamp;
-            }
-            return components;
+            });
         });
     }
     /**
@@ -1015,19 +1209,20 @@ var FingerprintJS = (function (exports) {
     }
 
     function componentsToCanonicalString(components) {
-        let result = '';
-        for (const componentKey of Object.keys(components)) {
-            const component = components[componentKey];
-            const value = component.error ? 'error' : JSON.stringify(component.value);
-            result += `${result ? '|' : ''}${componentKey.replace(/([:|\\])/g, '\\$1')}:${value}`;
+        var result = '';
+        for (var _i = 0, _a = Object.keys(components); _i < _a.length; _i++) {
+            var componentKey = _a[_i];
+            var component = components[componentKey];
+            var value = component.error ? 'error' : JSON.stringify(component.value);
+            result += "" + (result ? '|' : '') + componentKey.replace(/([:|\\])/g, '\\$1') + ":" + value;
         }
         return result;
     }
     function componentsToDebugString(components) {
-        return JSON.stringify(components, (_key, value) => {
+        return JSON.stringify(components, function (_key, value) {
             var _a;
             if (value instanceof Error) {
-                return Object.assign(Object.assign({}, value), { message: value.message, stack: (_a = value.stack) === null || _a === void 0 ? void 0 : _a.split('\n') });
+                return __assign(__assign({}, value), { message: value.message, stack: (_a = value.stack) === null || _a === void 0 ? void 0 : _a.split('\n') });
             }
             return value;
         }, 2);
@@ -1040,10 +1235,10 @@ var FingerprintJS = (function (exports) {
      * Designed for optimisation.
      */
     function makeLazyGetResult(components) {
-        let visitorIdCache;
+        var visitorIdCache;
         // A plain class isn't used because its getters and setters aren't enumerable.
         return {
-            components,
+            components: components,
             get visitorId() {
                 if (visitorIdCache === undefined) {
                     visitorIdCache = hashComponents(this.components);
@@ -1059,47 +1254,64 @@ var FingerprintJS = (function (exports) {
      * The class isn't exported from the index file to not expose the constructor.
      * The hiding gives more freedom for future non-breaking updates.
      */
-    class OpenAgent {
+    var OpenAgent = /** @class */ (function () {
+        function OpenAgent() {
+        }
         /**
          * @inheritDoc
          */
-        get(options = {}) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const components = yield getBuiltinComponents();
-                const result = makeLazyGetResult(components);
-                if (options.debug) {
-                    console.log(`Copy the text below to get the debug data:
-
-\`\`\`
-version: ${version}
-getOptions: ${JSON.stringify(options, undefined, 2)}
-visitorId: ${result.visitorId}
-components: ${componentsToDebugString(components)}
-\`\`\``);
-                }
-                return result;
+        OpenAgent.prototype.get = function (options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(this, void 0, void 0, function () {
+                var components, result;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, getBuiltinComponents()];
+                        case 1:
+                            components = _a.sent();
+                            result = makeLazyGetResult(components);
+                            if (options.debug) {
+                                // console.log is ok here because it's under a debug clause
+                                // eslint-disable-next-line no-console
+                                console.log("Copy the text below to get the debug data:\n\n```\nversion: " + version + "\nuserAgent: " + navigator.userAgent + "\ngetOptions: " + JSON.stringify(options, undefined, 2) + "\nvisitorId: " + result.visitorId + "\ncomponents: " + componentsToDebugString(components) + "\n```");
+                            }
+                            return [2 /*return*/, result];
+                    }
+                });
             });
-        }
-    }
+        };
+        return OpenAgent;
+    }());
     /**
      * Builds an instance of Agent and waits a delay required for a proper operation.
      */
-    function load({ delayFallback = 50 } = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // A delay is required to ensure consistent entropy components.
-            // See https://github.com/fingerprintjs/fingerprintjs/issues/254
-            // and https://github.com/fingerprintjs/fingerprintjs/issues/307
-            yield requestIdleCallbackIfAvailable(delayFallback);
-            return new OpenAgent();
+    function load(_a) {
+        var _b = (_a === void 0 ? {} : _a).delayFallback, delayFallback = _b === void 0 ? 50 : _b;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: 
+                    // A delay is required to ensure consistent entropy components.
+                    // See https://github.com/fingerprintjs/fingerprintjs/issues/254
+                    // and https://github.com/fingerprintjs/fingerprintjs/issues/307
+                    return [4 /*yield*/, requestIdleCallbackIfAvailable(delayFallback)];
+                    case 1:
+                        // A delay is required to ensure consistent entropy components.
+                        // See https://github.com/fingerprintjs/fingerprintjs/issues/254
+                        // and https://github.com/fingerprintjs/fingerprintjs/issues/307
+                        _c.sent();
+                        return [2 /*return*/, new OpenAgent()];
+                }
+            });
         });
     }
 
     // The default export is a syntax sugar (`import * as FP from '...' → import FP from '...'`).
     // It should contain all the public exported values.
-    var index = { load, hashComponents, componentsToDebugString };
+    var index = { load: load, hashComponents: hashComponents, componentsToDebugString: componentsToDebugString };
     // The exports below are for private usage. They may change unexpectedly. Use them at your own risk.
     /** Not documented, out of Semantic Versioning, usage is at your own risk */
-    const murmurX64Hash128 = x64hash128;
+    var murmurX64Hash128 = x64hash128;
 
     exports.componentsToDebugString = componentsToDebugString;
     exports.default = index;
@@ -1107,8 +1319,10 @@ components: ${componentsToDebugString(components)}
     exports.hashComponents = hashComponents;
     exports.isChromium = isChromium;
     exports.isDesktopSafari = isDesktopSafari;
+    exports.isEdgeHTML = isEdgeHTML;
     exports.isGecko = isGecko;
-    exports.isIEOrOldEdge = isIEOrOldEdge;
+    exports.isTrident = isTrident;
+    exports.isWebKit = isWebKit;
     exports.load = load;
     exports.murmurX64Hash128 = murmurX64Hash128;
 

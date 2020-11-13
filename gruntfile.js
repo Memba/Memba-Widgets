@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
+// eslint-disable import/no-extraneous-dependencies
+// eslint-disable node/no-unpublished-require
+
 module.exports = (grunt) => {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -103,6 +106,28 @@ module.exports = (grunt) => {
                 uglify: false,
             },
         },
+        // This builds prosemirror for widgets.markdown
+        rollup: {
+            options: {
+                plugins: [
+                    require("@rollup/plugin-node-resolve").nodeResolve({
+                        main: true,
+                        preferBuiltins: false,
+                    }),
+                    require("@rollup/plugin-json")(),
+                    require("@rollup/plugin-commonjs")(),
+                    require("@rollup/plugin-buble")({
+                        transforms: { dangerousForOf: true } // For prosemirror-markdown
+                    })
+                ],
+                format: 'es', // 'iife',
+                // sourceMap: true,
+            },
+            pm: {
+                src: ['src/js/vendor/prosemirror/library.js'],
+                dest: 'src/js/vendor/prosemirror/prosemirror.es6'
+            },
+        },
         stylelint: {
             options: {
                 configFile: '.stylelintrc',
@@ -118,9 +143,10 @@ module.exports = (grunt) => {
     grunt.loadNpmTasks('grunt-karma');
     // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-modernizr');
+    grunt.loadNpmTasks('grunt-rollup');
     grunt.loadNpmTasks('grunt-stylelint');
 
     grunt.registerTask('lint', ['eslint', 'jscs', 'jshint', 'stylelint']);
     grunt.registerTask('test', ['karma']);
-    grunt.registerTask('default', ['modernizr', 'lint', 'test']);
+    grunt.registerTask('default', ['modernizr', 'rollup', 'lint', 'test']);
 };

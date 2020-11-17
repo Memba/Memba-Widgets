@@ -66,9 +66,8 @@ const Lottie = Widget.extend({
     /**
      * setOptions
      * @method setOptions
-     * @param options
      */
-    setOptions(options) {
+    setOptions(/* options */) {
         // this.enable(options.enabled);
         // this.value(options.value);
     },

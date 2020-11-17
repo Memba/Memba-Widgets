@@ -21,7 +21,7 @@ const {
     attr,
     destroy,
     format,
-    ui: { plugin, Widget }
+    ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.rating');
 
@@ -86,7 +86,7 @@ const Rating = Widget.extend({
                 max: parseFloat(input.attr('max') || RATING_MAX),
                 min: parseFloat(input.attr('min') || RATING_MIN),
                 step: parseFloat(input.attr('step') || RATING_STEP),
-                value: parseFloat(input.attr('value') || RATING_MIN)
+                value: parseFloat(input.attr('value') || RATING_MIN),
             },
             options
         );
@@ -95,7 +95,7 @@ const Rating = Widget.extend({
             max: opts.max,
             min: opts.min,
             step: opts.step,
-            type: CONSTANTS.NUMBER
+            type: CONSTANTS.NUMBER,
         });
         Widget.fn.init.call(this, element, opts);
         logger.debug({ method: 'init', message: 'widget initialized' });
@@ -111,7 +111,7 @@ const Rating = Widget.extend({
      * @property events
      */
     events: [
-        CONSTANTS.CHANGE // Changing the rating value by clicking a star raises the change event
+        CONSTANTS.CHANGE, // Changing the rating value by clicking a star raises the change event
     ],
 
     /**
@@ -124,7 +124,7 @@ const Rating = Widget.extend({
         min: RATING_MIN,
         max: RATING_MAX,
         step: RATING_STEP,
-        value: RATING_MIN
+        value: RATING_MIN,
     },
 
     /**
@@ -311,10 +311,7 @@ const Rating = Widget.extend({
     destroy() {
         // remove wrapper and stars
         if (this.wrapper) {
-            this.wrapper
-                .off(NS)
-                .find(STAR_SELECTOR)
-                .remove();
+            this.wrapper.off(NS).find(STAR_SELECTOR).remove();
             this.element.unwrap();
             delete this.wrapper;
             this.element.show();
@@ -322,7 +319,7 @@ const Rating = Widget.extend({
         // Destroy
         Widget.fn.destroy.call(this);
         destroy(this.element);
-    }
+    },
 });
 
 /**

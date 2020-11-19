@@ -32,7 +32,7 @@ export default function(hljs) {
     'default',
     'false',
     'null',
-    'true',
+    'true'
   ];
 
   const NORMAL_KEYWORDS = [
@@ -75,7 +75,7 @@ export default function(hljs) {
     'firstonly100',
     'firstonly1000',
     'flush',
-    'for', 
+    'for',
     'forceliterals',
     'forcenestedloop',
     'forceplaceholders',
@@ -83,7 +83,7 @@ export default function(hljs) {
     'forupdate',
     'from',
     'generateonly',
-    'group', 
+    'group',
     'hint',
     'if',
     'implements',
@@ -119,7 +119,7 @@ export default function(hljs) {
     'select',
     'server',
     'setting',
-    'static', 
+    'static',
     'sum',
     'super',
     'switch',
@@ -135,7 +135,7 @@ export default function(hljs) {
     'validtimestate',
     'void',
     'where',
-    'while',
+    'while'
   ];
 
   const KEYWORDS = {
@@ -156,14 +156,19 @@ export default function(hljs) {
       hljs.C_NUMBER_MODE,
       {
         className: 'meta',
-        begin: '#', end: '$'
+        begin: '#',
+        end: '$'
       },
       {
         className: 'class',
-        beginKeywords: 'class interface', end: '{', excludeEnd: true,
+        beginKeywords: 'class interface',
+        end: /\{/,
+        excludeEnd: true,
         illegal: ':',
         contains: [
-          {beginKeywords: 'extends implements'},
+          {
+            beginKeywords: 'extends implements'
+          },
           hljs.UNDERSCORE_TITLE_MODE
         ]
       }

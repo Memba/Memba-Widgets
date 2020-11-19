@@ -5,6 +5,9 @@ Website: https://www.perl.org
 Category: common
 */
 
+import * as regex from '../lib/regex.js';
+
+/** @type LanguageFn */
 export default function(hljs) {
   var PERL_KEYWORDS = {
     $pattern: /[\w.]+/,
@@ -34,14 +37,19 @@ export default function(hljs) {
     keywords: PERL_KEYWORDS
   };
   var METHOD = {
-    begin: '->{', end: '}'
+    begin: /->\{/, end: /\}/
     // contains defined later
   };
   var VAR = {
     variants: [
       {begin: /\$\d/},
-      {begin: /[\$%@](\^\w\b|#\w+(::\w+)*|{\w+}|\w+(::\w*)*)/},
-      {begin: /[\$%@][^\s\w{]/, relevance: 0}
+      {begin: regex.concat(
+        /[$%@](\^\w\b|#\w+(::\w+)*|\{\w+\}|\w+(::\w*)*)/,
+        // negative look-ahead tries to avoid matching patterns that are not
+        // Perl at all like $ident$, @ident@, etc.
+        `(?![A-Za-z])(?![@$%])`
+        )},
+      {begin: /[$%@][^\s\w{]/, relevance: 0}
     ]
   };
   var STRING_CONTAINS = [hljs.BACKSLASH_ESCAPE, SUBST, VAR];
@@ -49,8 +57,8 @@ export default function(hljs) {
     VAR,
     hljs.HASH_COMMENT_MODE,
     hljs.COMMENT(
-      '^\\=\\w',
-      '\\=cut',
+      /^=\w/,
+      /=cut/,
       {
         endsWithParent: true
       }
@@ -77,7 +85,7 @@ export default function(hljs) {
           relevance: 5
         },
         {
-          begin: 'q[qwxr]?\\s*\\<', end: '\\>',
+          begin: 'q[qwxr]?\\s*<', end: '>',
           relevance: 5
         },
         {
@@ -96,12 +104,12 @@ export default function(hljs) {
           contains: [hljs.BACKSLASH_ESCAPE]
         },
         {
-          begin: '{\\w+}',
+          begin: /\{\w+\}/,
           contains: [],
           relevance: 0
         },
         {
-          begin: '\-?\\w+\\s*\\=\\>',
+          begin: '-?\\w+\\s*=>',
           contains: [],
           relevance: 0
         }

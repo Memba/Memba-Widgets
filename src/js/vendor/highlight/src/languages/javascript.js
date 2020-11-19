@@ -1,4 +1,3 @@
-/* eslint-disable no-unreachable */
 /*
 Language: JavaScript
 Description: JavaScript (JS) is a lightweight, interpreted, or just-in-time compiled programming language with first-class functions.
@@ -19,7 +18,7 @@ export default function(hljs) {
    * @param {{after:number}} param1
    */
   const hasClosingTag = (match, { after }) => {
-    const tag = match[0].replace("<", "</");
+    const tag = "</" + match[0].slice(1);
     const pos = match.input.indexOf(tag, after);
     return pos !== -1;
   };
@@ -63,29 +62,36 @@ export default function(hljs) {
     literal: ECMAScript.LITERALS.join(" "),
     built_in: ECMAScript.BUILT_INS.join(" ")
   };
-  const nonDecimalLiterals = (prefixLetters, validChars) =>
-    `\\b0[${prefixLetters}][${validChars}]([${validChars}_]*[${validChars}])?n?`;
-  const noLeadingZeroDecimalDigits = /[1-9]([0-9_]*\d)?/;
-  const decimalDigits = /\d([0-9_]*\d)?/;
-  const exponentPart = regex.concat(/[eE][+-]?/, decimalDigits);
+
+  // https://tc39.es/ecma262/#sec-literals-numeric-literals
+  const decimalDigits = '[0-9](_?[0-9])*';
+  const frac = `\\.(${decimalDigits})`;
+  // DecimalIntegerLiteral, including Annex B NonOctalDecimalIntegerLiteral
+  // https://tc39.es/ecma262/#sec-additional-syntax-numeric-literals
+  const decimalInteger = `0|[1-9](_?[0-9])*|0[0-7]*[89][0-9]*`;
   const NUMBER = {
     className: 'number',
     variants: [
-      { begin: nonDecimalLiterals('bB', '01') }, // Binary literals
-      { begin: nonDecimalLiterals('oO', '0-7') }, // Octal literals
-      { begin: nonDecimalLiterals('xX', '0-9a-fA-F') }, // Hexadecimal literals
-      { begin: regex.concat(/\b/, noLeadingZeroDecimalDigits, 'n') }, // Non-zero BigInt literals
-      { begin: regex.concat(/(\b0)?\./, decimalDigits, regex.optional(exponentPart)) }, // Decimal literals between 0 and 1
-      { begin: regex.concat(
-        /\b/,
-        noLeadingZeroDecimalDigits,
-        regex.optional(regex.concat(/\./, regex.optional(decimalDigits))), // fractional part
-        regex.optional(exponentPart)
-        ) }, // Decimal literals >= 1
-      { begin: /\b0[\.n]?/ }, // Zero literals (`0`, `0.`, `0n`)
+      // DecimalLiteral
+      { begin: `(\\b(${decimalInteger})((${frac})|\\.)?|(${frac}))` +
+        `[eE][+-]?(${decimalDigits})\\b` },
+      { begin: `\\b(${decimalInteger})\\b((${frac})\\b|\\.)?|(${frac})\\b` },
+
+      // DecimalBigIntegerLiteral
+      { begin: `\\b(0|[1-9](_?[0-9])*)n\\b` },
+
+      // NonDecimalIntegerLiteral
+      { begin: "\\b0[xX][0-9a-fA-F](_?[0-9a-fA-F])*n?\\b" },
+      { begin: "\\b0[bB][0-1](_?[0-1])*n?\\b" },
+      { begin: "\\b0[oO][0-7](_?[0-7])*n?\\b" },
+
+      // LegacyOctalIntegerLiteral (does not include underscore separators)
+      // https://tc39.es/ecma262/#sec-additional-syntax-numeric-literals
+      { begin: "\\b0[0-7]+n?\\b" },
     ],
     relevance: 0
   };
+
   const SUBST = {
     className: 'subst',
     begin: '\\$\\{',
@@ -182,8 +188,8 @@ export default function(hljs) {
     .concat({
       // we need to pair up {} inside our subst to prevent
       // it from ending too early by matching another }
-      begin: /{/,
-      end: /}/,
+      begin: /\{/,
+      end: /\}/,
       keywords: KEYWORDS,
       contains: [
         "self"
@@ -250,9 +256,7 @@ export default function(hljs) {
           regex.lookahead(regex.concat(
             // we also need to allow for multiple possible comments inbetween
             // the first key:value pairing
-            /(\/\/.*$)*/,
-            /(\/\*(.|\n)*\*\/)*/,
-            /\s*/,
+            /(((\/\/.*$)|(\/\*(\*[^/]|[^*])*\*\/))\s*)*/,
             IDENT_RE + '\\s*:'))),
         relevance: 0,
         contains: [
@@ -288,7 +292,8 @@ export default function(hljs) {
                 className: 'params',
                 variants: [
                   {
-                    begin: hljs.UNDERSCORE_IDENT_RE
+                    begin: hljs.UNDERSCORE_IDENT_RE,
+                    relevance: 0
                   },
                   {
                     className: null,
@@ -354,6 +359,11 @@ export default function(hljs) {
         illegal: /%/
       },
       {
+        // prevent this from getting swallowed up by function
+        // since they appear "function like"
+        beginKeywords: "while if switch catch for"
+      },
+      {
         className: 'function',
         // we have to count the parens to make sure we actually have the correct
         // bounding ( ).  There could be any number of sub-expressions inside
@@ -365,7 +375,7 @@ export default function(hljs) {
               '[^()]*' +
             '\\))*[^()]*' +
           '\\))*[^()]*' +
-          '\\)\\s*{', // end parens
+          '\\)\\s*\\{', // end parens
         returnBegin:true,
         contains: [
           PARAMS,
@@ -387,7 +397,7 @@ export default function(hljs) {
         beginKeywords: 'class',
         end: /[{;=]/,
         excludeEnd: true,
-        illegal: /[:"\[\]]/,
+        illegal: /[:"[\]]/,
         contains: [
           { beginKeywords: 'extends' },
           hljs.UNDERSCORE_TITLE_MODE
@@ -395,7 +405,7 @@ export default function(hljs) {
       },
       {
         begin: /\b(?=constructor)/,
-        end: /[\{;]/,
+        end: /[{;]/,
         excludeEnd: true,
         contains: [
           hljs.inherit(hljs.TITLE_MODE, { begin: IDENT_RE }),
@@ -405,7 +415,7 @@ export default function(hljs) {
       },
       {
         begin: '(get|set)\\s+(?=' + IDENT_RE + '\\()',
-        end: /{/,
+        end: /\{/,
         keywords: "get set",
         contains: [
           hljs.inherit(hljs.TITLE_MODE, { begin: IDENT_RE }),

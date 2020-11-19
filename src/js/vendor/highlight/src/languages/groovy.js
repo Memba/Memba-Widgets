@@ -78,14 +78,17 @@ export default function(hljs) {
             'throw throws try catch finally implements extends new import package return instanceof'
         },
         contains: [
-            hljs.SHEBANG(),
+            hljs.SHEBANG({
+              binary: "groovy",
+              relevance: 10
+            }),
             COMMENT,
             STRING,
             REGEXP,
             NUMBER,
             {
                 className: 'class',
-                beginKeywords: 'class interface trait enum', end: '{',
+                beginKeywords: 'class interface trait enum', end: /\{/,
                 illegal: ':',
                 contains: [
                     {beginKeywords: 'extends implements'},
@@ -93,7 +96,9 @@ export default function(hljs) {
                 ]
             },
             {
-                className: 'meta', begin: '@[A-Za-z]+'
+                className: 'meta',
+                begin: '@[A-Za-z]+',
+                relevance: 0
             },
             {
               // highlight map keys and named parameters as attrs
@@ -104,6 +109,7 @@ export default function(hljs) {
               // to avoid highlight it as a label, named parameter, or map key
               begin: /\?/,
               end: /:/,
+              relevance: 0,
               contains: [
                 COMMENT,
                 STRING,

@@ -2,7 +2,19 @@ import * as regex from './regex.js';
 import { inherit } from './utils.js';
 
 // keywords that should have no default relevance value
-var COMMON_KEYWORDS = 'of and for in not or if then'.split(' ');
+const COMMON_KEYWORDS = [
+  'of',
+  'and',
+  'for',
+  'in',
+  'not',
+  'or',
+  'if',
+  'then',
+  'parent', // common variable name
+  'list', // common variable name
+  'value' // common variable name
+];
 
 // compilation
 
@@ -240,7 +252,7 @@ export function compileLanguage(language) {
 
   // TODO: We need negative look-behind support to do this properly
   /**
-   * Skip a match if it has a preceding or trailing dot
+   * Skip a match if it has a preceding dot
    *
    * This is used for `beginKeywords` to prevent matching expressions such as
    * `bob.keyword.do()`. The mode compiler automatically wires this up as a
@@ -248,10 +260,9 @@ export function compileLanguage(language) {
    * @param {RegExpMatchArray} match
    * @param {CallbackResponse} response
    */
-  function skipIfhasPrecedingOrTrailingDot(match, response) {
+  function skipIfhasPrecedingDot(match, response) {
     const before = match.input[match.index - 1];
-    const after = match.input[match.index + match[0].length];
-    if (before === "." || after === ".") {
+    if (before === ".") {
       response.ignoreMatch();
     }
   }
@@ -331,8 +342,8 @@ export function compileLanguage(language) {
         // or whitespace - this does no harm in any case since our keyword engine
         // doesn't allow spaces in keywords anyways and we still check for the boundary
         // first
-        mode.begin = '\\b(' + mode.beginKeywords.split(' ').join('|') + ')(?=\\b|\\s)';
-        mode.__beforeBegin = skipIfhasPrecedingOrTrailingDot;
+        mode.begin = '\\b(' + mode.beginKeywords.split(' ').join('|') + ')(?!\\.)(?=\\b|\\s)';
+        mode.__beforeBegin = skipIfhasPrecedingDot;
       }
       if (!mode.begin) mode.begin = /\B|\b/;
       cmode.beginRe = langRe(mode.begin);
@@ -366,6 +377,10 @@ export function compileLanguage(language) {
   if (language.contains && language.contains.includes('self')) {
     throw new Error("ERR: contains `self` is not supported at the top-level of a language.  See documentation.");
   }
+
+  // we need a null object, which inherit will guarantee
+  language.classNameAliases = inherit(language.classNameAliases || {});
+
   return compileMode(/** @type Mode */ (language));
 }
 
@@ -438,7 +453,7 @@ function expandOrCloneMode(mode) {
  */
 function compileKeywords(rawKeywords, caseInsensitive) {
   /** @type KeywordDict */
-  var compiledKeywords = {};
+  const compiledKeywords = {};
 
   if (typeof rawKeywords === 'string') { // string
     splitAndCompile('keyword', rawKeywords);
@@ -464,7 +479,7 @@ function compileKeywords(rawKeywords, caseInsensitive) {
       keywordList = keywordList.toLowerCase();
     }
     keywordList.split(' ').forEach(function(keyword) {
-      var pair = keyword.split('|');
+      const pair = keyword.split('|');
       compiledKeywords[pair[0]] = [className, scoreForKeyword(pair[0], pair[1])];
     });
   }

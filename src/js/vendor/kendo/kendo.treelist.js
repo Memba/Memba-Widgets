@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -127,6 +127,7 @@
         var browser = kendo.support.browser;
         var kendoTemplate = kendo.template;
         var activeElement = kendo._activeElement;
+        var touchDevice = kendo.support.touch;
         var isArray = $.isArray;
         var extend = $.extend;
         var proxy = $.proxy;
@@ -1798,12 +1799,10 @@
                     return;
                 }
                 reorderable = editable.move.reorderable;
-                if (kendo.support.touch && editable.move) {
-                    that.element.find(DOT + classNames.gridContentWrap).css('touch-action', 'none');
-                }
                 this._dragging = new kendo.ui.HierarchicalDragAndDrop(this.wrapper, {
                     $angular: this.$angular,
                     autoScroll: true,
+                    holdToDrag: touchDevice,
                     filter: 'tbody>tr',
                     itemSelector: 'tr',
                     allowedContainers: this.wrapper,
@@ -2327,7 +2326,8 @@
                 filterable: false,
                 editable: false,
                 reorderable: false,
-                pageable: false
+                pageable: false,
+                renderAllRows: true
             },
             events: [
                 CHANGE,
@@ -3381,6 +3381,10 @@
                     if (column.template) {
                         column.template = kendo.template(column.template);
                     }
+                    if (this._isIncellEditable()) {
+                        column.dirtyCellTemplate = this._createDirtyColumnTemplate(column);
+                        column.dirtyIndicatorTemplate = this._createIndicatorTemplate(column);
+                    }
                     if (column.headerTemplate) {
                         column.headerTemplate = kendo.template(column.headerTemplate);
                     }
@@ -4072,7 +4076,7 @@
                         }, columns, proxy(this._td, this));
                         rows.push(row);
                     }
-                    if (hasChildren) {
+                    if (hasChildren && (that.options.renderAllRows || !!model.expanded)) {
                         if (pageable) {
                             childNodes = (options.viewChildrenMap || {})[modelId] || [];
                         }
@@ -4239,7 +4243,7 @@
                 var that = this;
                 var value;
                 var incellEditing = that._isIncellEditable();
-                var dirtyIndicator = incellEditing ? that._evalDirtyIndicatorTemplate(column, model) : '';
+                var dirtyIndicator;
                 if (column.selectable) {
                     return kendoHtmlElement(SELECTCOLUMNTMPL);
                 }
@@ -4247,6 +4251,7 @@
                     value = that._evalColumnTemplate(column, model);
                 } else if (column.field) {
                     value = model.get(column.field);
+                    dirtyIndicator = incellEditing ? column.dirtyIndicatorTemplate(model) : '';
                     if (value !== null && !isUndefined(value)) {
                         if (column.format) {
                             value = kendo.format(column.format, value);
@@ -4270,22 +4275,22 @@
             },
             _evalColumnTemplate: function (column, model) {
                 if (this._isIncellEditable()) {
-                    return this._evalCustomColumnTemplate(column, model);
+                    return column.dirtyCellTemplate(model);
                 } else {
                     return column.template(model);
                 }
             },
-            _evalCustomColumnTemplate: function (column, model) {
+            _createDirtyColumnTemplate: function (column) {
                 var that = this;
                 var templateSettings = that._customTemplateSettings();
                 var columnTemplateAlias = '#=this.columnTemplate(' + templateSettings.paramName + ')#';
                 var templateString = that._dirtyIndicatorTemplate(column.field) + columnTemplateAlias;
                 var templateFunction = proxy(kendoTemplate(templateString, templateSettings), { columnTemplate: column.template });
-                return templateFunction(model);
+                return templateFunction;
             },
-            _evalDirtyIndicatorTemplate: function (column, model) {
+            _createIndicatorTemplate: function (column) {
                 var dirtyIndicatorTemplate = this._dirtyIndicatorTemplate(column.field);
-                return kendoTemplate(dirtyIndicatorTemplate)(model);
+                return kendoTemplate(dirtyIndicatorTemplate);
             },
             _dirtyIndicatorTemplate: function (field) {
                 var that = this;

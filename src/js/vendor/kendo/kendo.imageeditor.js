@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -485,7 +485,7 @@
                         'sw',
                         's',
                         'se'
-                    ], zoomLevel = that.imageeditor.getZoomLevel();
+                    ], zoomLevel = imageeditor.getZoomLevel();
                 for (var i = 0; i < handles.length; i++) {
                     var handleElm = $(handle).addClass(paneStyles.resizeHandlePrefix + handles[i]).attr('data-orientation', handles[i]);
                     that._initResizeHandle(handleElm);
@@ -512,12 +512,14 @@
                 });
             },
             refresh: function () {
-                var that = this, newModel = that.formWidget._model, zoomLevel = that.imageeditor.getZoomLevel();
+                var that = this, newModel = that.formWidget._model, zoomLevel = that.imageeditor.getZoomLevel(), width = Math.round(newModel.width * zoomLevel), height = Math.round(newModel.height * zoomLevel), top = Math.round(newModel.top * zoomLevel), left = Math.round(newModel.left * zoomLevel), borderWidth = parseInt(that.cropElement.css('border-top-width'), 10);
                 that.cropElement.css({
-                    top: newModel.top * zoomLevel,
-                    left: newModel.left * zoomLevel,
-                    width: newModel.width * zoomLevel,
-                    height: newModel.height * zoomLevel
+                    top: top,
+                    left: left,
+                    width: width,
+                    height: height,
+                    backgroundSize: kendo.format('{0}px {1}px', that._model.width * zoomLevel, that._model.height * zoomLevel),
+                    backgroundPosition: kendo.format('-{0}px -{1}px', left + borderWidth, top + borderWidth)
                 });
             },
             _initResizeHandle: function (handle) {
@@ -581,11 +583,17 @@
                     newModel.set('width', size.width);
                     newModel.set('height', size.height);
                 }
+                var width = Math.round(newModel.width * zoomLevel);
+                var height = Math.round(newModel.height * zoomLevel);
+                var top = Math.round(newModel.top * zoomLevel);
+                var left = Math.round(newModel.left * zoomLevel);
+                var borderWidth = parseInt(that.cropElement.css('border-top-width'), 10);
                 that.cropElement.css({
-                    top: newModel.top * zoomLevel,
-                    left: newModel.left * zoomLevel,
-                    width: newModel.width * zoomLevel,
-                    height: newModel.height * zoomLevel
+                    top: top,
+                    left: left,
+                    width: width,
+                    height: height,
+                    backgroundPosition: kendo.format('-{0}px -{1}px', left + borderWidth, top + borderWidth)
                 });
             },
             _calcSize: function (model, originalRatio, maxWidth, maxHeight, force) {
@@ -835,7 +843,7 @@
                 } else if (typeof value === 'string') {
                     value = that._processStringValue(value, currentZoom);
                 }
-                newHeight = imgHeight * value;
+                newHeight = Math.round(imgHeight * value);
                 if (newHeight > 0) {
                     $(imageeditor._canvas).css('height', newHeight);
                     imageeditor._zoomLevel = value;

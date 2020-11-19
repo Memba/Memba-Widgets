@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -272,12 +272,14 @@
                     if (this.options.autoPlay) {
                         this._playStateToggle(true);
                     }
-                    $([
-                        this._volumeButton[0],
-                        toolBarElement.find('.k-mediaplayer-volume-wrap')[0],
-                        toolBarElement.find('.k-mediaplayer-quality-wrap')[0],
-                        this._fullscreenButton[0]
-                    ]).wrapAll('<div class=\'k-align-right\' />');
+                    if (kendo.support.cssFlexbox === false) {
+                        $([
+                            this._volumeButton[0],
+                            toolBarElement.find('.k-mediaplayer-volume-wrap')[0],
+                            toolBarElement.find('.k-mediaplayer-quality-wrap')[0],
+                            this._fullscreenButton[0]
+                        ]).wrapAll('<div class=\'k-align-right\' />');
+                    }
                     toolBarElement.find('.k-button').addClass('k-flat');
                 }
             },

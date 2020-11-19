@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1612,7 +1612,7 @@
                         }) : null;
                     if (workDays) {
                         start = weekStart;
-                        end = dayOfWeek(start, 6, 1);
+                        end = dayOfWeek(start, this.calendarInfo().firstDay + 6, 1);
                     }
                     while (start <= end) {
                         if (workDays && workDays.indexOf(start.getTime()) > -1) {

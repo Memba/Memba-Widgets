@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.3.1021'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2020.3.1118'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -69324,7 +69324,7 @@
                 var removed = removeFiltersForField(expression, options.dataTextField);
                 this._clearFilterExpressions(expression);
                 if ((filter || removed) && that.trigger('filtering', { filter: filter })) {
-                    return;
+                    return $.Deferred().reject().promise();
                 }
                 var newExpression = {
                     filters: [],
@@ -69598,6 +69598,9 @@
                 that.close();
                 that._userTriggered = false;
             },
+            _isValueChanged: function (value) {
+                return value !== unifyType(this._old, typeof value);
+            },
             _change: function () {
                 var that = this;
                 var index = that.selectedIndex;
@@ -69607,7 +69610,7 @@
                 if (that._isSelect && !that.listView.bound() && optionValue) {
                     value = optionValue;
                 }
-                if (value !== unifyType(that._old, typeof value) && value !== unifyType(that._oldText, typeof value)) {
+                if (that._isValueChanged(value)) {
                     trigger = true;
                 } else if (that._valueBeforeCascade !== undefined && that._valueBeforeCascade !== unifyType(that._old, typeof that._valueBeforeCascade) && that._userTriggered) {
                     trigger = true;
@@ -69625,7 +69628,6 @@
                         }
                     }
                     that._oldIndex = index;
-                    that._oldText = that.text && that.text();
                     if (!that._typing) {
                         that.element.trigger(CHANGE);
                     }
@@ -72573,6 +72575,7 @@
                 that._initialIndex = options.index;
                 that.requireValueMapper(that.options);
                 that._initList();
+                that.listView.one('dataBound', proxy(that._attachAriaActiveDescendant, that));
                 that._cascade();
                 that.one('set', function (e) {
                     if (!e.sender.listView.bound() && that.hasOptionLabel()) {
@@ -72674,6 +72677,7 @@
             open: function () {
                 var that = this;
                 var isFiltered = that.dataSource.filter() ? that.dataSource.filter().filters.length > 0 : false;
+                var listView = this.listView;
                 if (that.popup.visible()) {
                     return;
                 }
@@ -72687,6 +72691,7 @@
                     if (that.filterInput && that.options.minLength !== 1 && !isFiltered) {
                         that.refresh();
                         that.popup.one('activate', that._focusInputHandler);
+                        that.wrapper.attr('aria-activedescendant', listView._optionID);
                         that.popup.open();
                         that._resizeFilterInput();
                     } else {
@@ -72696,10 +72701,19 @@
                     that._focusFilter = true;
                     that.popup.one('activate', that._focusInputHandler);
                     that.popup._hovered = true;
+                    that.wrapper.attr('aria-activedescendant', listView._optionID);
                     that.popup.open();
                     that._resizeFilterInput();
                     that._focusItem();
                 }
+            },
+            close: function () {
+                this._attachAriaActiveDescendant();
+                this.popup.close();
+            },
+            _attachAriaActiveDescendant: function () {
+                var wrapper = this.wrapper, inputId = wrapper.find('.k-input').attr('id');
+                wrapper.attr('aria-activedescendant', inputId);
             },
             _focusInput: function () {
                 this._focusElement(this.filterInput);
@@ -73427,17 +73441,17 @@
                         placeholder: this.element.attr('placeholder'),
                         title: this.element.attr('title'),
                         role: 'listbox',
-                        'aria-haspopup': true,
+                        'aria-haspopup': 'listbox',
                         'aria-expanded': false
                     });
                     this.list.prepend($('<span class="k-list-filter" />').append(this.filterInput.add(icon)));
                 }
             },
             _span: function () {
-                var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', span;
+                var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', id = kendo.guid(), span;
                 span = wrapper.find(SELECTOR);
                 if (!span[0]) {
-                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>').append(that.element);
+                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span id="' + id + '" unselectable="on" role="option" aria-selected="true" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>').append(that.element);
                     span = wrapper.find(SELECTOR);
                 }
                 that.span = span;
@@ -73457,7 +73471,7 @@
                     accesskey: element.attr('accesskey'),
                     unselectable: 'on',
                     role: 'listbox',
-                    'aria-haspopup': true,
+                    'aria-haspopup': 'listbox',
                     'aria-expanded': false
                 });
                 element.hide().removeAttr('accesskey');
@@ -76473,7 +76487,7 @@
                     return that._value;
                 }
                 that._old = that._update(value);
-                if (that._old === null) {
+                if (that._old === null && !that._dateInput) {
                     that.element.val('');
                 }
                 that._oldText = that.element.val();
@@ -76566,7 +76580,7 @@
                 }
                 if (+date === +current && isSameType) {
                     formattedValue = kendo.toString(date, options.format, options.culture);
-                    if (formattedValue !== value) {
+                    if (formattedValue !== value && !(that._dateInput && !date)) {
                         that.element.val(date === null ? value : formattedValue);
                     }
                     return date;
@@ -77427,6 +77441,21 @@
             }
             return containers;
         }
+        function isLabelFor(label, element) {
+            if (!label) {
+                return false;
+            }
+            if (typeof label.nodeName !== 'string' || label.nodeName !== 'LABEL') {
+                return false;
+            }
+            if (typeof label.getAttribute('for') !== 'string' || typeof element.getAttribute('id') !== 'string') {
+                return false;
+            }
+            if (label.getAttribute('for') !== element.getAttribute('id')) {
+                return false;
+            }
+            return true;
+        }
         var SUMMARYTEMPLATE = '<ul>' + '#for(var i = 0; i < errors.length; i += 1){#' + '<li><a data-field="#=errors[i].field#" href="\\#">#= errors[i].message #</a></li>' + '# } #' + '</ul>';
         var Validator = Widget.extend({
             init: function (element, options) {
@@ -77639,12 +77668,15 @@
                         var widgetInstance = kendo.widgetInstance(input);
                         var parentElement = input.parent().get(0);
                         var nextElement = input.next().get(0);
-                        if (parentElement && parentElement.nodeName === 'LABEL') {
-                            messageLabel.insertAfter(parentElement);
-                        } else if (nextElement && nextElement.nodeName === 'LABEL') {
-                            messageLabel.insertAfter(nextElement);
-                        } else if (widgetInstance && widgetInstance.wrapper) {
+                        var prevElement = input.prev().get(0);
+                        if (widgetInstance && widgetInstance.wrapper) {
                             messageLabel.insertAfter(widgetInstance.wrapper);
+                        } else if (parentElement && parentElement.nodeName === 'LABEL') {
+                            messageLabel.insertAfter(parentElement);
+                        } else if (nextElement && isLabelFor(nextElement, input[0])) {
+                            messageLabel.insertAfter(nextElement);
+                        } else if (prevElement && isLabelFor(prevElement, input[0])) {
+                            messageLabel.insertAfter(input);
                         } else {
                             messageLabel.insertAfter(input);
                         }
@@ -79493,8 +79525,8 @@
                 that.initialPosition = kendo.getOffset(wrapper, 'position');
                 that.resizeDirection = e.currentTarget.prop('className').replace('k-resize-handle k-resize-', '');
                 that.initialSize = {
-                    width: wrapper.width(),
-                    height: wrapper.height()
+                    width: wrapper.outerWidth(),
+                    height: wrapper.outerHeight()
                 };
                 wnd._updateBoundaries();
                 that.containerOffset = wnd.containment ? wnd.containment.position : kendo.getOffset(wnd.appendTo, 'position');

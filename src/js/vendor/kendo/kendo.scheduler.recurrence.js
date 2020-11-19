@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -840,11 +840,12 @@
             }
             return date;
         }
-        function eventsByPosition(periodEvents, start, positions) {
+        function eventsByPosition(periodEvents, start, positions, until) {
             var periodEventsLength = periodEvents.length;
             var events = [];
             var position;
             var event;
+            var inPeriod;
             for (var idx = 0, length = positions.length; idx < length; idx++) {
                 position = positions[idx];
                 if (position < 0) {
@@ -853,7 +854,8 @@
                     position -= 1;
                 }
                 event = periodEvents[position];
-                if (event && event.start >= start) {
+                inPeriod = until ? event.start < until : true;
+                if (event && event.start >= start && inPeriod) {
                     events.push(event);
                 }
             }
@@ -990,7 +992,7 @@
                     freq.next(start, rule);
                     freq.limit(start, end, rule);
                     if (start > rule._endPeriod) {
-                        periodEvents = eventsByPosition(events.slice(currentIdx), eventStart, positions);
+                        periodEvents = eventsByPosition(events.slice(currentIdx), eventStart, positions, rule.until);
                         periodEvents = removeExceptionDates(periodEvents, exceptionDates, zone);
                         events = events.slice(0, currentIdx).concat(periodEvents);
                         rule._endPeriod = endPeriodByFreq(start, rule);
@@ -1220,6 +1222,9 @@
             var start = rule.start || '';
             var end = rule.end || '';
             var until = rule.until;
+            if (weekStart === undefined) {
+                weekStart = kendo.culture().calendar.firstDay;
+            }
             if (rule.interval > 1) {
                 ruleString += ';INTERVAL=' + rule.interval;
             }

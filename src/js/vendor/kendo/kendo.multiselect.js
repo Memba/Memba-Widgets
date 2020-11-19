@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -461,26 +461,33 @@
             _listBound: function () {
                 var that = this;
                 var data = that.dataSource.flatView();
-                var skip = that.listView.skip();
                 that._render(data);
                 that._renderFooter();
                 that._renderNoData();
                 that._toggleNoData(!data.length);
                 that._resizePopup();
+                that._updateItemFocus();
                 if (that._open) {
                     that._open = false;
                     that.toggle(that._allowOpening());
                 }
                 that.popup.position();
-                if (that.options.highlightFirst && (skip === undefined || skip === 0)) {
-                    that.listView.focusFirst();
-                }
                 if (that._touchScroller) {
                     that._touchScroller.reset();
                 }
                 that._hideBusy();
                 that._makeUnselectable();
                 that.trigger('dataBound');
+            },
+            _updateItemFocus: function () {
+                var that = this, data = that.dataSource.flatView(), skip = that.listView.skip(), isFirstPage = skip === undefined || skip === 0;
+                if (data.length && isFirstPage) {
+                    if (!that.options.highlightFirst) {
+                        that.listView.focus(-1);
+                    } else {
+                        that.listView.focusFirst();
+                    }
+                }
             },
             _inputValue: function () {
                 var that = this;

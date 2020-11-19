@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -453,7 +453,8 @@
                 listView.element.on(KEYDOWN + NS, proxy(that._keydownAction, that));
                 listView.bind('edit', function (ev) {
                     var sender = ev.sender;
-                    ev.item.find('input').on('blur', function () {
+                    var input = ev.item.find('input');
+                    input.on('blur', function () {
                         var isDirty = sender._modelFromElement(sender.editable.element).dirty;
                         sender._closeEditable();
                         if (!isDirty) {
@@ -494,11 +495,19 @@
                 }
             },
             _kendoKeydown: function (ev) {
-                var that = this, node = that.listView.current();
+                var that = this;
                 if (ev.keyCode === keys.ENTER && !ev.preventKendoKeydown) {
-                    that._triggerOpen(node);
-                    ev.preventKendoKeydown = true;
+                    that._handleEnterKey(ev);
                 }
+            },
+            _handleEnterKey: function (ev) {
+                var that = this, target = $(ev.target), node = that.listView.current();
+                if (that.widgetComponent.editable && target.is('input')) {
+                    target.trigger('blur');
+                } else if (!that.widgetComponent.editable) {
+                    that._triggerOpen(node);
+                }
+                ev.preventKendoKeydown = true;
             },
             _dblClick: function (ev) {
                 var that = this, node = $(ev.target).closest('.k-listview-item');
@@ -748,6 +757,8 @@
                     }
                     if (ev.keyCode === kendo.keys.ENTER) {
                         setTimeout(function () {
+                            var editorContainer = that.grid._editContainer || $();
+                            editorContainer.find('input').trigger('blur');
                             that._closeEditable();
                         });
                         that._tryCancel();
@@ -1328,10 +1339,11 @@
                 return DataSource.fn.insert.call(this, index, model);
             },
             remove: function (node) {
-                var parentNode = node.parentNode(), dataSource = this, result;
+                var that = this, parentNode = node.parentNode(), dataSource = that, result;
                 if (parentNode && parentNode._initChildren) {
                     dataSource = parentNode.children;
                 }
+                that._cleanDestroyed(node);
                 result = DataSource.fn.remove.call(dataSource, node);
                 if (parentNode && (dataSource.data() && !dataSource.data().length)) {
                     parentNode.hasChildren = false;
@@ -1339,6 +1351,17 @@
                     parentNode.hasDirectories = false;
                 }
                 return result;
+            },
+            _cleanDestroyed: function (node) {
+                var that = this, dataSource = that;
+                if (node.parentNode && node.parentNode()) {
+                    node = node.parentNode();
+                    dataSource = node.children;
+                    dataSource._destroyed = [];
+                    that._cleanDestroyed(node);
+                } else {
+                    dataSource._destroyed = [];
+                }
             },
             _hasDirectories: function (node) {
                 var result;
@@ -1360,6 +1383,15 @@
             dataSource.data = data;
             return dataSource instanceof FileManagerDataSource ? dataSource : new FileManagerDataSource(dataSource);
         };
+        kendo.observableFileManagerData = function (array) {
+            var dataSource = FileManagerDataSource.create({
+                data: array,
+                schema: kendo.data.schemas.filemanager
+            });
+            dataSource.fetch();
+            dataSource._data._dataSource = dataSource;
+            return dataSource._data;
+        };
         extend(kendo.data, {
             FileManagerDataSource: FileManagerDataSource,
             FileEntry: FileEntry
@@ -1379,11 +1411,19 @@
                 var that = this;
                 ContextMenu.fn.init.call(that, element, options);
                 that._overrideTemplates();
+                that._restrictDefaultItems();
                 that._extendItems();
                 that.bind('select', proxy(that._onSelect, that));
+                that.bind('open', proxy(that._onOpen, that));
             },
             _overrideTemplates: function () {
                 this.templates.sprite = template('#if(spriteCssClass) {#<span class=\'#= spriteCssClass #\'></span>#}#');
+            },
+            _restrictDefaultItems: function () {
+                var that = this;
+                if (that.options.isLocalBinding) {
+                    that.defaultItems = {};
+                }
             },
             defaultItems: {
                 'rename': {
@@ -1442,6 +1482,12 @@
                     command: command,
                     options: { target: target }
                 });
+            },
+            _onOpen: function (ev) {
+                var menu = ev.sender, items = menu.options.items;
+                if (!items && $.isEmptyObject(this.defaultItems)) {
+                    ev.preventDefault();
+                }
             },
             action: function (args) {
                 this.trigger(ACTION, args);
@@ -1758,9 +1804,10 @@
                         messages: options.messages.toolbar,
                         target: that.contentContainer,
                         filter: '[data-uid]',
-                        action: that.executeCommand.bind(that)
+                        action: that.executeCommand.bind(that),
+                        isLocalBinding: that.dataSource.isLocalBinding
                     });
-                if (that.options.contextMenu === false || that.dataSource.isLocalBinding) {
+                if (options.contextMenu === false) {
                     return;
                 }
                 that.contextMenu = new ui.filemanager.ContextMenu('<ul></ul>', menuOptions);
@@ -2209,7 +2256,7 @@
                 var that = this, breadcrumb = that.breadcrumb, values = [];
                 while (entry) {
                     values.push(entry.name);
-                    entry = entry.parentNode();
+                    entry = entry.parentNode && entry.parentNode();
                 }
                 values.push('');
                 breadcrumb.value(values.reverse().join('/'));
@@ -2302,11 +2349,11 @@
                 }
                 if (view) {
                     that._viewDataSource = entry.children;
-                    view.refresh(that._viewDataSource);
-                    that._viewDataSource.sort([
+                    that._viewDataSource._sort = [
                         that.folderSortOption,
                         that.defaultSortOption
-                    ]);
+                    ];
+                    view.refresh(that._viewDataSource);
                 }
                 if (treeView) {
                     treeView.refresh(entry.id);
@@ -2314,6 +2361,10 @@
                 if (that.options.previewPane) {
                     that._setPreviewPaneContent();
                 }
+            },
+            items: function () {
+                var that = this;
+                return that.treeView.widgetComponent.items().add(that._view.widgetComponent.items());
             },
             destroy: function () {
                 var that = this;

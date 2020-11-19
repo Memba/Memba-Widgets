@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3197,6 +3197,9 @@
         var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, browser = kendo.support.browser, dom = Editor.Dom, findNodeIndex = dom.findNodeIndex, isDataNode = dom.isDataNode, findClosestAncestor = dom.findClosestAncestor, getNodeLength = dom.getNodeLength, normalize = dom.normalize;
         var SelectionUtils = {
             selectionFromWindow: function (window) {
+                if (!window) {
+                    return;
+                }
                 if (!('getSelection' in window)) {
                     return new W3CSelection(window.document);
                 }
@@ -8792,6 +8795,14 @@
             }
         });
         var TableModificationCommand = Command.extend({
+            undo: function () {
+                var point = this.restorePoint;
+                point.restoreHtml();
+                $(this.editor.body).find('.k-table-resize-handle-wrapper').each(function (index, el) {
+                    el.remove();
+                });
+                this.editor.selectRange(point.toRange());
+            },
             _clearColIndexAttr: function (table) {
                 dom.clearTableMappings(table, 'col-index');
             },
@@ -9041,6 +9052,8 @@
                         dom.removeTextSiblings(row);
                         focusElement = dom.next(row) || dom.prev(row);
                         focusElement = focusElement.cells[0];
+                        this._focusElement(range, focusElement);
+                        focusElement = null;
                         this._handleRowSpanCells(table, row);
                         dom.remove(row);
                     }
@@ -9052,11 +9065,14 @@
                     this._adjustColgroups(rowParent.rows[0], table);
                 }
                 if (focusElement) {
-                    range.setStart(focusElement, 0);
-                    range.collapse(true);
-                    this.editor.selectRange(range);
+                    this._focusElement(range, focusElement);
                 }
                 this._resetTableResizing(this.editor);
+            },
+            _focusElement: function (range, node) {
+                range.setStart(node, 0);
+                range.collapse(true);
+                this.editor.selectRange(range);
             },
             _handleRowSpanCells: function (table, row) {
                 var index, cell, adjacentCell, nextRow, rowIndex = dom.findNodeIndex(row, true), firstRow = table.rows[0], lastCell = firstRow.cells[firstRow.cells.length - 1], lastIndex = parseInt(lastCell.getAttribute('col-index'), 10) + lastCell.colSpan - 1;
@@ -10041,27 +10057,41 @@
                 }
             },
             _convertToLi: function (p) {
-                var content, name = dom.name(p);
+                var content;
                 if (p.childNodes.length == 1) {
                     content = p.firstChild.nodeType === dom.nodeTypes.TEXT_NODE ? dom.innerText(p) : p.firstChild.innerHTML.replace(/^\w+[\.\)](&nbsp;)+ /, '');
+                    content = this._checkForBullet(content);
                 } else {
-                    dom.remove(p.firstChild);
-                    if (p.firstChild.nodeType == 3) {
-                        if (/^[ivxlcdm]+\.$/i.test(p.firstChild.nodeValue)) {
-                            dom.remove(p.firstChild);
-                        }
-                    }
-                    if (/^(&nbsp;|\s)+$/i.test(p.firstChild.innerHTML)) {
-                        dom.remove(p.firstChild);
-                    }
-                    if (name != 'p') {
-                        content = '<' + name + '>' + p.innerHTML + '</' + name + '>';
-                    } else {
-                        content = p.innerHTML;
-                    }
+                    content = this._getHtmlNoBullet(p);
                 }
                 dom.remove(p);
                 return dom.create(document, 'li', { innerHTML: content });
+            },
+            _checkForBullet: function (html) {
+                var p = dom.create(document, 'p', { innerHTML: html });
+                var bulletRgx = /^\s*\w+[\.\)]\s+/;
+                if (bulletRgx.test(p.innerText)) {
+                    return this._getHtmlNoBullet(p);
+                }
+                return html;
+            },
+            _getHtmlNoBullet: function (element) {
+                var content, name = dom.name(element);
+                dom.remove(element.firstChild);
+                if (element.firstChild.nodeType == 3) {
+                    if (/^[ivxlcdm]+\.$/i.test(element.firstChild.nodeValue)) {
+                        dom.remove(element.firstChild);
+                    }
+                }
+                if (/^(&nbsp;|\s)+$/i.test(element.firstChild.innerHTML)) {
+                    dom.remove(element.firstChild);
+                }
+                if (name != 'p') {
+                    content = '<' + name + '>' + element.innerHTML + '</' + name + '>';
+                } else {
+                    content = element.innerHTML;
+                }
+                return content;
             },
             _guessUnorderedListStyle: function (symbol) {
                 if (/^[\u2022\u00b7\u00FC\u00D8\u002dv-]/.test(symbol)) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1153,6 +1153,7 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "statusUploaded": "uploaded",
   "statusWarning": "warning",
   "statusFailed": "failed",
+  "headerStatusPaused": "Paused",
   "headerStatusUploading": "Uploading...",
   "headerStatusUploaded": "Done",
   "uploadSuccess": "File(s) uploaded successfully.",

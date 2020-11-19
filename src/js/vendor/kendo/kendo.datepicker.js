@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -392,7 +392,7 @@
                     return that._value;
                 }
                 that._old = that._update(value);
-                if (that._old === null) {
+                if (that._old === null && !that._dateInput) {
                     that.element.val('');
                 }
                 that._oldText = that.element.val();
@@ -485,7 +485,7 @@
                 }
                 if (+date === +current && isSameType) {
                     formattedValue = kendo.toString(date, options.format, options.culture);
-                    if (formattedValue !== value) {
+                    if (formattedValue !== value && !(that._dateInput && !date)) {
                         that.element.val(date === null ? value : formattedValue);
                     }
                     return date;

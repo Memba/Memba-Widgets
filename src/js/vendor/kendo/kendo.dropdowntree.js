@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1452,7 +1452,17 @@
                 } else if (this.checkAll) {
                     this.checkAll.find('.k-checkbox').focus();
                 } else if (this.tree.is(':visible')) {
-                    this.tree.focus();
+                    this.tree[0].focus({ preventScroll: true });
+                    this._ie11PreventScrollOnFocus();
+                }
+            },
+            _ie11PreventScrollOnFocus: function () {
+                if (browser.msie && browser.version == 11) {
+                    var popup = this.popup;
+                    popup._toggleResize(false);
+                    setTimeout(function () {
+                        popup._toggleResize(true);
+                    }, 50);
                 }
             },
             _keydown: function (e) {
@@ -1565,7 +1575,8 @@
                     } else if (this.checkAll && this.checkAll.is(':visible')) {
                         this.checkAll.find('input').focus();
                     } else if (this.tree.is(':visible')) {
-                        this.tree.focus();
+                        this.tree[0].focus({ preventScroll: true });
+                        this._ie11PreventScrollOnFocus();
                     }
                     e.preventDefault();
                 }

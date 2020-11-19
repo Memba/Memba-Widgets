@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -397,25 +397,36 @@
                 }
                 return operators[type][operator].text || operators[type][operator];
             },
+            _addField: function (fieldInfo, field) {
+                var that = this;
+                fieldInfo = $.extend(true, {}, {
+                    name: fieldInfo.name || field,
+                    editor: fieldInfo.editorTemplate || editors[fieldInfo.type || 'string'],
+                    defaultValue: fieldInfo.defaultValue || fieldInfo.defaultValue === false || fieldInfo.defaultValue === 0 ? fieldInfo.defaultValue : '',
+                    type: fieldInfo.type || 'string',
+                    label: fieldInfo.label || fieldInfo.name || field,
+                    operators: fieldInfo.operators,
+                    previewFormat: fieldInfo.previewFormat
+                });
+                that._fields[fieldInfo.name] = fieldInfo;
+                if (!that._defaultField) {
+                    that._defaultField = fieldInfo;
+                }
+            },
             _getFieldsInfo: function () {
                 var that = this;
                 var fieldsCollection = that.options.fields.length ? that.options.fields : (that.options.dataSource.options.schema.model || {}).fields;
                 var fieldInfo;
                 that._fields = {};
-                for (var field in fieldsCollection) {
-                    fieldInfo = fieldsCollection[field];
-                    fieldInfo = $.extend(true, {}, {
-                        name: fieldInfo.name || field,
-                        editor: fieldInfo.editorTemplate || editors[fieldInfo.type || 'string'],
-                        defaultValue: fieldInfo.defaultValue || fieldInfo.defaultValue === false || fieldInfo.defaultValue === 0 ? fieldInfo.defaultValue : '',
-                        type: fieldInfo.type || 'string',
-                        label: fieldInfo.label || fieldInfo.name || field,
-                        operators: fieldInfo.operators,
-                        previewFormat: fieldInfo.previewFormat
-                    });
-                    that._fields[fieldInfo.name] = fieldInfo;
-                    if (!that._defaultField) {
-                        that._defaultField = fieldInfo;
+                if (Array.isArray(fieldsCollection)) {
+                    for (var i = 0; i < fieldsCollection.length; i++) {
+                        fieldInfo = fieldsCollection[i];
+                        that._addField(fieldInfo);
+                    }
+                } else {
+                    for (var field in fieldsCollection) {
+                        fieldInfo = fieldsCollection[field];
+                        that._addField(fieldInfo, field);
                     }
                 }
             },

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -49,6 +49,8 @@
                 'id': 'ID',
                 'orderId': 'Order ID'
             }, SIZE_CALCULATION_TEMPLATE = '<table style=\'visibility: hidden;\'>' + '<tbody>' + '<tr style=\'height:{0}\'>' + '<td>&nbsp;</td>' + '</tr>' + '</tbody>' + '</table>', listStyles = {
+                gridHeader: 'k-grid-header',
+                gridContentWrap: 'k-grid-content',
                 editCell: 'k-edit-cell',
                 iconCollapse: 'k-i-collapse',
                 iconExpand: 'k-i-expand'
@@ -59,6 +61,8 @@
                     this.options.columns.push('title');
                 }
                 TreeList.fn.init.call(this, element, options);
+                this._unbindDataSource();
+                this._adjustHeight();
                 this._setWidth();
             },
             options: {
@@ -71,11 +75,39 @@
                     move: true,
                     mode: 'incell'
                 },
-                resizable: false
+                resizable: false,
+                renderAllRows: false
             },
             destroy: function () {
                 TreeList.fn.destroy.call(this);
                 kendo.destroy(this.element);
+            },
+            closeCell: function (isCancel) {
+                var that = this;
+                var cell = (that.editor || {}).element;
+                var tr;
+                var model;
+                if (!cell || !cell[0] || !that._isIncellEditable()) {
+                    return;
+                }
+                model = that.dataItem(cell);
+                that._cancelEditor();
+                cell.removeClass(listStyles.editCell);
+                tr = cell.parent().removeClass(listStyles.editRow);
+                if (that.lockedContent) {
+                    that._relatedRow(tr).removeClass(listStyles.editRow);
+                }
+                if (isCancel) {
+                    that._render();
+                }
+                that.trigger('itemChange', {
+                    item: tr,
+                    data: model,
+                    ns: ui
+                });
+                if (that.lockedContent) {
+                    that._adjustRowHeight(tr.css('height', '')[0], that._relatedRow(tr).css('height', '')[0]);
+                }
             },
             insertAfter: function (nodeData, referenceNode) {
                 var orderId = referenceNode.orderId;
@@ -103,6 +135,46 @@
                     updateInfo: taskInfo
                 });
             },
+            _adjustHeight: function () {
+                var element = this.element;
+                var contentWrap = element.find(DOT + listStyles.gridContentWrap);
+                var header = element.find(DOT + listStyles.gridHeader);
+                var height;
+                var scrollbar = kendo.support.scrollbar();
+                if (this._isHeightSet(element)) {
+                    height = element.height() - outerHeight(header);
+                    contentWrap.height(height);
+                    if (this._hasLockedColumns) {
+                        scrollbar = this.table[0].offsetWidth > this.table.parent()[0].clientWidth ? scrollbar : 0;
+                        this.lockedContent.height(height - scrollbar);
+                    }
+                }
+            },
+            _adjustRowHeight: function (row1, row2) {
+                var height;
+                var offsetHeight1 = row1.offsetHeight;
+                var offsetHeight2 = row2.offsetHeight;
+                if (offsetHeight1 > offsetHeight2) {
+                    height = offsetHeight1 + 'px';
+                } else if (offsetHeight1 < offsetHeight2) {
+                    height = offsetHeight2 + 'px';
+                }
+                if (height) {
+                    row1.style.height = row2.style.height = height;
+                }
+            },
+            _isHeightSet: function (el) {
+                var initialHeight, newHeight;
+                if (el[0].style.height) {
+                    return true;
+                } else {
+                    initialHeight = el.height();
+                }
+                el.height('auto');
+                newHeight = el.height();
+                el.height('');
+                return initialHeight != newHeight;
+            },
             _attachCellEditingEventHandlers: function () {
                 var that = this, editable = that.options.editable;
                 if (that._isIncellEditable() && editable.update !== false) {
@@ -126,9 +198,10 @@
                                 that._mouseDownHandler(e.touch);
                             },
                             doubletap: function (e) {
-                                if (!$(e.touch.initialTouch)) {
-                                    that._openEditorHandler(e.touch);
+                                if (e.event.target.classList.contains('k-icon')) {
+                                    return;
                                 }
+                                that._openEditorHandler(e.touch);
                             }
                         }).data('kendoTouch');
                     }
@@ -341,14 +414,14 @@
                     that.editCell(td);
                 }
             },
-            _render: function (options) {
-                TreeList.fn._render.call(this, options);
+            _renderTree: function (taskTree) {
+                TreeList.fn._render.call(this);
                 if (this.hasNestedColumns) {
                     this.element.addClass('k-gantt-treelist-nested-columns');
                 }
-                if (options && options.length && !options.editedColumn) {
+                if (taskTree && taskTree.length && !taskTree.editedColumn) {
                     if (this.options.rowHeight) {
-                        this._rowHeight(options);
+                        this._rowHeight(taskTree);
                     }
                     this.trigger(RENDER);
                 }

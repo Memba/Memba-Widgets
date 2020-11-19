@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -934,7 +934,7 @@
                         return;
                     }
                     that._preventItemChange = true;
-                    that.list.closeCell();
+                    that.list.closeCell(true);
                     restoreFocus();
                 }).bind('save', function (e) {
                     var updatedValues = e.values;
@@ -995,17 +995,34 @@
                     });
                 }).bind('collapse', function (e) {
                     e.preventDefault();
+                    var row = that.list.element.find('tr[data-uid=\'' + e.model.uid + '\']');
                     e.model.set('expanded', false);
+                    that._cachedCurrent = {
+                        rowIndex: row.index(),
+                        columnIndex: row.find('.k-state-focused').index()
+                    };
+                    restoreFocus();
                 }).bind('expand', function (e) {
                     e.preventDefault();
+                    var row = that.list.element.find('tr[data-uid=\'' + e.model.uid + '\']');
                     e.model.set('expanded', true);
+                    that._cachedCurrent = {
+                        rowIndex: row.index(),
+                        columnIndex: row.find('.k-state-focused').index()
+                    };
+                    restoreFocus();
                 }).bind('dragend', function (e) {
                     var dataSource = that.dataSource, task, updateInfo;
                     if (e.position === 'over') {
                         updateInfo = { parentId: e.source.parentId };
                         dataSource.cancelChanges();
                         task = dataSource.get(e.source.id);
-                        dataSource.update(task, updateInfo);
+                        if (!that.trigger('save', {
+                                task: task,
+                                values: updateInfo
+                            })) {
+                            dataSource.update(task, updateInfo);
+                        }
                     }
                     dataSource.sync();
                 }).bind('dataBound', function () {
@@ -1624,7 +1641,7 @@
                     this._editor.close();
                 }
                 this.clearSelection();
-                this.list._render(taskTree);
+                this.list._renderTree(taskTree);
                 this.timeline._render(taskTree);
                 this.timeline._renderDependencies(this.dependencies.view());
                 if (scrollToUid) {

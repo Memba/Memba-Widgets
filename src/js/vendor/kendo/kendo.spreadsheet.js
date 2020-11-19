@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1922,7 +1922,8 @@
             init: function (element, options) {
                 kendo.ui.Widget.call(this, element, options);
                 element = this.element.addClass(FormulaBar.classNames.wrapper);
-                this.formulaInput = new kendo.spreadsheet.FormulaInput($('<div/>').appendTo(element));
+                var formulaBarWidth = element.width();
+                this.formulaInput = new kendo.spreadsheet.FormulaInput($('<div/>').appendTo(element), { formulaBarWidth: formulaBarWidth });
             },
             destroy: function () {
                 if (this.formulaInput) {
@@ -1976,11 +1977,13 @@
                 Widget.call(this, element, options);
                 element = this.element;
                 element.addClass(FormulaInput.classNames.wrapper).attr('contenteditable', true).attr('spellcheck', false).css('white-space', 'pre');
+                if (options && options.formulaBarWidth) {
+                    element.css('max-width', options.formulaBarWidth - 16 + 'px');
+                }
                 if (this.options.autoScale) {
                     element.on('input', this.scale.bind(this));
                 }
                 this._highlightedRefs = [];
-                this._staticTokens = [];
                 this._formulaSource();
                 this._formulaList();
                 this._popup();
@@ -1992,7 +1995,8 @@
                 autoScale: false,
                 filterOperator: 'startswith',
                 scalePadding: 30,
-                minLength: 1
+                minLength: 1,
+                formulaBarWidth: null
             },
             events: [
                 'keyup',
@@ -2349,17 +2353,7 @@
                 });
             },
             canInsertRef: function (isKeyboardAction) {
-                var result = this._canInsertRef(isKeyboardAction);
-                var token = result && result.token;
-                var idx;
-                if (token) {
-                    for (idx = 0; idx < this._staticTokens.length; idx++) {
-                        if (isEqualToken(token, this._staticTokens[idx])) {
-                            return null;
-                        }
-                    }
-                }
-                return result;
+                return this._canInsertRef(isKeyboardAction);
             },
             _canInsertRef: function (isKeyboardAction) {
                 if (this.popup.visible()) {
@@ -2535,8 +2529,7 @@
                     return;
                 }
                 if (!/^=/.test(value)) {
-                    if (this._staticTokens.length || this._highlightedRefs.length) {
-                        this._staticTokens = [];
+                    if (this._highlightedRefs.length) {
                         this._highlightedRefs = [];
                         this.element.text(value);
                     }
@@ -2593,20 +2586,7 @@
                 if (pos) {
                     this.setPos(pos.begin, pos.end);
                 }
-                if (activeToken && /^(?:startexp|op|punc)$/.test(activeToken.type)) {
-                    this._setStaticTokens(tokens);
-                }
                 this._highlightedRefs = highlightedRefs;
-            },
-            _setStaticTokens: function (tokens) {
-                var idx, tok;
-                this._staticTokens = [];
-                for (idx = 0; idx < tokens.length; idx++) {
-                    tok = tokens[idx];
-                    if (/^(?:num|str|bool|sym|ref)$/.test(tok.type)) {
-                        this._staticTokens.push(tok);
-                    }
-                }
             },
             destroy: function () {
                 this._editorToSync = null;
@@ -2642,16 +2622,6 @@
         }
         function knownFunction(name) {
             return kendo.spreadsheet.calc.runtime.FUNCS[name.toLowerCase()];
-        }
-        function isEqualToken(tok1, tok2) {
-            if (!tok1 || !tok2) {
-                return false;
-            }
-            if (tok1.type == 'ref' && tok2.type == 'ref') {
-                return tok1.ref.eq(tok2.ref);
-            } else {
-                return tok1.value === tok2.value;
-            }
         }
         kendo.spreadsheet.FormulaInput = FormulaInput;
         $.extend(true, FormulaInput, { classNames: classNames });
@@ -6706,6 +6676,9 @@
                             h = Math.max(h, el.height);
                             col += el.width;
                         } else {
+                            if (typeof el === 'string' && el.length && !isNaN(el)) {
+                                el = Number(el);
+                            }
                             m.set(row, col++, el);
                         }
                     });
@@ -8073,6 +8046,9 @@
         }
         if (validation.from) {
             if (validation.dataType === 'list' && !validation.fromIsListValue) {
+                if (validation.from.indexOf('{') > -1) {
+                    validation.from = validation.from.replace(/\"/g, '').replace('{', '"').replace('}', '"');
+                }
                 validation.from = kendo.format(TRANSPOSE_FORMAT, validation.from);
                 validation.fromIsListValue = true;
             }
@@ -13286,6 +13262,9 @@
                 } else {
                     command.range(sheet.selection());
                 }
+                if (commandOptions.editRange) {
+                    command._editRange = commandOptions.editRange;
+                }
                 var result = command.exec();
                 if (!result || result.reason !== 'error') {
                     if (!command.cannotUndo) {
@@ -15993,6 +15972,7 @@
                             command: 'EditCommand',
                             options: {
                                 operatingRange: range,
+                                editRange: range,
                                 property: parse ? 'input' : 'value',
                                 value: value
                             }
@@ -16923,7 +16903,7 @@
                         selectable: true,
                         autoBind: false
                     });
-                    popup = $('<div>').kendoPopup();
+                    popup = $('<div class=\'k-spreadsheet-list-popup\'>').kendoPopup();
                     list.appendTo(popup);
                     popup = popup.getKendoPopup();
                     list = list.getKendoStaticList();
@@ -17623,7 +17603,8 @@
                 this._criteria = options.criteria;
                 var expression = kendo.data.Query.filterExpr({
                     logic: this._logic,
-                    filters: this._criteria
+                    filters: this._criteria,
+                    accentFoldingFiltering: kendo.culture().name
                 }).expression;
                 this._matches = new Function('d', 'return ' + expression);
             },
@@ -29656,7 +29637,7 @@
             var values = this.values;
             for (var i = 0; i < data.length; i++) {
                 var item = data[i];
-                var text = item.text.toString().toLowerCase();
+                var text = item.text.toString().toLocaleLowerCase(kendo.culture().name);
                 var itemVisible = query === true || query === '' || text.indexOf(query) >= 0;
                 var filterSpread = filter.bind(valuesFilter);
                 var anyVisibleChildren = filterSpread(item.children, query);
@@ -29722,7 +29703,7 @@
             hasActiveSearch: false,
             appendToSearch: false,
             filterValues: function (e) {
-                var query = typeof e == 'string' ? e : $(e.target).val().toLowerCase();
+                var query = typeof e == 'string' ? e : $(e.target).val().toLocaleLowerCase(kendo.culture().name);
                 var dataSource = this.valuesDataSource;
                 this.set('hasActiveSearch', !!query);
                 var filterSpread = filter.bind(this.valueFilter);
@@ -30083,7 +30064,10 @@
                 var wrapper = this._appendTemplate(FilterMenu.templates.filterByValue, FilterMenu.classNames.filterByValue, true, isExpanded);
                 this.valuesTreeView = wrapper.find('[data-role=treeview]').data('kendoTreeView');
                 var values = FilterMenuController.valuesTree(this.options.range, this.options.column);
-                this.viewModel.set('valuesDataSource', new kendo.data.HierarchicalDataSource({ data: values }));
+                this.viewModel.set('valuesDataSource', new kendo.data.HierarchicalDataSource({
+                    data: values,
+                    accentFoldingFiltering: kendo.culture().name
+                }));
             },
             _actionButtons: function () {
                 this._appendTemplate(FilterMenu.templates.actionButtons, FilterMenu.classNames.actionButtons, false);
@@ -30153,6 +30137,7 @@
                 return editor;
             },
             activate: function (options) {
+                var viewElement = this.view.element, viewWidth, scrollerElement, scrollbarWidth;
                 this._active = true;
                 this._rect = options.rect;
                 this._range = options.range;
@@ -30161,6 +30146,12 @@
                 this.cellInput.tooltip(options.tooltip);
                 this.cellInput.activeCell = this.barInput.activeCell = this._range.topLeft();
                 this.cellInput.activeSheet = this.barInput.activeSheet = this._range._sheet;
+                if (viewElement) {
+                    viewWidth = viewElement.width();
+                    scrollerElement = viewElement.find('.k-spreadsheet-scroller')[0];
+                    scrollbarWidth = scrollerElement.offsetWidth - scrollerElement.clientWidth;
+                    this.cellInput.element.css('max-width', viewWidth - scrollbarWidth - this.cellInput.element.position().left + 'px');
+                }
                 this.trigger('activate');
                 return this;
             },

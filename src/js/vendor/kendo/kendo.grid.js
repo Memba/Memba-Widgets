@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3484,11 +3484,15 @@
                         cancel: messages.cancelDelete
                     },
                     open: function () {
-                        that.content.data(OVERFLOW, that.content.css(OVERFLOW));
-                        that.content.css(OVERFLOW, HIDDEN);
+                        if (that.content) {
+                            that.content.data(OVERFLOW, that.content.css(OVERFLOW));
+                            that.content.css(OVERFLOW, HIDDEN);
+                        }
                     },
                     close: function () {
-                        that.content.css(OVERFLOW, that.content.data(OVERFLOW));
+                        if (that.content) {
+                            that.content.css(OVERFLOW, that.content.data(OVERFLOW));
+                        }
                     }
                 });
                 confirmDialog.result.done(function () {
@@ -5611,7 +5615,7 @@
                 that.tbody = tbody.attr('role', 'rowgroup');
             },
             _scrollable: function () {
-                var that = this, header, table, options = that.options, scrollable = options.scrollable, hasVirtualScroll = scrollable !== true && scrollable.virtual, virtualScroll = hasVirtualScroll ? parseVirtualSettings(scrollable.virtual) : null, scrollbar = !kendo.support.kineticScrollNeeded || virtualScroll.rows ? kendo.support.scrollbar() : 0, headerWrap;
+                var that = this, header, table, options = that.options, scrollable = options.scrollable, hasVirtualScroll = scrollable !== true && scrollable.virtual, virtualScroll = hasVirtualScroll ? parseVirtualSettings(scrollable.virtual) : null, scrollbar = !kendo.support.kineticScrollNeeded || virtualScroll && virtualScroll.rows ? kendo.support.scrollbar() : 0, headerWrap;
                 if (scrollable) {
                     header = that.wrapper.children('.k-grid-header');
                     if (!header[0]) {

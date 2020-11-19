@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -319,7 +319,7 @@
                 var options = that.options;
                 var data = that.dataSource.flatView();
                 var length = data.length;
-                var groupsLength = that.dataSource._group.length;
+                var groupsLength = that.dataSource._group ? that.dataSource._group.length : 0;
                 var isActive = that.element[0] === activeElement();
                 var action;
                 that._renderFooter();

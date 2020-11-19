@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -56,16 +56,7 @@
                 that.toggle(that.options.enabled);
                 var ns = that._ns = NS + '-' + kendo.guid();
                 activeInput.closest('form').on('submit' + ns, $.proxy(that._onParentFormSubmit, that)).on('reset' + ns, $.proxy(that._onParentFormReset, that));
-                if (that.options.async.saveUrl) {
-                    that._module = that._supportsFormData() ? new formDataUploadModule(that) : new iframeUploadModule(that);
-                    that._async = true;
-                    var initialFiles = that.options.files;
-                    if (initialFiles.length > 0) {
-                        that._renderInitialFiles(initialFiles);
-                    }
-                } else {
-                    that._module = new syncUploadModule(that);
-                }
+                that._initUploadModule();
                 that._toggleDropZone();
                 that.wrapper.on('click', '.k-upload-action', $.proxy(that._onFileAction, that)).on('click', '.k-clear-selected', $.proxy(that._onClearSelected, that)).on('click', '.k-upload-selected', $.proxy(that._onUploadSelected, that));
                 if (that.element.val()) {
@@ -134,6 +125,19 @@
                 },
                 dropZone: ''
             },
+            _initUploadModule: function () {
+                var that = this, options = that.options;
+                if (options.async.saveUrl) {
+                    that._module = that._supportsFormData() ? new formDataUploadModule(that) : new iframeUploadModule(that);
+                    that._async = true;
+                    var initialFiles = options.files;
+                    if (initialFiles.length > 0) {
+                        that._renderInitialFiles(initialFiles);
+                    }
+                } else {
+                    that._module = new syncUploadModule(that);
+                }
+            },
             setOptions: function (options) {
                 var that = this, activeInput = that.element;
                 $(that.options.dropZone).off(that._ns);
@@ -146,6 +150,7 @@
                     activeInput.attr('directory', that.directory);
                 }
                 that.toggle(that.options.enabled);
+                that._initUploadModule();
                 that._toggleDropZone();
             },
             enable: function (enable) {
@@ -932,6 +937,9 @@
                 var that = this;
                 var ns = that._ns;
                 var dropZone = $('.k-dropzone', that.wrapper).on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
+                    if (e.originalEvent) {
+                        e.originalEvent.dataTransfer.dropEffect = 'copy';
+                    }
                     e.preventDefault();
                 }).on('drop' + ns, $.proxy(that._onDrop, that));
                 if (!dropZone.find('.k-dropzone-hint').length) {
@@ -956,6 +964,9 @@
                 }
                 var ns = that._ns;
                 dropZone.on('dragenter' + ns, stopEvent).on('dragover' + ns, function (e) {
+                    if (e.originalEvent) {
+                        e.originalEvent.dataTransfer.dropEffect = 'copy';
+                    }
                     e.preventDefault();
                 }).on('drop' + ns, $.proxy(that._onDrop, that));
                 bindDragEventWrappers(dropZone, ns, function (e) {
@@ -1881,6 +1892,9 @@
             return input;
         }
         function stopEvent(e) {
+            if (e.originalEvent) {
+                e.originalEvent.dataTransfer.dropEffect = 'copy';
+            }
             e.stopPropagation();
             e.preventDefault();
         }

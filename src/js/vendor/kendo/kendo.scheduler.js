@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2020.3.1021 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2131,7 +2131,7 @@
                 that._ctrlKey = e.ctrlKey;
                 that._shiftKey = e.shiftKey;
                 if (key === keys.F10) {
-                    that.toolbar.find('.k-button:first').focus().addClass(FOCUSEDSTATE);
+                    that._focusToolbar();
                     e.preventDefault();
                     return;
                 } else if (key === keys.TAB) {
@@ -2221,6 +2221,10 @@
                             that.element.focus();
                         }
                         e.preventDefault();
+                    } else {
+                        that._focusToolbar();
+                        e.preventDefault();
+                        return;
                     }
                 } else if (key === keys.ENTER || key === keys.SPACEBAR) {
                     if (selection.events.length && editable) {
@@ -2267,6 +2271,9 @@
                     e.preventDefault();
                 }
                 that._adjustSelectedDate();
+            },
+            _focusToolbar: function () {
+                this.toolbar.find('.k-button:first').focus().addClass(FOCUSEDSTATE);
             },
             _createSelection: function (item) {
                 var selection = this._selection;

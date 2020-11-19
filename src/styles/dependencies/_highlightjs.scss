@@ -22,8 +22,9 @@
     display: block;
     overflow-x: auto;
     padding: 0.5em;
-    background: $widget-bg;
-    color: $widget-text;
+    background: $component-bg;
+    border: $component-border;
+    color: $component-text;
 }
 
 .hljs-name,
@@ -93,13 +94,13 @@
 }
 
 .hljs-deletion {
-    background-color: $notification-error-bg;
-    color: $notification-error-text;
+    background-color: $component-bg;
+    color: $danger;
 }
 
 .hljs-addition {
-    background-color: $notification-success-bg;
-    color: $notification-success-text;
+    background-color: $component-bg;
+    color: $success;
 }
 
 .hljs a {

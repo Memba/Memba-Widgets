@@ -8886,8 +8886,12 @@ ViewDesc.prototype.setSelection = function setSelection (anchor, head, root, for
   // the cursor sometimes inexplicable visually lags behind its
   // reported position in such situations (#1092).
   if ((result.gecko || result.safari) && anchor == head) {
-    var prev = anchorDOM.node.childNodes[anchorDOM.offset - 1];
-    brKludge = prev && (prev.nodeName == "BR" || prev.contentEditable == "false");
+    if (anchorDOM.node.nodeType == 3) {
+      brKludge = anchorDOM.offset && anchorDOM.node.nodeValue[anchorDOM.offset - 1] == "\n";
+    } else {
+      var prev = anchorDOM.node.childNodes[anchorDOM.offset - 1];
+      brKludge = prev && (prev.nodeName == "BR" || prev.contentEditable == "false");
+    }
   }
 
   if (!(force || brKludge && result.safari) &&
@@ -9505,19 +9509,19 @@ function computeOuterDeco(outerDeco, node, needsWrap) {
   var top = needsWrap ? noDeco[0] : new OuterDecoLevel, result = [top];
 
   for (var i = 0; i < outerDeco.length; i++) {
-    var attrs = outerDeco[i].type.attrs, cur = top;
+    var attrs = outerDeco[i].type.attrs;
     if (!attrs) { continue }
     if (attrs.nodeName)
-      { result.push(cur = new OuterDecoLevel(attrs.nodeName)); }
+      { result.push(top = new OuterDecoLevel(attrs.nodeName)); }
 
     for (var name in attrs) {
       var val = attrs[name];
       if (val == null) { continue }
       if (needsWrap && result.length == 1)
-        { result.push(cur = top = new OuterDecoLevel(node.isInline ? "span" : "div")); }
-      if (name == "class") { cur.class = (cur.class ? cur.class + " " : "") + val; }
-      else if (name == "style") { cur.style = (cur.style ? cur.style + ";" : "") + val; }
-      else if (name != "nodeName") { cur[name] = val; }
+        { result.push(top = new OuterDecoLevel(node.isInline ? "span" : "div")); }
+      if (name == "class") { top.class = (top.class ? top.class + " " : "") + val; }
+      else if (name == "style") { top.style = (top.style ? top.style + ";" : "") + val; }
+      else if (name != "nodeName") { top[name] = val; }
     }
   }
 

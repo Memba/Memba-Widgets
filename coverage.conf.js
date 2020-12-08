@@ -32,7 +32,7 @@ module.exports = (config) => {
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha', 'sinon-chai'],
+        frameworks: ['mocha', 'sinon-chai', 'webpack'],
 
         // https://github.com/vlkosinov/karma-chai-as-promised/issues/5#issuecomment-296440839
         // plugins: [],

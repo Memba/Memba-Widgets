@@ -15,17 +15,25 @@ import 'kendo.binder';
 import 'kendo.drawing';
 import 'kendo.dialog';
 // import 'kendo.userevents'; // Required for getTouches
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
     createAudioMeter,
     enumerateDevices,
-    getUserMedia
+    getUserMedia,
 } from '../common/window.media.es6';
 
-const { attr, destroy, drawing, format, geometry, saveAs } = window.kendo;
-const { plugin, Widget } = window.kendo.ui;
+const {
+    attr,
+    destroy,
+    drawing,
+    format,
+    geometry,
+    ns,
+    saveAs,
+    ui: { plugin, Widget },
+} = window.kendo;
 const NS = '.kendoMediaRecorder';
 const WIDGET_CLASS = 'k-widget kj-mediarecorder';
 
@@ -38,8 +46,8 @@ const DISABLED_CLASS = 'k-state-disabled';
 const ACTIVE_CLASS = 'k-state-active';
 
 const ATTR_SELECTOR = '[{0}="{1}"]';
-const TOOGLE_TMPL = `<a class="k-toggle-button k-button" data-${kendo.ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
-const BUTTON_TMPL = `<a class="k-button" data-${kendo.ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
+const TOOGLE_TMPL = `<a class="k-toggle-button k-button" data-${ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
+const BUTTON_TMPL = `<a class="k-button" data-${ns}command="{0}" title="{1}" tabindex="0"><span class="k-icon k-i-{2}"></span></a>`;
 
 /** *******************************************************************************
  * Widget
@@ -101,8 +109,8 @@ const MediaRecorder = Widget.extend({
             speaker: 'Speaker',
             stop: 'Stop',
             unsupported:
-                'Media recording is only available on Chrome and Firefox'
-        }
+                'Media recording is only available on Chrome and Firefox',
+        },
     },
 
     /**
@@ -111,6 +119,7 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _isSupported() {
+        const { location } = window;
         // getUserMedia() must be run from a secure origin: HTTPS or localhost.
         const isSecureOrigin =
             location.protocol === 'https:' || location.hostname === 'localhost';
@@ -123,15 +132,14 @@ const MediaRecorder = Widget.extend({
      * @private
      */
     _render() {
-        const { element } = this;
-        const { options } = this;
+        const { element, options } = this;
         this.wrapper = element;
         element.addClass(WIDGET_CLASS);
         if (!this._isSupported()) {
             this._unsupportedLayout();
-        } else if (this.options.video) {
+        } else if (options.video) {
             this._videoLayout();
-        } else if (this.options.audio) {
+        } else if (options.audio) {
             this._audioLayout();
         } else {
             throw new Error('Set widget options for audio or video');
@@ -215,7 +223,7 @@ const MediaRecorder = Widget.extend({
         const METER = {
             // TODO use options
             HEIGHT: 24,
-            WIDTH: 100
+            WIDTH: 100,
         };
         if (!this._meter) {
             const div = $('<div class="kj-mediarecorder-meter"></div>')
@@ -276,7 +284,7 @@ const MediaRecorder = Widget.extend({
 
             // Display recording devices - see https://webrtc.github.io/samples/src/content/devices/input-output/
             enumerateDevices()
-                .then(function(devices) {
+                .then(function (devices) {
                     const cameras = [];
                     const microphones = [];
                     const speakers = [];
@@ -288,9 +296,9 @@ const MediaRecorder = Widget.extend({
                                     id: device.deviceId,
                                     name:
                                         device.label ||
-                                        `${
-                                            messages.microphone
-                                        } ${microphones.length + 1}`
+                                        `${messages.microphone} ${
+                                            microphones.length + 1
+                                        }`,
                                 });
                                 break;
                             case 'audiooutput':
@@ -298,8 +306,9 @@ const MediaRecorder = Widget.extend({
                                     id: device.deviceId,
                                     name:
                                         device.label ||
-                                        `${messages.speaker} ${speakers.length +
-                                            1}`
+                                        `${messages.speaker} ${
+                                            speakers.length + 1
+                                        }`,
                                 });
                                 break;
                             case 'videoinput':
@@ -307,8 +316,9 @@ const MediaRecorder = Widget.extend({
                                     id: device.deviceId,
                                     name:
                                         device.label ||
-                                        `${messages.camera} ${cameras.length +
-                                            1}`
+                                        `${messages.camera} ${
+                                            cameras.length + 1
+                                        }`,
                                 });
                                 break;
                             default:
@@ -345,7 +355,7 @@ const MediaRecorder = Widget.extend({
                 ? recorder.state
                 : 'inactive';
         const isInactive = state === 'inactive';
-        const isRecording = state === 'recording';
+        // const isRecording = state === 'recording';
         const isPaused = state === 'paused';
         const hasChunks = $.isArray(this._chunks) && this._chunks.length;
         this.toolbar
@@ -435,7 +445,7 @@ const MediaRecorder = Widget.extend({
         saveAs({
             dataURI: blob,
             fileName: `test.${this.mimeType().replace(/^\w+\//, '')}`,
-            proxyURL: this.options.proxy
+            proxyURL: this.options.proxy,
         });
     },
 
@@ -447,19 +457,18 @@ const MediaRecorder = Widget.extend({
         const { options } = that;
         that._chunks = [];
         getUserMedia({ audio: options.audio, video: options.video })
-            .then(function(stream) {
+            .then(function (stream) {
                 that._preview(stream);
                 that._initVolumeMeter(stream);
                 const config = {
                     // audioBitsPerSecond : options.audioBitsPerSecond,
                     // videoBitsPerSecond : options.videoBitsPerSecond,
-                    mimeType: that.mimeType(true)
+                    mimeType: that.mimeType(true),
                 };
                 // Create a media recorder - https://developers.google.com/web/updates/2016/01/mediarecorder
-                const recorder = (that._recorder = new WindowMediaRecorder(
-                    stream,
-                    config
-                ));
+                // eslint-disable-next-line no-multi-assign
+                const recorder = new WindowMediaRecorder(stream, config);
+                that._recorder = recorder;
                 recorder.onerror = that._onError.bind(that);
                 recorder.onstart = that._onStart.bind(that);
                 recorder.ondataavailable = that._onDataAvailable.bind(that);
@@ -497,7 +506,7 @@ const MediaRecorder = Widget.extend({
             recorder.stop();
             recorder.stream
                 .getTracks() // get all tracks from the MediaStream
-                .forEach(function(track) {
+                .forEach(function (track) {
                     track.stop();
                 }); // stop each of them
         }
@@ -511,7 +520,7 @@ const MediaRecorder = Widget.extend({
         const recorder = this._recorder;
         if (recorder instanceof WindowMediaRecorder) {
             muted = $.type(muted) === CONSTANTS.UNDEFINED ? true : !!muted;
-            recorder.stream.getAudioTracks().forEach(function(track) {
+            recorder.stream.getAudioTracks().forEach((track) => {
                 track.enabled = !muted;
             });
         } else {
@@ -541,7 +550,7 @@ const MediaRecorder = Widget.extend({
      * @param e
      * @private
      */
-    _onStart(e) {
+    _onStart(/* e */) {
         logger.debug({ method: '_onStart', message: 'Recording started' });
         this._updateToolbar();
     },
@@ -657,7 +666,7 @@ const MediaRecorder = Widget.extend({
         // Destroy widget
         Widget.fn.destroy.call(this);
         destroy(element);
-    }
+    },
 });
 
 /**

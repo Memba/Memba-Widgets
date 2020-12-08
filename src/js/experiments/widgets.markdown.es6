@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+// Notes
+// https://discuss.prosemirror.net/t/custom-markdown-format/41/8
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -122,7 +125,7 @@ const Markdown = Widget.extend({
             this.toolbar = $(`<${CONSTANTS.DIV}/>`)
                 .appendTo(this.element)
                 .kendoMarkdownToolBar({
-                    command: this._onCommand.bind(this),
+                    command: this._onToolBarCommand.bind(this),
                 })
                 .data('kendoMarkdownToolBar');
         }
@@ -140,7 +143,7 @@ const Markdown = Widget.extend({
             this.view = new EditorView($editorElement[0], {
                 state,
                 dispatchTransaction: this._dispatchTransaction.bind(this),
-                editable: this._editable.bind(this),
+                editable: this._isEditable.bind(this),
                 // filterTransaction: this._filterTransaction.bind(this),
                 // handleDoubleClick() { console.log("Double click!") }
             });
@@ -148,11 +151,15 @@ const Markdown = Widget.extend({
     },
 
     /**
-     * _onCommand
+     * _onToolBarCommand
      * @param e
      * @private
      */
-    _onCommand(e) {
+    _onToolBarCommand(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
         console.log(e.command);
     },
 
@@ -163,7 +170,7 @@ const Markdown = Widget.extend({
      * @private
      */
     _dispatchTransaction(transaction) {
-        if (this._enabled) {
+        if (this._isEditable()) {
             const state = this.view.state.apply(transaction);
             this.view.updateState(state);
             this.trigger(CONSTANTS.CHANGE); // TODO: do not trigger on selections and other non-modifying transactions
@@ -175,7 +182,7 @@ const Markdown = Widget.extend({
      * @returns {boolean}
      * @private
      */
-    _editable() {
+    _isEditable() {
         // Enables read-only behavior
         return this._enabled;
     },

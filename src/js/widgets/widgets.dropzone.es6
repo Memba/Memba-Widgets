@@ -208,8 +208,7 @@ const DropZoneEvents = Class.extend({
         const scale = scaler.length ? getTransformScale(scaler) : 1;
         const mouse = getMousePosition(e, container);
         // var point = new geometry.Point(mouse.x / scale, mouse.y / scale);
-        const point = { x: mouse.x / scale, y: mouse.y / scale };
-        return point;
+        return { x: mouse.x / scale, y: mouse.y / scale };
     },
 
     /**
@@ -565,14 +564,13 @@ DropZoneEvents.getSingleton = function (options) {
  * DropZone
  * @class DropZone Widget (kendoDropZone)
  */
-var DropZone = DataBoundWidget.extend({
+const DropZone = DataBoundWidget.extend({
     /**
      * Init
      * @param element
      * @param options
      */
     init(element, options = {}) {
-        options = options || {};
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -698,9 +696,10 @@ var DropZone = DataBoundWidget.extend({
      * @private
      */
     enable(enable) {
-        enable = $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        if (this._enabled !== enable) {
-            this._enabled = enable;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        if (this._enabled !== enabled) {
+            this._enabled = enabled;
             this._resetEvents();
         }
     },

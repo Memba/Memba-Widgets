@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>widgets.shape</title>
+    <script>
+        window.DEBUG = true;
+    </script>
+    <!-- Kidoju fonts -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Kidoju theme -->
+    <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
+    <script src="../helpers/system.config.js"></script>
+    <script>
+        (function () {
+            'use strict';
+             SystemJS.import('./widgets.shape.es6').then(function () {
+                var kendo = window.kendo;
+                $(function () {
+                    // Unbound
+                    $('#shape').kendoShape({
+                        // TODO
+                    });
+                    // Declarative
+                    kendo.init(document.body);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>widgets.shape</h1>
+
+<h2>Code initialization</h2>
+<div id="shape" class="k-widget" style="height: 50px; width: 500px;"></div>
+
+<h2>Html declaration</h2>
+<div class="kj-stage" style="position: relative; height: 300px; width: 300px; border: solid 1px black; transform: scale(0.75); background-color: #000;">
+    <div data-role="stage" style="height: 300px; width: 300px;">
+        <div class="kj-element" style="position: absolute; top: 140px; left: 25px; height: 20px; width: 250px; transform: rotate(45deg);">
+            <div data-role="shape" style="height: 100%; width: 100%;" data-options="{stroke:{color:&quot;#f00&quot;}}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

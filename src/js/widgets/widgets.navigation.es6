@@ -219,7 +219,7 @@ const Navigation = DataBoundWidget.extend({
     },
 
     /**
-     * length
+     * lengths
      * @method length()
      * @returns {*}
      */

@@ -13,6 +13,7 @@ import 'kendo.userevents';
 
 const { /* getComputedStyles, */ UserEvents } = window.kendo;
 const mouse = $('#mouse');
+
 // calculate scale???
 const scale = 0.6;
 const stage = $('.kj-stage');
@@ -34,27 +35,15 @@ function hit(e) {
     mouse.css(getPosition(e)).fadeIn(500).fadeOut(2000);
 }
 
-function getDelta(e) {
-    // assert(e.sender.surface)
-    // const matrix = getComputedStyles(e.sender.surface[0], ['transform']);
-    // https://www.michael1e.com/get-scale-value-css-javascript/
-    // https://stackoverflow.com/questions/5603615/get-the-scale-value-of-an-element
-    return {
-        x: e.x.initialDelta / scale,
-        y: e.y.initialDelta / scale,
-    };
-}
-
 let initial;
-
 function handler(e) {
+    debugger;
     if (!initial) {
         initial = $(e.target).position();
     }
-    const delta = getDelta(e);
     $(e.target).css({
-        top: initial.top + delta.y,
-        left: initial.left + delta.x,
+        top: initial.top + e.x.initialDelta,
+        left: initial.left + e.y.initialDelta,
     });
 }
 

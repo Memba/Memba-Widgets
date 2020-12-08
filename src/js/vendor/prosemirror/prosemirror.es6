@@ -10488,6 +10488,11 @@ function readDOMChange(view, from, to, typeOver, addedNodes) {
     if (typeOver && sel instanceof TextSelection && !sel.empty && sel.$head.sameParent(sel.$anchor) &&
         !view.composing && !(parse.sel && parse.sel.anchor != parse.sel.head)) {
       change = {start: sel.from, endA: sel.to, endB: sel.to};
+    } else if (result.ios && view.lastIOSEnter > Date.now() - 225 &&
+               addedNodes.some(function (n) { return n.nodeName == "DIV" || n.nodeName == "P"; }) &&
+               view.someProp("handleKeyDown", function (f) { return f(view, keyEvent(13, "Enter")); })) {
+      view.lastIOSEnter = 0;
+      return
     } else {
       if (parse.sel) {
         var sel$1 = resolveSelection(view, view.state.doc, parse.sel);
@@ -14736,16 +14741,6 @@ var exampleSetup$1 = /*#__PURE__*/Object.freeze({
   exampleSetup: exampleSetup
 });
 
-function createCommonjsModule(fn, basedir, module) {
-	return module = {
-		path: basedir,
-		exports: {},
-		require: function (path, base) {
-			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
-		}
-	}, fn(module, module.exports), module.exports;
-}
-
 function getAugmentedNamespace(n) {
 	if (n.__esModule) return n;
 	var a = Object.defineProperty({}, '__esModule', {value: true});
@@ -14761,8 +14756,9 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
-function commonjsRequire () {
-	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+function createCommonjsModule(fn) {
+  var module = { exports: {} };
+	return fn(module, module.exports), module.exports;
 }
 
 var Aacute = "Á";
@@ -20078,6 +20074,15 @@ var helpers = {
 	parseLinkTitle: parseLinkTitle
 };
 
+/**
+ * class Renderer
+ *
+ * Generates HTML from parsed token stream. Each instance has independent
+ * copy of rules. Those can be rewritten with ease. Also, you can add new
+ * rules if you create plugin and adds new token types.
+ **/
+
+
 var assign          = utils.assign;
 var unescapeAll$2     = utils.unescapeAll;
 var escapeHtml      = utils.escapeHtml;
@@ -21426,6 +21431,17 @@ StateCore.prototype.Token = token;
 
 
 var state_core = StateCore;
+
+/** internal
+ * class Core
+ *
+ * Top-level rules executor. Glues block/inline parsers and does intermediate
+ * transformations.
+ **/
+
+
+
+
 
 var _rules = [
   [ 'normalize',      normalize$1      ],
@@ -23252,6 +23268,16 @@ StateBlock.prototype.Token = token;
 
 var state_block = StateBlock;
 
+/** internal
+ * class ParserBlock
+ *
+ * Block-level tokenizer.
+ **/
+
+
+
+
+
 var _rules$1 = [
   // First 2 params - rule name & source. Secondary array - list of rules,
   // which can be terminated by this one.
@@ -24566,6 +24592,16 @@ StateInline.prototype.Token = token;
 
 
 var state_inline = StateInline;
+
+/** internal
+ * class ParserInline
+ *
+ * Tokenizes paragraph content.
+ **/
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Parser rules

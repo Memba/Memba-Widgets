@@ -14,7 +14,7 @@ import 'kendo.toolbar';
 
 const {
     isFunction,
-    ui: { ToolBar }
+    ui: { ToolBar },
 } = window.kendo;
 
 const MESSAGES = {};
@@ -38,7 +38,7 @@ const BaseToolBar = ToolBar.extend({
         // this.element.addClass('k-spreadsheet-toolbar');
         this._addSeparators(this.element);
         const that = this;
-        this.element.on('keydown', e => {
+        this.element.on('keydown', (e) => {
             let tool;
             if (e.keyCode === 9) {
                 tool = that._nextTool(e.shiftKey ? -1 : 1);
@@ -48,9 +48,7 @@ const BaseToolBar = ToolBar.extend({
                         $(tool).addClass('k-state-focused');
                     }
                     if ($(tool).find('input').length) {
-                        $(tool)
-                            .find('input')
-                            .focus();
+                        $(tool).find('input').focus();
                     } else {
                         tool.focus();
                     }
@@ -65,7 +63,7 @@ const BaseToolBar = ToolBar.extend({
         });
         this.bind({
             click: handleClick,
-            toggle: handleClick
+            toggle: handleClick,
         });
     },
     _nextTool(direction) {
@@ -101,12 +99,12 @@ const BaseToolBar = ToolBar.extend({
                 button: { showText: 'overflow' },
                 colorPicker: {
                     toolIcon: spriteCssClass,
-                    spriteCssClass
+                    spriteCssClass,
                 },
                 borders: { spriteCssClass },
                 alignment: { spriteCssClass },
                 merge: { spriteCssClass },
-                freeze: { spriteCssClass }
+                freeze: { spriteCssClass },
             };
             const tool = $.extend(
                 {
@@ -115,8 +113,8 @@ const BaseToolBar = ToolBar.extend({
                     icon: options.iconClass,
                     attributes: {
                         title: MESSAGES[options.name || toolName],
-                        'aria-label': MESSAGES[options.name || toolName]
-                    }
+                        'aria-label': MESSAGES[options.name || toolName],
+                    },
                 },
                 typeDefaults[type],
                 options
@@ -134,7 +132,7 @@ const BaseToolBar = ToolBar.extend({
             if ($.isArray(tool)) {
                 all.push({
                     type: 'buttonGroup',
-                    buttons: tool.map(expandTool)
+                    buttons: tool.map(expandTool),
                 });
             } else {
                 all.push(expandTool.call(this, tool));
@@ -153,8 +151,8 @@ const BaseToolBar = ToolBar.extend({
             command: commandType,
             options: {
                 property: tool.property || null,
-                value: tool.value || null
-            }
+                value: tool.value || null,
+            },
         };
         if (typeof args.options.value === 'boolean') {
             args.options.value = e.checked ? true : null;
@@ -169,12 +167,12 @@ const BaseToolBar = ToolBar.extend({
         'overflowOpen',
         'overflowClose',
         'action',
-        'dialog'
+        'dialog',
     ],
     options: {
         name: 'StyleToolBar',
         resizable: true,
-        tools: defaultTools
+        tools: defaultTools,
     },
     action(args) {
         this.trigger('action', args);
@@ -248,7 +246,7 @@ const BaseToolBar = ToolBar.extend({
                     const $element = $(element);
                     return {
                         property: $element.attr('data-property'),
-                        tool: this._getItem($element)
+                        tool: this._getItem($element),
                     };
                 }.bind(this)
             );
@@ -262,5 +260,5 @@ const BaseToolBar = ToolBar.extend({
             }
         });
         ToolBar.fn.destroy.call(this);
-    }
+    },
 });

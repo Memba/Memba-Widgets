@@ -55,7 +55,7 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.stage');
 const NS = '.kendoStage';
-const WIDGET_CLASS = 'k-widget kj-stage';
+const WIDGET_CLASS = 'k-widget k-content kj-stage';
 const DEFAULTS = {
     MODE: 'play',
     SCALE: 1,
@@ -281,11 +281,9 @@ const Stage = DataBoundWidget.extend({
         } else if (value !== this._scale) {
             this._scale = value;
             this.wrapper.css({
-                // transformOrigin: this._transformOrigin,
                 transform: format(CSS_SCALE, this._scale),
             });
             this.wrapper.find(CONSTANTS.DOT + HANDLE_CLASS).css({
-                // transformOrigin: 'center center', // by default
                 transform: format(CSS_SCALE, 1 / this._scale),
             });
             /*
@@ -595,7 +593,7 @@ const Stage = DataBoundWidget.extend({
         // debugger;
         // Set this.stage from the div element that makes the widget
         this.stage = this.element.css({
-            position: RELATIVE, // !important
+            position: RELATIVE, // !important for kj-element
             overflow: HIDDEN,
             height: this.height(),
             width: this.width(),
@@ -610,11 +608,10 @@ const Stage = DataBoundWidget.extend({
                 .parent()
                 .addClass(WIDGET_CLASS);
         }
-        this.stage.css({
-            position: RELATIVE, // !important
+        this.wrapper.css({
+            position: RELATIVE, // !important for kj-overlay
             height: _outerHeight(this.stage),
             width: _outerWidth(this.stage),
-            // transformOrigin: this._transformOrigin, // 'top left', // !important without such attribute, element top left calculations are wrong
             transform: format(CSS_SCALE, this.scale()),
         });
     },

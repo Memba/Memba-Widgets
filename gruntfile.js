@@ -3,8 +3,9 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-// eslint-disable import/no-extraneous-dependencies
-// eslint-disable node/no-unpublished-require
+/* eslint-disable global-require */
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable node/no-unpublished-require */
 
 module.exports = (grunt) => {
     grunt.initConfig({
@@ -110,22 +111,22 @@ module.exports = (grunt) => {
         rollup: {
             options: {
                 plugins: [
-                    require("@rollup/plugin-node-resolve").nodeResolve({
+                    require('@rollup/plugin-node-resolve').nodeResolve({
                         main: true,
                         preferBuiltins: false,
                     }),
-                    require("@rollup/plugin-json")(),
-                    require("@rollup/plugin-commonjs")(),
-                    require("@rollup/plugin-buble")({
-                        transforms: { dangerousForOf: true } // For prosemirror-markdown
-                    })
+                    require('@rollup/plugin-json')(),
+                    require('@rollup/plugin-commonjs')(),
+                    require('@rollup/plugin-buble')({
+                        transforms: { dangerousForOf: true }, // For prosemirror-markdown
+                    }),
                 ],
                 format: 'es', // 'iife',
                 // sourceMap: true,
             },
             pm: {
                 src: ['src/js/vendor/prosemirror/library.js'],
-                dest: 'src/js/vendor/prosemirror/prosemirror.es6'
+                dest: 'src/js/vendor/prosemirror/prosemirror.es6',
             },
         },
         stylelint: {

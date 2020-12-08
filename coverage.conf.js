@@ -17,6 +17,13 @@ module.exports = (config) => {
             },
         },
 
+        // @see https://github.com/karma-runner/karma-mocha/issues/47#issuecomment-287240956
+        browserConsoleLogOptions: {
+            level: 'log',
+            format: '%b %T: %m',
+            terminal: true,
+        },
+
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '',
 
@@ -72,7 +79,7 @@ module.exports = (config) => {
             },
             // Kendo UI
             {
-                pattern: 'src/js/vendor/kendo/kendo.all.min.js',
+                pattern: 'src/js/vendor/kendo/kendo.all.js',
                 served: true,
                 included: true,
             },

@@ -141,7 +141,7 @@ $(() => {
                 sections.first().css('display', 'block');
                 sections.last().css('display', 'none');
             } else if (e.id === 'design') {
-                window.location.assign('integration.designmode.html');
+                window.location.assign('smartquiz.design.html');
             }
         },
     });

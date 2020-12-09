@@ -205,7 +205,7 @@ $(() => {
                     });
                     break;
                 case 'play':
-                    location.assign('integration.playmode.html');
+                    location.assign('smartquiz.play.html');
                     break;
                 default:
                     break;

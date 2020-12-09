@@ -14,7 +14,7 @@ import CONSTANTS from './js/common/window.constants.es6';
 import './js/cultures/all.en.es6';
 import './js/widgets/widgets.playbar.es6';
 import './js/widgets/widgets.stage.es6';
-import LocalStream from './integration.data.es6';
+import LocalStream from './smartquiz.data.es6';
 
 const {
     bind,

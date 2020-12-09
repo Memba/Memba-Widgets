@@ -25,7 +25,7 @@ import './js/widgets/widgets.navigation.es6';
 import './js/widgets/widgets.propertygrid.es6';
 import './js/widgets/widgets.stage.es6';
 import './js/widgets/widgets.toolbox.es6';
-import LocalStream from './integration.data.es6';
+import LocalStream from './smartquiz.data.es6';
 
 const { location } = window;
 const {

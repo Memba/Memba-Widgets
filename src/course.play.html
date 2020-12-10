@@ -12,6 +12,8 @@
     <link href="./styles/fonts/kidoju.css" rel="stylesheet">
     <!-- Kidoju theme -->
     <link href="./styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- Page styles -->
+    <link href="./common.css" rel="stylesheet">
     <!-- SystemJS loader -->
     <script src="../test/vendor/polyfill.min.js"></script>
     <script src="../test/vendor/system.js"></script>
@@ -22,31 +24,6 @@
             SystemJS.import('./course.play.es6');
         }());
     </script>
-    <style>
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            background-color: #011;
-            flex: 0 0 auto;
-        }
-
-        header > img {
-            padding: 2px 5px;
-        }
-
-        main {
-            display: flex;
-            flex: 1 1 100%;
-            flex-direction: column;
-        }
-    </style>
 </head>
 <body>
 <header>

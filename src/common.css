@@ -1,0 +1,145 @@
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    height: 48px;
+    background-color: #011;
+    flex: 0 0 auto;
+}
+
+header > img {
+    padding: 2px 5px;
+}
+
+main {
+    display: flex;
+
+    /* flex: 1 1 100%; */
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+footer {
+    border-top: solid 1px #c5c5c5;
+    flex: 0 0 auto;
+    height: 35px;
+}
+
+footer > div {
+    padding: 8px;
+}
+
+/*************************************************
+course.design
+************************************************ */
+
+/*************************************************
+course.play
+************************************************ */
+
+/*************************************************
+flashcards.design
+************************************************ */
+
+/*************************************************
+flashcards.play
+************************************************ */
+.k-scrollview {
+    flex: 1;
+}
+
+.c {
+    margin: 0;
+
+    /* padding: 25px 63px; */
+    padding: 1em;
+    position: relative;
+    box-sizing: border-box;
+    height: calc(100% - 2 * 1em);
+    width: calc(100% - 2 * 1em);
+}
+
+.side {
+    background-color: #fff;
+    border: solid grey 1px;
+    border-radius: 2em;
+
+    /* box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.75); */
+    cursor: pointer;
+    padding: 2em;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+/*************************************************
+smartquiz.design
+************************************************ */
+
+.no-scroll {
+    overflow: initial;
+}
+
+main > .k-toolbar {
+    border-bottom: 0;
+}
+
+main > [data-role="splitter"] {
+    flex: 1 1 auto;
+    height: 100%;
+}
+
+.kj-navigation {
+    border: 0;
+}
+
+#center-pane {
+    display: flex;
+    flex-direction: column;
+    touch-action: none;
+}
+
+.wrapper {
+    align-items: center;
+    display: flex;
+    flex: 1 1;
+    justify-content: center;
+}
+
+.centered > .kj-stage {
+    transform-origin: 0 0;
+}
+
+#console-panelbar {
+    border-bottom: 0;
+}
+
+#right-pane .k-panelbar {
+    border-top: 0;
+}
+
+/*************************************************
+smartquiz.play
+************************************************ */
+#wrapper {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+div.k-block div:last-of-type {
+    font-size: 48px;
+    font-weight: bolder;
+    text-align: center;
+}

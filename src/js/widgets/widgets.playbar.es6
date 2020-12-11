@@ -247,15 +247,15 @@ const PlayBar = DataBoundWidget.extend({
      * @param value
      * @returns {*}
      */
-    value(page) {
+    value(value) {
         let ret;
-        if (page === null) {
+        if (value === null) {
             $.noop(); // TODO
-        } else if (page !== undefined) {
-            if (!(page instanceof Page)) {
+        } else if (value !== undefined) {
+            if (!(value instanceof Page)) {
                 throw new TypeError();
             }
-            const index = this.dataSource.indexOf(page);
+            const index = this.dataSource.indexOf(value);
             if (index > -1) {
                 this.index(index);
             }
@@ -522,7 +522,7 @@ const PlayBar = DataBoundWidget.extend({
      */
     refresh(e) {
         const {
-            currentPageTemplate,
+            // currentPageTemplate,
             element,
             linkTemplate,
             options,
@@ -552,7 +552,6 @@ const PlayBar = DataBoundWidget.extend({
                 start = index - (index % options.buttonCount);
             }
             end = Math.min(start + options.buttonCount - 1, length - 1);
-            debugger;
             if (start > 0) {
                 html += button(
                     linkTemplate,
@@ -584,7 +583,8 @@ const PlayBar = DataBoundWidget.extend({
                 html = selectTemplate({ text: 0 });
             }
             // Add drop down when there is not enough space to display numeric button
-            html = currentPageTemplate({ text: index + 1 }) + html;
+            // TODO this is only a temporary fix, but we have lost the dropdown
+            //  html = currentPageTemplate({ text: index + 1 }) + html;
             this.ul.removeClass('k-state-expanded').html(html);
         }
 

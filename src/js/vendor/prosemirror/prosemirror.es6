@@ -2732,6 +2732,12 @@ function gatherMarks(schema, marks) {
 //   property is only meaningful in a schema—when directly
 //   constructing a parser, the order of the rule array is used.
 //
+//   consuming:: ?boolean
+//   By default, when a rule matches an element or style, no further
+//   rules get a chance to match it. By setting this to `false`, you
+//   indicate that even when this rule matches, other rules that come
+//   after it should also run.
+//
 //   context:: ?string
 //   When given, restricts this rule to only match when the current
 //   context—the parent nodes into which the content is being
@@ -2855,8 +2861,8 @@ DOMParser.prototype.parseSlice = function parseSlice (dom, options) {
   return Slice.maxOpen(context.finish())
 };
 
-DOMParser.prototype.matchTag = function matchTag (dom, context) {
-  for (var i = 0; i < this.tags.length; i++) {
+DOMParser.prototype.matchTag = function matchTag (dom, context, after) {
+  for (var i = after ? this.tags.indexOf(after) + 1 : 0; i < this.tags.length; i++) {
     var rule = this.tags[i];
     if (matches(dom, rule.tag) &&
         (rule.namespace === undefined || dom.namespaceURI == rule.namespace) &&
@@ -2871,8 +2877,8 @@ DOMParser.prototype.matchTag = function matchTag (dom, context) {
   }
 };
 
-DOMParser.prototype.matchStyle = function matchStyle (prop, value, context) {
-  for (var i = 0; i < this.styles.length; i++) {
+DOMParser.prototype.matchStyle = function matchStyle (prop, value, context, after) {
+  for (var i = after ? this.styles.indexOf(after) + 1 : 0; i < this.styles.length; i++) {
     var rule = this.styles[i];
     if (rule.style.indexOf(prop) != 0 ||
         rule.context && !context.matchesContext(rule.context) ||
@@ -3096,13 +3102,14 @@ ParseContext.prototype.addTextNode = function addTextNode (dom) {
   }
 };
 
-// : (dom.Element)
+// : (dom.Element, ?ParseRule)
 // Try to find a handler for the given tag and use that to parse. If
 // none is found, the element's content nodes are added directly.
-ParseContext.prototype.addElement = function addElement (dom) {
-  var name = dom.nodeName.toLowerCase();
+ParseContext.prototype.addElement = function addElement (dom, matchAfter) {
+  var name = dom.nodeName.toLowerCase(), ruleID;
   if (listTags.hasOwnProperty(name) && this.parser.normalizeLists) { normalizeList(dom); }
-  var rule = (this.options.ruleFromNode && this.options.ruleFromNode(dom)) || this.parser.matchTag(dom, this);
+  var rule = (this.options.ruleFromNode && this.options.ruleFromNode(dom)) ||
+      (ruleID = this.parser.matchTag(dom, this, matchAfter));
   if (rule ? rule.ignore : ignoreTags.hasOwnProperty(name)) {
     this.findInside(dom);
   } else if (!rule || rule.skip || rule.closeParent) {
@@ -3120,7 +3127,7 @@ ParseContext.prototype.addElement = function addElement (dom) {
     if (sync) { this.sync(top); }
     this.needsBlock = oldNeedsBlock;
   } else {
-    this.addElementByRule(dom, rule);
+    this.addElementByRule(dom, rule, rule.consuming === false ? ruleID : null);
   }
 };
 
@@ -3135,11 +3142,15 @@ ParseContext.prototype.leafFallback = function leafFallback (dom) {
 // had a rule with `ignore` set.
 ParseContext.prototype.readStyles = function readStyles (styles) {
   var marks = Mark.none;
-  for (var i = 0; i < styles.length; i += 2) {
-    var rule = this.parser.matchStyle(styles[i], styles[i + 1], this);
-    if (!rule) { continue }
-    if (rule.ignore) { return null }
-    marks = this.parser.schema.marks[rule.mark].create(rule.attrs).addToSet(marks);
+  style: for (var i = 0; i < styles.length; i += 2) {
+    for (var after = null;;) {
+      var rule = this.parser.matchStyle(styles[i], styles[i + 1], this, after);
+      if (!rule) { continue style }
+      if (rule.ignore) { return null }
+      marks = this.parser.schema.marks[rule.mark].create(rule.attrs).addToSet(marks);
+      if (rule.consuming === false) { after = rule; }
+      else { break }
+    }
   }
   return marks
 };
@@ -3148,7 +3159,7 @@ ParseContext.prototype.readStyles = function readStyles (styles) {
 // Look up a handler for the given node. If none are found, return
 // false. Otherwise, apply it, use its return value to drive the way
 // the node's content is wrapped, and return true.
-ParseContext.prototype.addElementByRule = function addElementByRule (dom, rule) {
+ParseContext.prototype.addElementByRule = function addElementByRule (dom, rule, continueAfter) {
     var this$1 = this;
 
   var sync, nodeType, markType, mark;
@@ -3168,6 +3179,8 @@ ParseContext.prototype.addElementByRule = function addElementByRule (dom, rule) 
 
   if (nodeType && nodeType.isLeaf) {
     this.findInside(dom);
+  } else if (continueAfter) {
+    this.addElement(dom, continueAfter);
   } else if (rule.getContent) {
     this.findInside(dom);
     rule.getContent(dom, this.parser.schema).forEach(function (node) { return this$1.insertNode(node); });
@@ -7958,7 +7971,8 @@ if (typeof navigator != "undefined" && typeof document != "undefined") {
   var chrome$1 = !ie$1 && /Chrome\/(\d+)/.exec(navigator.userAgent);
   result.chrome = !!chrome$1;
   result.chrome_version = chrome$1 && +chrome$1[1];
-  result.ios = !ie$1 && /AppleWebKit/.test(navigator.userAgent) && /Mobile\/\w+/.test(navigator.userAgent);
+  // Is true for both iOS and iPadOS for convenience
+  result.ios = !ie$1 && /AppleWebKit/.test(navigator.userAgent) && (/Mobile\/\w+/.test(navigator.userAgent) || !!(navigator.maxTouchPoints && navigator.maxTouchPoints > 2));
   result.android = /Android \d/.test(navigator.userAgent);
   result.webkit = "webkitFontSmoothing" in document.documentElement.style;
   result.safari = /Apple Computer/.test(navigator.vendor);

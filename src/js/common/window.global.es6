@@ -15,7 +15,11 @@ const app = {
 /**
  * Add to globals in cordova and debug mode
  */
-if (window.cordova || window.DEBUG) {
+if (
+    window.cordova ||
+    window.DEBUG ||
+    window.location.hostname === 'localhost'
+) {
     window.app = app;
 }
 

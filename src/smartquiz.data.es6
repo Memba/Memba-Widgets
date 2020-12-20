@@ -13,7 +13,7 @@ import ToolAssets from './js/tools/util.assets.es6';
 
 const { localStorage, location } = window;
 const { guid, stringify } = window.kendo;
-const storageKey = 'integration';
+const storageKey = 'smartquiz';
 
 // Data
 const data = {

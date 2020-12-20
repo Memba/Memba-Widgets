@@ -10,7 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
-const { attr } = window.kendo;
+const { attr, roleSelector } = window.kendo;
 
 /**
  * Synchronization state
@@ -188,6 +188,16 @@ function getAttributeBinding(attribute, value) {
 }
 
 /**
+ * Return true for the mobile application and false for the web application
+ * @returns {boolean}
+ */
+function isMobileApp() {
+    // return !!window.cordova;
+    // return !! window.kendo.support.mobileOS;
+    return $(roleSelector('layout')).length > 0;
+}
+
+/**
  * Normalize data source schema
  * @see https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema
  * @param schema
@@ -260,6 +270,7 @@ export {
     error2xhr,
     extendQueryWithPartition,
     getAttributeBinding,
+    isMobileApp,
     normalizeSchema,
     xhr2error,
 };

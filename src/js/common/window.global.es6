@@ -13,13 +13,10 @@ const app = {
 };
 
 /**
- * Add to globals in cordova and debug mode
+ * Add to globals in cordova and development/debug mode
  */
-if (
-    window.cordova ||
-    window.DEBUG ||
-    window.location.hostname === 'localhost'
-) {
+if (window.cordova || window.DEBUG || window.location.protocol !== 'https:') {
+    // TODO Consider using isMobileApp from data.util
     window.app = app;
 }
 

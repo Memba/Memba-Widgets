@@ -161,6 +161,8 @@ const CONSTANTS = {
         DRAFT: 0,
         PUBLISHED: 5,
     },
+    // ZERO_ID: Array(24).fill('0').join(''),
+    ZERO_ID: '000000000000000000000000',
     // HTML tags
     A: 'a',
     BODY: 'body',

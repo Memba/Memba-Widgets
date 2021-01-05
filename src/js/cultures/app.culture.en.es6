@@ -20,6 +20,9 @@ import '../vendor/kendo/cultures/kendo.culture.en-GB';
 import '../vendor/kendo/messages/kendo.messages.en-GB';
 import './widgets.en.es6';
 
+/**
+ * Requires kendo.core
+ */
 window.kendo.culture('en-GB');
 
 /**

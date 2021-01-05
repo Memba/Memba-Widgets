@@ -51,6 +51,7 @@ const Stream = BaseModel.define({
                 return new PageDataSource(value);
             },
         },
+        // Possibly consider a page master
     },
 
     /**
@@ -206,6 +207,29 @@ const Stream = BaseModel.define({
     */
 
     /**
+     * Fetch pages and components
+     * Note: Call initTools before
+     * @method fetch
+     * @returns {*}
+     */
+    fetch() {
+        const dfd = $.Deferred();
+        const { pages } = this;
+        pages
+            .fetch()
+            .then(() => {
+                const promises = pages
+                    .data()
+                    .map((page) => page.components.fetch());
+                $.when(...promises)
+                    .then(dfd.resolve)
+                    .catch(dfd.reject);
+            })
+            .catch(dfd.reject);
+        return dfd.promise();
+    },
+
+    /**
      * Assets
      * @method assets
      * @returns {{audio: Array, image: Array, video: Array}}
@@ -219,14 +243,14 @@ const Stream = BaseModel.define({
         // TODO: Check _loaded and throw otherwise
         // Iterate through pages
         this.pages.data().forEach((page) => {
-            const media = page.assets();
+            const pageAssets = page.assets();
             // Iterate through asset classes (medium)
-            Object.keys(media).forEach((medium) => {
+            Object.keys(pageAssets).forEach((media) => {
                 // Iterate through assets
-                media[medium].forEach((a) => {
-                    // Only add if not a duplicate
-                    if (assets[medium].indexOf(a) === -1) {
-                        assets[medium].push(a);
+                pageAssets[media].forEach((asset) => {
+                    // Only add if not already added from a previous page
+                    if (assets[media].indexOf(asset) === -1) {
+                        assets[media].push(asset);
                     }
                 });
             });
@@ -236,15 +260,38 @@ const Stream = BaseModel.define({
 
     /**
      * Preload images (only images for now)
-     * @method preload
+     * @method preloadAssets
+     * @returns {*}
      */
-    preload() {
+    preloadAssets() {
         // TODO https://developers.google.com/web/fundamentals/media/fast-playback-with-video-preload
         // TODO Consider using https://github.com/CreateJS/PreloadJS
         // TODO See http://dinbror.dk/blog/how-to-preload-entire-html5-video-before-play-solved/ (see comments especially about CORS)
         // TODO scheme2http !!!!
         const assets = this.assets();
         const promises = assets.image.map(preload);
+        return $.when(...promises);
+    },
+
+    /**
+     * Initialize tools
+     * @method initTools
+     * @returns {*}
+     */
+    initTools() {
+        const promises = [];
+        // This supposes an in-memory transport
+        const pages = this.pages.transport.data;
+        if (Array.isArray(pages)) {
+            pages.forEach((page) => {
+                const { components } = page;
+                if (Array.isArray(components)) {
+                    components.forEach((component) => {
+                        promises.push(tools.load(component.tool));
+                    });
+                }
+            });
+        }
         return $.when(...promises);
     },
 

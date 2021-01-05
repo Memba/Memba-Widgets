@@ -2,9 +2,8 @@
     "extends": "stylelint-config-standard",
     "plugins": ["stylelint-scss"],
     "rules": {
-        "at-rule-no-unknown": [true, {
-            "ignoreAtRules": ["include"]
-        }],
+        "at-rule-no-unknown": null,
+        "scss/at-rule-no-unknown": true,
         "indentation": 4
     },
     "syntax": "scss"

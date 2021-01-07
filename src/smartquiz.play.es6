@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
-import 'kendo.data';
+import 'kendo.appbar';
 import 'kendo.grid';
 import 'kendo.toolbar';
 import CONSTANTS from './js/common/window.constants.es6';
@@ -100,6 +100,17 @@ $(window).on('resize', throttle(onResize, 50));
  * Page ready
  */
 $(() => {
+    $(roleSelector('appbar')).kendoAppBar({
+        positionMode: 'sticky',
+        position: 'top',
+        themeColor: 'dark',
+        items: [
+            { template: '<a class="k-button" href="\\#"><span class="k-icon k-i-menu"></span></a>', type: 'contentItem' },
+            { width: 5, type: 'spacer' },
+            { template: '<img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo" style="margin: -0.5rem 0;">', type: 'contentItem' },
+        ]
+    });
+
     $('#toolbar').kendoToolBar({
         items: [
             {

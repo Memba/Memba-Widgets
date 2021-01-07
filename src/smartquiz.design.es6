@@ -6,8 +6,8 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.data';
 import 'kendo.binder';
+import 'kendo.appbar';
 import 'kendo.panelbar';
 import 'kendo.slider';
 import 'kendo.splitter';
@@ -147,6 +147,17 @@ function onResize() {
 
 // When document is ready...
 $(() => {
+    $(roleSelector('appbar')).kendoAppBar({
+        positionMode: 'sticky',
+        position: 'top',
+        themeColor: 'dark',
+        items: [
+            { template: '<a class="k-button" href="\\#"><span class="k-icon k-i-menu"></span></a>', type: 'contentItem' },
+            { width: 5, type: 'spacer' },
+            { template: '<img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo" style="margin: -0.5rem 0;">', type: 'contentItem' },
+        ]
+    });
+
     // Init toolbar
     $(roleSelector('toolbar')).kendoToolBar({
         items: [

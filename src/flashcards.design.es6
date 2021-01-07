@@ -28,7 +28,7 @@ $(() => {
             { width: 5, type: 'spacer' },
             { template: '<img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo" style="margin: -0.5rem 0;">', type: 'contentItem' },
         ]
-    })
+    });
 
     $(roleSelector('scrollview')).kendoScrollView({
         dataSource: dataSource,

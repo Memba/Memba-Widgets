@@ -1858,7 +1858,7 @@ var TokenStream = function TokenStream(string, nodeTypes) {
   this.pos = 0;
   this.tokens = string.split(/\s*(?=\b|\W|$)/);
   if (this.tokens[this.tokens.length - 1] == "") { this.tokens.pop(); }
-  if (this.tokens[0] == "") { this.tokens.unshift(); }
+  if (this.tokens[0] == "") { this.tokens.shift(); }
 };
 
 var prototypeAccessors$1$2 = { next: { configurable: true } };
@@ -3013,9 +3013,9 @@ NodeContext.prototype.finish = function finish (openEnd) {
   return this.type ? this.type.create(this.attrs, content, this.marks) : content
 };
 
-NodeContext.prototype.popFromStashMark = function popFromStashMark (markType) {
+NodeContext.prototype.popFromStashMark = function popFromStashMark (mark) {
   for (var i = this.stashMarks.length - 1; i >= 0; i--)
-    { if (this.stashMarks[i].type == markType) { return this.stashMarks.splice(i, 1)[0] } }
+    { if (mark.eq(this.stashMarks[i])) { return this.stashMarks.splice(i, 1)[0] } }
 };
 
 NodeContext.prototype.applyPending = function applyPending (nextType) {
@@ -3023,8 +3023,6 @@ NodeContext.prototype.applyPending = function applyPending (nextType) {
     var mark = pending[i];
     if ((this.type ? this.type.allowsMarkType(mark.type) : markMayApply(mark.type, nextType)) &&
         !mark.isInSet(this.activeMarks)) {
-      var found = findSameTypeInSet(mark, this.activeMarks);
-      if (found) { this.stashMarks.push(found); }
       this.activeMarks = mark.addToSet(this.activeMarks);
       this.pendingMarks = mark.removeFromSet(this.pendingMarks);
     }
@@ -3392,7 +3390,7 @@ ParseContext.prototype.textblockFromContext = function textblockFromContext () {
 };
 
 ParseContext.prototype.addPendingMark = function addPendingMark (mark) {
-  var found = findSameTypeInSet(mark, this.top.pendingMarks);
+  var found = findSameMarkInSet(mark, this.top.pendingMarks);
   if (found) { this.top.stashMarks.push(found); }
   this.top.pendingMarks = mark.addToSet(this.top.pendingMarks);
 };
@@ -3405,7 +3403,7 @@ ParseContext.prototype.removePendingMark = function removePendingMark (mark, upt
       level.pendingMarks = mark.removeFromSet(level.pendingMarks);
     } else {
       level.activeMarks = mark.removeFromSet(level.activeMarks);
-      var stashMark = level.popFromStashMark(mark.type);
+      var stashMark = level.popFromStashMark(mark);
       if (stashMark) { level.activeMarks = stashMark.addToSet(level.activeMarks); }
     }
     if (level == upto) { break }
@@ -3478,9 +3476,9 @@ function markMayApply(markType, nodeType) {
   }
 }
 
-function findSameTypeInSet(mark, set) {
+function findSameMarkInSet(mark, set) {
   for (var i = 0; i < set.length; i++) {
-    if (mark.type == set[i].type) { return set[i] }
+    if (mark.eq(set[i])) { return set[i] }
   }
 }
 
@@ -7972,10 +7970,10 @@ if (typeof navigator != "undefined" && typeof document != "undefined") {
   result.chrome = !!chrome$1;
   result.chrome_version = chrome$1 && +chrome$1[1];
   // Is true for both iOS and iPadOS for convenience
-  result.ios = !ie$1 && /AppleWebKit/.test(navigator.userAgent) && (/Mobile\/\w+/.test(navigator.userAgent) || !!(navigator.maxTouchPoints && navigator.maxTouchPoints > 2));
+  result.safari = !ie$1 && /Apple Computer/.test(navigator.vendor);
+  result.ios = result.safari && (/Mobile\/\w+/.test(navigator.userAgent) || navigator.maxTouchPoints > 2);
   result.android = /Android \d/.test(navigator.userAgent);
   result.webkit = "webkitFontSmoothing" in document.documentElement.style;
-  result.safari = /Apple Computer/.test(navigator.vendor);
   result.webkit_version = result.webkit && +(/\bAppleWebKit\/(\d+)/.exec(navigator.userAgent) || [0, 0])[1];
 }
 
@@ -8372,50 +8370,40 @@ var BIDI = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac]/;
 // Given a position in the document model, get a bounding box of the
 // character at that position, relative to the window.
 function coordsAtPos(view, pos, side) {
-  var ref = view.docView.domFromPos(pos);
+  var ref = view.docView.domFromPos(pos, side < 0 ? -1 : 1);
   var node = ref.node;
   var offset = ref.offset;
-  var $pos = view.state.doc.resolve(pos), inline = $pos.parent.inlineContent;
 
-  // These browsers support querying empty text ranges. Prefer that in
-  // bidi context.
   var supportEmptyRange = result.webkit || result.gecko;
-  if (node.nodeType == 3 && supportEmptyRange && BIDI.test(node.nodeValue)) {
-    var rect = singleRect(textRange(node, offset, offset), side);
-    // Firefox returns bad results (the position before the space)
-    // when querying a position directly after line-broken
-    // whitespace. Detect this situation and and kludge around it
-    if (result.gecko && offset && /\s/.test(node.nodeValue[offset - 1]) && offset < node.nodeValue.length) {
-      var rectBefore = singleRect(textRange(node, offset - 1, offset - 1), -1);
-      if (rectBefore.top == rect.top) {
-        var rectAfter = singleRect(textRange(node, offset, offset + 1), -1);
-        if (rectAfter.top != rect.top)
-          { return flattenV(rectAfter, rectAfter.left < rectBefore.left) }
-      }
-    }
-    return rect
-  }
-
-  // Move up the DOM as far as possible when in inline context.
-  if (inline) {
-    var parent = $pos.depth ? view.docView.domAfterPos($pos.before()) : view.dom;
-    while (side < 0 && !offset && node != parent) {
-      offset = domIndex(node);
-      node = node.parentNode;
-    }
-    while (side >= 0 && offset == nodeSize(node) && node != parent) {
-      offset = domIndex(node) + 1;
-      node = node.parentNode;
-    }
-  }
-
   if (node.nodeType == 3) {
-    if (side < 0) { return flattenV(singleRect(textRange(node, offset - 1, offset), 1), false) }
-    return flattenV(singleRect(textRange(node, offset, offset + 1), -1), true)
+    // These browsers support querying empty text ranges. Prefer that in
+    // bidi context or when at the end of a node.
+    if (supportEmptyRange && (BIDI.test(node.nodeValue) || (side < 0 ? !offset : offset == node.nodeValue.length))) {
+      var rect = singleRect(textRange(node, offset, offset), side);
+      // Firefox returns bad results (the position before the space)
+      // when querying a position directly after line-broken
+      // whitespace. Detect this situation and and kludge around it
+      if (result.gecko && offset && /\s/.test(node.nodeValue[offset - 1]) && offset < node.nodeValue.length) {
+        var rectBefore = singleRect(textRange(node, offset - 1, offset - 1), -1);
+        if (rectBefore.top == rect.top) {
+          var rectAfter = singleRect(textRange(node, offset, offset + 1), -1);
+          if (rectAfter.top != rect.top)
+            { return flattenV(rectAfter, rectAfter.left < rectBefore.left) }
+        }
+      }
+      return rect
+    } else {
+      var from = offset, to = offset, takeSide = side < 0 ? 1 : -1;
+      if (side < 0 && !offset) { to++; takeSide = -1; }
+      else if (side >= 0 && offset == node.nodeValue.length) { from--; takeSide = 1; }
+      else if (side < 0) { from--; }
+      else { to ++; }
+      return flattenV(singleRect(textRange(node, from, to), takeSide), takeSide < 0)
+    }
   }
 
   // Return a horizontal line in block context
-  if (!inline) {
+  if (!view.state.doc.resolve(pos).parent.inlineContent) {
     if (offset && (side < 0 || offset == nodeSize(node))) {
       var before = node.childNodes[offset - 1];
       if (before.nodeType == 1) { return flattenH(before.getBoundingClientRect(), false) }
@@ -8431,8 +8419,9 @@ function coordsAtPos(view, pos, side) {
   if (offset && (side < 0 || offset == nodeSize(node))) {
     var before$1 = node.childNodes[offset - 1];
     var target = before$1.nodeType == 3 ? textRange(before$1, nodeSize(before$1) - (supportEmptyRange ? 0 : 1))
-        // BR nodes tend to only return the rectangle before them
-        : before$1.nodeType == 1 && before$1.nodeName != "BR" ? before$1 : null;
+        // BR nodes tend to only return the rectangle before them.
+        // Only use them if they are the last element in their parent
+        : before$1.nodeType == 1 && (before$1.nodeName != "BR" || !before$1.nextSibling) ? before$1 : null;
     if (target) { return flattenV(singleRect(target, 1), false) }
   }
   if (offset < nodeSize(node)) {
@@ -8474,9 +8463,9 @@ function withFlushedState(view, state, f) {
 // from a position would leave a text block.
 function endOfTextblockVertical(view, state, dir) {
   var sel = state.selection;
-  var $pos = dir == "up" ? sel.$anchor.min(sel.$head) : sel.$anchor.max(sel.$head);
+  var $pos = dir == "up" ? sel.$from : sel.$to;
   return withFlushedState(view, state, function () {
-    var ref = view.docView.domFromPos($pos.pos);
+    var ref = view.docView.domFromPos($pos.pos, dir == "up" ? -1 : 1);
     var dom = ref.node;
     for (;;) {
       var nearest = view.docView.nearestDesc(dom, true);
@@ -8796,18 +8785,23 @@ ViewDesc.prototype.descAt = function descAt (pos) {
   }
 };
 
-// : (number) → {node: dom.Node, offset: number}
-ViewDesc.prototype.domFromPos = function domFromPos (pos) {
+// : (number, number) → {node: dom.Node, offset: number}
+ViewDesc.prototype.domFromPos = function domFromPos (pos, side) {
   if (!this.contentDOM) { return {node: this.dom, offset: 0} }
-  for (var offset = 0, i = 0;; i++) {
-    if (offset == pos) {
-      while (i < this.children.length && (this.children[i].beforePosition || this.children[i].dom.parentNode != this.contentDOM)) { i++; }
-      return {node: this.contentDOM,
-              offset: i == this.children.length ? this.contentDOM.childNodes.length : domIndex(this.children[i].dom)}
-    }
-    if (i == this.children.length) { throw new Error("Invalid position " + pos) }
-    var child = this.children[i], end = offset + child.size;
-    if (pos < end) { return child.domFromPos(pos - offset - child.border) }
+  for (var offset = 0, i = 0, first = true;; i++, first = false) {
+    // Skip removed or always-before children
+    while (i < this.children.length && (this.children[i].beforePosition ||
+                                        this.children[i].dom.parentNode != this.contentDOM))
+      { offset += this.children[i++].size; }
+    var child = i == this.children.length ? null : this.children[i];
+    if (offset == pos && (side == 0 || !child || child.border || (side < 0 && first))) { return {
+      node: this.contentDOM,
+      offset: child ? domIndex(child.dom) : this.contentDOM.childNodes.length
+    } }
+    if (!child) { throw new Error("Invalid position " + pos) }
+    var end = offset + child.size;
+    if (side < 0 && !child.border ? end >= pos : end > pos)
+      { return child.domFromPos(pos - offset - child.border, side) }
     offset = end;
   }
 };
@@ -8867,7 +8861,7 @@ ViewDesc.prototype.emptyChildAt = function emptyChildAt (side) {
 
 // : (number) → dom.Node
 ViewDesc.prototype.domAfterPos = function domAfterPos (pos) {
-  var ref = this.domFromPos(pos);
+  var ref = this.domFromPos(pos, 0);
     var node = ref.node;
     var offset = ref.offset;
   if (node.nodeType != 1 || offset == node.childNodes.length)
@@ -8891,7 +8885,8 @@ ViewDesc.prototype.setSelection = function setSelection (anchor, head, root, for
     offset = end;
   }
 
-  var anchorDOM = this.domFromPos(anchor), headDOM = this.domFromPos(head);
+  var anchorDOM = this.domFromPos(anchor, anchor ? -1 : 1);
+  var headDOM = head == anchor ? anchorDOM : this.domFromPos(head, head ? -1 : 1);
   var domSel = root.getSelection();
 
   var brKludge = false;
@@ -10010,7 +10005,7 @@ function selectionToDOM(view, force) {
 var brokenSelectBetweenUneditable = result.safari || result.chrome && result.chrome_version < 63;
 
 function temporarilyEditableNear(view, pos) {
-  var ref = view.docView.domFromPos(pos);
+  var ref = view.docView.domFromPos(pos, 0);
   var node = ref.node;
   var offset = ref.offset;
   var after = offset < node.childNodes.length ? node.childNodes[offset] : null;
@@ -10112,7 +10107,7 @@ function hasSelection(view) {
 }
 
 function anchorInRightPlace(view) {
-  var anchorDOM = view.docView.domFromPos(view.state.selection.anchor);
+  var anchorDOM = view.docView.domFromPos(view.state.selection.anchor, 0);
   var domSel = view.root.getSelection();
   return isEquivalentPosition(anchorDOM.node, anchorDOM.offset, domSel.anchorNode, domSel.anchorOffset)
 }
@@ -10484,6 +10479,13 @@ function readDOMChange(view, from, to, typeOver, addedNodes) {
 
   var sel = view.state.selection;
   var parse = parseBetween(view, from, to);
+  // Chrome sometimes leaves the cursor before the inserted text when
+  // composing after a cursor wrapper. This moves it forward.
+  if (result.chrome && view.cursorWrapper && parse.sel && parse.sel.anchor == view.cursorWrapper.deco.from) {
+    var text = view.cursorWrapper.deco.type.toDOM.nextSibling;
+    var size = text && text.nodeValue ? text.nodeValue.length : 1;
+    parse.sel = {anchor: parse.sel.anchor + size, head: parse.sel.anchor + size};
+  }
 
   var doc = view.state.doc, compare = doc.slice(parse.from, parse.to);
   var preferredPos, preferredSide;
@@ -10604,9 +10606,9 @@ function readDOMChange(view, from, to, typeOver, addedNodes) {
       else { tr.removeMark(chFrom, chTo, markChange.mark); }
     } else if ($from.parent.child($from.index()).isText && $from.index() == $to.index() - ($to.textOffset ? 0 : 1)) {
       // Both positions in the same text node -- simply insert text
-      var text = $from.parent.textBetween($from.parentOffset, $to.parentOffset);
-      if (view.someProp("handleTextInput", function (f) { return f(view, chFrom, chTo, text); })) { return }
-      tr = view.state.tr.insertText(text, chFrom, chTo);
+      var text$1 = $from.parent.textBetween($from.parentOffset, $to.parentOffset);
+      if (view.someProp("handleTextInput", function (f) { return f(view, chFrom, chTo, text$1); })) { return }
+      tr = view.state.tr.insertText(text$1, chFrom, chTo);
     }
   }
 
@@ -11572,7 +11574,8 @@ editHandlers.compositionstart = editHandlers.compositionupdate = function (view)
     var state = view.state;
     var $pos = state.selection.$from;
     if (state.selection.empty &&
-        (state.storedMarks || (!$pos.textOffset && $pos.parentOffset && $pos.nodeBefore.marks.some(function (m) { return m.type.spec.inclusive === false; })))) {
+        (state.storedMarks ||
+         (!$pos.textOffset && $pos.parentOffset && $pos.nodeBefore.marks.some(function (m) { return m.type.spec.inclusive === false; })))) {
       // Need to wrap the cursor in mark nodes different from the ones in the DOM context
       view.markCursor = view.state.storedMarks || $pos.marks();
       endComposition(view, true);
@@ -12806,13 +12809,19 @@ EditorView.prototype.coordsAtPos = function coordsAtPos$1 (pos, side) {
   return coordsAtPos(this, pos, side)
 };
 
-// :: (number) → {node: dom.Node, offset: number}
+// :: (number, number) → {node: dom.Node, offset: number}
 // Find the DOM position that corresponds to the given document
-// position. Note that you should **not** mutate the editor's
-// internal DOM, only inspect it (and even that is usually not
-// necessary).
-EditorView.prototype.domAtPos = function domAtPos (pos) {
-  return this.docView.domFromPos(pos)
+// position. When `side` is negative, find the position as close as
+// possible to the content before the position. When positive,
+// prefer positions close to the content after the position. When
+// zero, prefer as shallow a position as possible.
+//
+// Note that you should **not** mutate the editor's internal DOM,
+// only inspect it (and even that is usually not necessary).
+EditorView.prototype.domAtPos = function domAtPos (pos, side) {
+    if ( side === void 0 ) { side = 0; }
+
+  return this.docView.domFromPos(pos, side)
 };
 
 // :: (number) → ?dom.Node
@@ -26995,7 +27004,7 @@ MarkdownParseState.prototype.parseTokens = function parseTokens (toks) {
     var handler = this.tokenHandlers[tok.type];
     if (!handler)
       { throw new Error("Token type `" + tok.type + "` not supported by Markdown parser") }
-    handler(this, tok);
+    handler(this, tok, toks, i);
   }
 };
 
@@ -27022,8 +27031,8 @@ MarkdownParseState.prototype.closeNode = function closeNode () {
   return this.addNode(info.type, info.attrs, info.content)
 };
 
-function attrs(spec, token) {
-  if (spec.getAttrs) { return spec.getAttrs(token) }
+function attrs(spec, token, tokens, i) {
+  if (spec.getAttrs) { return spec.getAttrs(token, tokens, i) }
   // For backwards compatibility when `attrs` is a Function
   else if (spec.attrs instanceof Function) { return spec.attrs(token) }
   else { return spec.attrs }
@@ -27048,28 +27057,28 @@ function tokenHandlers(schema, tokens) {
     if (spec.block) {
       var nodeType = schema.nodeType(spec.block);
       if (noCloseToken(spec, type)) {
-        handlers[type] = function (state, tok) {
-          state.openNode(nodeType, attrs(spec, tok));
+        handlers[type] = function (state, tok, tokens, i) {
+          state.openNode(nodeType, attrs(spec, tok, tokens, i));
           state.addText(withoutTrailingNewline(tok.content));
           state.closeNode();
         };
       } else {
-        handlers[type + "_open"] = function (state, tok) { return state.openNode(nodeType, attrs(spec, tok)); };
+        handlers[type + "_open"] = function (state, tok, tokens, i) { return state.openNode(nodeType, attrs(spec, tok, tokens, i)); };
         handlers[type + "_close"] = function (state) { return state.closeNode(); };
       }
     } else if (spec.node) {
       var nodeType$1 = schema.nodeType(spec.node);
-      handlers[type] = function (state, tok) { return state.addNode(nodeType$1, attrs(spec, tok)); };
+      handlers[type] = function (state, tok, tokens, i) { return state.addNode(nodeType$1, attrs(spec, tok, tokens, i)); };
     } else if (spec.mark) {
       var markType = schema.marks[spec.mark];
       if (noCloseToken(spec, type)) {
-        handlers[type] = function (state, tok) {
-          state.openMark(markType.create(attrs(spec, tok)));
+        handlers[type] = function (state, tok, tokens, i) {
+          state.openMark(markType.create(attrs(spec, tok, tokens, i)));
           state.addText(withoutTrailingNewline(tok.content));
           state.closeMark(markType);
         };
       } else {
-        handlers[type + "_open"] = function (state, tok) { return state.openMark(markType.create(attrs(spec, tok))); };
+        handlers[type + "_open"] = function (state, tok, tokens, i) { return state.openMark(markType.create(attrs(spec, tok, tokens, i))); };
         handlers[type + "_close"] = function (state) { return state.closeMark(markType); };
       }
     } else if (spec.ignore) {
@@ -27118,6 +27127,12 @@ MarkdownParser.prototype.parse = function parse (text) {
   return doc
 };
 
+function listIsTight(tokens, i) {
+  while (++i < tokens.length)
+    { if (tokens[i].type != "list_item_open") { return tokens[i].hidden } }
+  return false
+}
+
 // :: MarkdownParser
 // A parser parsing unextended [CommonMark](http://commonmark.org/),
 // without inline HTML, and producing a document in the basic schema.
@@ -27125,8 +27140,11 @@ var defaultMarkdownParser = new MarkdownParser(schema, markdownIt("commonmark", 
   blockquote: {block: "blockquote"},
   paragraph: {block: "paragraph"},
   list_item: {block: "list_item"},
-  bullet_list: {block: "bullet_list"},
-  ordered_list: {block: "ordered_list", getAttrs: function (tok) { return ({order: +tok.attrGet("start") || 1}); }},
+  bullet_list: {block: "bullet_list", getAttrs: function (_, tokens, i) { return ({tight: listIsTight(tokens, i)}); }},
+  ordered_list: {block: "ordered_list", getAttrs: function (tok, tokens, i) { return ({
+    order: +tok.attrGet("start") || 1,
+    tight: listIsTight(tokens, i)
+  }); }},
   heading: {block: "heading", getAttrs: function (tok) { return ({level: +tok.tag.slice(1)}); }},
   code_block: {block: "code_block", noCloseToken: true},
   fence: {block: "code_block", getAttrs: function (tok) { return ({params: tok.info || ""}); }, noCloseToken: true},
@@ -27350,6 +27368,7 @@ MarkdownSerializerState.prototype.text = function text (text$1, escape) {
 // Render the given node as a block.
 MarkdownSerializerState.prototype.render = function render (node, parent, index) {
   if (typeof parent == "number") { throw new Error("!") }
+  if (!this.nodes[node.type.name]) { throw new Error("Token type `" + node.type.name + "` not supported by Markdown renderer") }
   this.nodes[node.type.name](this, node, parent, index);
 };
 
@@ -27484,10 +27503,10 @@ MarkdownSerializerState.prototype.renderList = function renderList (node, delim,
 // :: (string, ?bool) → string
 // Escape the given string so that it can safely appear in Markdown
 // content. If `startOfLine` is true, also escape characters that
-// has special meaning only at the start of the line.
+// have special meaning only at the start of the line.
 MarkdownSerializerState.prototype.esc = function esc (str, startOfLine) {
   str = str.replace(/[`*\\~\[\]]/g, "\\$&");
-  if (startOfLine) { str = str.replace(/^[:#\-*+]/, "\\$&").replace(/^(\d+)\./, "$1\\."); }
+  if (startOfLine) { str = str.replace(/^[:#\-*+]/, "\\$&").replace(/^(\s*\d+)\./, "$1\\."); }
   return str
 };
 

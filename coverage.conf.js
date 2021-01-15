@@ -30,9 +30,9 @@ module.exports = (config) => {
         // Increase timeout especially for phantomJS
         browserDisconnectTimeout: 10000,
 
-        // frameworks to use
+        // frameworks to use (do not include sinon-chai)
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha', 'sinon-chai', 'webpack'],
+        frameworks: ['mocha', 'webpack'],
 
         // https://github.com/vlkosinov/karma-chai-as-promised/issues/5#issuecomment-296440839
         // plugins: [],

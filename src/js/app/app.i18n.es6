@@ -177,7 +177,7 @@ if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
     // In Kidoju-WebApp
     $(() => {
         // Load i18n locale
-        __.load(__.locale).done(() => {
+        __.load(__.locale).then(() => {
             // trigger event for localization
             $(document).trigger(CONSTANTS.LOADED);
         });
@@ -196,13 +196,13 @@ if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
                 if (config.locales.indexOf(locale) === -1) {
                     locale = DEFAULT;
                 }
-                __.load(locale).done(() => {
+                __.load(locale).then(() => {
                     // trigger event for localization
                     $(document).trigger(CONSTANTS.LOADED);
                 });
             } else {
                 // Without window.navigator.language
-                __.load(__.locale || DEFAULT).done(() => {
+                __.load(__.locale || DEFAULT).then(() => {
                     // trigger event for localization
                     $(document).trigger(CONSTANTS.LOADED);
                 });

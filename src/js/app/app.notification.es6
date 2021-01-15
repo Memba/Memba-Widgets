@@ -40,7 +40,7 @@ const options = isMobileApp()
             bottom: null,
             left: 0,
             right: null,
-            top: window.orientation % 180 === 0 ? 48 : 42, // Below navbar
+            top: window.orientation % 180 === 0 ? 47 : 41, // Below navbar
         },
         // stacking
         stacking: 'down',

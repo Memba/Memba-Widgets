@@ -203,6 +203,13 @@ describe('data.stream', () => {
         });
         */
 
+        describe('fetch', () => {
+            xit('TODO', (done) => {
+                expect(true).to.be.false;
+                done();
+            });
+        });
+
         describe('assets', () => {
             it('It should list assets', (done) => {
                 loadStream()
@@ -222,7 +229,14 @@ describe('data.stream', () => {
             });
         });
 
-        describe('preload', () => {
+        describe('preloadAssets', () => {
+            xit('TODO', (done) => {
+                expect(true).to.be.false;
+                done();
+            });
+        });
+
+        describe('initTools', () => {
             xit('TODO', (done) => {
                 expect(true).to.be.false;
                 done();

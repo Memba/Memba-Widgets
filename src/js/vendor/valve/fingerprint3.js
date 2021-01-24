@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.0.3 - Copyright (c) FingerprintJS, Inc, 2020 (https://fingerprintjs.com)
+ * FingerprintJS v3.0.5 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -305,17 +305,28 @@ var FingerprintJS = (function (exports) {
         }
     }
 
-    var version = "3.0.3";
+    var version = "3.0.5";
 
-    function requestIdleCallbackIfAvailable(fallbackTimeout) {
+    var w = window;
+    function requestIdleCallbackIfAvailable(fallbackTimeout, deadlineTimeout) {
+        if (deadlineTimeout === void 0) { deadlineTimeout = Infinity; }
         return new Promise(function (resolve) {
-            if (window.requestIdleCallback) {
-                window.requestIdleCallback(function () { return resolve(); });
+            if (w.requestIdleCallback) {
+                w.requestIdleCallback(function () { return resolve(); }, { timeout: deadlineTimeout });
             }
             else {
-                setTimeout(resolve, fallbackTimeout);
+                setTimeout(resolve, Math.min(fallbackTimeout, deadlineTimeout));
             }
         });
+    }
+
+    /**
+     * Converts an error object to a plain object that can be used with `JSON.stringify`.
+     * If you just run `JSON.stringify(error)`, you'll get `'{}'`.
+     */
+    function errorToObject(error) {
+        var _a;
+        return __assign({ name: error.name, message: error.message, stack: (_a = error.stack) === null || _a === void 0 ? void 0 : _a.split('\n') }, error);
     }
 
     /*
@@ -342,28 +353,25 @@ var FingerprintJS = (function (exports) {
      * Be careful, NaN can return
      */
     function toInt(value) {
-        if (typeof value === 'number') {
-            return value | 0;
-        }
         return parseInt(value);
     }
     /**
      * Be careful, NaN can return
      */
     function toFloat(value) {
-        if (typeof value === 'number') {
-            return value;
-        }
         return parseFloat(value);
+    }
+    function replaceNaN(value, replacement) {
+        return typeof value === 'number' && isNaN(value) ? replacement : value;
     }
     function countTruthy(values) {
         return values.reduce(function (sum, value) { return sum + (value ? 1 : 0); }, 0);
     }
 
     /*
-     * Functions to help with browser features
+     * Functions to help with features that vary through browsers
      */
-    var w = window;
+    var w$1 = window;
     var n = navigator;
     var d = document;
     /**
@@ -375,9 +383,9 @@ var FingerprintJS = (function (exports) {
     function isTrident() {
         // The properties are checked to be in IE 10, IE 11 and not to be in other browsers in October 2020
         return (countTruthy([
-            'MSCSSMatrix' in w,
-            'msSetImmediate' in w,
-            'msIndexedDB' in w,
+            'MSCSSMatrix' in w$1,
+            'msSetImmediate' in w$1,
+            'msIndexedDB' in w$1,
             'msMaxTouchPoints' in n,
             'msPointerEnabled' in n,
         ]) >= 4);
@@ -390,7 +398,7 @@ var FingerprintJS = (function (exports) {
      */
     function isEdgeHTML() {
         // Based on research in October 2020
-        return (countTruthy(['msWriteProfilerMark' in w, 'MSStream' in w, 'msLaunchUri' in n, 'msSaveBlob' in n]) >= 3 &&
+        return (countTruthy(['msWriteProfilerMark' in w$1, 'MSStream' in w$1, 'msLaunchUri' in n, 'msSaveBlob' in n]) >= 3 &&
             !isTrident());
     }
     /**
@@ -405,10 +413,10 @@ var FingerprintJS = (function (exports) {
             'webkitPersistentStorage' in n,
             'webkitTemporaryStorage' in n,
             n.vendor.indexOf('Google') === 0,
-            'webkitResolveLocalFileSystemURL' in w,
-            'BatteryManager' in w,
-            'webkitMediaStream' in w,
-            'webkitSpeechGrammar' in w,
+            'webkitResolveLocalFileSystemURL' in w$1,
+            'BatteryManager' in w$1,
+            'webkitMediaStream' in w$1,
+            'webkitSpeechGrammar' in w$1,
         ]) >= 5);
     }
     /**
@@ -421,12 +429,12 @@ var FingerprintJS = (function (exports) {
     function isWebKit() {
         // Based on research in September 2020
         return (countTruthy([
-            'ApplePayError' in w,
-            'CSSPrimitiveValue' in w,
-            'Counter' in w,
+            'ApplePayError' in w$1,
+            'CSSPrimitiveValue' in w$1,
+            'Counter' in w$1,
             n.vendor.indexOf('Apple') === 0,
             'getStorageUpdates' in n,
-            'WebKitMediaKeys' in w,
+            'WebKitMediaKeys' in w$1,
         ]) >= 4);
     }
     /**
@@ -437,9 +445,9 @@ var FingerprintJS = (function (exports) {
      */
     function isDesktopSafari() {
         return (countTruthy([
-            'safari' in w,
-            !('DeviceMotionEvent' in w),
-            !('ongestureend' in w),
+            'safari' in w$1,
+            !('DeviceMotionEvent' in w$1),
+            !('ongestureend' in w$1),
             !('standalone' in n),
         ]) >= 3);
     }
@@ -455,10 +463,10 @@ var FingerprintJS = (function (exports) {
         return (countTruthy([
             'buildID' in n,
             ((_a = d.documentElement) === null || _a === void 0 ? void 0 : _a.style) && 'MozAppearance' in d.documentElement.style,
-            'MediaRecorderErrorEvent' in w,
-            'mozInnerScreenX' in w,
-            'CSSMozDocumentRule' in w,
-            'CanvasCaptureMediaStream' in w,
+            'MediaRecorderErrorEvent' in w$1,
+            'mozInnerScreenX' in w$1,
+            'CSSMozDocumentRule' in w$1,
+            'CanvasCaptureMediaStream' in w$1,
         ]) >= 4);
     }
     /**
@@ -468,10 +476,10 @@ var FingerprintJS = (function (exports) {
     function isChromium86OrNewer() {
         // Checked in Chrome 85 vs Chrome 86 both on desktop and Android
         return (countTruthy([
-            !('MediaSettingsRange' in w),
-            'RTCEncodedAudioFrame' in w,
-            '' + w.Intl === '[object Intl]',
-            '' + w.Reflect === '[object Reflect]',
+            !('MediaSettingsRange' in w$1),
+            'RTCEncodedAudioFrame' in w$1,
+            '' + w$1.Intl === '[object Intl]',
+            '' + w$1.Reflect === '[object Reflect]',
         ]) >= 3);
     }
     /**
@@ -483,14 +491,14 @@ var FingerprintJS = (function (exports) {
     function isWebKit606OrNewer() {
         // Checked in Safari 9–14
         return (countTruthy([
-            'DOMRectList' in w,
-            'RTCPeerConnectionIceEvent' in w,
-            'SVGGeometryElement' in w,
-            'ontransitioncancel' in w,
+            'DOMRectList' in w$1,
+            'RTCPeerConnectionIceEvent' in w$1,
+            'SVGGeometryElement' in w$1,
+            'ontransitioncancel' in w$1,
         ]) >= 3);
     }
 
-    var w$1 = window;
+    var w$2 = window;
     var d$1 = document;
     // Inspired by and based on https://github.com/cozylife/audio-fingerprint
     function getAudioFingerprint() {
@@ -499,16 +507,16 @@ var FingerprintJS = (function (exports) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        AudioContext = w$2.OfflineAudioContext || w$2.webkitOfflineAudioContext;
+                        if (!AudioContext) {
+                            return [2 /*return*/, -2 /* NotSupported */];
+                        }
                         // In some browsers, audio context always stays suspended unless the context is started in response to a user action
                         // (e.g. a click or a tap). It prevents audio fingerprint from being taken at an arbitrary moment of time.
                         // Such browsers are old and unpopular, so the audio fingerprinting is just skipped in them.
                         // See a similar case explanation at https://stackoverflow.com/questions/46363048/onaudioprocess-not-called-on-ios11#46534088
                         if (doesCurrentBrowserSuspendAudioContext()) {
-                            return [2 /*return*/, -1];
-                        }
-                        AudioContext = w$1.OfflineAudioContext || w$1.webkitOfflineAudioContext;
-                        if (!AudioContext) {
-                            return [2 /*return*/, -2];
+                            return [2 /*return*/, -1 /* KnownToSuspend */];
                         }
                         context = new AudioContext(1, 44100, 44100);
                         oscillator = context.createOscillator();
@@ -534,7 +542,7 @@ var FingerprintJS = (function (exports) {
                     case 3:
                         error_1 = _a.sent();
                         if (error_1.name === "timeout" /* Timeout */ || error_1.name === "suspended" /* Suspended */) {
-                            return [2 /*return*/, -3];
+                            return [2 /*return*/, -3 /* Timeout */];
                         }
                         throw error_1;
                     case 4:
@@ -883,7 +891,7 @@ var FingerprintJS = (function (exports) {
     }
 
     var n$1 = navigator;
-    var w$2 = window;
+    var w$3 = window;
     /**
      * This is a crude and primitive touch screen detection. It's not possible to currently reliably detect the availability
      * of a touch screen with a JS, without actually subscribing to a touch event.
@@ -907,7 +915,7 @@ var FingerprintJS = (function (exports) {
         catch (_) {
             touchEvent = false;
         }
-        var touchStart = 'ontouchstart' in w$2;
+        var touchStart = 'ontouchstart' in w$3;
         return {
             maxTouchPoints: maxTouchPoints,
             touchEvent: touchEvent,
@@ -947,24 +955,25 @@ var FingerprintJS = (function (exports) {
     }
 
     function getDeviceMemory() {
-        return navigator.deviceMemory;
+        // `navigator.deviceMemory` is a string containing a number in some unidentified cases
+        return replaceNaN(toFloat(navigator.deviceMemory), undefined);
     }
 
-    var w$3 = window;
+    var w$4 = window;
     function getScreenResolution() {
         // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
         // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-        var dimensions = [toInt(w$3.screen.width), toInt(w$3.screen.height)];
+        var dimensions = [toInt(w$4.screen.width), toInt(w$4.screen.height)];
         dimensions.sort().reverse();
         return dimensions;
     }
 
-    var w$4 = window;
+    var w$5 = window;
     function getAvailableScreenResolution() {
-        if (w$4.screen.availWidth && w$4.screen.availHeight) {
+        if (w$5.screen.availWidth && w$5.screen.availHeight) {
             // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
             // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-            var dimensions = [toInt(w$4.screen.availWidth), toInt(w$4.screen.availHeight)];
+            var dimensions = [toInt(w$5.screen.availWidth), toInt(w$5.screen.availHeight)];
             dimensions.sort().reverse();
             return dimensions;
         }
@@ -993,11 +1002,11 @@ var FingerprintJS = (function (exports) {
         toFloat(new Date(currentYear, 0, 1).getTimezoneOffset()), toFloat(new Date(currentYear, 6, 1).getTimezoneOffset()));
     }
 
-    var w$5 = window;
+    var w$6 = window;
     function getTimezone() {
         var _a;
-        if ((_a = w$5.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat) {
-            return new w$5.Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if ((_a = w$6.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat) {
+            return new w$6.Intl.DateTimeFormat().resolvedOptions().timeZone;
         }
         return undefined;
     }
@@ -1046,6 +1055,10 @@ var FingerprintJS = (function (exports) {
         return navigator.cpuClass;
     }
 
+    /**
+     * It should be improved to handle mock value on iOS:
+     * https://github.com/fingerprintjs/fingerprintjs/issues/514#issuecomment-727782842
+     */
     function getPlatform() {
         return navigator.platform;
     }
@@ -1103,10 +1116,10 @@ var FingerprintJS = (function (exports) {
         // or in sandboxed iframes (depending on flags/context)
         try {
             // Create cookie
-            d$3.cookie = 'cookietest=1';
+            d$3.cookie = 'cookietest=1; SameSite=Strict;';
             var result = d$3.cookie.indexOf('cookietest=') !== -1;
             // Delete cookie
-            d$3.cookie = 'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+            d$3.cookie = 'cookietest=1; SameSite=Strict; expires=Thu, 01-Jan-1970 00:00:01 GMT';
             return result;
         }
         catch (e) {
@@ -1136,7 +1149,6 @@ var FingerprintJS = (function (exports) {
         indexedDB: getIndexedDB,
         openDatabase: getOpenDatabase,
         cpuClass: getCpuClass,
-        // Maybe it should be excluded: https://github.com/fingerprintjs/fingerprintjs/issues/514#issuecomment-688754892
         platform: getPlatform,
         plugins: getPlugins,
         canvas: getCanvasFingerprint,
@@ -1220,9 +1232,8 @@ var FingerprintJS = (function (exports) {
     }
     function componentsToDebugString(components) {
         return JSON.stringify(components, function (_key, value) {
-            var _a;
             if (value instanceof Error) {
-                return __assign(__assign({}, value), { message: value.message, stack: (_a = value.stack) === null || _a === void 0 ? void 0 : _a.split('\n') });
+                return errorToObject(value);
             }
             return value;
         }, 2);
@@ -1294,11 +1305,15 @@ var FingerprintJS = (function (exports) {
                     // A delay is required to ensure consistent entropy components.
                     // See https://github.com/fingerprintjs/fingerprintjs/issues/254
                     // and https://github.com/fingerprintjs/fingerprintjs/issues/307
-                    return [4 /*yield*/, requestIdleCallbackIfAvailable(delayFallback)];
+                    // and https://github.com/fingerprintjs/fingerprintjs/commit/945633e7c5f67ae38eb0fea37349712f0e669b18
+                    // A proper deadline is unknown. Let it be twice the fallback timeout so that both cases have the same average time.
+                    return [4 /*yield*/, requestIdleCallbackIfAvailable(delayFallback, delayFallback * 2)];
                     case 1:
                         // A delay is required to ensure consistent entropy components.
                         // See https://github.com/fingerprintjs/fingerprintjs/issues/254
                         // and https://github.com/fingerprintjs/fingerprintjs/issues/307
+                        // and https://github.com/fingerprintjs/fingerprintjs/commit/945633e7c5f67ae38eb0fea37349712f0e669b18
+                        // A proper deadline is unknown. Let it be twice the fallback timeout so that both cases have the same average time.
                         _c.sent();
                         return [2 /*return*/, new OpenAgent()];
                 }

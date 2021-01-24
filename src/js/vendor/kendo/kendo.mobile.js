@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.3.1118'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.1.119'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1334,7 +1334,7 @@
             };
         }
         function wrap(element, autosize) {
-            var browser = support.browser, percentage, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, parent = element.parent(), windowOuterWidth = outerWidth(window);
+            var percentage, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, parent = element.parent(), windowOuterWidth = outerWidth(window);
             parent.removeClass('k-animation-container-sm');
             if (!parent.hasClass('k-animation-container')) {
                 var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height), forceWidth = element.hasClass('k-tooltip') || element.is('.k-menu-horizontal.k-context-menu');
@@ -1365,10 +1365,6 @@
             if (windowOuterWidth < outerWidth(parent)) {
                 parent.addClass('k-animation-container-sm');
                 wrapResize(element, autosize);
-            }
-            if (browser.msie && math.floor(browser.version) <= 7) {
-                element.css({ zoom: 1 });
-                element.children('.k-menu').width(element.width());
             }
             return parent;
         }
@@ -1707,7 +1703,6 @@
                     return 1;
                 }
             };
-            support.cssBorderSpacing = typeof docStyle.borderSpacing != 'undefined' && !(support.browser.msie && support.browser.version < 8);
             (function (browser) {
                 var cssClass = '', docElement = $(document.documentElement), majorVersion = parseInt(browser.version, 10);
                 if (browser.msie) {
@@ -1792,8 +1787,7 @@
             };
             support.matchMedia = 'matchMedia' in window;
             support.pushState = window.history && window.history.pushState;
-            var documentMode = document.documentMode;
-            support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
+            support.hashChange = 'onhashchange' in window;
             support.customElements = 'registerElement' in window.document;
             var chrome = support.browser.chrome, mobileChrome = support.browser.crios, mozilla = support.browser.mozilla, safari = support.browser.safari;
             support.msPointers = !chrome && window.MSPointerEvent;
@@ -2144,8 +2138,9 @@
                 };
             },
             guid: function () {
-                var id = '', i, random;
-                for (i = 0; i < 32; i++) {
+                var id = '', i, random, chars = 'abcdefghijklmnopqrstuvwxyz';
+                id += chars[Math.floor(Math.random() * Math.floor(chars.length))];
+                for (i = 1; i < 32; i++) {
                     random = math.random() * 16 | 0;
                     if (i == 8 || i == 12 || i == 16 || i == 20) {
                         id += '-';
@@ -3709,6 +3704,103 @@
         kendo.selectorFromClasses = function (classes) {
             return '.' + classes.split(' ').join('.');
         };
+        var themeColorValues = [
+            'primary',
+            'secondary',
+            'tertiary',
+            'inherit',
+            'info',
+            'success',
+            'warning',
+            'error',
+            'dark',
+            'light',
+            'inverse'
+        ];
+        var fillValues = [
+            'solid',
+            'outline',
+            'flat'
+        ];
+        var postitionValues = [
+            'edge',
+            'outside',
+            'inside'
+        ];
+        var shapeValues = [
+            'circle',
+            'rectangle',
+            'rounded',
+            'dot',
+            'pill'
+        ];
+        var sizeValues = [
+            [
+                'small',
+                'sm'
+            ],
+            [
+                'medium',
+                'md'
+            ],
+            [
+                'large',
+                'lg'
+            ]
+        ];
+        var alignValues = [
+            [
+                'top start',
+                'top-start'
+            ],
+            [
+                'top end',
+                'top-end'
+            ],
+            [
+                'bottom start',
+                'bottom-start'
+            ],
+            [
+                'bottom end',
+                'bottom-end'
+            ]
+        ];
+        var positionModeValues = [
+            'fixed',
+            'static',
+            'sticky',
+            'absolute'
+        ];
+        kendo.propertyToCssClassMap = {};
+        kendo.registerCssClass = function (propName, value, shorthand) {
+            if (!kendo.propertyToCssClassMap[propName]) {
+                kendo.propertyToCssClassMap[propName] = {};
+            }
+            kendo.propertyToCssClassMap[propName][value] = shorthand || value;
+        };
+        kendo.registerCssClasses = function (propName, arr) {
+            for (var i = 0; i < arr.length; i++) {
+                if (isArray(arr[i])) {
+                    kendo.registerCssClass(propName, arr[i][0], arr[i][1]);
+                } else {
+                    kendo.registerCssClass(propName, arr[i]);
+                }
+            }
+        };
+        kendo.getValidCssClass = function (prefix, propName, value) {
+            var validValue = kendo.propertyToCssClassMap[propName][value];
+            if (validValue) {
+                return prefix + validValue;
+            }
+        };
+        kendo.registerCssClasses('themeColor', themeColorValues);
+        kendo.registerCssClasses('fill', fillValues);
+        kendo.registerCssClasses('postition', postitionValues);
+        kendo.registerCssClasses('shape', shapeValues);
+        kendo.registerCssClasses('size', sizeValues);
+        kendo.registerCssClasses('align', alignValues);
+        kendo.registerCssClasses('positionMode', positionModeValues);
         kendo.whenAll = function (array) {
             var resolveValues = arguments.length == 1 && $.isArray(array) ? array : Array.prototype.slice.call(arguments), length = resolveValues.length, remaining = length, deferred = $.Deferred(), i = 0, failed = 0, rejectContexts = Array(length), rejectValues = Array(length), resolveContexts = Array(length), value;
             function updateFunc(index, contexts, values) {
@@ -5421,7 +5513,7 @@
                             result.$count = true;
                             delete result.$inlinecount;
                         }
-                        if (result.$filter) {
+                        if (result && result.$filter) {
                             result.$filter = result.$filter.replace(/('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')/gi, function (x) {
                                 return x.substring(1, x.length - 1);
                             });
@@ -5788,11 +5880,13 @@
                     howMany
                 ].concat(items));
                 if (result.length) {
-                    this.trigger(CHANGE, {
-                        action: 'remove',
-                        index: index,
-                        items: result
-                    });
+                    if (!this.omitChangeEvent) {
+                        this.trigger(CHANGE, {
+                            action: 'remove',
+                            index: index,
+                            items: result
+                        });
+                    }
                     for (i = 0, len = result.length; i < len; i++) {
                         if (result[i] && result[i].children) {
                             result[i].unbind(CHANGE);
@@ -5800,11 +5894,13 @@
                     }
                 }
                 if (item) {
-                    this.trigger(CHANGE, {
-                        action: 'add',
-                        index: index,
-                        items: items
-                    });
+                    if (!this.omitChangeEvent) {
+                        this.trigger(CHANGE, {
+                            action: 'add',
+                            index: index,
+                            items: items
+                        });
+                    }
                 }
                 return result;
             },
@@ -7115,13 +7211,13 @@
                 }
             }
             if (customGroupSort) {
-                query = query.group(group, data);
+                query = query.group(group, data, options);
                 if (skip !== undefined && take !== undefined) {
                     query = new Query(flatGroups(query.toArray())).range(skip, take);
                     groupDescriptorsWithoutSort = map(groupDescriptorsWithoutCompare, function (groupDescriptor) {
                         return extend({}, groupDescriptor, { skipItemSorting: true });
                     });
-                    query = query.group(groupDescriptorsWithoutSort, data);
+                    query = query.group(groupDescriptorsWithoutSort, data, options);
                 }
             } else {
                 if (skip !== undefined && take !== undefined) {
@@ -8881,7 +8977,6 @@
                 var group;
                 var current;
                 var itemsLength;
-                var hasNotRequestedItems;
                 var groupCount;
                 var itemsToSkip;
                 for (var i = 0; i < length; i++) {
@@ -8894,22 +8989,15 @@
                     }
                     if (that._groupsState[group.uid]) {
                         if (that._isServerGroupPaged()) {
-                            if (group.hasSubgroups && !group.subgroupCount) {
-                                that.getGroupSubGroupCount(group, options, parents, callback);
+                            if (that._fetchGroupItems(group, options, parents, callback)) {
                                 that._fetchingGroupItems = true;
                                 return;
                             }
                             groupCount = (group.subgroupCount || group.itemCount) + 1;
                             itemsToSkip = options.skip - options.skipped;
-                            hasNotRequestedItems = !group.items || group.items.length - itemsToSkip < options.take - options.taken;
                             if (!that._hasExpandedSubGroups(group) && itemsToSkip > groupCount) {
                                 options.skipped += groupCount;
                                 continue;
-                            }
-                            if (group.hasSubgroups && (!group.items || hasNotRequestedItems && group.items.length < group.subgroupCount) || !group.hasSubgroups && (!group.items || hasNotRequestedItems && group.items.length < group.itemCount)) {
-                                that.getGroupItems(group, options, parents, callback);
-                                that._fetchingGroupItems = true;
-                                return;
                             }
                         }
                         if (options.includeParents && options.skipped < options.skip) {
@@ -8917,6 +9005,7 @@
                             group.excludeHeader = true;
                         } else if (options.includeParents) {
                             options.taken++;
+                            group.excludeHeader = false;
                         }
                         if (group.hasSubgroups && group.items && group.items.length) {
                             group.currentItems = [];
@@ -8962,9 +9051,86 @@
                     }
                 }
             },
-            getGroupItems: function (group, options, parents, callback) {
+            _expandedSubGroupItemsCount: function (group, end, includeCurrentItems) {
                 var that = this;
-                var skip;
+                var result = 0;
+                var subGroup;
+                var endSpecified = typeof end === 'number';
+                var length = endSpecified ? end : group.subgroupCount;
+                var temp;
+                if (!group.hasSubgroups) {
+                    return result;
+                }
+                for (var i = 0; i < length; i++) {
+                    subGroup = group.items[i];
+                    if (!subGroup) {
+                        break;
+                    }
+                    if (subGroup.hasSubgroups && that._groupsState[group.uid]) {
+                        temp = that._expandedSubGroupItemsCount(subGroup, length, true);
+                        result += temp;
+                        if (endSpecified) {
+                            length -= temp;
+                        }
+                    } else if (!subGroup.hasSubgroups && that._groupsState[subGroup.uid]) {
+                        temp = subGroup.items ? subGroup.items.length : 0;
+                        result += temp;
+                        if (endSpecified) {
+                            length -= temp;
+                        }
+                    }
+                    if (includeCurrentItems) {
+                        result += 1;
+                        if (endSpecified) {
+                            length -= 1;
+                        }
+                    }
+                    if (endSpecified && result > length) {
+                        return result;
+                    }
+                }
+                return result;
+            },
+            _fetchGroupItems: function (group, options, parents, callback) {
+                var that = this;
+                var groupItemsSkip;
+                var firstItem;
+                var lastItem;
+                var groupItemCount = group.hasSubgroups ? group.subgroupCount : group.itemCount;
+                var take = options.take;
+                var skipped = options.skipped;
+                var pageSize = that.take();
+                var expandedSubGroupItemsCount;
+                if (options.includeParents) {
+                    if (skipped < options.skip) {
+                        skipped += 1;
+                    } else {
+                        take -= 1;
+                    }
+                }
+                if (!group.items || group.items && !group.items.length) {
+                    that.getGroupItems(group, options, parents, callback, 0);
+                    return true;
+                } else {
+                    expandedSubGroupItemsCount = this._expandedSubGroupItemsCount(group, options.skip - skipped);
+                    groupItemsSkip = Math.max(options.skip - (skipped + expandedSubGroupItemsCount), 0);
+                    if (groupItemsSkip >= groupItemCount) {
+                        return false;
+                    }
+                    firstItem = group.items[groupItemsSkip];
+                    lastItem = group.items[Math.min(groupItemsSkip + take, groupItemCount - 1)];
+                    if (firstItem.notFetched) {
+                        that.getGroupItems(group, options, parents, callback, math.max(math.floor(groupItemsSkip / pageSize), 0) * pageSize);
+                        return true;
+                    }
+                    if (lastItem.notFetched) {
+                        that.getGroupItems(group, options, parents, callback, math.max(math.floor((groupItemsSkip + pageSize) / pageSize), 0) * pageSize);
+                        return true;
+                    }
+                }
+            },
+            getGroupItems: function (group, options, parents, callback, groupItemsSkip) {
+                var that = this;
                 var take;
                 var filter;
                 var data;
@@ -8972,13 +9138,12 @@
                 if (!group.items) {
                     group.items = [];
                 }
-                skip = group.items.length;
                 take = that.take();
                 filter = this._composeItemsFilter(group, parents);
                 data = {
-                    page: math.floor((skip || 0) / (take || 1)) || 1,
+                    page: math.floor((groupItemsSkip || 0) / (take || 1)) || 1,
                     pageSize: take,
-                    skip: skip,
+                    skip: groupItemsSkip,
                     take: take,
                     filter: filter,
                     aggregate: that._aggregate,
@@ -8995,7 +9160,7 @@
                         if (!that.trigger(REQUESTSTART, { type: 'read' })) {
                             that.transport.read({
                                 data: data,
-                                success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback),
+                                success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback, groupItemsSkip),
                                 error: function () {
                                     var args = slice.call(arguments);
                                     that.error.apply(that, args);
@@ -9007,76 +9172,29 @@
                     });
                 }, 100);
             },
-            getGroupSubGroupCount: function (group, options, parents, callback) {
-                var that = this;
-                var filter;
-                var groupIndex;
-                var data;
-                if (!group.items) {
-                    group.items = [];
-                }
-                filter = this._composeItemsFilter(group, parents);
-                groupIndex = this._group.map(function (g) {
-                    return g.field;
-                }).indexOf(group.field);
-                data = {
-                    filter: filter,
-                    group: [that._group[groupIndex + 1]],
-                    groupPaging: true,
-                    includeSubGroupCount: true
-                };
-                clearTimeout(that._timeout);
-                that._timeout = setTimeout(function () {
-                    that._queueRequest(data, function () {
-                        if (!that.trigger(REQUESTSTART, { type: 'read' })) {
-                            that.transport.read({
-                                data: data,
-                                success: that._subGroupCountSuccessHandler(group, options.skip, that.take(), callback),
-                                error: function () {
-                                    var args = slice.call(arguments);
-                                    that.error.apply(that, args);
-                                }
-                            });
-                        } else {
-                            that._dequeueRequest();
-                        }
-                    });
-                }, 100);
-            },
-            _subGroupCountSuccessHandler: function (group, skip, take, callback) {
-                var that = this;
-                callback = isFunction(callback) ? callback : noop;
-                var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : 'Total';
-                return function (data) {
-                    that._dequeueRequest();
-                    that.trigger(REQUESTEND, {
-                        response: data,
-                        type: 'read'
-                    });
-                    that._fetchingGroupItems = false;
-                    if (isFunction(totalField)) {
-                        group.subgroupCount = totalField(data);
-                    } else {
-                        group.subgroupCount = data[totalField];
-                    }
-                    that.range(skip, take, callback, 'expandGroup');
-                };
-            },
-            _groupItemsSuccessHandler: function (group, skip, take, callback) {
+            _groupItemsSuccessHandler: function (group, skip, take, callback, groupItemsSkip) {
                 var that = this;
                 var timestamp = that._timeStamp();
                 callback = isFunction(callback) ? callback : noop;
+                var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : 'Total';
                 return function (data) {
                     var temp;
                     var model = Model.define(that.options.schema.model);
+                    var totalCount;
                     that._dequeueRequest();
                     that.trigger(REQUESTEND, {
                         response: data,
                         type: 'read'
                     });
+                    if (isFunction(totalField)) {
+                        totalCount = totalField(data);
+                    } else {
+                        totalCount = data[totalField];
+                    }
                     data = that.reader.parse(data);
                     if (group.hasSubgroups) {
                         temp = that.reader.groups(data);
+                        group.subgroupCount = totalCount;
                     } else {
                         temp = that.reader.data(data);
                         temp = temp.map(function (item) {
@@ -9084,13 +9202,22 @@
                         });
                     }
                     group.items.omitChangeEvent = true;
-                    for (var i = 0; i < temp.length; i++) {
-                        group.items.push(temp[i]);
+                    for (var i = 0; i < totalCount; i++) {
+                        if (i >= groupItemsSkip && i < groupItemsSkip + take) {
+                            group.items.splice(i, 1, temp[i - groupItemsSkip]);
+                        } else {
+                            if (!group.items[i]) {
+                                group.items.splice(i, 0, { notFetched: true });
+                            }
+                        }
                     }
                     group.items.omitChangeEvent = false;
                     that._updateRangePristineData(group);
                     that._fetchingGroupItems = false;
-                    that._serverGroupsTotal += temp.length;
+                    if (!group.countAdded) {
+                        that._serverGroupsTotal += totalCount;
+                        group.countAdded = true;
+                    }
                     that.range(skip, take, callback, 'expandGroup');
                     if (timestamp >= that._currentRequestTimeStamp || !that._skipRequestsInProgress) {
                         that.trigger(CHANGE, {});
@@ -9134,10 +9261,12 @@
                 var range;
                 var dataLength;
                 var indexes;
+                var currIdx;
                 for (var i = 0; i < rangesLength; i++) {
                     range = ranges[i];
                     dataLength = range.data.length;
                     indexes = [];
+                    temp = null;
                     for (var j = 0; j < dataLength; j++) {
                         currentGroup = range.data[j];
                         indexes.push(j);
@@ -9149,7 +9278,8 @@
                     if (indexes.length) {
                         temp = ranges[i].pristineData;
                         while (indexes.length > 1) {
-                            temp = temp[indexes.splice(0, 1)[0]].items;
+                            currIdx = indexes.splice(0, 1)[0];
+                            temp = temp[currIdx].items;
                         }
                         temp[indexes[0]] = that._cloneGroup(group);
                         break;
@@ -12451,8 +12581,8 @@
                 },
                 rules: {
                     required: function (input) {
-                        var checkbox = input.filter('[type=checkbox]').length && !input.is(':checked'), value = input.val();
-                        return !(hasAttribute(input, 'required') && (!value || value === '' || value.length === 0 || checkbox));
+                        var noNameCheckbox = !input.attr('name') && !input.is(':checked'), namedCheckbox = input.attr('name') && !this.element.find('input[name=\'' + input.attr('name') + '\']:checked').length, checkbox = input.filter('[type=checkbox]').length && (noNameCheckbox || namedCheckbox), radio = input.filter('[type=radio]').length && !this.element.find('input[name=\'' + input.attr('name') + '\']:checked').length, value = input.val();
+                        return !(hasAttribute(input, 'required') && (!value || value === '' || value.length === 0 || checkbox || radio));
                     },
                     pattern: function (input) {
                         if (input.filter('[type=text],[type=email],[type=url],[type=tel],[type=search],[type=password]').filter('[pattern]').length && input.val() !== '') {
@@ -12621,6 +12751,12 @@
                         var parentElement = input.parent().get(0);
                         var nextElement = input.next().get(0);
                         var prevElement = input.prev().get(0);
+                        if (!widgetInstance && input.is('[type=radio]')) {
+                            widgetInstance = kendo.widgetInstance(input.closest('.k-radio-list'));
+                        }
+                        if (!widgetInstance && input.is('[type=checkbox]')) {
+                            widgetInstance = kendo.widgetInstance(input.closest('.k-checkbox-list'));
+                        }
                         if (widgetInstance && widgetInstance.wrapper) {
                             messageLabel.insertAfter(widgetInstance.wrapper);
                         } else if (parentElement && parentElement.nodeName === 'LABEL') {
@@ -12747,7 +12883,9 @@
                 for (var idx = 0, length = inputs.length; idx < length; idx++) {
                     var input = $(inputs[idx]);
                     if (hasAttribute(input, NAME)) {
-                        sorted.push(input.attr(NAME));
+                        if (sorted.indexOf(input.attr(NAME)) === -1 || input.closest('.k-checkbox-list').length === 0 && input.closest('.k-radio-list').length === 0) {
+                            sorted.push(input.attr(NAME));
+                        }
                     }
                 }
                 return sorted;

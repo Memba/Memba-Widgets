@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -45,7 +45,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, placeholderSupported = kendo.support.placeholder, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, CHANGE = 'change', APPLY = 'apply', ERROR = 'error', CLICK = 'click', NS = '.kendoFileBrowser', SEARCHBOXNS = '.kendoSearchBox', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, placeholderSupported = kendo.support.placeholder, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, CHANGE = 'change', APPLY = 'apply', ERROR = 'error', CLICK = 'click', NS = '.kendoFileBrowser', SEARCHBOXNS = '.kendoSearchBox', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
                 field: TYPEFIELD,
                 dir: 'asc'
             }, EMPTYTILE = kendo.template('<div class="k-listview-item k-listview-item-empty"><span class="k-file-preview"><span class="k-file-icon k-icon k-i-none"></span></span><span class="k-file-name">${text}</span></div>'), TOOLBARTMPL = '<div class="k-widget k-filebrowser-toolbar k-toolbar k-floatwrap">' + '# if (showCreate) { #' + '<button type="button" class="k-button k-icon-button"><span class="k-icon k-i-folder-add"></span></button>' + '# } #' + '# if (showUpload) { # ' + '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' + '<span class="k-icon k-i-plus"></span>#=messages.uploadFile#<input type="file" name="file" /></div></div>' + '# } #' + '# if (showDelete) { #' + '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close"></span></button>' + '# } #' + '<div class="k-tiles-arrange">' + '<label>#=messages.orderBy#: <select></select></label>' + '</div>' + '<span class="k-toolbar-spacer" />' + '<input data-role="searchbox" />' + '</div>';
@@ -118,16 +118,6 @@
             }).on('dragover' + NS, function () {
                 lastDrag = new Date();
             });
-        }
-        var offsetTop;
-        if (browser.msie && browser.version < 8) {
-            offsetTop = function (element) {
-                return element.offsetTop;
-            };
-        } else {
-            offsetTop = function (element) {
-                return element.offsetTop - $(element).height();
-            };
         }
         function concatPaths(path, name) {
             if (path === undefined || !path.match(/\/$/)) {

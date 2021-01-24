@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -678,9 +678,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var COMMAND_TYPES = {
             AUTO_FILL: 'autoFill',
@@ -1452,12 +1449,6 @@
             _eventType: 'copy',
             undo: $.noop
         });
-        function copyToClipboard(html) {
-            var textarea = document.createElement('textarea');
-            $(textarea).addClass('k-spreadsheet-clipboard').val(html).appendTo(document.body).focus().select();
-            document.execCommand('copy');
-            $(textarea).remove();
-        }
         kendo.spreadsheet.ToolbarCopyCommand = Command.extend({
             init: function (options) {
                 Command.fn.init.call(this, options);
@@ -1466,9 +1457,7 @@
             undo: $.noop,
             exec: function () {
                 if (kendo.support.clipboard.copy) {
-                    var clipboard = this._workbook._view.clipboard;
-                    copyToClipboard(clipboard.html());
-                    clipboard.trigger('copy');
+                    document.execCommand('copy');
                 } else {
                     return {
                         reason: 'error',
@@ -1540,9 +1529,7 @@
             },
             exec: function () {
                 if (kendo.support.clipboard.copy) {
-                    var clipboard = this._workbook._view.clipboard;
-                    copyToClipboard(clipboard.html());
-                    clipboard.trigger('cut');
+                    document.execCommand('cut');
                 } else {
                     return {
                         reason: 'error',
@@ -1913,9 +1900,6 @@
     define('spreadsheet/formulabar', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var classNames = { wrapper: 'k-spreadsheet-formula-bar' };
         var FormulaBar = kendo.ui.Widget.extend({
@@ -1942,9 +1926,6 @@
     define('spreadsheet/formulainput', ['kendo.core'], f);
 }(function () {
     (function (kendo, window) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var Widget = kendo.ui.Widget;
         var ns = '.kendoFormulaInput';
@@ -2633,9 +2614,6 @@
     define('spreadsheet/eventlistener', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var KEY_NAMES = {
             8: 'backspace',
@@ -2781,9 +2759,6 @@
     define('spreadsheet/rangelist', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var RangeTreeNode = kendo.Class.extend({
             init: function Node(level, value, left, right) {
                 this.level = level;
@@ -3198,9 +3173,6 @@
     define('spreadsheet/propertybag', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var Property = kendo.Class.extend({
             init: function (list) {
                 this.list = list;
@@ -3597,9 +3569,6 @@
     define('spreadsheet/references', ['kendo.core'], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var spreadsheet = kendo.spreadsheet;
     var Class = kendo.Class;
     function columnName(colIndex) {
@@ -4410,9 +4379,6 @@
     define('spreadsheet/autofillcalculator', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var RangeRef = kendo.spreadsheet.RangeRef;
         var CellRef = kendo.spreadsheet.CellRef;
         var AutoFillCalculator = kendo.Class.extend({
@@ -4489,9 +4455,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var RangeRef = kendo.spreadsheet.RangeRef;
         var CellRef = kendo.spreadsheet.CellRef;
         var EdgeNavigator = kendo.Class.extend({
@@ -5066,9 +5029,6 @@
     define('spreadsheet/axismanager', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var AxisManager = kendo.Class.extend({
             init: function (sheet) {
                 this._sheet = sheet;
@@ -5337,9 +5297,6 @@
     define('spreadsheet/clipboard', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var CellRef = kendo.spreadsheet.CellRef;
         var Clipboard = kendo.Class.extend({
@@ -5630,9 +5587,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var UnionRef = kendo.spreadsheet.UnionRef;
         var CellRef = kendo.spreadsheet.CellRef;
@@ -6455,9 +6409,6 @@
     define('spreadsheet/runtime', ['spreadsheet/references'], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var calc = {};
     var spreadsheet = kendo.spreadsheet;
     spreadsheet.calc = calc;
@@ -8013,9 +7964,6 @@
 }(function () {
     'use strict';
     var $ = kendo.jQuery;
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var spreadsheet = kendo.spreadsheet;
     var exports = {};
     spreadsheet.validation = exports;
@@ -8368,9 +8316,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var RangeRef = kendo.spreadsheet.RangeRef;
         var UnionRef = kendo.spreadsheet.UnionRef;
         var CellRef = kendo.spreadsheet.CellRef;
@@ -9961,9 +9906,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var outerWidth = kendo._outerWidth;
         var DOT = '.';
@@ -10349,9 +10291,6 @@
     define('spreadsheet/calc', ['spreadsheet/runtime'], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var util = kendo.util;
     var spreadsheet = kendo.spreadsheet;
     var Ref = spreadsheet.Ref;
@@ -11798,9 +11737,6 @@
     ], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var $ = kendo.jQuery;
     var parseXML = kendo.util.parseXML;
     var parseReference = kendo.spreadsheet.calc.parseReference;
@@ -13069,9 +13005,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var Formula = kendo.spreadsheet.calc.runtime.Formula;
         var Ref = kendo.spreadsheet.Ref;
@@ -13854,9 +13787,6 @@
 (function (f, define) {
     define('spreadsheet/formulacontext', ['kendo.core'], f);
 }(function () {
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var spreadsheet = kendo.spreadsheet;
     var CellRef = spreadsheet.CellRef;
     var RangeRef = spreadsheet.RangeRef;
@@ -14044,9 +13974,6 @@
 }(function () {
     (function (kendo) {
         'use strict';
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var alphaNumRegExp = /:alphanum$/;
         var ACTIONS = {
@@ -14750,20 +14677,16 @@
                 this.onEditorUpdate();
             },
             onCut: function (e) {
-                if (e) {
-                    var table = this.clipboardElement.find('table.kendo-clipboard-' + this.clipboard._uid).detach();
-                    this.clipboardElement.append(table.clone(false));
-                    setTimeout(function () {
-                        this.clipboardElement.empty().append(table);
-                    }.bind(this));
-                }
-                this.clipboard.menuInvoked = e === undefined;
-                this._execute({
-                    command: 'CutCommand',
-                    options: {
-                        workbook: this.view._workbook,
-                        event: e.originalEvent || e
-                    }
+                var self = this;
+                setTimeout(function () {
+                    self.clipboard.menuInvoked = e === undefined;
+                    self._execute({
+                        command: 'CutCommand',
+                        options: {
+                            workbook: self.view._workbook,
+                            event: e.originalEvent || e
+                        }
+                    });
                 });
             },
             clipBoardValue: function () {
@@ -15185,9 +15108,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var CellRef = kendo.spreadsheet.CellRef;
         var DOT = '.';
@@ -16772,9 +16692,6 @@
 }(function () {
     (function (kendo) {
         'use strict';
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var EDITORS = {};
         var registerEditor = kendo.spreadsheet.registerEditor = function (name, editor) {
@@ -16952,9 +16869,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var CellRef = kendo.spreadsheet.CellRef;
         var RangeRef = kendo.spreadsheet.RangeRef;
         var UnionRef = kendo.spreadsheet.UnionRef;
@@ -17173,9 +17087,6 @@
     define('spreadsheet/axis', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var Axis = kendo.Class.extend({
             init: function (count, value) {
                 this._value = value;
@@ -17520,9 +17431,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var Filter = kendo.spreadsheet.Filter = kendo.Class.extend({
             prepare: function () {
             },
@@ -17883,9 +17791,6 @@
     define('spreadsheet/sorter', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var Sorter = kendo.Class.extend({
             init: function (grid, lists) {
                 this._grid = grid;
@@ -17987,9 +17892,6 @@
     ], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var util = kendo.util;
     var calc = kendo.spreadsheet.calc;
     var dom = kendo.dom;
@@ -18860,9 +18762,6 @@
     ], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var util = kendo.util;
     var spreadsheet = kendo.spreadsheet;
     var calc = spreadsheet.calc;
@@ -22620,9 +22519,6 @@
     define('spreadsheet/runtime.functions.2', ['spreadsheet/runtime'], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var spreadsheet = kendo.spreadsheet;
     var calc = spreadsheet.calc;
     var runtime = calc.runtime;
@@ -26022,9 +25918,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var BORDER_TYPES = [
             'allBorders',
@@ -26290,9 +26183,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var ToolBar = kendo.ui.ToolBar;
         var MESSAGES = kendo.spreadsheet.messages.toolbar = {
@@ -27686,9 +27576,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var ObservableObject = kendo.data.ObservableObject;
         var MESSAGES = kendo.spreadsheet.messages.dialogs = {
@@ -28966,6 +28853,7 @@
                         forceProxy: options.pdfExport.forceProxy,
                         title: options.pdfExport.title,
                         author: options.pdfExport.author,
+                        autoPrint: options.pdfExport.autoPrint,
                         subject: options.pdfExport.subject,
                         keywords: options.pdfExport.keywords,
                         creator: options.pdfExport.creator,
@@ -29327,9 +29215,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var identity = function (o) {
             return o;
         };
@@ -29487,9 +29372,6 @@
     ], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var Widget = kendo.ui.Widget;
         var classNames = {
@@ -30096,9 +29978,6 @@
     define('spreadsheet/editor', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var SheetEditor = kendo.Observable.extend({
             init: function (view) {
                 kendo.Observable.fn.init.call(this);
@@ -30249,9 +30128,6 @@
     ], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var spreadsheet = kendo.spreadsheet;
     var Range = spreadsheet.Range;
     var runtime = spreadsheet.calc.runtime;
@@ -30555,9 +30431,6 @@
     define('spreadsheet/nameeditor', ['kendo.core'], f);
 }(function () {
     (function (kendo) {
-        if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-            return;
-        }
         var $ = kendo.jQuery;
         var CLASS_NAMES = {
             input: 'k-spreadsheet-name-editor',
@@ -30655,9 +30528,6 @@
     ], f);
 }(function () {
     'use strict';
-    if (kendo.support.browser.msie && kendo.support.browser.version < 9) {
-        return;
-    }
     var spreadsheet = kendo.spreadsheet;
     var CellRef = spreadsheet.CellRef;
     var kdrw = kendo.drawing;
@@ -31196,7 +31066,8 @@
             multiPage: true,
             paperSize: paper.paperSize,
             subject: options.subject,
-            title: options.title
+            title: options.title,
+            autoPrint: options.autoPrint
         });
         var pageWidth = paper.paperSize[0];
         var pageHeight = paper.paperSize[1];

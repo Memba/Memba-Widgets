@@ -154,6 +154,13 @@ table.k-editor {
         font-size: 0;
         line-height: 0;
     }
+
+    .k-editor-export {
+        .k-icon {
+            margin-right: .25em;
+            margin-top: -.25em;
+        }
+    }
 }
 
 
@@ -414,7 +421,7 @@ table.k-editor {
     .k-editor-textarea {
         margin: 1em;
         padding: @input-padding-y @input-padding-y;
-        // width: 100%;
+        width: calc(100% - 2em); // exclude margin
         height: 100%;
         border-width: 1px;
         border-style: solid;

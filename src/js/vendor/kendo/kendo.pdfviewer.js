@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1835,7 +1835,7 @@
                 scale = that._calculateZoom();
                 var updateViewer = function () {
                     var scroller = that.viewer._scroller, scrollingStarted = viewer._scrollingStarted;
-                    if (scroller.scrollTop > scroller.scrollHeight()) {
+                    if (scroller && scroller.scrollTop > scroller.scrollHeight()) {
                         scroller._resize();
                     }
                     if (!scrollingStarted) {

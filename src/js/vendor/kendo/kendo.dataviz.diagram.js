@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -3970,7 +3970,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, dataviz = kendo.dataviz, diagram = dataviz.diagram, Class = kendo.Class, Group = diagram.Group, Rect = diagram.Rect, Rectangle = diagram.Rectangle, Utils = diagram.Utils, isUndefined = Utils.isUndefined, Point = diagram.Point, Circle = diagram.Circle, Ticker = diagram.Ticker, deepExtend = kendo.deepExtend, Movable = kendo.ui.Movable, browser = kendo.support.browser, util = kendo.drawing.util, defined = util.defined, inArray = $.inArray, proxy = $.proxy;
+        var kendo = window.kendo, dataviz = kendo.dataviz, diagram = dataviz.diagram, Class = kendo.Class, Group = diagram.Group, Rect = diagram.Rect, Rectangle = diagram.Rectangle, Utils = diagram.Utils, isUndefined = Utils.isUndefined, Point = diagram.Point, Circle = diagram.Circle, Ticker = diagram.Ticker, deepExtend = kendo.deepExtend, Movable = kendo.ui.Movable, util = kendo.drawing.util, defined = util.defined, inArray = $.inArray, proxy = $.proxy;
         var Cursors = {
                 arrow: 'default',
                 grip: 'pointer',
@@ -4885,9 +4885,6 @@
                 var element = this.diagram.element;
                 var cursor = this.activeTool ? this.activeTool.getCursor(p) : this.hoveredAdorner ? this.hoveredAdorner._getCursor(p) : this.hoveredItem ? this.hoveredItem._getCursor(p) : Cursors.arrow;
                 element.css({ cursor: cursor });
-                if (browser.msie && browser.version == 7) {
-                    element[0].style.cssText = element[0].style.cssText;
-                }
             },
             _connectionManipulation: function (connection, disabledShape, isNew) {
                 this.activeConnection = connection;

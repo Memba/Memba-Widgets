@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -232,6 +232,7 @@
         var WIDTH = 'width';
         var X = 'x';
         var Y = 'y';
+        var DEFAULT_SERIES_OPACITY = 1;
         var constants = {
             ARC: ARC,
             AXIS_LABEL_CLICK: AXIS_LABEL_CLICK,
@@ -269,7 +270,8 @@
             WHITE: WHITE,
             WIDTH: WIDTH,
             X: X,
-            Y: Y
+            Y: Y,
+            DEFAULT_SERIES_OPACITY: DEFAULT_SERIES_OPACITY
         };
         function isArray(value) {
             return Array.isArray(value);
@@ -1300,7 +1302,7 @@
                 var options = (this.options || {}).highlight;
                 return !(!this.createHighlight || options && options.visible === false);
             },
-            toggleHighlight: function (show) {
+            toggleHighlight: function (show, opacity) {
                 var this$1 = this;
                 var options = (this.options || {}).highlight || {};
                 var customVisual = options.visual;
@@ -1309,12 +1311,12 @@
                     var highlightOptions = {
                         fill: {
                             color: WHITE,
-                            opacity: 0.2
+                            opacity: opacity || 0.2
                         },
                         stroke: {
                             color: WHITE,
                             width: 1,
-                            opacity: 0.2
+                            opacity: opacity || 0.2
                         }
                     };
                     if (customVisual) {
@@ -1357,6 +1359,9 @@
                 if (this.parent) {
                     return this.parent.createGradient(options);
                 }
+            },
+            supportsPointInactiveOpacity: function () {
+                return true;
             }
         });
         ChartElement.prototype.options = {};

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -98,6 +98,7 @@
         var EditorUtils = {
             editorWrapperTemplate: '<table cellspacing="0" cellpadding="0" class="k-widget k-editor" role="presentation">' + '<tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-toolbar k-editor-toolbar" role="toolbar"></ul></td></tr>' + '<tr><td class="k-editable-area"></td></tr>' + '</tbody>' + '</table>',
             buttonTemplate: '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '# var dataPopup = data.popup ? "data-popup" : "";#' + '<button tabindex="0" role="button" class="k-button k-tool" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' + '<span class="#= iconCssClass #"></span>' + '<span class="k-tool-text k-button-text">#= data.title #</span>' + '</button>',
+            iconTextButtonTemplate: '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '# var dataPopup = data.popup ? "data-popup" : "";#' + '<button tabindex="0" role="button" class="k-i-import k-button k-button-icontext" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' + '<span class="#= iconCssClass #"></span>' + '#= data.title #' + '</button>',
             tableWizardButtonTemplate: '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '# var dataPopup = data.popup ? "data-popup" : "";#' + '<button tabindex="0" role="button" class="k-tool k-button" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' + '<span class="#= iconCssClass #"></span>' + '<span class="k-tool-text">#= data.title #</span>' + '</button>',
             colorPickerTemplate: '<input class="k-colorpicker k-icon k-i-#= data.cssClass.replace("k-", "") #" />',
             comboBoxTemplate: '<select title="#= data.title #" aria-label="#= data.title #" class="#= data.cssClass #"></select>',
@@ -121,7 +122,9 @@
                     justifyFull: 'align-justify',
                     insertUnorderedList: 'list-unordered',
                     insertOrderedList: 'list-ordered',
-                    'import': 'login',
+                    insertUpperRomanList: 'list-roman-upper',
+                    insertLowerRomanList: 'list-roman-lower',
+                    'import': 'import',
                     indent: 'indent-increase',
                     outdent: 'indent-decrease',
                     createLink: 'link-horizontal',
@@ -144,6 +147,9 @@
                     splitCellVertically: 'cell-split-vertically',
                     tableWizard: 'table-properties',
                     tableWizardInsert: 'table-wizard',
+                    tableAlignLeft: 'table-position-left',
+                    tableAlignCenter: 'table-position-center',
+                    tableAlignRight: 'table-position-right',
                     cleanFormatting: 'clear-css',
                     copyFormat: 'copy-format',
                     applyFormat: 'apply-format'
@@ -250,6 +256,9 @@
             mergeCellsVertically: 'Merge cells vertically',
             splitCellHorizontally: 'Split cells horizontally',
             splitCellVertically: 'Split cells vertically',
+            tableAlignLeft: 'Table Align Left',
+            tableAlignCenter: 'Table Align Center',
+            tableAlignRight: 'Table Align Right',
             tableWizard: 'Table Wizard',
             tableTab: 'Table',
             cellTab: 'Cell',
@@ -339,7 +348,10 @@
                 'mergeCellsHorizontally',
                 'mergeCellsVertically',
                 'splitCellHorizontally',
-                'splitCellVertically'
+                'splitCellVertically',
+                'tableAlignLeft',
+                'tableAlignCenter',
+                'tableAlignRight'
             ]
         };
         var Editor = Widget.extend({
@@ -821,7 +833,7 @@
                                     toolbar.preventPopupHide = false;
                                 }
                             }
-                            if (active != body && !$.contains(body, active) && !$(active).is('.k-editortoolbar-dragHandle') && !toolbar.focused()) {
+                            if (active != body && !$.contains(body, active) && !toolbar.focused() && !toolbar.preventPopupHide) {
                                 $(body).removeClass('k-state-active');
                                 toolbar.hide();
                             }
@@ -1298,7 +1310,6 @@
             editor.exec(name, { value: value });
         };
         EditorUtils.registerTool('separator', new Tool({ template: new ToolTemplate({ template: EditorUtils.separatorTemplate }) }));
-        var bomFill = browser.msie && browser.version < 9 ? '\uFEFF' : '';
         var emptyElementContent = '\uFEFF';
         var emptyTableCellContent = emptyElementContent;
         if (browser.msie || browser.edge) {
@@ -1309,7 +1320,6 @@
                 ToolTemplate: ToolTemplate,
                 EditorUtils: EditorUtils,
                 Tool: Tool,
-                _bomFill: bomFill,
                 emptyElementContent: emptyElementContent,
                 emptyTableCellContent: emptyTableCellContent
             }
@@ -2137,13 +2147,18 @@
                 }
                 return extend(element, attributes);
             },
-            mergeAttributes: function (origin, target) {
+            mergeAttributes: function (origin, target, traverseCss) {
                 if (!origin.attributes.length) {
                     return;
                 }
                 $.each(origin.attributes, function () {
-                    if (this.name !== 'contenteditable') {
+                    if (this.name !== 'contenteditable' && (!traverseCss || this.name !== STYLE)) {
                         $(target).attr(this.name, this.value);
+                    }
+                    if (traverseCss && this.name === STYLE) {
+                        $.each(origin.style, function () {
+                            target.style[this] = origin.style[this];
+                        });
                     }
                 });
             },
@@ -2595,8 +2610,8 @@
                     var p = $(this);
                     if (/^\s*$/g.test(p.text()) && !p.find('img,input').length) {
                         var node = this;
-                        while (node.firstChild && node.firstChild.nodeType != 3) {
-                            node = node.firstChild;
+                        while (node.children[0] && node.children[0].nodeType != 3) {
+                            node = node.children[0];
                         }
                         if (node.nodeType == 1 && !dom.empty[dom.name(node)]) {
                             if (dom.is(node, 'td')) {
@@ -2645,17 +2660,9 @@
             htmlToDom: function (html, root, options) {
                 var browser = kendo.support.browser;
                 var msie = browser.msie;
-                var legacyIE = msie && browser.version < 9;
-                var originalSrc = 'originalsrc';
-                var originalHref = 'originalhref';
                 var o = options || {};
                 var immutables = o.immutables;
                 html = Serializer.toEditableHtml(html);
-                if (legacyIE) {
-                    html = '<br/>' + html;
-                    html = html.replace(/href\s*=\s*(?:'|")?([^'">\s]*)(?:'|")?/, originalHref + '="$1"');
-                    html = html.replace(/src\s*=\s*(?:'|")?([^'">\s]*)(?:'|")?/, originalSrc + '="$1"');
-                }
                 if (isFunction(o.custom)) {
                     html = o.custom(html) || html;
                 }
@@ -2663,20 +2670,7 @@
                 if (immutables) {
                     immutables.deserialize(root);
                 }
-                if (legacyIE) {
-                    dom.remove(root.firstChild);
-                    $(root).find('k\\:script,script,link,img,a').each(function () {
-                        var node = this;
-                        if (node[originalHref]) {
-                            node.setAttribute('href', node[originalHref]);
-                            node.removeAttribute(originalHref);
-                        }
-                        if (node[originalSrc]) {
-                            node.setAttribute('src', node[originalSrc]);
-                            node.removeAttribute(originalSrc);
-                        }
-                    });
-                } else if (msie) {
+                if (msie) {
                     dom.normalize(root);
                     Serializer._resetOrderedLists(root);
                 }
@@ -3995,9 +3989,6 @@
                 return startContainer.nodeType == 9 ? startContainer : startContainer.ownerDocument;
             },
             createRange: function (document) {
-                if (browser.msie && browser.version < 9) {
-                    return new W3CRange(document);
-                }
                 return document.createRange();
             },
             selectRange: function (range) {
@@ -4546,7 +4537,9 @@
             'k-i-align-justify': 'justifyFull',
             'k-i-list-unordered': 'insertUnorderedList',
             'k-i-list-ordered': 'insertOrderedList',
-            'k-i-login': 'import',
+            'k-i-list-roman-upper': 'insertUpperRomanList',
+            'k-i-list-roman-lower': 'insertLowerRomanList',
+            'k-i-import': 'import',
             'k-i-indent-increase': 'indent',
             'k-i-indent-decrease': 'outdent',
             'k-i-link-horizontal': 'createLink',
@@ -4565,6 +4558,9 @@
             'k-i-table-column-delete': 'deleteColumn',
             'k-i-table-properties': 'tableWizard',
             'k-i-table-wizard': 'tableWizardInsert',
+            'k-i-table-position-left': 'tableAlignLeft',
+            'k-i-table-position-center': 'tableAlignCenter',
+            'k-i-table-position-right': 'tableAlignRight',
             'k-i-clear-css': 'cleanFormatting',
             'k-i-cells-merge-horizontally': 'mergeCellsHorizontally',
             'k-i-cells-merge-vertically': 'mergeCellsVertically',
@@ -4632,6 +4628,8 @@
                 lists: [
                     'insertUnorderedList',
                     'insertOrderedList',
+                    'insertUpperRomanList',
+                    'insertLowerRomanList',
                     'indent',
                     'outdent'
                 ],
@@ -4649,6 +4647,11 @@
                     'mergeCellsVertically',
                     'splitCellHorizontally',
                     'splitCellVertically'
+                ],
+                tablesPosition: [
+                    'tableAlignLeft',
+                    'tableAlignCenter',
+                    'tableAlignRight'
                 ],
                 advanced: [
                     'viewHtml',
@@ -4738,7 +4741,8 @@
                 return result;
             },
             focused: function () {
-                return this.element.find('.k-state-focused').length > 0 || this.preventPopupHide || this.overflowPopup && this.overflowPopup.visible();
+                var active = kendo._activeElement(), popup = this.window, overflowPopup = this.overflowPopup;
+                return popup && $(active).closest(popup.wrapper).length || overflowPopup && overflowPopup.visible();
             },
             toolById: function (name) {
                 var id, tools = this.tools;
@@ -4931,7 +4935,7 @@
                 return result;
             },
             render: function () {
-                var that = this, tools = that.tools, options, template, toolElement, toolName, editorElement = that._editor.element, element = that.element.empty(), groupName, newGroupName, toolConfig = that._editor.options.tools, browser = kendo.support.browser, group, i, groupPosition = 0, resizable = that.options.resizable && that.options.resizable.toolbar, overflowFlaseTools = this.overflowFlaseTools;
+                var that = this, tools = that.tools, options, template, toolElement, toolName, editorElement = that._editor.element, element = that.element.empty(), groupName, newGroupName, toolConfig = that._editor.options.tools, group, i, groupPosition = 0, resizable = that.options.resizable && that.options.resizable.toolbar, overflowFlaseTools = this.overflowFlaseTools;
                 function stringify(template) {
                     var result = '';
                     if (template.getHtml) {
@@ -5002,9 +5006,6 @@
                 }
                 endGroup();
                 $(that.element).children(':has(> .k-tool)').not('.k-overflow-tools').addClass('k-button-group');
-                if (that.options.popup && browser.msie && browser.version < 9) {
-                    that.window.wrapper.find('*').attr('unselectable', 'on');
-                }
                 that.updateGroups();
                 if (resizable) {
                     that._initOverflowPopup(that.element.find('.k-overflow-anchor'));
@@ -5049,7 +5050,7 @@
                 that.attachToolsEvents(that.element.add(popupElement));
             },
             attachToolsEvents: function (element) {
-                var that = this, buttons = '[role=button].k-tool', enabledButtons = buttons + ':not(.k-state-disabled)', disabledButtons = buttons + '.k-state-disabled', dropdown = '.k-dropdown', colorpicker = '.k-colorpicker', editorTools = [
+                var that = this, buttons = '[role=button].k-tool', enabledButtons = buttons + ':not(.k-state-disabled)' + ', [role=button].k-i-import:not(.k-state-disabled)', disabledButtons = buttons + '.k-state-disabled', dropdown = '.k-dropdown', colorpicker = '.k-colorpicker', editorTools = [
                         buttons,
                         dropdown,
                         colorpicker
@@ -6528,7 +6529,7 @@
                     }
                 }
             },
-            findFormat: function (sourceNode) {
+            findFormat: function (sourceNode, until) {
                 var format = this.format, i, len, node, tags, attributes;
                 var editableParent = dom.editableParent(sourceNode);
                 var immutables = this.options && this.options.immutables;
@@ -6546,6 +6547,9 @@
                     while (node && dom.isAncestorOf(editableParent, node)) {
                         if (dom.ofType(node, tags) && dom.attrEquals(node, attributes)) {
                             return node;
+                        }
+                        if (until && until(node)) {
+                            break;
                         }
                         node = node.parentNode;
                     }
@@ -6566,9 +6570,9 @@
                 }
                 return result.nodeName.toLowerCase();
             },
-            isFormatted: function (nodes) {
+            isFormatted: function (nodes, until) {
                 for (var i = 0, len = nodes.length; i < len; i++) {
-                    if (!this.findFormat(nodes[i])) {
+                    if (!this.findFormat(nodes[i], until)) {
                         return false;
                     }
                 }
@@ -6949,20 +6953,38 @@
     (function ($) {
         var kendo = window.kendo, Class = kendo.Class, extend = $.extend, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, ToolTemplate = Editor.ToolTemplate, FormatTool = Editor.FormatTool, BlockFormatFinder = Editor.BlockFormatFinder, textNodes = RangeUtils.textNodes, registerTool = Editor.EditorUtils.registerTool;
         var ListFormatFinder = BlockFormatFinder.extend({
-            init: function (tag) {
-                this.tag = tag;
+            init: function (options) {
+                this.tag = options.tag;
+                this.attr = options.attr;
+                this.altAttr = options.altAttr;
                 var tags = this.tags = [
-                    tag == 'ul' ? 'ol' : 'ul',
-                    tag
+                    this.tag == 'ul' ? 'ol' : 'ul',
+                    this.tag
                 ];
-                BlockFormatFinder.fn.init.call(this, [{ tags: tags }]);
+                var format = [{
+                        tags: tags,
+                        attr: this.attr
+                    }];
+                if (this.altAttr) {
+                    format.push({
+                        tags: tags,
+                        attr: this.altAttr
+                    });
+                }
+                BlockFormatFinder.fn.init.call(this, format);
+            },
+            matchesType: function (node) {
+                return dom.attrEquals(node, this.attr) || this.altAttr && dom.attrEquals(node, this.altAttr);
+            },
+            isList: function (node) {
+                return dom.list(node);
             },
             isFormatted: function (nodes) {
                 var formatNodes = [];
                 var formatNode, i;
                 for (i = 0; i < nodes.length; i++) {
-                    formatNode = this.findFormat(nodes[i]);
-                    if (formatNode && dom.name(formatNode) == this.tag) {
+                    formatNode = this.findFormat(nodes[i], this.isList);
+                    if (formatNode && dom.name(formatNode) == this.tag && this.matchesType(formatNode)) {
                         formatNodes.push(formatNode);
                     }
                 }
@@ -6983,7 +7005,7 @@
                 return true;
             },
             findSuitable: function (nodes) {
-                var candidate = this.findFormat(nodes[0]);
+                var candidate = this.findFormat(nodes[0], this.isList);
                 if (candidate && dom.name(candidate) == this.tag) {
                     return candidate;
                 }
@@ -6991,10 +7013,15 @@
             }
         });
         var ListFormatter = Class.extend({
-            init: function (tag, unwrapTag) {
+            init: function (options, unwrapTag) {
                 var that = this;
-                that.finder = new ListFormatFinder(tag);
-                that.tag = tag;
+                options = $.isPlainObject(options) ? options : {
+                    tag: options,
+                    attr: null
+                };
+                that.tag = options.tag;
+                that.attr = options.attr;
+                that.finder = new ListFormatFinder(options);
                 that.unwrapTag = unwrapTag;
             },
             isList: function (node) {
@@ -7091,7 +7118,7 @@
                 while (prev && (prev.className == 'k-marker' || prev.nodeType == 3 && dom.isWhitespace(prev))) {
                     prev = prev.previousSibling;
                 }
-                if (prev && dom.name(prev) == tag) {
+                if (prev && dom.name(prev) == tag && this.finder.matchesType(prev)) {
                     while (formatNode.firstChild) {
                         prev.appendChild(formatNode.firstChild);
                     }
@@ -7102,7 +7129,7 @@
                 while (next && (next.className == 'k-marker' || next.nodeType == 3 && dom.isWhitespace(next))) {
                     next = next.nextSibling;
                 }
-                if (next && dom.name(next) == tag) {
+                if (next && dom.name(next) == tag && this.finder.matchesType(next)) {
                     while (formatNode.lastChild) {
                         next.insertBefore(formatNode.lastChild, next.firstChild);
                     }
@@ -7112,14 +7139,26 @@
             breakable: function (node) {
                 return node != node.ownerDocument.body && !/table|tbody|thead|tr|td/.test(dom.name(node)) && !node.attributes.contentEditable;
             },
+            findSuitableNode: function (nodes) {
+                var that = this, finder = that.finder, tag = that.tag, formatNode;
+                formatNode = finder.findSuitable(nodes);
+                if (!formatNode) {
+                    finder = new ListFormatFinder({ tag: tag == 'ul' ? 'ol' : 'ul' });
+                    formatNode = finder.findSuitable(nodes);
+                }
+                if (!formatNode) {
+                    finder = new ListFormatFinder({ tag: tag });
+                    formatNode = finder.findSuitable(nodes);
+                    formatNode = formatNode && that.finder.matchesType(formatNode) ? null : formatNode;
+                }
+                return formatNode;
+            },
             applyOnSection: function (section, nodes) {
                 var tag = this.tag;
+                var attr = this.attr;
                 var commonAncestor = dom.closestSplittableParent(nodes);
                 var ancestors = [];
-                var formatNode = this.finder.findSuitable(nodes);
-                if (!formatNode) {
-                    formatNode = new ListFormatFinder(tag == 'ul' ? 'ol' : 'ul').findSuitable(nodes);
-                }
+                var formatNode = this.findSuitableNode(nodes);
                 var childNodes;
                 if (/table|tbody|thead/.test(dom.name(commonAncestor))) {
                     childNodes = $.map(nodes, function (node) {
@@ -7156,7 +7195,7 @@
                     ancestors = [commonAncestor];
                 }
                 if (!formatNode) {
-                    formatNode = dom.create(commonAncestor.ownerDocument, tag);
+                    formatNode = dom.create(commonAncestor.ownerDocument, tag, attr);
                     if (dom.isBlock(ancestors[0])) {
                         dom.mergeAttributes(ancestors[0], formatNode);
                     }
@@ -7165,6 +7204,14 @@
                 this.wrap(formatNode, ancestors);
                 while (dom.isBom(formatNode.nextSibling)) {
                     dom.remove(formatNode.nextSibling);
+                }
+                if (!this.finder.matchesType(formatNode)) {
+                    formatNode.removeAttribute('type');
+                    formatNode.style.listStyleType = '';
+                    dom.mergeAttributes(dom.create(commonAncestor.ownerDocument, tag, attr), formatNode, true);
+                }
+                if (formatNode && formatNode.getAttribute('type') === '') {
+                    formatNode.removeAttribute('type');
                 }
                 if (!dom.is(formatNode, tag)) {
                     dom.changeTag(formatNode, tag);
@@ -7262,17 +7309,23 @@
         });
         var ListCommand = Command.extend({
             init: function (options) {
-                options.formatter = new ListFormatter(options.tag);
+                options.formatter = new ListFormatter({
+                    tag: options.tag,
+                    attr: options.attr
+                });
                 Command.fn.init.call(this, options);
             }
         });
         var ListTool = FormatTool.extend({
             init: function (options) {
                 this.options = options;
-                FormatTool.fn.init.call(this, extend(options, { finder: new ListFormatFinder(options.tag) }));
+                FormatTool.fn.init.call(this, extend(options, { finder: new ListFormatFinder(options) }));
             },
             command: function (commandArguments) {
-                return new ListCommand(extend(commandArguments, { tag: this.options.tag }));
+                return new ListCommand(extend(commandArguments, {
+                    tag: this.options.tag,
+                    attr: this.options.attr
+                }));
             }
         });
         extend(Editor, {
@@ -7283,6 +7336,10 @@
         });
         registerTool('insertUnorderedList', new ListTool({
             tag: 'ul',
+            attr: {
+                style: { listStyleType: '' },
+                type: ''
+            },
             template: new ToolTemplate({
                 template: EditorUtils.buttonTemplate,
                 title: 'Insert unordered list'
@@ -7290,9 +7347,31 @@
         }));
         registerTool('insertOrderedList', new ListTool({
             tag: 'ol',
+            attr: {
+                style: { listStyleType: '' },
+                type: ''
+            },
             template: new ToolTemplate({
                 template: EditorUtils.buttonTemplate,
                 title: 'Insert ordered list'
+            })
+        }));
+        registerTool('insertUpperRomanList', new ListTool({
+            tag: 'ol',
+            attr: { style: { listStyleType: 'upper-roman' } },
+            altAttr: { type: 'I' },
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Insert upper roman list'
+            })
+        }));
+        registerTool('insertLowerRomanList', new ListTool({
+            tag: 'ol',
+            attr: { style: { listStyleType: 'lower-roman' } },
+            altAttr: { type: 'i' },
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Insert lower roman list'
             })
         }));
     }(window.kendo.jQuery));
@@ -7716,7 +7795,7 @@
                     showFileList: false,
                     multiple: false,
                     async: {
-                        saveUrl: importOptions.proxyUrl,
+                        saveUrl: importOptions.proxyURL,
                         autoUpload: true,
                         saveField: 'file'
                     },
@@ -7776,7 +7855,7 @@
         registerTool('import', new Tool({
             command: ImportCommand,
             template: new ToolTemplate({
-                template: EditorUtils.buttonTemplate,
+                template: EditorUtils.iconTextButtonTemplate,
                 title: 'Import'
             })
         }));
@@ -7944,7 +8023,7 @@
             },
             options: {
                 items: defaultExportAsItems,
-                width: 115
+                width: 140
             },
             command: function (args) {
                 var value = args.value;
@@ -7960,9 +8039,10 @@
                 var toolName = options.name;
                 var changeHandler = proxy(tool.changeHandler, tool);
                 var dataSource = options.items || editor.options[toolName];
+                var displayName = editor.options.messages[toolName];
                 var selectBox;
                 dataSource.unshift({
-                    text: editor.options.messages[toolName],
+                    text: displayName,
                     value: ''
                 });
                 tool.editor = editor;
@@ -7979,7 +8059,8 @@
                         sender.unbind('open');
                     },
                     highlightFirst: false,
-                    template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>')
+                    template: kendo.template('<span unselectable="on" style="display:block;#=(data.style||"")#">#:data.text#</span>'),
+                    valueTemplate: '<span class="k-editor-export"><span class="k-icon k-i-export"></span><span class="k-export-tool-text">' + displayName + '</span></span>'
                 }).data('kendoSelectBox');
                 ui.attr('title', initOptions.title);
                 selectBox.wrapper.attr('title', initOptions.title);
@@ -8074,7 +8155,7 @@
                             } else {
                                 nestedList = sibling.children('ul,ol')[0];
                                 if (!nestedList) {
-                                    nestedList = dom.create(formatNode.ownerDocument, dom.name(parentList));
+                                    nestedList = dom.create(formatNode.ownerDocument, dom.name(parentList), this.getListTypeAttr(parentList));
                                     sibling.append(nestedList);
                                 }
                                 while (formatNode && formatNode.parentNode == parentList) {
@@ -8096,6 +8177,11 @@
                     var formatter = new BlockFormatter([{ tags: ['p'] }], { style: { marginLeft: 30 } });
                     formatter.apply(nodes);
                 }
+            },
+            getListTypeAttr: function (list) {
+                var type = list.getAttribute('type');
+                var styleType = list.style.listStyleType;
+                return type ? { type: type } : { style: { listStyleType: styleType } };
             },
             mapImmutables: function (nodes) {
                 if (!this.immutables) {
@@ -8586,7 +8672,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, Command = Editor.Command, NS = 'kendoEditor', ACTIVESTATE = 'k-state-active', SELECTEDSTATE = 'k-state-selected', SCOPE = 'scope', ROW = 'row', COL = 'col', ROWGROUP = 'rowgroup', COLGROUP = 'colgroup', COLSPAN = 'colspan', ROWSPAN = 'rowspan', TABLE = 'table', THEAD = 'thead', TBODY = 'tbody', TR = 'tr', TD = 'td', TH = 'th', Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InsertHtmlCommand = Editor.InsertHtmlCommand, BlockFormatFinder = Editor.BlockFormatFinder, registerTool = Editor.EditorUtils.registerTool, getTouches = kendo.getTouches;
+        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, Command = Editor.Command, NS = 'kendoEditor', ACTIVESTATE = 'k-state-active', SELECTEDSTATE = 'k-state-selected', SCOPE = 'scope', ROW = 'row', COL = 'col', ROWGROUP = 'rowgroup', COLGROUP = 'colgroup', COLSPAN = 'colspan', ROWSPAN = 'rowspan', TABLE = 'table', THEAD = 'thead', TBODY = 'tbody', TR = 'tr', TD = 'td', TH = 'th', Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InsertHtmlCommand = Editor.InsertHtmlCommand, BlockFormatFinder = Editor.BlockFormatFinder, BlockFormatTool = Editor.BlockFormatTool, FormatCommand = Editor.FormatCommand, registerTool = Editor.EditorUtils.registerTool, registerFormat = Editor.EditorUtils.registerFormat, formats = kendo.ui.Editor.fn.options.formats, getTouches = kendo.getTouches;
         var template = kendo.template;
         var columnTemplate = '<td style=\'width:#=width#%;\'>#=content#</td>';
         var tableFormatFinder = new BlockFormatFinder([{ tags: [TABLE] }]);
@@ -9403,10 +9489,51 @@
                 }
             }
         });
+        var TableFormatCommand = FormatCommand.extend({
+            exec: function () {
+                var that = this;
+                var editor = that.editor;
+                FormatCommand.fn.exec.call(this);
+                if (editor.tableResizing) {
+                    editor.tableResizing._showResizeHandles();
+                }
+            }
+        });
+        var TableFormatTool = BlockFormatTool.extend({
+            initialize: function (ui, options) {
+                BlockFormatTool.fn.initialize.call(this, ui, options);
+                ui.addClass('k-state-disabled');
+                ui.attr('disabled', 'disabled');
+            },
+            update: function (ui, nodes) {
+                var isTable = !tableFormatFinder.isFormatted(nodes);
+                var isFormatted = this.options.finder.isFormatted(nodes, this.isTable);
+                if (isTable === true) {
+                    ui.parent().addClass('k-hidden k-state-disabled');
+                    ui.attr('disabled', 'disabled');
+                    ui.addClass('k-state-disabled');
+                } else {
+                    ui.parent().removeClass('k-hidden k-state-disabled');
+                    ui.removeAttr('disabled');
+                    ui.removeClass('k-state-disabled');
+                }
+                ui.toggleClass('k-state-selected', isFormatted);
+                ui.attr('aria-pressed', isFormatted);
+            },
+            command: function (commandArguments) {
+                var that = this;
+                return new TableFormatCommand(extend(commandArguments, { formatter: that.options.formatter }));
+            },
+            isTable: function (node) {
+                return dom.is(node, 'table');
+            }
+        });
         extend(kendo.ui.editor, {
             PopupTool: PopupTool,
             TableCommand: TableCommand,
             InsertTableTool: InsertTableTool,
+            TableFormatTool: TableFormatTool,
+            TableFormatCommand: TableFormatCommand,
             TableModificationTool: TableModificationTool,
             InsertRowCommand: InsertRowCommand,
             InsertColumnCommand: InsertColumnCommand,
@@ -9499,6 +9626,72 @@
             template: new ToolTemplate({
                 template: EditorUtils.buttonTemplate,
                 title: 'Split Cell'
+            })
+        }));
+        registerFormat('tableAlignLeft', [
+            {
+                tags: ['table'],
+                attr: {
+                    style: {
+                        marginLeft: '',
+                        marginRight: 'auto'
+                    }
+                }
+            },
+            {
+                tags: ['table'],
+                attr: { align: 'left' }
+            }
+        ]);
+        registerTool('tableAlignLeft', new TableFormatTool({
+            format: formats.tableAlignLeft,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Table Align Left'
+            })
+        }));
+        registerFormat('tableAlignCenter', [
+            {
+                tags: ['table'],
+                attr: {
+                    style: {
+                        marginLeft: 'auto',
+                        marginRight: 'auto'
+                    }
+                }
+            },
+            {
+                tags: ['table'],
+                attr: { align: 'center' }
+            }
+        ]);
+        registerTool('tableAlignCenter', new TableFormatTool({
+            format: formats.tableAlignCenter,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Table Align Center'
+            })
+        }));
+        registerFormat('tableAlignRight', [
+            {
+                tags: ['table'],
+                attr: {
+                    style: {
+                        marginLeft: 'auto',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
+                tags: ['table'],
+                attr: { align: 'right' }
+            }
+        ]);
+        registerTool('tableAlignRight', new TableFormatTool({
+            format: formats.tableAlignRight,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Table Align Left'
             })
         }));
     }(window.kendo.jQuery));
@@ -12507,9 +12700,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top + outerHeight(resizableElement) / 2,
-                    left: offset.left + outerWidth(resizableElement)
+                    left: offset.left + outerWidth(resizableElement) + marginLeft
                 };
             }
         });
@@ -12518,9 +12712,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top,
-                    left: offset.left + outerWidth(resizableElement) / 2
+                    left: offset.left + outerWidth(resizableElement) / 2 + marginLeft
                 };
             }
         });
@@ -12529,9 +12724,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top,
-                    left: offset.left + outerWidth(resizableElement)
+                    left: offset.left + outerWidth(resizableElement) + marginLeft
                 };
             }
         });
@@ -12540,9 +12736,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top,
-                    left: offset.left
+                    left: offset.left + marginLeft
                 };
             }
         });
@@ -12551,9 +12748,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top + outerHeight(resizableElement),
-                    left: offset.left + outerWidth(resizableElement) / 2
+                    left: offset.left + outerWidth(resizableElement) / 2 + marginLeft
                 };
             }
         });
@@ -12562,9 +12760,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top + outerHeight(resizableElement),
-                    left: offset.left + outerWidth(resizableElement)
+                    left: offset.left + outerWidth(resizableElement) + marginLeft
                 };
             }
         });
@@ -12573,9 +12772,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top + outerHeight(resizableElement),
-                    left: offset.left
+                    left: offset.left + marginLeft
                 };
             }
         });
@@ -12584,9 +12784,10 @@
             calculatePosition: function () {
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
+                var marginLeft = parseInt(resizableElement.css('marginLeft'), 10);
                 return {
                     top: offset.top + outerHeight(resizableElement) / 2,
-                    left: offset.left
+                    left: offset.left + marginLeft
                 };
             }
         });

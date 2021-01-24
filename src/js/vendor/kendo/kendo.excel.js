@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -51,18 +51,24 @@
             }
             return result;
         }
+        function defaultItemId(item) {
+            return item.id;
+        }
         var ExcelExporter = kendo.Class.extend({
             init: function (options) {
                 options.columns = this._trimColumns(options.columns || []);
                 this.allColumns = map(this._leafColumns(options.columns || []), this._prepareColumn);
-                this.columns = this.allColumns.filter(function (column) {
-                    return !column.hidden;
-                });
+                this.columns = this._visibleColumns(this.allColumns);
                 this.options = options;
                 this.data = options.data || [];
                 this.aggregates = options.aggregates || {};
                 this.groups = [].concat(options.groups || []);
+                this.hasGroups = this.groups.length > 0;
                 this.hierarchy = options.hierarchy;
+                this.hasGroupHeaderColumn = this.columns.some(function (column) {
+                    return column.groupHeaderColumnTemplate;
+                });
+                this.collapsible = this.options.collapsible;
             },
             workbook: function () {
                 var workbook = {
@@ -118,6 +124,7 @@
                     value: value,
                     values: values,
                     groupHeaderTemplate: column.groupHeaderTemplate ? TemplateService.compile(column.groupHeaderTemplate) : defaultGroupHeaderTemplate,
+                    groupHeaderColumnTemplate: column.groupHeaderColumnTemplate ? TemplateService.compile(column.groupHeaderColumnTemplate) : null,
                     groupFooterTemplate: column.groupFooterTemplate ? TemplateService.compile(column.groupFooterTemplate) : null,
                     footerTemplate: column.footerTemplate ? TemplateService.compile(column.footerTemplate) : null
                 });
@@ -144,34 +151,13 @@
             _dataRow: function (dataItem, level, depth) {
                 var this$1 = this;
                 var cells = this._createPaddingCells(level);
-                if (depth && dataItem.items) {
-                    var column = this.allColumns.filter(function (column) {
-                        return column.field === dataItem.field;
-                    })[0];
-                    var title = column && column.title ? column.title : dataItem.field;
-                    var template = column ? column.groupHeaderTemplate : null;
-                    var group = $.extend({
-                        title: title,
-                        field: dataItem.field,
-                        value: column && column.values ? column.values[dataItem.value] : dataItem.value,
-                        aggregates: dataItem.aggregates,
-                        items: dataItem.items
-                    }, dataItem.aggregates[dataItem.field]);
-                    var value = title + ': ' + dataItem.value;
-                    if (template) {
-                        value = template(group);
-                    }
-                    cells.push($.extend({
-                        value: value,
-                        background: '#dfdfdf',
-                        color: '#333',
-                        colSpan: this.columns.length + depth - level
-                    }, (column || {}).groupHeaderCellOptions));
+                if (this.hasGroups && depth && dataItem.items) {
+                    cells = cells.concat(this._groupHeaderCells(dataItem, level, depth));
                     var rows = this._dataRows(dataItem.items, level + 1);
                     rows.unshift({
                         type: 'group-header',
                         cells: cells,
-                        level: this.options.collapsible ? level : null
+                        level: this.collapsible ? level : null
                     });
                     return rows.concat(this._footer(dataItem, level));
                 }
@@ -185,8 +171,42 @@
                 return [{
                         type: 'data',
                         cells: cells.concat(dataCells),
-                        level: this.options.collapsible ? level : null
+                        level: this.collapsible ? level : null
                     }];
+            },
+            _groupHeaderCells: function (dataItem, level, depth) {
+                var cells = [];
+                var column = this.allColumns.filter(function (column) {
+                    return column.field === dataItem.field;
+                })[0] || {};
+                var title = column && column.title ? column.title : dataItem.field;
+                var template = column ? column.groupHeaderTemplate || column.groupHeaderColumnTemplate : null;
+                var group = $.extend({
+                    title: title,
+                    field: dataItem.field,
+                    value: column && column.values ? column.values[dataItem.value] : dataItem.value,
+                    aggregates: dataItem.aggregates,
+                    items: dataItem.items
+                }, dataItem.aggregates[dataItem.field]);
+                var value = template ? template(group) : title + ': ' + dataItem.value;
+                cells.push($.extend({
+                    value: value,
+                    background: '#dfdfdf',
+                    color: '#333',
+                    colSpan: (this.hasGroupHeaderColumn ? 1 : this.columns.length) + depth - level
+                }, column.groupHeaderCellOptions));
+                if (this.hasGroupHeaderColumn) {
+                    this.columns.forEach(function (column, index) {
+                        if (index > 0) {
+                            cells.push($.extend({
+                                background: '#dfdfdf',
+                                color: '#333',
+                                value: column.groupHeaderColumnTemplate ? column.groupHeaderColumnTemplate($.extend({ group: group }, group, dataItem.aggregates[column.field])) : undefined
+                            }, column.groupHeaderCellOptions));
+                        }
+                    });
+                }
+                return cells;
             },
             _dataRows: function (dataItems, level) {
                 var this$1 = this;
@@ -202,14 +222,18 @@
                 var depth = this._depth();
                 var data = this.data;
                 var itemLevel = this.hierarchy.itemLevel;
+                var itemId = this.hierarchy.itemId || defaultItemId;
                 var hasFooter = this._hasFooterTemplate();
                 var rows = [];
                 var parents = [];
                 var previousLevel = 0;
                 var previousItemId;
+                if (!hasFooter) {
+                    this.collapsible = false;
+                }
                 for (var idx = 0; idx < data.length; idx++) {
                     var item = data[idx];
-                    var level = itemLevel(item);
+                    var level = itemLevel(item, idx);
                     if (hasFooter) {
                         if (level > previousLevel) {
                             parents.push({
@@ -220,7 +244,7 @@
                             rows.push.apply(rows, this$1._hierarchyFooterRows(parents, level, depth));
                         }
                         previousLevel = level;
-                        previousItemId = item.id;
+                        previousItemId = itemId(item, idx);
                     }
                     rows.push.apply(rows, this$1._dataRow(item, level + 1, depth));
                 }
@@ -253,11 +277,12 @@
                 var cells = this.columns.map(function (column, index) {
                     var colSpan = index ? 1 : depth - level + 1;
                     if (column.footerTemplate) {
+                        var fieldAggregates = (aggregates || {})[column.field];
                         return $.extend({
                             background: '#dfdfdf',
                             color: '#333',
                             colSpan: colSpan,
-                            value: column.footerTemplate($.extend({}, (aggregates || {})[column.field]))
+                            value: column.footerTemplate($.extend({ aggregates: aggregates }, fieldAggregates))
                         }, column.footerCellOptions);
                     }
                     return $.extend({
@@ -268,7 +293,8 @@
                 });
                 return {
                     type: 'footer',
-                    cells: this._createPaddingCells(level).concat(cells)
+                    cells: this._createPaddingCells(level).concat(cells),
+                    level: this.collapsible ? level : null
                 };
             },
             _footer: function (dataItem, level) {
@@ -308,7 +334,7 @@
                     rows.push({
                         type: 'group-footer',
                         cells: this._createPaddingCells(this.groups.length).concat(cells),
-                        level: this.options.collapsible ? level : null
+                        level: this.collapsible ? level : null
                     });
                 }
                 return rows;
@@ -319,11 +345,17 @@
             _visibleColumns: function (columns) {
                 var this$1 = this;
                 return columns.filter(function (column) {
-                    var result = !column.hidden;
-                    if (result && column.columns) {
-                        result = this$1._visibleColumns(column.columns).length > 0;
+                    var exportable = column.exportable;
+                    if (typeof exportable === 'object') {
+                        exportable = column.exportable.excel;
                     }
-                    return result;
+                    var visibleInExport = !column.hidden && exportable !== false;
+                    var visibleInExportOnly = column.hidden && exportable === true;
+                    var visible = visibleInExport || visibleInExportOnly;
+                    if (visible && column.columns) {
+                        visible = this$1._visibleColumns(column.columns).length > 0;
+                    }
+                    return visible;
                 });
             },
             _headerRow: function (row, groups) {
@@ -334,8 +366,8 @@
                         rowSpan: row.rowSpan > 1 && !cell.colSpan ? row.rowSpan : 1
                     });
                 });
-                if (this.hierarchy) {
-                    headers[0].colSpan = this._depth() + 1;
+                if (this.hierarchy && headers[0].firstCell) {
+                    headers[0].colSpan += this._depth();
                 }
                 return {
                     type: 'header',
@@ -372,7 +404,8 @@
                             background: '#7a7a7a',
                             color: '#fff',
                             value: column.title || column.field,
-                            colSpan: 0
+                            colSpan: 0,
+                            firstCell: idx === 0 && (!parentCell || parentCell.firstCell)
                         }, column.headerCellOptions);
                         row.cells.push(cell);
                         if (column.columns && column.columns.length) {

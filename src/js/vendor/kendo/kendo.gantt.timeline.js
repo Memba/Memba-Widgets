@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -51,7 +51,6 @@
         var outerHeight = kendo._outerHeight;
         var extend = $.extend;
         var proxy = $.proxy;
-        var browser = kendo.support.browser;
         var isRtl = false;
         var keys = kendo.keys;
         var Query = kendo.data.Query;
@@ -1150,13 +1149,9 @@
                 }
                 this._percentCompleteResizeTooltip = null;
             },
-            _updateDependencyDragHint: function (from, to, useVML) {
+            _updateDependencyDragHint: function (from, to) {
                 this._removeDependencyDragHint();
-                if (useVML) {
-                    this._creteVmlDependencyDragHint(from, to);
-                } else {
-                    this._creteDependencyDragHint(from, to);
-                }
+                this._creteDependencyDragHint(from, to);
             },
             _creteDependencyDragHint: function (from, to) {
                 var styles = GanttView.styles;
@@ -1178,10 +1173,6 @@
                     '-ms-transform': 'rotate(' + angle + 'rad)',
                     '-webkit-transform': 'rotate(' + angle + 'rad)'
                 }).appendTo(this.content);
-            },
-            _creteVmlDependencyDragHint: function (from, to) {
-                var hint = $('<kvml:line class=\'' + GanttView.styles.dependencyHint + '\' style=\'position:absolute; top: 0px; left: 0px;\' strokecolor=\'black\' strokeweight=\'2px\' from=\'' + from.x + 'px,' + from.y + 'px\' to=\'' + to.x + 'px,' + to.y + 'px\'' + '></kvml:line>').appendTo(this.content);
-                hint[0].outerHTML = hint[0].outerHTML;
             },
             _removeDependencyDragHint: function () {
                 this.content.find(DOT + GanttView.styles.dependencyHint).remove();
@@ -2238,7 +2229,6 @@
                 var hoveredTask = $();
                 var startX;
                 var startY;
-                var useVML = browser.msie && browser.version < 9;
                 var styles = GanttTimeline.styles;
                 var editable = this.options.editable;
                 var cleanUp = function () {
@@ -2259,9 +2249,6 @@
                 };
                 if (!editable || editable.dependencyCreate === false) {
                     return;
-                }
-                if (useVML && document.namespaces) {
-                    document.namespaces.add('kvml', 'urn:schemas-microsoft-com:vml', '#default#VML');
                 }
                 this._dependencyDraggable = new kendo.ui.Draggable(this.wrapper, {
                     distance: 0,
@@ -2296,7 +2283,7 @@
                     }, {
                         x: currentX,
                         y: currentY
-                    }, useVML);
+                    });
                     toggleHandles(false);
                     hoveredHandle = target.hasClass(styles.taskDot) ? target : $();
                     hoveredTask = target.closest(DOT + styles.taskWrap);

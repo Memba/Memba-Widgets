@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -2319,7 +2319,11 @@
                 return this._path || '';
             },
             navigate: function (path) {
-                var that = this, dataSource = that.dataSource, entry = dataSource.get(path.replace(/^\//, '')), view = that._view, treeView = that.treeView, breadcrumb = that.breadcrumb;
+                var that = this, dataSource = that.dataSource, entry = dataSource.get(path.replace(/^\//, '')), view = that._view, treeView = that.treeView, breadcrumb = that.breadcrumb, isRoot = path === '' || path === '/';
+                if (!entry && !isRoot) {
+                    window.console.warn('Error! Could not navigate to the folder at the requested path(' + path + '). Make sure that the parent folder of the target folder has already been loaded.');
+                    return;
+                }
                 that._path = path;
                 if (that.trigger(DATABINDING, {
                         source: 'navigation',
@@ -2331,7 +2335,7 @@
                 if (breadcrumb) {
                     that._buildBreadcrumbPath(entry);
                 }
-                if (path === '' || path === '/') {
+                if (isRoot) {
                     dataSource.sort([
                         that.folderSortOption,
                         that.defaultSortOption

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -278,7 +278,7 @@
                 if (!button.text) {
                     button.text = messages[button.name] || button.name.charAt(0).toUpperCase() + button.name.slice(1);
                 }
-                if (button.name === DONE || button.name === NEXT) {
+                if (button.primary !== false && (button.name === DONE || button.name === NEXT)) {
                     button.primary = true;
                 }
                 if (!button.position && button.name === RESET) {
@@ -494,12 +494,16 @@
                 return this._steps;
             },
             _attachEvents: function () {
-                var that = this;
+                var that = this, clickBeforeSubmit = function () {
+                        that._doneClicked = true;
+                    };
                 that.stepper.bind(SELECT, proxy(that._stepperSelectHandler, that));
                 that.wrapper.on(CLICK + WIZARD, '[' + DATA_WIZARD_PREFIX + RESET + ']', proxy(that._resetClickHandler, that)).on(CLICK + WIZARD, '[' + DATA_WIZARD_PREFIX + PREVIOUS + ']', proxy(that._previousClickHandler, that)).on(CLICK + WIZARD, '[' + DATA_WIZARD_PREFIX + NEXT + ']', proxy(that._nextClickHandler, that));
                 if (that.wrapper.is('form')) {
+                    that.wrapper.on(CLICK + WIZARD, '[' + DATA_WIZARD_PREFIX + DONE + ']', clickBeforeSubmit);
                     that.wrapper.on(SUBMIT + WIZARD, proxy(that._doneHandler, that));
                 } else {
+                    that.wrapper.on(CLICK + WIZARD, '[' + DATA_WIZARD_PREFIX + DONE + ']', clickBeforeSubmit);
                     that.wrapper.on(CLICK + WIZARD, '[' + DATA_WIZARD_PREFIX + DONE + ']', proxy(that._doneHandler, that));
                 }
             },
@@ -574,7 +578,11 @@
             },
             _doneHandler: function (e) {
                 var steps = this._steps, currentStep = this.currentStep, forms = [], form, i;
-                if (this.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+                if (!this._doneClicked) {
+                    return;
+                }
+                this._doneClicked = false;
+                if (!!this.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
                     e.preventDefault();
                     this.trigger(FORM_VALIDATE_FAILED, {
                         sender: this,
@@ -610,12 +618,14 @@
             _mapStepForStepper: function (step) {
                 var stepperStep = extend(true, {}, step);
                 stepperStep.label = stepperStep.title;
-                delete stepperStep.title;
                 delete stepperStep.buttons;
                 delete stepperStep.pager;
                 delete stepperStep.content;
                 delete stepperStep.contentUrl;
                 delete stepperStep.contentId;
+                delete stepperStep.formTag;
+                delete stepperStep.wizardId;
+                delete stepperStep.messages;
                 return stepperStep;
             },
             _select: function (index) {
@@ -633,7 +643,7 @@
                 if (numberOfSteps === currentStepIndex + 1 || !targetStep.options.enabled) {
                     return;
                 }
-                if (that.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+                if (!!that.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
                     that.trigger(FORM_VALIDATE_FAILED, {
                         sender: that,
                         step: currentStep,
@@ -659,11 +669,11 @@
                 }
             },
             _previousClickHandler: function (e) {
-                var that = this, steps = that._steps, currentStep = that.currentStep, currentStepIndex = currentStep.options.index, button = $(e.target).getKendoButton(), targetStep = steps[currentStepIndex - 1];
+                var that = this, validateForms = that.options.validateForms, steps = that._steps, currentStep = that.currentStep, currentStepIndex = currentStep.options.index, button = $(e.target).getKendoButton(), targetStep = steps[currentStepIndex - 1];
                 if (currentStepIndex === 0 || !targetStep.options.enabled) {
                     return;
                 }
-                if (that.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+                if (!!validateForms && validateForms.validateOnPrevious !== false && !!currentStep.form && !currentStep.form.validator.validate()) {
                     that.trigger(FORM_VALIDATE_FAILED, {
                         sender: that,
                         step: currentStep,
@@ -735,8 +745,17 @@
                 }
             },
             _stepperSelectHandler: function (e) {
-                var that = this, stepper = e.sender, stepperStep = e.step, stepIndex = stepperStep.getIndex(), wizardSteps = that._steps, step = wizardSteps[stepIndex], currentStep = that.currentStep;
-                if (that.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+                var that = this, validateForms = that.options.validateForms, stepper = e.sender, stepperStep = e.step, currentStepIndex = that.currentStep.options.index, stepIndex = stepperStep.getIndex(), wizardSteps = that._steps, step = wizardSteps[stepIndex], currentStep = that.currentStep;
+                if (stepIndex > currentStepIndex && !!validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+                    e.preventDefault();
+                    that.trigger(FORM_VALIDATE_FAILED, {
+                        sender: that,
+                        step: currentStep,
+                        form: currentStep.form
+                    });
+                    return;
+                }
+                if (stepIndex < currentStepIndex && !!validateForms && validateForms.validateOnPrevious !== false && !!currentStep.form && !currentStep.form.validator.validate()) {
                     e.preventDefault();
                     that.trigger(FORM_VALIDATE_FAILED, {
                         sender: that,

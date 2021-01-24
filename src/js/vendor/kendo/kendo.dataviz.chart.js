@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1514,7 +1514,7 @@
                     rotation: options.rotation,
                     background: options.background,
                     border: this.markerBorder(),
-                    opacity: options.opacity,
+                    opacity: this.series.opacity || options.opacity,
                     zIndex: valueOrDefault(options.zIndex, this.series.zIndex),
                     animation: options.animation,
                     visual: options.visual
@@ -2267,6 +2267,9 @@
             },
             seriesMissingValues: function (series) {
                 return series.missingValues || ZERO;
+            },
+            supportsPointInactiveOpacity: function () {
+                return false;
             }
         });
         var AxisGroupRangeTracker = Class.extend({
@@ -3522,6 +3525,9 @@
                     }
                 }
                 return result;
+            },
+            supportsPointInactiveOpacity: function () {
+                return false;
             }
         });
         var ScatterErrorBar = ErrorBarBase.extend({
@@ -7072,19 +7078,19 @@
             destroy: function () {
                 this._points = [];
             },
-            show: function (points) {
+            show: function (points, opacity) {
                 var this$1 = this;
                 var arrayPoints = [].concat(points);
                 this.hide();
                 for (var i = 0; i < arrayPoints.length; i++) {
                     var point = arrayPoints[i];
                     if (point && point.toggleHighlight && point.hasHighlight()) {
-                        this$1.togglePointHighlight(point, true);
+                        this$1.togglePointHighlight(point, true, opacity);
                         this$1._points.push(point);
                     }
                 }
             },
-            togglePointHighlight: function (point, show) {
+            togglePointHighlight: function (point, show, opacity) {
                 var toggleHandler = (point.options.highlight || {}).toggle;
                 if (toggleHandler) {
                     var eventArgs = {
@@ -7099,10 +7105,10 @@
                     };
                     toggleHandler(eventArgs);
                     if (!eventArgs._defaultPrevented) {
-                        point.toggleHighlight(show);
+                        point.toggleHighlight(show, opacity);
                     }
                 } else {
-                    point.toggleHighlight(show);
+                    point.toggleHighlight(show, opacity);
                 }
             },
             hide: function () {
@@ -11545,6 +11551,75 @@
                     return (element.hover || element.over) && !(element instanceof PlotAreaBase);
                 });
                 var activePoint = this._activePoint;
+                var multipleSeries = this._plotArea.series.length > 1;
+                var hasInactiveOpacity = this._hasInactiveOpacity();
+                this._updateHoveredPoint(point, e);
+                if (point && activePoint !== point && point.hover) {
+                    this._activePoint = point;
+                    if (!this._sharedTooltip() && !point.hover(this, e)) {
+                        this._displayTooltip(point);
+                        if (hasInactiveOpacity) {
+                            this._displayInactiveOpacity(point, multipleSeries);
+                        } else {
+                            this._highlight.show(point);
+                        }
+                    }
+                } else if (!point && hasInactiveOpacity) {
+                    if (multipleSeries && this._activеChartInstance) {
+                        this._updateSeriesOpacity(point, true);
+                        this._applySeriesOpacity(this._activеChartInstance.children, null, true);
+                        this._activеChartInstance = null;
+                    }
+                    this._highlight && this._highlight.hide();
+                    this._activePoint = null;
+                }
+                return point;
+            },
+            _displayTooltip: function (point) {
+                var tooltipOptions = deepExtend({}, this.options.tooltip, point.options.tooltip);
+                if (tooltipOptions.visible) {
+                    this._tooltip.show(point);
+                }
+            },
+            _displayInactiveOpacity: function (activePoint, multipleSeries, highlightPoints) {
+                var chartInstance = this._activеChartInstance = this._chartInstanceFromPoint(activePoint);
+                if (multipleSeries) {
+                    this._updateSeriesOpacity(activePoint);
+                    this._applySeriesOpacity(chartInstance.children, null, true);
+                    this._applySeriesOpacity(chartInstance.children, activePoint.series);
+                    this._highlight.show(highlightPoints || activePoint);
+                } else {
+                    var inactivePoints;
+                    if (!chartInstance.supportsPointInactiveOpacity()) {
+                        this._highlight.show(activePoint);
+                        return;
+                    }
+                    inactivePoints = this._getInactivePoints(activePoint, chartInstance);
+                    if (inactivePoints && inactivePoints.length) {
+                        this._highlight.show(inactivePoints, 1 - this._getInactiveOpacityForSeries(activePoint.series));
+                    }
+                }
+            },
+            _getInactivePoints: function (activePoint, chartInstance) {
+                var allPoints = this._getAllPointsOfType(chartInstance, activePoint.constructor);
+                return allPoints.filter(function (point) {
+                    return point !== activePoint;
+                });
+            },
+            _getAllPointsOfType: function (container, type) {
+                var this$1 = this;
+                var points = [];
+                for (var i = 0; i < container.children.length; i++) {
+                    var element = container.children[i];
+                    if (element.constructor === type) {
+                        points.push(element);
+                    } else if (element.children && element.children.length) {
+                        points = points.concat(this$1._getAllPointsOfType(element, type));
+                    }
+                }
+                return points;
+            },
+            _updateHoveredPoint: function (point, e) {
                 var hoveredPoint = this._hoveredPoint;
                 if (hoveredPoint && hoveredPoint !== point) {
                     hoveredPoint.out(this, e);
@@ -11554,17 +11629,66 @@
                     this._hoveredPoint = point;
                     point.over(this, e);
                 }
-                if (point && activePoint !== point && point.hover) {
-                    this._activePoint = point;
-                    if (!this._sharedTooltip() && !point.hover(this, e)) {
-                        var tooltipOptions = deepExtend({}, this.options.tooltip, point.options.tooltip);
-                        if (tooltipOptions.visible) {
-                            this._tooltip.show(point);
+            },
+            _updateSeriesOpacity: function (point, resetOpacity) {
+                var this$1 = this;
+                var plotArea = this._plotArea;
+                var length = plotArea.series.length;
+                for (var i = 0; i < length; i++) {
+                    var currSeries = plotArea.series[i];
+                    var defaultOpacity = this$1._getDefaultOpacityForSeries(currSeries);
+                    var inactiveOpacity = this$1._getInactiveOpacityForSeries(currSeries);
+                    if (!resetOpacity && currSeries !== point.series) {
+                        currSeries.defaultOpacity = defaultOpacity;
+                        currSeries.opacity = inactiveOpacity;
+                        if (currSeries.line) {
+                            currSeries.line.opacity = inactiveOpacity;
                         }
-                        this._highlight.show(point);
+                    } else {
+                        currSeries.opacity = defaultOpacity;
+                        if (currSeries.line) {
+                            currSeries.line.opacity = defaultOpacity;
+                        }
                     }
                 }
-                return point;
+            },
+            _applySeriesOpacity: function (elements, activeSeries, reset, series) {
+                var this$1 = this;
+                for (var i = 0; i < elements.length; i++) {
+                    var element = elements[i];
+                    var currSeries = element.series || series;
+                    if (currSeries && element.visual) {
+                        var opacity = series ? series.opacity : element.series.opacity;
+                        if (currSeries !== activeSeries || reset) {
+                            element.visual.opacity(reset ? 1 : opacity);
+                        }
+                    }
+                    if (element.children && element.children.length) {
+                        this$1._applySeriesOpacity(element.children, activeSeries, reset, element.series);
+                    }
+                }
+            },
+            _chartInstanceFromPoint: function (point) {
+                var chartInstance = point.parent;
+                while (chartInstance && !chartInstance.plotArea) {
+                    chartInstance = chartInstance.parent;
+                }
+                return chartInstance;
+            },
+            _hasInactiveOpacity: function () {
+                var hasDefaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity !== undefined;
+                var hasInactiveOpacity = this.options.series.filter(function (s) {
+                    return s.highlight.inactiveOpacity !== undefined;
+                }).length > 0;
+                return hasDefaultInactiveOpacity || hasInactiveOpacity;
+            },
+            _getInactiveOpacityForSeries: function (series) {
+                var defaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity;
+                var seriesInactiveOpacity = series.highlight.inactiveOpacity;
+                return seriesInactiveOpacity || defaultInactiveOpacity || series.opacity || datavizConstants.DEFAULT_SERIES_OPACITY;
+            },
+            _getDefaultOpacityForSeries: function (series) {
+                return series.defaultOpacity || series.opacity || datavizConstants.DEFAULT_SERIES_OPACITY;
             },
             _mouseover: function (e) {
                 var point = this._startHover(e.element, e.originalEvent);
@@ -11804,7 +11928,13 @@
                 } else {
                     items = plotArea.pointsBySeriesIndex(seriesIndex);
                 }
-                highlight.show(items);
+                if (this._hasInactiveOpacity() && currentSeries.visible && items) {
+                    var multipleSeries = plotArea.series.length > 1;
+                    var point = items.length ? items[0] : items;
+                    this._displayInactiveOpacity(point, multipleSeries, items);
+                } else {
+                    highlight.show(items);
+                }
             },
             _shouldAttachMouseMove: function () {
                 return this._plotArea.crosshairs.length || this._tooltip && this._sharedTooltip() || this.requiresHandlers([
@@ -12623,6 +12753,11 @@
             },
             _legendItemClick: function (seriesIndex, pointIndex) {
                 var chart = this._instance, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex];
+                if (chart._hasInactiveOpacity() && chart._activеChartInstance) {
+                    chart._updateSeriesOpacity(null, true);
+                    chart._applySeriesOpacity(chart._activеChartInstance.children, null, true);
+                    chart._activеChartInstance = null;
+                }
                 if ($.inArray(currentSeries.type, [
                         PIE,
                         DONUT,

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -36,7 +36,7 @@
         depends: ['core']
     };
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, Draggable = ui.Draggable, selector = kendo.selectorFromClasses, RESIZE = 'resize', REORDER = 'reorder', NS = '.kendoTileLayout', DOWNCURSOR = 'k-cursor-ns-resize', RIGHTCURSOR = 'k-cursor-ew-resize', DIAGONALCURSOR = 'k-cursor-nwse-resize', RTLDIAGONALCURSOR = 'k-cursor-nesw-resize', GRABCURSOR = 'k-cursor-grab', GRABBINGCURSOR = 'k-cursor-grabbing', MINIMALSPAN = 1, CURSORCLASSES = 'k-cursor-nesw-resize k-cursor-nwse-resize k-cursor-ew-resize k-cursor-ns-resize';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, Draggable = ui.Draggable, keys = kendo.keys, selector = kendo.selectorFromClasses, RESIZE = 'resize', REORDER = 'reorder', NS = '.kendoTileLayout', DOWNCURSOR = 'k-cursor-ns-resize', RIGHTCURSOR = 'k-cursor-ew-resize', DIAGONALCURSOR = 'k-cursor-nwse-resize', RTLDIAGONALCURSOR = 'k-cursor-nesw-resize', GRABCURSOR = 'k-cursor-grab', GRABBINGCURSOR = 'k-cursor-grabbing', MINIMALSPAN = 1, CURSORCLASSES = 'k-cursor-nesw-resize k-cursor-nwse-resize k-cursor-ew-resize k-cursor-ns-resize';
         var tileLayoutStyles = {
             wrapper: 'k-widget k-tilelayout',
             item: 'k-tilelayout-item k-card',
@@ -58,6 +58,7 @@
                 that._setWrapperStyles();
                 that._initContainers();
                 that._resizable();
+                that._navigatable();
                 that._reorderable();
             },
             events: [
@@ -74,6 +75,7 @@
                 containers: [],
                 resizable: false,
                 reorderable: false,
+                navigatable: false,
                 columnsWidth: '1fr',
                 rowsHeight: '1fr',
                 height: '',
@@ -296,6 +298,114 @@
                 container.css('width', width);
                 container.css('height', height);
                 container.css('z-index', 2);
+            },
+            _navigatable: function () {
+                if (!this.options.navigatable) {
+                    return;
+                }
+                var that = this;
+                that.element.children().attr('tabindex', 0);
+                that.element.on('keydown' + NS, that, $.proxy(that._keyDown, that));
+            },
+            _keyDown: function (e) {
+                var target = $(e.target);
+                var canHandle = false;
+                if (!target.is('.k-tilelayout-item.k-card')) {
+                    return;
+                }
+                if (e.ctrlKey && e.keyCode == keys.LEFT) {
+                    canHandle = true;
+                    this._resizeItem(target, 'horizontal', -1);
+                }
+                if (e.ctrlKey && e.keyCode == keys.RIGHT) {
+                    canHandle = true;
+                    this._resizeItem(target, 'horizontal', 1);
+                }
+                if (e.ctrlKey && e.keyCode == keys.UP) {
+                    canHandle = true;
+                    this._resizeItem(target, 'vertical', -1);
+                }
+                if (e.ctrlKey && e.keyCode == keys.DOWN) {
+                    canHandle = true;
+                    this._resizeItem(target, 'vertical', 1);
+                }
+                if (e.shiftKey && e.keyCode == keys.LEFT) {
+                    canHandle = true;
+                    this._reorderItem(target, -1);
+                }
+                if (e.shiftKey && e.keyCode == keys.RIGHT) {
+                    canHandle = true;
+                    this._reorderItem(target, 1);
+                }
+                if (canHandle) {
+                    e.preventDefault();
+                }
+            },
+            _resizeItem: function (item, dir, delta) {
+                var that = this;
+                var id = item.attr('id');
+                var newSpan;
+                var maxSpan;
+                if (!that.options.resizable) {
+                    return;
+                }
+                if (dir === 'horizontal') {
+                    newSpan = parseInt(item.css('grid-column-end').replace('span', ''), 10) + delta;
+                    maxSpan = that.element.css('grid-template-columns').split(' ').length;
+                    if (maxSpan >= newSpan && newSpan > 0) {
+                        that.itemsMap[id].colSpan = newSpan;
+                        item.css({ 'grid-column-end': kendo.format('span {0}', newSpan) });
+                    }
+                } else {
+                    newSpan = parseInt(item.css('grid-row-end').replace('span', ''), 10) + delta;
+                    maxSpan = that.element.css('grid-template-rows').split(' ').length;
+                    if (maxSpan >= newSpan && newSpan > 0) {
+                        that.itemsMap[id].rowSpan = newSpan;
+                        item.css({ 'grid-row-end': kendo.format('span {0}', newSpan) });
+                    }
+                }
+            },
+            _reorderItem: function (item, newOrder) {
+                if (!this.options.reorderable) {
+                    return;
+                }
+                var oldOrder = parseInt(item.css('order'), 10);
+                var maxOrder = this.element.children().length;
+                newOrder = oldOrder + newOrder;
+                if (newOrder >= 0 && newOrder < maxOrder) {
+                    var target = this.element.find('> [' + kendo.attr('index') + '=\'' + newOrder + '\']');
+                    this.itemsMap[item.attr('id')].order = newOrder;
+                    this.itemsMap[target.attr('id')].order = oldOrder;
+                    this._updateContainers();
+                    this._updateDOM();
+                    item.focus();
+                }
+            },
+            _sortContainers: function (containers) {
+                var indexAttr = kendo.attr('index');
+                return containers.sort(function (a, b) {
+                    a = $(a);
+                    b = $(b);
+                    var indexA = a.attr(indexAttr);
+                    var indexB = b.attr(indexAttr);
+                    if (indexA === undefined) {
+                        indexA = $(a).index();
+                    }
+                    if (indexB === undefined) {
+                        indexB = $(b).index();
+                    }
+                    indexA = parseInt(indexA, 10);
+                    indexB = parseInt(indexB, 10);
+                    return indexA > indexB ? 1 : indexA < indexB ? -1 : 0;
+                });
+            },
+            _updateDOM: function () {
+                var that = this;
+                var containers = that.element.children(':visible');
+                containers = that._sortContainers(containers);
+                containers.each(function () {
+                    $(this).appendTo(that.element);
+                });
             },
             _resizable: function () {
                 var that = this;
@@ -532,26 +642,11 @@
                         var oldOrder = parseInt(container.css('order'), 10);
                         var itemId = container.attr('id');
                         var containers = that.element.children(':visible');
-                        var indexAttr = kendo.attr('index');
                         var start;
                         var end;
                         var item;
                         var direction;
-                        containers.sort(function (a, b) {
-                            a = $(a);
-                            b = $(b);
-                            var indexA = a.attr(indexAttr);
-                            var indexB = b.attr(indexAttr);
-                            if (indexA === undefined) {
-                                indexA = $(a).index();
-                            }
-                            if (indexB === undefined) {
-                                indexB = $(b).index();
-                            }
-                            indexA = parseInt(indexA, 10);
-                            indexB = parseInt(indexB, 10);
-                            return indexA > indexB ? 1 : indexA < indexB ? -1 : 0;
-                        });
+                        containers = that._sortContainers(containers);
                         newOrder = containers.index(that.dropHint[0]);
                         end = Math.max(newOrder, oldOrder);
                         start = Math.min(newOrder, oldOrder);
@@ -570,6 +665,9 @@
                         that._updateContainers();
                         e.sender.hint.remove();
                         that._removeDropHint();
+                        if (that.options.navigatable) {
+                            that._updateDOM();
+                        }
                         that.trigger(REORDER, {
                             newIndex: newOrder,
                             oldIndex: oldOrder,

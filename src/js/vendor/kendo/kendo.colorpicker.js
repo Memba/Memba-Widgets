@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -53,7 +53,7 @@
                 noColor: 'no color',
                 clearColor: 'Clear color',
                 previewInput: 'Color Hexadecimal Code'
-            }, NS = '.kendoColorTools', CLICK_NS = 'click' + NS, KEYDOWN_NS = 'keydown' + NS, DISABLED = 'k-state-disabled', browser = kendo.support.browser, isIE8 = browser.msie && browser.version < 9;
+            }, NS = '.kendoColorTools', CLICK_NS = 'click' + NS, KEYDOWN_NS = 'keydown' + NS, DISABLED = 'k-state-disabled';
         var ColorSelector = Widget.extend({
             init: function (element, options) {
                 var that = this, ariaId;
@@ -308,9 +308,6 @@
                     that._updateUI(that.color());
                     that._cancel();
                 });
-                if (isIE8) {
-                    that._applyIEFilter();
-                }
             },
             destroy: function () {
                 this._hsvEvents.destroy();
@@ -330,11 +327,6 @@
                 clearButton: false,
                 autoupdate: true,
                 messages: MESSAGES
-            },
-            _applyIEFilter: function () {
-                var track = this.element.find('.k-hue-slider .k-slider-track')[0], url = track.currentStyle.backgroundImage;
-                url = url.replace(/^url\([\'\"]?|[\'\"]?\)$/g, '');
-                track.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src=\'' + url + '\', sizingMethod=\'scale\')';
             },
             _sliders: function () {
                 var that = this, element = that.element, hueSlider = element.find('.k-hue-slider'), opacitySlider = element.find('.k-alpha-slider');

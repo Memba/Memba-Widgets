@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -649,7 +649,7 @@
                 return that;
             },
             title: function (title) {
-                var that = this, value, encoded = true, wrapper = that.wrapper, titleBar = wrapper.children(KWINDOWTITLEBAR), titleElement = titleBar.children(KWINDOWTITLE), titleBarHeight, display, visibility;
+                var that = this, value, encoded = true, wrapper = that.wrapper, titleBar = wrapper.children(KWINDOWTITLEBAR), titleElement = titleBar.children(KWINDOWTITLE);
                 if (!arguments.length) {
                     return titleElement.html();
                 }
@@ -671,25 +671,6 @@
                     } else {
                         titleElement.html(encoded ? kendo.htmlEncode(value) : value);
                     }
-                    visibility = wrapper.css('visibility');
-                    display = wrapper.css('display');
-                    if (visibility === HIDDEN) {
-                        wrapper.css({ display: '' });
-                        titleBarHeight = parseInt(outerHeight(titleBar), 10);
-                        wrapper.css({ display: display });
-                    } else {
-                        wrapper.css({
-                            visibility: HIDDEN,
-                            display: ''
-                        });
-                        titleBarHeight = parseInt(outerHeight(titleBar), 10);
-                        wrapper.css({
-                            visibility: visibility,
-                            display: display
-                        });
-                    }
-                    wrapper.css('padding-top', titleBarHeight);
-                    titleBar.css('margin-top', -titleBarHeight);
                 }
                 that.options.title = value;
                 return that;
@@ -863,7 +844,7 @@
                 return this.options.autoFocus && !$(active).is(element) && !this._actionable(target) && (!element.find(active).length || !element.find(target).length);
             },
             toFront: function (e) {
-                var that = this, wrapper = that.wrapper, currentWindow = wrapper[0], containmentContext = that.containment && !that._isPinned, zIndex = +wrapper.css(ZINDEX), originalZIndex = zIndex, target = e && e.target || null;
+                var that = this, wrapper = that.wrapper, currentWindow = wrapper[0], containmentContext = that.containment && !that._isPinned, openAnimation = this._animationOptions('open'), zIndex = +wrapper.css(ZINDEX), originalZIndex = zIndex, target = e && e.target || null;
                 $(KWINDOW).each(function (i, element) {
                     var windowObject = $(element), zIndexNew = windowObject.css(ZINDEX), contentElement = windowObject.children(KWINDOWCONTENT);
                     if (!isNaN(zIndexNew)) {
@@ -881,7 +862,7 @@
                 if (that._shouldFocus(target)) {
                     setTimeout(function () {
                         that.wrapper.focus();
-                    });
+                    }, openAnimation ? openAnimation.duration : 0);
                     var scrollTop = containmentContext ? that.containment.scrollTop() : $(window).scrollTop(), windowTop = parseInt(wrapper.position().top, 10);
                     if (!that.options.pinned && windowTop > 0 && windowTop < scrollTop) {
                         if (scrollTop > 0) {

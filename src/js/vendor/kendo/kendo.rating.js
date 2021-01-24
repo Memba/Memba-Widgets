@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -73,12 +73,12 @@
             active: 'k-state-active',
             hidden: 'k-hidden'
         };
-        var RATING_TEMPLATE = kendo.template('<span class="#=styles.widget#"></span>');
-        var RATING_CONTAINER_TEMPLATE = kendo.template('<span class="#=styles.container#"></span>');
-        var RATING_LABEL_WRAPPER_TEMPLATE = kendo.template('<span class="#=styles.label#"></span>');
-        var RATING_LABEL_TEMPLATE = kendo.template('<span>#=value# / #=maxValue#</span>');
-        var RATING_ITEM_WRAPPER_TEMPLATE = kendo.template('<span class="#=styles.item#" data-value="#=value#"></span>');
-        var RATING_ITEM_TEMPLATE = kendo.template('<span class="#=icon#"></span>');
+        var RATING_TEMPLATE = kendo.template('<span class="#:styles.widget#"></span>');
+        var RATING_CONTAINER_TEMPLATE = kendo.template('<span class="#:styles.container#"></span>');
+        var RATING_LABEL_WRAPPER_TEMPLATE = kendo.template('<span class="#:styles.label#"></span>');
+        var RATING_LABEL_TEMPLATE = kendo.template('<span>#:value# / #:maxValue#</span>');
+        var RATING_ITEM_WRAPPER_TEMPLATE = kendo.template('<span class="#:styles.item#" data-value="#:value#"></span>');
+        var RATING_ITEM_TEMPLATE = kendo.template('<span class="#:icon#"></span>');
         var Rating = Widget.extend({
             init: function (element, options) {
                 var that = this;

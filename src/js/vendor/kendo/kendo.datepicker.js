@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -87,7 +87,6 @@
                     div = $(DIV).attr(ID, kendo.guid()).appendTo(options.omitPopup ? options.dateDiv : that.popup.element).on(MOUSEDOWN, preventDefault).on(CLICK, 'td:has(.k-link)', proxy(that._click, that));
                     that.calendar = calendar = new ui.Calendar(div, { componentType: options.componentType });
                     that._setOptions(options);
-                    kendo.calendar.makeUnselectable(calendar.element);
                     calendar.navigate(that._value || that._current, options.start);
                     that.value(that._value);
                 }

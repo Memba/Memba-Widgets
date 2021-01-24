@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -370,7 +370,10 @@
                 'resizeStart',
                 'resize',
                 'resizeEnd',
+                'columnHide',
+                'columnReorder',
                 'columnResize',
+                'columnShow',
                 'togglePlannedTasks'
             ],
             options: {
@@ -861,17 +864,16 @@
             _getListEditable: function () {
                 var editable = false, options = this.options;
                 if (options.editable !== false) {
-                    if (options.editable) {
-                        if (options.editable.update === false) {
-                            editable = false;
-                        } else if (options.editable.reorder !== false) {
+                    editable = 'incell';
+                    if (options.editable && options.editable.update === false) {
+                        editable = false;
+                    } else {
+                        if (!options.editable || options.editable.reorder !== false) {
                             editable = {
                                 mode: 'incell',
                                 move: { reorderable: true }
                             };
                         }
-                    } else {
-                        editable = 'incell';
                     }
                 }
                 return editable;
@@ -912,7 +914,23 @@
                         }
                         delete that._cachedCurrent;
                     };
-                that.list.bind('render', function () {
+                that.list.bind('columnShow', function (e) {
+                    that.trigger('columnShow', { column: e.column });
+                }).bind('columnHide', function (e) {
+                    that.trigger('columnHide', { column: e.column });
+                }).bind('columnReorder', function (e) {
+                    that.trigger('columnReorder', {
+                        column: e.column,
+                        oldIndex: e.oldIndex,
+                        newIndex: e.newIndex
+                    });
+                }).bind('columnResize', function (e) {
+                    that.trigger('columnResize', {
+                        column: e.column,
+                        oldWidth: e.oldWidth,
+                        newWidth: e.newWidth
+                    });
+                }).bind('render', function () {
                     that._navigatable();
                 }, true).bind('beforeEdit', function (e) {
                     that._cachedCurrent = {
@@ -987,12 +1005,6 @@
                         toggleButtons.attr('data-action', 'add');
                         that.timeline.clearSelection();
                     }
-                }).bind('columnResize', function (e) {
-                    that.trigger('columnResize', {
-                        column: e.column,
-                        oldWidth: e.oldWidth,
-                        newWidth: e.newWidth
-                    });
                 }).bind('collapse', function (e) {
                     e.preventDefault();
                     var row = that.list.element.find('tr[data-uid=\'' + e.model.uid + '\']');

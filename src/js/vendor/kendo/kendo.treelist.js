@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -204,6 +204,7 @@
             editRow: 'k-grid-edit-row',
             dirtyCell: 'k-dirty-cell',
             group: 'k-treelist-group',
+            toolbar: 'k-toolbar',
             gridToolbar: 'k-grid-toolbar',
             gridHeader: 'k-grid-header',
             gridHeaderWrap: 'k-grid-header-wrap',
@@ -1958,7 +1959,7 @@
                     }
                     dataSource._insertInChildrenMap(nodeData, originalDestIndex);
                 }
-                if (destIndex >= nodeDataIndex) {
+                if (destIndex > nodeDataIndex) {
                     destIndex -= 1;
                 }
                 dataSource._data.splice(destIndex, 0, nodeData);
@@ -2906,9 +2907,6 @@
                         this.current(this.items().eq(currentIndex).children(NAVCELL).first());
                     }
                 }
-                if (browser.msie && browser.version < 9) {
-                    document.body.focus();
-                }
                 focusTable(currentTable, true);
                 return true;
             },
@@ -3442,7 +3440,7 @@
                     layout = '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<thead class=\'#= gridHeader #\' role=\'rowgroup\'></thead>' + '<tbody></tbody>' + '</table>';
                 }
                 if (this.options.toolbar) {
-                    layout = '<div class=\'#= header # #= gridToolbar #\'></div>' + layout;
+                    layout = '<div class=\'#= toolbar # #= gridToolbar #\'></div>' + layout;
                 }
                 element.append(kendo.template(layout)(classNames) + '<div class=\'k-status\'></div>');
                 this.toolbar = element.find(DOT + classNames.gridToolbar);
@@ -4412,7 +4410,7 @@
                 });
             },
             autoFitColumn: function (column) {
-                var that = this, options = that.options, columns = that.columns, index, browser = kendo.support.browser, th, headerTable, isLocked, visibleLocked = that.lockedHeader ? leafDataCells(that.lockedHeader.find('>table>thead')).filter(isCellVisible).length : 0, col;
+                var that = this, options = that.options, columns = that.columns, index, th, headerTable, isLocked, visibleLocked = that.lockedHeader ? leafDataCells(that.lockedHeader.find('>table>thead')).filter(isCellVisible).length : 0, col;
                 if (typeof column == 'number') {
                     column = columns[column];
                 } else if (isPlainObject(column)) {
@@ -4483,12 +4481,6 @@
                             this.style.width = totalWidth + 'px';
                         });
                     }
-                }
-                if (browser.msie && browser.version == 8) {
-                    tables.css('display', 'inline-table');
-                    setTimeout(function () {
-                        tables.css('display', 'table');
-                    }, 1);
                 }
                 tables.removeClass('k-autofitting');
                 that.trigger(COLUMNRESIZE, {

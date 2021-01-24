@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -41,7 +41,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, Transition = kendo.effects.Transition, Pane = kendo.ui.Pane, PaneDimensions = kendo.ui.PaneDimensions, Widget = ui.DataBoundWidget, DataSource = kendo.data.DataSource, math = Math, abs = math.abs, ceil = math.ceil, round = math.round, max = math.max, min = math.min, floor = math.floor, CHANGE = 'change', CLICK = 'click', CHANGING = 'changing', REFRESH = 'refresh', CURRENT_PAGE_CLASS = 'primary', VIRTUAL_PAGE_CLASS = 'scrollview-page', FUNCTION = 'function', ITEM_CHANGE = 'itemChange', CLEANUP = 'cleanup', VIRTUAL_PAGE_COUNT = 3, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, LEFT_SWIPE = -1, NUDGE = 0, RIGHT_SWIPE = 1;
+        var kendo = window.kendo, ui = kendo.ui, proxy = $.proxy, Transition = kendo.effects.Transition, Pane = kendo.ui.Pane, keys = kendo.keys, PaneDimensions = kendo.ui.PaneDimensions, Widget = ui.DataBoundWidget, DataSource = kendo.data.DataSource, math = Math, abs = math.abs, ceil = math.ceil, round = math.round, max = math.max, min = math.min, floor = math.floor, CHANGE = 'change', CLICK = 'click', CHANGING = 'changing', REFRESH = 'refresh', CURRENT_PAGE_CLASS = 'primary', VIRTUAL_PAGE_CLASS = 'scrollview-page', FUNCTION = 'function', ITEM_CHANGE = 'itemChange', CLEANUP = 'cleanup', NS = '.ScrollView', DOT = '.', KEYDOWN = 'keydown', FOCUS = 'focus', FOCUSOUT = 'focusout', FOCUSED = 'k-state-focused', TABINDEX = 'tabindex', VIRTUAL_PAGE_COUNT = 3, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, LEFT_SWIPE = -1, NUDGE = 0, RIGHT_SWIPE = 1;
         function className(name) {
             return 'k-' + name;
         }
@@ -130,22 +130,103 @@
                 this._refreshProxy = proxy(that, '_refresh');
                 scrollView.bind(CHANGE, this._changeProxy);
                 scrollView.bind(REFRESH, this._refreshProxy);
-                element.on(CLICK, 'li.k-link', proxy(this._click, scrollView));
+                element.on(CLICK + NS, 'li.k-link', proxy(this._click, scrollView));
                 $.extend(that, {
                     element: element,
                     scrollView: scrollView
                 });
+                that._navigatable();
             },
             items: function () {
                 return this.element.children();
             },
+            _focus: function () {
+                var that = this;
+                that._focused = true;
+                that._setCurrent(that.element.find(DOT + className(CURRENT_PAGE_CLASS)));
+            },
+            _blur: function () {
+                var that = this;
+                that._focused = false;
+                if (that._current) {
+                    that._current.removeClass(FOCUSED);
+                    that._current.removeAttr('id');
+                    that.element.removeAttr('aria-activedescendant');
+                }
+            },
+            _keyDown: function (e) {
+                var that = this;
+                var handled;
+                var next;
+                var current = that._current;
+                var key = e.keyCode;
+                if (key == keys.LEFT) {
+                    handled = true;
+                    next = current.prev('li.k-link');
+                    if (next.length) {
+                        that._setCurrent(next);
+                    }
+                }
+                if (key == keys.RIGHT) {
+                    handled = true;
+                    next = current.next('li.k-link');
+                    if (next.length) {
+                        that._setCurrent(next);
+                    }
+                }
+                if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
+                    handled = true;
+                    that._current.trigger('click');
+                }
+                if (handled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            },
+            _setCurrent: function (current) {
+                if (!this._focused) {
+                    return;
+                }
+                var that = this;
+                var id = kendo.guid();
+                var next = $(current);
+                if (that._current) {
+                    $(that._current).removeClass(FOCUSED).removeAttr('id');
+                    that.element.removeAttr('aria-activedescendant');
+                }
+                next.attr('id', id).addClass(FOCUSED);
+                that.element.attr('aria-activedescendant', id);
+                that._current = next;
+            },
+            _navigatable: function () {
+                var that = this;
+                var pageable = that.scrollView.options.pageable || {};
+                if (!that.scrollView.options.navigatable) {
+                    return;
+                }
+                that.element.attr(TABINDEX, 0).attr('role', 'listbox');
+                that._ariaTemplate = kendo.template(pageable.ARIATemplate || 'Item #=data.index#');
+                that.element.on(KEYDOWN + NS, that, proxy(that._keyDown, that));
+                that.element.on(FOCUS + NS, proxy(that._focus, that));
+                that.element.on(FOCUSOUT + NS, proxy(that._blur, that));
+            },
             _refresh: function (e) {
                 var pageHTML = '';
+                var navigatable = this.scrollView.options.navigatable;
+                var current;
                 for (var idx = 0; idx < e.pageCount; idx++) {
-                    pageHTML += '<li class="k-link"></li>';
+                    if (navigatable) {
+                        pageHTML += '<li class="k-link" role="option" aria-label="' + this._ariaTemplate({ index: idx }) + '" aria-selected="false"></li>';
+                    } else {
+                        pageHTML += '<li class="k-link"></li>';
+                    }
                 }
                 this.element.html(pageHTML);
-                this.items().eq(e.page).addClass(className(CURRENT_PAGE_CLASS));
+                current = this.items().eq(e.page);
+                current.addClass(className(CURRENT_PAGE_CLASS));
+                if (navigatable) {
+                    current.attr('aria-selected', true);
+                }
                 this.scrollView._toggleNavigation({ currentPage: e.page });
             },
             _change: function (e) {
@@ -156,7 +237,16 @@
                 var scrollViewWidth = this.scrollView.element.width();
                 var containerOffset = (scrollViewWidth - innerNavigationContainer.width()) / 2;
                 var pageWidth = innerNavigationContainer.find('li.k-link:eq(0)').outerWidth(true) / 2;
-                this.items().removeClass(className(CURRENT_PAGE_CLASS)).eq(e.nextPage).addClass(className(CURRENT_PAGE_CLASS));
+                var items = this.items();
+                var navigatable = this.scrollView.options.navigatable;
+                var current;
+                items.removeClass(className(CURRENT_PAGE_CLASS));
+                current = items.eq(e.nextPage).addClass(className(CURRENT_PAGE_CLASS));
+                if (navigatable) {
+                    items.attr('aria-selected', false);
+                    this._setCurrent(current);
+                    current.attr('aria-selected', true);
+                }
                 var itemOffset = this.items().eq(e.nextPage).length > 0 ? this.items().eq(e.nextPage).position().left : 0;
                 if (itemOffset > scrollViewWidth / 2 || itemOffset < kendo.scrollLeft(innerNavigationContainer) + scrollViewWidth / 2) {
                     var translate = 0;
@@ -180,7 +270,7 @@
             destroy: function () {
                 this.scrollView.unbind(CHANGE, this._changeProxy);
                 this.scrollView.unbind(REFRESH, this._refreshProxy);
-                this.element.off(CLICK);
+                this.element.off(NS);
                 this.element.remove();
             }
         });
@@ -689,9 +779,10 @@
                 } else {
                     element.wrapInner('<div class=\'k-scrollview-wrap\'/>');
                 }
+                that.itemsWrapper = element.find('.k-scrollview-wrap');
                 element.addClass('k-widget ' + className('scrollview'));
                 that._initNavigation();
-                if (this.options.enablePager) {
+                if (this.options.pageable || this.options.enablePager) {
                     this.pager = new Pager(this);
                     if (this.options.pagerOverlay) {
                         element.addClass(className('scrollview-overlay'));
@@ -759,11 +850,13 @@
                 });
                 that._content = content;
                 that.setDataSource(options.dataSource);
-                this.viewInit();
-                this.viewShow();
+                that.viewInit();
+                that.viewShow();
+                that._navigatable();
             },
             options: {
                 name: 'ScrollView',
+                ARIATemplate: 'Item #=data.index# of #=data.total#',
                 page: 0,
                 duration: 400,
                 velocityThreshold: 0.8,
@@ -773,9 +866,15 @@
                 enablePager: true,
                 enableNavigationButtons: true,
                 pagerOverlay: true,
+                navigatable: false,
                 autoBind: true,
+                pageable: false,
                 template: '',
-                emptyTemplate: ''
+                emptyTemplate: '',
+                messages: {
+                    previousButtonLabel: 'Previous',
+                    nextButtonLabel: 'Next'
+                }
             },
             events: [
                 CHANGING,
@@ -788,6 +887,13 @@
                 this.pane.destroy();
                 if (this.pager) {
                     this.pager.destroy();
+                }
+                this._navigationContainer.off(NS);
+                this._navigationContainer = null;
+                this.itemsWrapper.off(NS);
+                this.itemsWrapper = null;
+                if (this.options.navigatable) {
+                    this.ariaLiveEl = this._current = null;
                 }
                 this.inner = null;
                 kendo.destroy(this.element);
@@ -871,6 +977,38 @@
             items: function () {
                 return this.element.find('.k-' + VIRTUAL_PAGE_CLASS);
             },
+            _updateAria: function () {
+                var content = this._content;
+                if (this.options.navigatable) {
+                    this.ariaLiveEl.html(this._ariaTemplate({
+                        index: content.page + 1,
+                        total: content.pageCount
+                    }));
+                }
+            },
+            _setCurrent: function (current) {
+                if (!this._focused) {
+                    return;
+                }
+                var that = this;
+                var page = that._content.page;
+                var id = kendo.guid();
+                var children = that.itemsWrapper.children();
+                var next = $(current || children.eq(page));
+                if (that._content.pages) {
+                    children.attr('aria-hidden', true);
+                    that._content.pages[1].element.removeAttr('aria-hidden');
+                    return;
+                }
+                if (that._current) {
+                    $(that._current).removeClass(FOCUSED).removeAttr('id');
+                    children.attr('aria-hidden', true);
+                }
+                next.attr('id', id).removeAttr('aria-hidden').addClass(FOCUSED);
+                that.itemsWrapper.attr('aria-activedescendant', id);
+                that._updateAria();
+                that._current = next;
+            },
             _dragStart: function () {
                 this._content.forcePageUpdate();
             },
@@ -887,17 +1025,84 @@
             },
             _transitionEnd: function () {
                 this._content.updatePage();
+                if (this.options.navigatable) {
+                    this._setCurrent();
+                }
             },
             _initNavigation: function () {
                 var that = this;
+                var prevArrow;
+                var nextArrow;
+                var messages = that.options.messages;
                 var navigationContainer = that._navigationContainer = $('<div class=\'k-scrollview-elements\'></div>');
-                var prevArrow = $('<a class="k-scrollview-prev"><span class="k-icon k-i-arrowhead-w"></span></a>').hide();
-                var nextArrow = $('<a class="k-scrollview-next"><span class="k-icon k-i-arrowhead-e"></span></a>').hide();
+                if (that.options.navigatable) {
+                    prevArrow = $('<a class="k-scrollview-prev" aria-label="' + messages.previousButtonLabel + '"><span class="k-icon k-i-arrowhead-w"></span></a>');
+                    nextArrow = $('<a class="k-scrollview-next" aria-label="' + messages.nextButtonLabel + '"><span class="k-icon k-i-arrowhead-e"></span></a>');
+                } else {
+                    prevArrow = $('<a class="k-scrollview-prev"><span class="k-icon k-i-arrowhead-w"></span></a>');
+                    nextArrow = $('<a class="k-scrollview-next"><span class="k-icon k-i-arrowhead-e"></span></a>');
+                }
+                prevArrow.hide();
+                nextArrow.hide();
                 navigationContainer.append(prevArrow);
                 navigationContainer.append(nextArrow);
                 that.element.append(navigationContainer);
-                navigationContainer.on(CLICK, 'a.k-scrollview-prev', proxy(that.prev, that));
-                navigationContainer.on(CLICK, 'a.k-scrollview-next', proxy(that.next, that));
+                if (that.options.navigatable) {
+                    that.ariaLiveEl = $('<div aria-live=\'polite\' aria-atomic=\'true\' class=\'k-sr-only\'></div>');
+                    that.element.append(that.ariaLiveEl);
+                }
+                navigationContainer.on(CLICK + NS, 'a.k-scrollview-prev', proxy(that.prev, that));
+                navigationContainer.on(CLICK + NS, 'a.k-scrollview-next', proxy(that.next, that));
+            },
+            _navigatable: function () {
+                var that = this;
+                var navigationContainer = that._navigationContainer;
+                if (!that.options.navigatable) {
+                    return;
+                }
+                that._ariaTemplate = kendo.template(that.options.ARIATemplate);
+                navigationContainer.find('>a.k-scrollview-prev').attr(TABINDEX, 0);
+                navigationContainer.find('>a.k-scrollview-next').attr(TABINDEX, 0);
+                navigationContainer.on(KEYDOWN + NS, that, function (e) {
+                    var target = $(e.target);
+                    if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
+                        e.preventDefault();
+                        target.click();
+                    }
+                });
+                that.itemsWrapper.attr('aria-roledescription', 'carousel').attr(TABINDEX, 0);
+                that.itemsWrapper.on(KEYDOWN + NS, that, proxy(that._keyDown, that));
+                that.itemsWrapper.on(FOCUS + NS, proxy(that._focus, that));
+                that.itemsWrapper.on(FOCUSOUT + NS, proxy(that._blur, that));
+            },
+            _focus: function () {
+                var that = this;
+                that._focused = true;
+                that._setCurrent();
+            },
+            _blur: function () {
+                if (this._current) {
+                    this._current.removeClass(FOCUSED);
+                    this._current.removeAttr('id');
+                    this.itemsWrapper.removeAttr('aria-activedescendant');
+                }
+            },
+            _keyDown: function (e) {
+                var that = this;
+                var handled;
+                var key = e.keyCode;
+                if (key == keys.LEFT) {
+                    handled = true;
+                    that.prev();
+                }
+                if (key == keys.RIGHT) {
+                    handled = true;
+                    that.next();
+                }
+                if (handled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
             },
             _toggleNavigation: function (e) {
                 var page = e.nextPage || e.nextPage === 0 ? e.nextPage : e.currentPage;

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -3415,7 +3415,16 @@
                     view.unbind('navigate', that._viewNavigateHandler);
                 }
                 that._viewNavigateHandler = function (e) {
-                    if (e.view) {
+                    if (e.action) {
+                        if (!that.trigger('navigate', {
+                                view: e.view,
+                                isWorkDay: e.isWorkDay,
+                                action: e.action,
+                                date: e.date
+                            })) {
+                            that.date(e.date);
+                        }
+                    } else if (e.view) {
                         var switchWorkDay = 'isWorkDay' in e;
                         var action = switchWorkDay ? 'changeWorkDay' : 'changeView';
                         if (!that.trigger('navigate', {
@@ -3846,7 +3855,7 @@
                         that.view(name);
                     }
                 });
-                toolbar.on(CHANGE + NS, '.k-views-dropdown', function () {
+                toolbar.on(CHANGE + NS, '.k-views-dropdown, .k-scheduler-mobile-views', function () {
                     var name = this.value;
                     if (!that.trigger('navigate', {
                             view: name,
@@ -3855,9 +3864,6 @@
                         })) {
                         that.view(name);
                     }
-                });
-                toolbar.find('.k-scheduler-mobile-views').on('change', function (e) {
-                    that.view(e.target.value);
                 });
             },
             _showCalendar: function (targetElm) {

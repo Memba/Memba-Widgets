@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -58,7 +58,6 @@
                 div = $(DIV).attr(ID, kendo.guid()).appendTo(that.popup.element).on(MOUSEDOWN, preventDefault).on(CLICK, 'td:has(.k-link)', proxy(that._click, that));
                 that.calendar = calendar = new ui.MultiViewCalendar(div);
                 that._setOptions(options);
-                kendo.calendar.makeUnselectable(calendar.element);
                 calendar.navigate(that._value || that._current, options.start);
                 that.calendar.selectRange(that._range || options.range || {});
             }
@@ -444,7 +443,7 @@
                         start: range.start,
                         end: null
                     });
-                } else if (range.start && range.start && +range.start <= +range.end) {
+                } else if (range.start && range.end && +range.start <= +range.end) {
                     that.dateView.range({
                         start: range.start,
                         end: range.end

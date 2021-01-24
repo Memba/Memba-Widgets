@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -177,6 +177,10 @@
         }
         function updateItemClasses(item) {
             item = $(item);
+            var omitWrap = item.attr(kendo.attr('omit-wrap'));
+            if (omitWrap) {
+                return;
+            }
             item.addClass('k-item k-menu-item').children(IMG).addClass(IMAGE);
             item.children('a').addClass(LINK).children(IMG).addClass(IMAGE);
             item.filter(':not([disabled])').addClass(DEFAULTSTATE);
@@ -795,11 +799,7 @@
                                             overflow: 'auto'
                                         });
                                     };
-                                if (kendo.support.browser.msie && kendo.support.browser.version <= 7) {
-                                    setTimeout(setScrolling, 0);
-                                } else {
-                                    setScrolling();
-                                }
+                                setScrolling();
                             } else {
                                 ul.css({
                                     maxHeight: '',

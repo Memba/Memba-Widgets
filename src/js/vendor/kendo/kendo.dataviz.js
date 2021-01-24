@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2020.3.1118'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.1.119'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1334,7 +1334,7 @@
             };
         }
         function wrap(element, autosize) {
-            var browser = support.browser, percentage, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, parent = element.parent(), windowOuterWidth = outerWidth(window);
+            var percentage, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, parent = element.parent(), windowOuterWidth = outerWidth(window);
             parent.removeClass('k-animation-container-sm');
             if (!parent.hasClass('k-animation-container')) {
                 var width = element[0].style.width, height = element[0].style.height, percentWidth = percentRegExp.test(width), percentHeight = percentRegExp.test(height), forceWidth = element.hasClass('k-tooltip') || element.is('.k-menu-horizontal.k-context-menu');
@@ -1365,10 +1365,6 @@
             if (windowOuterWidth < outerWidth(parent)) {
                 parent.addClass('k-animation-container-sm');
                 wrapResize(element, autosize);
-            }
-            if (browser.msie && math.floor(browser.version) <= 7) {
-                element.css({ zoom: 1 });
-                element.children('.k-menu').width(element.width());
             }
             return parent;
         }
@@ -1707,7 +1703,6 @@
                     return 1;
                 }
             };
-            support.cssBorderSpacing = typeof docStyle.borderSpacing != 'undefined' && !(support.browser.msie && support.browser.version < 8);
             (function (browser) {
                 var cssClass = '', docElement = $(document.documentElement), majorVersion = parseInt(browser.version, 10);
                 if (browser.msie) {
@@ -1792,8 +1787,7 @@
             };
             support.matchMedia = 'matchMedia' in window;
             support.pushState = window.history && window.history.pushState;
-            var documentMode = document.documentMode;
-            support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
+            support.hashChange = 'onhashchange' in window;
             support.customElements = 'registerElement' in window.document;
             var chrome = support.browser.chrome, mobileChrome = support.browser.crios, mozilla = support.browser.mozilla, safari = support.browser.safari;
             support.msPointers = !chrome && window.MSPointerEvent;
@@ -2144,8 +2138,9 @@
                 };
             },
             guid: function () {
-                var id = '', i, random;
-                for (i = 0; i < 32; i++) {
+                var id = '', i, random, chars = 'abcdefghijklmnopqrstuvwxyz';
+                id += chars[Math.floor(Math.random() * Math.floor(chars.length))];
+                for (i = 1; i < 32; i++) {
                     random = math.random() * 16 | 0;
                     if (i == 8 || i == 12 || i == 16 || i == 20) {
                         id += '-';
@@ -3709,6 +3704,103 @@
         kendo.selectorFromClasses = function (classes) {
             return '.' + classes.split(' ').join('.');
         };
+        var themeColorValues = [
+            'primary',
+            'secondary',
+            'tertiary',
+            'inherit',
+            'info',
+            'success',
+            'warning',
+            'error',
+            'dark',
+            'light',
+            'inverse'
+        ];
+        var fillValues = [
+            'solid',
+            'outline',
+            'flat'
+        ];
+        var postitionValues = [
+            'edge',
+            'outside',
+            'inside'
+        ];
+        var shapeValues = [
+            'circle',
+            'rectangle',
+            'rounded',
+            'dot',
+            'pill'
+        ];
+        var sizeValues = [
+            [
+                'small',
+                'sm'
+            ],
+            [
+                'medium',
+                'md'
+            ],
+            [
+                'large',
+                'lg'
+            ]
+        ];
+        var alignValues = [
+            [
+                'top start',
+                'top-start'
+            ],
+            [
+                'top end',
+                'top-end'
+            ],
+            [
+                'bottom start',
+                'bottom-start'
+            ],
+            [
+                'bottom end',
+                'bottom-end'
+            ]
+        ];
+        var positionModeValues = [
+            'fixed',
+            'static',
+            'sticky',
+            'absolute'
+        ];
+        kendo.propertyToCssClassMap = {};
+        kendo.registerCssClass = function (propName, value, shorthand) {
+            if (!kendo.propertyToCssClassMap[propName]) {
+                kendo.propertyToCssClassMap[propName] = {};
+            }
+            kendo.propertyToCssClassMap[propName][value] = shorthand || value;
+        };
+        kendo.registerCssClasses = function (propName, arr) {
+            for (var i = 0; i < arr.length; i++) {
+                if (isArray(arr[i])) {
+                    kendo.registerCssClass(propName, arr[i][0], arr[i][1]);
+                } else {
+                    kendo.registerCssClass(propName, arr[i]);
+                }
+            }
+        };
+        kendo.getValidCssClass = function (prefix, propName, value) {
+            var validValue = kendo.propertyToCssClassMap[propName][value];
+            if (validValue) {
+                return prefix + validValue;
+            }
+        };
+        kendo.registerCssClasses('themeColor', themeColorValues);
+        kendo.registerCssClasses('fill', fillValues);
+        kendo.registerCssClasses('postition', postitionValues);
+        kendo.registerCssClasses('shape', shapeValues);
+        kendo.registerCssClasses('size', sizeValues);
+        kendo.registerCssClasses('align', alignValues);
+        kendo.registerCssClasses('positionMode', positionModeValues);
         kendo.whenAll = function (array) {
             var resolveValues = arguments.length == 1 && $.isArray(array) ? array : Array.prototype.slice.call(arguments), length = resolveValues.length, remaining = length, deferred = $.Deferred(), i = 0, failed = 0, rejectContexts = Array(length), rejectValues = Array(length), resolveContexts = Array(length), value;
             function updateFunc(index, contexts, values) {
@@ -5849,7 +5941,7 @@
                             result.$count = true;
                             delete result.$inlinecount;
                         }
-                        if (result.$filter) {
+                        if (result && result.$filter) {
                             result.$filter = result.$filter.replace(/('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')/gi, function (x) {
                                 return x.substring(1, x.length - 1);
                             });
@@ -6216,11 +6308,13 @@
                     howMany
                 ].concat(items));
                 if (result.length) {
-                    this.trigger(CHANGE, {
-                        action: 'remove',
-                        index: index,
-                        items: result
-                    });
+                    if (!this.omitChangeEvent) {
+                        this.trigger(CHANGE, {
+                            action: 'remove',
+                            index: index,
+                            items: result
+                        });
+                    }
                     for (i = 0, len = result.length; i < len; i++) {
                         if (result[i] && result[i].children) {
                             result[i].unbind(CHANGE);
@@ -6228,11 +6322,13 @@
                     }
                 }
                 if (item) {
-                    this.trigger(CHANGE, {
-                        action: 'add',
-                        index: index,
-                        items: items
-                    });
+                    if (!this.omitChangeEvent) {
+                        this.trigger(CHANGE, {
+                            action: 'add',
+                            index: index,
+                            items: items
+                        });
+                    }
                 }
                 return result;
             },
@@ -7543,13 +7639,13 @@
                 }
             }
             if (customGroupSort) {
-                query = query.group(group, data);
+                query = query.group(group, data, options);
                 if (skip !== undefined && take !== undefined) {
                     query = new Query(flatGroups(query.toArray())).range(skip, take);
                     groupDescriptorsWithoutSort = map(groupDescriptorsWithoutCompare, function (groupDescriptor) {
                         return extend({}, groupDescriptor, { skipItemSorting: true });
                     });
-                    query = query.group(groupDescriptorsWithoutSort, data);
+                    query = query.group(groupDescriptorsWithoutSort, data, options);
                 }
             } else {
                 if (skip !== undefined && take !== undefined) {
@@ -9309,7 +9405,6 @@
                 var group;
                 var current;
                 var itemsLength;
-                var hasNotRequestedItems;
                 var groupCount;
                 var itemsToSkip;
                 for (var i = 0; i < length; i++) {
@@ -9322,22 +9417,15 @@
                     }
                     if (that._groupsState[group.uid]) {
                         if (that._isServerGroupPaged()) {
-                            if (group.hasSubgroups && !group.subgroupCount) {
-                                that.getGroupSubGroupCount(group, options, parents, callback);
+                            if (that._fetchGroupItems(group, options, parents, callback)) {
                                 that._fetchingGroupItems = true;
                                 return;
                             }
                             groupCount = (group.subgroupCount || group.itemCount) + 1;
                             itemsToSkip = options.skip - options.skipped;
-                            hasNotRequestedItems = !group.items || group.items.length - itemsToSkip < options.take - options.taken;
                             if (!that._hasExpandedSubGroups(group) && itemsToSkip > groupCount) {
                                 options.skipped += groupCount;
                                 continue;
-                            }
-                            if (group.hasSubgroups && (!group.items || hasNotRequestedItems && group.items.length < group.subgroupCount) || !group.hasSubgroups && (!group.items || hasNotRequestedItems && group.items.length < group.itemCount)) {
-                                that.getGroupItems(group, options, parents, callback);
-                                that._fetchingGroupItems = true;
-                                return;
                             }
                         }
                         if (options.includeParents && options.skipped < options.skip) {
@@ -9345,6 +9433,7 @@
                             group.excludeHeader = true;
                         } else if (options.includeParents) {
                             options.taken++;
+                            group.excludeHeader = false;
                         }
                         if (group.hasSubgroups && group.items && group.items.length) {
                             group.currentItems = [];
@@ -9390,9 +9479,86 @@
                     }
                 }
             },
-            getGroupItems: function (group, options, parents, callback) {
+            _expandedSubGroupItemsCount: function (group, end, includeCurrentItems) {
                 var that = this;
-                var skip;
+                var result = 0;
+                var subGroup;
+                var endSpecified = typeof end === 'number';
+                var length = endSpecified ? end : group.subgroupCount;
+                var temp;
+                if (!group.hasSubgroups) {
+                    return result;
+                }
+                for (var i = 0; i < length; i++) {
+                    subGroup = group.items[i];
+                    if (!subGroup) {
+                        break;
+                    }
+                    if (subGroup.hasSubgroups && that._groupsState[group.uid]) {
+                        temp = that._expandedSubGroupItemsCount(subGroup, length, true);
+                        result += temp;
+                        if (endSpecified) {
+                            length -= temp;
+                        }
+                    } else if (!subGroup.hasSubgroups && that._groupsState[subGroup.uid]) {
+                        temp = subGroup.items ? subGroup.items.length : 0;
+                        result += temp;
+                        if (endSpecified) {
+                            length -= temp;
+                        }
+                    }
+                    if (includeCurrentItems) {
+                        result += 1;
+                        if (endSpecified) {
+                            length -= 1;
+                        }
+                    }
+                    if (endSpecified && result > length) {
+                        return result;
+                    }
+                }
+                return result;
+            },
+            _fetchGroupItems: function (group, options, parents, callback) {
+                var that = this;
+                var groupItemsSkip;
+                var firstItem;
+                var lastItem;
+                var groupItemCount = group.hasSubgroups ? group.subgroupCount : group.itemCount;
+                var take = options.take;
+                var skipped = options.skipped;
+                var pageSize = that.take();
+                var expandedSubGroupItemsCount;
+                if (options.includeParents) {
+                    if (skipped < options.skip) {
+                        skipped += 1;
+                    } else {
+                        take -= 1;
+                    }
+                }
+                if (!group.items || group.items && !group.items.length) {
+                    that.getGroupItems(group, options, parents, callback, 0);
+                    return true;
+                } else {
+                    expandedSubGroupItemsCount = this._expandedSubGroupItemsCount(group, options.skip - skipped);
+                    groupItemsSkip = Math.max(options.skip - (skipped + expandedSubGroupItemsCount), 0);
+                    if (groupItemsSkip >= groupItemCount) {
+                        return false;
+                    }
+                    firstItem = group.items[groupItemsSkip];
+                    lastItem = group.items[Math.min(groupItemsSkip + take, groupItemCount - 1)];
+                    if (firstItem.notFetched) {
+                        that.getGroupItems(group, options, parents, callback, math.max(math.floor(groupItemsSkip / pageSize), 0) * pageSize);
+                        return true;
+                    }
+                    if (lastItem.notFetched) {
+                        that.getGroupItems(group, options, parents, callback, math.max(math.floor((groupItemsSkip + pageSize) / pageSize), 0) * pageSize);
+                        return true;
+                    }
+                }
+            },
+            getGroupItems: function (group, options, parents, callback, groupItemsSkip) {
+                var that = this;
                 var take;
                 var filter;
                 var data;
@@ -9400,13 +9566,12 @@
                 if (!group.items) {
                     group.items = [];
                 }
-                skip = group.items.length;
                 take = that.take();
                 filter = this._composeItemsFilter(group, parents);
                 data = {
-                    page: math.floor((skip || 0) / (take || 1)) || 1,
+                    page: math.floor((groupItemsSkip || 0) / (take || 1)) || 1,
                     pageSize: take,
-                    skip: skip,
+                    skip: groupItemsSkip,
                     take: take,
                     filter: filter,
                     aggregate: that._aggregate,
@@ -9423,7 +9588,7 @@
                         if (!that.trigger(REQUESTSTART, { type: 'read' })) {
                             that.transport.read({
                                 data: data,
-                                success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback),
+                                success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback, groupItemsSkip),
                                 error: function () {
                                     var args = slice.call(arguments);
                                     that.error.apply(that, args);
@@ -9435,76 +9600,29 @@
                     });
                 }, 100);
             },
-            getGroupSubGroupCount: function (group, options, parents, callback) {
-                var that = this;
-                var filter;
-                var groupIndex;
-                var data;
-                if (!group.items) {
-                    group.items = [];
-                }
-                filter = this._composeItemsFilter(group, parents);
-                groupIndex = this._group.map(function (g) {
-                    return g.field;
-                }).indexOf(group.field);
-                data = {
-                    filter: filter,
-                    group: [that._group[groupIndex + 1]],
-                    groupPaging: true,
-                    includeSubGroupCount: true
-                };
-                clearTimeout(that._timeout);
-                that._timeout = setTimeout(function () {
-                    that._queueRequest(data, function () {
-                        if (!that.trigger(REQUESTSTART, { type: 'read' })) {
-                            that.transport.read({
-                                data: data,
-                                success: that._subGroupCountSuccessHandler(group, options.skip, that.take(), callback),
-                                error: function () {
-                                    var args = slice.call(arguments);
-                                    that.error.apply(that, args);
-                                }
-                            });
-                        } else {
-                            that._dequeueRequest();
-                        }
-                    });
-                }, 100);
-            },
-            _subGroupCountSuccessHandler: function (group, skip, take, callback) {
-                var that = this;
-                callback = isFunction(callback) ? callback : noop;
-                var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : 'Total';
-                return function (data) {
-                    that._dequeueRequest();
-                    that.trigger(REQUESTEND, {
-                        response: data,
-                        type: 'read'
-                    });
-                    that._fetchingGroupItems = false;
-                    if (isFunction(totalField)) {
-                        group.subgroupCount = totalField(data);
-                    } else {
-                        group.subgroupCount = data[totalField];
-                    }
-                    that.range(skip, take, callback, 'expandGroup');
-                };
-            },
-            _groupItemsSuccessHandler: function (group, skip, take, callback) {
+            _groupItemsSuccessHandler: function (group, skip, take, callback, groupItemsSkip) {
                 var that = this;
                 var timestamp = that._timeStamp();
                 callback = isFunction(callback) ? callback : noop;
+                var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : 'Total';
                 return function (data) {
                     var temp;
                     var model = Model.define(that.options.schema.model);
+                    var totalCount;
                     that._dequeueRequest();
                     that.trigger(REQUESTEND, {
                         response: data,
                         type: 'read'
                     });
+                    if (isFunction(totalField)) {
+                        totalCount = totalField(data);
+                    } else {
+                        totalCount = data[totalField];
+                    }
                     data = that.reader.parse(data);
                     if (group.hasSubgroups) {
                         temp = that.reader.groups(data);
+                        group.subgroupCount = totalCount;
                     } else {
                         temp = that.reader.data(data);
                         temp = temp.map(function (item) {
@@ -9512,13 +9630,22 @@
                         });
                     }
                     group.items.omitChangeEvent = true;
-                    for (var i = 0; i < temp.length; i++) {
-                        group.items.push(temp[i]);
+                    for (var i = 0; i < totalCount; i++) {
+                        if (i >= groupItemsSkip && i < groupItemsSkip + take) {
+                            group.items.splice(i, 1, temp[i - groupItemsSkip]);
+                        } else {
+                            if (!group.items[i]) {
+                                group.items.splice(i, 0, { notFetched: true });
+                            }
+                        }
                     }
                     group.items.omitChangeEvent = false;
                     that._updateRangePristineData(group);
                     that._fetchingGroupItems = false;
-                    that._serverGroupsTotal += temp.length;
+                    if (!group.countAdded) {
+                        that._serverGroupsTotal += totalCount;
+                        group.countAdded = true;
+                    }
                     that.range(skip, take, callback, 'expandGroup');
                     if (timestamp >= that._currentRequestTimeStamp || !that._skipRequestsInProgress) {
                         that.trigger(CHANGE, {});
@@ -9562,10 +9689,12 @@
                 var range;
                 var dataLength;
                 var indexes;
+                var currIdx;
                 for (var i = 0; i < rangesLength; i++) {
                     range = ranges[i];
                     dataLength = range.data.length;
                     indexes = [];
+                    temp = null;
                     for (var j = 0; j < dataLength; j++) {
                         currentGroup = range.data[j];
                         indexes.push(j);
@@ -9577,7 +9706,8 @@
                     if (indexes.length) {
                         temp = ranges[i].pristineData;
                         while (indexes.length > 1) {
-                            temp = temp[indexes.splice(0, 1)[0]].items;
+                            currIdx = indexes.splice(0, 1)[0];
+                            temp = temp[currIdx].items;
                         }
                         temp[indexes[0]] = that._cloneGroup(group);
                         break;
@@ -16140,7 +16270,6 @@
     };
     window.kendo = window.kendo || {};
     var Class = kendo.Class;
-    var support = kendo.support;
     var namedColors = {
         aliceblue: 'f0f8ff',
         antiquewhite: 'faebd7',
@@ -16290,7 +16419,6 @@
         yellow: 'ffff00',
         yellowgreen: '9acd32'
     };
-    var browser = support.browser;
     var matchNamedColor = function (color) {
         var colorNames = Object.keys(namedColors);
         colorNames.push('transparent');
@@ -16323,9 +16451,6 @@
             return 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', ' + parseFloat(Number(this.a).toFixed(3)) + ')';
         },
         toDisplay: function () {
-            if (browser.msie && browser.version < 9) {
-                return this.toCss();
-            }
             return this.toCssRgba();
         },
         equals: function (c) {
@@ -25748,6 +25873,7 @@
         var WIDTH = 'width';
         var X = 'x';
         var Y = 'y';
+        var DEFAULT_SERIES_OPACITY = 1;
         var constants = {
             ARC: ARC,
             AXIS_LABEL_CLICK: AXIS_LABEL_CLICK,
@@ -25785,7 +25911,8 @@
             WHITE: WHITE,
             WIDTH: WIDTH,
             X: X,
-            Y: Y
+            Y: Y,
+            DEFAULT_SERIES_OPACITY: DEFAULT_SERIES_OPACITY
         };
         function isArray(value) {
             return Array.isArray(value);
@@ -26816,7 +26943,7 @@
                 var options = (this.options || {}).highlight;
                 return !(!this.createHighlight || options && options.visible === false);
             },
-            toggleHighlight: function (show) {
+            toggleHighlight: function (show, opacity) {
                 var this$1 = this;
                 var options = (this.options || {}).highlight || {};
                 var customVisual = options.visual;
@@ -26825,12 +26952,12 @@
                     var highlightOptions = {
                         fill: {
                             color: WHITE,
-                            opacity: 0.2
+                            opacity: opacity || 0.2
                         },
                         stroke: {
                             color: WHITE,
                             width: 1,
-                            opacity: 0.2
+                            opacity: opacity || 0.2
                         }
                     };
                     if (customVisual) {
@@ -26873,6 +27000,9 @@
                 if (this.parent) {
                     return this.parent.createGradient(options);
                 }
+            },
+            supportsPointInactiveOpacity: function () {
+                return true;
             }
         });
         ChartElement.prototype.options = {};
@@ -32369,12 +32499,20 @@
 }(function () {
     (function ($) {
         var cache;
+        var SERIES_COLORS = 30;
+        function seriesTemplate() {
+            var template = '<div class="k-var--series-a"></div>' + '<div class="k-var--series-b"></div>' + '<div class="k-var--series-c"></div>' + '<div class="k-var--series-d"></div>' + '<div class="k-var--series-e"></div>' + '<div class="k-var--series-f"></div>';
+            for (var i = 0; i < SERIES_COLORS; i++) {
+                template += '<div class="k-var--series-' + (i + 1) + '"></div>';
+            }
+            return template;
+        }
         function autoTheme(force) {
             if (!force && cache) {
                 return cache;
             }
             var theme = { chart: kendo.dataviz.chartBaseTheme() };
-            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
+            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-var--chart-area-inactive-opacity"></div>' + '  <div class="k-var--chart-line-inactive-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series-unset"></div>' + '  <div class="k-var--series">' + seriesTemplate() + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
             function mapColor(key, varName) {
                 set(key, queryStyle(varName, 'backgroundColor'));
             }
@@ -32390,6 +32528,14 @@
                     key = parts.shift();
                 }
                 store[key] = value;
+            }
+            function setInactiveOpacity(seriesTypes, selector) {
+                var inactiveOpacity = parseFloat(queryStyle(selector, 'opacity'));
+                if (!isNaN(inactiveOpacity) && inactiveOpacity < 1) {
+                    seriesTypes.forEach(function (type) {
+                        set('chart.seriesDefaults.' + type + '.highlight.inactiveOpacity', inactiveOpacity);
+                    });
+                }
             }
             (function setColors() {
                 mapColor('chart.axisDefaults.crosshair.color', 'chart-crosshair-background');
@@ -32427,7 +32573,6 @@
                 mapColor('chart.seriesDefaults.verticalBullet.target.color', 'accent');
                 mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
                 mapColor('chart.title.color', 'normal-text-color');
-                set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
                 mapColor('diagram.shapeDefaults.fill.color', 'accent');
                 mapColor('diagram.shapeDefaults.content.color', 'accent-contrast');
                 mapColor('diagram.shapeDefaults.connectorDefaults.fill.color', 'normal-text-color');
@@ -32450,6 +32595,21 @@
                 mapColor('gauge.scale.majorTicks.color', 'normal-text-color');
                 mapColor('gauge.scale.line.color', 'normal-text-color');
                 mapColor('gauge.scale.rangePlaceholderColor', 'gauge-track');
+                var opacity = parseFloat(queryStyle('chart-area-opacity', 'opacity'));
+                if (!isNaN(opacity)) {
+                    set('chart.seriesDefaults.area.opacity', opacity);
+                    set('chart.seriesDefaults.radarArea.opacity', opacity);
+                    set('chart.seriesDefaults.verticalArea.opacity', opacity);
+                    set('chart.seriesDefaults.labels.opacity', opacity);
+                }
+                setInactiveOpacity([
+                    'area',
+                    'verticalArea'
+                ], 'chart-area-inactive-opacity');
+                setInactiveOpacity([
+                    'line',
+                    'verticalLine'
+                ], 'chart-line-inactive-opacity');
             }());
             (function setFonts() {
                 function font(varName) {
@@ -32471,12 +32631,21 @@
                     return letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
                 }
                 function seriesPos(name) {
-                    return letterPos(name.match(/series-([a-z])$/)[1]);
+                    var alpha = name.match(/series-([a-z])$/);
+                    if (alpha !== null) {
+                        return letterPos(alpha[1]);
+                    }
+                    var num = name.split('--series-')[1];
+                    return parseInt(num, 10) - 1;
                 }
                 var series = $('.k-var--series div').toArray();
+                var unsetColor = $('.k-var--series-unset').css('backgroundColor');
                 var seriesColors = series.reduce(function (arr, el) {
                     var pos = seriesPos(el.className);
-                    arr[pos] = $(el).css('backgroundColor');
+                    var color = $(el).css('backgroundColor');
+                    if (color !== unsetColor) {
+                        arr[pos] = color;
+                    }
                     return arr;
                 }, []);
                 set('chart.seriesColors', seriesColors);
@@ -36298,7 +36467,7 @@
                     rotation: options.rotation,
                     background: options.background,
                     border: this.markerBorder(),
-                    opacity: options.opacity,
+                    opacity: this.series.opacity || options.opacity,
                     zIndex: valueOrDefault(options.zIndex, this.series.zIndex),
                     animation: options.animation,
                     visual: options.visual
@@ -37051,6 +37220,9 @@
             },
             seriesMissingValues: function (series) {
                 return series.missingValues || ZERO;
+            },
+            supportsPointInactiveOpacity: function () {
+                return false;
             }
         });
         var AxisGroupRangeTracker = Class.extend({
@@ -38306,6 +38478,9 @@
                     }
                 }
                 return result;
+            },
+            supportsPointInactiveOpacity: function () {
+                return false;
             }
         });
         var ScatterErrorBar = ErrorBarBase.extend({
@@ -41856,19 +42031,19 @@
             destroy: function () {
                 this._points = [];
             },
-            show: function (points) {
+            show: function (points, opacity) {
                 var this$1 = this;
                 var arrayPoints = [].concat(points);
                 this.hide();
                 for (var i = 0; i < arrayPoints.length; i++) {
                     var point = arrayPoints[i];
                     if (point && point.toggleHighlight && point.hasHighlight()) {
-                        this$1.togglePointHighlight(point, true);
+                        this$1.togglePointHighlight(point, true, opacity);
                         this$1._points.push(point);
                     }
                 }
             },
-            togglePointHighlight: function (point, show) {
+            togglePointHighlight: function (point, show, opacity) {
                 var toggleHandler = (point.options.highlight || {}).toggle;
                 if (toggleHandler) {
                     var eventArgs = {
@@ -41883,10 +42058,10 @@
                     };
                     toggleHandler(eventArgs);
                     if (!eventArgs._defaultPrevented) {
-                        point.toggleHighlight(show);
+                        point.toggleHighlight(show, opacity);
                     }
                 } else {
-                    point.toggleHighlight(show);
+                    point.toggleHighlight(show, opacity);
                 }
             },
             hide: function () {
@@ -46329,6 +46504,75 @@
                     return (element.hover || element.over) && !(element instanceof PlotAreaBase);
                 });
                 var activePoint = this._activePoint;
+                var multipleSeries = this._plotArea.series.length > 1;
+                var hasInactiveOpacity = this._hasInactiveOpacity();
+                this._updateHoveredPoint(point, e);
+                if (point && activePoint !== point && point.hover) {
+                    this._activePoint = point;
+                    if (!this._sharedTooltip() && !point.hover(this, e)) {
+                        this._displayTooltip(point);
+                        if (hasInactiveOpacity) {
+                            this._displayInactiveOpacity(point, multipleSeries);
+                        } else {
+                            this._highlight.show(point);
+                        }
+                    }
+                } else if (!point && hasInactiveOpacity) {
+                    if (multipleSeries && this._activеChartInstance) {
+                        this._updateSeriesOpacity(point, true);
+                        this._applySeriesOpacity(this._activеChartInstance.children, null, true);
+                        this._activеChartInstance = null;
+                    }
+                    this._highlight && this._highlight.hide();
+                    this._activePoint = null;
+                }
+                return point;
+            },
+            _displayTooltip: function (point) {
+                var tooltipOptions = deepExtend({}, this.options.tooltip, point.options.tooltip);
+                if (tooltipOptions.visible) {
+                    this._tooltip.show(point);
+                }
+            },
+            _displayInactiveOpacity: function (activePoint, multipleSeries, highlightPoints) {
+                var chartInstance = this._activеChartInstance = this._chartInstanceFromPoint(activePoint);
+                if (multipleSeries) {
+                    this._updateSeriesOpacity(activePoint);
+                    this._applySeriesOpacity(chartInstance.children, null, true);
+                    this._applySeriesOpacity(chartInstance.children, activePoint.series);
+                    this._highlight.show(highlightPoints || activePoint);
+                } else {
+                    var inactivePoints;
+                    if (!chartInstance.supportsPointInactiveOpacity()) {
+                        this._highlight.show(activePoint);
+                        return;
+                    }
+                    inactivePoints = this._getInactivePoints(activePoint, chartInstance);
+                    if (inactivePoints && inactivePoints.length) {
+                        this._highlight.show(inactivePoints, 1 - this._getInactiveOpacityForSeries(activePoint.series));
+                    }
+                }
+            },
+            _getInactivePoints: function (activePoint, chartInstance) {
+                var allPoints = this._getAllPointsOfType(chartInstance, activePoint.constructor);
+                return allPoints.filter(function (point) {
+                    return point !== activePoint;
+                });
+            },
+            _getAllPointsOfType: function (container, type) {
+                var this$1 = this;
+                var points = [];
+                for (var i = 0; i < container.children.length; i++) {
+                    var element = container.children[i];
+                    if (element.constructor === type) {
+                        points.push(element);
+                    } else if (element.children && element.children.length) {
+                        points = points.concat(this$1._getAllPointsOfType(element, type));
+                    }
+                }
+                return points;
+            },
+            _updateHoveredPoint: function (point, e) {
                 var hoveredPoint = this._hoveredPoint;
                 if (hoveredPoint && hoveredPoint !== point) {
                     hoveredPoint.out(this, e);
@@ -46338,17 +46582,66 @@
                     this._hoveredPoint = point;
                     point.over(this, e);
                 }
-                if (point && activePoint !== point && point.hover) {
-                    this._activePoint = point;
-                    if (!this._sharedTooltip() && !point.hover(this, e)) {
-                        var tooltipOptions = deepExtend({}, this.options.tooltip, point.options.tooltip);
-                        if (tooltipOptions.visible) {
-                            this._tooltip.show(point);
+            },
+            _updateSeriesOpacity: function (point, resetOpacity) {
+                var this$1 = this;
+                var plotArea = this._plotArea;
+                var length = plotArea.series.length;
+                for (var i = 0; i < length; i++) {
+                    var currSeries = plotArea.series[i];
+                    var defaultOpacity = this$1._getDefaultOpacityForSeries(currSeries);
+                    var inactiveOpacity = this$1._getInactiveOpacityForSeries(currSeries);
+                    if (!resetOpacity && currSeries !== point.series) {
+                        currSeries.defaultOpacity = defaultOpacity;
+                        currSeries.opacity = inactiveOpacity;
+                        if (currSeries.line) {
+                            currSeries.line.opacity = inactiveOpacity;
                         }
-                        this._highlight.show(point);
+                    } else {
+                        currSeries.opacity = defaultOpacity;
+                        if (currSeries.line) {
+                            currSeries.line.opacity = defaultOpacity;
+                        }
                     }
                 }
-                return point;
+            },
+            _applySeriesOpacity: function (elements, activeSeries, reset, series) {
+                var this$1 = this;
+                for (var i = 0; i < elements.length; i++) {
+                    var element = elements[i];
+                    var currSeries = element.series || series;
+                    if (currSeries && element.visual) {
+                        var opacity = series ? series.opacity : element.series.opacity;
+                        if (currSeries !== activeSeries || reset) {
+                            element.visual.opacity(reset ? 1 : opacity);
+                        }
+                    }
+                    if (element.children && element.children.length) {
+                        this$1._applySeriesOpacity(element.children, activeSeries, reset, element.series);
+                    }
+                }
+            },
+            _chartInstanceFromPoint: function (point) {
+                var chartInstance = point.parent;
+                while (chartInstance && !chartInstance.plotArea) {
+                    chartInstance = chartInstance.parent;
+                }
+                return chartInstance;
+            },
+            _hasInactiveOpacity: function () {
+                var hasDefaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity !== undefined;
+                var hasInactiveOpacity = this.options.series.filter(function (s) {
+                    return s.highlight.inactiveOpacity !== undefined;
+                }).length > 0;
+                return hasDefaultInactiveOpacity || hasInactiveOpacity;
+            },
+            _getInactiveOpacityForSeries: function (series) {
+                var defaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity;
+                var seriesInactiveOpacity = series.highlight.inactiveOpacity;
+                return seriesInactiveOpacity || defaultInactiveOpacity || series.opacity || datavizConstants.DEFAULT_SERIES_OPACITY;
+            },
+            _getDefaultOpacityForSeries: function (series) {
+                return series.defaultOpacity || series.opacity || datavizConstants.DEFAULT_SERIES_OPACITY;
             },
             _mouseover: function (e) {
                 var point = this._startHover(e.element, e.originalEvent);
@@ -46588,7 +46881,13 @@
                 } else {
                     items = plotArea.pointsBySeriesIndex(seriesIndex);
                 }
-                highlight.show(items);
+                if (this._hasInactiveOpacity() && currentSeries.visible && items) {
+                    var multipleSeries = plotArea.series.length > 1;
+                    var point = items.length ? items[0] : items;
+                    this._displayInactiveOpacity(point, multipleSeries, items);
+                } else {
+                    highlight.show(items);
+                }
             },
             _shouldAttachMouseMove: function () {
                 return this._plotArea.crosshairs.length || this._tooltip && this._sharedTooltip() || this.requiresHandlers([
@@ -47407,6 +47706,11 @@
             },
             _legendItemClick: function (seriesIndex, pointIndex) {
                 var chart = this._instance, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex];
+                if (chart._hasInactiveOpacity() && chart._activеChartInstance) {
+                    chart._updateSeriesOpacity(null, true);
+                    chart._applySeriesOpacity(chart._activеChartInstance.children, null, true);
+                    chart._activеChartInstance = null;
+                }
                 if ($.inArray(currentSeries.type, [
                         PIE,
                         DONUT,
@@ -62961,7 +63265,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, dataviz = kendo.dataviz, diagram = dataviz.diagram, Class = kendo.Class, Group = diagram.Group, Rect = diagram.Rect, Rectangle = diagram.Rectangle, Utils = diagram.Utils, isUndefined = Utils.isUndefined, Point = diagram.Point, Circle = diagram.Circle, Ticker = diagram.Ticker, deepExtend = kendo.deepExtend, Movable = kendo.ui.Movable, browser = kendo.support.browser, util = kendo.drawing.util, defined = util.defined, inArray = $.inArray, proxy = $.proxy;
+        var kendo = window.kendo, dataviz = kendo.dataviz, diagram = dataviz.diagram, Class = kendo.Class, Group = diagram.Group, Rect = diagram.Rect, Rectangle = diagram.Rectangle, Utils = diagram.Utils, isUndefined = Utils.isUndefined, Point = diagram.Point, Circle = diagram.Circle, Ticker = diagram.Ticker, deepExtend = kendo.deepExtend, Movable = kendo.ui.Movable, util = kendo.drawing.util, defined = util.defined, inArray = $.inArray, proxy = $.proxy;
         var Cursors = {
                 arrow: 'default',
                 grip: 'pointer',
@@ -63876,9 +64180,6 @@
                 var element = this.diagram.element;
                 var cursor = this.activeTool ? this.activeTool.getCursor(p) : this.hoveredAdorner ? this.hoveredAdorner._getCursor(p) : this.hoveredItem ? this.hoveredItem._getCursor(p) : Cursors.arrow;
                 element.css({ cursor: cursor });
-                if (browser.msie && browser.version == 7) {
-                    element[0].style.cssText = element[0].style.cssText;
-                }
             },
             _connectionManipulation: function (connection, disabledShape, isNew) {
                 this.activeConnection = connection;
@@ -69044,7 +69345,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', BLUR = 'blur', FOCUS = 'focus', FOCUSOUT = 'focusout', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
+        var kendo = window.kendo, ui = kendo.ui, outerHeight = kendo._outerHeight, percentageUnitsRegex = /^\d+(\.\d+)?%$/i, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', GROUPHEADER = '.k-group-header', ITEMSELECTOR = '.k-item', LABELIDPART = '_label', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', BLUR = 'blur', FOCUS = 'focus', FOCUSOUT = 'focusout', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, HIDDENCLASS = 'k-hidden', WIDTH = 'width', isIE = browser.msie, quotRegExp = /"/g, alternativeNames = {
                 'ComboBox': [
                     'DropDownList',
                     'MultiColumnComboBox'
@@ -69472,7 +69773,7 @@
                 var list = this;
                 var clearTitle = list.options.messages.clear;
                 if (!list._clear) {
-                    list._clear = $('<span unselectable="on" class="k-icon k-clear-value k-i-close" title="' + clearTitle + '"></span>').attr({
+                    list._clear = $('<span unselectable="on" class="k-clear-value" title="' + clearTitle + '"><span class="k-icon k-i-x"></span></span>').attr({
                         'role': 'button',
                         'tabIndex': -1
                     });
@@ -69810,11 +70111,6 @@
                     isRtl: support.isRtl(list.wrapper),
                     autosize: list.options.autoWidth
                 }));
-            },
-            _makeUnselectable: function () {
-                if (isIE8) {
-                    this.list.find('*').not('.k-textbox').attr('unselectable', 'on');
-                }
             },
             _toggleHover: function (e) {
                 $(e.currentTarget).toggleClass(HOVER, e.type === 'mouseenter');
@@ -72928,7 +73224,6 @@
                 that._resizePopup(true);
                 that.popup.position();
                 that._buildOptions(data);
-                that._makeUnselectable();
                 if (!filtered) {
                     if (that._open) {
                         that.toggle(that._allowOpening());
@@ -73898,7 +74193,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, parse = kendo.parseDate, adjustDST = kendo.date.adjustDST, weekInYear = kendo.date.weekInYear, Selectable = kendo.ui.Selectable, extractFormat = kendo._extractFormat, template = kendo.template, getCulture = kendo.getCulture, transitions = kendo.support.transitions, transitionOrigin = transitions ? transitions.css + 'transform-origin' : '', cellTemplate = template('<td#=data.cssClass# role="gridcell"><a tabindex="-1" class="k-link" href="\\#" data-#=data.ns#value="#=data.dateString#">#=data.value#</a></td>', { useWithBlock: false }), emptyCellTemplate = template('<td role="gridcell" class="k-out-of-range"><a class="k-link"></a></td>', { useWithBlock: false }), otherMonthCellTemplate = template('<td role="gridcell" class="k-out-of-range">&nbsp;</td>', { useWithBlock: false }), weekNumberTemplate = template('<td class="k-alt">#= data.weekNumber #</td>', { useWithBlock: false }), browser = kendo.support.browser, isIE8 = browser.msie && browser.version < 9, outerWidth = kendo._outerWidth, ns = '.kendoCalendar', CLICK = 'click' + ns, KEYDOWN_NS = 'keydown' + ns, ID = 'id', MIN = 'min', LEFT = 'left', SLIDE = 'slideIn', MONTH = 'month', CENTURY = 'century', CHANGE = 'change', NAVIGATE = 'navigate', VALUE = 'value', HOVER = 'k-state-hover', DISABLED = 'k-state-disabled', FOCUSED = 'k-state-focused', OTHERMONTH = 'k-other-month', OTHERMONTHCLASS = ' class="' + OTHERMONTH + '"', OUTOFRANGE = 'k-out-of-range', TODAY = 'k-nav-today', CELLSELECTOR = 'td:has(.k-link)', CELLSELECTORVALID = 'td:has(.k-link):not(.' + DISABLED + '):not(.' + OUTOFRANGE + ')', WEEKCOLUMNSELECTOR = 'td:not(:has(.k-link))', SELECTED = 'k-state-selected', BLUR = 'blur' + ns, FOCUS = 'focus', FOCUS_WITH_NS = FOCUS + ns, MOUSEENTER = support.touch ? 'touchstart' : 'mouseenter', MOUSEENTER_WITH_NS = support.touch ? 'touchstart' + ns : 'mouseenter' + ns, MOUSELEAVE = support.touch ? 'touchend' + ns + ' touchmove' + ns : 'mouseleave' + ns, MS_PER_MINUTE = 60000, MS_PER_DAY = 86400000, PREVARROW = '_prevArrow', NEXTARROW = '_nextArrow', ARIA_DISABLED = 'aria-disabled', ARIA_SELECTED = 'aria-selected', ARIA_LABEL = 'aria-label', proxy = $.proxy, extend = $.extend, DATE = Date, views = {
+        var kendo = window.kendo, support = kendo.support, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, parse = kendo.parseDate, adjustDST = kendo.date.adjustDST, weekInYear = kendo.date.weekInYear, Selectable = kendo.ui.Selectable, extractFormat = kendo._extractFormat, template = kendo.template, getCulture = kendo.getCulture, transitions = kendo.support.transitions, transitionOrigin = transitions ? transitions.css + 'transform-origin' : '', cellTemplate = template('<td#=data.cssClass# role="gridcell"><a tabindex="-1" class="k-link" href="\\#" data-#=data.ns#value="#=data.dateString#">#=data.value#</a></td>', { useWithBlock: false }), emptyCellTemplate = template('<td role="gridcell" class="k-out-of-range"><a class="k-link"></a></td>', { useWithBlock: false }), otherMonthCellTemplate = template('<td role="gridcell" class="k-out-of-range">&nbsp;</td>', { useWithBlock: false }), weekNumberTemplate = template('<td class="k-alt">#= data.weekNumber #</td>', { useWithBlock: false }), outerWidth = kendo._outerWidth, ns = '.kendoCalendar', CLICK = 'click' + ns, KEYDOWN_NS = 'keydown' + ns, ID = 'id', MIN = 'min', LEFT = 'left', SLIDE = 'slideIn', MONTH = 'month', CENTURY = 'century', CHANGE = 'change', NAVIGATE = 'navigate', VALUE = 'value', HOVER = 'k-state-hover', DISABLED = 'k-state-disabled', FOCUSED = 'k-state-focused', OTHERMONTH = 'k-other-month', OTHERMONTHCLASS = ' class="' + OTHERMONTH + '"', OUTOFRANGE = 'k-out-of-range', TODAY = 'k-nav-today', CELLSELECTOR = 'td:has(.k-link)', CELLSELECTORVALID = 'td:has(.k-link):not(.' + DISABLED + '):not(.' + OUTOFRANGE + ')', WEEKCOLUMNSELECTOR = 'td:not(:has(.k-link))', SELECTED = 'k-state-selected', BLUR = 'blur' + ns, FOCUS = 'focus', FOCUS_WITH_NS = FOCUS + ns, MOUSEENTER = support.touch ? 'touchstart' : 'mouseenter', MOUSEENTER_WITH_NS = support.touch ? 'touchstart' + ns : 'mouseenter' + ns, MOUSELEAVE = support.touch ? 'touchend' + ns + ' touchmove' + ns : 'mouseleave' + ns, MS_PER_MINUTE = 60000, MS_PER_DAY = 86400000, PREVARROW = '_prevArrow', NEXTARROW = '_nextArrow', ARIA_DISABLED = 'aria-disabled', ARIA_SELECTED = 'aria-selected', ARIA_LABEL = 'aria-label', proxy = $.proxy, extend = $.extend, DATE = Date, views = {
                 month: 0,
                 year: 1,
                 decade: 2,
@@ -74147,7 +74442,6 @@
                         contentClasses: that.options.contentClasses
                     }, that[currentView.name])));
                     addClassToViewContainer(to, currentView.name);
-                    makeUnselectable(to);
                     var replace = from && from.data('start') === to.data('start');
                     that._animate({
                         from: from,
@@ -75202,11 +75496,6 @@
                 options.dates = [];
             }
         }
-        function makeUnselectable(element) {
-            if (isIE8) {
-                element.find('*').attr('unselectable', 'on');
-            }
-        }
         function addClassToViewContainer(element, currentView) {
             element.addClass('k-' + currentView);
         }
@@ -75286,7 +75575,6 @@
         }
         calendar.isEqualDatePart = isEqualDatePart;
         calendar.isEqualDate = isEqualDate;
-        calendar.makeUnselectable = makeUnselectable;
         calendar.restrictValue = restrictValue;
         calendar.isInRange = isInRange;
         calendar.addClassToViewContainer = addClassToViewContainer;
@@ -76182,7 +76470,6 @@
                     div = $(DIV).attr(ID, kendo.guid()).appendTo(options.omitPopup ? options.dateDiv : that.popup.element).on(MOUSEDOWN, preventDefault).on(CLICK, 'td:has(.k-link)', proxy(that._click, that));
                     that.calendar = calendar = new ui.Calendar(div, { componentType: options.componentType });
                     that._setOptions(options);
-                    kendo.calendar.makeUnselectable(calendar.element);
                     calendar.navigate(that._value || that._current, options.start);
                     that.value(that._value);
                 }
@@ -77499,8 +77786,8 @@
                 },
                 rules: {
                     required: function (input) {
-                        var checkbox = input.filter('[type=checkbox]').length && !input.is(':checked'), value = input.val();
-                        return !(hasAttribute(input, 'required') && (!value || value === '' || value.length === 0 || checkbox));
+                        var noNameCheckbox = !input.attr('name') && !input.is(':checked'), namedCheckbox = input.attr('name') && !this.element.find('input[name=\'' + input.attr('name') + '\']:checked').length, checkbox = input.filter('[type=checkbox]').length && (noNameCheckbox || namedCheckbox), radio = input.filter('[type=radio]').length && !this.element.find('input[name=\'' + input.attr('name') + '\']:checked').length, value = input.val();
+                        return !(hasAttribute(input, 'required') && (!value || value === '' || value.length === 0 || checkbox || radio));
                     },
                     pattern: function (input) {
                         if (input.filter('[type=text],[type=email],[type=url],[type=tel],[type=search],[type=password]').filter('[pattern]').length && input.val() !== '') {
@@ -77669,6 +77956,12 @@
                         var parentElement = input.parent().get(0);
                         var nextElement = input.next().get(0);
                         var prevElement = input.prev().get(0);
+                        if (!widgetInstance && input.is('[type=radio]')) {
+                            widgetInstance = kendo.widgetInstance(input.closest('.k-radio-list'));
+                        }
+                        if (!widgetInstance && input.is('[type=checkbox]')) {
+                            widgetInstance = kendo.widgetInstance(input.closest('.k-checkbox-list'));
+                        }
                         if (widgetInstance && widgetInstance.wrapper) {
                             messageLabel.insertAfter(widgetInstance.wrapper);
                         } else if (parentElement && parentElement.nodeName === 'LABEL') {
@@ -77795,7 +78088,9 @@
                 for (var idx = 0, length = inputs.length; idx < length; idx++) {
                     var input = $(inputs[idx]);
                     if (hasAttribute(input, NAME)) {
-                        sorted.push(input.attr(NAME));
+                        if (sorted.indexOf(input.attr(NAME)) === -1 || input.closest('.k-checkbox-list').length === 0 && input.closest('.k-radio-list').length === 0) {
+                            sorted.push(input.attr(NAME));
+                        }
                     }
                 }
                 return sorted;
@@ -77904,7 +78199,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, POINT = '.', AUTOCOMPLETEVALUE = 'off', nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' + '<span class="k-tooltip-icon k-icon k-i-warning"></span>' + '<span class="k-tooltip-content">#= message #</span>' + '<span class="k-callout k-callout-n"></span>' + '</div>', CHANGE = 'change';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, POINT = '.', AUTOCOMPLETEVALUE = 'off', nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' + '<span class="k-tooltip-icon k-icon k-i-warning"></span>' + '<span class="k-tooltip-content">#= message #</span>' + '<span class="k-callout k-callout-n"></span>' + '</div>', CHANGE = 'change';
         var EQUAL_SET = 'equalSet';
         var specialRules = [
             'url',
@@ -77918,7 +78213,7 @@
             return field.type || $.type(field) || 'string';
         }
         function convertToValueBinding(container) {
-            container.find(':input:not(:button, .k-combobox .k-input, [' + kendo.attr('role') + '=listbox], [' + kendo.attr('role') + '=upload], [' + kendo.attr('skip') + '], [type=file])').each(function () {
+            container.find(':input:not(:button, .k-combobox .k-input, .k-checkbox-list .k-checkbox, .k-radio-list .k-radio, [' + kendo.attr('role') + '=listbox], [' + kendo.attr('role') + '=upload], [' + kendo.attr('skip') + '], [type=file])').each(function () {
                 var bindAttr = kendo.attr('bind'), binding = this.getAttribute(bindAttr) || '', bindingName = this.type === 'checkbox' || this.type === 'radio' ? 'checked:' : 'value:', fieldName = this.name;
                 if (binding.indexOf(bindingName) === -1 && fieldName) {
                     binding += (binding.length ? ',' : '') + bindingName + fieldName;
@@ -77989,6 +78284,8 @@
             }
             if (type === 'DropDownTree' && options && options.checkboxes || type === 'MultiSelect') {
                 tag = '<select />';
+            } else if (type === 'RadioGroup' || type === 'CheckBoxGroup') {
+                tag = '<ul />';
             } else {
                 tag = type === 'Editor' ? '<textarea />' : '<input />';
             }
@@ -77996,6 +78293,7 @@
         }
         var kendoEditors = [
             'AutoComplete',
+            'CheckBoxGroup',
             'ColorPicker',
             'ComboBox',
             'DateInput',
@@ -78007,6 +78305,7 @@
             'MultiColumnComboBox',
             'MultiSelect',
             'NumericTextBox',
+            'RadioGroup',
             'Rating',
             'Slider',
             'Switch',
@@ -78228,10 +78527,7 @@
                     rules: rules
                 });
                 if (!that.options.skipFocus) {
-                    var focusable = container.find(':kendoFocusable').eq(0).focus();
-                    if (oldIE) {
-                        focusable.focus();
-                    }
+                    container.find(':kendoFocusable').eq(0).focus();
                 }
             }
         });
@@ -78868,7 +79164,7 @@
                 return that;
             },
             title: function (title) {
-                var that = this, value, encoded = true, wrapper = that.wrapper, titleBar = wrapper.children(KWINDOWTITLEBAR), titleElement = titleBar.children(KWINDOWTITLE), titleBarHeight, display, visibility;
+                var that = this, value, encoded = true, wrapper = that.wrapper, titleBar = wrapper.children(KWINDOWTITLEBAR), titleElement = titleBar.children(KWINDOWTITLE);
                 if (!arguments.length) {
                     return titleElement.html();
                 }
@@ -78890,25 +79186,6 @@
                     } else {
                         titleElement.html(encoded ? kendo.htmlEncode(value) : value);
                     }
-                    visibility = wrapper.css('visibility');
-                    display = wrapper.css('display');
-                    if (visibility === HIDDEN) {
-                        wrapper.css({ display: '' });
-                        titleBarHeight = parseInt(outerHeight(titleBar), 10);
-                        wrapper.css({ display: display });
-                    } else {
-                        wrapper.css({
-                            visibility: HIDDEN,
-                            display: ''
-                        });
-                        titleBarHeight = parseInt(outerHeight(titleBar), 10);
-                        wrapper.css({
-                            visibility: visibility,
-                            display: display
-                        });
-                    }
-                    wrapper.css('padding-top', titleBarHeight);
-                    titleBar.css('margin-top', -titleBarHeight);
                 }
                 that.options.title = value;
                 return that;
@@ -79082,7 +79359,7 @@
                 return this.options.autoFocus && !$(active).is(element) && !this._actionable(target) && (!element.find(active).length || !element.find(target).length);
             },
             toFront: function (e) {
-                var that = this, wrapper = that.wrapper, currentWindow = wrapper[0], containmentContext = that.containment && !that._isPinned, zIndex = +wrapper.css(ZINDEX), originalZIndex = zIndex, target = e && e.target || null;
+                var that = this, wrapper = that.wrapper, currentWindow = wrapper[0], containmentContext = that.containment && !that._isPinned, openAnimation = this._animationOptions('open'), zIndex = +wrapper.css(ZINDEX), originalZIndex = zIndex, target = e && e.target || null;
                 $(KWINDOW).each(function (i, element) {
                     var windowObject = $(element), zIndexNew = windowObject.css(ZINDEX), contentElement = windowObject.children(KWINDOWCONTENT);
                     if (!isNaN(zIndexNew)) {
@@ -79100,7 +79377,7 @@
                 if (that._shouldFocus(target)) {
                     setTimeout(function () {
                         that.wrapper.focus();
-                    });
+                    }, openAnimation ? openAnimation.duration : 0);
                     var scrollTop = containmentContext ? that.containment.scrollTop() : $(window).scrollTop(), windowTop = parseInt(wrapper.position().top, 10);
                     if (!that.options.pinned && windowTop > 0 && windowTop < scrollTop) {
                         if (scrollTop > 0) {

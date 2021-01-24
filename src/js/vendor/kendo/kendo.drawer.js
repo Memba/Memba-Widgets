@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
         depends: ['userevents']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, SHOW = 'show', HIDE = 'hide', ITEMCLICK = 'itemClick', PUSH = 'push', OVERLAY = 'overlay', LEFT = 'left', RIGHT = 'right';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, SHOW = 'show', HIDE = 'hide', NS = '.kendoDrawer', FOCUSED = 'k-state-focused', keys = kendo.keys, ITEMCLICK = 'itemClick', TABINDEX = 'tabIndex', proxy = $.proxy, PUSH = 'push', OVERLAY = 'overlay', LEFT = 'left', RIGHT = 'right';
         var Drawer = kendo.ui.Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -42,6 +42,7 @@
                 options = that.options;
                 that._element(element);
                 that._wrapper(element);
+                that._navigatable();
                 that.position();
                 that._mode();
                 if (options.mini) {
@@ -55,7 +56,7 @@
                     fastTap: true,
                     allowSelection: true
                 });
-                var tap = function (e) {
+                that.tap = function (e) {
                     if ($.contains(that.drawerItemsWrapper[0], e.event.target)) {
                         that._itemClick(e);
                     }
@@ -74,9 +75,9 @@
                     userEvents.bind('end', function (e) {
                         that._end(e);
                     });
-                    userEvents.bind('tap', tap);
+                    userEvents.bind('tap', that.tap);
                 } else {
-                    userEvents.bind('press', tap);
+                    userEvents.bind('press', that.tap);
                 }
                 if (options.minHeight && options.mode == PUSH) {
                     that.drawerContainer.css('min-height', options.minHeight);
@@ -90,6 +91,83 @@
                 that.drawerElement = $(options.template);
                 contentElement.addClass('k-drawer-content');
                 element.addClass('k-widget k-drawer');
+            },
+            _navigatable: function () {
+                if (!this.options.navigatable) {
+                    return;
+                }
+                var that = this;
+                var element = that.element;
+                element.attr(TABINDEX, 0).attr('role', 'tablist').attr('aria-orientation', 'vertical');
+                element.on('focus' + NS, proxy(that._focus, that)).on('focusout' + NS, proxy(that._blur, that)).on('keydown' + NS, that, proxy(that._keyDown, that));
+            },
+            _blur: function () {
+                var that = this;
+                if (that._current) {
+                    that._current.removeClass(FOCUSED);
+                }
+            },
+            _focus: function () {
+                var that = this;
+                that._setCurrent(that._current ? that._current : that.drawerItemsWrapper.find('[data-role=\'drawer-item\']').eq(0));
+            },
+            _setCurrent: function (current) {
+                var that = this;
+                var id = kendo.guid();
+                var next = $(current);
+                if (that._current) {
+                    $(that._current).removeClass(FOCUSED).removeAttr('id');
+                    that.element.removeAttr('aria-activedescendant');
+                }
+                next.attr('id', id).addClass(FOCUSED);
+                that.element.attr('aria-activedescendant', id);
+                that._current = next;
+            },
+            _keyDown: function (e) {
+                var that = this;
+                var handled = false;
+                var current = that._current;
+                var next;
+                if (e.keyCode == keys.UP) {
+                    handled = true;
+                    next = current.prevAll('[data-role=\'drawer-item\']:first');
+                    if (next.length) {
+                        that._setCurrent(next);
+                    } else {
+                        that._setCurrent(current.parent().find('[data-role=\'drawer-item\']:last'));
+                    }
+                }
+                if (e.keyCode == keys.DOWN) {
+                    handled = true;
+                    next = current.nextAll('[data-role=\'drawer-item\']:first');
+                    if (next.length) {
+                        that._setCurrent(next);
+                    } else {
+                        that._setCurrent(current.parent().find('[data-role=\'drawer-item\']:first'));
+                    }
+                }
+                if (e.keyCode == keys.HOME) {
+                    handled = true;
+                    that._setCurrent(that.drawerItemsWrapper.find('[data-role=\'drawer-item\']').eq(0));
+                }
+                if (e.keyCode == keys.END) {
+                    handled = true;
+                    that._setCurrent(that.drawerItemsWrapper.find('[data-role=\'drawer-item\']:last'));
+                }
+                if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
+                    handled = true;
+                    that.tap({
+                        event: { target: current[0] },
+                        preventDefault: $.noop
+                    });
+                }
+                if (e.keyCode == keys.ESC) {
+                    handled = true;
+                    that.hide();
+                }
+                if (handled) {
+                    e.preventDefault();
+                }
             },
             _wrapper: function () {
                 var options = this.options;
@@ -131,6 +209,9 @@
                 if (this._selectedItemIndex >= 0) {
                     drawerItems.removeClass('k-state-selected');
                     drawerItems.eq(this._selectedItemIndex).addClass('k-state-selected');
+                }
+                if (this.options.navigatable) {
+                    drawerItems.attr('aria-selected', false);
                 }
             },
             _mode: function () {
@@ -331,6 +412,7 @@
             _itemClick: function (e) {
                 var that = this;
                 var item;
+                var items;
                 if ($(e.event.target).find('.k-drawer-item').length > 0) {
                     item = $(e.event.target).find('.k-drawer-item');
                 } else if ($(e.event.target).closest('.k-drawer-item').length > 0) {
@@ -338,8 +420,13 @@
                 } else if ($(e.event.target).hasClass('.k-drawer-item')) {
                     item = $(e.event.target);
                 }
-                that.drawerItemsWrapper.find('.k-drawer-item').removeClass('k-state-selected');
+                items = that.drawerItemsWrapper.find('.k-drawer-item').removeClass('k-state-selected');
                 that._selectItem(item);
+                if (that.options.navigatable) {
+                    items.attr('aria-selected', false);
+                    item.attr('aria-selected', true);
+                    that._setCurrent(item);
+                }
             },
             destroy: function () {
                 var options = this.options;
@@ -362,6 +449,7 @@
                 swipeToOpen: true,
                 width: 280,
                 mini: false,
+                navigatable: false,
                 template: ''
             },
             events: [

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -37,7 +37,7 @@
         depends: ['userevents']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataSource = kendo.data.DataSource, Transition = kendo.effects.Transition, proxy = $.proxy, isArray = $.isArray, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, VERTICAL = 'vertical', TRANSITION_END = 'transitionEnd', VIRTUAL_PAGE_COUNT = 3, VIRTUAL_PAGE_CLASS = 'timeline-event', FLAGWRAPCLASS = 'k-timeline-flag-wrap', TRACKITEMCLASS = 'k-timeline-track-item', SCROLLABLEWRAPCLASS = 'k-timeline-scrollable-wrap', NS = '.kendoTimeline', CHANGE = 'change', DEFAULTHORIZONTALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, data = data.data; #' + '<div class="k-card-header">' + '# if(data[titleField]) { #' + '<h5 class="k-card-title">#= data[titleField] #</h5>' + '# }' + 'if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# }' + 'if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #', DEFAULTVERTICALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, data = data.data; #' + '<div class="k-card-header">' + '<h5 class="k-card-title">' + '# if(data[titleField]) { #' + '<span class="k-event-title">#= data[titleField] #</span>' + '# } #' + '<span class="k-event-collapse k-button k-button-icon k-flat">' + '<span class="k-icon k-i-arrow-chevron-right"></span>' + '</span></h5>' + '# if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# } #' + '# if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #', HORIZONTALTRACKTEMPLATE = '# var itemTemplate = data.itemTemplate, dateField = data.dateField, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, year = 0; #' + '# for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(year != currentYear) {' + 'year = currentYear; #' + '<li class="k-timeline-track-item k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } #' + '<li class="k-timeline-track-item">' + '<div class="k-timeline-date-wrap">' + '# if(showDateLabels) { #' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '# } #' + '</div>' + '<a class="k-timeline-circle"></a>' + '</li>' + '# } #', VERTICALEVENTSTEMPLATE = '# var itemTemplate = data.itemTemplate, dateField = data.dateField, titleField = data.titleField, descriptionField = data.descriptionField, subtitleField = data.subtitleField, imagesField = data.imagesField, actionsField = data.actionsField, alterMode = data.alterMode, collapsibleEvents = data.collapsibleEvents, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, counter = 0, year = 0, reverse = false;' + 'for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(currentYear != year) {' + 'year = currentYear; #' + '<li class="k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } ' + 'reverse = counter % 2 === 0 && alterMode; #' + '<li class="#= reverse ? \'k-timeline-event k-reverse\' : \'k-timeline-event\' #" data-uid="#: data[i].uid #">' + '# if(showDateLabels) { #' + '<div class="k-timeline-date-wrap">' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '</div>' + '# } #' + '<a class="k-timeline-circle"></a>' + '<div class="#= collapsibleEvents ? \'k-timeline-card k-collapsed\' : \'k-timeline-card\' #">' + '<div class="k-card">' + '<span class="#= reverse ? \'k-timeline-card-callout k-card-callout k-callout-e\' : \'k-timeline-card-callout k-card-callout k-callout-w\' #"></span>' + '#= itemTemplate({titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i]}) #' + '</div>' + '</div>' + '</li>' + '# counter ++;' + '} #', ARROWSHTML = '<a class="k-button k-timeline-arrow k-timeline-arrow-left k-state-disabled" title="previous">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a class="k-button k-timeline-arrow k-timeline-arrow-right k-state-disabled" title="next">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, DataSource = kendo.data.DataSource, Transition = kendo.effects.Transition, proxy = $.proxy, keys = kendo.keys, isArray = $.isArray, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, VERTICAL = 'vertical', TRANSITION_END = 'transitionEnd', VIRTUAL_PAGE_COUNT = 3, VIRTUAL_PAGE_CLASS = 'timeline-event', FLAGWRAPCLASS = 'k-timeline-flag-wrap', TRACKITEMCLASS = 'k-timeline-track-item', SCROLLABLEWRAPCLASS = 'k-timeline-scrollable-wrap', NS = '.kendoTimeline', CHANGE = 'change', DEFAULTHORIZONTALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, actionsField = data.actionsField, altField = data.altField, data = data.data; #' + '<div class="k-card-inner">' + '<div class="k-card-header">' + '# if(data[titleField]) { #' + '<h5 class="k-card-title">#= data[titleField] #</h5>' + '# }' + 'if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# }' + 'if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #"  #if(data[altField]){# alt="#:data[altField]#" #}# class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #' + '</div>', DEFAULTVERTICALCARDTEMPLATE = '# var titleField = data.titleField, subtitleField = data.subtitleField, descriptionField = data.descriptionField, imagesField = data.imagesField, navigatable = data.navigatable, collapsibleEvents = data.collapsibleEvents, actionsField = data.actionsField, altField = data.altField, data = data.data; #' + '<div class="k-card-inner">' + '<div class="k-card-header">' + '<h5 class="k-card-title">' + '# if(data[titleField]) { #' + '<span class="k-event-title">#= data[titleField] #</span>' + '# } #' + '<span class="k-event-collapse k-button k-button-icon k-flat">' + '<span class="k-icon k-i-arrow-chevron-right"></span>' + '</span></h5>' + '# if(data[subtitleField]) { #' + '<h6 class="k-card-subtitle">#= data[subtitleField] #</h6>' + '# } #' + '</div>' + '<div class="k-card-body">' + '<div class="k-card-description">' + '# if(data[descriptionField]) { #' + '<p>#= data[descriptionField] #</p>' + '# } #' + '# if(data[imagesField] && data[imagesField].length > 0) { #' + '<img src="#= data[imagesField][0].src #" #if(data[altField]){# alt="#:data[altField]#" #}# class="k-card-image" />' + '# } #' + '</div>' + '</div>' + '# if(data[actionsField] && data[actionsField].length > 0) { #' + '<div class="k-card-actions">' + '# for (var i = 0; i < data[actionsField].length; i++) { #' + '<a class="k-button k-flat k-primary" href="#= data[actionsField][i].url ? data[actionsField][i].url : "\\#" #">#= data[actionsField][i].text #</a>' + '# } #' + '</div>' + '# } #' + '</div>', HORIZONTALTRACKTEMPLATE = '# var itemTemplate = data.itemTemplate, dateField = data.dateField, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, data = data.data, year = 0; #' + '# for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(year != currentYear) {' + 'year = currentYear; #' + '<li class="k-timeline-track-item k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } #' + '<li class="k-timeline-track-item">' + '<div class="k-timeline-date-wrap">' + '# if(showDateLabels) { #' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '# } #' + '</div>' + '<a class="k-timeline-circle"></a>' + '</li>' + '# } #', VERTICALEVENTSTEMPLATE = '# var itemTemplate = data.itemTemplate, dateField = data.dateField, titleField = data.titleField, descriptionField = data.descriptionField, subtitleField = data.subtitleField, imagesField = data.imagesField, actionsField = data.actionsField, alterMode = data.alterMode, collapsibleEvents = data.collapsibleEvents, dateFormat = data.dateFormat, showDateLabels = data.showDateLabels, navigatable = data.navigatable, altField = data.altField, data = data.data, counter = 0, year = 0, reverse = false;' + 'for (var i = 0; i < data.length; i++) {' + 'if(!(data[i][dateField] instanceof Date)) {' + 'continue;' + '}' + 'var currentYear = data[i][dateField].getFullYear();' + 'if(currentYear != year) {' + 'year = currentYear; #' + '<li class="k-timeline-flag-wrap">' + '<span class="k-timeline-flag">#= year #</span>' + '</li>' + '# } ' + 'reverse = counter % 2 === 0 && alterMode; #' + '<li class="#= reverse ? \'k-timeline-event k-reverse\' : \'k-timeline-event\' #" data-uid="#: data[i].uid #">' + '# if(showDateLabels) { #' + '<div class="k-timeline-date-wrap">' + '<span class="k-timeline-date">#= kendo.toString(data[i][dateField], dateFormat) #</span>' + '</div>' + '# } #' + '<a class="k-timeline-circle"></a>' + '<div class="#= collapsibleEvents ? \'k-timeline-card k-collapsed\' : \'k-timeline-card\' #">' + '<div class="k-card" #= (navigatable) ? "tabindex=\'0\' aria-live=\'polite\' aria-atomic=\'true\' role=\'button\'" : "" #>' + '<span class="#= reverse ? \'k-timeline-card-callout k-card-callout k-callout-e\' : \'k-timeline-card-callout k-card-callout k-callout-w\' #"></span>' + '#= itemTemplate({titleField: titleField, subtitleField: subtitleField, descriptionField: descriptionField, imagesField: imagesField, actionsField: actionsField, data: data[i], altField: altField, navigatable: navigatable, collapsibleEvents: collapsibleEvents}) #' + '</div>' + '</div>' + '</li>' + '# counter ++;' + '} #', ARROWSHTML = '<a class="k-button k-timeline-arrow k-timeline-arrow-left k-state-disabled" title="previous">' + '<span class="k-icon k-i-arrow-60-left"></span>' + '</a>' + '<a class="k-button k-timeline-arrow k-timeline-arrow-right k-state-disabled" title="next">' + '<span class="k-icon k-i-arrow-60-right"></span>' + '</a>';
         function className(name) {
             return 'k-' + name;
         }
@@ -136,7 +136,8 @@
                     subtitleField: dataFieldMappings.subtitle,
                     descriptionField: dataFieldMappings.description,
                     imagesField: dataFieldMappings.images,
-                    actionsField: dataFieldMappings.actions
+                    actionsField: dataFieldMappings.actions,
+                    altField: dataFieldMappings.altField
                 });
                 page.content(html, data.uid);
             },
@@ -228,11 +229,13 @@
                 var options = this.options;
                 var element = this.element;
                 var eventsList = that._eventsList = $('<ul />');
+                var navigatable = options.navigatable;
+                var collapsibleEvents = options.collapsibleEvents;
                 that.element.append(eventsList);
                 if (options.alternatingMode) {
                     element.addClass('k-timeline-alternating');
                 }
-                if (options.collapsibleEvents) {
+                if (collapsibleEvents) {
                     element.addClass('k-timeline-collapsible');
                     this.element.on('click', '.k-card-header', function () {
                         var card = $(this).closest('.k-timeline-card');
@@ -245,6 +248,9 @@
                                 })) {
                                 kendo.fx(cardBody).expand('vertical').stop().play();
                                 card.toggleClass('k-collapsed');
+                                if (navigatable && collapsibleEvents) {
+                                    card.find('.k-card').attr('aria-expanded', true);
+                                }
                             }
                         } else {
                             if (!that.trigger('collapse', {
@@ -253,9 +259,26 @@
                                 })) {
                                 kendo.fx(cardBody).expand('vertical').stop().reverse();
                                 card.toggleClass('k-collapsed');
+                                if (navigatable && collapsibleEvents) {
+                                    card.find('.k-card').attr('aria-expanded', false);
+                                }
                             }
                         }
                     });
+                }
+                if (navigatable) {
+                    if (collapsibleEvents) {
+                        this.element.on('keydown' + NS, that, function (e) {
+                            if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
+                                var target = $(e.target);
+                                var header = target.find('.k-card-header');
+                                if (header.length) {
+                                    e.preventDefault();
+                                    header.trigger('click');
+                                }
+                            }
+                        });
+                    }
                 }
             },
             _renderContentVertical: function (data) {
@@ -281,7 +304,9 @@
                     alterMode: options.alternatingMode,
                     collapsibleEvents: options.collapsibleEvents,
                     dateFormat: options.dateFormat,
-                    showDateLabels: options.showDateLabels
+                    showDateLabels: options.showDateLabels,
+                    altField: options.dataImagesAltField,
+                    navigatable: options.navigatable
                 });
                 this._eventsList.html(html);
                 if (options.eventWidth) {
@@ -331,7 +356,8 @@
                     'date': options.dataDateField,
                     'description': options.dataDescriptionField,
                     'images': options.dataImagesField,
-                    'actions': options.dataActionsField
+                    'actions': options.dataActionsField,
+                    'altField': options.dataImagesAltField
                 };
             },
             _transitionEnd: function () {
@@ -343,13 +369,19 @@
                 this._forward = null;
                 this.pane.repositionPages();
                 this.pane.movable.moveAxis('x', 0);
+                if (this.options.navigatable) {
+                    this._transition = null;
+                    this._eventsList.find('.k-card').removeAttr('id');
+                    this.pane.pages[1].cardContainer.attr('id', this._cardId);
+                    this._setCurrent(this._currentBullet);
+                }
                 this._animationInProgress = false;
             },
             _setCurrentEvent: function (event) {
                 var that = this;
                 var trackItem = $(event.currentTarget);
                 var eventContainer;
-                var dataItem = that.dataSource.view()[trackItem.index('li[class=\'k-timeline-track-item\']')];
+                var dataItem = that.dataSource.view()[trackItem.parent().children(':not(.k-timeline-flag-wrap)').index(trackItem)];
                 eventContainer = that._forward ? that.pane.pages[2].element : that.pane.pages[0].element;
                 if (!that.trigger('change', {
                         eventContainer: eventContainer,
@@ -362,8 +394,15 @@
                 var that = this;
                 var trackItem = $(element);
                 var trackItemCircle = trackItem.find('.k-timeline-circle');
-                var itemIndex = trackItem.index('li[class=\'k-timeline-track-item\']');
+                var trackItems = trackItem.parent().children(':not(.k-timeline-flag-wrap)');
+                var itemIndex = trackItems.index(trackItem);
                 var forward;
+                if (this.options.navigatable) {
+                    that._removeCurrent();
+                    trackItems.attr('aria-selected', false);
+                    trackItem.attr('aria-selected', true);
+                    that._currentBullet = trackItem;
+                }
                 var dataItem = that.dataSource.view()[itemIndex];
                 if (that.currentEventIndex === itemIndex) {
                     return;
@@ -412,15 +451,17 @@
             _updateArrows: function () {
                 var that = this;
                 var arrows = that.element.find('.k-timeline-arrow');
+                var leftArrow = arrows.filter('.k-timeline-arrow-left');
+                var rightArrow = arrows.filter('.k-timeline-arrow-right');
                 if (that._validateNavigation(false)) {
-                    arrows.filter('.k-timeline-arrow-left').addClass('k-state-disabled');
+                    leftArrow.addClass('k-state-disabled');
                 } else {
-                    arrows.filter('.k-timeline-arrow-left').removeClass('k-state-disabled');
+                    leftArrow.removeClass('k-state-disabled');
                 }
                 if (that._validateNavigation(true)) {
-                    arrows.filter('.k-timeline-arrow-right').addClass('k-state-disabled');
+                    rightArrow.addClass('k-state-disabled');
                 } else {
-                    arrows.filter('.k-timeline-arrow-right').removeClass('k-state-disabled');
+                    rightArrow.removeClass('k-state-disabled');
                 }
             },
             _validateNavigation: function (next) {
@@ -512,6 +553,7 @@
                             var calloutOffset = calculateOffset(firstEventInView.find('.k-timeline-circle'), that._trackWrap);
                             page.setPageCallout('left', calloutOffset / page.element.width() * 100 + '%');
                         }
+                        this._transition = null;
                         scrollWrapElement.off('transitionend' + NS, transitionEndHandler);
                     };
                     scrollWrapElement.on('transitionend' + NS, transitionEndHandler);
@@ -641,6 +683,7 @@
                 var that = this;
                 var firstEventElement = that._trackWrap.find('.k-timeline-circle').first();
                 var dataItem = that.dataSource.view()[0];
+                var navigatable = that.options.navigatable;
                 that.maxEvents = that._trackWrap.find('.k-timeline-track-item').length;
                 that._currentIndex = 1;
                 that.pane.initPages();
@@ -650,6 +693,83 @@
                 $(window).on('resize' + NS, proxy(this, '_resizeHandler'));
                 that._trackWrap.on('click', '.k-timeline-track-item:not(.k-timeline-flag-wrap)', proxy(this, '_setCurrentEvent'));
                 that._trackWrap.on('click', '.k-timeline-arrow:not(.k-state-disabled)', proxy(this, '_navigateToView'));
+                if (navigatable) {
+                    that._trackWrap.find('.k-timeline-track-item.k-timeline-flag-wrap').attr('aria-hidden', true);
+                    that._trackWrap.find('.k-timeline-track-item:not(.k-timeline-flag-wrap)').attr('role', 'option').attr('aria-selected', false).first().attr('aria-selected', true);
+                    that._cardId = kendo.guid();
+                    that._scrollableWrap.attr('role', 'listbox').attr('tabindex', 0).on('focus' + NS, function () {
+                        that.pane.pages[1].cardContainer.attr('id', that._cardId);
+                        that._setCurrent(that._scrollableWrap.find('.k-timeline-track-item').eq(that._currentIndex));
+                    }).on('focusout' + NS, function () {
+                        that._removeCurrent();
+                    }).on('keydown' + NS, function (e) {
+                        var handled;
+                        var current = that._currentBullet;
+                        var itemOffset;
+                        var next;
+                        if (that._transition) {
+                            return;
+                        }
+                        if (e.keyCode == keys.LEFT) {
+                            handled = true;
+                            next = current.prevAll('.k-timeline-track-item:not(.k-timeline-flag-wrap)').first();
+                            if (next.length) {
+                                itemOffset = calculateOffset(next, that._trackWrap);
+                                if (itemOffset < 0 || itemOffset > next.parent().width()) {
+                                    that._transition = true;
+                                    that._removeCurrent();
+                                    that.previous();
+                                    that.open(next);
+                                } else {
+                                    that._setCurrent(next);
+                                }
+                            }
+                        }
+                        if (e.keyCode == keys.RIGHT) {
+                            handled = true;
+                            next = current.nextAll('.k-timeline-track-item:not(.k-timeline-flag-wrap)').first();
+                            if (next.length) {
+                                itemOffset = calculateOffset(next, that._trackWrap);
+                                if (itemOffset < 0 || itemOffset > next.parent().width()) {
+                                    that._transition = true;
+                                    that._removeCurrent();
+                                    that.next();
+                                    that.open(next);
+                                } else {
+                                    that._setCurrent(next);
+                                }
+                            }
+                        }
+                        if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
+                            handled = true;
+                            that._currentBullet.trigger('click');
+                        }
+                        if (handled) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+            },
+            _setCurrent: function (next) {
+                if (!next) {
+                    return;
+                }
+                var id = kendo.guid();
+                var that = this;
+                that._removeCurrent();
+                that._scrollableWrap.attr('aria-activedescendant', id);
+                next.attr('id', id).addClass('k-state-focus');
+                next.siblings().removeAttr('aria-describedby');
+                if (next.attr('aria-selected') === 'true') {
+                    next.attr('aria-describedby', that._cardId);
+                }
+                that._currentBullet = next;
+            },
+            _removeCurrent: function () {
+                if (this._currentBullet) {
+                    this._currentBullet.removeClass('k-state-focus').removeAttr('id').removeAttr('aria-describedby');
+                }
+                this._scrollableWrap.removeAttr('aria-activedescendant');
             },
             setDataSource: function (dataSource) {
                 var that = this;
@@ -714,6 +834,7 @@
                 if (options.orientation != VERTICAL) {
                     this.pane.destroy();
                     this._trackWrap.find('.' + SCROLLABLEWRAPCLASS).off();
+                    this.element.find('.k-timeline-arrow').off();
                     this._trackWrap.off();
                     this.currentEventIndex = this.maxEvents = this.numOfEvents = this._currentIndex = this._eventPage = this._eventsList = this._eventsWrap = this.element = this._trackWrap = this.pane = null;
                 }
@@ -733,7 +854,9 @@
                 dataSubtitleField: 'subtitle',
                 dataDescriptionField: 'description',
                 dataImagesField: 'images',
-                dataActionsField: 'actions'
+                dataActionsField: 'actions',
+                dataImagesAltField: 'altField',
+                navigatable: false
             },
             events: [
                 'collapse',

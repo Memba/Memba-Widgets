@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -35,7 +35,6 @@
     };
     window.kendo = window.kendo || {};
     var Class = kendo.Class;
-    var support = kendo.support;
     var namedColors = {
         aliceblue: 'f0f8ff',
         antiquewhite: 'faebd7',
@@ -185,7 +184,6 @@
         yellow: 'ffff00',
         yellowgreen: '9acd32'
     };
-    var browser = support.browser;
     var matchNamedColor = function (color) {
         var colorNames = Object.keys(namedColors);
         colorNames.push('transparent');
@@ -218,9 +216,6 @@
             return 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', ' + parseFloat(Number(this.a).toFixed(3)) + ')';
         },
         toDisplay: function () {
-            if (browser.msie && browser.version < 9) {
-                return this.toCss();
-            }
             return this.toCssRgba();
         },
         equals: function (c) {

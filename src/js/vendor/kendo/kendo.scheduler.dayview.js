@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -34,7 +34,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, browser = kendo.support.browser, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, CURRENT_TIME_MARKER_CLASS = 'k-current-time', CURRENT_TIME_MARKER_ARROW_CLASS = 'k-current-time-arrow', INVERSE_COLOR_CLASS = 'k-event-inverse', BORDER_SIZE_COEFF = 0.8666, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
+        var kendo = window.kendo, ui = kendo.ui, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, CURRENT_TIME_MARKER_CLASS = 'k-current-time', CURRENT_TIME_MARKER_ARROW_CLASS = 'k-current-time-arrow', INVERSE_COLOR_CLASS = 'k-event-inverse', BORDER_SIZE_COEFF = 0.8666, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
         var DAY_VIEW_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t} - {1:t}", start, end)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' + '<div class="k-event-template">${title}</div>' + '</div>'), DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t}", start)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">${title}</div>' + '</div>'), DATA_HEADER_TEMPLATE = kendo.template('#var dateString = isMobile ? kendo.toString(date,\'ddd\')[0] : kendo.toString(date,\'ddd M/dd\'); #' + '<span class=\'k-link k-nav-day\'>#=dateString#</span>'), ALLDAY_EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '#if(resizable && !singleDay && !data.tail && !data.middle){#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '#if(resizable && !singleDay && !data.head && !data.middle){#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#" ' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.isException()) {#' + '<span class="k-icon k-i-non-recurrence"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete" title="${data.messages.destroy}" aria-label="${data.messages.destroy}"><span class="k-icon k-i-close"></span></a>' + '#}#' + '</span>' + '<span class="k-event-top-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-up"></span>' + '# } #' + '</span>' + '<span class="k-event-bottom-actions">' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-down"></span>' + '# } #' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-n"></span>' + '# } #' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-s"></span>' + '# } #' + '</div>';
         function toInvariantTime(date) {
             var staticDate = new Date(1980, 1, 1, 0, 0, 0);
@@ -123,10 +123,6 @@
                 var groupsCount = !options.group || options.group.orientation == 'horizontal' ? 1 : this.groups.length;
                 var firstTimesCell = this.times.find('tr:first th:first');
                 var lastTimesCell = this.times.find('tr:first th:last');
-                var markerWidth = this.content[0].scrollWidth;
-                if (browser.msie || browser.edge) {
-                    markerWidth -= 1;
-                }
                 if (firstTimesCell.length > 0 && lastTimesCell.length > 0) {
                     if (this._isRtl) {
                         position = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);
@@ -167,7 +163,6 @@
                             top: markerTopPosition,
                             height: '1px',
                             right: 0,
-                            width: markerWidth,
                             left: 0
                         });
                     }
@@ -1197,7 +1192,10 @@
                 for (var idx = 0, length = rows.length; idx < length; idx++) {
                     var rowEvents = rows[idx].events;
                     for (var j = 0, eventLength = rowEvents.length; j < eventLength; j++) {
-                        $(rowEvents[j].element).css({ top: top + idx * eventHeight });
+                        $(rowEvents[j].element).css({
+                            top: top + idx * eventHeight,
+                            height: eventHeight - 2
+                        });
                     }
                 }
             },

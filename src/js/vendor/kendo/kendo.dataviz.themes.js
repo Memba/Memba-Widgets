@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -472,12 +472,20 @@
 }(function () {
     (function ($) {
         var cache;
+        var SERIES_COLORS = 30;
+        function seriesTemplate() {
+            var template = '<div class="k-var--series-a"></div>' + '<div class="k-var--series-b"></div>' + '<div class="k-var--series-c"></div>' + '<div class="k-var--series-d"></div>' + '<div class="k-var--series-e"></div>' + '<div class="k-var--series-f"></div>';
+            for (var i = 0; i < SERIES_COLORS; i++) {
+                template += '<div class="k-var--series-' + (i + 1) + '"></div>';
+            }
+            return template;
+        }
         function autoTheme(force) {
             if (!force && cache) {
                 return cache;
             }
             var theme = { chart: kendo.dataviz.chartBaseTheme() };
-            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series">' + '    <div class="k-var--series-a"></div>' + '    <div class="k-var--series-b"></div>' + '    <div class="k-var--series-c"></div>' + '    <div class="k-var--series-d"></div>' + '    <div class="k-var--series-e"></div>' + '    <div class="k-var--series-f"></div>' + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
+            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-var--chart-area-inactive-opacity"></div>' + '  <div class="k-var--chart-line-inactive-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series-unset"></div>' + '  <div class="k-var--series">' + seriesTemplate() + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
             function mapColor(key, varName) {
                 set(key, queryStyle(varName, 'backgroundColor'));
             }
@@ -493,6 +501,14 @@
                     key = parts.shift();
                 }
                 store[key] = value;
+            }
+            function setInactiveOpacity(seriesTypes, selector) {
+                var inactiveOpacity = parseFloat(queryStyle(selector, 'opacity'));
+                if (!isNaN(inactiveOpacity) && inactiveOpacity < 1) {
+                    seriesTypes.forEach(function (type) {
+                        set('chart.seriesDefaults.' + type + '.highlight.inactiveOpacity', inactiveOpacity);
+                    });
+                }
             }
             (function setColors() {
                 mapColor('chart.axisDefaults.crosshair.color', 'chart-crosshair-background');
@@ -530,7 +546,6 @@
                 mapColor('chart.seriesDefaults.verticalBullet.target.color', 'accent');
                 mapColor('chart.seriesDefaults.waterfall.line.color', 'chart-major-lines');
                 mapColor('chart.title.color', 'normal-text-color');
-                set('chart.seriesDefaults.labels.opacity', queryStyle('chart-area-opacity', 'opacity'));
                 mapColor('diagram.shapeDefaults.fill.color', 'accent');
                 mapColor('diagram.shapeDefaults.content.color', 'accent-contrast');
                 mapColor('diagram.shapeDefaults.connectorDefaults.fill.color', 'normal-text-color');
@@ -553,6 +568,21 @@
                 mapColor('gauge.scale.majorTicks.color', 'normal-text-color');
                 mapColor('gauge.scale.line.color', 'normal-text-color');
                 mapColor('gauge.scale.rangePlaceholderColor', 'gauge-track');
+                var opacity = parseFloat(queryStyle('chart-area-opacity', 'opacity'));
+                if (!isNaN(opacity)) {
+                    set('chart.seriesDefaults.area.opacity', opacity);
+                    set('chart.seriesDefaults.radarArea.opacity', opacity);
+                    set('chart.seriesDefaults.verticalArea.opacity', opacity);
+                    set('chart.seriesDefaults.labels.opacity', opacity);
+                }
+                setInactiveOpacity([
+                    'area',
+                    'verticalArea'
+                ], 'chart-area-inactive-opacity');
+                setInactiveOpacity([
+                    'line',
+                    'verticalLine'
+                ], 'chart-line-inactive-opacity');
             }());
             (function setFonts() {
                 function font(varName) {
@@ -574,12 +604,21 @@
                     return letter.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
                 }
                 function seriesPos(name) {
-                    return letterPos(name.match(/series-([a-z])$/)[1]);
+                    var alpha = name.match(/series-([a-z])$/);
+                    if (alpha !== null) {
+                        return letterPos(alpha[1]);
+                    }
+                    var num = name.split('--series-')[1];
+                    return parseInt(num, 10) - 1;
                 }
                 var series = $('.k-var--series div').toArray();
+                var unsetColor = $('.k-var--series-unset').css('backgroundColor');
                 var seriesColors = series.reduce(function (arr, el) {
                     var pos = seriesPos(el.className);
-                    arr[pos] = $(el).css('backgroundColor');
+                    var color = $(el).css('backgroundColor');
+                    if (color !== unsetColor) {
+                        arr[pos] = color;
+                    }
                     return arr;
                 }, []);
                 set('chart.seriesColors', seriesColors);

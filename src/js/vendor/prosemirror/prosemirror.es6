@@ -4624,7 +4624,7 @@ var AddMarkStep = /*@__PURE__*/(function (Step) {
     var oldSlice = doc.slice(this.from, this.to), $from = doc.resolve(this.from);
     var parent = $from.node($from.sharedDepth(this.to));
     var slice = new Slice(mapFragment(oldSlice.content, function (node, parent) {
-      if (!parent.type.allowsMarkType(this$1.mark.type)) { return node }
+      if (!node.isAtom || !parent.type.allowsMarkType(this$1.mark.type)) { return node }
       return node.mark(this$1.mark.addToSet(node.marks))
     }, parent), oldSlice.openStart, oldSlice.openEnd);
     return StepResult.fromReplace(doc, this.from, this.to, slice)
@@ -6245,7 +6245,7 @@ prototypeAccessors$1$5.tr.get = function () { return new Transaction(this) };
 // config::- Configuration options. Must contain `schema` or `doc` (or both).
 //
 //    schema:: ?Schema
-//    The schema to use.
+//    The schema to use (only relevant if no `doc` is specified).
 //
 //    doc:: ?Node
 //    The starting document.
@@ -6259,7 +6259,7 @@ prototypeAccessors$1$5.tr.get = function () { return new Transaction(this) };
 //    plugins:: ?[Plugin]
 //    The plugins that should be active in this state.
 EditorState.create = function create (config) {
-  var $config = new Configuration(config.schema || config.doc.type.schema, config.plugins);
+  var $config = new Configuration(config.doc ? config.doc.type.schema : config.schema, config.plugins);
   var instance = new EditorState($config);
   for (var i = 0; i < $config.fields.length; i++)
     { instance[$config.fields[i].name] = $config.fields[i].init(config, instance); }
@@ -6276,13 +6276,10 @@ EditorState.create = function create (config) {
 //
 // config::- configuration options
 //
-//   schema:: ?Schema
-//   New schema to use.
-//
-//   plugins:: ?[Plugin]
+//   plugins:: [Plugin]
 //   New set of active plugins.
 EditorState.prototype.reconfigure = function reconfigure (config) {
-  var $config = new Configuration(config.schema || this.schema, config.plugins);
+  var $config = new Configuration(this.schema, config.plugins);
   var fields = $config.fields, instance = new EditorState($config);
   for (var i = 0; i < fields.length; i++) {
     var name = fields[i].name;
@@ -8631,7 +8628,7 @@ var ViewDesc = function ViewDesc(parent, children, dom, contentDOM) {
   this.dirty = NOT_DIRTY;
 };
 
-var prototypeAccessors$9 = { beforePosition: { configurable: true },size: { configurable: true },border: { configurable: true },posBefore: { configurable: true },posAtStart: { configurable: true },posAfter: { configurable: true },posAtEnd: { configurable: true },contentLost: { configurable: true } };
+var prototypeAccessors$9 = { beforePosition: { configurable: true },size: { configurable: true },border: { configurable: true },posBefore: { configurable: true },posAtStart: { configurable: true },posAfter: { configurable: true },posAtEnd: { configurable: true },contentLost: { configurable: true },domAtom: { configurable: true } };
 
 // Used to check whether a given description corresponds to a
 // widget/mark/node.
@@ -8794,13 +8791,14 @@ ViewDesc.prototype.domFromPos = function domFromPos (pos, side) {
                                         this.children[i].dom.parentNode != this.contentDOM))
       { offset += this.children[i++].size; }
     var child = i == this.children.length ? null : this.children[i];
-    if (offset == pos && (side == 0 || !child || child.border || (side < 0 && first))) { return {
+    if (offset == pos && (side == 0 || !child || child.border || (side < 0 && first)) ||
+        child && child.domAtom && pos < offset + child.size) { return {
       node: this.contentDOM,
       offset: child ? domIndex(child.dom) : this.contentDOM.childNodes.length
     } }
     if (!child) { throw new Error("Invalid position " + pos) }
     var end = offset + child.size;
-    if (side < 0 && !child.border ? end >= pos : end > pos)
+    if (!child.domAtom && (side < 0 && !child.border ? end >= pos : end > pos))
       { return child.domFromPos(pos - offset - child.border, side) }
     offset = end;
   }
@@ -8975,6 +8973,8 @@ ViewDesc.prototype.markParentsDirty = function markParentsDirty () {
   }
 };
 
+prototypeAccessors$9.domAtom.get = function () { return false };
+
 Object.defineProperties( ViewDesc.prototype, prototypeAccessors$9 );
 
 // Reused array to avoid allocating fresh arrays for things that will
@@ -9008,7 +9008,7 @@ var WidgetViewDesc = /*@__PURE__*/(function (ViewDesc) {
   WidgetViewDesc.prototype = Object.create( ViewDesc && ViewDesc.prototype );
   WidgetViewDesc.prototype.constructor = WidgetViewDesc;
 
-  var prototypeAccessors$1 = { beforePosition: { configurable: true } };
+  var prototypeAccessors$1 = { beforePosition: { configurable: true },domAtom: { configurable: true } };
 
   prototypeAccessors$1.beforePosition.get = function () {
     return this.widget.type.side < 0
@@ -9028,6 +9028,8 @@ var WidgetViewDesc = /*@__PURE__*/(function (ViewDesc) {
   WidgetViewDesc.prototype.ignoreMutation = function ignoreMutation (mutation) {
     return mutation.type != "selection" || this.widget.spec.ignoreSelection
   };
+
+  prototypeAccessors$1.domAtom.get = function () { return true };
 
   Object.defineProperties( WidgetViewDesc.prototype, prototypeAccessors$1 );
 
@@ -9135,7 +9137,7 @@ var NodeViewDesc = /*@__PURE__*/(function (ViewDesc) {
   NodeViewDesc.prototype = Object.create( ViewDesc && ViewDesc.prototype );
   NodeViewDesc.prototype.constructor = NodeViewDesc;
 
-  var prototypeAccessors$3 = { size: { configurable: true },border: { configurable: true } };
+  var prototypeAccessors$3 = { size: { configurable: true },border: { configurable: true },domAtom: { configurable: true } };
 
   // By default, a node is rendered using the `toDOM` method from the
   // node type spec. But client code can use the `nodeViews` spec to
@@ -9338,6 +9340,8 @@ var NodeViewDesc = /*@__PURE__*/(function (ViewDesc) {
     if (this.contentDOM || !this.node.type.spec.draggable) { this.dom.removeAttribute("draggable"); }
   };
 
+  prototypeAccessors$3.domAtom.get = function () { return this.node.isAtom };
+
   Object.defineProperties( NodeViewDesc.prototype, prototypeAccessors$3 );
 
   return NodeViewDesc;
@@ -9358,6 +9362,8 @@ var TextViewDesc = /*@__PURE__*/(function (NodeViewDesc) {
   if ( NodeViewDesc ) { TextViewDesc.__proto__ = NodeViewDesc; }
   TextViewDesc.prototype = Object.create( NodeViewDesc && NodeViewDesc.prototype );
   TextViewDesc.prototype.constructor = TextViewDesc;
+
+  var prototypeAccessors$4 = { domAtom: { configurable: true } };
 
   TextViewDesc.prototype.parseRule = function parseRule () {
     var skip = this.nodeDOM.parentNode;
@@ -9402,6 +9408,10 @@ var TextViewDesc = /*@__PURE__*/(function (NodeViewDesc) {
     return new TextViewDesc(this.parent, node, this.outerDeco, this.innerDeco, dom, dom, view)
   };
 
+  prototypeAccessors$4.domAtom.get = function () { return false };
+
+  Object.defineProperties( TextViewDesc.prototype, prototypeAccessors$4 );
+
   return TextViewDesc;
 }(NodeViewDesc));
 
@@ -9416,8 +9426,13 @@ var BRHackViewDesc = /*@__PURE__*/(function (ViewDesc) {
   BRHackViewDesc.prototype = Object.create( ViewDesc && ViewDesc.prototype );
   BRHackViewDesc.prototype.constructor = BRHackViewDesc;
 
+  var prototypeAccessors$5 = { domAtom: { configurable: true } };
+
   BRHackViewDesc.prototype.parseRule = function parseRule () { return {ignore: true} };
   BRHackViewDesc.prototype.matchesHack = function matchesHack () { return this.dirty == NOT_DIRTY };
+  prototypeAccessors$5.domAtom.get = function () { return true };
+
+  Object.defineProperties( BRHackViewDesc.prototype, prototypeAccessors$5 );
 
   return BRHackViewDesc;
 }(ViewDesc));
@@ -11704,22 +11719,19 @@ function capturePaste(view, e) {
 
 function doPaste(view, text, html, e) {
   var slice = parseFromClipboard(view, text, html, view.shiftKey, view.state.selection.$from);
-  if (view.someProp("handlePaste", function (f) { return f(view, e, slice || Slice.empty); }) || !slice) { return }
+  if (view.someProp("handlePaste", function (f) { return f(view, e, slice || Slice.empty); })) { return true }
+  if (!slice) { return false }
 
   var singleNode = sliceSingleNode(slice);
   var tr = singleNode ? view.state.tr.replaceSelectionWith(singleNode, view.shiftKey) : view.state.tr.replaceSelection(slice);
   view.dispatch(tr.scrollIntoView().setMeta("paste", true).setMeta("uiEvent", "paste"));
+  return true
 }
 
 editHandlers.paste = function (view, e) {
   var data = brokenClipboardAPI ? null : e.clipboardData;
-  var html = data && data.getData("text/html"), text = data && data.getData("text/plain");
-  if (data && (html || text || data.files.length)) {
-    doPaste(view, text, html, e);
-    e.preventDefault();
-  } else {
-    capturePaste(view, e);
-  }
+  if (data && doPaste(view, data.getData("text/plain"), data.getData("text/html"), e)) { e.preventDefault(); }
+  else { capturePaste(view, e); }
 };
 
 var Dragging = function Dragging(slice, move) {
@@ -27410,7 +27422,7 @@ MarkdownSerializerState.prototype.renderInline = function renderInline (parent) 
       return info && info.expelEnclosingWhitespace
     })) {
       var ref = /^(\s*)(.*?)(\s*)$/m.exec(node.text);
-        var _$1 = ref[0];
+        ref[0];
         var lead = ref[1];
         var inner$1 = ref[2];
         var trail = ref[3];

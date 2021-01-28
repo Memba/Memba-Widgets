@@ -108,8 +108,9 @@ const CONSTANTS = {
     NONE: 'none',
     TOP: 'top',
     WIDTH: 'width',
-    // Regular Expressions
-    RX_GUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    // Regular Expressions (beware, kendo.guid() returns guids starting with [a-z])
+    // RX_GUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    RX_GUID: /^[a-z][0-9a-f]{7}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
     RX_KEYWORD: /^[^\s<>{}][^<>{}]{0,23}[^\s<>{}]$/,
     RX_LANGUAGE: /^[a-z]{2}$/,

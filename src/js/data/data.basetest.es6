@@ -176,7 +176,7 @@ const BaseTest = BaseModel.define({
     percent() {
         const max = this.max();
         const score = this.score();
-        return score === 0 || max === 0 ? 0 : (100 * score) / max;
+        return score === 0 || max === 0 ? 0 : score / max;
     },
 
     /**

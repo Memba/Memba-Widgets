@@ -513,8 +513,8 @@ const BaseTool = StubTool.extend({
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
         /* eslint-disable prettier/prettier */
         return `<div class=".kj-element-result" data-${ns}bind="visible: #: properties.name #">
-                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'${__('tools.basetool.icon.success')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
-                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icon.failure')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icons.success')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icons.failure')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
                 </div>`;
         /* eslint-ensable prettier/prettier */
     },

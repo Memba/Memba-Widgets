@@ -7,6 +7,8 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
+// @see https://medium.com/square-corner-blog/smoother-signatures-be64515adb33
+
 (function (f, define) {
     'use strict';
     define([

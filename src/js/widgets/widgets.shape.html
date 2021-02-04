@@ -20,9 +20,18 @@
              SystemJS.import('./widgets.shape.es6').then(function () {
                 var kendo = window.kendo;
                 $(function () {
-                    // Unbound
-                    $('#shape').kendoShape({
-                        // TODO
+                    // Rectangle
+                    $('#rectangle').kendoShape({
+                        shape: 'rectangle'
+                    });
+                    // Ellipsis
+                    $('#ellipsis').kendoShape({
+                        shape: 'ellipsis'
+                    });
+                    // Ellipsis
+                    $('#polygon').kendoShape({
+                        shape: 'polygon',
+                        sides: 3
                     });
                     // Declarative
                     kendo.init(document.body);
@@ -35,7 +44,9 @@
 <h1>widgets.shape</h1>
 
 <h2>Code initialization</h2>
-<div id="shape" class="k-widget" style="height: 50px; width: 500px;"></div>
+<div id="rectangle" style="height: 50px; width: 500px; margin-bottom: 50px;"></div>
+<div id="ellipsis" style="height: 200px; width: 300px; margin-bottom: 50px;"></div>
+<div id="polygon" style="height: 200px; width: 300px; margin-bottom: 50px;"></div>
 
 <h2>Html declaration</h2>
 <div class="kj-stage" style="position: relative; height: 300px; width: 300px; border: solid 1px black; transform: scale(0.75);">

@@ -19,14 +19,14 @@ import Logger from '../common/window.logger.es6';
 const {
     destroy,
     geometry,
-    drawing: { Circle, Element, Group, Path, Rect, Surface },
+    drawing: { Circle, Path, Rect, Surface, Text },
     ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.shape');
 // const NS = '.kendoShape';
 const WIDGET_CLASS = 'kj-shape';
 const SHAPES = {
-    CIRCLE: 'circle',
+    ELLIPSIS: 'ellipsis',
     POLYGON: 'polygon',
     RECTANGLE: 'rectangle',
 };
@@ -56,58 +56,94 @@ function normalizeShape(value) {
 }
 
 /**
- * Get circle
- * @function getCircle
+ * Get ellipsis
+ * @function getEllipsis
  * @param bounds
- * @param options
- * @returns {*}
+ * @param style
  */
-function getCircle(bounds, options) {
-    const circle = new geometry.Circle(
-        bounds.origin
-            .clone()
-            .translate(bounds.size.width / 2, bounds.size.height / 2),
-        bounds.size.width / 2
-    );
-    return new Circle(circle, options);
+function getEllipsis(bounds, style = {}) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const center = bounds.origin
+        .clone()
+        .translate(bounds.size.width / 2, bounds.size.height / 2);
+    const arc = new geometry.Arc(center, {
+        radiusX: (bounds.size.width - borderWidth) / 2,
+        radiusY: (bounds.size.height - borderWidth) / 2,
+        startAngle: 0,
+        endAngle: 360,
+    });
+    return Path.fromArc(arc, style).close();
 }
 
 /**
- * Get diamond cap
- * @function getDiamondCap
+ * Get circle
+ * @function getCircle
  * @param bounds
- * @param options
+ * @param style
  * @returns {*}
  */
-function getPolygon(bounds, options) {
-    const path = new Path(options);
-    path.moveTo(bounds.origin.clone().translate(bounds.size.width / 2, 0))
-        .lineTo(
-            bounds.origin
+function getCircle(bounds, style = {}) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const center = bounds.origin
+        .clone()
+        .translate(bounds.size.width / 2, bounds.size.height / 2);
+    const circle = new geometry.Circle(
+        center,
+        (bounds.size.width - borderWidth) / 2
+    );
+    return new Circle(circle, style);
+}
+
+/**
+ * Get Polygon
+ * @function getPolygon
+ * @param bounds
+ * @param style
+ * @param angles
+ * @returns {*}
+ */
+function getPolygon(bounds, style, angles = 4) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const center = bounds.origin
+        .clone()
+        .translate(bounds.size.width / 2, bounds.size.height / 2);
+    const radiusX = (bounds.size.width - borderWidth) / 2;
+    const radiusY = (bounds.size.height - borderWidth) / 2;
+    const path = new Path(style);
+    for (let i = 0; i < angles; i++) {
+        const rad = (2 * Math.PI * i) / angles;
+        path[i === 0 ? 'moveTo' : 'lineTo'](
+            center
                 .clone()
-                .translate(bounds.size.width, bounds.size.height / 2)
-        )
-        .lineTo(
-            bounds.origin
-                .clone()
-                .translate(bounds.size.width / 2, bounds.size.height)
-        )
-        .lineTo(bounds.origin.clone().translate(0, bounds.size.height / 2))
-        .close();
-    return path;
+                .translate(radiusX * Math.cos(rad), radiusY * Math.sin(rad))
+        );
+    }
+    return path.close();
 }
 
 /**
  * Get rectangle
  * @function getRectangle
  * @param bounds
- * @param options
+ * @param style
  * @returns {*}
  */
-function getRectangle(bounds, options) {
-    const rect = new geometry.Rect(bounds.origin, bounds.size);
-    return new Rect(rect, options);
+function getRectangle(bounds, style) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const topLeft = bounds.origin
+        .clone()
+        .translate(borderWidth / 2, borderWidth / 2);
+    const size = bounds.size
+        .clone()
+        .setWidth(bounds.size.width - borderWidth)
+        .setHeight(bounds.size.height - borderWidth);
+    const rect = new geometry.Rect(topLeft, size);
+    return new Rect(rect, style);
 }
+
+// TODO Rounded rectangle
+// TODO Star
+// TODO Heart
 
 /**
  * Shape
@@ -141,10 +177,10 @@ const Shape = Widget.extend({
     options: {
         name: 'Shape',
         shape: SHAPES.RECTANGLE,
-        text: '', // TODO: Should we add text?
+        angles: 4,
+        text: '',
         style: {
             // TODO Match style for formatting toolbar
-            // TODO text
             fill: {
                 color: '#33ccff',
             },
@@ -157,6 +193,7 @@ const Shape = Widget.extend({
                 // opacity: 1,
                 width: 5,
             },
+            // TODO text
         },
     },
 
@@ -195,11 +232,13 @@ const Shape = Widget.extend({
         // Add shape
         const shape = this._getShape(size);
         surface.draw(shape);
-        // TODO add text
+        // Add text
+        const text = this._getText(size);
+        surface.draw(text);
     },
 
     /**
-     * Get line path
+     * Get shape
      * @param size
      * @returns {*}
      * @private
@@ -214,10 +253,33 @@ const Shape = Widget.extend({
             origin: new geometry.Point(0, 0),
             size: new geometry.Size(size.width, size.height),
         };
-        if (shape === SHAPES.RECTANGLE) {
+        if (shape === SHAPES.ELLIPSIS) {
+            ret =
+                bounds.size.width === bounds.size.height
+                    ? getCircle(bounds, style)
+                    : getEllipsis(bounds, style);
+        } else if (shape === SHAPES.POLYGON) {
+            const angles = normalizeNumber(this.options.angles, 4);
+            ret = getPolygon(bounds, style, angles);
+        } else if (shape === SHAPES.RECTANGLE) {
             ret = getRectangle(bounds, style);
         }
         return ret;
+    },
+
+    /**
+     * Get text
+     * @param size
+     * @returns {*}
+     * @private
+     */
+    _getText(size) {
+        // TODO https://www.telerik.com/forums/centering-text-in-rectangle-group
+        const {
+            options: { text },
+        } = this;
+        const position = new geometry.Point(10, 10);
+        return new Text(text, position);
     },
 
     /**

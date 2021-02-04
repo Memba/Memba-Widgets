@@ -264,6 +264,16 @@ function tools(id) {
         });
 
         /**
+         * Shape
+         */
+        _tools.shape = new StubTool({
+            description: __('tools.shape.description'),
+            help: __('tools.shape.help'),
+            icon: __('tools.shape.icon'),
+            name: __('tools.shape.name'),
+        });
+
+        /**
          * Connector
          */
         _tools.connector = new StubTool({

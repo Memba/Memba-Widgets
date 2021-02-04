@@ -236,10 +236,10 @@ const res = {
 
     // dummy
     dummy: {
-        description: 'Carré',
-        help: 'TODO',
-        icon: 'shapes',
-        name: 'Carré',
+        description: 'Pantin',
+        help: 'Pas d’aide pour un pantin',
+        icon: 'astrologer',
+        name: 'Pantin',
     },
 
     // highlighter
@@ -642,6 +642,46 @@ const res = {
             omit: { title: 'Omission' },
             disabled: { title: 'Désactivé' },
         },
+    },
+
+    // shape
+    shape: {
+        description:
+            'Forme: <div style="background-color: #: attributes.fillColor #; display: inline-block; height: 1em; width: 1em; vertical-align: top;"/>',
+        help: 'TODO',
+        icon: 'shapes',
+        name: 'shape',
+        attributes: {
+            shape: {
+                title: 'Forme',
+                source: [
+                    { text: 'Ellipse', value: 'ellipsis' },
+                    { text: 'Polygon', value: 'polygon' },
+                    { text: 'Rectangle', value: 'rectangle' },
+                ],
+            },
+            angles: {
+                help: 'Saisissez le nombre d’angles du polygone',
+                title: 'Couleur du Fond',
+            },
+            text: {
+                help: 'Saisissez le texte à afficher',
+                title: 'Texte',
+            },
+            fillColor: {
+                help: 'Saisissez la couleur du fond',
+                title: 'Couleur du Fond',
+            },
+            strokeColor: {
+                help: 'Saisissez la couleur du bord',
+                title: 'Couleur du Bord',
+            },
+            strokeWidth: {
+                help: 'Saisissez un nombre pour l’épaisseur du bord',
+                title: 'Épaisseur du Bord',
+            },
+        },
+        properties: {},
     },
 
     // table

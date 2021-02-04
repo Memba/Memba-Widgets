@@ -232,10 +232,10 @@ const res = {
 
     // dummy
     dummy: {
-        description: 'Square tool',
-        help: 'TODO',
-        icon: 'shapes',
-        name: 'Square',
+        description: 'Dummy tool',
+        help: 'No help for a dummy tool',
+        icon: 'astrologer',
+        name: 'Dummy',
     },
 
     // highlighter
@@ -625,6 +625,46 @@ const res = {
             omit: { title: 'Omit' },
             disabled: { title: 'Disabled' },
         },
+    },
+
+    // shape
+    shape: {
+        description:
+            'Shape: <div style="background-color: #: attributes.fillColor #; display: inline-block; height: 1em; width: 1em; vertical-align: top;"/>',
+        help: 'TODO',
+        icon: 'shapes',
+        name: 'shape',
+        attributes: {
+            shape: {
+                title: 'Shape',
+                source: [
+                    { text: 'Ellipsis', value: 'ellipsis' },
+                    { text: 'Polygon', value: 'polygon' },
+                    { text: 'Rectangle', value: 'rectangle' },
+                ],
+            },
+            angles: {
+                help: 'Enter the number of polygon angles',
+                title: 'Angles',
+            },
+            text: {
+                help: 'Enter the text to display inside the shape',
+                title: 'Text',
+            },
+            fillColor: {
+                help: 'Select a color for the background',
+                title: 'Fill Color',
+            },
+            strokeColor: {
+                help: 'Select a color for the border',
+                title: 'Border Color',
+            },
+            strokeWidth: {
+                help: 'Enter a number for the width of the border',
+                title: 'Border Width',
+            },
+        },
+        properties: {},
     },
 
     // table

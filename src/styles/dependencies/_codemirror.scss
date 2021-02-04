@@ -61,7 +61,9 @@
 /* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is $series-f */
 
 .cm-s-default .cm-header {
-    color: contrast-wcag($series-a);
+    // color: $primary;
+    color: $tertiary;
+    // color: contrast-wcag($series-a);
 }
 
 .cm-s-default .cm-quote {

@@ -29,7 +29,7 @@ const DropDownListAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = 'select';
+        this.editor = CONSTANTS.SELECT;
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr(CONSTANTS.ROLE)] = 'dropdownlist';
         this.attributes[attr('text-field')] = 'text';

@@ -100,7 +100,7 @@ function optimizeEditor(row = {}) {
 
         // If it designates a kendo UI widget that works with a select html tag
         if (
-            ['combobox', 'dropdownlist', 'nultiselect'].indexOf(row.editor) >
+            ['combobox', 'dropdownlist', 'multiselect'].indexOf(row.editor) >
                 -1 &&
             Object.prototype.hasOwnProperty.call(
                 rolesFromNamespaces(ui),

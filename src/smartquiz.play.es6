@@ -12,6 +12,7 @@ import 'kendo.grid';
 import 'kendo.toolbar';
 import CONSTANTS from './js/common/window.constants.es6';
 import './js/cultures/all.en.es6';
+import './js/widgets/widgets.markdown.es6';
 import './js/widgets/widgets.playbar.es6';
 import './js/widgets/widgets.stage.es6';
 import LocalStream from './smartquiz.data.es6';
@@ -35,12 +36,34 @@ const viewModel = observable({
     stream: new LocalStream(),
     selectedPage: undefined,
     test: undefined,
+    isFirstPage$() {
+        const { pages } = this.stream;
+        const p = this.get('selectedPage');
+        return p && pages ? pages.indexOf(p) === 0 : true;
+    },
+    isLastPage$() {
+        const { pages } = this.stream;
+        const p = this.get('selectedPage');
+        return p && pages ? pages.indexOf(p) === pages.total() - 1 : true;
+    },
+    previousPage() {
+        const { pages } = this.stream;
+        const p = this.get('selectedPage');
+        const i = pages.indexOf(p);
+        this.set('selectedPage', pages.at(i - 1));
+    },
+    nextPage() {
+        const { pages } = this.stream;
+        const p = this.get('selectedPage');
+        const i = pages.indexOf(p);
+        this.set('selectedPage', pages.at(i + 1));
+    },
     compute() {
         return viewModel.test
             .grade()
             .then(() => {
-                const stageWidget = $(roleSelector('stage')).data('kendoStage');
-                stageWidget.mode(stageWidget.modes.review);
+                const stage = $(roleSelector('stage')).data('kendoStage');
+                stage.mode(stage.modes.review);
                 const grid = $('div[data-role="grid"]').data('kendoGrid');
                 grid.setDataSource(
                     new DataSource({
@@ -59,10 +82,9 @@ viewModel.bind(CONSTANTS.CHANGE, (e) => {
     if (e.field === 'selectedPage') {
         const style = e.sender.get('selectedPage.style');
         setTimeout(() => {
-            const stage = $('.centered').find(roleSelector('stage'));
-            const stageWidget = stage.data('kendoStage');
-            if (stageWidget instanceof Stage) {
-                stageWidget.style(style);
+            const stage = $(roleSelector('stage')).data('kendoStage');
+            if (stage instanceof Stage) {
+                stage.style(style);
             }
         }, 0);
     }
@@ -75,23 +97,23 @@ window.viewModel = viewModel;
  * Resize event handler
  */
 function onResize() {
-    const stage = $(roleSelector('stage'));
-    const stageWidget = stage.data('kendoStage');
-    if (stageWidget instanceof Stage) {
-        const wrapper = $('#wrapper');
+    const $stage = $(roleSelector('stage'));
+    const stage = $stage.data('kendoStage');
+    if (stage instanceof Stage) {
+        const wrapper = $stage.closest('.wrapper');
         const width = wrapper.width();
         const height = wrapper.height();
         const k = 0.9;
         const scale = Math.min((k * width) / 1024, (k * height) / 768);
-        stageWidget.scale(scale);
-        $('.centered')
-            .width(scale * stage.outerWidth())
-            .height(scale * stage.outerHeight());
+        stage.scale(scale);
+        $stage.closest('.centered')
+            .width(scale * $stage.outerWidth())
+            .height(scale * $stage.outerHeight());
         // .css('position', 'absolute')
         // .css('top', '50%')
         // .css('left', '50%')
-        // .css('margin-left', `-${(scale * stage.outerWidth()) / 2}px`)
-        // .css('margin-top', `-${(scale * stage.outerHeight()) / 2}px`);
+        // .css('margin-left', `-${(scale * $stage.outerWidth()) / 2}px`)
+        // .css('margin-top', `-${(scale * $stage.outerHeight()) / 2}px`);
     }
 }
 $(window).on('resize', throttle(onResize, 50));
@@ -107,7 +129,8 @@ $(() => {
         items: [
             { template: '<a class="k-button" href="\\#"><span class="k-icon k-i-menu"></span></a>', type: 'contentItem' },
             { width: 5, type: 'spacer' },
-            { template: '<img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo" style="margin: -0.5rem 0;">', type: 'contentItem' },
+            // { template: '<img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo" style="margin: -0.5rem 0;">', type: 'contentItem' },
+            { template: '<h2 style="padding: 0; margin: 0; font-weight: bolder;">Eduthon</h2>', type: 'contentItem' },
         ]
     });
 
@@ -125,32 +148,36 @@ $(() => {
             { type: 'button', id: 'design', text: 'Design' },
         ],
         click(e) {
-            const sections = $('div.centered>div');
+            const playerWrapper = $('#player-wrapper');
+            const scoreWrapper = $('#score-wrapper');
             if (e.id === 'submit') {
                 viewModel.compute().then(() => {
-                    sections.first().css('display', 'none');
-                    sections.last().css('display', 'block');
+                    playerWrapper.css('display', 'none');
+                    scoreWrapper.css('display', 'block');
                 });
                 this.enable('#submit', false);
                 this.enable('#review', true);
             } else if (e.id === 'score') {
                 this.enable('#score', false);
                 this.enable('#review', true);
-                sections.first().css('display', 'none');
-                sections.last().css('display', 'block');
+                playerWrapper.css('display', 'none');
+                scoreWrapper.css('display', 'block');
             } else if (e.id === 'review') {
                 this.hide('#submit');
                 this.show('#score');
                 this.enable('#score', true);
                 this.enable('#review', false);
-                const stage = $(roleSelector('stage'));
-                const stageWidget = stage.data('kendoStage');
-                if (stageWidget instanceof Stage) {
-                    stageWidget.mode('review');
-                    stageWidget.enable(false);
+                const $stage = $(roleSelector('stage'));
+                const stage = $stage.data('kendoStage');
+                if (stage instanceof Stage) {
+                    stage.mode('review');
+                    stage.enable(false);
                 }
-                sections.first().css('display', 'block');
-                sections.last().css('display', 'none');
+                playerWrapper.css('display', 'flex');
+                $('#instructions').css('display', 'none');
+                $('#explanations').css('display', 'block')
+                    .parent().children('h2').text('Explanations');
+                scoreWrapper.css('display', 'none');
             } else if (e.id === 'design') {
                 window.location.assign('smartquiz.design.html');
             }

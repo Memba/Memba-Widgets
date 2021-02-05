@@ -10,6 +10,12 @@ body {
     flex-direction: column;
 }
 
+.k-overlay.k-loading {
+    height: 100%;
+    width: 100%;
+    opacity: 0.9;
+}
+
 header {
     height: 48px;
     background-color: #011;
@@ -89,17 +95,16 @@ smartquiz.design
     overflow: initial;
 }
 
-main > .k-toolbar {
-    border-bottom: 0;
-}
-
-main > [data-role="splitter"] {
+main > .k-splitter {
     flex: 1 1 auto;
     height: 100%;
+    border-bottom: 0;
+    border-top: 0;
 }
 
 .kj-navigation {
     border: 0;
+    background-color: #f8f9fa;
 }
 
 #center-pane {
@@ -113,10 +118,17 @@ main > [data-role="splitter"] {
     display: flex;
     flex: 1 1;
     justify-content: center;
+    background-color: #f8f9fa;
 }
 
 .centered > .kj-stage {
     transform-origin: 0 0;
+}
+
+[data-role="stage"]:focus {
+    border-color: #f8cfd7;
+    box-shadow: 0 0 0 0.2rem rgba(231, 96, 123, 0.25);
+    outline: 0;
 }
 
 #console-panelbar {
@@ -127,18 +139,40 @@ main > [data-role="splitter"] {
     border-top: 0;
 }
 
+#right-pane .k-grid-content.k-auto-scrollable {
+    /* Remove scrollbars from property grid */
+    overflow-y: visible;
+}
+
 /*************************************************
 smartquiz.play
 ************************************************ */
-#wrapper {
+#player-wrapper,
+#score-wrapper {
     flex: 1 1 100%;
     display: flex;
-    align-items: center;
+    align-items: stretch; /* center */
     justify-content: center;
-    flex-direction: column;
 }
 
-div.k-block div:last-of-type {
+#player-wrapper .nav {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#player-wrapper .nav>.k-icon {
+    font-size: 3em;
+}
+
+#player-wrapper .k-block.k-info-colored {
+    min-width: 200px;
+    width: 25%;
+    max-width: 400px;
+    border-radius: 0;
+    border-width: 0 0 0 1px;
+}
+
+#score-wrapper div.k-block div:last-of-type {
     font-size: 48px;
     font-weight: bolder;
     text-align: center;

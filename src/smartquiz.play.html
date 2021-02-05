@@ -31,17 +31,29 @@
 </header>
 <main>
     <div id="toolbar"></div>
-    <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
-    <div id="wrapper" class="k-content">
-        <div class="centered">
-            <div data-role="stage" data-bind="source: selectedPage.components, properties: test" data-mode="play"></div>
-            <div style="display: none;">
-                <div class="k-block k-info-colored">
-                    <div class="k-header">Your Score</div>
-                    <div data-bind="text: test.percent"></div>
-                </div>
-                <div data-role="grid"></div>
+    <!--div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div-->
+    <div id="player-wrapper" class="k-content">
+        <div class="wrapper">
+            <div style="width: 42px;"><a class="nav previous" data-bind="invisible: isFirstPage$, events: { click: previousPage }"><span class="k-icon k-i-arrowhead-w"></span></a></div>
+            <div class="centered">
+                <div data-role="stage" data-bind="source: selectedPage.components, properties: test" data-mode="play"></div>
             </div>
+            <div style="width: 42px;"><a class="nav next" data-bind="invisible: isLastPage$, events: { click: nextPage }"><span class="k-icon k-i-arrowhead-e"></span></a></div>
+        </div>
+        <div class="k-block k-info-colored">
+            <h2>Instructions</h2>
+            <hr/>
+            <div id="instructions" data-role="markdown" data-bind="value: selectedPage.instructions"></div>
+            <div id="explanations" data-role="markdown" data-bind="value: selectedPage.explanations" style="display: none;"></div>
+        </div>
+    </div>
+    <div id="score-wrapper" class="k-content wrapper" style="display: none;">
+        <div class="centered">
+            <div class="k-block k-info-colored">
+                <div class="k-header">Your Score</div>
+                <div data-bind="text: test.percent" data-format="p0"></div>
+            </div>
+            <div data-role="grid"></div>
         </div>
     </div>
 </main>

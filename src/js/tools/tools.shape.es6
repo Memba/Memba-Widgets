@@ -16,12 +16,13 @@ import ColorAdapter from './adapters.color.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import NumberAdapter from './adapters.number.es6';
 import TextAreaAdapter from './adapters.textarea.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
+import { constantValidator } from './util.validators.es6';
 
 const { ns } = window.kendo;
 
-// TODO Add text
 // TODO Add opacity
 // TODO Add stroke type (solid, dashed, ...)
 
@@ -48,7 +49,7 @@ const ShapeTool = BaseTool.extend({
     id: 'shape',
     height: 200,
     width: 300,
-    menu: ['attributes.shape'], // , 'attributes.text'],
+    menu: ['attributes.shape', 'attributes.text'],
     templates: {
         default: TEMPLATE,
     },
@@ -56,6 +57,7 @@ const ShapeTool = BaseTool.extend({
         shape: new DropDownListAdapter(
             {
                 defaultValue: 'rectangle',
+                help: __('tools.shape.attributes.shape.help'),
                 source: __('tools.shape.attributes.shape.source'),
                 title: __('tools.shape.attributes.shape.title'),
             },
@@ -75,8 +77,8 @@ const ShapeTool = BaseTool.extend({
             }
         ),
         text: new TextAreaAdapter({
+            help: __('tools.shape.attributes.text.help'),
             title: __('tools.shape.attributes.text.title'),
-            defaultValue: __('tools.shape.attributes.text.defaultValue'),
         }),
         fillColor: new ColorAdapter({
             help: __('tools.shape.attributes.fillColor.help'),
@@ -102,9 +104,22 @@ const ShapeTool = BaseTool.extend({
             }
         ),
     },
-    // properties: {
-    // TODO Add behaviour and constant
-    // },
+    properties: {
+        behavior: new DropDownListAdapter(
+            {
+                defaultValue: 'none',
+                source: __('tools.shape.properties.behavior.source'),
+                title: __('tools.shape.properties.behavior.title'),
+            },
+            {
+                style: 'width: 100%;',
+            }
+        ),
+        constant: new TextBoxAdapter({
+            title: __('tools.shape.properties.constant.title'),
+            validation: constantValidator,
+        }),
+    },
 
     /**
      * Component validation

@@ -653,6 +653,7 @@ const res = {
         name: 'shape',
         attributes: {
             shape: {
+                help: 'Selectionnez une forme',
                 title: 'Forme',
                 source: [
                     { text: 'Ellipse', value: 'ellipsis' },
@@ -681,7 +682,17 @@ const res = {
                 title: 'Épaisseur du Bord',
             },
         },
-        properties: {},
+        properties: {
+            behavior: {
+                source: [
+                    { text: 'Aucun', value: 'none' },
+                    { text: 'Glissable', value: 'draggable' },
+                    { text: 'Sélectionnable', value: 'selectable' },
+                ],
+                title: 'Comportement',
+            },
+            constant: { title: 'Constante' },
+        },
     },
 
     // table

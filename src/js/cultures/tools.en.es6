@@ -636,6 +636,7 @@ const res = {
         name: 'shape',
         attributes: {
             shape: {
+                help: 'Select a shape',
                 title: 'Shape',
                 source: [
                     { text: 'Ellipsis', value: 'ellipsis' },
@@ -664,7 +665,17 @@ const res = {
                 title: 'Border Width',
             },
         },
-        properties: {},
+        properties: {
+            behavior: {
+                source: [
+                    { text: 'None', value: 'none' },
+                    { text: 'Draggable', value: 'draggable' },
+                    { text: 'Selectable', value: 'selectable' },
+                ],
+                title: 'Behaviour',
+            },
+            constant: { title: 'Constant' },
+        },
     },
 
     // table

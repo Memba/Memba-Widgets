@@ -27,7 +27,7 @@ const {
     data: { DataSource, ObservableArray },
     destroy,
     format,
-    guid,
+    // guid,
     ns,
     support,
     template,
@@ -267,15 +267,16 @@ const BasicList = Widget.extend({
         }
         const dataSource = new DataSource({
             // change: this._refreshHandler
-            data: data.map((value) => ({ id: guid(), value })),
+            data: data.map((value) => ({ /* id: guid(), */ value })),
             schema: {
                 model: {
-                    idField: 'id', // Without idField, cancel removes the item which is not found
+                    id: 'value', // 'id'
                     fields: {
+                        /*
                         id: {
                             type: CONSTANTS.STRING,
-                            defaultValue: guid,
                         },
+                        */
                         value: {
                             type: this.options.type,
                         },

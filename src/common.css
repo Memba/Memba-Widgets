@@ -125,6 +125,7 @@ main > .k-splitter {
     transform-origin: 0 0;
 }
 
+#player-wrapper [data-role="stage"],
 [data-role="stage"]:focus {
     border-color: #f8cfd7;
     box-shadow: 0 0 0 0.2rem rgba(231, 96, 123, 0.25);

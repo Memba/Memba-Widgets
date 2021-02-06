@@ -40,9 +40,9 @@ const NS = '.kendoBasicList';
 const WIDGET_CLASS = 'k-widget kj-basiclist';
 
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><div class="k-button k-button-icontext"><span class="k-icon k-i-plus"/>{0}</div></div></div>';
+    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>{0}</a></div></div>';
 const ITEM_TMPL = `<li class="k-list-item">
-        <div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>
+        <div class="kj-handle"><span class="k-icon k-i-handler-drag" /></div>
         <div class="kj-input-wrap"><input value="#: value$() #" class="k-textbox k-state-disabled" /></div>
         <div class="kj-buttons">
             <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>

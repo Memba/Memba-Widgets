@@ -190,5 +190,8 @@ $(() => {
         viewModel.set('test', new TestModel());
         bind('body', viewModel, ui, mobile.ui, dataviz.ui);
         onResize();
+
+        // hide loading
+        $('.k-overlay.k-loading').hide();
     });
 });

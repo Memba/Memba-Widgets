@@ -34,7 +34,9 @@ const {
     data: { Model },
     mobile,
     observable,
+    resize,
     roleSelector,
+    throttle,
     ui,
     ui: { Navigation, PropertyGrid, Stage },
 } = window.kendo;
@@ -144,9 +146,8 @@ function onResize() {
          */
     }
 }
-setTimeout(() => {
-    $('.k-overlay.k-loading').hide();
-}, 2000)
+
+$(window).on('resize', throttle(onResize, 50));
 
 // When document is ready...
 $(() => {
@@ -238,12 +239,12 @@ $(() => {
             .find(roleSelector('splitter'))
             .data('kendoSplitter')
             .bind('resize', onResize);
-        $(window).on('resize', onResize);
         onResize();
 
         // Init settings property grid
-        $('#settings')
-            .data('kendoPropertyGrid')
+
+        const $settings = $('#settings');
+        $settings.data('kendoPropertyGrid')
             .rows([
                 {
                     field: 'snapAngle',
@@ -271,5 +272,10 @@ $(() => {
                 },
                 new StyleAdapter({ title: 'Page Style' }).getRow('style'),
             ]);
+        // Resize sliders
+        resize($settings);
+
+        // hide loading
+        $('.k-overlay.k-loading').hide();
     });
 });

@@ -120,7 +120,7 @@ const TextGapsTool = BaseTool.extend({
      * Improved display of value in score grid
      * @param testItem
      */
-    value$(testItem) {
+    getHtmlValue(testItem) {
         const ret = (testItem.value || []).slice();
         for (let i = 0; i < ret.length; i++) {
             ret[i] = htmlEncode((ret[i] || '').trim());
@@ -132,7 +132,7 @@ const TextGapsTool = BaseTool.extend({
      * Improved display of solution in score grid
      * @param testItem
      */
-    solution$(testItem) {
+    getHtmlSolution(testItem) {
         const ret = (testItem.solution || '').split('\n');
         for (let i = 0; i < ret.length; i++) {
             ret[i] = htmlEncode((ret[i] || '').trim());

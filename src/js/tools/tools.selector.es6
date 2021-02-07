@@ -148,7 +148,7 @@ const SelectorTool = BaseTool.extend({
      * Note: search for getScoreArray in kidoju.data
      * @param testItem
      */
-    value$(testItem) {
+    getHtmlValue(testItem) {
         if (testItem.result) {
             return htmlEncode(testItem.solution || '');
         }
@@ -160,7 +160,7 @@ const SelectorTool = BaseTool.extend({
      * Note: search for getScoreArray in kidoju.data
      * @param testItem
      */
-    solution$(testItem) {
+    getHtmlSolution(testItem) {
         return htmlEncode(testItem.solution || '');
     },
 

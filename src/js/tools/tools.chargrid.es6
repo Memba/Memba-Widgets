@@ -203,7 +203,7 @@ const CharGridTool = BaseTool.extend({
      * Improved display of value in score grid
      * @param testItem
      */
-    value$(testItem) {
+    getHtmlValue(testItem) {
         return this._prettify(testItem.value);
     },
 
@@ -211,7 +211,7 @@ const CharGridTool = BaseTool.extend({
      * Improved display of solution in score grid
      * @param testItem
      */
-    solution$(testItem) {
+    getHtmlSolution(testItem) {
         return this._prettify(testItem.solution);
     },
 

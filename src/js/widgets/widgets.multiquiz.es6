@@ -196,7 +196,7 @@ const MultiQuiz = DataBoundWidget.extend({
             } else {
                 this._value = [];
             }
-            this._value = value;
+            // this._value = value;
             this._toggleSelection();
         } else if ($.type(value) === CONSTANTS.NULL) {
             // null is the same as [] but we allow it for data bindings

@@ -127,8 +127,7 @@ const BaseTool = StubTool.extend({
     attributes: {},
     childSelector: CONSTANTS.DIV,
     field: {
-        // TODO check whether we need a type?
-        // The field definition for building the TestModel (see getTestModelField)
+        // The field definition for value when building the TestModel (see getTestModelField)
         type: CONSTANTS.STRING,
         // defaultValue: null,
         // editable: true
@@ -392,7 +391,7 @@ const BaseTool = StubTool.extend({
                     solution: tool.getSolution(component, variables),
                     // Other field values on the same page
                     // assuming this TestModelField is part of a TestModel
-                    all: $.extend(pageValues, variables),
+                    all: { ...pageValues, ...variables },
                 };
             },
             // grade function
@@ -402,6 +401,7 @@ const BaseTool = StubTool.extend({
                 const name = component.get('properties.name');
                 const data = that.data();
                 let validation = that.validation();
+
                 if (
                     $.type(validation) === CONSTANTS.OBJECT &&
                     $.type(validation.item) === CONSTANTS.OBJECT
@@ -587,7 +587,10 @@ const BaseTool = StubTool.extend({
      */
     getHtmlSolution(component) {
         this._assertComponent(component);
-        return htmlEncode(component.get('properties.solution'));
+        const solution = component.get('properties.solution');
+        return htmlEncode(
+            $.type(solution) === CONSTANTS.NULL ? CONSTANTS.EMPTY : solution
+        );
     },
 
     /**
@@ -615,7 +618,10 @@ const BaseTool = StubTool.extend({
                 'component.tool'
             )
         );
-        return htmlEncode(testField.value);
+        const value = testField.get('value');
+        return htmlEncode(
+            $.type(value) === CONSTANTS.NULL ? CONSTANTS.EMPTY : value
+        );
     },
 
     // onEnable

@@ -59,6 +59,9 @@ const SHUFFLE = `data-${ns}shuffle="#: attributes.shuffle #"`;
 const MultiQuizTool = BaseTool.extend({
     id: 'multiquiz',
     childSelector: `${CONSTANTS.DIV}${roleSelector('multiquiz')}`,
+    field: {
+        type: 'object', // Array
+    },
     height: 150,
     menu: [
         'attributes.data',
@@ -211,8 +214,9 @@ const MultiQuizTool = BaseTool.extend({
      * Improved display of value in score grid
      * @param testItem
      */
-    value$(testItem) {
-        const ret = (testItem.value || []).slice();
+    getHtmlValue(testItem) {
+        const value = testItem.get('value');
+        const ret = (value || []).slice();
         for (let i = 0; i < ret.length; i++) {
             ret[i] = htmlEncode(ret[i]);
         }
@@ -223,8 +227,9 @@ const MultiQuizTool = BaseTool.extend({
      * Improved display of solution in score grid
      * @param testItem
      */
-    solution$(testItem) {
-        const ret = (testItem.solution || []).slice();
+    getHtmlSolution(component) {
+        const solution = component.get('properties.solution');
+        const ret = (solution || []).slice();
         for (let i = 0; i < ret.length; i++) {
             ret[i] = htmlEncode(ret[i]);
         }
@@ -279,6 +284,6 @@ const MultiQuizTool = BaseTool.extend({
 });
 
 /**
- * Default eport
+ * Default export
  */
 export default MultiQuizTool;

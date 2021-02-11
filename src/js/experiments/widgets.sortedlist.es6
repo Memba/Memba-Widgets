@@ -7,7 +7,7 @@ import 'kendo.sortable';
 const {
     attr,
     support: { touch },
-    ui: { ListView, plugin }
+    ui: { ListView, plugin },
 } = window.kendo;
 
 /**
@@ -30,7 +30,7 @@ const SortedList = ListView.extend({
      * Options
      */
     options: {
-        name: 'SortedList'
+        name: 'SortedList',
     },
 
     /**
@@ -43,7 +43,7 @@ const SortedList = ListView.extend({
         this.sortable = this.element
             .kendoSortable({
                 cursor: 'move',
-                filter: '>.k-listview-item',
+                filter: '.k-listview-item',
                 // handler: '.kj-handle, .kj-handle *',
                 holdToDrag: touch,
                 ignore: 'input', // otherwise focus and selections won't work properly in inputs
@@ -61,7 +61,7 @@ const SortedList = ListView.extend({
                     );
                     dataSource.remove(dataItem);
                     dataSource.insert(newIndex, dataItem);
-                }
+                },
             })
             .data('kendoSortable');
     },
@@ -71,7 +71,7 @@ const SortedList = ListView.extend({
      */
     destroy() {
         ListView.fn.destroy.call(this);
-    }
+    },
 });
 
 /**

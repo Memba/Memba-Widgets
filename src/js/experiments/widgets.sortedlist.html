@@ -15,6 +15,7 @@
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
+    <script src="../helpers/system.config.js"></script>
     <script>
         (function () {
             'use strict';
@@ -23,7 +24,7 @@
                 $(function () {
                     // text only unbound
                     $('#sortedlist1').kendoSortedList({
-                        dataSource: [ 'un', 'trois', 'deux', 'quatre'],
+                        dataSource: ['un', 'trois', 'deux', 'quatre'],
                         template: '<div class="k-listview-item">#: data #</div>'
                     });
                     // text and image unbound

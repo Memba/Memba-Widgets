@@ -350,8 +350,8 @@ const LocalStream = Stream.define({
         const dfd = $.Deferred();
         const stream = JSON.parse(localStorage.getItem(storageKey)) || {};
         const promises = [];
-        stream.pages.forEach((page) => {
-            page.components.forEach((component) => {
+        (stream.pages || []).forEach((page) => {
+            (page.components || []).forEach((component) => {
                 // Note: possibly discard components without registered tools
                 promises.push(tools.load(component.tool));
             });
@@ -367,10 +367,10 @@ const LocalStream = Stream.define({
     save() {
         const that = this;
         const json = that.toJSON(true);
-        json.pages.forEach((page) => {
+        (json.pages || []).forEach((page) => {
             // eslint-disable-next-line no-param-reassign
             page.id = page.id || guid();
-            page.components.forEach((component) => {
+            (page.components || []).forEach((component) => {
                 // eslint-disable-next-line no-param-reassign
                 component.id = component.id || guid();
             });

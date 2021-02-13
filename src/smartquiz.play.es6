@@ -185,13 +185,16 @@ $(() => {
     });
 
     viewModel.stream.load().then(() => {
-        const TestModel = viewModel.stream.getTestModel();
-        viewModel.set('selectedPage', viewModel.stream.pages.at(0));
-        viewModel.set('test', new TestModel());
-        bind('body', viewModel, ui, mobile.ui, dataviz.ui);
-        onResize();
+        // Preload assets?
+        viewModel.stream.initTools().then(() => {
+            const TestModel = viewModel.stream.getTestModel();
+            viewModel.set('selectedPage', viewModel.stream.pages.at(0));
+            viewModel.set('test', new TestModel());
+            bind('body', viewModel, ui, mobile.ui, dataviz.ui);
+            onResize();
 
-        // hide loading
-        $('.k-overlay.k-loading').hide();
+            // hide loading
+            $('.k-overlay.k-loading').hide();
+        });
     });
 });

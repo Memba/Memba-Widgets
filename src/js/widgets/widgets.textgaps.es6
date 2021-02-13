@@ -210,7 +210,11 @@ const TextGaps = Widget.extend({
         );
         const input = $(e.target);
         const index = this.element.children(INPUT_SELECTOR).index(input);
-        this._value[index] = input.text();
+        for (let i = 0; i <= index; i++) {
+            this._value[i] = this._value[i] || CONSTANTS.EMPTY;
+        }
+        this._value.length = Math.max(this._value.length, index + 1);
+        this._value.splice(index, 1, input.text());
         this.trigger(CONSTANTS.CHANGE);
     },
 

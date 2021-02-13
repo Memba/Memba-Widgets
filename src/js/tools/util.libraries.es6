@@ -211,17 +211,15 @@ const arrayLibrary = {
             // So we use |•| because there is little chance any value would contain this sequence
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join(•).trim().replace(/\\s*|•|\\s*/g, "|•|") === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|");'
+                'return _.isEqual(value.map(function (a) { return String(a).trim(); }), solution.map(function (a) { return String(a).trim(); }));'
             ),
         },
         {
-            key: 'ignoreCaseEqual', // TODO <--- This is useless because we generally know the arrays
+            key: 'ignoreCaseEqual',
             name: __('libraries.arrayLibrary.ignoreCaseEqual.name'),
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join("|•|").trim().replace(/\\s*|•|\\s*/g, "|•|").toLowerCase() === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|").toLowerCase();'
+                'return _.isEqual(value.map(function (a) { return String(a).trim().toUpperCase(); }), solution.map(function (a) { return String(a).trim().toUpperCase(); }));'
             ),
         },
         {
@@ -229,10 +227,7 @@ const arrayLibrary = {
             name: __('libraries.arrayLibrary.sumEqual.name'),
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'var ret = 0;\t' +
-                    '(value || []).forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
-                    'return ret === parseFloat(String(solution).trim());'
+                'return _.sum(value.map(function(a) { return parseFloat(a); })) === _.sum(solution.map(function(a) { return parseFloat(a); }));'
             ),
         },
     ],

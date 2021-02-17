@@ -62,6 +62,7 @@ const res = {
     /* stringLibrary */
     stringLibrary: {
         equal: { name: 'Equal' },
+        fromList: { name: 'Equal (any of)' },
         ignoreCaseEqual: { name: 'Equal (ignore case)' },
         ignoreCaseMatch: { name: 'Match (ignore case)' },
         ignoreDiacriticsEqual: { name: 'Equal (ignore diacritics)' },

@@ -60,6 +60,7 @@ const res = {
     /* stringLibrary */
     stringLibrary: {
         equal: { name: 'Égal' },
+        fromList: { name: 'Égal (parmis)' },
         ignoreCaseEqual: { name: 'Égal (sans maj.)' },
         ignoreCaseMatch: { name: 'Correspond (sans maj.)' },
         ignoreDiacriticsEqual: { name: 'Égal (sans diacritique)' },

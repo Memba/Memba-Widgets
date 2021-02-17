@@ -138,7 +138,7 @@ function getValidationLibrary() {
             name: 'With list',
             key: 'withList',
             formula:
-                'function validate(value, params) {\n\tconsole.log(params);\n\treturn new RegExp(params, "i").test(value);\n}',
+                'function validate(value, params) {\n\treturn (params || []).indexOf(value) > -1;\n}',
             editor: basiclist,
             options: {
                 field: 'params', // Note: this is required for editors

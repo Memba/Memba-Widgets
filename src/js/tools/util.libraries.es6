@@ -27,7 +27,8 @@ import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { dateReviver } from '../common/window.util.es6';
-import regexpEditor from '../editors/editors.regex.es6'; // TODO use string to designate entry in util.editors;
+import basiclist from '../editors/editors.basiclist.es6';
+import regex from '../editors/editors.regex.es6';
 import TOOLS from './util.constants.es6';
 
 const { format } = window.kendo;
@@ -423,6 +424,18 @@ const stringLibrary = {
             ),
         },
         {
+            key: 'fromList',
+            name: __('libraries.stringLibrary.fromList.name'),
+            formula:
+                'function validate(value, params) {\n\treturn (params || []).indexOf(value) > -1;\n}',
+            editor: basiclist,
+            options: {
+                field: 'params', // Note: this is required for editors
+                type: 'string',
+            },
+            defaultParams: [],
+        },
+        {
             key: 'ignoreCaseEqual',
             name: __('libraries.stringLibrary.ignoreCaseEqual.name'),
             formula: format(
@@ -436,9 +449,13 @@ const stringLibrary = {
             // Do not use RegExp constructor because escaping backslashes is a nightmare
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_PARAMS,
-                'return new RegExp(params, "i").test(String(value).trim());'
+                'return new RegExp(params, "i").test(String(value).trim());' // i is case insensitive
             ),
-            editor: regexpEditor,
+            editor: regex,
+            options: {
+                field: 'params', // Note: this is required for editors
+            },
+            defaultParams: '\\w+',
         },
         {
             key: 'ignoreDiacriticsEqual',
@@ -454,9 +471,13 @@ const stringLibrary = {
             // Do not use RegExp constructor because escaping backslashes is a nightmare
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_PARAMS,
-                'return new RegExp(params, "i").test(String(value).trim());'
+                'return new RegExp(params).test(String(value).trim());'
             ),
-            editor: regexpEditor,
+            editor: regex,
+            options: {
+                field: 'params', // Note: this is required for editors
+            },
+            defaultParams: '\\w+',
         },
         {
             key: 'metaphone',

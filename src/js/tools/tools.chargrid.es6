@@ -180,16 +180,18 @@ const CharGridTool = BaseTool.extend({
      */
     _prettify(arr) {
         // var ret = '<table>';
-        let ret = '';
+        let ret = CONSTANTS.EMPTY;
         if ($.isArray(arr) || arr instanceof ObservableArray) {
             for (let r = 0, rowTotal = arr.length; r < rowTotal; r++) {
                 const row = arr[r];
                 // ret += '<tr>';
                 for (let c = 0, colTotal = row.length; c < colTotal; c++) {
-                    // ret += '<td>' + htmlEncode(row[c] || '') + '</td>';
+                    // ret += '<td>' + htmlEncode(row[c] || CONSTANTS.EMPTY) + '</td>';
                     ret +=
-                        htmlEncode(row[c] || '') +
-                        (c === colTotal - 1 ? '' : ',');
+                        htmlEncode(row[c] || CONSTANTS.EMPTY) +
+                        (c === colTotal - 1
+                            ? CONSTANTS.EMPTY
+                            : CONSTANTS.COMMA);
                 }
                 // ret += '</tr>';
                 ret += '<br/>';
@@ -204,15 +206,18 @@ const CharGridTool = BaseTool.extend({
      * @param testItem
      */
     getHtmlValue(testItem) {
-        return this._prettify(testItem.value);
+        const value = testItem.get('value');
+        return this._prettify(value);
     },
 
     /**
      * Improved display of solution in score grid
-     * @param testItem
+     * @param component
      */
-    getHtmlSolution(testItem) {
-        return this._prettify(testItem.solution);
+    getHtmlSolution(component) {
+        this._assertComponent(component);
+        const solution = component.get('properties.solution');
+        return this._prettify(solution);
     },
 
     /**

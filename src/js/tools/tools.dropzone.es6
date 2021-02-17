@@ -52,6 +52,9 @@ const DISABLED = `data-${ns}enable="false"`;
 const DropZoneTool = BaseTool.extend({
     id: 'dropzone',
     childSelector: `${CONSTANTS.DIV}${roleSelector('dropzone')}`,
+    field: {
+        type: 'object', // Array
+    },
     height: 250,
     width: 250,
     weight: 1,
@@ -90,6 +93,7 @@ const DropZoneTool = BaseTool.extend({
             validation: questionValidator,
         }),
         solution: new BasicListAdapter({
+            defaultValue: [],
             help: __('tools.dropzone.properties.solution.help'),
             title: __('tools.dropzone.properties.solution.title'),
         }),
@@ -124,21 +128,24 @@ const DropZoneTool = BaseTool.extend({
      * @param testItem
      */
     getHtmlValue(testItem) {
-        const ret = (testItem.value || []).slice();
+        const value = testItem.get('value');
+        const ret = (value || []).slice();
         for (let i = 0; i < ret.length; i++) {
-            ret[i] = htmlEncode((ret[i] || '').trim());
+            ret[i] = htmlEncode((ret[i] || CONSTANTS.EMPTY).trim());
         }
         return ret.join('<br/>');
     },
 
     /**
      * Improved display of solution in score grid
-     * @param testItem
+     * @param component
      */
-    getHtmlSolution(testItem) {
-        const ret = (testItem.solution || '').split('\n');
+    getHtmlSolution(component) {
+        this._assertComponent(component);
+        const solution = component.get('properties.solution');
+        const ret = (solution || []).slice();
         for (let i = 0; i < ret.length; i++) {
-            ret[i] = htmlEncode((ret[i] || '').trim());
+            ret[i] = htmlEncode((ret[i] || CONSTANTS.EMPTY).trim());
         }
         return ret.join('<br/>');
     },

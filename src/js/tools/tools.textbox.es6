@@ -47,10 +47,10 @@ const ScoreAdapter = NumberAdapter;
  */
 const TEMPLATE = `<input
     type="text"
-    id="#: properties.name #"
     class="kj-interactive"
-    data-${ns}role="maskedtextbox"
+    data-${ns}id="#: properties.name #"
     data-${ns}prompt-char="\u25CA"
+    data-${ns}role="maskedtextbox"
     style="#: attributes.style #" {0}>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
 const DISABLED = `data-${ns}enabled="false"`;

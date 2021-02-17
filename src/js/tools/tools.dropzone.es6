@@ -37,7 +37,7 @@ const TEMPLATE = `<div
     data-${ns}role="dropzone"
     data-${ns}center="#: attributes.center #"
     data-${ns}empty="#: attributes.empty #"
-    id="#: properties.name #"
+    data-${ns}id="#: properties.name #"
     style="#: attributes.style #" {0}>
     <div>#: attributes.text #</div>
     </div>`;

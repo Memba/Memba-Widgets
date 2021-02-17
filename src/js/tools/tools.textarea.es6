@@ -31,7 +31,7 @@ const ScoreAdapter = NumberAdapter;
 
 const TEMPLATE = `<textarea
     class="k-textbox kj-interactive"
-    id="#: properties.name #"
+    data-${ns}id="#: properties.name #"
     style="#: attributes.style #" {0}>
 </textarea>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;

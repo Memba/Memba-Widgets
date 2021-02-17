@@ -41,11 +41,11 @@ const logger = new Logger('tools.numericbox');
  */
 const TEMPLATE = `<input
     type="number"
-    id="#: properties.name #"
     class="kj-interactive"
     data-${ns}role="numerictextbox"
     data-${ns}decimals="#: attributes.decimals #"
     data-${ns}format="n#: attributes.decimals #"
+    data-${ns}id="#: properties.name #"
     data-${ns}min="#: attributes.min #"
     data-${ns}max="#: attributes.max #"
     data-${ns}spinners="false"

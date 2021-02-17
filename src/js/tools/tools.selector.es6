@@ -32,12 +32,12 @@ const ScoreAdapter = NumberAdapter;
 
 const TEMPLATE = `<img
     alt="#: alt$() #"
-    data-${ns}role="selector"
-    data-${ns}id="#: properties.name #"
-    data-${ns}shape="#: attributes.shape #"
-    data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
     data-${ns}empty="#: attributes.empty #"
     data-${ns}hit-radius="#: attributes.hitRadius #"
+    data-${ns}id="#: properties.name #"
+    data-${ns}role="selector"
+    data-${ns}shape="#: attributes.shape #"
+    data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
     src="#: src$() #" {0}>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
 const DISABLED = `data-${ns}enable="false"`;
@@ -149,19 +149,18 @@ const SelectorTool = BaseTool.extend({
      * @param testItem
      */
     getHtmlValue(testItem) {
-        if (testItem.result) {
-            return htmlEncode(testItem.solution || '');
-        }
-        return 'N/A'; // TODO translate
+        return 'N/A'; // TODO
     },
 
     /**
      * Improved display of solution in score grid
      * Note: search for getScoreArray in kidoju.data
-     * @param testItem
+     * @param component
      */
-    getHtmlSolution(testItem) {
-        return htmlEncode(testItem.solution || '');
+    getHtmlSolution(component) {
+        this._assertComponent(component);
+        const solution = component.get('properties.solution');
+        return htmlEncode(solution || CONSTANTS.EMPTY);
     },
 
     /**

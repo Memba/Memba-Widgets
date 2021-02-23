@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
@@ -26,7 +26,10 @@ const { format } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = '<img src="#: src$() #" alt="#: alt$() #">';
+const TEMPLATE =
+    '<div class="k-chip k-chip-filled" style="font-size: 24px">' +
+    '<img class="k-icon k-chip-icon" src="#: src$() #" alt="#: alt$() #">' +
+    '<span class="k-chip-content"><span class="k-chip-label">#: alt$() #</span></span></div>';
 
 /**
  * VariableTool
@@ -35,7 +38,7 @@ const TEMPLATE = '<img src="#: src$() #" alt="#: alt$() #">';
  */
 const VariableTool = BaseTool.extend({
     id: 'variable',
-    childSelector: CONSTANTS.IMG,
+    childSelector: CONSTANTS.DIV,
     height: 64,
     menu: ['properties.variable', 'properties.expression'],
     width: 64,
@@ -113,23 +116,14 @@ const VariableTool = BaseTool.extend({
      * @param e
      * @param component
      */
+    /*
     onResize(e, component) {
+        // Consider resizing image and font
         const stageElement = $(e.currentTarget);
-        const content = stageElement.children('img');
-        // Assuming we can get the natural size of the image, we shall keep proportions
-        const { naturalHeight, naturalWidth } = content[0];
-        if (naturalHeight && naturalWidth) {
-            const height = component.get('height');
-            const width = component.get('width');
-            // Keep the height, change the width
-            const w = (height * naturalWidth) / naturalHeight;
-            if (width !== w) {
-                // `if` avoids a stack overflow
-                component.set('width', w);
-            }
-        }
+        const content = stageElement.children(this.childSelector);
         BaseTool.fn.onResize.call(this, e, component);
     },
+    */
 
     /**
      * Component validation

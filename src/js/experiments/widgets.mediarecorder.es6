@@ -9,7 +9,7 @@
 // https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.drawing';

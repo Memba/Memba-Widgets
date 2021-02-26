@@ -13,7 +13,7 @@
 // TODO: New items are not added to ds._pristineData. As a result canceling editing removes new items (but not old ones).
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import 'kendo.listview';

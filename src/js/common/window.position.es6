@@ -6,7 +6,7 @@
 // TODO use kendo.getTouches
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import assert from './window.assert.es6';

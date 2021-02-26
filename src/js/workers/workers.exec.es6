@@ -9,7 +9,7 @@
 // TODO See https://stackoverflow.com/questions/12075927/serialization-of-regexp
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import config from '../app/app.config.jsx';
 import notification from '../app/app.notification.es6';

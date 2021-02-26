@@ -7,7 +7,7 @@
 // TODO Check with all widgets that setOptions uses this.options after calling Widget.fn.setOptions.call and not options, otherwise default values are missing
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.dropdownlist';

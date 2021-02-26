@@ -9,7 +9,7 @@
 // TODO timezones?
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';

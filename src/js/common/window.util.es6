@@ -6,7 +6,7 @@
 // TODO consider replacer and reviver for RegExp - see https://stackoverflow.com/questions/12075927/serialization-of-regexp
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 // import $ from 'jquery';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';

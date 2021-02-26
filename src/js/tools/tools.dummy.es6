@@ -68,7 +68,7 @@ const DummyTool = BaseTool.extend({
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
             assert.format('e.currentTarget is expected to be a stage element')
         );
-        const content = stageElement.children(CONSTANTS.DIV);
+        const content = stageElement.children(this.childSelector);
         content.off(CONSTANTS.CLICK);
         if (enabled) {
             content.on(CONSTANTS.CLICK, () => {

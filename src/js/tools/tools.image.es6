@@ -146,7 +146,7 @@ const ImageTool = BaseTool.extend({
      */
     onResize(e, component) {
         const stageElement = $(e.currentTarget);
-        const content = stageElement.children(CONSTANTS.IMG);
+        const content = stageElement.children(this.childSelector);
         // Assuming we can get the natural size of the image, we shall keep proportions
         const { naturalHeight, naturalWidth } = content[0];
         if (naturalHeight && naturalWidth) {

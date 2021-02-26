@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1205,45 +1205,45 @@
                         fields: {
                             name: {
                                 editable: true,
-                                type: 'String',
+                                type: 'string',
                                 defaultValue: 'New Folder'
                             },
                             size: {
                                 editable: false,
-                                type: 'Number'
+                                type: 'number'
                             },
                             path: {
                                 editable: false,
-                                type: 'String'
+                                type: 'string'
                             },
                             extension: {
                                 editable: false,
-                                type: 'String'
+                                type: 'string'
                             },
                             isDirectory: {
                                 editable: false,
                                 defaultValue: true,
-                                type: 'Boolean'
+                                type: 'boolean'
                             },
                             hasDirectories: {
                                 editable: false,
                                 defaultValue: false,
-                                type: 'Boolean'
+                                type: 'boolean'
                             },
                             created: {
-                                type: 'Date',
+                                type: 'date',
                                 editable: false
                             },
                             createdUtc: {
-                                type: 'Date',
+                                type: 'date',
                                 editable: false
                             },
                             modified: {
-                                type: 'Date',
+                                type: 'date',
                                 editable: false
                             },
                             modifiedUtc: {
-                                type: 'Date',
+                                type: 'date',
                                 editable: false
                             }
                         }

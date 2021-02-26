@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -375,10 +375,12 @@
             };
         }
         function convertData(data, method, timezone, removeUid) {
-            var event, idx, length;
+            var event, idx, length, startOffset, endOffset;
             data = data || [];
             for (idx = 0, length = data.length; idx < length; idx++) {
                 event = data[idx];
+                startOffset = event.start ? event.start.getTimezoneOffset() : null;
+                endOffset = event.start ? event.end.getTimezoneOffset() : null;
                 if (removeUid) {
                     if (event.startTimezone || event.endTimezone) {
                         if (timezone) {
@@ -409,6 +411,12 @@
                 }
                 if (removeUid) {
                     delete event.uid;
+                }
+                if (method === 'remove' && event.start && startOffset && startOffset !== event.start.getTimezoneOffset()) {
+                    event.start = new Date(event.start.getTime() + (startOffset - event.start.getTimezoneOffset()) * 60000);
+                }
+                if (method === 'remove' && event.end && endOffset && endOffset !== event.end.getTimezoneOffset()) {
+                    event.end = new Date(event.end.getTime() + (endOffset - event.end.getTimezoneOffset()) * 60000);
                 }
             }
             return data;
@@ -1852,6 +1860,8 @@
                 var groups = view.groups;
                 var eventsLength = eventsUids.length;
                 var isGrouped = selectedGroups && selectedGroups.length;
+                var ctrlKey = that._ctrlKey;
+                that._ctrlKey = true;
                 for (idx = 0; idx < eventsLength; idx++) {
                     if (groups && isGrouped) {
                         var currentGroup = groups[selectedGroups[0].groupIndex];
@@ -1879,6 +1889,7 @@
                         }
                     }
                 }
+                that._ctrlKey = ctrlKey;
             },
             _touchHandlers: function () {
                 var that = this;

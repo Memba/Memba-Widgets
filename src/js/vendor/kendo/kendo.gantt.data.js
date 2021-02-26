@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -188,6 +188,13 @@
             duration: function () {
                 var end = this.end, start = this.start;
                 return end - start;
+            },
+            plannedDuration: function () {
+                var end = this.plannedEnd, start = this.plannedStart;
+                if (end && start) {
+                    return end - start;
+                }
+                return 0;
             },
             isMilestone: function () {
                 return this.duration() === 0;
@@ -385,6 +392,7 @@
                     delete taskInfo.parentId;
                 }
                 task.bind('change', modelChangeHandler);
+                task.bind('equalSet', modelChangeHandler);
                 for (var field in taskInfo) {
                     oldValue = task.get(field);
                     if (field === 'plannedStart' || field === 'plannedEnd') {
@@ -396,6 +404,7 @@
                     }
                 }
                 task.unbind('change', modelChangeHandler);
+                task.unbind('equalSet', modelChangeHandler);
             },
             _childRemoved: function (parentId, index) {
                 var parent = parentId === null ? null : this.get(parentId), children = this.taskChildren(parent);

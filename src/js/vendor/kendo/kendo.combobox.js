@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -51,7 +51,22 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, caret = kendo.caret, support = kendo.support, placeholderSupported = support.placeholder, activeElement = kendo._activeElement, keys = kendo.keys, ns = '.kendoComboBox', nsFocusEvent = ns + 'FocusEvent', CLICK = 'click' + ns, MOUSEDOWN = 'mousedown' + ns, DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', LOADING = 'k-i-loading', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', AUTOCOMPLETEVALUE = 'off', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', STATE_REBIND = 'rebind', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, proxy = $.proxy, newLineRegEx = /(\r\n|\n|\r)/gm;
+        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, caret = kendo.caret, support = kendo.support, placeholderSupported = support.placeholder, activeElement = kendo._activeElement, keys = kendo.keys, ns = '.kendoComboBox', nsFocusEvent = ns + 'FocusEvent', CLICK = 'click' + ns, MOUSEDOWN = 'mousedown' + ns, DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', LOADING = 'k-i-loading', DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', AUTOCOMPLETEVALUE = 'off', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', STATE_REBIND = 'rebind', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, proxy = $.proxy, newLineRegEx = /(\r\n|\n|\r)/gm, NON_PRINTABLE_KEYS = [
+                16,
+                17,
+                18,
+                19,
+                20,
+                33,
+                34,
+                37,
+                39,
+                45,
+                91,
+                92,
+                144,
+                145
+            ];
         var ComboBox = Select.extend({
             init: function (element, options) {
                 var that = this, text, disabled;
@@ -729,7 +744,8 @@
                 }
                 input.addClass(element.className).css({
                     width: '',
-                    height: element.style.height
+                    height: element.style.height,
+                    position: ''
                 }).attr({
                     'role': 'combobox',
                     'aria-expanded': false
@@ -760,7 +776,7 @@
                 }
             },
             _keydown: function (e) {
-                var that = this, key = e.keyCode, textField = that.options.dataTextField || 'text';
+                var that = this, key = e.keyCode, textField = that.options.dataTextField || 'text', isFkey = key >= 112 && key <= 135, isNonPrintableKey = NON_PRINTABLE_KEYS.indexOf(key) > -1;
                 that._last = key;
                 clearTimeout(that._typingTimeout);
                 that._typingTimeout = null;
@@ -807,7 +823,7 @@
                             that._oldText = that.text();
                         }
                     }
-                } else if (key != keys.TAB && !that._move(e)) {
+                } else if (key != keys.TAB && !that._move(e) && !isNonPrintableKey && !isFkey && !e.ctrlKey) {
                     that._search();
                 } else if (key === keys.ESC && !that.popup.visible() && that.text()) {
                     that._clearValue();
@@ -849,9 +865,10 @@
                         }
                         that.search(value);
                         that._toggleCloseVisibility();
-                    } else if (value === '' && that._prev !== '') {
+                    } else if (value === '' && that._prev !== '' && that._prev !== undefined) {
                         that._clearValue();
-                        that.search('');
+                        that._open = true;
+                        that._state = STATE_REBIND;
                     }
                     that._typingTimeout = null;
                 }, that.options.delay);

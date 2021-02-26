@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1289,15 +1289,16 @@
                 this._clipboardContent = this._clipboard._content;
                 this._clipboardPasteRef = this._clipboard.pasteRef();
                 this._sheet = this._workbook.activeSheet();
-                this._range = this._sheet.range(this._clipboard.pasteRef());
+                this._range = this._sheet.selection ? this._sheet.selection() : this._sheet.range(this._clipboard.pasteRef());
                 this._state = this._range.getState();
+                this._targetRangeRefs = this._range._ref instanceof kendo.spreadsheet.UnionRef ? this._range._ref.refs : [this._range._ref];
             },
             exec: function () {
                 return this.range().sheet().withCultureDecimals(this._exec.bind(this));
             },
             undo: function () {
                 var sheet = this._sheet;
-                var range = sheet.range(this._clipboardPasteRef);
+                var range = this._range;
                 if (sheet.trigger('changing', {
                         data: this._state.data,
                         range: range,
@@ -1337,11 +1338,12 @@
                     }
                     return { reason: 'error' };
                 }
-                var range = this._sheet.range(this._clipboardPasteRef);
+                var sheet = this._sheet;
+                var range = this._range;
                 if (this._workbook.trigger('paste', {
                         range: range,
                         clipboardContent: this._clipboardContent
-                    }) || this._sheet.trigger('changing', {
+                    }) || sheet.trigger('changing', {
                         data: this._clipboardContent.data,
                         range: range,
                         changeType: COMMAND_TYPES.PASTE
@@ -1349,9 +1351,106 @@
                     this._event.preventDefault();
                     return;
                 } else {
-                    this._sheet.range(this._clipboardPasteRef).setState(this._clipboardContent, this._clipboard);
-                    range._adjustRowHeight();
+                    this._processPaste();
                 }
+            },
+            _adjustPasteTarget: function (multipliers, sourceRows, sourceCols) {
+                var that = this;
+                var targetRangeRefs = that._targetRangeRefs;
+                var sheet = that._sheet;
+                var RangeRef = kendo.spreadsheet.RangeRef;
+                var UnionRef = kendo.spreadsheet.UnionRef;
+                var refs = [];
+                var compare = function (a, b) {
+                    var result = 0;
+                    var topLeftA = a.topLeft;
+                    var topLeftB = b.topLeft;
+                    if (topLeftA.row > topLeftB.row) {
+                        result = 1;
+                    } else if (topLeftA.row < topLeftB.row) {
+                        result = -1;
+                    } else if (topLeftA.col > topLeftB.col) {
+                        result = 1;
+                    } else if (topLeftA.col < topLeftB.col) {
+                        result = -1;
+                    }
+                    return result;
+                };
+                var refToSelect, rangeToSelect, ref, topLeft, multiplier, i, bottomRight;
+                for (i = 0; i < targetRangeRefs.length; i += 1) {
+                    ref = targetRangeRefs[i];
+                    multiplier = multipliers[i];
+                    topLeft = ref.topLeft;
+                    bottomRight = {
+                        row: multiplier.rows * sourceRows + topLeft.row - 1,
+                        col: multiplier.cols * sourceCols + topLeft.col - 1
+                    };
+                    refToSelect = new RangeRef(topLeft, bottomRight);
+                    refs.push(refToSelect);
+                }
+                if (refs.length === 1) {
+                    rangeToSelect = sheet.range(refToSelect);
+                } else {
+                    refs.sort(compare);
+                    rangeToSelect = sheet.range(new UnionRef(refs));
+                }
+                rangeToSelect.select();
+                that._range = rangeToSelect;
+                that._state = that._range.getState();
+            },
+            _processPaste: function () {
+                var that = this;
+                var sheet = that._sheet;
+                var clipboardContent = that._clipboardContent;
+                var range = that._range;
+                var sourceData = clipboardContent.data;
+                var sourceRows = sourceData.length;
+                var sourceCols = sourceData[0].length;
+                var targetRangeRefs = that._targetRangeRefs;
+                var multipliers = that._targetRanges(sourceRows, sourceCols);
+                var i;
+                that._adjustPasteTarget(multipliers, sourceRows, sourceCols);
+                sheet.batch(function () {
+                    for (i = 0; i < targetRangeRefs.length; i++) {
+                        that._populateTargetRange(targetRangeRefs[i], sourceRows, sourceCols, multipliers[i]);
+                    }
+                });
+                range._adjustRowHeight();
+            },
+            _populateTargetRange: function (ref, sourceRows, sourceCols, multipliers) {
+                var topLeft = ref.topLeft;
+                var range, i, j;
+                for (i = 0; i < multipliers.rows; i++) {
+                    for (j = 0; j < multipliers.cols; j++) {
+                        range = this._sheet.range(topLeft.row + sourceRows * i, topLeft.col + sourceCols * j);
+                        range.setState(this._clipboardContent, this._clipboard);
+                    }
+                }
+            },
+            _targetRangeDimensions: function (ref, sourceRows, sourceCols) {
+                var topLeft = ref.topLeft;
+                var bottomRight = ref.bottomRight;
+                var targetRangeRows = bottomRight.row - topLeft.row + 1;
+                var targetRangeCols = bottomRight.col - topLeft.col + 1;
+                var rowsMultiplier = 1;
+                var colsMultiplier = 1;
+                if (targetRangeRows % sourceRows === 0 && targetRangeCols % sourceCols === 0) {
+                    rowsMultiplier = targetRangeRows / sourceRows;
+                    colsMultiplier = targetRangeCols / sourceCols;
+                }
+                return {
+                    rows: rowsMultiplier,
+                    cols: colsMultiplier
+                };
+            },
+            _targetRanges: function (sourceRows, sourceCols) {
+                var targetRangeRefs = this._targetRangeRefs;
+                var multipliers = [];
+                var i;
+                for (i = 0; i < targetRangeRefs.length; i++) {
+                    multipliers.push(this._targetRangeDimensions(targetRangeRefs[i], sourceRows, sourceCols));
+                }
+                return multipliers;
             }
         });
         kendo.spreadsheet.AdjustRowHeightCommand = Command.extend({
@@ -1806,9 +1905,21 @@
                     })) {
                     return;
                 }
-                sheet.withCultureDecimals(function () {
-                    self.range().validation(self._value);
-                });
+                try {
+                    sheet.withCultureDecimals(function () {
+                        self.range().validation(self._value);
+                    });
+                } catch (ex) {
+                    if (ex instanceof kendo.spreadsheet.calc.ParseError) {
+                        return {
+                            title: 'Error in formula',
+                            body: ex + '',
+                            reason: 'error'
+                        };
+                    } else {
+                        throw ex;
+                    }
+                }
             },
             undo: function () {
                 var editRange = this.range();
@@ -5644,7 +5755,17 @@
                 var self = this;
                 var sheet = self._sheet;
                 self._ref.forEach(function (ref) {
-                    sheet._set(ref.toRangeRef(), name, value);
+                    var result = ref;
+                    var valueProp = name === 'value' || name === 'formula' || name === 'link';
+                    if (valueProp && ref.topLeft) {
+                        var topLeftRef = new CellRef(ref.topLeft.row, ref.topLeft.col);
+                        sheet.forEachMergedCell(function (f) {
+                            if (f.intersects(topLeftRef)) {
+                                result = topLeftRef;
+                            }
+                        });
+                    }
+                    sheet._set(result.toRangeRef(), name, value);
                 });
                 if (!noTrigger) {
                     sheet.triggerChange({
@@ -12097,7 +12218,7 @@
                         sheet.select(acRef, true);
                     }
                 } else if (this.is(SEL_PANE)) {
-                    if (attrs.state == 'frozen') {
+                    if (attrs.state && attrs.state.indexOf('frozen') > -1) {
                         if (attrs.xSplit) {
                             sheet.frozenColumns(integer(attrs.xSplit));
                         }
@@ -14270,9 +14391,21 @@
                 }
             },
             onSheetBarReorder: function (e) {
-                var sheet = this._workbook.sheetByIndex(e.oldIndex);
-                this._workbook.moveSheetToIndex(sheet, e.newIndex);
-                this._workbook.activeSheet(sheet);
+                var workbook = this._workbook;
+                var sheet = workbook.sheetByIndex(e.oldIndex);
+                var activeSheet = workbook.activeSheet();
+                var activeSheetName = activeSheet.name();
+                workbook.moveSheetToIndex(sheet, e.newIndex);
+                if (activeSheetName !== sheet.name()) {
+                    if (workbook.trigger('selectSheet', { sheet: sheet })) {
+                        workbook.activeSheet(activeSheet);
+                        return;
+                    }
+                    if (!this.editor.canInsertRef(false)) {
+                        this.editor.deactivate();
+                    }
+                    workbook.activeSheet(sheet);
+                }
             },
             onSheetBarRename: function (e) {
                 var sheet = this._workbook.sheetByIndex(e.sheetIndex);
@@ -14746,35 +14879,33 @@
                             }
                         }
                     } else {
-                        var table = self.clipboardElement.find('table.kendo-clipboard-' + self.clipboard._uid).detach();
-                        self.clipboardElement.empty();
                         if (window.clipboardData.files && window.clipboardData.files.length) {
                             var file = window.clipboardData.files[0];
                             if (/^image\/(?:png|jpe?g|gif)$/i.test(file.type)) {
                                 return self._pasteImage(file);
                             }
                         }
-                        html = self.clipboardElement.html();
                         plain = window.clipboardData.getData('Text');
                         if (plain) {
                             plain = plain.trim();
                         }
-                        if (!html && !plain) {
-                            return;
-                        }
-                        self.clipboard.external({
-                            html: html,
-                            plain: plain
-                        });
-                        self.clipboardElement.empty().append(table);
-                        self._execute({
-                            command: 'PasteCommand',
-                            options: {
-                                workbook: self.view._workbook,
-                                event: e.originalEvent || e
+                        self.clipboardElement.empty();
+                        setTimeout(function () {
+                            html = self.clipboardElement.html();
+                            if (html || plain) {
+                                self.clipboard.external({
+                                    html: html,
+                                    plain: plain
+                                });
+                                self._execute({
+                                    command: 'PasteCommand',
+                                    options: {
+                                        workbook: self.view._workbook,
+                                        event: e.originalEvent || e
+                                    }
+                                });
                             }
                         });
-                        self.clipboard.menuInvoked = true;
                         return;
                     }
                 } else {
@@ -15827,9 +15958,6 @@
                 }
             },
             createFilterMenu: function (column) {
-                if (this._filterMenu && this._filterMenu.options.column == column) {
-                    return this._filterMenu;
-                }
                 this._destroyFilterMenu();
                 var sheet = this._sheet;
                 var ref = sheet.filter().ref;
@@ -16095,6 +16223,9 @@
                         }
                     }
                 });
+                if (kendo.support.browser.msie) {
+                    this.clipboard.empty();
+                }
                 this.clipboardContents.render([table.toDomTree(0, 0, 'kendo-clipboard-' + this._workbook.clipboard()._uid)]);
                 this.selectClipboardContents();
             },

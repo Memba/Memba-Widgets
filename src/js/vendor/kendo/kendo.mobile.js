@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.1.119'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.1.224'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -7212,7 +7212,7 @@
             }
             if (customGroupSort) {
                 query = query.group(group, data, options);
-                if (skip !== undefined && take !== undefined) {
+                if (skip !== undefined && take !== undefined && !options.groupPaging) {
                     query = new Query(flatGroups(query.toArray())).range(skip, take);
                     groupDescriptorsWithoutSort = map(groupDescriptorsWithoutCompare, function (groupDescriptor) {
                         return extend({}, groupDescriptor, { skipItemSorting: true });
@@ -7492,7 +7492,7 @@
                     currOriginal = originalGroup.items[i];
                     currentNew = newGroup.items[i];
                     if (currOriginal && currentNew) {
-                        if (currOriginal.hasSubgroups) {
+                        if (currOriginal.hasSubgroups && currOriginal.value == currentNew.value) {
                             fillLastGroup(currOriginal, currentNew);
                         } else if (currOriginal.field && currOriginal.value == currentNew.value) {
                             currOriginal.items.push.apply(currOriginal.items, currentNew.items);

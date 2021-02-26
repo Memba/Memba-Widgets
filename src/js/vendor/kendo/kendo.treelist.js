@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1932,12 +1932,11 @@
                 var that = this;
                 var dataSource = that.dataSource;
                 var parentIdField = dataSource._modelParentIdField();
-                var referenceNodeIndex = dataSource.indexOf(referenceNode);
+                var referenceNodeIndex;
                 var nodeDataIndex = dataSource.indexOf(nodeData);
                 var pageable = that._isPageable();
                 var originalDestIndex = dataSource._indexInChildrenMap(referenceNode);
-                var dataLength = dataSource._data.length;
-                var destIndex = referenceNodeIndex + indexOffset;
+                var destIndex;
                 var childrenMap = dataSource._getChildrenMap() || {};
                 var parentId = nodeData[parentIdField];
                 that._unbindDataSource();
@@ -1948,19 +1947,15 @@
                 if (nodeData[parentIdField] != referenceNode[parentIdField]) {
                     nodeData.set('parentId', referenceNode && referenceNode.parentId ? referenceNode.parentId : null);
                 }
-                if (destIndex > dataLength - 1) {
-                    destIndex = dataLength - 1;
-                }
                 dataSource._data.splice(nodeDataIndex, 1);
+                referenceNodeIndex = dataSource.indexOf(referenceNode);
+                destIndex = referenceNodeIndex + indexOffset;
                 if (pageable) {
                     originalDestIndex += indexOffset;
                     if (childrenMap[parentId].length <= originalDestIndex) {
                         originalDestIndex = childrenMap[parentId].length;
                     }
                     dataSource._insertInChildrenMap(nodeData, originalDestIndex);
-                }
-                if (destIndex > nodeDataIndex) {
-                    destIndex -= 1;
                 }
                 dataSource._data.splice(destIndex, 0, nodeData);
                 dataSource._destroyed.pop();
@@ -3396,7 +3391,7 @@
                 var columns = this.columns;
                 function convertStyle(attr) {
                     var properties, i, declaration;
-                    if (attr && attr.style) {
+                    if (attr && attr.style && attr.style.split) {
                         properties = attr.style.split(';');
                         attr.style = {};
                         for (i = 0; i < properties.length; i++) {
@@ -5742,6 +5737,7 @@
             _destroyPager: function () {
                 if (this.pager) {
                     this.pager.destroy();
+                    this.pager = null;
                 }
             },
             _isPageable: function () {

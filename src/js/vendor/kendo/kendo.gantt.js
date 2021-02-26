@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -960,8 +960,16 @@
                     if (that.updateDuration === null || that.updateDuration === undefined) {
                         that.updateDuration = e.model.duration();
                     }
+                    if (that.updatePlannedDuration === null || that.updatePlannedDuration === undefined) {
+                        that.updatePlannedDuration = e.model.plannedDuration();
+                    }
                     if (updatedValues.hasOwnProperty('start')) {
+                        that.previousStart = e.model.get('start');
                         updatedValues.end = new Date(updatedValues.start.getTime() + that.updateDuration);
+                    }
+                    if (updatedValues.hasOwnProperty('plannedStart') && updatedValues.plannedStart) {
+                        that.previousPlannedStart = e.model.get('plannedStart');
+                        updatedValues.plannedEnd = new Date(updatedValues.plannedStart.getTime() + that.updatePlannedDuration);
                     }
                     that.updatedValues = updatedValues;
                 }).bind('itemChange', function (e) {
@@ -971,6 +979,14 @@
                     if (that._preventItemChange) {
                         that._preventItemChange = false;
                         return;
+                    }
+                    if (that.previousStart) {
+                        task.set('start', that.previousStart);
+                        that.previousStart = null;
+                    }
+                    if (that.previousPlannedStart) {
+                        task.set('plannedStart', that.previousPlannedStart);
+                        that.previousPlannedStart = null;
                     }
                     if (!that.trigger('save', {
                             task: task,

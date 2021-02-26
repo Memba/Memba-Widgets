@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -45,7 +45,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', MODAL_NS = '.kendoWindowModal', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KDIALOGCONTENT = '.k-dialog-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', KENDOKEYDOWN = 'kendoKeydown', ERROR = 'error', OVERFLOW = 'overflow', DATADOCOVERFLOWRULE = 'original-overflow-rule', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', WINDOWEVENTSHANDLED = 'WindowEventsHandled', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl, SIZE = {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, TabKeyTrap = kendo.ui.Popup.TabKeyTrap, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', MODAL_NS = '.kendoWindowModal', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KDIALOGCONTENT = '.k-dialog-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', INLINE_FLEX = 'k-display-inline-flex', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', RESTORE = 'restore', KENDOKEYDOWN = 'kendoKeydown', ERROR = 'error', OVERFLOW = 'overflow', DATADOCOVERFLOWRULE = 'original-overflow-rule', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-window-minimize,.k-window-actions .k-i-window-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', WINDOWEVENTSHANDLED = 'WindowEventsHandled', zero = /^0[a-z]*$/i, isLocalUrl = kendo.isLocalUrl, SIZE = {
                 small: 'k-window-sm',
                 medium: 'k-window-md',
                 large: 'k-window-lg'
@@ -186,7 +186,7 @@
                         'aria-labelledby': id
                     });
                 }
-                wrapper.add(wrapper.children('.k-resize-handle,' + KWINDOWTITLEBAR)).on('mousedown' + NS, proxy(that.toFront, that));
+                wrapper.add(wrapper.children('.k-resize-handle,' + KWINDOWTITLEBAR)).on(kendo.support.mousedown + NS, proxy(that.toFront, that));
                 that.touchScroller = kendo.touchScroller(element);
                 that._resizeHandler = proxy(that._onDocumentResize, that);
                 that._marker = kendo.guid().substring(0, 8);
@@ -248,17 +248,17 @@
                     this.element.css('maxHeight', maxHeight);
                 }
                 if (width) {
-                    wrapper.width(constrain(width, options.minWidth, options.maxWidth));
+                    wrapper.outerWidth(constrain(width, options.minWidth, options.maxWidth));
                 } else {
-                    wrapper.width('');
+                    wrapper.outerWidth('');
                 }
                 if (height) {
-                    wrapper.height(constrain(height, options.minHeight, options.maxHeight));
+                    wrapper.outerHeight(constrain(height, options.minHeight, options.maxHeight));
                 } else {
-                    wrapper.height('');
+                    wrapper.outerHeight('');
                 }
                 if (!options.visible) {
-                    wrapper.hide();
+                    wrapper.removeClass(INLINE_FLEX).hide();
                 }
                 if (sizeClass && SIZE[sizeClass]) {
                     wrapper.addClass(SIZE[sizeClass]);
@@ -374,9 +374,12 @@
             setOptions: function (options) {
                 var that = this;
                 var sizeClass = that.options.size;
+                var doc = this.containment && !that._isPinned ? this.containment : $(document);
                 var cachedOptions = JSON.parse(JSON.stringify(options));
                 extend(options.position, that.options.position);
                 extend(options.position, cachedOptions.position);
+                that._containerScrollTop = doc.scrollTop();
+                that._containerScrollLeft = doc.scrollLeft();
                 Widget.fn.setOptions.call(that, options);
                 var scrollable = that.options.scrollable !== false;
                 that.restore();
@@ -404,6 +407,7 @@
                 MINIMIZE,
                 MAXIMIZE,
                 REFRESH,
+                RESTORE,
                 RESIZESTART,
                 RESIZE,
                 RESIZEEND,
@@ -526,35 +530,35 @@
                 if (options.resizable && e.ctrlKey && !isMaximized && !isMinimized) {
                     if (keyCode == keys.UP) {
                         handled = true;
-                        newHeight = wrapper.height() - distance;
+                        newHeight = wrapper.outerHeight() - distance;
                     } else if (keyCode == keys.DOWN) {
                         handled = true;
                         if (that.containment && !that._isPinned) {
-                            newHeight = Math.min(wrapper.height() + distance, that.containment.height - offset.top - toInt(wrapper, 'padding-top') - toInt(wrapper, 'borderBottomWidth') - toInt(wrapper, 'borderTopWidth'));
+                            newHeight = Math.min(wrapper.outerHeight() + distance, that.containment.height - offset.top - toInt(wrapper, 'padding-top') - toInt(wrapper, 'borderBottomWidth') - toInt(wrapper, 'borderTopWidth'));
                         } else {
-                            newHeight = wrapper.height() + distance;
+                            newHeight = wrapper.outerHeight() + distance;
                         }
                     }
                     if (keyCode == keys.LEFT) {
                         handled = true;
-                        newWidth = wrapper.width() - distance;
+                        newWidth = wrapper.outerWidth() - distance;
                     } else if (keyCode == keys.RIGHT) {
                         handled = true;
                         if (that.containment && !that._isPinned) {
-                            newWidth = Math.min(wrapper.width() + distance, that.containment.width - offset.left - toInt(wrapper, 'borderLeftWidth') - toInt(wrapper, 'borderRightWidth'));
+                            newWidth = Math.min(wrapper.outerWidth() + distance, that.containment.width - offset.left - toInt(wrapper, 'borderLeftWidth') - toInt(wrapper, 'borderRightWidth'));
                         } else {
-                            newWidth = wrapper.width() + distance;
+                            newWidth = wrapper.outerWidth() + distance;
                         }
                     }
                     if (handled) {
                         w = constrain(newWidth, options.minWidth, options.maxWidth);
                         h = constrain(newHeight, options.minHeight, options.maxHeight);
                         if (!isNaN(w)) {
-                            wrapper.width(w);
+                            wrapper.outerWidth(w);
                             that.options.width = w + 'px';
                         }
                         if (!isNaN(h)) {
-                            wrapper.height(h);
+                            wrapper.outerHeight(h);
                             that.options.height = h + 'px';
                         }
                         that.resize();
@@ -565,11 +569,14 @@
                 }
             },
             _overlay: function (visible) {
-                var overlay = this.containment ? this.containment.children(KOVERLAY) : this.appendTo.children(KOVERLAY), wrapper = this.wrapper;
+                var overlay = this.containment ? this.containment.children(KOVERLAY) : this.appendTo.children(KOVERLAY), wrapper = this.wrapper, display = visible ? 'block' : 'none', zIndex = parseInt(wrapper.css(ZINDEX), 10) - 1;
                 if (!overlay.length) {
                     overlay = $('<div class=\'k-overlay\' />');
                 }
-                overlay.insertBefore(wrapper[0]).toggle(visible).css(ZINDEX, parseInt(wrapper.css(ZINDEX), 10) - 1);
+                overlay.insertBefore(wrapper[0]).css({
+                    zIndex: zIndex,
+                    display: display
+                });
                 if (this.options.modal.preventScroll && !this.containment) {
                     this._stopDocumentScrolling();
                 }
@@ -600,17 +607,18 @@
                 }
             },
             _modals: function () {
-                var that = this;
-                var zStack = $(KWINDOW).filter(function () {
-                    var dom = $(this);
-                    var object = that._object(dom);
-                    var options = object && object.options;
-                    return options && options.modal && options.visible && options.appendTo === that.options.appendTo && dom.is(VISIBLE);
-                }).sort(function (a, b) {
-                    return +$(a).css('zIndex') - +$(b).css('zIndex');
+                var that = this, windowElements = $(KWINDOW + VISIBLE), windowInstance, modals = [];
+                for (var i = 0; i < windowElements.length; i += 1) {
+                    windowInstance = that._object($(windowElements[i]));
+                    if (windowInstance && windowInstance.options && windowInstance.options.modal && windowInstance.options.visible && windowInstance.options.appendTo === that.options.appendTo && !windowInstance.containment) {
+                        modals.push(windowInstance.wrapper[0]);
+                    }
+                }
+                modals.sort(function (a, b) {
+                    return a.style.zIndex - b.style.zIndex;
                 });
                 that = null;
-                return zStack;
+                return $(modals);
             },
             _object: function (element) {
                 var content = element.children(KWINDOWCONTENT);
@@ -637,8 +645,8 @@
                     newLeft = this.minLeft + (this.maxLeft - this.minLeft) / 2;
                 } else {
                     that._scrollIsAppended = true;
-                    newLeft = scrollLeft + Math.max(0, (documentWindow.width() - wrapper.width()) / 2);
-                    newTop = scrollTop + Math.max(0, (documentWindow.height() - wrapper.height() - toInt(wrapper, 'paddingTop')) / 2);
+                    newLeft = scrollLeft + Math.max(0, (documentWindow.width() - wrapper.outerWidth()) / 2);
+                    newTop = scrollTop + Math.max(0, (documentWindow.height() - wrapper.outerHeight() - toInt(wrapper, 'paddingTop')) / 2);
                 }
                 wrapper.css({
                     left: newLeft,
@@ -732,7 +740,7 @@
                     if (!wrapper.is(VISIBLE)) {
                         contentElement.css(OVERFLOW, HIDDEN);
                         that.wrapper.find(TITLEBAR_BUTTONS).addClass('k-flat');
-                        wrapper.show().kendoStop().kendoAnimate({
+                        wrapper.addClass(INLINE_FLEX).kendoStop().kendoAnimate({
                             effects: showOptions.effects,
                             duration: showOptions.duration,
                             complete: proxy(this._activate, this)
@@ -762,11 +770,10 @@
                 var modals = this._modals();
                 var options = this.options;
                 var hideOverlay = options.modal && !modals.length;
-                var overlay = options.modal ? this._overlay(true) : $(undefined);
                 var hideOptions = this._animationOptions('close');
                 if (hideOverlay) {
                     if (!suppressAnimation && hideOptions.duration && kendo.effects.Fade) {
-                        var overlayFx = kendo.fx(overlay).fadeOut();
+                        var overlayFx = kendo.fx(options.modal ? this._overlay(true) : $(undefined)).fadeOut();
                         overlayFx.duration(hideOptions.duration || 0);
                         overlayFx.startValue(0.5);
                         overlayFx.play();
@@ -823,7 +830,7 @@
             },
             _deactivate: function () {
                 var that = this;
-                that.wrapper.hide().css('opacity', '');
+                that.wrapper.removeClass(INLINE_FLEX).hide().css('opacity', '');
                 that.trigger(DEACTIVATE);
                 if (that.options.modal) {
                     var lastModal = that._object(that._modals().last());
@@ -837,7 +844,7 @@
                 return this;
             },
             _actionable: function (element) {
-                return $(element).is(TITLEBAR_BUTTONS + ',' + TITLEBAR_BUTTONS + ' .k-icon,:input,a');
+                return $(element).is(TITLEBAR_BUTTONS + ',' + TITLEBAR_BUTTONS + ' .k-icon, :input, a, .k-input, .k-icon, [role=\'gridcell\']');
             },
             _shouldFocus: function (target) {
                 var active = activeElement(), element = this.wrapper;
@@ -851,7 +858,7 @@
                         zIndex = Math.max(+zIndexNew, zIndex);
                     }
                     wrapper.data('isFront', element == currentWindow);
-                    if (element != currentWindow && contentElement.find('> .' + KCONTENTFRAME).length > 0) {
+                    if (element != currentWindow && contentElement.find('.' + KCONTENTFRAME).length && !contentElement.find(KOVERLAY).length) {
                         contentElement.append(templates.overlay);
                     }
                 });
@@ -931,6 +938,7 @@
                 options.isMaximized = options.isMinimized = false;
                 that.wrapper.removeAttr('aria-labelled-by');
                 that.resize();
+                that.trigger(RESTORE);
                 return that;
             },
             _sizingAction: function (actionId, callback) {
@@ -1129,7 +1137,7 @@
                 if (!isPlainObject(options)) {
                     options = { url: options };
                 }
-                options = extend({}, initOptions.content, options);
+                options = extend(initOptions.content, options);
                 showIframe = defined(initOptions.iframe) ? initOptions.iframe : options.iframe;
                 url = options.url;
                 if (url) {
@@ -1209,10 +1217,12 @@
                 Widget.fn.destroy.call(this);
                 this.unbind(undefined);
                 kendo.destroy(this.wrapper);
-                this._removeOverlay(true);
             },
             destroy: function () {
                 this._destroy();
+                if (this.options.modal) {
+                    this._removeOverlay(true);
+                }
                 this.wrapper.empty().remove();
                 this.wrapper = this.appendTo = this.element = $();
             },
@@ -1291,7 +1301,7 @@
                     height: wrapper.outerHeight()
                 };
                 wnd._updateBoundaries();
-                that.containerOffset = wnd.containment ? wnd.containment.position : kendo.getOffset(wnd.appendTo, 'position');
+                that.containerOffset = wnd.containment ? wnd.containment.position : kendo.getOffset(wnd.appendTo);
                 var offsetParent = wrapper.offsetParent();
                 if (offsetParent.is('html')) {
                     that.containerOffset.top = that.containerOffset.left = 0;
@@ -1329,7 +1339,7 @@
                     } else {
                         newWidth = x - initialPosition.left - containerOffset.left;
                     }
-                    wrapper.width(constrain(newWidth, options.minWidth, options.maxWidth));
+                    wrapper.outerWidth(constrain(newWidth, options.minWidth, options.maxWidth));
                 } else if (direction.indexOf('w') >= 0) {
                     windowRight = initialPosition.left + initialSize.width + containerOffset.left;
                     newWidth = constrain(windowRight - x, options.minWidth, options.maxWidth);
@@ -1352,7 +1362,7 @@
                     if (newWindowTop - initialSize.height - that.elementPadding >= wnd.maxTop + containerOffset.top - scrollOffset.top) {
                         newHeight = wnd.maxTop - initialPosition.top + initialSize.height - scrollOffset.top;
                     }
-                    wrapper.height(constrain(newHeight, options.minHeight, options.maxHeight));
+                    wrapper.outerHeight(constrain(newHeight, options.minHeight, options.maxHeight));
                 } else if (direction.indexOf('n') >= 0) {
                     windowBottom = initialPosition.top + initialSize.height + containerOffset.top;
                     newHeight = constrain(windowBottom - newWindowTop, options.minHeight, options.maxHeight);

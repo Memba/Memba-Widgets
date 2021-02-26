@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -408,6 +408,9 @@
                     value = options.value;
                 } else if (that.textarea) {
                     value = domElement.value;
+                    if (!value.replace(/\s/g, '').length) {
+                        value = value.replace(/\s/g, '');
+                    }
                     if (that.options.encoded && domElement.defaultValue && domElement.defaultValue.trim().length) {
                         value = domElement.defaultValue;
                     }
@@ -8518,6 +8521,9 @@
                 }
                 normalize(br.parentNode);
                 if (!oldIE && (!br.nextSibling || dom.isWhitespace(br.nextSibling))) {
+                    if (!!br.nextSibling && dom.isWhitespace(br.nextSibling)) {
+                        br.nextSibling.remove();
+                    }
                     filler = br.cloneNode(true);
                     filler.className = 'k-br';
                     dom.insertAfter(filler, br);
@@ -9123,6 +9129,9 @@
                     if (!focusElement || dom.insignificant(focusElement)) {
                         focusElement = dom.prev(table);
                     }
+                    if (focusElement && focusElement.rows) {
+                        focusElement = focusElement.rows[0].cells[0];
+                    }
                     dom.remove(table);
                     this._resetTableResizing(this.editor);
                 } else if (rowParent.rows.length <= rows.length) {
@@ -9206,6 +9215,9 @@
                     focusElement = dom.next(table);
                     if (!focusElement || dom.insignificant(focusElement)) {
                         focusElement = dom.prev(table);
+                    }
+                    if (focusElement && focusElement.rows) {
+                        focusElement = focusElement.rows[0].cells[0];
                     }
                     dom.remove(table);
                     this._resetTableResizing(this.editor);
@@ -10442,6 +10454,18 @@
                     }
                 }
             },
+            removeTextNodes: function (trs) {
+                var i, j, childNodes, currentNode;
+                for (i = 0; i < trs.length; i++) {
+                    childNodes = trs[i].childNodes;
+                    for (j = 0; j < childNodes.length; j++) {
+                        currentNode = childNodes[j];
+                        if (currentNode.nodeType === dom.nodeTypes.TEXT_NODE) {
+                            currentNode.remove();
+                        }
+                    }
+                }
+            },
             tables: function (placeholder) {
                 var tables = $(placeholder).find('table'), that = this, rows, firstRow, longestRow, i, j;
                 for (i = 0; i < tables.length; i++) {
@@ -10457,6 +10481,7 @@
                     that.removeAttributes(tables[i]);
                     that.removeParagraphs(tables.eq(i).find('td,th'));
                     that.removeDefaultColors(tables.eq(i).find('span'));
+                    that.removeTextNodes(tables.eq(i).find('tr'));
                 }
             },
             headers: function (placeholder) {

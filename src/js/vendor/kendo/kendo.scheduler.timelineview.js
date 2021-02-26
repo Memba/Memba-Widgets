@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1369,7 +1369,8 @@
                 return eventBottomOffset;
             },
             _positionEvent: function (eventObject) {
-                var eventHeight = this.options.eventHeight + 2;
+                var eventHeight = this.options.eventHeight;
+                var eventOffset = 2;
                 var rect = eventObject.slotRange.innerRect(eventObject.start, eventObject.end, false);
                 var left = this._adjustLeftPosition(rect.left);
                 var width = rect.right - rect.left;
@@ -1386,7 +1387,7 @@
                     }
                 }
                 eventObject.element.css({
-                    top: eventObject.slotRange.start.offsetTop + eventObject.rowIndex * (eventHeight + 2) + 'px',
+                    top: eventObject.slotRange.start.offsetTop + eventObject.rowIndex * (eventHeight + eventOffset) + 'px',
                     left: left,
                     width: width
                 });

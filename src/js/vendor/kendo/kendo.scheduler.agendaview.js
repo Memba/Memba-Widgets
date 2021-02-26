@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -223,6 +223,7 @@
                 this._timeTemplate = kendo.template(options.eventTimeTemplate);
                 this.element.on('mouseenter' + NS, '.k-scheduler-agenda .k-scheduler-content tr', '_mouseenter').on('mouseleave' + NS, '.k-scheduler-agenda .k-scheduler-content tr', '_mouseleave').on('click' + NS, '.k-scheduler-agenda .k-scheduler-content .k-link:has(.k-i-close)', '_remove');
                 this._renderLayout(options.date);
+                this.refreshLayout();
             },
             name: 'agenda',
             _isVirtualized: function () {
@@ -297,7 +298,9 @@
                     var event = events[idx];
                     var start = event.start;
                     var end = event.isAllDay ? kendo.date.getDate(event.end) : event.end;
-                    var eventDurationInDays = Math.ceil((end - kendo.date.getDate(start)) / kendo.date.MS_PER_DAY);
+                    var eventStartDate = kendo.date.getDate(start);
+                    var offsetCompensation = (eventStartDate.getTimezoneOffset() - end.getTimezoneOffset()) * 60000;
+                    var eventDurationInDays = Math.ceil((end - eventStartDate + offsetCompensation) / kendo.date.MS_PER_DAY);
                     if (event.isAllDay) {
                         eventDurationInDays += 1;
                     }

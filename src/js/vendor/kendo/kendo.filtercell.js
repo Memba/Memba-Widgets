@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -148,6 +148,7 @@
                         return val !== null && val !== undefined && val != 'undefined' || isNonValueFilter(this.get('operator')) && !that._clearInProgress;
                     }
                 });
+                that._prevOperator = options.operator;
                 viewModel.bind(CHANGE, proxy(that.updateDsFilter, that));
                 if (type == STRING) {
                     that.initSuggestDataSource(options);
@@ -280,12 +281,30 @@
                 viewModel.set('value', filter.value);
                 that.manuallyUpdatingVM = false;
             },
+            _applyFilter: function (filter) {
+                if (filter.filters.length) {
+                    this.dataSource.filter(filter);
+                } else {
+                    this.dataSource.filter({});
+                }
+            },
             updateDsFilter: function (e) {
-                var that = this, model = that.viewModel;
+                var that = this, model = that.viewModel, filter;
+                if (e.field == 'operator' && model.value === undefined && !isNonValueFilter(model) && isNonValueFilter(that._prevOperator)) {
+                    filter = that.dataSource.filter() || {
+                        filters: [],
+                        logic: 'and'
+                    };
+                    removeFiltersForField(filter, that.options.field);
+                    that._prevOperator = model.operator;
+                    that._applyFilter(filter);
+                    return;
+                }
                 if (that.manuallyUpdatingVM || e.field == 'operator' && model.value === undefined && !isNonValueFilter(model) || e.field == 'operator' && that._clearInProgress && model.value !== null) {
                     return;
                 }
                 var currentFilter = $.extend({}, that.viewModel.toJSON(), { field: that.options.field });
+                that._prevOperator = currentFilter.operator;
                 var expression = {
                     logic: 'and',
                     filters: []
@@ -308,11 +327,7 @@
                     return;
                 }
                 var mergeResult = that._merge(expression);
-                if (mergeResult.filters.length) {
-                    that.dataSource.filter(mergeResult);
-                } else {
-                    that.dataSource.filter({});
-                }
+                that._applyFilter(mergeResult);
             },
             _merge: function (expression) {
                 var that = this, logic = expression.logic || 'and', filters = expression.filters, filter, result = that.dataSource.filter() || {
@@ -351,7 +366,7 @@
             },
             _createClearIcon: function () {
                 var that = this;
-                $('<button type=\'button\' class=\'k-button k-button-icon\' title = ' + that.options.messages.clear + '/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-filter-clear\'></span>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
+                $('<button type=\'button\' class=\'k-button k-button-icon\' title = \'' + that.options.messages.clear + '\'/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-filter-clear\'></span>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
             },
             clearFilter: function () {
                 this._clearInProgress = true;

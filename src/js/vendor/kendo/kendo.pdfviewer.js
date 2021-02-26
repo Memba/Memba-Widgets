@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -475,7 +475,8 @@
                         300,
                         400
                     ]
-                }
+                },
+                enable: false
             },
             toggleSelection: {
                 type: 'buttonGroup',
@@ -488,7 +489,8 @@
                         icon: 'cursor',
                         showText: 'overflow',
                         name: 'toggleSelection',
-                        group: 'toggle-pan'
+                        group: 'toggle-pan',
+                        enable: false
                     },
                     {
                         togglable: true,
@@ -498,7 +500,8 @@
                         showText: 'overflow',
                         name: 'togglePan',
                         group: 'toggle-pan',
-                        selected: true
+                        selected: true,
+                        enable: false
                     }
                 ]
             },
@@ -509,7 +512,8 @@
                 command: 'OpenSearchCommand',
                 icon: 'search',
                 name: 'search',
-                showText: 'overflow'
+                showText: 'overflow',
+                enable: false
             },
             open: {
                 type: 'button',
@@ -525,7 +529,8 @@
                 showText: 'overflow',
                 name: 'download',
                 icon: 'download',
-                command: 'DownloadCommand'
+                command: 'DownloadCommand',
+                enable: false
             },
             print: {
                 type: 'button',
@@ -533,7 +538,8 @@
                 showText: 'overflow',
                 name: 'print',
                 icon: 'print',
-                command: 'PrintCommand'
+                command: 'PrintCommand',
+                enable: false
             }
         };
         var AllTools = extend({}, DefaultTools, {
@@ -609,6 +615,7 @@
                 this.attributes();
                 this.addUidAttr();
                 this.addOverflowAttr();
+                this.enable(options.enable);
             },
             _init: function (options, toolbar) {
                 var zoomElement = $('<div />');
@@ -1848,23 +1855,25 @@
                 }
                 viewer.zoomScale = scale;
                 viewer._scrollingStarted = false;
-                viewer.pages.forEach(function (page) {
-                    var pageHeight;
-                    if (viewer._visiblePages.indexOf(page) !== -1 && page.loaded) {
-                        renderTasks.push(page.render(scale));
-                        pageHeight = page._page.getViewport({ scale: scale }).height;
-                    } else {
-                        page.resize(scale);
-                        pageHeight = page.element.height();
+                if (viewer.pages) {
+                    viewer.pages.forEach(function (page) {
+                        var pageHeight;
+                        if (viewer._visiblePages.indexOf(page) !== -1 && page.loaded) {
+                            renderTasks.push(page.render(scale));
+                            pageHeight = page._page.getViewport({ scale: scale }).height;
+                        } else {
+                            page.resize(scale);
+                            pageHeight = page.element.height();
+                        }
+                        loadedPagesHeight += pageHeight;
+                        if (loadedPagesHeight <= containerHeight) {
+                            updatedVisiblePagesCount++;
+                        }
+                    });
+                    if (viewer._visiblePagesCount != updatedVisiblePagesCount) {
+                        viewer._visiblePagesCount = updatedVisiblePagesCount;
+                        viewer._loadVisiblePages();
                     }
-                    loadedPagesHeight += pageHeight;
-                    if (loadedPagesHeight <= containerHeight) {
-                        updatedVisiblePagesCount++;
-                    }
-                });
-                if (viewer._visiblePagesCount != updatedVisiblePagesCount) {
-                    viewer._visiblePagesCount = updatedVisiblePagesCount;
-                    viewer._loadVisiblePages();
                 }
                 Promise.all(renderTasks).then(function () {
                     updateViewer();

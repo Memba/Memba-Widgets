@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -49,25 +49,28 @@
         var SWITCH_CONTAINER_TEMPLATE = kendo.template('<span class=\'#=styles.container#\'>' + '<span class=\'#=styles.checkedLabel#\'>#=checked#</span>' + '<span class=\'#=styles.uncheckedLabel#\'>#=unchecked#</span>' + '<span class=\'#=styles.handle#\'></span>' + '</span>');
         var Switch = Widget.extend({
             init: function (element, options) {
-                var that = this, wrapper;
+                var that = this;
                 Widget.fn.init.call(that, element, options);
-                options = that.options;
-                element = that.element[0];
+                that._wrapper();
+                that._initSettings();
+                that._aria();
+                that._attachEvents();
+                kendo.notify(that, kendo.ui);
+            },
+            _wrapper: function () {
+                var that = this, options = that.options, element = that.element[0], wrapper = $(SWITCH_TEMPLATE({ styles: switchStyles }));
                 element.type = 'checkbox';
-                wrapper = $(SWITCH_TEMPLATE({ styles: switchStyles }));
                 that.wrapper = that.element.wrap(wrapper).parent();
+                that.wrapper[0].style.cssText = that.element[0].style.cssText;
                 that.wrapper.append($(SWITCH_CONTAINER_TEMPLATE({
                     styles: switchStyles,
                     checked: options.messages.checked,
                     unchecked: options.messages.unchecked
                 }))).addClass(element.className).removeClass('input-validation-error');
+            },
+            _attachEvents: function () {
+                var that = this;
                 that.wrapper.on(CLICK, proxy(that._click, that)).on(TOUCHEND, proxy(that._touchEnd, that)).on(KEYDOWN, proxy(that._keydown, that));
-                if (that.options.enabled) {
-                    that._tabindex();
-                }
-                that._initSettings();
-                that._aria();
-                kendo.notify(that, kendo.ui);
             },
             setOptions: function (options) {
                 var that = this, messages = options.messages, checkedLabel, uncheckedLabel;
@@ -93,6 +96,9 @@
             },
             _initSettings: function () {
                 var that = this, element = that.element[0], options = that.options;
+                if (options.enabled) {
+                    that._tabindex();
+                }
                 if (options.width) {
                     that.wrapper.css({ width: options.width });
                 }

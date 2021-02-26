@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -548,10 +548,8 @@
             _modals: function () {
                 var that = this;
                 var zStack = $(KWINDOW).filter(function () {
-                    var dom = $(this);
-                    var object = that._object(dom);
-                    var options = object && object.options;
-                    return options && options.modal && that.options.appendTo == options.appendTo && options.visible && dom.is(VISIBLE);
+                    var modal = that._object($(this));
+                    return modal && modal.options && modal.options.modal && modal.options.visible && modal.options.appendTo === that.options.appendTo && !modal.containment && $(modal.element).is(VISIBLE);
                 }).sort(function (a, b) {
                     return +$(a).css('zIndex') - +$(b).css('zIndex');
                 });

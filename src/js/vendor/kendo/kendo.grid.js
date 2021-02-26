@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1692,6 +1692,7 @@
                 if (this._navigatableTables) {
                     this._navigatableTables.off(NS);
                     this._navigatableTables = null;
+                    this._headertables = null;
                 }
                 if (that._resizeHandler) {
                     $(window).off('resize' + NS, that._resizeHandler);
@@ -2652,6 +2653,9 @@
                 this._removeStickyStyles(stickyColumns(columns));
                 column.sticky = false;
                 this._updateStickyColumns();
+                if (this._anyStickyColumns() === 0) {
+                    this._templates();
+                }
             },
             cellIndex: function (td) {
                 var lockedColumnOffset = 0;
@@ -3984,7 +3988,8 @@
                         },
                         continuousItems: function () {
                             return that._continuousItems(filter, cell);
-                        }
+                        },
+                        ignoreOverlapped: that.options.selectable && that.options.selectable.ignoreOverlapped
                     });
                     if (that.options.navigatable) {
                         elements.on('keydown' + NS, function (e) {
@@ -4826,6 +4831,7 @@
                     headerTables.attr(TABINDEX, -1);
                 }
                 this._navigatableTables = tables;
+                this._headertables = headerTables;
                 tables.off('mousedown' + NS + ' focus' + NS + ' focusout' + NS + ' keydown' + NS);
                 headerTables.on('keydown' + NS, proxy(that._openHeaderMenu, that)).find('a.k-link').attr('tabIndex', -1);
                 dataTables.attr(TABINDEX, math.max(dataTables.attr(TABINDEX) || 0, 0)).on('keydown' + NS, '.k-detail-cell', function (e) {
@@ -4967,7 +4973,7 @@
                     handled = this._handleEscKey(current, e.currentTarget);
                 }
                 if (e.keyCode == keys.TAB) {
-                    handled = this._handleTabKey(current, e.currentTarget, e.shiftKey);
+                    handled = this._handleTabKey(current, e.currentTarget, e.shiftKey, target);
                 }
                 if (handled) {
                     e.preventDefault();
@@ -5168,10 +5174,10 @@
                 this.dataSource.page(this.dataSource.page() - 1);
                 return true;
             },
-            _handleTabKey: function (current, currentTable, shiftKey) {
+            _handleTabKey: function (current, currentTable, shiftKey, target) {
                 var isInCell = this.options.editable && this._editMode() == 'incell';
                 var cell;
-                if (!isInCell || current.is('th')) {
+                if (!isInCell || current.is('th') || (this.options.scrollable ? this._headertables.filter(currentTable).length : this.thead.filter(target).length)) {
                     return false;
                 }
                 cell = $(activeElement()).closest('.k-edit-cell');
@@ -8118,6 +8124,9 @@
                 }
                 if (this.pager && this.pager.element) {
                     this.pager.resize(force);
+                }
+                if (this._anyStickyColumns()) {
+                    this._updateStickyColumns(false);
                 }
             },
             _isActiveInTable: function () {

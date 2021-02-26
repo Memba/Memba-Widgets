@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -81,7 +81,7 @@
                 var DOMElement = element[0];
                 var wrapper;
                 var header;
-                wrapper = element.wrap('<div class=\'k-widget k-expander' + (that.options.expanded ? ' ' + EXPANDED : ' ') + '\'></div>').parent();
+                wrapper = element.wrap('<div class=\'k-widget k-expander' + (that.options.expanded ? ' ' + EXPANDED : '') + '\'></div>').parent();
                 header = kendo.template(headerTemplate)({
                     title: that.options.title,
                     subTitle: that.options.subTitle,
@@ -131,7 +131,7 @@
                 }
             },
             toggle: function (expand, animate) {
-                var that = this, animationSettings = that.options.animation, animation = animationSettings.expand, hasCollapseAnimation = animationSettings.collapse && 'effects' in animationSettings.collapse, collapse = extend({}, animationSettings.expand, animationSettings.collapse), element = that.element;
+                var that = this, animationSettings = that.options.animation, animation = animationSettings.expand, hasCollapseAnimation = animationSettings.collapse && 'effects' in animationSettings.collapse, collapse = extend({}, animationSettings.expand, animationSettings.collapse), element = that.element, wrapper = that.wrapper;
                 if (expand !== undefined) {
                     if (animate === false) {
                         collapse = null;
@@ -151,9 +151,11 @@
                 if (expand) {
                     that._indicator.removeClass(this.options.expandIconClass);
                     that._indicator.addClass(this.options.collapseIconClass);
+                    wrapper.addClass(EXPANDED);
                 } else {
                     that._indicator.removeClass(this.options.collapseIconClass);
                     that._indicator.addClass(this.options.expandIconClass);
+                    wrapper.removeClass(EXPANDED);
                 }
                 element.attr(ARIA_HIDDEN, !expand);
                 that.header.attr(ARIA_EXPANDED, expand);

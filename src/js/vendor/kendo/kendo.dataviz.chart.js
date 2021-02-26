@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -12712,7 +12712,7 @@
                     var tooltip = this._getCrosshairTooltip(e.axisName, e.axisIndex);
                     tooltip.hide();
                 } else if (this._tooltip) {
-                    this._tooltip.hide(e);
+                    this._tooltip.hide();
                 }
             },
             _onRender: function (e) {
@@ -13131,8 +13131,11 @@
                 this._clearShowTimeout();
                 this.showTimeout = setTimeout(this.move, TOOLTIP_SHOW_DELAY);
             },
-            hide: function () {
+            hide: function (forceHide) {
                 var tooltip = this;
+                if (!tooltip.options.autoHide && !forceHide) {
+                    return;
+                }
                 clearTimeout(tooltip.showTimeout);
                 tooltip._hideElement();
                 if (tooltip.visible) {
@@ -13147,7 +13150,7 @@
                 if (!target.is('.k-chart-tooltip, .k-tooltip-content')) {
                     e.preventDefault();
                     this.chartElement.data('kendoChart')._instance.hideElements();
-                    this.hide();
+                    this.hide(true);
                 }
             },
             _sharedContent: function (e) {

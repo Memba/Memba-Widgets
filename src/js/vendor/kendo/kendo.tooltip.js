@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -249,6 +249,7 @@
             },
             _ajaxRequest: function (options) {
                 var that = this;
+                that.contentLoading = true;
                 jQuery.ajax(extend({
                     type: 'GET',
                     dataType: 'html',
@@ -263,7 +264,9 @@
                     success: proxy(function (data) {
                         kendo.ui.progress(that.content, false);
                         that.content.html(data);
+                        that.contentLoading = false;
                         that.trigger(CONTENTLOAD);
+                        that._openPopup();
                     }, that)
                 }, options));
             },
@@ -307,8 +310,16 @@
                     this.element.removeAttr('id').attr('aria-hidden', true);
                     DOCUMENT.off('keydown' + NS, that._documentKeyDownHandler);
                 });
-                that.popup._hovered = true;
-                that.popup.open();
+                if (!that.contentLoading) {
+                    that._openPopup();
+                }
+            },
+            _openPopup: function () {
+                if (!this.popup) {
+                    return;
+                }
+                this.popup._hovered = true;
+                this.popup.open();
             },
             _initPopup: function () {
                 var that = this, options = that.options, wrapper = $(kendo.template(TEMPLATE)({

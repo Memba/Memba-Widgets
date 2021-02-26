@@ -2359,9 +2359,10 @@ MarkType.compile = function compile (marks, schema) {
 // When there is a mark of this type in the given set, a new set
 // without it is returned. Otherwise, the input set is returned.
 MarkType.prototype.removeFromSet = function removeFromSet (set) {
-  for (var i = 0; i < set.length; i++)
-    { if (set[i].type == this)
-      { return set.slice(0, i).concat(set.slice(i + 1)) } }
+  for (var i = 0; i < set.length; i++) { if (set[i].type == this) {
+    set = set.slice(0, i).concat(set.slice(i + 1));
+    i--;
+  } }
   return set
 };
 
@@ -2723,7 +2724,9 @@ function gatherMarks(schema, marks) {
 //   `"property=value"`, in which case the rule only matches if the
 //   property's value exactly matches the given value. (For more
 //   complicated filters, use [`getAttrs`](#model.ParseRule.getAttrs)
-//   and return false to indicate that the match failed.)
+//   and return false to indicate that the match failed.) Rules
+//   matching styles may only produce [marks](#model.ParseRule.mark),
+//   not nodes.
 //
 //   priority:: ?number
 //   Can be used to change the order in which the parse rules in a
@@ -3404,7 +3407,8 @@ ParseContext.prototype.removePendingMark = function removePendingMark (mark, upt
     } else {
       level.activeMarks = mark.removeFromSet(level.activeMarks);
       var stashMark = level.popFromStashMark(mark);
-      if (stashMark) { level.activeMarks = stashMark.addToSet(level.activeMarks); }
+      if (stashMark && level.type && level.type.allowsMarkType(stashMark.type))
+        { level.activeMarks = stashMark.addToSet(level.activeMarks); }
     }
     if (level == upto) { break }
   }
@@ -4170,7 +4174,7 @@ var ReplaceStep = /*@__PURE__*/(function (Step) {
   };
 
   ReplaceStep.prototype.merge = function merge (other) {
-    if (!(other instanceof ReplaceStep) || other.structure != this.structure) { return null }
+    if (!(other instanceof ReplaceStep) || other.structure || this.structure) { return null }
 
     if (this.from + this.slice.size == other.from && !this.slice.openEnd && !other.slice.openStart) {
       var slice = this.slice.size + other.slice.size == 0 ? Slice.empty
@@ -4770,8 +4774,11 @@ Transform.prototype.removeMark = function(from, to, mark) {
     step++;
     var toRemove = null;
     if (mark instanceof MarkType) {
-      var found = mark.isInSet(node.marks);
-      if (found) { toRemove = [found]; }
+      var set = node.marks, found;
+      while (found = mark.isInSet(set)) {
+(toRemove || (toRemove = [])).push(found);
+        set = found.removeFromSet(set);
+      }
     } else if (mark) {
       if (mark.isInSet(node.marks)) { toRemove = [mark]; }
     } else {
@@ -7506,11 +7513,11 @@ function exitCode(state, dispatch) {
 // If a block node is selected, create an empty paragraph before (if
 // it is its parent's first child) or after it.
 function createParagraphNear(state, dispatch) {
-  var ref = state.selection;
-  var $from = ref.$from;
-  var $to = ref.$to;
-  if ($from.parent.inlineContent || $to.parent.inlineContent) { return false }
-  var type = defaultBlockAt($from.parent.contentMatchAt($to.indexAfter()));
+  var sel = state.selection;
+  var $from = sel.$from;
+  var $to = sel.$to;
+  if (sel instanceof AllSelection || $from.parent.inlineContent || $to.parent.inlineContent) { return false }
+  var type = defaultBlockAt($to.parent.contentMatchAt($to.indexAfter()));
   if (!type || !type.isTextblock) { return false }
   if (dispatch) {
     var side = (!$from.parentOffset && $to.index() < $to.parent.childCount ? $from : $to).pos;
@@ -7559,7 +7566,7 @@ function splitBlock(state, dispatch) {
   if (dispatch) {
     var atEnd = $to.parentOffset == $to.parent.content.size;
     var tr = state.tr;
-    if (state.selection instanceof TextSelection) { tr.deleteSelection(); }
+    if (state.selection instanceof TextSelection || state.selection instanceof AllSelection) { tr.deleteSelection(); }
     var deflt = $from.depth == 0 ? null : defaultBlockAt($from.node(-1).contentMatchAt($from.indexAfter(-1)));
     var types = atEnd && deflt ? [{type: deflt}] : null;
     var can = canSplit(tr.doc, tr.mapping.map($from.pos), 1, types);
@@ -7570,7 +7577,7 @@ function splitBlock(state, dispatch) {
     if (can) {
       tr.split(tr.mapping.map($from.pos), 1, types);
       if (!atEnd && !$from.parentOffset && $from.parent.type != deflt &&
-          $from.node(-1).canReplace($from.index(-1), $from.indexAfter(-1), Fragment.from(deflt.create(), $from.parent)))
+          $from.node(-1).canReplace($from.index(-1), $from.indexAfter(-1), Fragment.from([deflt.create(), $from.parent])))
         { tr.setNodeMarkup(tr.mapping.map($from.before()), deflt); }
     }
     dispatch(tr.scrollIntoView());
@@ -7622,7 +7629,8 @@ function deleteBarrier(state, $cut, dispatch) {
   if (before.type.spec.isolating || after.type.spec.isolating) { return false }
   if (joinMaybeClear(state, $cut, dispatch)) { return true }
 
-  if ($cut.parent.canReplace($cut.index(), $cut.index() + 1) &&
+  var canDelAfter = $cut.parent.canReplace($cut.index(), $cut.index() + 1);
+  if (canDelAfter &&
       (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(after.type)) &&
       match.matchType(conn[0] || after.type).validEnd) {
     if (dispatch) {
@@ -7643,6 +7651,26 @@ function deleteBarrier(state, $cut, dispatch) {
   if (target != null && target >= $cut.depth) {
     if (dispatch) { dispatch(state.tr.lift(range, target).scrollIntoView()); }
     return true
+  }
+
+  if (canDelAfter && after.isTextblock && textblockAt(before, "end")) {
+    var at = before, wrap$1 = [];
+    for (;;) {
+      wrap$1.push(at);
+      if (at.isTextblock) { break }
+      at = at.lastChild;
+    }
+    if (at.canReplace(at.childCount, at.childCount, after.content)) {
+      if (dispatch) {
+        var end$1 = Fragment.empty;
+        for (var i$1 = wrap$1.length - 1; i$1 >= 0; i$1--) { end$1 = Fragment.from(wrap$1[i$1].copy(end$1)); }
+        var tr$1 = state.tr.step(new ReplaceAroundStep($cut.pos - wrap$1.length, $cut.pos + after.nodeSize,
+                                                     $cut.pos + 1, $cut.pos + after.nodeSize - 1,
+                                                     new Slice(end$1, wrap$1.length, 0), 0, true));
+        dispatch(tr$1.scrollIntoView());
+      }
+      return true
+    }
   }
 
   return false
@@ -7744,8 +7772,15 @@ function toggleMark(markType, attrs) {
           var ref$2 = ranges[i$1];
           var $from$1 = ref$2.$from;
           var $to$1 = ref$2.$to;
-          if (has) { tr.removeMark($from$1.pos, $to$1.pos, markType); }
-          else { tr.addMark($from$1.pos, $to$1.pos, markType.create(attrs)); }
+          if (has) {
+            tr.removeMark($from$1.pos, $to$1.pos, markType);
+          } else {
+            var from = $from$1.pos, to = $to$1.pos, start = $from$1.nodeAfter, end = $to$1.nodeBefore;
+            var spaceStart = start && start.isText ? /^\s*/.exec(start.text)[0].length : 0;
+            var spaceEnd = end && end.isText ? /\s*$/.exec(end.text)[0].length : 0;
+            if (from + spaceStart < to) { from += spaceStart; to -= spaceEnd; }
+            tr.addMark(from, to, markType.create(attrs));
+          }
         }
         dispatch(tr.scrollIntoView());
       }
@@ -7909,10 +7944,17 @@ DropCursorView.prototype.updateOverlay = function updateOverlay () {
     if (this.class) { this.element.className = this.class; }
     this.element.style.cssText = "position: absolute; z-index: 50; pointer-events: none; background-color: " + this.color;
   }
-  var parentRect = !parent || parent == document.body && getComputedStyle(parent).position == "static"
-      ? {left: -pageXOffset, top: -pageYOffset} : parent.getBoundingClientRect();
-  this.element.style.left = (rect.left - parentRect.left) + "px";
-  this.element.style.top = (rect.top - parentRect.top) + "px";
+  var parentLeft, parentTop;
+  if (!parent || parent == document.body && getComputedStyle(parent).position == "static") {
+    parentLeft = -pageXOffset;
+    parentTop = -pageYOffset;
+  } else {
+    var rect$1 = parent.getBoundingClientRect();
+    parentLeft = rect$1.left - parent.scrollLeft;
+    parentTop = rect$1.top - parent.scrollTop;
+  }
+  this.element.style.left = (rect.left - parentLeft) + "px";
+  this.element.style.top = (rect.top - parentTop) + "px";
   this.element.style.width = (rect.right - rect.left) + "px";
   this.element.style.height = (rect.bottom - rect.top) + "px";
 };
@@ -8596,7 +8638,7 @@ function endOfTextblock(view, state, dir) {
 //
 //   destroy:: ?()
 //   Called when the node view is removed from the editor or the whole
-//   editor is destroyed.
+//   editor is destroyed. (Not available for marks.)
 
 // View descriptions are data structures that describe the DOM that is
 // used to represent the editor's content. They are used for:
@@ -8791,14 +8833,15 @@ ViewDesc.prototype.domFromPos = function domFromPos (pos, side) {
                                         this.children[i].dom.parentNode != this.contentDOM))
       { offset += this.children[i++].size; }
     var child = i == this.children.length ? null : this.children[i];
-    if (offset == pos && (side == 0 || !child || child.border || (side < 0 && first)) ||
+    if (offset == pos && (side == 0 || !child || !child.size || child.border || (side < 0 && first)) ||
         child && child.domAtom && pos < offset + child.size) { return {
       node: this.contentDOM,
       offset: child ? domIndex(child.dom) : this.contentDOM.childNodes.length
     } }
     if (!child) { throw new Error("Invalid position " + pos) }
     var end = offset + child.size;
-    if (!child.domAtom && (side < 0 && !child.border ? end >= pos : end > pos))
+    if (!child.domAtom && (side < 0 && !child.border ? end >= pos : end > pos) &&
+        (end > pos || i + 1 >= this.children.length || !this.children[i + 1].beforePosition))
       { return child.domFromPos(pos - offset - child.border, side) }
     offset = end;
   }
@@ -8893,10 +8936,16 @@ ViewDesc.prototype.setSelection = function setSelection (anchor, head, root, for
   // the cursor sometimes inexplicable visually lags behind its
   // reported position in such situations (#1092).
   if ((result.gecko || result.safari) && anchor == head) {
-    if (anchorDOM.node.nodeType == 3) {
-      brKludge = anchorDOM.offset && anchorDOM.node.nodeValue[anchorDOM.offset - 1] == "\n";
+    var node = anchorDOM.node;
+      var offset$1 = anchorDOM.offset;
+    if (node.nodeType == 3) {
+      brKludge = offset$1 && node.nodeValue[offset$1 - 1] == "\n";
+      // Issue #1128
+      if (brKludge && offset$1 == node.nodeValue.length &&
+          node.nextSibling && node.nextSibling.nodeName == "BR")
+        { anchorDOM = headDOM = {node: node.parentNode, offset: domIndex(node) + 1}; }
     } else {
-      var prev = anchorDOM.node.childNodes[anchorDOM.offset - 1];
+      var prev = node.childNodes[offset$1 - 1];
       brKludge = prev && (prev.nodeName == "BR" || prev.contentEditable == "false");
     }
   }
@@ -9975,12 +10024,16 @@ function selectionFromDOM(view, origin) {
   return selection
 }
 
+function editorOwnsSelection(view) {
+  return view.editable ? view.hasFocus() :
+    hasSelection(view) && document.activeElement && document.activeElement.contains(view.dom)
+}
+
 function selectionToDOM(view, force) {
   var sel = view.state.selection;
   syncNodeSelection(view, sel);
 
-  if (view.editable ? !view.hasFocus() :
-      !(hasSelection(view) && document.activeElement && document.activeElement.contains(view.dom))) { return }
+  if (!editorOwnsSelection(view)) { return }
 
   view.domObserver.disconnectSelection();
 
@@ -10051,7 +10104,10 @@ function removeClassOnSelectionChange(view) {
   doc.addEventListener("selectionchange", view.hideSelectionGuard = function () {
     if (domSel.anchorNode != node || domSel.anchorOffset != offset) {
       doc.removeEventListener("selectionchange", view.hideSelectionGuard);
-      view.dom.classList.remove("ProseMirror-hideselection");
+      setTimeout(function () {
+        if (!editorOwnsSelection(view) || view.state.selection.visible)
+          { view.dom.classList.remove("ProseMirror-hideselection"); }
+      }, 20);
     }
   });
 }
@@ -10312,8 +10368,9 @@ function selectVertically(view, dir, mods) {
       { return apply(view, next) }
   }
   if (!$from.parent.inlineContent) {
-    var beyond = Selection.findFrom(dir < 0 ? $from : $to, dir);
-    return beyond ? apply(view, beyond) : true
+    var side = dir < 0 ? $from : $to;
+    var beyond = sel instanceof AllSelection ? Selection.near(side, dir) : Selection.findFrom(side, dir);
+    return beyond ? apply(view, beyond) : false
   }
   return false
 }
@@ -11126,6 +11183,7 @@ DOMObserver.prototype.flush = function flush () {
     this.handleDOMChange(from, to, typeOver, added);
     if (this.view.docView.dirty) { this.view.updateState(this.view.state); }
     else if (!this.currentSelection.eq(sel)) { selectionToDOM(this.view); }
+    this.currentSelection.set(sel);
   }
 };
 
@@ -12191,6 +12249,8 @@ DecorationSet.prototype.addInner = function addInner (doc, decorations, offset) 
   });
 
   var local = moveSpans(childIndex ? withoutNulls(decorations) : decorations, -offset);
+  for (var i = 0; i < local.length; i++) { if (!local[i].type.valid(doc, local[i])) { local.splice(i--, 1); } }
+
   return new DecorationSet(local.length ? this.local.concat(local).sort(byPos) : this.local,
                            children || this.children)
 };

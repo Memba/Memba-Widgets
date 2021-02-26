@@ -2,8 +2,8 @@
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
 
 // Dependencies
-// MathLive?
+@import "../vendor/mathquill/mathquill";
 
 // Component
-@import "widgets.mathlive/layout";
-@import "widgets.mathlive/theme";
+@import "widgets.mathquill/layout";
+@import "widgets.mathquill/theme";

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>widgets.mathquill</title>
+    <script>
+        window.DEBUG = true;
+    </script>
+    <!-- Kidoju fonts -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Kidoju theme -->
+    <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- widgets.buttonset stylesheet -->
+    <link href="../../styles/experiments/widgets.mathquill.css" rel="stylesheet">
+    <!-- Weinre -->
+    <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
+    <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
+    <script src="../helpers/system.config.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.mathquill.es6')
+            ]).then(function () {
+                var kendo = window.kendo;
+                var viewModel = kendo.observable({
+                    fields: [],
+                    fields$: function () { return '\t' + this.get('fields').join(', '); },
+                    latex: '',
+                    // latex$: function () { return '\t' + this.get('latex').join(', '); },
+                    visible: true,
+                    enabled: true,
+                    onChange: function (e) {
+                    	$('#text').text('\t' + e.sender.text());
+                    }
+                });
+                $(function() {
+                    kendo.bind('body', viewModel);
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>widgets.mathquill</h1>
+<div id="toolbar"></div>
+<div class="kj-stage" style="position: relative; height: 600px; width: 800px; border: solid 1px black; transform: scale(0.75);">
+    <div data-role="stage" style="height: 600px; width: 800px;">
+        <div class="kj-element" style="position: absolute; top: 50px; left: 100px; height: 50px; width: 200px;">
+            <span data-role="mathquill" data-bind="value: fields, visible: visible, enabled: enabled" data-toolbar="{&quot;container&quot;:&quot;#toolbar&quot;}" data-value="[]" style="min-height: 50px; width: 200px;">
+                \sqrt{ \MathQuillMathField[x]{x}^2 + \MathQuillMathField[y]{y}^2 }
+            </span>
+        </div>
+        <div class="kj-element" style="position: absolute; top: 150px; left: 100px; height: 50px; width: 200px;">
+            <div data-role="mathquill" data-bind="value: latex, visible: visible, enabled: enabled, events: { change: onChange }" data-toolbar="{&quot;container&quot;:&quot;#toolbar&quot;,&quot;resizable&quot;:true}" style="min-height: 50px; width: 500px; font-size: 35pt;"></div>
+        </div>
+        <div class="kj-element" style="position: absolute; top: 350px; left: 100px; height: 50px; width: 200px;">
+            <div data-role="mathquill" data-bind="value: latex, visible: visible, enabled: enabled, events: { change: onChange }" data-toolbar="{&quot;container&quot;:&quot;#toolbar&quot;,&quot;resizable&quot;:true}" style="min-height: 50px; width: 500px; font-size: 35pt;"></div>
+        </div>
+    </div>
+</div>
+
+<pre>
+{
+    fields: <span data-bind="text: fields$"></span>
+    latex: <span data-bind="text: latex"></span>
+    text: <span id="text"></span>
+    visible: <span data-bind="text: visible"></span>
+    enabled: <span data-bind="text: enabled"></span>
+}
+</pre>
+<div>
+    <input type="checkbox" data-bind="checked: visible" />Visible&nbsp;
+    <input type="checkbox" data-bind="checked: enabled" />enabled
+</div>
+<ul><strong>Compare with:</strong>
+    <li><a href="http://mathquill.com/">http://mathquill.com/</a></li>
+    <li><a href="https://pesasa.github.io/matharray/">https://pesasa.github.io/matharray/</a></li>
+    <li><a href="https://www.toptal.com/designers/htmlarrows/math/">https://www.toptal.com/designers/htmlarrows/math/</a></li>
+    <li><a href="https://en.wikibooks.org/wiki/LaTeX/Mathematics">https://en.wikibooks.org/wiki/LaTeX/Mathematics</a></li>
+    <li><a href="https://inspera.atlassian.net/wiki/display/KB/MathQuill+symbols">https://inspera.atlassian.net/wiki/display/KB/MathQuill+symbols</a></li>
+    <li><a href="https://www.symbolab.com/">https://www.symbolab.com/</a></li>
+</ul>
+</body>
+</html>

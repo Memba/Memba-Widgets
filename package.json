@@ -25,10 +25,6 @@
     "start": "node ./nodejs/http.server.js",
     "test": "node --max-old-space-size=4096 ./node_modules/grunt/bin/grunt test"
   },
-  "dependencies": {
-    "-": "0.0.1",
-    "D": "^1.0.0"
-  },
   "devDependencies": {
     "@babel/cli": "^7.13.0",
     "@babel/core": "^7.13.1",

@@ -1,9 +1,9 @@
 /* eslint-disable global-require */
 module.exports = {
-    input: './library.js',
+    input: './src/js/vendor/prosemirror/library.js',
     output: [
         {
-            file: 'prosemirror.es6',
+            file: './src/js/vendor/prosemirror/prosemirror.mjs',
             format: 'es', //  'cjs',
             // sourcemap: true,
         },
@@ -16,7 +16,7 @@ module.exports = {
         require('@rollup/plugin-json')(),
         require('@rollup/plugin-commonjs')(),
         require('@rollup/plugin-buble')({
-            transforms: { dangerousForOf: true } // For prosemirror-markdown
+            transforms: { dangerousForOf: true }, // For prosemirror-markdown
         }),
     ],
     // external(id) { return !/^[\.\/]/.test(id) }

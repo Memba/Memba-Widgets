@@ -1,4 +1,4 @@
-var base = {
+var base$1 = {
   8: "Backspace",
   9: "Tab",
   10: "Enter",
@@ -82,35 +82,35 @@ var shift = {
   229: "Q"
 };
 
-var chrome = typeof navigator != "undefined" && /Chrome\/(\d+)/.exec(navigator.userAgent);
+var chrome$1 = typeof navigator != "undefined" && /Chrome\/(\d+)/.exec(navigator.userAgent);
 var safari = typeof navigator != "undefined" && /Apple Computer/.test(navigator.vendor);
 var gecko = typeof navigator != "undefined" && /Gecko\/\d+/.test(navigator.userAgent);
-var mac = typeof navigator != "undefined" && /Mac/.test(navigator.platform);
-var ie = typeof navigator != "undefined" && /MSIE \d|Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
-var brokenModifierNames = chrome && (mac || +chrome[1] < 57) || gecko && mac;
+var mac$3 = typeof navigator != "undefined" && /Mac/.test(navigator.platform);
+var ie$1 = typeof navigator != "undefined" && /MSIE \d|Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
+var brokenModifierNames = chrome$1 && (mac$3 || +chrome$1[1] < 57) || gecko && mac$3;
 
 // Fill in the digit keys
-for (var i = 0; i < 10; i++) { base[48 + i] = base[96 + i] = String(i); }
+for (var i$1 = 0; i$1 < 10; i$1++) { base$1[48 + i$1] = base$1[96 + i$1] = String(i$1); }
 
 // The function keys
-for (var i = 1; i <= 24; i++) { base[i + 111] = "F" + i; }
+for (var i$1 = 1; i$1 <= 24; i$1++) { base$1[i$1 + 111] = "F" + i$1; }
 
 // And the alphabetic keys
-for (var i = 65; i <= 90; i++) {
-  base[i] = String.fromCharCode(i + 32);
-  shift[i] = String.fromCharCode(i);
+for (var i$1 = 65; i$1 <= 90; i$1++) {
+  base$1[i$1] = String.fromCharCode(i$1 + 32);
+  shift[i$1] = String.fromCharCode(i$1);
 }
 
 // For each code that doesn't have a shift-equivalent, copy the base name
-for (var code in base) { if (!shift.hasOwnProperty(code)) { shift[code] = base[code]; } }
+for (var code$1 in base$1) { if (!shift.hasOwnProperty(code$1)) { shift[code$1] = base$1[code$1]; } }
 
 function keyName(event) {
   // Don't trust event.key in Chrome when there are modifiers until
   // they fix https://bugs.chromium.org/p/chromium/issues/detail?id=633838
   var ignoreKey = brokenModifierNames && (event.ctrlKey || event.altKey || event.metaKey) ||
-    (safari || ie) && event.shiftKey && event.key && event.key.length == 1;
+    (safari || ie$1) && event.shiftKey && event.key && event.key.length == 1;
   var name = (!ignoreKey && event.key) ||
-    (event.shiftKey ? shift : base)[event.keyCode] ||
+    (event.shiftKey ? shift : base$1)[event.keyCode] ||
     event.key || "Unidentified";
   // Edge sometimes produces wrong names (Issue #3)
   if (name == "Esc") { name = "Escape"; }
@@ -319,7 +319,7 @@ var Fragment = function Fragment(content, size) {
     { this.size += content[i].nodeSize; } }
 };
 
-var prototypeAccessors = { firstChild: { configurable: true },lastChild: { configurable: true },childCount: { configurable: true } };
+var prototypeAccessors$5 = { firstChild: { configurable: true },lastChild: { configurable: true },childCount: { configurable: true } };
 
 // :: (number, number, (node: Node, start: number, parent: Node, index: number) → ?bool, ?number)
 // Invoke a callback for all descendant nodes between the given two
@@ -446,15 +446,15 @@ Fragment.prototype.eq = function eq (other) {
 
 // :: ?Node
 // The first child of the fragment, or `null` if it is empty.
-prototypeAccessors.firstChild.get = function () { return this.content.length ? this.content[0] : null };
+prototypeAccessors$5.firstChild.get = function () { return this.content.length ? this.content[0] : null };
 
 // :: ?Node
 // The last child of the fragment, or `null` if it is empty.
-prototypeAccessors.lastChild.get = function () { return this.content.length ? this.content[this.content.length - 1] : null };
+prototypeAccessors$5.lastChild.get = function () { return this.content.length ? this.content[this.content.length - 1] : null };
 
 // :: number
 // The number of child nodes in this fragment.
-prototypeAccessors.childCount.get = function () { return this.content.length };
+prototypeAccessors$5.childCount.get = function () { return this.content.length };
 
 // :: (number) → Node
 // Get the child node at the given index. Raise an error when the
@@ -576,7 +576,7 @@ Fragment.from = function from (nodes) {
                        (nodes.nodesBetween ? " (looks like multiple versions of prosemirror-model were loaded)" : ""))
 };
 
-Object.defineProperties( Fragment.prototype, prototypeAccessors );
+Object.defineProperties( Fragment.prototype, prototypeAccessors$5 );
 
 var found = {index: 0, offset: 0};
 function retIndex(index, offset) {
@@ -746,11 +746,11 @@ var Slice = function Slice(content, openStart, openEnd) {
   this.openEnd = openEnd;
 };
 
-var prototypeAccessors$1 = { size: { configurable: true } };
+var prototypeAccessors$1$3 = { size: { configurable: true } };
 
 // :: number
 // The size this slice would add when inserted into a document.
-prototypeAccessors$1.size.get = function () {
+prototypeAccessors$1$3.size.get = function () {
   return this.content.size - this.openStart - this.openEnd
 };
 
@@ -805,7 +805,7 @@ Slice.maxOpen = function maxOpen (fragment, openIsolating) {
   return new Slice(fragment, openStart, openEnd)
 };
 
-Object.defineProperties( Slice.prototype, prototypeAccessors$1 );
+Object.defineProperties( Slice.prototype, prototypeAccessors$1$3 );
 
 function removeRange(content, from, to) {
   var ref = content.findIndex(from);
@@ -871,7 +871,7 @@ function checkJoin(main, sub) {
     { throw new ReplaceError("Cannot join " + sub.type.name + " onto " + main.type.name) }
 }
 
-function joinable($before, $after, depth) {
+function joinable$1($before, $after, depth) {
   var node = $before.node(depth);
   checkJoin(node, $after.node(depth));
   return node
@@ -909,8 +909,8 @@ function close(node, content) {
 }
 
 function replaceThreeWay($from, $start, $end, $to, depth) {
-  var openStart = $from.depth > depth && joinable($from, $start, depth + 1);
-  var openEnd = $to.depth > depth && joinable($end, $to, depth + 1);
+  var openStart = $from.depth > depth && joinable$1($from, $start, depth + 1);
+  var openEnd = $to.depth > depth && joinable$1($end, $to, depth + 1);
 
   var content = [];
   addRange(null, $from, depth, content);
@@ -932,7 +932,7 @@ function replaceTwoWay($from, $to, depth) {
   var content = [];
   addRange(null, $from, depth, content);
   if ($from.depth > depth) {
-    var type = joinable($from, $to, depth + 1);
+    var type = joinable$1($from, $to, depth + 1);
     addNode(close(type, replaceTwoWay($from, $to, depth + 1)), content);
   }
   addRange($to, null, depth, content);
@@ -969,7 +969,7 @@ var ResolvedPos = function ResolvedPos(pos, path, parentOffset) {
   this.parentOffset = parentOffset;
 };
 
-var prototypeAccessors$2 = { parent: { configurable: true },doc: { configurable: true },textOffset: { configurable: true },nodeAfter: { configurable: true },nodeBefore: { configurable: true } };
+var prototypeAccessors$2$1 = { parent: { configurable: true },doc: { configurable: true },textOffset: { configurable: true },nodeAfter: { configurable: true },nodeBefore: { configurable: true } };
 
 ResolvedPos.prototype.resolveDepth = function resolveDepth (val) {
   if (val == null) { return this.depth }
@@ -981,11 +981,11 @@ ResolvedPos.prototype.resolveDepth = function resolveDepth (val) {
 // The parent node that the position points into. Note that even if
 // a position points into a text node, that node is not considered
 // the parent—text nodes are ‘flat’ in this model, and have no content.
-prototypeAccessors$2.parent.get = function () { return this.node(this.depth) };
+prototypeAccessors$2$1.parent.get = function () { return this.node(this.depth) };
 
 // :: Node
 // The root node in which the position was resolved.
-prototypeAccessors$2.doc.get = function () { return this.node(0) };
+prototypeAccessors$2$1.doc.get = function () { return this.node(0) };
 
 // :: (?number) → Node
 // The ancestor node at the given level. `p.node(p.depth)` is the
@@ -1045,13 +1045,13 @@ ResolvedPos.prototype.after = function after (depth) {
 // When this position points into a text node, this returns the
 // distance between the position and the start of the text node.
 // Will be zero for positions that point between nodes.
-prototypeAccessors$2.textOffset.get = function () { return this.pos - this.path[this.path.length - 1] };
+prototypeAccessors$2$1.textOffset.get = function () { return this.pos - this.path[this.path.length - 1] };
 
 // :: ?Node
 // Get the node directly after the position, if any. If the position
 // points into a text node, only the part of that node after the
 // position is returned.
-prototypeAccessors$2.nodeAfter.get = function () {
+prototypeAccessors$2$1.nodeAfter.get = function () {
   var parent = this.parent, index = this.index(this.depth);
   if (index == parent.childCount) { return null }
   var dOff = this.pos - this.path[this.path.length - 1], child = parent.child(index);
@@ -1062,7 +1062,7 @@ prototypeAccessors$2.nodeAfter.get = function () {
 // Get the node directly before the position, if any. If the
 // position points into a text node, only the part of that node
 // before the position is returned.
-prototypeAccessors$2.nodeBefore.get = function () {
+prototypeAccessors$2$1.nodeBefore.get = function () {
   var index = this.index(this.depth);
   var dOff = this.pos - this.path[this.path.length - 1];
   if (dOff) { return this.parent.child(index).cut(0, dOff) }
@@ -1206,7 +1206,7 @@ ResolvedPos.resolveCached = function resolveCached (doc, pos) {
   return result
 };
 
-Object.defineProperties( ResolvedPos.prototype, prototypeAccessors$2 );
+Object.defineProperties( ResolvedPos.prototype, prototypeAccessors$2$1 );
 
 var resolveCache = [], resolveCachePos = 0, resolveCacheSize = 12;
 
@@ -1226,21 +1226,21 @@ var NodeRange = function NodeRange($from, $to, depth) {
   this.depth = depth;
 };
 
-var prototypeAccessors$1$1 = { start: { configurable: true },end: { configurable: true },parent: { configurable: true },startIndex: { configurable: true },endIndex: { configurable: true } };
+var prototypeAccessors$1$1$1 = { start: { configurable: true },end: { configurable: true },parent: { configurable: true },startIndex: { configurable: true },endIndex: { configurable: true } };
 
 // :: number The position at the start of the range.
-prototypeAccessors$1$1.start.get = function () { return this.$from.before(this.depth + 1) };
+prototypeAccessors$1$1$1.start.get = function () { return this.$from.before(this.depth + 1) };
 // :: number The position at the end of the range.
-prototypeAccessors$1$1.end.get = function () { return this.$to.after(this.depth + 1) };
+prototypeAccessors$1$1$1.end.get = function () { return this.$to.after(this.depth + 1) };
 
 // :: Node The parent node that the range points into.
-prototypeAccessors$1$1.parent.get = function () { return this.$from.node(this.depth) };
+prototypeAccessors$1$1$1.parent.get = function () { return this.$from.node(this.depth) };
 // :: number The start index of the range in the parent node.
-prototypeAccessors$1$1.startIndex.get = function () { return this.$from.index(this.depth) };
+prototypeAccessors$1$1$1.startIndex.get = function () { return this.$from.index(this.depth) };
 // :: number The end index of the range in the parent node.
-prototypeAccessors$1$1.endIndex.get = function () { return this.$to.indexAfter(this.depth) };
+prototypeAccessors$1$1$1.endIndex.get = function () { return this.$to.indexAfter(this.depth) };
 
-Object.defineProperties( NodeRange.prototype, prototypeAccessors$1$1 );
+Object.defineProperties( NodeRange.prototype, prototypeAccessors$1$1$1 );
 
 var emptyAttrs = Object.create(null);
 
@@ -1277,7 +1277,7 @@ var Node$1 = function Node(type, attrs, content, marks) {
   this.marks = marks || Mark.none;
 };
 
-var prototypeAccessors$3 = { nodeSize: { configurable: true },childCount: { configurable: true },textContent: { configurable: true },firstChild: { configurable: true },lastChild: { configurable: true },isBlock: { configurable: true },isTextblock: { configurable: true },inlineContent: { configurable: true },isInline: { configurable: true },isText: { configurable: true },isLeaf: { configurable: true },isAtom: { configurable: true } };
+var prototypeAccessors$3$1 = { nodeSize: { configurable: true },childCount: { configurable: true },textContent: { configurable: true },firstChild: { configurable: true },lastChild: { configurable: true },isBlock: { configurable: true },isTextblock: { configurable: true },inlineContent: { configurable: true },isInline: { configurable: true },isText: { configurable: true },isLeaf: { configurable: true },isAtom: { configurable: true } };
 
 // text:: ?string
 // For text nodes, this contains the node's text content.
@@ -1288,11 +1288,11 @@ var prototypeAccessors$3 = { nodeSize: { configurable: true },childCount: { conf
 // amount of characters. For other leaf nodes, it is one. For
 // non-leaf nodes, it is the size of the content plus two (the start
 // and end token).
-prototypeAccessors$3.nodeSize.get = function () { return this.isLeaf ? 1 : 2 + this.content.size };
+prototypeAccessors$3$1.nodeSize.get = function () { return this.isLeaf ? 1 : 2 + this.content.size };
 
 // :: number
 // The number of children that the node has.
-prototypeAccessors$3.childCount.get = function () { return this.content.childCount };
+prototypeAccessors$3$1.childCount.get = function () { return this.content.childCount };
 
 // :: (number) → Node
 // Get the child node at the given index. Raises an error when the
@@ -1332,7 +1332,7 @@ Node$1.prototype.descendants = function descendants (f) {
 // :: string
 // Concatenates all the text nodes found in this fragment and its
 // children.
-prototypeAccessors$3.textContent.get = function () { return this.textBetween(0, this.content.size, "") };
+prototypeAccessors$3$1.textContent.get = function () { return this.textBetween(0, this.content.size, "") };
 
 // :: (number, number, ?string, ?string) → string
 // Get all text between positions `from` and `to`. When
@@ -1346,12 +1346,12 @@ Node$1.prototype.textBetween = function textBetween (from, to, blockSeparator, l
 // :: ?Node
 // Returns this node's first child, or `null` if there are no
 // children.
-prototypeAccessors$3.firstChild.get = function () { return this.content.firstChild };
+prototypeAccessors$3$1.firstChild.get = function () { return this.content.firstChild };
 
 // :: ?Node
 // Returns this node's last child, or `null` if there are no
 // children.
-prototypeAccessors$3.lastChild.get = function () { return this.content.lastChild };
+prototypeAccessors$3$1.lastChild.get = function () { return this.content.lastChild };
 
 // :: (Node) → bool
 // Test whether two nodes represent the same piece of document.
@@ -1488,29 +1488,29 @@ Node$1.prototype.rangeHasMark = function rangeHasMark (from, to, type) {
 
 // :: bool
 // True when this is a block (non-inline node)
-prototypeAccessors$3.isBlock.get = function () { return this.type.isBlock };
+prototypeAccessors$3$1.isBlock.get = function () { return this.type.isBlock };
 
 // :: bool
 // True when this is a textblock node, a block node with inline
 // content.
-prototypeAccessors$3.isTextblock.get = function () { return this.type.isTextblock };
+prototypeAccessors$3$1.isTextblock.get = function () { return this.type.isTextblock };
 
 // :: bool
 // True when this node allows inline content.
-prototypeAccessors$3.inlineContent.get = function () { return this.type.inlineContent };
+prototypeAccessors$3$1.inlineContent.get = function () { return this.type.inlineContent };
 
 // :: bool
 // True when this is an inline node (a text node or a node that can
 // appear among text).
-prototypeAccessors$3.isInline.get = function () { return this.type.isInline };
+prototypeAccessors$3$1.isInline.get = function () { return this.type.isInline };
 
 // :: bool
 // True when this is a text node.
-prototypeAccessors$3.isText.get = function () { return this.type.isText };
+prototypeAccessors$3$1.isText.get = function () { return this.type.isText };
 
 // :: bool
 // True when this is a leaf node.
-prototypeAccessors$3.isLeaf.get = function () { return this.type.isLeaf };
+prototypeAccessors$3$1.isLeaf.get = function () { return this.type.isLeaf };
 
 // :: bool
 // True when this is an atom, i.e. when it does not have directly
@@ -1518,7 +1518,7 @@ prototypeAccessors$3.isLeaf.get = function () { return this.type.isLeaf };
 // be configured with the [`atom` property](#model.NodeSpec.atom) on
 // a node's spec (typically used when the node is displayed as an
 // uneditable [node view](#view.NodeView)).
-prototypeAccessors$3.isAtom.get = function () { return this.type.isAtom };
+prototypeAccessors$3$1.isAtom.get = function () { return this.type.isAtom };
 
 // :: () → string
 // Return a string representation of this node for debugging
@@ -1618,7 +1618,7 @@ Node$1.fromJSON = function fromJSON (schema, json) {
   return schema.nodeType(json.type).create(json.attrs, content, marks)
 };
 
-Object.defineProperties( Node$1.prototype, prototypeAccessors$3 );
+Object.defineProperties( Node$1.prototype, prototypeAccessors$3$1 );
 
 var TextNode = /*@__PURE__*/(function (Node) {
   function TextNode(type, attrs, content, marks) {
@@ -1696,7 +1696,7 @@ var ContentMatch = function ContentMatch(validEnd) {
   this.wrapCache = [];
 };
 
-var prototypeAccessors$4 = { inlineContent: { configurable: true },defaultType: { configurable: true },edgeCount: { configurable: true } };
+var prototypeAccessors$4$1 = { inlineContent: { configurable: true },defaultType: { configurable: true },edgeCount: { configurable: true } };
 
 ContentMatch.parse = function parse (string, nodeTypes) {
   var stream = new TokenStream(string, nodeTypes);
@@ -1730,7 +1730,7 @@ ContentMatch.prototype.matchFragment = function matchFragment (frag, start, end)
   return cur
 };
 
-prototypeAccessors$4.inlineContent.get = function () {
+prototypeAccessors$4$1.inlineContent.get = function () {
   var first = this.next[0];
   return first ? first.isInline : false
 };
@@ -1738,7 +1738,7 @@ prototypeAccessors$4.inlineContent.get = function () {
 // :: ?NodeType
 // Get the first matching node type at this match position that can
 // be generated.
-prototypeAccessors$4.defaultType.get = function () {
+prototypeAccessors$4$1.defaultType.get = function () {
   for (var i = 0; i < this.next.length; i += 2) {
     var type = this.next[i];
     if (!(type.isText || type.hasRequiredAttrs())) { return type }
@@ -1818,7 +1818,7 @@ ContentMatch.prototype.computeWrapping = function computeWrapping (target) {
 // :: number
 // The number of outgoing edges this node has in the finite
 // automaton that describes the content expression.
-prototypeAccessors$4.edgeCount.get = function () {
+prototypeAccessors$4$1.edgeCount.get = function () {
   return this.next.length >> 1
 };
 
@@ -1847,7 +1847,7 @@ ContentMatch.prototype.toString = function toString () {
   }).join("\n")
 };
 
-Object.defineProperties( ContentMatch.prototype, prototypeAccessors$4 );
+Object.defineProperties( ContentMatch.prototype, prototypeAccessors$4$1 );
 
 ContentMatch.empty = new ContentMatch(true);
 
@@ -1861,15 +1861,15 @@ var TokenStream = function TokenStream(string, nodeTypes) {
   if (this.tokens[0] == "") { this.tokens.shift(); }
 };
 
-var prototypeAccessors$1$2 = { next: { configurable: true } };
+var prototypeAccessors$1$2$1 = { next: { configurable: true } };
 
-prototypeAccessors$1$2.next.get = function () { return this.tokens[this.pos] };
+prototypeAccessors$1$2$1.next.get = function () { return this.tokens[this.pos] };
 
 TokenStream.prototype.eat = function eat (tok) { return this.next == tok && (this.pos++ || true) };
 
 TokenStream.prototype.err = function err (str) { throw new SyntaxError(str + " (in content expression '" + this.string + "')") };
 
-Object.defineProperties( TokenStream.prototype, prototypeAccessors$1$2 );
+Object.defineProperties( TokenStream.prototype, prototypeAccessors$1$2$1 );
 
 function parseExpr(stream) {
   var exprs = [];
@@ -2125,7 +2125,7 @@ function initAttrs(attrs) {
 // [tag](#model.Node.type) `Node` instances. They contain information
 // about the node type, such as its name and what kind of node it
 // represents.
-var NodeType = function NodeType(name, schema, spec) {
+var NodeType$1 = function NodeType(name, schema, spec) {
   // :: string
   // The name the node type has in this schema.
   this.name = name;
@@ -2165,38 +2165,38 @@ var NodeType = function NodeType(name, schema, spec) {
   this.isText = name == "text";
 };
 
-var prototypeAccessors$5 = { isInline: { configurable: true },isTextblock: { configurable: true },isLeaf: { configurable: true },isAtom: { configurable: true } };
+var prototypeAccessors$5$1 = { isInline: { configurable: true },isTextblock: { configurable: true },isLeaf: { configurable: true },isAtom: { configurable: true } };
 
 // :: bool
 // True if this is an inline type.
-prototypeAccessors$5.isInline.get = function () { return !this.isBlock };
+prototypeAccessors$5$1.isInline.get = function () { return !this.isBlock };
 
 // :: bool
 // True if this is a textblock type, a block that contains inline
 // content.
-prototypeAccessors$5.isTextblock.get = function () { return this.isBlock && this.inlineContent };
+prototypeAccessors$5$1.isTextblock.get = function () { return this.isBlock && this.inlineContent };
 
 // :: bool
 // True for node types that allow no content.
-prototypeAccessors$5.isLeaf.get = function () { return this.contentMatch == ContentMatch.empty };
+prototypeAccessors$5$1.isLeaf.get = function () { return this.contentMatch == ContentMatch.empty };
 
 // :: bool
 // True when this node is an atom, i.e. when it does not have
 // directly editable content.
-prototypeAccessors$5.isAtom.get = function () { return this.isLeaf || this.spec.atom };
+prototypeAccessors$5$1.isAtom.get = function () { return this.isLeaf || this.spec.atom };
 
 // :: () → bool
 // Tells you whether this node type has any required attributes.
-NodeType.prototype.hasRequiredAttrs = function hasRequiredAttrs () {
+NodeType$1.prototype.hasRequiredAttrs = function hasRequiredAttrs () {
   for (var n in this.attrs) { if (this.attrs[n].isRequired) { return true } }
   return false
 };
 
-NodeType.prototype.compatibleContent = function compatibleContent (other) {
+NodeType$1.prototype.compatibleContent = function compatibleContent (other) {
   return this == other || this.contentMatch.compatible(other.contentMatch)
 };
 
-NodeType.prototype.computeAttrs = function computeAttrs$1 (attrs) {
+NodeType$1.prototype.computeAttrs = function computeAttrs$1 (attrs) {
   if (!attrs && this.defaultAttrs) { return this.defaultAttrs }
   else { return computeAttrs(this.attrs, attrs) }
 };
@@ -2208,7 +2208,7 @@ NodeType.prototype.computeAttrs = function computeAttrs$1 (attrs) {
 // may be a `Fragment`, a node, an array of nodes, or
 // `null`. Similarly `marks` may be `null` to default to the empty
 // set of marks.
-NodeType.prototype.create = function create (attrs, content, marks) {
+NodeType$1.prototype.create = function create (attrs, content, marks) {
   if (this.isText) { throw new Error("NodeType.create can't construct text nodes") }
   return new Node$1(this, this.computeAttrs(attrs), Fragment.from(content), Mark.setFrom(marks))
 };
@@ -2217,7 +2217,7 @@ NodeType.prototype.create = function create (attrs, content, marks) {
 // Like [`create`](#model.NodeType.create), but check the given content
 // against the node type's content restrictions, and throw an error
 // if it doesn't match.
-NodeType.prototype.createChecked = function createChecked (attrs, content, marks) {
+NodeType$1.prototype.createChecked = function createChecked (attrs, content, marks) {
   content = Fragment.from(content);
   if (!this.validContent(content))
     { throw new RangeError("Invalid content for node " + this.name) }
@@ -2231,7 +2231,7 @@ NodeType.prototype.createChecked = function createChecked (attrs, content, marks
 // Note that, due to the fact that required nodes can always be
 // created, this will always succeed if you pass null or
 // `Fragment.empty` as content.
-NodeType.prototype.createAndFill = function createAndFill (attrs, content, marks) {
+NodeType$1.prototype.createAndFill = function createAndFill (attrs, content, marks) {
   attrs = this.computeAttrs(attrs);
   content = Fragment.from(content);
   if (content.size) {
@@ -2247,7 +2247,7 @@ NodeType.prototype.createAndFill = function createAndFill (attrs, content, marks
 // :: (Fragment) → bool
 // Returns true if the given fragment is valid content for this node
 // type with the given attributes.
-NodeType.prototype.validContent = function validContent (content) {
+NodeType$1.prototype.validContent = function validContent (content) {
   var result = this.contentMatch.matchFragment(content);
   if (!result || !result.validEnd) { return false }
   for (var i = 0; i < content.childCount; i++)
@@ -2257,13 +2257,13 @@ NodeType.prototype.validContent = function validContent (content) {
 
 // :: (MarkType) → bool
 // Check whether the given mark type is allowed in this node.
-NodeType.prototype.allowsMarkType = function allowsMarkType (markType) {
+NodeType$1.prototype.allowsMarkType = function allowsMarkType (markType) {
   return this.markSet == null || this.markSet.indexOf(markType) > -1
 };
 
 // :: ([Mark]) → bool
 // Test whether the given set of marks are allowed in this node.
-NodeType.prototype.allowsMarks = function allowsMarks (marks) {
+NodeType$1.prototype.allowsMarks = function allowsMarks (marks) {
   if (this.markSet == null) { return true }
   for (var i = 0; i < marks.length; i++) { if (!this.allowsMarkType(marks[i].type)) { return false } }
   return true
@@ -2271,7 +2271,7 @@ NodeType.prototype.allowsMarks = function allowsMarks (marks) {
 
 // :: ([Mark]) → [Mark]
 // Removes the marks that are not allowed in this node from the given set.
-NodeType.prototype.allowedMarks = function allowedMarks (marks) {
+NodeType$1.prototype.allowedMarks = function allowedMarks (marks) {
   if (this.markSet == null) { return marks }
   var copy;
   for (var i = 0; i < marks.length; i++) {
@@ -2284,9 +2284,9 @@ NodeType.prototype.allowedMarks = function allowedMarks (marks) {
   return !copy ? marks : copy.length ? copy : Mark.empty
 };
 
-NodeType.compile = function compile (nodes, schema) {
+NodeType$1.compile = function compile (nodes, schema) {
   var result = Object.create(null);
-  nodes.forEach(function (name, spec) { return result[name] = new NodeType(name, schema, spec); });
+  nodes.forEach(function (name, spec) { return result[name] = new NodeType$1(name, schema, spec); });
 
   var topType = schema.spec.topNode || "doc";
   if (!result[topType]) { throw new RangeError("Schema is missing its top node type ('" + topType + "')") }
@@ -2296,7 +2296,7 @@ NodeType.compile = function compile (nodes, schema) {
   return result
 };
 
-Object.defineProperties( NodeType.prototype, prototypeAccessors$5 );
+Object.defineProperties( NodeType$1.prototype, prototypeAccessors$5$1 );
 
 // Attribute descriptors
 
@@ -2305,13 +2305,13 @@ var Attribute = function Attribute(options) {
   this.default = options.default;
 };
 
-var prototypeAccessors$1$3 = { isRequired: { configurable: true } };
+var prototypeAccessors$1$3$1 = { isRequired: { configurable: true } };
 
-prototypeAccessors$1$3.isRequired.get = function () {
+prototypeAccessors$1$3$1.isRequired.get = function () {
   return !this.hasDefault
 };
 
-Object.defineProperties( Attribute.prototype, prototypeAccessors$1$3 );
+Object.defineProperties( Attribute.prototype, prototypeAccessors$1$3$1 );
 
 // Marks
 
@@ -2559,7 +2559,7 @@ var Schema = function Schema(spec) {
 
   // :: Object<NodeType>
   // An object mapping the schema's node names to node type objects.
-  this.nodes = NodeType.compile(this.spec.nodes, this);
+  this.nodes = NodeType$1.compile(this.spec.nodes, this);
 
   // :: Object<MarkType>
   // A map from mark names to mark type objects.
@@ -2606,7 +2606,7 @@ var Schema = function Schema(spec) {
 Schema.prototype.node = function node (type, attrs, content, marks) {
   if (typeof type == "string")
     { type = this.nodeType(type); }
-  else if (!(type instanceof NodeType))
+  else if (!(type instanceof NodeType$1))
     { throw new RangeError("Invalid node type: " + type) }
   else if (type.schema != this)
     { throw new RangeError("Node type from different schema used (" + type.name + ")") }
@@ -2915,7 +2915,7 @@ DOMParser.schemaRules = function schemaRules (schema) {
   var loop = function ( name ) {
     var rules = schema.marks[name].spec.parseDOM;
     if (rules) { rules.forEach(function (rule) {
-      insert(rule = copy(rule));
+      insert(rule = copy$1(rule));
       rule.mark = name;
     }); }
   };
@@ -2924,7 +2924,7 @@ DOMParser.schemaRules = function schemaRules (schema) {
   var loop$1 = function ( name ) {
     var rules$1 = schema.nodes[name$1].spec.parseDOM;
     if (rules$1) { rules$1.forEach(function (rule) {
-      insert(rule = copy(rule));
+      insert(rule = copy$1(rule));
       rule.node = name$1;
     }); }
   };
@@ -3446,7 +3446,7 @@ function parseStyles(style) {
   return result
 }
 
-function copy(obj) {
+function copy$1(obj) {
   var copy = {};
   for (var prop in obj) { copy[prop] = obj[prop]; }
   return copy
@@ -3697,7 +3697,7 @@ var model = /*#__PURE__*/Object.freeze({
   MarkType: MarkType,
   Node: Node$1,
   NodeRange: NodeRange,
-  NodeType: NodeType,
+  NodeType: NodeType$1,
   ReplaceError: ReplaceError,
   ResolvedPos: ResolvedPos,
   Schema: Schema,
@@ -4001,10 +4001,10 @@ var Transform = function Transform(doc) {
   this.mapping = new Mapping;
 };
 
-var prototypeAccessors$7 = { before: { configurable: true },docChanged: { configurable: true } };
+var prototypeAccessors$4 = { before: { configurable: true },docChanged: { configurable: true } };
 
 // :: Node The starting document.
-prototypeAccessors$7.before.get = function () { return this.docs.length ? this.docs[0] : this.doc };
+prototypeAccessors$4.before.get = function () { return this.docs.length ? this.docs[0] : this.doc };
 
 // :: (step: Step) → this
 // Apply a new step in this transform, saving the result. Throws an
@@ -4027,7 +4027,7 @@ Transform.prototype.maybeStep = function maybeStep (step) {
 // :: bool
 // True when the document has been changed (when there are any
 // steps).
-prototypeAccessors$7.docChanged.get = function () {
+prototypeAccessors$4.docChanged.get = function () {
   return this.steps.length > 0
 };
 
@@ -4038,7 +4038,7 @@ Transform.prototype.addStep = function addStep (step, doc) {
   this.doc = doc;
 };
 
-Object.defineProperties( Transform.prototype, prototypeAccessors$7 );
+Object.defineProperties( Transform.prototype, prototypeAccessors$4 );
 
 function mustOverride() { throw new Error("Override me") }
 
@@ -4506,11 +4506,11 @@ Transform.prototype.split = function(pos, depth, typesAfter) {
 // joined.
 function canJoin(doc, pos) {
   var $pos = doc.resolve(pos), index = $pos.index();
-  return joinable$1($pos.nodeBefore, $pos.nodeAfter) &&
+  return joinable($pos.nodeBefore, $pos.nodeAfter) &&
     $pos.parent.canReplace(index, index + 1)
 }
 
-function joinable$1(a, b) {
+function joinable(a, b) {
   return a && b && !a.isLeaf && a.canAppend(b)
 }
 
@@ -4535,7 +4535,7 @@ function joinPoint(doc, pos, dir) {
       before = $pos.node(d).maybeChild(index - 1);
       after = $pos.node(d + 1);
     }
-    if (before && !before.isTextblock && joinable$1(before, after) &&
+    if (before && !before.isTextblock && joinable(before, after) &&
         $pos.node(d).canReplace(index, index + 1)) { return pos }
     if (d == 0) { break }
     pos = dir < 0 ? $pos.before(d) : $pos.after(d);
@@ -4927,9 +4927,9 @@ var Fitter = function Fitter($from, $to, slice) {
     { this.placed = Fragment.from($from.node(i$1).copy(this.placed)); }
 };
 
-var prototypeAccessors$1$4 = { depth: { configurable: true } };
+var prototypeAccessors$1$2 = { depth: { configurable: true } };
 
-prototypeAccessors$1$4.depth.get = function () { return this.frontier.length - 1 };
+prototypeAccessors$1$2.depth.get = function () { return this.frontier.length - 1 };
 
 Fitter.prototype.fit = function fit () {
   // As long as there's unplaced content, try to place some of it.
@@ -5154,7 +5154,7 @@ Fitter.prototype.closeFrontierNode = function closeFrontierNode () {
   if (add.childCount) { this.placed = addToFragment(this.placed, this.frontier.length, add); }
 };
 
-Object.defineProperties( Fitter.prototype, prototypeAccessors$1$4 );
+Object.defineProperties( Fitter.prototype, prototypeAccessors$1$2 );
 
 function dropFromFragment(fragment, depth, count) {
   if (depth == 0) { return fragment.cutByIndex(count) }
@@ -5391,39 +5391,39 @@ var Selection = function Selection($anchor, $head, ranges) {
   this.$head = $head;
 };
 
-var prototypeAccessors$8 = { anchor: { configurable: true },head: { configurable: true },from: { configurable: true },to: { configurable: true },$from: { configurable: true },$to: { configurable: true },empty: { configurable: true } };
+var prototypeAccessors$3 = { anchor: { configurable: true },head: { configurable: true },from: { configurable: true },to: { configurable: true },$from: { configurable: true },$to: { configurable: true },empty: { configurable: true } };
 
 // :: number
 // The selection's anchor, as an unresolved position.
-prototypeAccessors$8.anchor.get = function () { return this.$anchor.pos };
+prototypeAccessors$3.anchor.get = function () { return this.$anchor.pos };
 
 // :: number
 // The selection's head.
-prototypeAccessors$8.head.get = function () { return this.$head.pos };
+prototypeAccessors$3.head.get = function () { return this.$head.pos };
 
 // :: number
 // The lower bound of the selection's main range.
-prototypeAccessors$8.from.get = function () { return this.$from.pos };
+prototypeAccessors$3.from.get = function () { return this.$from.pos };
 
 // :: number
 // The upper bound of the selection's main range.
-prototypeAccessors$8.to.get = function () { return this.$to.pos };
+prototypeAccessors$3.to.get = function () { return this.$to.pos };
 
 // :: ResolvedPos
 // The resolved lowerbound of the selection's main range.
-prototypeAccessors$8.$from.get = function () {
+prototypeAccessors$3.$from.get = function () {
   return this.ranges[0].$from
 };
 
 // :: ResolvedPos
 // The resolved upper bound of the selection's main range.
-prototypeAccessors$8.$to.get = function () {
+prototypeAccessors$3.$to.get = function () {
   return this.ranges[0].$to
 };
 
 // :: bool
 // Indicates whether the selection contains any content.
-prototypeAccessors$8.empty.get = function () {
+prototypeAccessors$3.empty.get = function () {
   var ranges = this.ranges;
   for (var i = 0; i < ranges.length; i++)
     { if (ranges[i].$from.pos != ranges[i].$to.pos) { return false } }
@@ -5575,7 +5575,7 @@ Selection.prototype.getBookmark = function getBookmark () {
   return TextSelection.between(this.$anchor, this.$head).getBookmark()
 };
 
-Object.defineProperties( Selection.prototype, prototypeAccessors$8 );
+Object.defineProperties( Selection.prototype, prototypeAccessors$3 );
 
 // :: bool
 // Controls whether, when a selection of this type is active in the
@@ -6149,7 +6149,7 @@ var EditorState = function EditorState(config) {
   this.config = config;
 };
 
-var prototypeAccessors$1$5 = { schema: { configurable: true },plugins: { configurable: true },tr: { configurable: true } };
+var prototypeAccessors$1$1 = { schema: { configurable: true },plugins: { configurable: true },tr: { configurable: true } };
 
 // doc:: Node
 // The current document.
@@ -6163,13 +6163,13 @@ var prototypeAccessors$1$5 = { schema: { configurable: true },plugins: { configu
 
 // :: Schema
 // The schema of the state's document.
-prototypeAccessors$1$5.schema.get = function () {
+prototypeAccessors$1$1.schema.get = function () {
   return this.config.schema
 };
 
 // :: [Plugin]
 // The plugins that are active in this state.
-prototypeAccessors$1$5.plugins.get = function () {
+prototypeAccessors$1$1.plugins.get = function () {
   return this.config.plugins
 };
 
@@ -6244,7 +6244,7 @@ EditorState.prototype.applyInner = function applyInner (tr) {
 
 // :: Transaction
 // Start a [transaction](#state.Transaction) from this state.
-prototypeAccessors$1$5.tr.get = function () { return new Transaction(this) };
+prototypeAccessors$1$1.tr.get = function () { return new Transaction(this) };
 
 // :: (Object) → EditorState
 // Create a new state.
@@ -6369,7 +6369,7 @@ EditorState.removeApplyListener = function removeApplyListener (f) {
   if (found > -1) { applyListeners.splice(found, 1); }
 };
 
-Object.defineProperties( EditorState.prototype, prototypeAccessors$1$5 );
+Object.defineProperties( EditorState.prototype, prototypeAccessors$1$1 );
 
 var applyListeners = [];
 
@@ -6517,7 +6517,7 @@ var state = /*#__PURE__*/Object.freeze({
 
 // declare global: navigator
 
-var mac$1 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
+var mac$2 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
 
 function normalizeKeyName(name) {
   var parts = name.split(/-(?!$)/), result = parts[parts.length - 1];
@@ -6529,7 +6529,7 @@ function normalizeKeyName(name) {
     else if (/^a(lt)?$/i.test(mod)) { alt = true; }
     else if (/^(c|ctrl|control)$/i.test(mod)) { ctrl = true; }
     else if (/^s(hift)?$/i.test(mod)) { shift = true; }
-    else if (/^mod$/i.test(mod)) { if (mac$1) { meta = true; } else { ctrl = true; } }
+    else if (/^mod$/i.test(mod)) { if (mac$2) { meta = true; } else { ctrl = true; } }
     else { throw new Error("Unrecognized modifier name: " + mod) }
   }
   if (alt) { result = "Alt-" + result; }
@@ -6539,7 +6539,7 @@ function normalizeKeyName(name) {
   return result
 }
 
-function normalize(map) {
+function normalize$1(map) {
   var copy = Object.create(null);
   for (var prop in map) { copy[normalizeKeyName(prop)] = map[prop]; }
   return copy
@@ -6592,13 +6592,13 @@ function keymap(bindings) {
 // [`keymap`](#keymap.keymap), return a [keydown
 // handler](#view.EditorProps.handleKeyDown) that handles them.
 function keydownHandler(bindings) {
-  var map = normalize(bindings);
+  var map = normalize$1(bindings);
   return function(view, event) {
     var name = keyName(event), isChar = name.length == 1 && name != " ", baseName;
     var direct = map[modifiers(name, event, !isChar)];
     if (direct && direct(view.state, view.dispatch, view)) { return true }
     if (isChar && (event.shiftKey || event.altKey || event.metaKey || name.charCodeAt(0) > 127) &&
-        (baseName = base[event.keyCode]) && baseName != name) {
+        (baseName = base$1[event.keyCode]) && baseName != name) {
       // Try falling back to the keyCode when there's a modifier
       // active or the character produced isn't ASCII, and our table
       // produces a different name from the the keyCode. See #668,
@@ -7845,14 +7845,14 @@ var macBaseKeymap = {
 for (var key in pcBaseKeymap) { macBaseKeymap[key] = pcBaseKeymap[key]; }
 
 // declare global: os, navigator
-var mac$2 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform)
+var mac$1 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform)
           : typeof os != "undefined" ? os.platform() == "darwin" : false;
 
 // :: Object
 // Depending on the detected platform, this will hold
 // [`pcBasekeymap`](#commands.pcBaseKeymap) or
 // [`macBaseKeymap`](#commands.macBaseKeymap).
-var baseKeymap = mac$2 ? macBaseKeymap : pcBaseKeymap;
+var baseKeymap = mac$1 ? macBaseKeymap : pcBaseKeymap;
 
 // :: (options: ?Object) → Plugin
 // Create a plugin that, when added to a ProseMirror instance,
@@ -8001,15 +8001,15 @@ if (typeof navigator != "undefined" && typeof document != "undefined") {
   var ie_11up = /Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
 
   result.mac = /Mac/.test(navigator.platform);
-  var ie$1 = result.ie = !!(ie_upto10 || ie_11up || ie_edge);
+  var ie = result.ie = !!(ie_upto10 || ie_11up || ie_edge);
   result.ie_version = ie_upto10 ? document.documentMode || 6 : ie_11up ? +ie_11up[1] : ie_edge ? +ie_edge[1] : null;
-  result.gecko = !ie$1 && /gecko\/(\d+)/i.test(navigator.userAgent);
+  result.gecko = !ie && /gecko\/(\d+)/i.test(navigator.userAgent);
   result.gecko_version = result.gecko && +(/Firefox\/(\d+)/.exec(navigator.userAgent) || [0, 0])[1];
-  var chrome$1 = !ie$1 && /Chrome\/(\d+)/.exec(navigator.userAgent);
-  result.chrome = !!chrome$1;
-  result.chrome_version = chrome$1 && +chrome$1[1];
+  var chrome = !ie && /Chrome\/(\d+)/.exec(navigator.userAgent);
+  result.chrome = !!chrome;
+  result.chrome_version = chrome && +chrome[1];
   // Is true for both iOS and iPadOS for convenience
-  result.safari = !ie$1 && /Apple Computer/.test(navigator.vendor);
+  result.safari = !ie && /Apple Computer/.test(navigator.vendor);
   result.ios = result.safari && (/Mobile\/\w+/.test(navigator.userAgent) || navigator.maxTouchPoints > 2);
   result.android = /Android \d/.test(navigator.userAgent);
   result.webkit = "webkitFontSmoothing" in document.documentElement.style;
@@ -8670,7 +8670,7 @@ var ViewDesc = function ViewDesc(parent, children, dom, contentDOM) {
   this.dirty = NOT_DIRTY;
 };
 
-var prototypeAccessors$9 = { beforePosition: { configurable: true },size: { configurable: true },border: { configurable: true },posBefore: { configurable: true },posAtStart: { configurable: true },posAfter: { configurable: true },posAtEnd: { configurable: true },contentLost: { configurable: true },domAtom: { configurable: true } };
+var prototypeAccessors = { beforePosition: { configurable: true },size: { configurable: true },border: { configurable: true },posBefore: { configurable: true },posAtStart: { configurable: true },posAfter: { configurable: true },posAtEnd: { configurable: true },contentLost: { configurable: true },domAtom: { configurable: true } };
 
 // Used to check whether a given description corresponds to a
 // widget/mark/node.
@@ -8679,7 +8679,7 @@ ViewDesc.prototype.matchesMark = function matchesMark () { return false };
 ViewDesc.prototype.matchesNode = function matchesNode () { return false };
 ViewDesc.prototype.matchesHack = function matchesHack () { return false };
 
-prototypeAccessors$9.beforePosition.get = function () { return false };
+prototypeAccessors.beforePosition.get = function () { return false };
 
 // : () → ?ParseRule
 // When parsing in-editor content (in domchange.js), we allow
@@ -8693,7 +8693,7 @@ ViewDesc.prototype.parseRule = function parseRule () { return null };
 ViewDesc.prototype.stopEvent = function stopEvent () { return false };
 
 // The size of the content represented by this desc.
-prototypeAccessors$9.size.get = function () {
+prototypeAccessors.size.get = function () {
   var size = 0;
   for (var i = 0; i < this.children.length; i++) { size += this.children[i].size; }
   return size
@@ -8701,7 +8701,7 @@ prototypeAccessors$9.size.get = function () {
 
 // For block nodes, this represents the space taken up by their
 // start/end tokens.
-prototypeAccessors$9.border.get = function () { return 0 };
+prototypeAccessors.border.get = function () { return 0 };
 
 ViewDesc.prototype.destroy = function destroy () {
   this.parent = null;
@@ -8718,19 +8718,19 @@ ViewDesc.prototype.posBeforeChild = function posBeforeChild (child) {
   }
 };
 
-prototypeAccessors$9.posBefore.get = function () {
+prototypeAccessors.posBefore.get = function () {
   return this.parent.posBeforeChild(this)
 };
 
-prototypeAccessors$9.posAtStart.get = function () {
+prototypeAccessors.posAtStart.get = function () {
   return this.parent ? this.parent.posBeforeChild(this) + this.border : 0
 };
 
-prototypeAccessors$9.posAfter.get = function () {
+prototypeAccessors.posAfter.get = function () {
   return this.posBefore + this.size
 };
 
-prototypeAccessors$9.posAtEnd.get = function () {
+prototypeAccessors.posAtEnd.get = function () {
   return this.posAtStart + this.size - 2 * this.border
 };
 
@@ -8765,7 +8765,9 @@ ViewDesc.prototype.localPosFromDOM = function localPosFromDOM (dom, offset, bias
   // parameter, to determine whether to return the position at the
   // start or at the end of this view desc.
   var atEnd;
-  if (this.contentDOM && this.contentDOM != this.dom && this.dom.contains(this.contentDOM)) {
+  if (dom == this.dom) {
+    atEnd = offset > domIndex(this.contentDOM);
+  } else if (this.contentDOM && this.contentDOM != this.dom && this.dom.contains(this.contentDOM)) {
     atEnd = dom.compareDocumentPosition(this.contentDOM) & 2;
   } else if (this.dom.firstChild) {
     if (offset == 0) { for (var search = dom;; search = search.parentNode) {
@@ -8988,7 +8990,7 @@ ViewDesc.prototype.ignoreMutation = function ignoreMutation (mutation) {
   return !this.contentDOM && mutation.type != "selection"
 };
 
-prototypeAccessors$9.contentLost.get = function () {
+prototypeAccessors.contentLost.get = function () {
   return this.contentDOM && this.contentDOM != this.dom && !this.dom.contains(this.contentDOM)
 };
 
@@ -9022,9 +9024,9 @@ ViewDesc.prototype.markParentsDirty = function markParentsDirty () {
   }
 };
 
-prototypeAccessors$9.domAtom.get = function () { return false };
+prototypeAccessors.domAtom.get = function () { return false };
 
-Object.defineProperties( ViewDesc.prototype, prototypeAccessors$9 );
+Object.defineProperties( ViewDesc.prototype, prototypeAccessors );
 
 // Reused array to avoid allocating fresh arrays for things that will
 // stay empty anyway.
@@ -11199,6 +11201,8 @@ DOMObserver.prototype.registerMutation = function registerMutation (mut, added) 
   if (!desc || desc.ignoreMutation(mut)) { return null }
 
   if (mut.type == "childList") {
+    if (desc.contentDOM && desc.contentDOM != desc.dom && !desc.contentDOM.contains(mut.target))
+      { return {from: desc.posBefore, to: desc.posAfter} }
     var prev = mut.previousSibling, next = mut.nextSibling;
     if (result.ie && result.ie_version <= 11 && mut.addedNodes.length) {
       // IE11 gives us incorrect next/prev siblings for some
@@ -11927,7 +11931,7 @@ handlers.beforeinput = function (view, event) {
 };
 
 // Make sure all handlers get registered
-for (var prop in editHandlers) { handlers[prop] = editHandlers[prop]; }
+for (var prop$1 in editHandlers) { handlers[prop$1] = editHandlers[prop$1]; }
 
 function compareObjs(a, b) {
   if (a == b) { return true }
@@ -11979,12 +11983,12 @@ InlineType.prototype.eq = function eq (other) {
 
 InlineType.is = function is (span) { return span.type instanceof InlineType };
 
-var NodeType$1 = function NodeType(attrs, spec) {
+var NodeType = function NodeType(attrs, spec) {
   this.spec = spec || noSpec;
   this.attrs = attrs;
 };
 
-NodeType$1.prototype.map = function map (mapping, span, offset, oldOffset) {
+NodeType.prototype.map = function map (mapping, span, offset, oldOffset) {
   var from = mapping.mapResult(span.from + oldOffset, 1);
   if (from.deleted) { return null }
   var to = mapping.mapResult(span.to + oldOffset, -1);
@@ -11992,16 +11996,16 @@ NodeType$1.prototype.map = function map (mapping, span, offset, oldOffset) {
   return new Decoration(from.pos - offset, to.pos - offset, this)
 };
 
-NodeType$1.prototype.valid = function valid (node, span) {
+NodeType.prototype.valid = function valid (node, span) {
   var ref = node.content.findIndex(span.from);
     var index = ref.index;
     var offset = ref.offset;
   return offset == span.from && offset + node.child(index).nodeSize == span.to
 };
 
-NodeType$1.prototype.eq = function eq (other) {
+NodeType.prototype.eq = function eq (other) {
   return this == other ||
-    (other instanceof NodeType$1 && compareObjs(this.attrs, other.attrs) &&
+    (other instanceof NodeType && compareObjs(this.attrs, other.attrs) &&
      compareObjs(this.spec, other.spec))
 };
 
@@ -12019,7 +12023,7 @@ var Decoration = function Decoration(from, to, type) {
   this.type = type;
 };
 
-var prototypeAccessors$1$6 = { spec: { configurable: true },inline: { configurable: true } };
+var prototypeAccessors$1 = { spec: { configurable: true },inline: { configurable: true } };
 
 Decoration.prototype.copy = function copy (from, to) {
   return new Decoration(from, to, this.type)
@@ -12119,17 +12123,17 @@ Decoration.inline = function inline (from, to, attrs, spec) {
 // Optional information to store with the decoration. It
 // is also used when comparing decorators for equality.
 Decoration.node = function node (from, to, attrs, spec) {
-  return new Decoration(from, to, new NodeType$1(attrs, spec))
+  return new Decoration(from, to, new NodeType(attrs, spec))
 };
 
 // :: Object
 // The spec provided when creating this decoration. Can be useful
 // if you've stored extra information in that object.
-prototypeAccessors$1$6.spec.get = function () { return this.type.spec };
+prototypeAccessors$1.spec.get = function () { return this.type.spec };
 
-prototypeAccessors$1$6.inline.get = function () { return this.type instanceof InlineType };
+prototypeAccessors$1.inline.get = function () { return this.type instanceof InlineType };
 
-Object.defineProperties( Decoration.prototype, prototypeAccessors$1$6 );
+Object.defineProperties( Decoration.prototype, prototypeAccessors$1 );
 
 // DecorationAttrs:: interface
 // A set of attributes to add to a decorated node. Most properties
@@ -12162,7 +12166,7 @@ var DecorationSet = function DecorationSet(local, children) {
 // Create a set of decorations, using the structure of the given
 // document.
 DecorationSet.create = function create (doc, decorations) {
-  return decorations.length ? buildTree(decorations, doc, 0, noSpec) : empty
+  return decorations.length ? buildTree(decorations, doc, 0, noSpec) : empty$1
 };
 
 // :: (?number, ?number, ?(spec: Object) → bool) → [Decoration]
@@ -12203,7 +12207,7 @@ DecorationSet.prototype.findInner = function findInner (start, end, result, offs
 //   that gets dropped as a result of the mapping, passing the
 //   spec of that decoration.
 DecorationSet.prototype.map = function map (mapping, doc, options) {
-  if (this == empty || mapping.maps.length == 0) { return this }
+  if (this == empty$1 || mapping.maps.length == 0) { return this }
   return this.mapInner(mapping, doc, 0, 0, options || noSpec)
 };
 
@@ -12218,7 +12222,7 @@ DecorationSet.prototype.mapInner = function mapInner (mapping, node, offset, old
   if (this.children.length)
     { return mapChildren(this.children, newLocal, mapping, node, offset, oldOffset, options) }
   else
-    { return newLocal ? new DecorationSet(newLocal.sort(byPos)) : empty }
+    { return newLocal ? new DecorationSet(newLocal.sort(byPos)) : empty$1 }
 };
 
 // :: (Node, [Decoration]) → DecorationSet
@@ -12227,7 +12231,7 @@ DecorationSet.prototype.mapInner = function mapInner (mapping, node, offset, old
 // create the appropriate tree structure.
 DecorationSet.prototype.add = function add (doc, decorations) {
   if (!decorations.length) { return this }
-  if (this == empty) { return DecorationSet.create(doc, decorations) }
+  if (this == empty$1) { return DecorationSet.create(doc, decorations) }
   return this.addInner(doc, decorations, 0)
 };
 
@@ -12259,7 +12263,7 @@ DecorationSet.prototype.addInner = function addInner (doc, decorations, offset) 
 // Create a new set that contains the decorations in this set, minus
 // the ones in the given array.
 DecorationSet.prototype.remove = function remove (decorations) {
-  if (decorations.length == 0 || this == empty) { return this }
+  if (decorations.length == 0 || this == empty$1) { return this }
   return this.removeInner(decorations, 0)
 };
 
@@ -12276,7 +12280,7 @@ DecorationSet.prototype.removeInner = function removeInner (decorations, offset)
     if (!found) { continue }
     if (children == this.children) { children = this.children.slice(); }
     var removed = children[i + 2].removeInner(found, from + 1);
-    if (removed != empty) {
+    if (removed != empty$1) {
       children[i + 2] = removed;
     } else {
       children.splice(i, 3);
@@ -12290,11 +12294,11 @@ DecorationSet.prototype.removeInner = function removeInner (decorations, offset)
     } }
   } } }
   if (children == this.children && local == this.local) { return this }
-  return local.length || children.length ? new DecorationSet(local, children) : empty
+  return local.length || children.length ? new DecorationSet(local, children) : empty$1
 };
 
 DecorationSet.prototype.forChild = function forChild (offset, node) {
-  if (this == empty) { return this }
+  if (this == empty$1) { return this }
   if (node.isLeaf) { return DecorationSet.empty }
 
   var child, local;
@@ -12314,7 +12318,7 @@ DecorationSet.prototype.forChild = function forChild (offset, node) {
     var localSet = new DecorationSet(local.sort(byPos));
     return child ? new DecorationGroup([localSet, child]) : localSet
   }
-  return child || empty
+  return child || empty$1
 };
 
 DecorationSet.prototype.eq = function eq (other) {
@@ -12336,7 +12340,7 @@ DecorationSet.prototype.locals = function locals (node) {
 };
 
 DecorationSet.prototype.localsInner = function localsInner (node) {
-  if (this == empty) { return none }
+  if (this == empty$1) { return none }
   if (node.inlineContent || !this.local.some(InlineType.is)) { return this.local }
   var result = [];
   for (var i = 0; i < this.local.length; i++) {
@@ -12346,11 +12350,11 @@ DecorationSet.prototype.localsInner = function localsInner (node) {
   return result
 };
 
-var empty = new DecorationSet();
+var empty$1 = new DecorationSet();
 
 // :: DecorationSet
 // The empty set of decorations.
-DecorationSet.empty = empty;
+DecorationSet.empty = empty$1;
 
 DecorationSet.removeOverlap = removeOverlap;
 
@@ -12366,7 +12370,7 @@ DecorationGroup.prototype.forChild = function forChild (offset, child) {
   var found = [];
   for (var i = 0; i < this.members.length; i++) {
     var result = this.members[i].forChild(offset, child);
-    if (result == empty) { continue }
+    if (result == empty$1) { continue }
     if (result instanceof DecorationGroup) { found = found.concat(result.members); }
     else { found.push(result); }
   }
@@ -12404,7 +12408,7 @@ DecorationGroup.prototype.locals = function locals (node) {
 // a single set when possible.
 DecorationGroup.from = function from (members) {
   switch (members.length) {
-    case 0: return empty
+    case 0: return empty$1
     case 1: return members[0]
     default: return new DecorationGroup(members)
   }
@@ -12446,7 +12450,7 @@ function mapChildren(oldChildren, newLocal, mapping, node, offset, oldOffset, op
     var childNode = node.maybeChild(index);
     if (childNode && childOffset == fromLocal && childOffset + childNode.nodeSize == toLocal) {
       var mapped = children[i$1 + 2].mapInner(mapping, childNode, from + 1, oldChildren[i$1] + oldOffset + 1, options);
-      if (mapped != empty) {
+      if (mapped != empty$1) {
         children[i$1] = fromLocal;
         children[i$1 + 1] = toLocal;
         children[i$1 + 2] = mapped;
@@ -12537,7 +12541,7 @@ function buildTree(spans, node, offset, options) {
     if (found) {
       hasNulls = true;
       var subtree = buildTree(found, childNode, offset + localStart + 1, options);
-      if (subtree != empty)
+      if (subtree != empty$1)
         { children.push(localStart, localStart + childNode.nodeSize, subtree); }
     }
   });
@@ -12546,7 +12550,7 @@ function buildTree(spans, node, offset, options) {
     if (options.onRemove) { options.onRemove(locals[i].spec); }
     locals.splice(i--, 1);
   } }
-  return locals.length || children.length ? new DecorationSet(locals, children) : empty
+  return locals.length || children.length ? new DecorationSet(locals, children) : empty$1
 }
 
 // : (Decoration, Decoration) → number
@@ -12603,7 +12607,7 @@ function viewDecorations(view) {
   var found = [];
   view.someProp("decorations", function (f) {
     var result = f(view.state);
-    if (result && result != empty) { found.push(result); }
+    if (result && result != empty$1) { found.push(result); }
   });
   if (view.cursorWrapper)
     { found.push(DecorationSet.create(view.state.doc, [view.cursorWrapper.deco])); }
@@ -12658,7 +12662,7 @@ var EditorView = function EditorView(place, props) {
   this.updatePluginViews();
 };
 
-var prototypeAccessors$2$1 = { props: { configurable: true },root: { configurable: true } };
+var prototypeAccessors$2 = { props: { configurable: true },root: { configurable: true } };
 
 // composing:: boolean
 // Holds `true` when a
@@ -12667,7 +12671,7 @@ var prototypeAccessors$2$1 = { props: { configurable: true },root: { configurabl
 
 // :: DirectEditorProps
 // The view's current [props](#view.EditorProps).
-prototypeAccessors$2$1.props.get = function () {
+prototypeAccessors$2.props.get = function () {
   if (this._props.state != this.state) {
     var prev = this._props;
     this._props = {};
@@ -12845,7 +12849,7 @@ EditorView.prototype.focus = function focus () {
 // usually be the top-level `document`, but might be a [shadow
 // DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM)
 // root if the editor is inside one.
-prototypeAccessors$2$1.root.get = function () {
+prototypeAccessors$2.root.get = function () {
   var cached = this._root;
   if (cached == null) { for (var search = this.dom.parentNode; search; search = search.parentNode) {
     if (search.nodeType == 9 || (search.nodeType == 11 && search.host)) {
@@ -12974,7 +12978,7 @@ EditorView.prototype.dispatch = function dispatch (tr) {
   else { this.updateState(this.state.apply(tr)); }
 };
 
-Object.defineProperties( EditorView.prototype, prototypeAccessors$2$1 );
+Object.defineProperties( EditorView.prototype, prototypeAccessors$2 );
 
 function computeDocDeco(view) {
   var attrs = Object.create(null);
@@ -13266,7 +13270,7 @@ function add(elt, child) {
 var SVG = "http://www.w3.org/2000/svg";
 var XLINK = "http://www.w3.org/1999/xlink";
 
-var prefix = "ProseMirror-icon";
+var prefix$1 = "ProseMirror-icon";
 
 function hashPath(path) {
   var hash = 0;
@@ -13277,7 +13281,7 @@ function hashPath(path) {
 
 function getIcon(icon) {
   var node = document.createElement("div");
-  node.className = prefix;
+  node.className = prefix$1;
   if (icon.path) {
     var name = "pm-icon-" + hashPath(icon.path).toString(16);
     if (!document.getElementById(name)) { buildSVG(name, icon); }
@@ -13295,10 +13299,10 @@ function getIcon(icon) {
 }
 
 function buildSVG(name, data) {
-  var collection = document.getElementById(prefix + "-collection");
+  var collection = document.getElementById(prefix$1 + "-collection");
   if (!collection) {
     collection = document.createElementNS(SVG, "svg");
-    collection.id = prefix + "-collection";
+    collection.id = prefix$1 + "-collection";
     collection.style.display = "none";
     document.body.insertBefore(collection, document.body.firstChild);
   }
@@ -13310,7 +13314,7 @@ function buildSVG(name, data) {
   collection.appendChild(sym);
 }
 
-var prefix$1 = "ProseMirror-menu";
+var prefix$1$1 = "ProseMirror-menu";
 
 // ::- An icon or label that, when clicked, executes a command.
 var MenuItem = function MenuItem(spec) {
@@ -13339,7 +13343,7 @@ MenuItem.prototype.render = function render (view) {
 
   dom.addEventListener("mousedown", function (e) {
     e.preventDefault();
-    if (!dom.classList.contains(prefix$1 + "-disabled"))
+    if (!dom.classList.contains(prefix$1$1 + "-disabled"))
       { spec.run(view.state, view.dispatch, view, e); }
   });
 
@@ -13352,11 +13356,11 @@ MenuItem.prototype.render = function render (view) {
     var enabled = true;
     if (spec.enable) {
       enabled = spec.enable(state) || false;
-      setClass(dom, prefix$1 + "-disabled", !enabled);
+      setClass(dom, prefix$1$1 + "-disabled", !enabled);
     }
     if (spec.active) {
       var active = enabled && spec.active(state) || false;
-      setClass(dom, prefix$1 + "-active", active);
+      setClass(dom, prefix$1$1 + "-active", active);
     }
     return true
   }
@@ -13442,11 +13446,11 @@ Dropdown.prototype.render = function render (view) {
 
   var content = renderDropdownItems(this.content, view);
 
-  var label = crelt("div", {class: prefix$1 + "-dropdown " + (this.options.class || ""),
+  var label = crelt("div", {class: prefix$1$1 + "-dropdown " + (this.options.class || ""),
                            style: this.options.css},
                    translate(view, this.options.label));
   if (this.options.title) { label.setAttribute("title", translate(view, this.options.title)); }
-  var wrap = crelt("div", {class: prefix$1 + "-dropdown-wrap"}, label);
+  var wrap = crelt("div", {class: prefix$1$1 + "-dropdown-wrap"}, label);
   var open = null, listeningOnClose = null;
   var close = function () {
     if (open && open.close()) {
@@ -13477,7 +13481,7 @@ Dropdown.prototype.render = function render (view) {
 };
 
 Dropdown.prototype.expand = function expand (dom, items) {
-  var menuDOM = crelt("div", {class: prefix$1 + "-dropdown-menu " + (this.options.class || "")}, items);
+  var menuDOM = crelt("div", {class: prefix$1$1 + "-dropdown-menu " + (this.options.class || "")}, items);
 
   var done = false;
   function close() {
@@ -13496,7 +13500,7 @@ function renderDropdownItems(items, view) {
     var ref = items[i].render(view);
     var dom = ref.dom;
     var update = ref.update;
-    rendered.push(crelt("div", {class: prefix$1 + "-dropdown-item"}, dom));
+    rendered.push(crelt("div", {class: prefix$1$1 + "-dropdown-item"}, dom));
     updates.push(update);
   }
   return {dom: rendered, update: combineUpdates(updates, rendered)}
@@ -13526,18 +13530,18 @@ var DropdownSubmenu = function DropdownSubmenu(content, options) {
 DropdownSubmenu.prototype.render = function render (view) {
   var items = renderDropdownItems(this.content, view);
 
-  var label = crelt("div", {class: prefix$1 + "-submenu-label"}, translate(view, this.options.label));
-  var wrap = crelt("div", {class: prefix$1 + "-submenu-wrap"}, label,
-                 crelt("div", {class: prefix$1 + "-submenu"}, items.dom));
+  var label = crelt("div", {class: prefix$1$1 + "-submenu-label"}, translate(view, this.options.label));
+  var wrap = crelt("div", {class: prefix$1$1 + "-submenu-wrap"}, label,
+                 crelt("div", {class: prefix$1$1 + "-submenu"}, items.dom));
   var listeningOnClose = null;
   label.addEventListener("mousedown", function (e) {
     e.preventDefault();
     markMenuEvent(e);
-    setClass(wrap, prefix$1 + "-submenu-wrap-active");
+    setClass(wrap, prefix$1$1 + "-submenu-wrap-active");
     if (!listeningOnClose)
       { window.addEventListener("mousedown", listeningOnClose = function () {
         if (!isMenuEvent(wrap)) {
-          wrap.classList.remove(prefix$1 + "-submenu-wrap-active");
+          wrap.classList.remove(prefix$1$1 + "-submenu-wrap-active");
           window.removeEventListener("mousedown", listeningOnClose);
           listeningOnClose = null;
         }
@@ -13566,7 +13570,7 @@ function renderGrouped(view, content) {
       var ref = items[j].render(view);
       var dom = ref.dom;
       var update$1 = ref.update;
-      var span = crelt("span", {class: prefix$1 + "item"}, dom);
+      var span = crelt("span", {class: prefix$1$1 + "item"}, dom);
       result.appendChild(span);
       localNodes.push(span);
       localUpdates.push(update$1);
@@ -13592,7 +13596,7 @@ function renderGrouped(view, content) {
 }
 
 function separator() {
-  return crelt("span", {class: prefix$1 + "separator"})
+  return crelt("span", {class: prefix$1$1 + "separator"})
 }
 
 // :: Object
@@ -14244,11 +14248,11 @@ function textblockTypeInputRule(regexp, nodeType, getAttrs) {
   })
 }
 
-var prefix$3 = "ProseMirror-prompt";
+var prefix = "ProseMirror-prompt";
 
 function openPrompt(options) {
   var wrapper = document.body.appendChild(document.createElement("div"));
-  wrapper.className = prefix$3;
+  wrapper.className = prefix;
 
   var mouseOutside = function (e) { if (!wrapper.contains(e.target)) { close(); } };
   setTimeout(function () { return window.addEventListener("mousedown", mouseOutside); }, 50);
@@ -14262,11 +14266,11 @@ function openPrompt(options) {
 
   var submitButton = document.createElement("button");
   submitButton.type = "submit";
-  submitButton.className = prefix$3 + "-submit";
+  submitButton.className = prefix + "-submit";
   submitButton.textContent = "OK";
   var cancelButton = document.createElement("button");
   cancelButton.type = "button";
-  cancelButton.className = prefix$3 + "-cancel";
+  cancelButton.className = prefix + "-cancel";
   cancelButton.textContent = "Cancel";
   cancelButton.addEventListener("click", close);
 
@@ -14276,7 +14280,7 @@ function openPrompt(options) {
     form.appendChild(document.createElement("div")).appendChild(field);
   });
   var buttons = form.appendChild(document.createElement("div"));
-  buttons.className = prefix$3 + "-buttons";
+  buttons.className = prefix + "-buttons";
   buttons.appendChild(submitButton);
   buttons.appendChild(document.createTextNode(" "));
   buttons.appendChild(cancelButton);
@@ -14618,7 +14622,7 @@ function buildMenuItems(schema) {
   return r
 }
 
-var mac$3 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
+var mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
 
 // :: (Schema, ?Object) → Object
 // Inspect the given schema looking for marks and nodes from the
@@ -14663,7 +14667,7 @@ function buildKeymap(schema, mapKeys) {
   bind("Mod-z", undo);
   bind("Shift-Mod-z", redo);
   bind("Backspace", undoInputRule);
-  if (!mac$3) { bind("Mod-y", redo); }
+  if (!mac) { bind("Mod-y", redo); }
 
   bind("Alt-ArrowUp", joinUp);
   bind("Alt-ArrowDown", joinDown);
@@ -14694,7 +14698,7 @@ function buildKeymap(schema, mapKeys) {
     });
     bind("Mod-Enter", cmd);
     bind("Shift-Enter", cmd);
-    if (mac$3) { bind("Ctrl-Enter", cmd); }
+    if (mac) { bind("Ctrl-Enter", cmd); }
   }
   if (type = schema.nodes.list_item) {
     bind("Enter", splitListItem(type));
@@ -14989,7 +14993,7 @@ var blank = "␣";
 var blk12 = "▒";
 var blk14 = "░";
 var blk34 = "▓";
-var block = "█";
+var block$1 = "█";
 var bne = "=⃥";
 var bnequiv = "≡⃥";
 var bNot = "⫭";
@@ -15147,7 +15151,7 @@ var copf = "𝕔";
 var Copf = "ℂ";
 var coprod = "∐";
 var Coproduct = "∐";
-var copy$1 = "©";
+var copy = "©";
 var COPY = "©";
 var copysr = "℗";
 var CounterClockwiseContourIntegral = "∳";
@@ -15340,7 +15344,7 @@ var els = "⪕";
 var elsdot = "⪗";
 var Emacr = "Ē";
 var emacr = "ē";
-var empty$1 = "∅";
+var empty = "∅";
 var emptyset = "∅";
 var EmptySmallSquare = "◻";
 var emptyv = "∅";
@@ -15584,7 +15588,7 @@ var IJlig = "Ĳ";
 var ijlig = "ĳ";
 var Imacr = "Ī";
 var imacr = "ī";
-var image = "ℑ";
+var image$1 = "ℑ";
 var ImaginaryI = "ⅈ";
 var imagline = "ℐ";
 var imagpart = "ℑ";
@@ -15881,7 +15885,7 @@ var macr = "¯";
 var male = "♂";
 var malt = "✠";
 var maltese = "✠";
-var map = "↦";
+var map$1 = "↦";
 var mapsto = "↦";
 var mapstodown = "↧";
 var mapstoleft = "↤";
@@ -16273,7 +16277,7 @@ var PlusMinus = "±";
 var plusmn = "±";
 var plussim = "⨦";
 var plustwo = "⨧";
-var pm = "±";
+var pm$1 = "±";
 var Poincareplane = "ℌ";
 var pointint = "⨕";
 var popf = "𝕡";
@@ -16308,7 +16312,7 @@ var Product = "∏";
 var profalar = "⌮";
 var profline = "⌒";
 var profsurf = "⌓";
-var prop$1 = "∝";
+var prop = "∝";
 var Proportional = "∝";
 var Proportion = "∷";
 var propto = "∝";
@@ -17113,7 +17117,7 @@ var require$$0 = {
 	blk12: blk12,
 	blk14: blk14,
 	blk34: blk34,
-	block: block,
+	block: block$1,
 	bne: bne,
 	bnequiv: bnequiv,
 	bNot: bNot,
@@ -17271,7 +17275,7 @@ var require$$0 = {
 	Copf: Copf,
 	coprod: coprod,
 	Coproduct: Coproduct,
-	copy: copy$1,
+	copy: copy,
 	COPY: COPY,
 	copysr: copysr,
 	CounterClockwiseContourIntegral: CounterClockwiseContourIntegral,
@@ -17464,7 +17468,7 @@ var require$$0 = {
 	elsdot: elsdot,
 	Emacr: Emacr,
 	emacr: emacr,
-	empty: empty$1,
+	empty: empty,
 	emptyset: emptyset,
 	EmptySmallSquare: EmptySmallSquare,
 	emptyv: emptyv,
@@ -17708,7 +17712,7 @@ var require$$0 = {
 	ijlig: ijlig,
 	Imacr: Imacr,
 	imacr: imacr,
-	image: image,
+	image: image$1,
 	ImaginaryI: ImaginaryI,
 	imagline: imagline,
 	imagpart: imagpart,
@@ -18007,7 +18011,7 @@ var require$$0 = {
 	malt: malt,
 	maltese: maltese,
 	"Map": "⤅",
-	map: map,
+	map: map$1,
 	mapsto: mapsto,
 	mapstodown: mapstodown,
 	mapstoleft: mapstoleft,
@@ -18399,7 +18403,7 @@ var require$$0 = {
 	plusmn: plusmn,
 	plussim: plussim,
 	plustwo: plustwo,
-	pm: pm,
+	pm: pm$1,
 	Poincareplane: Poincareplane,
 	pointint: pointint,
 	popf: popf,
@@ -18434,7 +18438,7 @@ var require$$0 = {
 	profalar: profalar,
 	profline: profline,
 	profsurf: profsurf,
-	prop: prop$1,
+	prop: prop,
 	Proportional: Proportional,
 	Proportion: Proportion,
 	propto: propto,
@@ -19110,7 +19114,7 @@ var require$$0 = {
 /*eslint quotes:0*/
 var entities = require$$0;
 
-var regex=/[!-#%-\*,-\/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4E\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD803[\uDF55-\uDF59]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC8\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDF3C-\uDF3E]|\uD806[\uDC3B\uDE3F-\uDE46\uDE9A-\uDE9C\uDE9E-\uDEA2]|\uD807[\uDC41-\uDC45\uDC70\uDC71\uDEF7\uDEF8]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD81B[\uDE97-\uDE9A]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F]/;
+var regex$4=/[!-#%-\*,-\/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4E\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD803[\uDF55-\uDF59]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC8\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDF3C-\uDF3E]|\uD806[\uDC3B\uDE3F-\uDE46\uDE9A-\uDE9C\uDE9E-\uDEA2]|\uD807[\uDC41-\uDC45\uDC70\uDC71\uDEF7\uDEF8]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD81B[\uDE97-\uDE9A]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F]/;
 
 var encodeCache = {};
 
@@ -19150,14 +19154,14 @@ function getEncodeCache(exclude) {
 //  - exclude      - list of characters to ignore (in addition to a-zA-Z0-9)
 //  - keepEscaped  - don't encode '%' in a correct escape sequence (default: true)
 //
-function encode(string, exclude, keepEscaped) {
+function encode$2(string, exclude, keepEscaped) {
   var i, l, code, nextCode, cache,
       result = '';
 
   if (typeof exclude !== 'string') {
     // encode(string, keepEscaped)
     keepEscaped  = exclude;
-    exclude = encode.defaultChars;
+    exclude = encode$2.defaultChars;
   }
 
   if (typeof keepEscaped === 'undefined') {
@@ -19201,11 +19205,11 @@ function encode(string, exclude, keepEscaped) {
   return result;
 }
 
-encode.defaultChars   = ";/?:@&=+$,-_.!~*'()#";
-encode.componentChars = "-_.!~*'()";
+encode$2.defaultChars   = ";/?:@&=+$,-_.!~*'()#";
+encode$2.componentChars = "-_.!~*'()";
 
 
-var encode_1 = encode;
+var encode_1 = encode$2;
 
 /* eslint-disable no-bitwise */
 
@@ -19233,11 +19237,11 @@ function getDecodeCache(exclude) {
 
 // Decode percent-encoded string.
 //
-function decode(string, exclude) {
+function decode$2(string, exclude) {
   var cache;
 
   if (typeof exclude !== 'string') {
-    exclude = decode.defaultChars;
+    exclude = decode$2.defaultChars;
   }
 
   cache = getDecodeCache(exclude);
@@ -19320,13 +19324,13 @@ function decode(string, exclude) {
 }
 
 
-decode.defaultChars   = ';/?:@&=+$,#';
-decode.componentChars = '';
+decode$2.defaultChars   = ';/?:@&=+$,#';
+decode$2.componentChars = '';
 
 
-var decode_1 = decode;
+var decode_1 = decode$2;
 
-var format = function format(url) {
+var format$1 = function format(url) {
   var result = '';
 
   result += url.protocol || '';
@@ -19638,33 +19642,33 @@ Url.prototype.parseHost = function(host) {
   if (host) { this.hostname = host; }
 };
 
-var parse = urlParse;
+var parse$1 = urlParse;
 
 var encode$1 = encode_1;
 var decode$1 = decode_1;
-var format$1 = format;
-var parse$1  = parse;
+var format = format$1;
+var parse  = parse$1;
 
 var mdurl = {
 	encode: encode$1,
 	decode: decode$1,
-	format: format$1,
-	parse: parse$1
+	format: format,
+	parse: parse
 };
 
-var regex$1=/[\0-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+var regex$3=/[\0-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
 
 var regex$2=/[\0-\x1F\x7F-\x9F]/;
 
-var regex$3=/[\xAD\u0600-\u0605\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F]/;
+var regex$1=/[\xAD\u0600-\u0605\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F]/;
 
-var regex$4=/[ \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/;
+var regex=/[ \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/;
 
-var Any = regex$1;
+var Any = regex$3;
 var Cc  = regex$2;
-var Cf  = regex$3;
-var P   = regex;
-var Z   = regex$4;
+var Cf  = regex$1;
+var P   = regex$4;
+var Z   = regex;
 
 var uc_micro = {
 	Any: Any,
@@ -19860,7 +19864,7 @@ function isWhiteSpace(code) {
 
 // Currently without astral characters support.
 function isPunctChar(ch) {
-  return regex.test(ch);
+  return regex$4.test(ch);
 }
 
 
@@ -20035,7 +20039,7 @@ var parse_link_label = function parseLinkLabel(state, start, disableNested) {
   return labelEnd;
 };
 
-var unescapeAll = utils.unescapeAll;
+var unescapeAll$2 = utils.unescapeAll;
 
 
 var parse_link_destination = function parseLinkDestination(str, pos, max) {
@@ -20056,7 +20060,7 @@ var parse_link_destination = function parseLinkDestination(str, pos, max) {
       if (code === 0x0A /* \n */) { return result; }
       if (code === 0x3E /* > */) {
         result.pos = pos + 1;
-        result.str = unescapeAll(str.slice(start + 1, pos));
+        result.str = unescapeAll$2(str.slice(start + 1, pos));
         result.ok = true;
         return result;
       }
@@ -20103,7 +20107,7 @@ var parse_link_destination = function parseLinkDestination(str, pos, max) {
   if (start === pos) { return result; }
   if (level !== 0) { return result; }
 
-  result.str = unescapeAll(str.slice(start, pos));
+  result.str = unescapeAll$2(str.slice(start, pos));
   result.lines = lines;
   result.pos = pos;
   result.ok = true;
@@ -20178,8 +20182,8 @@ var helpers = {
  **/
 
 
-var assign          = utils.assign;
-var unescapeAll$2     = utils.unescapeAll;
+var assign$1          = utils.assign;
+var unescapeAll     = utils.unescapeAll;
 var escapeHtml      = utils.escapeHtml;
 
 
@@ -20208,7 +20212,7 @@ default_rules.code_block = function (tokens, idx, options, env, slf) {
 
 default_rules.fence = function (tokens, idx, options, env, slf) {
   var token = tokens[idx],
-      info = token.info ? unescapeAll$2(token.info).trim() : '',
+      info = token.info ? unescapeAll(token.info).trim() : '',
       langName = '',
       highlighted, i, tmpAttrs, tmpToken;
 
@@ -20327,7 +20331,7 @@ function Renderer() {
    * See [source code](https://github.com/markdown-it/markdown-it/blob/master/lib/renderer.js)
    * for more details and examples.
    **/
-  this.rules = assign({}, default_rules);
+  this.rules = assign$1({}, default_rules);
 }
 
 
@@ -20864,7 +20868,7 @@ var NEWLINES_RE  = /\r\n?|\n/g;
 var NULL_RE      = /\0/g;
 
 
-var normalize$1 = function normalize(state) {
+var normalize = function normalize(state) {
   var str;
 
   // Normalize newlines
@@ -20876,7 +20880,7 @@ var normalize$1 = function normalize(state) {
   state.src = str;
 };
 
-var block$1 = function block(state) {
+var block = function block(state) {
   var token;
 
   if (state.inlineMode) {
@@ -21126,9 +21130,9 @@ var replacements = function replace(state) {
   }
 };
 
-var isWhiteSpace   = utils.isWhiteSpace;
-var isPunctChar    = utils.isPunctChar;
-var isMdAsciiPunct = utils.isMdAsciiPunct;
+var isWhiteSpace$1   = utils.isWhiteSpace;
+var isPunctChar$1    = utils.isPunctChar;
+var isMdAsciiPunct$1 = utils.isMdAsciiPunct;
 
 var QUOTE_TEST_RE = /['"]/;
 var QUOTE_RE = /['"]/g;
@@ -21207,11 +21211,11 @@ function process_inlines(tokens, state) {
         }
       }
 
-      isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(String.fromCharCode(lastChar));
-      isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(String.fromCharCode(nextChar));
+      isLastPunctChar = isMdAsciiPunct$1(lastChar) || isPunctChar$1(String.fromCharCode(lastChar));
+      isNextPunctChar = isMdAsciiPunct$1(nextChar) || isPunctChar$1(String.fromCharCode(nextChar));
 
-      isLastWhiteSpace = isWhiteSpace(lastChar);
-      isNextWhiteSpace = isWhiteSpace(nextChar);
+      isLastWhiteSpace = isWhiteSpace$1(lastChar);
+      isNextWhiteSpace = isWhiteSpace$1(nextChar);
 
       if (isNextWhiteSpace) {
         canOpen = false;
@@ -21538,9 +21542,9 @@ var state_core = StateCore;
 
 
 
-var _rules = [
-  [ 'normalize',      normalize$1      ],
-  [ 'block',          block$1          ],
+var _rules$2 = [
+  [ 'normalize',      normalize      ],
+  [ 'block',          block          ],
   [ 'inline',         inline         ],
   [ 'linkify',        linkify        ],
   [ 'replacements',   replacements   ],
@@ -21559,8 +21563,8 @@ function Core() {
    **/
   this.ruler = new ruler();
 
-  for (var i = 0; i < _rules.length; i++) {
-    this.ruler.push(_rules[i][0], _rules[i][1]);
+  for (var i = 0; i < _rules$2.length; i++) {
+    this.ruler.push(_rules$2[i][0], _rules$2[i][1]);
   }
 }
 
@@ -21585,7 +21589,7 @@ Core.prototype.State = state_core;
 
 var parser_core = Core;
 
-var isSpace = utils.isSpace;
+var isSpace$a = utils.isSpace;
 
 
 function getLine(state, line) {
@@ -21674,7 +21678,7 @@ var table = function table(state, startLine, endLine, silent) {
   while (pos < state.eMarks[nextLine]) {
     ch = state.src.charCodeAt(pos);
 
-    if (ch !== 0x7C/* | */ && ch !== 0x2D/* - */ && ch !== 0x3A/* : */ && !isSpace(ch)) { return false; }
+    if (ch !== 0x7C/* | */ && ch !== 0x2D/* - */ && ch !== 0x3A/* : */ && !isSpace$a(ch)) { return false; }
 
     pos++;
   }
@@ -21781,7 +21785,7 @@ var table = function table(state, startLine, endLine, silent) {
 // Code block (4 spaces padded)
 
 
-var code$1 = function code(state, startLine, endLine/*, silent*/) {
+var code = function code(state, startLine, endLine/*, silent*/) {
   var nextLine, last, token;
 
   if (state.sCount[startLine] - state.blkIndent < 4) { return false; }
@@ -21908,7 +21912,7 @@ var fence = function fence(state, startLine, endLine, silent) {
   return true;
 };
 
-var isSpace$1 = utils.isSpace;
+var isSpace$9 = utils.isSpace;
 
 
 var blockquote = function blockquote(state, startLine, endLine, silent) {
@@ -21984,7 +21988,7 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
   while (pos < max) {
     ch = state.src.charCodeAt(pos);
 
-    if (isSpace$1(ch)) {
+    if (isSpace$9(ch)) {
       if (ch === 0x09) {
         offset += 4 - (offset + state.bsCount[startLine] + (adjustTab ? 1 : 0)) % 4;
       } else {
@@ -22092,7 +22096,7 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
       while (pos < max) {
         ch = state.src.charCodeAt(pos);
 
-        if (isSpace$1(ch)) {
+        if (isSpace$9(ch)) {
           if (ch === 0x09) {
             offset += 4 - (offset + state.bsCount[nextLine] + (adjustTab ? 1 : 0)) % 4;
           } else {
@@ -22190,7 +22194,7 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
   return true;
 };
 
-var isSpace$2 = utils.isSpace;
+var isSpace$8 = utils.isSpace;
 
 
 var hr = function hr(state, startLine, endLine, silent) {
@@ -22215,7 +22219,7 @@ var hr = function hr(state, startLine, endLine, silent) {
   cnt = 1;
   while (pos < max) {
     ch = state.src.charCodeAt(pos++);
-    if (ch !== marker && !isSpace$2(ch)) { return false; }
+    if (ch !== marker && !isSpace$8(ch)) { return false; }
     if (ch === marker) { cnt++; }
   }
 
@@ -22232,7 +22236,7 @@ var hr = function hr(state, startLine, endLine, silent) {
   return true;
 };
 
-var isSpace$3 = utils.isSpace;
+var isSpace$7 = utils.isSpace;
 
 
 // Search `[-+*][\n ]`, returns next pos after marker on success
@@ -22254,7 +22258,7 @@ function skipBulletListMarker(state, startLine) {
   if (pos < max) {
     ch = state.src.charCodeAt(pos);
 
-    if (!isSpace$3(ch)) {
+    if (!isSpace$7(ch)) {
       // " -test " - is not a list item
       return -1;
     }
@@ -22305,7 +22309,7 @@ function skipOrderedListMarker(state, startLine) {
   if (pos < max) {
     ch = state.src.charCodeAt(pos);
 
-    if (!isSpace$3(ch)) {
+    if (!isSpace$7(ch)) {
       // " 1.test " - is not a list item
       return -1;
     }
@@ -22589,8 +22593,8 @@ var list = function list(state, startLine, endLine, silent) {
   return true;
 };
 
-var normalizeReference   = utils.normalizeReference;
-var isSpace$4              = utils.isSpace;
+var normalizeReference$2   = utils.normalizeReference;
+var isSpace$6              = utils.isSpace;
 
 
 var reference = function reference(state, startLine, _endLine, silent) {
@@ -22686,7 +22690,7 @@ var reference = function reference(state, startLine, _endLine, silent) {
     ch = str.charCodeAt(pos);
     if (ch === 0x0A) {
       lines++;
-    } else if (isSpace$4(ch)) ; else {
+    } else if (isSpace$6(ch)) ; else {
       break;
     }
   }
@@ -22713,7 +22717,7 @@ var reference = function reference(state, startLine, _endLine, silent) {
     ch = str.charCodeAt(pos);
     if (ch === 0x0A) {
       lines++;
-    } else if (isSpace$4(ch)) ; else {
+    } else if (isSpace$6(ch)) ; else {
       break;
     }
   }
@@ -22734,7 +22738,7 @@ var reference = function reference(state, startLine, _endLine, silent) {
   // skip trailing spaces until the rest of the line
   while (pos < max) {
     ch = str.charCodeAt(pos);
-    if (!isSpace$4(ch)) { break; }
+    if (!isSpace$6(ch)) { break; }
     pos++;
   }
 
@@ -22747,7 +22751,7 @@ var reference = function reference(state, startLine, _endLine, silent) {
       lines = destEndLineNo;
       while (pos < max) {
         ch = str.charCodeAt(pos);
-        if (!isSpace$4(ch)) { break; }
+        if (!isSpace$6(ch)) { break; }
         pos++;
       }
     }
@@ -22758,7 +22762,7 @@ var reference = function reference(state, startLine, _endLine, silent) {
     return false;
   }
 
-  label = normalizeReference(str.slice(1, labelEnd));
+  label = normalizeReference$2(str.slice(1, labelEnd));
   if (!label) {
     // CommonMark 0.20 disallows empty labels
     return false;
@@ -23004,19 +23008,19 @@ var processing  = '<[?].*?[?]>';
 var declaration = '<![A-Z]+\\s+[^>]*>';
 var cdata       = '<!\\[CDATA\\[[\\s\\S]*?\\]\\]>';
 
-var HTML_TAG_RE = new RegExp('^(?:' + open_tag + '|' + close_tag + '|' + comment +
+var HTML_TAG_RE$1 = new RegExp('^(?:' + open_tag + '|' + close_tag + '|' + comment +
                         '|' + processing + '|' + declaration + '|' + cdata + ')');
-var HTML_OPEN_CLOSE_TAG_RE = new RegExp('^(?:' + open_tag + '|' + close_tag + ')');
+var HTML_OPEN_CLOSE_TAG_RE$1 = new RegExp('^(?:' + open_tag + '|' + close_tag + ')');
 
-var HTML_TAG_RE_1 = HTML_TAG_RE;
-var HTML_OPEN_CLOSE_TAG_RE_1 = HTML_OPEN_CLOSE_TAG_RE;
+var HTML_TAG_RE_1 = HTML_TAG_RE$1;
+var HTML_OPEN_CLOSE_TAG_RE_1 = HTML_OPEN_CLOSE_TAG_RE$1;
 
 var html_re = {
 	HTML_TAG_RE: HTML_TAG_RE_1,
 	HTML_OPEN_CLOSE_TAG_RE: HTML_OPEN_CLOSE_TAG_RE_1
 };
 
-var HTML_OPEN_CLOSE_TAG_RE$1 = html_re.HTML_OPEN_CLOSE_TAG_RE;
+var HTML_OPEN_CLOSE_TAG_RE = html_re.HTML_OPEN_CLOSE_TAG_RE;
 
 // An array of opening and corresponding closing sequences for html tags,
 // last argument defines whether it can terminate a paragraph or not
@@ -23028,7 +23032,7 @@ var HTML_SEQUENCES = [
   [ /^<![A-Z]/,     />/,     true ],
   [ /^<!\[CDATA\[/, /\]\]>/, true ],
   [ new RegExp('^</?(' + html_blocks.join('|') + ')(?=(\\s|/?>|$))', 'i'), /^$/, true ],
-  [ new RegExp(HTML_OPEN_CLOSE_TAG_RE$1.source + '\\s*$'),  /^$/, false ]
+  [ new RegExp(HTML_OPEN_CLOSE_TAG_RE.source + '\\s*$'),  /^$/, false ]
 ];
 
 
@@ -23136,7 +23140,7 @@ var paragraph = function paragraph(state, startLine/*, endLine*/) {
   return true;
 };
 
-var isSpace$6 = utils.isSpace;
+var isSpace$4 = utils.isSpace;
 
 
 function StateBlock(src, md, env, tokens) {
@@ -23199,7 +23203,7 @@ function StateBlock(src, md, env, tokens) {
     ch = s.charCodeAt(pos);
 
     if (!indent_found) {
-      if (isSpace$6(ch)) {
+      if (isSpace$4(ch)) {
         indent++;
 
         if (ch === 0x09) {
@@ -23271,7 +23275,7 @@ StateBlock.prototype.skipSpaces = function skipSpaces(pos) {
 
   for (var max = this.src.length; pos < max; pos++) {
     ch = this.src.charCodeAt(pos);
-    if (!isSpace$6(ch)) { break; }
+    if (!isSpace$4(ch)) { break; }
   }
   return pos;
 };
@@ -23281,7 +23285,7 @@ StateBlock.prototype.skipSpacesBack = function skipSpacesBack(pos, min) {
   if (pos <= min) { return pos; }
 
   while (pos > min) {
-    if (!isSpace$6(this.src.charCodeAt(--pos))) { return pos + 1; }
+    if (!isSpace$4(this.src.charCodeAt(--pos))) { return pos + 1; }
   }
   return pos;
 };
@@ -23329,7 +23333,7 @@ StateBlock.prototype.getLines = function getLines(begin, end, indent, keepLastLF
     while (first < last && lineIndent < indent) {
       ch = this.src.charCodeAt(first);
 
-      if (isSpace$6(ch)) {
+      if (isSpace$4(ch)) {
         if (ch === 0x09) {
           lineIndent += 4 - (lineIndent + this.bsCount[line]) % 4;
         } else {
@@ -23377,7 +23381,7 @@ var _rules$1 = [
   // First 2 params - rule name & source. Secondary array - list of rules,
   // which can be terminated by this one.
   [ 'table',      table,      [ 'paragraph', 'reference' ] ],
-  [ 'code',       code$1 ],
+  [ 'code',       code ],
   [ 'fence',      fence,      [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
   [ 'blockquote', blockquote, [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
   [ 'hr',         hr,         [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
@@ -23542,7 +23546,7 @@ var text = function text(state, silent) {
   return true;
 };
 
-var isSpace$7 = utils.isSpace;
+var isSpace$3 = utils.isSpace;
 
 
 var newline = function newline(state, silent) {
@@ -23575,17 +23579,17 @@ var newline = function newline(state, silent) {
   pos++;
 
   // skip heading spaces for next line
-  while (pos < max && isSpace$7(state.src.charCodeAt(pos))) { pos++; }
+  while (pos < max && isSpace$3(state.src.charCodeAt(pos))) { pos++; }
 
   state.pos = pos;
   return true;
 };
 
-var isSpace$8 = utils.isSpace;
+var isSpace$2 = utils.isSpace;
 
 var ESCAPED = [];
 
-for (var i$1 = 0; i$1 < 256; i$1++) { ESCAPED.push(0); }
+for (var i = 0; i < 256; i++) { ESCAPED.push(0); }
 
 '\\!"#$%&\'()*+,./:;<=>?@[]^_`{|}~-'
   .split('').forEach(function (ch) { ESCAPED[ch.charCodeAt(0)] = 1; });
@@ -23616,7 +23620,7 @@ var _escape = function escape(state, silent) {
       // skip leading whitespaces from next line
       while (pos < max) {
         ch = state.src.charCodeAt(pos);
-        if (!isSpace$8(ch)) { break; }
+        if (!isSpace$2(ch)) { break; }
         pos++;
       }
 
@@ -23677,7 +23681,7 @@ var backticks = function backtick(state, silent) {
 
 // Insert each marker as a separate text token, and add it to delimiter list
 //
-var tokenize = function strikethrough(state, silent) {
+var tokenize$1 = function strikethrough(state, silent) {
   var i, scanned, token, len, ch,
       start = state.pos,
       marker = state.src.charCodeAt(start);
@@ -23719,7 +23723,7 @@ var tokenize = function strikethrough(state, silent) {
 };
 
 
-function postProcess(state, delimiters) {
+function postProcess$1(state, delimiters) {
   var i, j,
       startDelim,
       endDelim,
@@ -23788,23 +23792,23 @@ function postProcess(state, delimiters) {
 
 // Walk through delimiter list and replace text tokens with tags
 //
-var postProcess_1 = function strikethrough(state) {
+var postProcess_1$1 = function strikethrough(state) {
   var curr,
       tokens_meta = state.tokens_meta,
       max = state.tokens_meta.length;
 
-  postProcess(state, state.delimiters);
+  postProcess$1(state, state.delimiters);
 
   for (curr = 0; curr < max; curr++) {
     if (tokens_meta[curr] && tokens_meta[curr].delimiters) {
-      postProcess(state, tokens_meta[curr].delimiters);
+      postProcess$1(state, tokens_meta[curr].delimiters);
     }
   }
 };
 
 var strikethrough = {
-	tokenize: tokenize,
-	postProcess: postProcess_1
+	tokenize: tokenize$1,
+	postProcess: postProcess_1$1
 };
 
 // Process *this* and _that_
@@ -23812,7 +23816,7 @@ var strikethrough = {
 
 // Insert each marker as a separate text token, and add it to delimiter list
 //
-var tokenize$1 = function emphasis(state, silent) {
+var tokenize = function emphasis(state, silent) {
   var i, scanned, token,
       start = state.pos,
       marker = state.src.charCodeAt(start);
@@ -23868,7 +23872,7 @@ var tokenize$1 = function emphasis(state, silent) {
 };
 
 
-function postProcess$1(state, delimiters) {
+function postProcess(state, delimiters) {
   var i,
       startDelim,
       endDelim,
@@ -23929,27 +23933,27 @@ function postProcess$1(state, delimiters) {
 
 // Walk through delimiter list and replace text tokens with tags
 //
-var postProcess_1$1 = function emphasis(state) {
+var postProcess_1 = function emphasis(state) {
   var curr,
       tokens_meta = state.tokens_meta,
       max = state.tokens_meta.length;
 
-  postProcess$1(state, state.delimiters);
+  postProcess(state, state.delimiters);
 
   for (curr = 0; curr < max; curr++) {
     if (tokens_meta[curr] && tokens_meta[curr].delimiters) {
-      postProcess$1(state, tokens_meta[curr].delimiters);
+      postProcess(state, tokens_meta[curr].delimiters);
     }
   }
 };
 
 var emphasis = {
-	tokenize: tokenize$1,
-	postProcess: postProcess_1$1
+	tokenize: tokenize,
+	postProcess: postProcess_1
 };
 
 var normalizeReference$1   = utils.normalizeReference;
-var isSpace$9              = utils.isSpace;
+var isSpace$1              = utils.isSpace;
 
 
 var link = function link(state, silent) {
@@ -23991,7 +23995,7 @@ var link = function link(state, silent) {
     pos++;
     for (; pos < max; pos++) {
       code = state.src.charCodeAt(pos);
-      if (!isSpace$9(code) && code !== 0x0A) { break; }
+      if (!isSpace$1(code) && code !== 0x0A) { break; }
     }
     if (pos >= max) { return false; }
 
@@ -24013,7 +24017,7 @@ var link = function link(state, silent) {
     start = pos;
     for (; pos < max; pos++) {
       code = state.src.charCodeAt(pos);
-      if (!isSpace$9(code) && code !== 0x0A) { break; }
+      if (!isSpace$1(code) && code !== 0x0A) { break; }
     }
 
     // [link](  <href>  "title"  )
@@ -24027,7 +24031,7 @@ var link = function link(state, silent) {
       //                         ^^ skipping these spaces
       for (; pos < max; pos++) {
         code = state.src.charCodeAt(pos);
-        if (!isSpace$9(code) && code !== 0x0A) { break; }
+        if (!isSpace$1(code) && code !== 0x0A) { break; }
       }
     } else {
       title = '';
@@ -24095,11 +24099,11 @@ var link = function link(state, silent) {
   return true;
 };
 
-var normalizeReference$2   = utils.normalizeReference;
-var isSpace$a              = utils.isSpace;
+var normalizeReference   = utils.normalizeReference;
+var isSpace              = utils.isSpace;
 
 
-var image$1 = function image(state, silent) {
+var image = function image(state, silent) {
   var attrs,
       code,
       content,
@@ -24137,7 +24141,7 @@ var image$1 = function image(state, silent) {
     pos++;
     for (; pos < max; pos++) {
       code = state.src.charCodeAt(pos);
-      if (!isSpace$a(code) && code !== 0x0A) { break; }
+      if (!isSpace(code) && code !== 0x0A) { break; }
     }
     if (pos >= max) { return false; }
 
@@ -24159,7 +24163,7 @@ var image$1 = function image(state, silent) {
     start = pos;
     for (; pos < max; pos++) {
       code = state.src.charCodeAt(pos);
-      if (!isSpace$a(code) && code !== 0x0A) { break; }
+      if (!isSpace(code) && code !== 0x0A) { break; }
     }
 
     // [link](  <href>  "title"  )
@@ -24173,7 +24177,7 @@ var image$1 = function image(state, silent) {
       //                         ^^ skipping these spaces
       for (; pos < max; pos++) {
         code = state.src.charCodeAt(pos);
-        if (!isSpace$a(code) && code !== 0x0A) { break; }
+        if (!isSpace(code) && code !== 0x0A) { break; }
       }
     } else {
       title = '';
@@ -24206,7 +24210,7 @@ var image$1 = function image(state, silent) {
     // (collapsed reference link and shortcut reference link respectively)
     if (!label) { label = state.src.slice(labelStart, labelEnd); }
 
-    ref = state.env.references[normalizeReference$2(label)];
+    ref = state.env.references[normalizeReference(label)];
     if (!ref) {
       state.pos = oldPos;
       return false;
@@ -24315,7 +24319,7 @@ var autolink = function autolink(state, silent) {
   return false;
 };
 
-var HTML_TAG_RE$1 = html_re.HTML_TAG_RE;
+var HTML_TAG_RE = html_re.HTML_TAG_RE;
 
 
 function isLetter(ch) {
@@ -24347,7 +24351,7 @@ var html_inline = function html_inline(state, silent) {
     return false;
   }
 
-  match = state.src.slice(pos).match(HTML_TAG_RE$1);
+  match = state.src.slice(pos).match(HTML_TAG_RE);
   if (!match) { return false; }
 
   if (!silent) {
@@ -24543,9 +24547,9 @@ var text_collapse = function text_collapse(state) {
   }
 };
 
-var isWhiteSpace$1   = utils.isWhiteSpace;
-var isPunctChar$1    = utils.isPunctChar;
-var isMdAsciiPunct$1 = utils.isMdAsciiPunct;
+var isWhiteSpace   = utils.isWhiteSpace;
+var isPunctChar    = utils.isPunctChar;
+var isMdAsciiPunct = utils.isMdAsciiPunct;
 
 
 function StateInline(src, md, env, outTokens) {
@@ -24644,11 +24648,11 @@ StateInline.prototype.scanDelims = function (start, canSplitWord) {
   // treat end of the line as a whitespace
   nextChar = pos < max ? this.src.charCodeAt(pos) : 0x20;
 
-  isLastPunctChar = isMdAsciiPunct$1(lastChar) || isPunctChar$1(String.fromCharCode(lastChar));
-  isNextPunctChar = isMdAsciiPunct$1(nextChar) || isPunctChar$1(String.fromCharCode(nextChar));
+  isLastPunctChar = isMdAsciiPunct(lastChar) || isPunctChar(String.fromCharCode(lastChar));
+  isNextPunctChar = isMdAsciiPunct(nextChar) || isPunctChar(String.fromCharCode(nextChar));
 
-  isLastWhiteSpace = isWhiteSpace$1(lastChar);
-  isNextWhiteSpace = isWhiteSpace$1(nextChar);
+  isLastWhiteSpace = isWhiteSpace(lastChar);
+  isNextWhiteSpace = isWhiteSpace(nextChar);
 
   if (isNextWhiteSpace) {
     left_flanking = false;
@@ -24701,7 +24705,7 @@ var state_inline = StateInline;
 ////////////////////////////////////////////////////////////////////////////////
 // Parser rules
 
-var _rules$2 = [
+var _rules = [
   [ 'text',            text ],
   [ 'newline',         newline ],
   [ 'escape',          _escape ],
@@ -24709,7 +24713,7 @@ var _rules$2 = [
   [ 'strikethrough',   strikethrough.tokenize ],
   [ 'emphasis',        emphasis.tokenize ],
   [ 'link',            link ],
-  [ 'image',           image$1 ],
+  [ 'image',           image ],
   [ 'autolink',        autolink ],
   [ 'html_inline',     html_inline ],
   [ 'entity',          entity ]
@@ -24736,8 +24740,8 @@ function ParserInline() {
    **/
   this.ruler = new ruler();
 
-  for (i = 0; i < _rules$2.length; i++) {
-    this.ruler.push(_rules$2[i][0], _rules$2[i][1]);
+  for (i = 0; i < _rules.length; i++) {
+    this.ruler.push(_rules[i][0], _rules[i][1]);
   }
 
   /**
@@ -24869,10 +24873,10 @@ var re = function (opts) {
   var re = {};
 
   // Use direct extract instead of `regenerate` to reduse browserified size
-  re.src_Any = regex$1.source;
+  re.src_Any = regex$3.source;
   re.src_Cc  = regex$2.source;
-  re.src_Z   = regex$4.source;
-  re.src_P   = regex.source;
+  re.src_Z   = regex.source;
+  re.src_P   = regex$4.source;
 
   // \p{\Z\P\Cc\CF} (white spaces + control + format + punctuation)
   re.src_ZPCc = [ re.src_Z, re.src_P, re.src_Cc ].join('|');
@@ -25047,7 +25051,7 @@ var re = function (opts) {
 
 // Merge objects
 //
-function assign$1(obj /*from1, from2, from3, ...*/) {
+function assign(obj /*from1, from2, from3, ...*/) {
   var sources = Array.prototype.slice.call(arguments, 1);
 
   sources.forEach(function (source) {
@@ -25417,7 +25421,7 @@ function LinkifyIt(schemas, options) {
     }
   }
 
-  this.__opts__           = assign$1({}, defaultOptions, options);
+  this.__opts__           = assign({}, defaultOptions, options);
 
   // Cache last tested result. Used to skip repeating steps on next `match` call.
   this.__index__          = -1;
@@ -25425,7 +25429,7 @@ function LinkifyIt(schemas, options) {
   this.__schema__         = '';
   this.__text_cache__     = '';
 
-  this.__schemas__        = assign$1({}, defaultSchemas, schemas);
+  this.__schemas__        = assign({}, defaultSchemas, schemas);
   this.__compiled__       = {};
 
   this.__tlds__           = tlds_default;
@@ -25458,7 +25462,7 @@ LinkifyIt.prototype.add = function add(schema, definition) {
  * Set recognition options for links without schema.
  **/
 LinkifyIt.prototype.set = function set(options) {
-  this.__opts__ = assign$1(this.__opts__, options);
+  this.__opts__ = assign(this.__opts__, options);
   return this;
 };
 
@@ -25680,7 +25684,7 @@ var linkifyIt = LinkifyIt;
 var maxInt = 2147483647; // aka. 0x7FFFFFFF or 2^31-1
 
 /** Bootstring parameters */
-var base$1 = 36;
+var base = 36;
 var tMin = 1;
 var tMax = 26;
 var skew = 38;
@@ -25702,7 +25706,7 @@ var errors = {
 };
 
 /** Convenience shortcuts */
-var baseMinusTMin = base$1 - tMin;
+var baseMinusTMin = base - tMin;
 var floor = Math.floor;
 var stringFromCharCode = String.fromCharCode;
 
@@ -25726,7 +25730,7 @@ function error(type) {
  * item.
  * @returns {Array} A new array of values returned by the callback function.
  */
-function map$1(array, fn) {
+function map(array, fn) {
 	var result = [];
 	var length = array.length;
 	while (length--) {
@@ -25757,7 +25761,7 @@ function mapDomain(string, fn) {
 	// Avoid `split(regex)` for IE8 compatibility. See #17.
 	string = string.replace(regexSeparators, '\x2E');
 	var labels = string.split('.');
-	var encoded = map$1(labels, fn).join('.');
+	var encoded = map(labels, fn).join('.');
 	return result + encoded;
 }
 
@@ -25827,7 +25831,7 @@ var basicToDigit = function(codePoint) {
 	if (codePoint - 0x61 < 0x1A) {
 		return codePoint - 0x61;
 	}
-	return base$1;
+	return base;
 };
 
 /**
@@ -25856,7 +25860,7 @@ var adapt = function(delta, numPoints, firstTime) {
 	var k = 0;
 	delta = firstTime ? floor(delta / damp) : delta >> 1;
 	delta += floor(delta / numPoints);
-	for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base$1) {
+	for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
 		delta = floor(delta / baseMinusTMin);
 	}
 	return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
@@ -25869,7 +25873,7 @@ var adapt = function(delta, numPoints, firstTime) {
  * @param {String} input The Punycode string of ASCII-only symbols.
  * @returns {String} The resulting string of Unicode symbols.
  */
-var decode$2 = function(input) {
+var decode = function(input) {
 	// Don't use UCS-2.
 	var output = [];
 	var inputLength = input.length;
@@ -25905,7 +25909,7 @@ var decode$2 = function(input) {
 		// if we increase `i` as we go, then subtract off its starting
 		// value at the end to obtain `delta`.
 		var oldi = i;
-		for (var w = 1, k = base$1; /* no condition */; k += base$1) {
+		for (var w = 1, k = base; /* no condition */; k += base) {
 
 			if (index >= inputLength) {
 				error('invalid-input');
@@ -25913,7 +25917,7 @@ var decode$2 = function(input) {
 
 			var digit = basicToDigit(input.charCodeAt(index++));
 
-			if (digit >= base$1 || digit > floor((maxInt - i) / w)) {
+			if (digit >= base || digit > floor((maxInt - i) / w)) {
 				error('overflow');
 			}
 
@@ -25924,7 +25928,7 @@ var decode$2 = function(input) {
 				break;
 			}
 
-			var baseMinusT = base$1 - t;
+			var baseMinusT = base - t;
 			if (w > floor(maxInt / baseMinusT)) {
 				error('overflow');
 			}
@@ -25960,7 +25964,7 @@ var decode$2 = function(input) {
  * @param {String} input The string of Unicode symbols.
  * @returns {String} The resulting Punycode string of ASCII-only symbols.
  */
-var encode$2 = function(input) {
+var encode = function(input) {
 	var output = [];
 
 	// Convert the input in UCS-2 to an array of Unicode code points.
@@ -26027,13 +26031,13 @@ var encode$2 = function(input) {
 			if (currentValue$2 == n) {
 				// Represent delta as a generalized variable-length integer.
 				var q = delta;
-				for (var k = base$1; /* no condition */; k += base$1) {
+				for (var k = base; /* no condition */; k += base) {
 					var t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
 					if (q < t) {
 						break;
 					}
 					var qMinusT = q - t;
-					var baseMinusT = base$1 - t;
+					var baseMinusT = base - t;
 					output.push(
 						stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
 					);
@@ -26068,7 +26072,7 @@ var encode$2 = function(input) {
 var toUnicode = function(input) {
 	return mapDomain(input, function(string) {
 		return regexPunycode.test(string)
-			? decode$2(string.slice(4).toLowerCase())
+			? decode(string.slice(4).toLowerCase())
 			: string;
 	});
 };
@@ -26087,7 +26091,7 @@ var toUnicode = function(input) {
 var toASCII = function(input) {
 	return mapDomain(input, function(string) {
 		return regexNonASCII.test(string)
-			? 'xn--' + encode$2(string)
+			? 'xn--' + encode(string)
 			: string;
 	});
 };
@@ -26095,7 +26099,7 @@ var toASCII = function(input) {
 /*--------------------------------------------------------------------------*/
 
 /** Define the public API */
-var punycode = {
+var punycode$1 = {
 	/**
 	 * A string representing the current Punycode.js version number.
 	 * @memberOf punycode
@@ -26113,8 +26117,8 @@ var punycode = {
 		'decode': ucs2decode,
 		'encode': ucs2encode
 	},
-	'decode': decode$2,
-	'encode': encode$2,
+	'decode': decode,
+	'encode': encode,
 	'toASCII': toASCII,
 	'toUnicode': toUnicode
 };
@@ -26123,11 +26127,11 @@ var punycode_es6 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   ucs2decode: ucs2decode,
   ucs2encode: ucs2encode,
-  decode: decode$2,
-  encode: encode$2,
+  decode: decode,
+  encode: encode,
   toASCII: toASCII,
   toUnicode: toUnicode,
-  'default': punycode
+  'default': punycode$1
 });
 
 // markdown-it default options
@@ -26309,7 +26313,7 @@ var commonmark = {
   }
 };
 
-var punycode$1 = /*@__PURE__*/getAugmentedNamespace(punycode_es6);
+var punycode = /*@__PURE__*/getAugmentedNamespace(punycode_es6);
 
 var config = {
   'default': _default,
@@ -26353,7 +26357,7 @@ function normalizeLink(url) {
     //
     if (!parsed.protocol || RECODE_HOSTNAME_FOR.indexOf(parsed.protocol) >= 0) {
       try {
-        parsed.hostname = punycode$1.toASCII(parsed.hostname);
+        parsed.hostname = punycode.toASCII(parsed.hostname);
       } catch (er) { /**/ }
     }
   }
@@ -26373,7 +26377,7 @@ function normalizeLinkText(url) {
     //
     if (!parsed.protocol || RECODE_HOSTNAME_FOR.indexOf(parsed.protocol) >= 0) {
       try {
-        parsed.hostname = punycode$1.toUnicode(parsed.hostname);
+        parsed.hostname = punycode.toUnicode(parsed.hostname);
       } catch (er) { /**/ }
     }
   }
@@ -26880,7 +26884,7 @@ var lib = MarkdownIt;
 var markdownIt = lib;
 
 // ::Schema Document schema for the data model used by CommonMark.
-var schema = new Schema({
+var schema$1 = new Schema({
   nodes: {
     doc: {
       content: "block+"
@@ -27208,7 +27212,7 @@ function listIsTight(tokens, i) {
 // :: MarkdownParser
 // A parser parsing unextended [CommonMark](http://commonmark.org/),
 // without inline HTML, and producing a document in the basic schema.
-var defaultMarkdownParser = new MarkdownParser(schema, markdownIt("commonmark", {html: false}), {
+var defaultMarkdownParser = new MarkdownParser(schema$1, markdownIt("commonmark", {html: false}), {
   blockquote: {block: "blockquote"},
   paragraph: {block: "paragraph"},
   list_item: {block: "list_item"},
@@ -27621,7 +27625,7 @@ var markdown = /*#__PURE__*/Object.freeze({
   MarkdownSerializerState: MarkdownSerializerState,
   defaultMarkdownParser: defaultMarkdownParser,
   defaultMarkdownSerializer: defaultMarkdownSerializer,
-  schema: schema
+  schema: schema$1
 });
 
 var pDOM = ["p", 0], blockquoteDOM = ["blockquote", 0], hrDOM = ["hr"],
@@ -27785,13 +27789,13 @@ var marks = {
 //
 // To reuse elements from this schema, extend or read from its
 // `spec.nodes` and `spec.marks` [properties](#model.Schema.spec).
-var schema$1 = new Schema({nodes: nodes, marks: marks});
+var schema = new Schema({nodes: nodes, marks: marks});
 
 var schemaBasic = /*#__PURE__*/Object.freeze({
   __proto__: null,
   marks: marks,
   nodes: nodes,
-  schema: schema$1
+  schema: schema
 });
 
 // import * as keymap from 'prosemirror-keymap';
@@ -27805,7 +27809,7 @@ var schemaBasic = /*#__PURE__*/Object.freeze({
 // import * as tables from 'prosemirror-tables';
 // import * as OrderedMap from 'orderedmap';
 
-var pm$1 = {
+var pm = {
     exampleSetup: exampleSetup$1,
     markdown: markdown,
     model: model,
@@ -27815,4 +27819,4 @@ var pm$1 = {
     view: view,
 };
 
-export default pm$1;
+export default pm;

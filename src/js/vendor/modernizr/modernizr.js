@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.11.3
+ * modernizr v3.11.4
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -35,7 +35,7 @@
    * @access public
    */
   var ModernizrProto = {
-    _version: '3.11.3',
+    _version: '3.11.4',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.

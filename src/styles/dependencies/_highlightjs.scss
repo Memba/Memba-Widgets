@@ -1,6 +1,8 @@
 @import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
 @import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
+/* stylelint-disable selector-class-pattern */
+
 /*!
  * Agate by Taufik Nurrohman <https://github.com/tovic>
  * ----------------------------------------------------
@@ -78,7 +80,6 @@
 .hljs-comment,
 .hljs-deletion,
 .hljs-code {
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
     color: $widget-text;

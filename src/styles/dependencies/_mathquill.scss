@@ -12,19 +12,17 @@
     color: $input-text;
 
     .mq-selection {
-        color: #fff;
-
         /* This is the default windows selection color */
         background-color: #0561d1 !important;
-        border: none;
+        border: 0;
+        color: #fff;
     }
 
     .mq-selection.mq-blur {
-        color: #fff;
-
         /* This is the default windows selection color */
         background-color: #0561d1 !important;
-        border: none;
+        border: 0;
+        color: #fff;
     }
 }
 
@@ -37,7 +35,7 @@
 .mq-editable-field.mq-focused,
 .mq-math-mode:focus,
 .mq-math-mode.mq-focused {
+    @include box-shadow('none');
+    @include box-shadow($focused-shadow);
     border-radius: $border-radius;
-    .box-shadow('none');
-    .box-shadow($focused-shadow);
 }

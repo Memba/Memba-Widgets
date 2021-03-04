@@ -2,6 +2,8 @@
 @import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 /* stylelint-disable selector-class-pattern */
+/* stylelint-disable selector-no-qualifying-type */
+/* stylelint-disable selector-no-vendor-prefix */
 
 //---------------------------------------------
 // CodeMirror
@@ -22,7 +24,6 @@
 // .CodeMirror-linenumbers {}
 
 .CodeMirror-linenumber {
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
     color: $widget-text;
@@ -33,7 +34,6 @@
 }
 
 .CodeMirror-guttermarker-subtle {
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
     color: $widget-text;
@@ -45,7 +45,7 @@
 }
 
 /* Shown when moving in bi-directional text */
-.CodeMirror .CodeMirror-secondarycursor {
+.CodeMirror div.CodeMirror-secondarycursor {
     border-left: 1px solid #f00; // TODO
 }
 
@@ -123,7 +123,6 @@
 .cm-s-default .cm-comment {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
-
     color: $widget-text;
 }
 
@@ -160,7 +159,6 @@
 }
 
 .cm-s-default .cm-hr {
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
     color: $widget-text;
@@ -181,11 +179,11 @@
 
 /* Default styles for common addons */
 
-.CodeMirror .CodeMirror-matchingbracket {
+div.CodeMirror span.CodeMirror-matchingbracket {
     color: $success;
 }
 
-.CodeMirror .CodeMirror-nonmatchingbracket {
+div.CodeMirror span.CodeMirror-nonmatchingbracket {
     color: $error;
 }
 
@@ -228,15 +226,15 @@
 }
 
 .CodeMirror-line::selection,
-.CodeMirror-line > ::selection,
-.CodeMirror-line >  > ::selection {
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
     /* This is the default windows selection color */
     background-color: #0561d1 !important;
 }
 
-.CodeMirror-line::selection,
-.CodeMirror-line > ::selection,
-.CodeMirror-line >  > ::selection {
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
     /* This is the default windows selection color */
     background-color: #0561d1 !important;
 }

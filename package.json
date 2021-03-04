@@ -27,6 +27,7 @@
     "karma": "karma start ./coverage.conf.js",
     "modernizr": "customizr -c ./src/js/vendor/modernizr/modernizr.json && customizr -c ./src/js/vendor/modernizr/modernizr.min.json",
     "prosemirror": "rollup -c ./src/js/vendor/prosemirror/rollup.config.js",
+    "sloc": "sloc -a es6=js ./src ./templates ./test ./webapp",
     "start": "node ./nodejs/http.server.js",
     "stylelint": "stylelint ./src/styles/**/*.scss",
     "test": "npm run karma"

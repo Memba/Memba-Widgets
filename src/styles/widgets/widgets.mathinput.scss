@@ -3,12 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
-@import "../vendor/mathquill/mathquill";
+@import '../vendor/mathquill/mathquill';
 
 // Component
-@import "widgets.mathinput/layout";
-@import "widgets.mathinput/theme";
+@import 'widgets.mathinput/layout';
+@import 'widgets.mathinput/theme';

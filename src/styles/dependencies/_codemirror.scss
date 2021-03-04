@@ -1,5 +1,7 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
+
+/* stylelint-disable selector-class-pattern */
 
 //---------------------------------------------
 // CodeMirror
@@ -13,38 +15,37 @@
 
 // Gutters
 .CodeMirror-gutters {
-    border-right: $border-width solid $border-color;
     background-color: rgba(contrast-wcag($widget-bg), 0.04);
+    border-right: $border-width solid $border-color;
 }
 
 // .CodeMirror-linenumbers {}
 
 .CodeMirror-linenumber {
-    color: $widget-text;
 
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $widget-text;
 }
 
 .CodeMirror-guttermarker {
-    color: black;
+    color: #000;
 }
 
 .CodeMirror-guttermarker-subtle {
-    color: $widget-text;
 
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $widget-text;
 }
 
 // Cursor
-
 .CodeMirror-cursor {
     border-left: 1px solid $widget-text;
 }
 
 /* Shown when moving in bi-directional text */
-.CodeMirror div.CodeMirror-secondarycursor {
+.CodeMirror .CodeMirror-secondarycursor {
     border-left: 1px solid #f00; // TODO
 }
 
@@ -120,10 +121,10 @@
 }
 
 .cm-s-default .cm-comment {
-    color: $widget-text;
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+
+    color: $widget-text;
 }
 
 .cm-s-default .cm-string {
@@ -159,11 +160,11 @@
 }
 
 .cm-s-default .cm-hr {
-    color: $widget-text;
-    font-weight: bold;
 
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $widget-text;
+    font-weight: bold;
 }
 
 .cm-s-default .cm-link {
@@ -180,11 +181,11 @@
 
 /* Default styles for common addons */
 
-div.CodeMirror span.CodeMirror-matchingbracket {
+.CodeMirror .CodeMirror-matchingbracket {
     color: $success;
 }
 
-div.CodeMirror span.CodeMirror-nonmatchingbracket {
+.CodeMirror .CodeMirror-nonmatchingbracket {
     color: $error;
 }
 
@@ -227,15 +228,15 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 }
 
 .CodeMirror-line::selection,
-.CodeMirror-line > span::selection,
-.CodeMirror-line > span > span::selection {
+.CodeMirror-line > ::selection,
+.CodeMirror-line >  > ::selection {
     /* This is the default windows selection color */
     background-color: #0561d1 !important;
 }
 
-.CodeMirror-line::-moz-selection,
-.CodeMirror-line > span::-moz-selection,
-.CodeMirror-line > span > span::-moz-selection {
+.CodeMirror-line::selection,
+.CodeMirror-line > ::selection,
+.CodeMirror-line >  > ::selection {
     /* This is the default windows selection color */
     background-color: #0561d1 !important;
 }

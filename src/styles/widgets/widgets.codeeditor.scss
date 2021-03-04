@@ -1,11 +1,11 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
-@import "../vendor/codemirror/lib/codemirror.css";
-@import "../vendor/codemirror/addon/lint/lint.css";
-@import "../dependencies/_codemirror.scss";
+@import '../vendor/codemirror/lib/codemirror.css';
+@import '../vendor/codemirror/addon/lint/lint.css';
+@import '../dependencies/_codemirror';
 
 // Component
-@import "widgets.codeeditor/layout";
-@import "widgets.codeeditor/theme";
+@import 'widgets.codeeditor/layout';
+@import 'widgets.codeeditor/theme';

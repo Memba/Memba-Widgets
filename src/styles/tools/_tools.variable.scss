@@ -1,9 +1,9 @@
-@import "./tools";
+@import './tools';
 
 .kj-stage {
     &.kj-review,
     &.kj-play {
-        .kj-element[data-tool="variable"] {
+        .kj-element[data-tool='variable'] {
             display: none;
         }
     }

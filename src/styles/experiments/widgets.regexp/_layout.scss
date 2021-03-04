@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-@include exports( "widgets.regexp/layout" ) {
+@include exports( 'widgets.regexp/layout' ) {
     .kj-regexp {
         border: solid 1px grey;
         display: inline-block;

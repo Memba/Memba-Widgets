@@ -1,4 +1,4 @@
-@include exports( "widgets.codeeinput/layout" ) {
+@include exports( 'widgets.codeeinput/layout' ) {
     .kj-codeinput {
         .kj-codeinput-formula {
             display: flex;
@@ -19,17 +19,17 @@
 
                 .k-select {
                     @include border-right-radius-only();
-
-                    padding: $picker-select-padding-y $picker-select-padding-x;
+                    align-items: center;
+                    border-style: solid;
                     border-width: 0;
                     box-sizing: border-box;
-                    border-style: solid;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex: 0 0 auto;
-                    text-align: center;
                     cursor: pointer;
+                    display: flex;
+                    flex: 0 0 auto;
+                    justify-content: center;
+
+                    padding: $picker-select-padding-y $picker-select-padding-x;
+                    text-align: center;
 
                     // .k-icon {}
                 }

@@ -1,4 +1,4 @@
-@include exports( "widgets.codeeditor/layout" ) {
+@include exports( 'widgets.codeeditor/layout' ) {
     .kj-codeeditor {
         display: flex;
         flex-direction: row;
@@ -57,8 +57,8 @@
                     margin-left: 1rem;
 
                     .k-notification {
-                        padding: $button-padding-y $button-padding-x;
                         margin: 0;
+                        padding: $button-padding-y $button-padding-x;
                     }
                 }
             }

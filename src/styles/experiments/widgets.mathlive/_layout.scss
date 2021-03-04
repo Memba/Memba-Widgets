@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-@include exports( "widgets.mathlive/layout" ) {
+@include exports( 'widgets.mathlive/layout' ) {
     .kj-mathinput {
         // math-field:focus-within {
         > *:focus-within {

@@ -3,14 +3,14 @@
  * Sources at https://github.com/Memba
  */
 
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
-@import "../vendor/codemirror/lib/codemirror.css";
-@import "../dependencies/_codemirror.scss";
-@import "../vendor/codemirror/addon/lint/lint.css";
+@import '../vendor/codemirror/lib/codemirror.css';
+@import '../dependencies/_codemirror';
+@import '../vendor/codemirror/addon/lint/lint.css';
 
 // Component
-@import "widgets.markeditor/layout";
-@import "widgets.markeditor/theme";
+@import 'widgets.markeditor/layout';
+@import 'widgets.markeditor/theme';

@@ -4,52 +4,52 @@
  */
 
 // Global customization
-@import "../themes/common/global";
+@import '../themes/common/global';
 
 // Kendo UI
 // ~ tilde only works with webpack module resolution
-// @import "~@progress/kendo-theme-bootstrap/scss/all";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+// @import '~@progress/kendo-theme-bootstrap/scss/all';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/all';
 
 // Bootstrap customization (using Kendo UI variables)
-// @import "../themes/common/bootstrap";
+// @import '../themes/common/bootstrap';
 
 // Bootstrap 4
 // ~ tilde only works with webpack module resolution
-// @import "~bootstrap/scss/bootstrap";
-@import "../../../node_modules/bootstrap/scss/bootstrap";
+// @import '~bootstrap/scss/bootstrap';
+@import '../../../node_modules/bootstrap/scss/bootstrap';
 
 // Our widgets styles
-@import "../widgets/widgets.assetmanager.scss";
-@import "../widgets/widgets.audiovideo.scss";
-@import "../widgets/widgets.basiclist.scss"; // --> widgets.array
-@import "../widgets/widgets.bitflags.scss";
-@import "../widgets/widgets.codeinput.scss";
-@import "../widgets/widgets.codeeditor.scss";
-@import "../widgets/widgets.explorer.scss";
-// @import "../widgets/widgets.floating.scss";
-@import "../widgets/widgets.formatstrip.scss";
-@import "../widgets/widgets.highlighter.scss";
-@import "../widgets/widgets.imagelist.scss";
-@import "../widgets/widgets.latex.scss";
-@import "../widgets/widgets.license.scss";
-@import "../widgets/widgets.markdown.scss";
-@import "../widgets/widgets.markeditor.scss";
-@import "../widgets/widgets.mathinput.scss";
-@import "../widgets/widgets.multiinput.scss";
-@import "../widgets/widgets.multiquiz.scss";
-@import "../widgets/widgets.navigation.scss";
-@import "../widgets/widgets.playbar.scss";
-@import "../widgets/widgets.propertygrid.scss";
-@import "../widgets/widgets.quiz.scss";
-@import "../widgets/widgets.social.scss";
-@import "../widgets/widgets.splitbutton.scss";
-@import "../widgets/widgets.stage.scss";
-@import "../widgets/widgets.styleeditor.scss";
-@import "../widgets/widgets.table.scss";
-@import "../widgets/widgets.textgaps.scss";
-@import "../widgets/widgets.unitinput.scss";
-// @import "../widgets/widgets.vectordrawing.scss";
+@import '../widgets/widgets.assetmanager';
+@import '../widgets/widgets.audiovideo';
+@import '../widgets/widgets.basiclist'; // --> widgets.array
+@import '../widgets/widgets.bitflags';
+@import '../widgets/widgets.codeinput';
+@import '../widgets/widgets.codeeditor';
+@import '../widgets/widgets.explorer';
+// @import '../widgets/widgets.floating';
+@import '../widgets/widgets.formatstrip';
+@import '../widgets/widgets.highlighter';
+@import '../widgets/widgets.imagelist';
+@import '../widgets/widgets.latex';
+@import '../widgets/widgets.license';
+@import '../widgets/widgets.markdown';
+@import '../widgets/widgets.markeditor';
+@import '../widgets/widgets.mathinput';
+@import '../widgets/widgets.multiinput';
+@import '../widgets/widgets.multiquiz';
+@import '../widgets/widgets.navigation';
+@import '../widgets/widgets.playbar';
+@import '../widgets/widgets.propertygrid';
+@import '../widgets/widgets.quiz';
+@import '../widgets/widgets.social';
+@import '../widgets/widgets.splitbutton';
+@import '../widgets/widgets.stage';
+@import '../widgets/widgets.styleeditor';
+@import '../widgets/widgets.table';
+@import '../widgets/widgets.textgaps';
+@import '../widgets/widgets.unitinput';
+// @import '../widgets/widgets.vectordrawing';
 
 // Our dialog styles
-@import "../dialogs/widgets.basedialog.scss";
+@import '../dialogs/widgets.basedialog';

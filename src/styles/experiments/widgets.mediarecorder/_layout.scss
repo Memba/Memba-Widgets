@@ -3,12 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-@include exports( "widgets.mediarecorder/layout" ) {
+@include exports( 'widgets.mediarecorder/layout' ) {
     .kj-mediarecorder {
         .k-toolbar {
-            border-top: 0;
             border-left: 0;
             border-right: 0;
+            border-top: 0;
 
             .kj-mediarecorder-meter {
                 margin: 0 0.2em;

@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-@include exports( "widgets.countdown/layout" ) {
+@include exports( 'widgets.countdown/layout' ) {
 
     $white: #fff;
     $info1: #7ff;
@@ -31,8 +31,8 @@
         }
 
         .k-text {
-            font-size: 2em;
             font-family: Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace;
+            font-size: 2em;
         }
     }
 }

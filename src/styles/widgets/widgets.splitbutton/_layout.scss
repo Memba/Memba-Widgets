@@ -1,12 +1,12 @@
-@include exports( "widgets.splitbutton/layout" ) {
+@include exports( 'widgets.splitbutton/layout' ) {
     .k-popup {
         .k-button {
             .k-image {
-                height: 1.2em;
-                width: 1.2em;
-                outline: 0;
                 border: 0;
+                height: 1.2em;
+                outline: 0;
                 vertical-align: sub;
+                width: 1.2em;
             }
 
             // .k-icon,
@@ -27,8 +27,8 @@
 
         .k-button {
             &:not(.k-split-button-arrow) {
-                border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
 
                 .k-image {
                     height: 1.5em; // TODO
@@ -37,8 +37,8 @@
             }
 
             &.k-split-button-arrow {
-                border-top-left-radius: 0;
                 border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
                 margin: 0 0 0 -1px; // TODO
                 padding-left: 0.4em; // TODO
                 padding-right: 0.4em; // TODO

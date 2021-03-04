@@ -3,19 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
-@include exports( "widgets.buttonset/layout" ) {
+@include exports( 'widgets.buttonset/layout' ) {
     .kj-buttonset {
         display: inline-block;
 
         .km-widget.km-buttongroup.k-widget.k-button-group {
+            border: none;
             display: flex;
             flex-wrap: wrap;
             padding-left: 1px;
-            border: none;
 
             .km-button.k-button {
-                display: initial;
                 border-width: 1px;
+                display: initial;
                 margin-left: -1px;
                 padding: 0.25em 0.8em;
             }
@@ -25,9 +25,9 @@
 
                 .km-button.k-button,
                 .km-button.k-button:hover {
-                    color: inherit;
                     background-color: inherit;
                     background-image: inherit;
+                    color: inherit;
                 }
 
                 .km-button.k-button:not(.k-state-active) {

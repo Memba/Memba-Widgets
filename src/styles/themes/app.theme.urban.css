@@ -16,10 +16,10 @@
  * Sources at https://github.com/Memba
  */
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap");
-@import "../vendor/codemirror/lib/codemirror.css";
-@import "../vendor/codemirror/addon/lint/lint.css";
-@import "../vendor/codemirror/lib/codemirror.css";
-@import "../vendor/codemirror/addon/lint/lint.css";
+@import '../vendor/codemirror/lib/codemirror.css';
+@import '../vendor/codemirror/addon/lint/lint.css';
+@import '../vendor/codemirror/lib/codemirror.css';
+@import '../vendor/codemirror/addon/lint/lint.css';
 .k-theme-test-class,
 .k-common-test-class {
   opacity: 0;
@@ -76251,8 +76251,8 @@ body .k-list-item > .kj-buttons .k-button:last-child,
 }
 
 .CodeMirror-gutters {
-  border-right: 1px solid #dee2e6;
   background-color: rgba(0, 0, 0, 0.04);
+  border-right: 1px solid #dee2e6;
 }
 
 .CodeMirror-linenumber {
@@ -78239,8 +78239,8 @@ body > .k-list-item > .kj-buttons .k-button:last-child,
 }
 
 .CodeMirror-gutters {
-  border-right: 1px solid #dee2e6;
   background-color: rgba(0, 0, 0, 0.04);
+  border-right: 1px solid #dee2e6;
 }
 
 .CodeMirror-linenumber {
@@ -79394,12 +79394,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
       }
 
       input:not([type]),
-      input[type="email"],
-      input[type="number"],
-      input[type="password"],
-      input[type="tel"],
-      input[type="url"],
-      input[type="text"] {
+      input[type='email'],
+      input[type='number'],
+      input[type='password'],
+      input[type='tel'],
+      input[type='url'],
+      input[type='text'] {
           padding-left: 2px !important;
           padding-right: 2px !important;
       }

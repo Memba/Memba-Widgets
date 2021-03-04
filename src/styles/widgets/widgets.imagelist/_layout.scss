@@ -1,4 +1,4 @@
-@include exports( "widgets.imagelist/layout" ) {
+@include exports( 'widgets.imagelist/layout' ) {
     .kj-imagelist {
         > .k-toolbar {
             // border-bottom: none;
@@ -9,8 +9,8 @@
 
         > .k-listview {
             border: none;
-            padding: 0;
             margin: 0;
+            padding: 0;
 
             .k-icon {
                 color: inherit;

@@ -1,4 +1,4 @@
-@include exports( "widgets.explorer/layout" ) {
+@include exports( 'widgets.explorer/layout' ) {
     .kj-explorer {
         .kj-placeholder {
             opacity: 0.4;
@@ -18,8 +18,8 @@
 
             .k-image {
                 height: 1.5rem;
-                width: 1.5rem;
                 margin-right: 0.5rem;
+                width: 1.5rem;
             }
 
             .k-text {
@@ -29,9 +29,9 @@
                 white-space: nowrap;
 
                 em {
-                    white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
             }
         }

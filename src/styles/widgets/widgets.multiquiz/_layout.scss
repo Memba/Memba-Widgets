@@ -1,4 +1,4 @@
-@include exports( "widgets.multiquiz/layout" ) {
+@include exports( 'widgets.multiquiz/layout' ) {
     //*******************
     // MultiSelect
     //*******************
@@ -15,13 +15,13 @@
 
         .kj-multiquiz-item.kj-multiquiz-multiselect {
             > .k-image {
-                background-size: cover;
                 background-position: center;
+                background-size: cover;
                 display: inline-block;
-                vertical-align: text-bottom;
-                width: 1.1em;
                 height: 1.1em;
                 margin-right: 0.25em;
+                vertical-align: text-bottom;
+                width: 1.1em;
             }
             // >.k-text {}
         }
@@ -30,8 +30,8 @@
     .kj-multiquiz {
         &.k-state-disabled,
         .k-state-disabled {
-            opacity: 1;
             color: inherit;
+            opacity: 1;
 
             .k-button {
                 color: inherit;
@@ -44,23 +44,23 @@
             // Buttons
             //*******************
             &.kj-multiquiz-button {
+                font-family: inherit;
+                line-height: 1.72em;
                 margin-bottom: 0.2em;
                 margin-right: 0.2em;
                 // Fiori has a different padding
-                padding: 2px 7px 2px;
+                padding: 2px 7px;
                 // Material capitalizes text
                 text-transform: none;
-                font-family: inherit;
-                line-height: 1.72em;
 
                 >.k-image {
-                    background-size: cover;
                     background-position: center;
+                    background-size: cover;
                     display: inline-block;
-                    vertical-align: text-bottom;
-                    width: 1.1em;
                     height: 1.1em;
                     margin-right: 0.25em;
+                    vertical-align: text-bottom;
+                    width: 1.1em;
                 }
                 // >.k-text {}
             }
@@ -71,22 +71,22 @@
             &.kj-multiquiz-image {
                 cursor: pointer;
                 display: inline-block;
-                position: relative;
                 height: 100px;
-                width: 100px;
                 // margin-bottom: 0.3em;
                 margin-right: 0.3em;
+                position: relative;
+                width: 100px;
 
                 > .k-image {
-                    background-size: cover;
                     background-position: center;
-                    position: absolute;
-                    top: 10%;
+                    background-size: cover;
                     bottom: 10%;
-                    left: 10%;
-                    right: 10%;
-                    width: auto;
                     height: auto;
+                    left: 10%;
+                    position: absolute;
+                    right: 10%;
+                    top: 10%;
+                    width: auto;
                 }
                 // >.k-text {
                 //     position: absolute;
@@ -142,8 +142,8 @@
                     margin-left: 0.2em;
 
                     > .k-image {
-                        background-size: cover;
                         background-position: center;
+                        background-size: cover;
                         // display: inline-block;
                         height: 1.1em;
                         margin-right: 0.2em;

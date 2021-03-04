@@ -1,23 +1,23 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
 
 // Component
-@import "widgets.stage/layout";
-@import "widgets.stage/theme";
+@import 'widgets.stage/layout';
+@import 'widgets.stage/theme';
 
 // Tools
-@import "../tools/tools.dropzone";
-@import "../tools/tools.highlighter";
-@import "../tools/tools.label";
-@import "../tools/tools.latex";
-@import "../tools/tools.mathinput";
-@import "../tools/tools.multiquiz";
-@import "../tools/tools.numericbox";
-@import "../tools/tools.quiz";
-@import "../tools/tools.selector";
-@import "../tools/tools.textarea";
-@import "../tools/tools.textbox";
-@import "../tools/tools.textgaps";
-@import "../tools/tools.variable";
+@import '../tools/tools.dropzone';
+@import '../tools/tools.highlighter';
+@import '../tools/tools.label';
+@import '../tools/tools.latex';
+@import '../tools/tools.mathinput';
+@import '../tools/tools.multiquiz';
+@import '../tools/tools.numericbox';
+@import '../tools/tools.quiz';
+@import '../tools/tools.selector';
+@import '../tools/tools.textarea';
+@import '../tools/tools.textbox';
+@import '../tools/tools.textgaps';
+@import '../tools/tools.variable';

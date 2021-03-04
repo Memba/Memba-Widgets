@@ -1,4 +1,4 @@
-@include exports( "widgets.basiclist/layout" ) {
+@include exports( 'widgets.basiclist/layout' ) {
     .kj-basiclist {
         > .k-toolbar {
             // border-bottom: none;
@@ -9,8 +9,8 @@
 
         > .k-listview {
             border: none;
-            padding: 0;
             margin: 0;
+            padding: 0;
 
             .k-icon {
                 color: inherit;

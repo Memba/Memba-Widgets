@@ -1,13 +1,13 @@
-@include exports( "widgets.quiz/theme" ) {
+@include exports( 'widgets.quiz/theme' ) {
     //*******************
     // Themes
     //*******************
     .k-black {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #06c;
                 border-color: #0069d1;
+                color: #fff;
             }
         }
     }
@@ -15,9 +15,9 @@
     .k-blueopal {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #13688c;
                 border-color: #146b90;
+                color: #fff;
             }
         }
     }
@@ -25,9 +25,9 @@
     .k-bootstrap {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #428bca;
                 border-color: #428bca;
+                color: #fff;
             }
         }
     }
@@ -35,9 +35,9 @@
     .k-default {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #f35800;
                 border-color: #f85a00;
+                color: #fff;
             }
         }
     }
@@ -45,9 +45,9 @@
     .k-fiori {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #007cc0;
                 border-color: #005483;
+                color: #fff;
             }
         }
     }
@@ -55,9 +55,9 @@
     .k-flat {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #10c4b2;
                 border-color: #10c4b2;
+                color: #fff;
             }
         }
     }
@@ -65,9 +65,9 @@
     .k-highcontrast {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #870074;
                 border-color: #870074;
+                color: #fff;
             }
         }
     }
@@ -77,9 +77,9 @@
         .kj-quiz, // IMPORTANT!
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #3f51b5;
                 border-color: #3f51b5;
+                color: #fff;
             }
         }
     }
@@ -87,9 +87,9 @@
     .k-metro {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #7ea700;
                 border-color: #7ea700;
+                color: #fff;
             }
         }
     }
@@ -97,9 +97,9 @@
     .k-metroblack {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #008886;
                 border-color: #008886;
+                color: #fff;
             }
         }
     }
@@ -107,9 +107,9 @@
     .k-moonlight {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #171e28;
                 background-color: #f4af03;
                 border-color: #f9b303;
+                color: #171e28;
             }
         }
     }
@@ -117,9 +117,9 @@
     .k-nova {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #ff4350;
                 border-color: #ff4350;
+                color: #fff;
             }
         }
     }
@@ -127,9 +127,9 @@
     .k-office365 {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #0072c6;
                 border-color: #0072c6;
+                color: #fff;
             }
         }
     }
@@ -137,9 +137,9 @@
     .k-silver {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #fff;
                 background-color: #1984c8;
                 border-color: #1a87cd;
+                color: #fff;
             }
         }
     }
@@ -147,9 +147,9 @@
     .k-uniform {
         .kj-quiz.k-state-disabled {
             .kj-quiz-button.k-state-selected {
-                color: #454545;
                 background-color: #eee;
                 border-color: #cdcdcd;
+                color: #454545;
             }
         }
     }

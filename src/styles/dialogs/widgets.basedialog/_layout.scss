@@ -1,4 +1,4 @@
-@include exports( "widgets.basedialog/layout" ) {
+@include exports( 'widgets.basedialog/layout' ) {
     .k-dialog {
         .k-notification {
             margin-bottom: 1em;
@@ -23,9 +23,9 @@
             .k-button {
                 .k-image {
                     height: 1.5em;
-                    width: 1.5em;
                     margin-right: 0.25em;
                     vertical-align: middle;
+                    width: 1.5em;
                 }
             }
         }

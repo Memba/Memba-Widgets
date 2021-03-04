@@ -1,9 +1,9 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
-@import "../vendor/mathquill/mathquill";
+@import '../vendor/mathquill/mathquill';
 
 // Component
-@import "widgets.mathquill/layout";
-@import "widgets.mathquill/theme";
+@import 'widgets.mathquill/layout';
+@import 'widgets.mathquill/theme';

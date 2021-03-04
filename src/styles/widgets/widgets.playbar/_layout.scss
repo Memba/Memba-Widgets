@@ -1,4 +1,4 @@
-@include exports( "widgets.playbar/layout" ) {
+@include exports( 'widgets.playbar/layout' ) {
     .kj-playbar {
         z-index: 1000; // so that the drop down list of numeric buttons displays over other controls
 
@@ -25,9 +25,9 @@
     .kj-playbar.kj-top {
         // .k-pager-numbers { flex-direction: column; }
         .k-pager-numbers.k-state-expanded {
-            transform: translateY(1.72em); //same as line-height
             // border-radius: 4px 4px 0 0;
             border-radius: 0 0 4px 4px;
+            transform: translateY(1.72em); //same as line-height
 
             .k-current-page {
                 transform: translateY(0);

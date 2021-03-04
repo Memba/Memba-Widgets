@@ -3,8 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-@include exports( "widgets.floating/layout" ) {
-
+@include exports( 'widgets.floating/layout' ) {
     .kj-floating {
         cursor: move;
         display: flex;

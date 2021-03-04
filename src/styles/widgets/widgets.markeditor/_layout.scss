@@ -1,6 +1,6 @@
-@include exports( "widgets.markeditor/layout" ) {
+@include exports( 'widgets.markeditor/layout' ) {
     .kj-markeditor-toolbar {
-        .k-button-icon[data-tool="headings"] {
+        .k-button-icon[data-tool='headings'] {
             width: auto;
         }
     }
@@ -24,20 +24,20 @@
                 }
 
                 .k-action-buttons {
-                    position: static;
-                    bottom: 0;
                     border: 0;
+                    bottom: 0;
                     margin: 0;
+                    position: static;
                 }
             }
         }
 
         .kj-mathinput-toolbar {
-            // To counteract padding
-            margin-top: -1.167em;
+            margin-bottom: 0.75em;
             margin-left: -0.75em;
             margin-right: -0.75em;
-            margin-bottom: 0.75em;
+            // To counteract padding
+            margin-top: -1.167em;
         }
 
         .kj-mathinput {
@@ -66,9 +66,9 @@
         .k-button {
             .k-image {
                 height: 1.5em;
-                width: 1.5em;
                 margin-right: 0.25em;
                 vertical-align: middle;
+                width: 1.5em;
             }
         }
     }

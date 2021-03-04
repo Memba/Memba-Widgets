@@ -1,4 +1,4 @@
-@include exports( "widgets.codeeditor/theme" ) {
+@include exports( 'widgets.codeeditor/theme' ) {
     .k-tooltip {
         .kj-codeeditor-json {
             color: $tooltip-text;

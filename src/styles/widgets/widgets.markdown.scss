@@ -1,10 +1,10 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
-@import "../dependencies/highlightjs";
-// @import "../vendor/khan/katex"; // Error in  webpack
+@import '../dependencies/highlightjs';
+// @import '../vendor/khan/katex'; // Error in  webpack
 
 // Component
-@import "widgets.markdown/layout";
-@import "widgets.markdown/theme";
+@import 'widgets.markdown/layout';
+@import 'widgets.markdown/theme';

@@ -1,9 +1,9 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 // Dependencies
-@import "widgets.stage.scss";
+@import 'widgets.stage';
 
 // Component
-@import "widgets.navigation/layout";
-@import "widgets.navigation/theme";
+@import 'widgets.navigation/layout';
+@import 'widgets.navigation/theme';

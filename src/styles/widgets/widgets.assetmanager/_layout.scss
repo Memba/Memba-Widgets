@@ -1,4 +1,4 @@
-@include exports( "widgets.assetmanager/layout" ) {
+@include exports( 'widgets.assetmanager/layout' ) {
     .kj-assetmanager {
         .k-tabstrip.k-tabstrip-left {
             border: none;
@@ -13,8 +13,8 @@
 
             // Tab content on the right
             > div.k-content {
-                padding: 0;
                 border: 0;
+                padding: 0;
 
                 .k-filebrowser {
                     padding: 0.5em;
@@ -39,14 +39,14 @@
 
                         // right
                         .k-tiles-arrange {
-                            display: flex;
                             align-items: center;
+                            display: flex;
                             max-width: 60%;
 
                             .k-progressbar {
                                 color: inherit;
-                                max-width: 40%;
                                 margin-right: 0.5em;
+                                max-width: 40%;
                             }
 
                             .k-textbox {
@@ -79,8 +79,8 @@
                             .k-tile {
                                 // width: 88px;
                                 .k-image {
-                                    width: 80px;
                                     height: auto;
+                                    width: 80px;
                                 }
                             }
                         }

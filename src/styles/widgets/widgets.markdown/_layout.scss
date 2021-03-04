@@ -1,8 +1,13 @@
-@include exports( "widgets.markdown/layout" ) {
+@include exports( 'widgets.markdown/layout' ) {
     .kj-markdown {
 
         // Heading font
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             font-weight: bold;
         }
 
@@ -17,10 +22,13 @@
         // tables
         table {
             border-collapse: collapse;
-            th, td {
-                padding: 0.25rem;
+
+            th,
+            td {
                 border: 1px solid #ccc;
+                padding: 0.25rem;
             }
+
             tbody {
                 tr:nth-child(odd) {
                     background: #eee;
@@ -29,17 +37,17 @@
         }
 
         img.img-responsive {
-            width: 100%;
             height: auto;
             max-width: 400px;
+            width: 100%;
         }
 
         // twemoji
         img.emoji {
             height: 1.1em;
-            width: 1.1em;
             margin: 0 .1em;
             vertical-align: middle;
+            width: 1.1em;
         }
 
     }
@@ -49,7 +57,13 @@
         .km-listview {
             .kj-markdown {
                 // Margins
-                p, h1, h2, h3, h4, h5, h6 {
+                p,
+                h1,
+                h2,
+                h3,
+                h4,
+                h5,
+                h6 {
                     margin-left: 0;
                     margin-right: 0;
                 }

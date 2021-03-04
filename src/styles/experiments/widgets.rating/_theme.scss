@@ -1,4 +1,4 @@
-@include exports( "widgets.rating/theme" ) {
+@include exports( 'widgets.rating/theme' ) {
     .kj-rating {
         .k-state-selected:not(.k-state-hover) {
             color: #4d82b8;

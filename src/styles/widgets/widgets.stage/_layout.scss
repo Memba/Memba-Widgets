@@ -1,12 +1,12 @@
 // TODO: replace png sprites with SVG icons
 
-@include exports( "widgets.stage/layout" ) {
+@include exports( 'widgets.stage/layout' ) {
     .kj-stage {
         font-family: Helvetica, Arial, sans-serif;
         font-size: 40px;
         font-weight: normal;
-        text-align: initial; // For playbar tooltips
         height: 100%; // to match scaling
+        text-align: initial; // For playbar tooltips
 
         /*
         .kj-element {
@@ -15,12 +15,12 @@
             }
 
             input:not([type]),
-            input[type="email"],
-            input[type="number"],
-            input[type="password"],
-            input[type="tel"],
-            input[type="url"],
-            input[type="text"] {
+            input[type='email'],
+            input[type='number'],
+            input[type='password'],
+            input[type='tel'],
+            input[type='url'],
+            input[type='text'] {
                 padding-left: 2px !important;
                 padding-right: 2px !important;
             }
@@ -28,50 +28,50 @@
          */
 
         .kj-element-result {
-            position: relative;
             height: 0 !important;
+            position: relative;
         }
 
         .kj-adorner {
             border: 1px solid darkgray;
-            opacity: 0.5;
             // padding: 20px;
             // margin: -20px;
             cursor: default;
+            opacity: 0.5;
 
             .kj-handle {
-                pointer-events: all;
-                position: absolute;
-                display: block;
-                width: 36px;
-                height: 36px;
                 background: url('../images/handler.png') no-repeat left top;
                 cursor: pointer;
+                display: block;
+                height: 36px;
+                pointer-events: all;
+                position: absolute;
+                width: 36px;
                 z-index: 0;
             }
 
-            .kj-handle[data-action="move"] {
-                left: -9px;
-                top: -10px;
+            .kj-handle[data-action='move'] {
                 background-position: left -144px;
-            }
-
-            .kj-handle[data-action="resize"] {
-                bottom: -10px;
-                right: -13px;
-                background-position: left -72px;
-            }
-
-            .kj-handle[data-action="rotate"] {
-                top: -10px;
-                right: -13px;
-                background-position: left -36px;
-            }
-
-            .kj-handle[data-action="menu"] {
                 left: -9px;
+                top: -10px;
+            }
+
+            .kj-handle[data-action='resize'] {
+                background-position: left -72px;
                 bottom: -10px;
+                right: -13px;
+            }
+
+            .kj-handle[data-action='rotate'] {
+                background-position: left -36px;
+                right: -13px;
+                top: -10px;
+            }
+
+            .kj-handle[data-action='menu'] {
                 background-position: left -108px;
+                bottom: -10px;
+                left: -9px;
             }
         }
 

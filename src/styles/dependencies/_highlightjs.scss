@@ -1,5 +1,5 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
 
 /*!
  * Agate by Taufik Nurrohman <https://github.com/tovic>
@@ -19,12 +19,12 @@
  *
  */
 .hljs {
-    display: block;
-    overflow-x: auto;
-    padding: 0.5em;
     background: $component-bg;
     border: $component-border;
     color: $component-text;
+    display: block;
+    overflow-x: auto;
+    padding: 0.5em;
 }
 
 .hljs-name,
@@ -78,10 +78,10 @@
 .hljs-comment,
 .hljs-deletion,
 .hljs-code {
-    color: $widget-text;
 
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $widget-text;
 }
 
 .hljs-regexp,

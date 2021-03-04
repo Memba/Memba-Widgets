@@ -1,17 +1,17 @@
-@include exports( "widgets.unitinput/layout" ) {
+@include exports( 'widgets.unitinput/layout' ) {
     .kj-unitinput {
         display: flex;
 
         .k-numerictextbox,
         .k-numeric-wrap {
-            border-top-right-radius: 0;
             border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
         }
 
         .k-dropdown,
         .k-dropdown-wrap {
-            border-top-left-radius: 0;
             border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
         }
 
         .k-numerictextbox {

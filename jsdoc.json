@@ -1,0 +1,24 @@
+{
+    "tags": {
+        "allowUnknownTags": false
+    },
+    "source": {
+        "include": ["./src", "./README.md"],
+        "includePattern": "\\.es6$",
+        "excludePattern": "/vendor/"
+    },
+    "plugins": [
+        "plugins/markdown"
+    ],
+    "opts": {
+        "encoding": "utf8",
+        "destination": "./docs/api",
+        "recurse": true,
+        "template": "node_modules/docdash",
+        "verbose": true
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    }
+}

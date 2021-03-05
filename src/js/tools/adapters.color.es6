@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
+import TOOLS from './util.constants.es6';
 
 const { attr } = window.kendo;
 
@@ -28,7 +29,7 @@ const ColorAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue =
-            this.defaultValue || (this.nullable ? null : '#000000');
+            this.defaultValue || (this.nullable ? null : TOOLS.MIDDLE_GREY);
         this.editor = 'input';
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr(CONSTANTS.ROLE)] = 'colorpicker';

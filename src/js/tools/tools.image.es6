@@ -116,14 +116,14 @@ const ImageTool = BaseTool.extend({
             // The class$ function adds the kj-interactive class to draggable components
             class$() {
                 return `kj-image${
-                    component.properties.behavior === 'draggable'
+                    component.get('properties.behavior') === 'draggable'
                         ? ` ${CONSTANTS.INTERACTIVE_CLASS}`
                         : ''
                 }`;
             },
             // The id$ function returns the component id for components that have a behavior
             id$() {
-                return component.properties.behavior !== 'none' &&
+                return component.get('properties.behavior') !== 'none' &&
                     $.type(component.id) === CONSTANTS.STRING &&
                     component.id.length
                     ? component.id
@@ -131,7 +131,7 @@ const ImageTool = BaseTool.extend({
             },
             // The src$ function resolves urls with schemes like cdn://sample.jpg
             src$() {
-                const src = component.attributes.get('src');
+                const src = component.get('attributes.src');
                 return assets.image.scheme2http(src);
             },
         });
@@ -173,6 +173,7 @@ const ImageTool = BaseTool.extend({
             description,
             i18n: { messages },
         } = this; // tool description
+        // TODO use component.get('attributes.alt')
         if (
             !component.attributes ||
             !component.attributes.alt ||

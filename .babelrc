@@ -10,7 +10,7 @@
             "module-resolver",
             {
                 "cwd": "babelrc", // "packagejson"
-                "extensions": [".es6", ".js"],
+                "extensions": [".es6", ".js", ".mjs"],
                 "root": [
                     ".",
                     "./test/vendor/",

@@ -51,7 +51,7 @@ const LineTool = BaseTool.extend({
         lineColor: new ColorAdapter({
             help: __('tools.line.attributes.lineColor.help'),
             title: __('tools.line.attributes.lineColor.title'),
-            defaultValue: TOOLS.MEDIUM_GREY,
+            defaultValue: TOOLS.MIDDLE_GREY,
         }),
         lineWidth: new NumberAdapter(
             {

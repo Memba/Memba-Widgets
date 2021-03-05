@@ -11,7 +11,7 @@ const TOOLS = {
     LIB_COMMENT: '// ',
     LIB_PARAMS: ' {0}',
 
-    MEDIUM_GREY: '#808080',
+    MIDDLE_GREY: '#777777', // Not '#808080', see https://en.wikipedia.org/wiki/Middle_gray
 
     POINTER: 'pointer',
 

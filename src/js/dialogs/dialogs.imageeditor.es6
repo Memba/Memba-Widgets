@@ -58,7 +58,7 @@ function openImageEditor(options = {}) {
                         imageUrl: '',
                         execute: (evt) => {
                             if (evt.command !== 'ZoomImageEditorCommand') {
-                                window.alert(evt.command);
+                                window.kendo.alert(evt.command);
                             }
                         },
                         ...e.sender.options.data,

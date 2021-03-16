@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>widgets.stage.userevents</title>
+    <script>
+        window.DEBUG = true;
+    </script>
+    <!-- Kidoju fonts -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Kidoju theme -->
+    <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
+    <script src="../helpers/system.config.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            SystemJS.import('./widgets.stage.userevents.es6').then(function (module) {
+                var kendo = window.kendo;
+                var StageUserEvents = module.default;
+                $(function () {
+                    $('[data-role="stage"]').each(function(index, element) {
+                        var userEvents = new StageUserEvents($(element), {
+                            // fastTap: true,
+                            press: function (e) {
+                                e.sender.element.find('.dot').css({
+                                    left: e.x.stage,
+                                    top: e.y.stage,
+                                });
+                            },
+                            tap: function (e) {
+                                debugger;
+                            },
+                            start:  function (e) {
+                                debugger;
+                            },
+                            move:  function (e) {
+                                debugger;
+                            },
+                            end:  function (e) {
+                                debugger;
+                            },
+                        });
+                    });
+                });
+            });
+        }());
+    </script>
+</head>
+<body>
+<h1>widgets.stage.userevents</h1>
+<h2>First Stage</h2>
+<div class="kj-stage" style="position: relative; height: 300px; width: 300px; margin-left: 50px; border: solid 1px black; transform: scale(0.75); transform-origin: top left;">
+    <div data-role="stage" style="height: 300px; width: 300px;">
+        <!-- Content Here -->
+        <div class="dot" style="position: absolute; top: 50px; left: 50px; height: 10px; width: 10px; background-color: red; border: solid 1px red; border-radius: 50%;"></div>
+    </div>
+</div>
+<h2>Second Stage</h2>
+<div class="kj-stage" style="position: relative; height: 300px; width: 300px; border: solid 1px black; transform: scale(1.25); transform-origin: top left;">
+    <div data-role="stage" style="height: 300px; width: 300px;">
+        <!-- Content Here -->
+        <div class="dot" style="position: absolute; top: 50px; left: 50px; height: 10px; width: 10px; background-color: red; border: solid 1px red; border-radius: 50%;"></div>
+    </div>
+</div>
+</body>
+</html>

@@ -170,6 +170,7 @@ const CONSTANTS = {
     BUTTON: 'button',
     CANVAS: 'canvas',
     DIV: 'div',
+    FORM: 'form',
     H1: 'h1',
     IMG: 'img',
     INPUT: 'input',

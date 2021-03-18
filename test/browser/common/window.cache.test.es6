@@ -116,9 +116,9 @@ describe('window.cache', () => {
             expect(items.length).to.equal(DATA.length);
             items.forEach((item) => {
                 const keys = Object.keys(item).sort().toString();
-                const found = DATA.find((data) => {
-                    return Object.keys(data).sort().toString() === keys;
-                });
+                const found = DATA.find(
+                    (data) => Object.keys(data).sort().toString() === keys
+                );
                 expect(item).to.eql(found);
             });
         });
@@ -250,9 +250,9 @@ describe('window.cache', () => {
             expect(items.length).to.equal(DATA.length);
             items.forEach((item) => {
                 const keys = Object.keys(item).sort().toString();
-                const found = DATA.find((data) => {
-                    return Object.keys(data).sort().toString() === keys;
-                });
+                const found = DATA.find(
+                    (data) => Object.keys(data).sort().toString() === keys
+                );
                 expect(item).to.eql(found);
             });
         });

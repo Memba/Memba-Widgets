@@ -37,7 +37,6 @@ function hit(e) {
 
 let initial;
 function handler(e) {
-    debugger;
     if (!initial) {
         initial = $(e.target).position();
     }

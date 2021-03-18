@@ -1,7 +1,3 @@
-/* jshint browser:true */
-/* jslint browser:true */
-/* global $: false, jQuery: false */
-
 (function ($) {
     let count = 0;
     let oldMessage;

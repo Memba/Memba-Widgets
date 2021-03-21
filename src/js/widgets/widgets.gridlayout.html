@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>widgets.gridlayout</title>
+    <script>
+        window.DEBUG = true;
+    </script>
+    <!-- Kidoju fonts -->
+    <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
+    <!-- Kidoju theme -->
+    <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
+    <!-- SystemJS loader -->
+    <script src="../../../test/vendor/polyfill.min.js"></script>
+    <script src="../../../test/vendor/system.js"></script>
+    <script src="../../js/helpers/system.config.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            Promise.all([
+                SystemJS.import('kendo.binder'),
+                SystemJS.import('./widgets.gridlayout.es6')
+            ]).then(function (modules) {
+                var kendo = window.kendo;
+                $('.container').kendoGridLayout({
+                    rows: [
+                        {
+                            cells: [
+                                {
+                                    class: 'col-3'
+                                },
+                                {
+                                    class: 'col-9'
+                                },
+                            ],
+                            class: 'row',
+                        },
+                    ],
+                    items: [
+                        {
+                            name: 'one',
+                            title: 'Item one',
+                            bodyTemplate: kendo.template($("#first").html()),
+                            editable: true,
+                            visible: true,
+                            position: [0, 0, 1],
+                        },
+                        {
+                            name: 'two',
+                            title: 'Item two',
+                            bodyTemplate: kendo.template($("#second").html()),
+                            editable: true,
+                            visible: true,
+                            position: [0, 1, 1],
+                        },
+                        {
+                            name: 'three',
+                            title: 'Item three',
+                            // bodyTemplate,
+                            form: {
+                                formData: {
+                                    ID: 1,
+                                    Name: "Ivan",
+                                    Address: "Sofia"
+                                },
+                            },
+                            editable: true,
+                            visible: true,
+                            position: [0, 1, 2],
+                        },
+                    ],
+                });
+                var viewModel = kendo.observable({
+                    first: 'A',
+                    second: 'B'
+                })
+                kendo.bind('.container', viewModel);
+            });
+        }());
+    </script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container"></div>
+<!-- first container -->
+<script id="first" type="text/x-kendo-template">
+    <label>First:<input type="text" data-bind="value: first" class="k-textbox"></label>
+    <div>Second:<span data-bind="text: second"></span></div>
+</script>
+
+<!-- second container -->
+<script id="second" type="text/x-kendo-template">
+    <div>First:<span data-bind="text: first"></span></div>
+    <label>Second:<input type="text" data-bind="value: second" class="k-textbox"></label>
+</script>
+</body>
+</html>

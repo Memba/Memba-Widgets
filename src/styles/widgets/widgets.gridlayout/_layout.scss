@@ -1,0 +1,60 @@
+@include exports( 'widgets.gridlayout/layout' ) {
+    .m-grid-layout {
+        // An area is a column whereto panels can be dropped
+        .m-grid-layout-area {
+            align-items: stretch;
+            display: flex;
+            flex-direction: column;
+            user-select: none; // prevents copy/paste bubbles in iOS Safari
+
+            &.m-grid-layout-sorting {
+                // This is the minimum height to ensure we have an area to drop to after removing all panels
+                min-height: 400px;
+            }
+        }
+    }
+
+    .k-window.m-panel {
+        display: block;
+        flex-direction: initial;
+        margin-bottom: 30px;  // TODO $gutter / 2;
+        position: static;
+        z-index: initial; // 0
+
+        .k-window-title.m-panel-title.k-cursor-grab {
+            cursor: grab;
+        }
+
+        // placeholder is the style applied at the original location of a panel being dragged
+        &.m-panel-placeholder {
+            border-style: dashed;
+            opacity: 0.4;
+        }
+
+        &:not(.m-panel-editable) {
+            .m-panel-edit,
+            .m-panel-submit,
+            .m-panel-cancel {
+                display: none;
+            }
+        }
+
+        &.m-panel-editable:not(.m-panel-editing) {
+            .m-panel-submit,
+            .m-panel-cancel, {
+                display: none;
+            }
+        }
+
+        &.m-panel-editable.m-panel-editing {
+            .m-panel-edit,
+            .m-panel-close {
+                display: none;
+            }
+        }
+    }
+
+    // Hint is the style applied to a panel being dragged
+    // .k-window.m-panel.m-panel-hint {}
+
+}

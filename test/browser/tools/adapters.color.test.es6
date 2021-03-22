@@ -9,6 +9,7 @@ import chai from 'chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import ColorAdapter from '../../../src/js/tools/adapters.color.es6';
+import TOOLS from '../../../src/js/tools/util.constants.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
@@ -22,7 +23,7 @@ describe('adapters.color', () => {
             expect(adapter)
                 .to.have.property('attributes')
                 .that.deep.equals({ 'data-role': 'colorpicker' });
-            expect(adapter).to.have.property('defaultValue', '#000000');
+            expect(adapter).to.have.property('defaultValue', TOOLS.MIDDLE_GREY);
             expect(adapter).to.have.property('editable').that.is.undefined;
             expect(adapter).to.have.property('editor', 'input');
             expect(adapter).to.have.property('field').that.is.undefined;
@@ -40,7 +41,7 @@ describe('adapters.color', () => {
         it('getField', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
-                defaultValue: '#000000',
+                defaultValue: TOOLS.MIDDLE_GREY,
                 type: CONSTANTS.STRING,
             });
         });

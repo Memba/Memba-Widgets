@@ -165,6 +165,8 @@ __.load = function load(value) {
                 dfd.resolve();
             })
             .catch(dfd.reject);
+    } else {
+        dfd.resolve();
     }
     return dfd.promise();
 };

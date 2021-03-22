@@ -48,7 +48,7 @@ const ShapeTool = BaseTool.extend({
     id: 'shape',
     height: 200,
     width: 300,
-    menu: ['attributes.shape', 'attributes.text'],
+    menu: ['attributes.shape', 'attributes.text', 'attributes.fillColor'],
     templates: {
         default: TEMPLATE,
     },

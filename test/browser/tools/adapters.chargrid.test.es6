@@ -50,7 +50,7 @@ describe('adapters.chargrid', () => {
                 editor: 'input',
                 field,
             });
-             */
+            */
             expect(Object.keys(row)).to.have.lengthOf(2);
             expect(row).to.have.property('field', field);
             expect(row).to.have.property('editor').that.is.a('function');

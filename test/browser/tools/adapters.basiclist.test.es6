@@ -19,10 +19,10 @@ describe('adapters.basiclist', () => {
 
         it('It should have descriptors', () => {
             expect(Object.keys(adapter)).to.have.lengthOf(14);
-            expect(adapter).to.have.property('attributes').that.eql({});
-            expect(adapter).to.have.property('defaultValue', '');
+            expect(adapter).to.have.property('attributes').that.is.undefined;
+            expect(adapter).to.have.property('defaultValue').that.eql([]);
             expect(adapter).to.have.property('editable').that.is.undefined;
-            expect(adapter).to.have.property('editor', 'textarea');
+            expect(adapter).to.have.property('editor').that.is.a('function');
             expect(adapter).to.have.property('field').that.is.undefined;
             expect(adapter).to.have.property('format').that.is.undefined;
             expect(adapter).to.have.property('from').that.is.undefined;
@@ -31,26 +31,30 @@ describe('adapters.basiclist', () => {
             expect(adapter).to.have.property('parse').that.is.undefined;
             expect(adapter).to.have.property('template').that.is.undefined;
             expect(adapter).to.have.property('title').that.is.undefined;
-            expect(adapter).to.have.property('type', CONSTANTS.STRING);
+            expect(adapter).to.have.property('type').that.is.undefined;
             expect(adapter).to.have.property('validation').that.is.undefined;
         });
 
         it('getField', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
-                defaultValue: '',
-                type: CONSTANTS.STRING,
+                defaultValue: []
+                // type: CONSTANTS.OBJECT,
             });
         });
 
         it('getRow', () => {
             const field = randomVal();
             const row = adapter.getRow(field);
+            /*
             expect(row).to.deep.equal({
-                attributes: {}, // TODO: necessary?
+                editor: 'input',
                 field,
-                editor: 'textarea',
             });
+            */
+            expect(Object.keys(row)).to.have.lengthOf(2);
+            expect(row).to.have.property('field', field);
+            expect(row).to.have.property('editor').that.is.a('function');
         });
     });
 });

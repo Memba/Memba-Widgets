@@ -160,7 +160,7 @@ const GridLayout = Widget.extend({
                     deepExtend(item.form, { buttonsTemplate: CONSTANTS.EMPTY })
                 );
         } else {
-            $content.append(item.bodyTemplate({}));
+            $content.append(item.template({}));
         }
     },
 

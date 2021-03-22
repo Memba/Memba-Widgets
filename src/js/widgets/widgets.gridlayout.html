@@ -27,10 +27,10 @@
                         {
                             cells: [
                                 {
-                                    class: 'col-3'
+                                    class: 'col-md-3'
                                 },
                                 {
-                                    class: 'col-9'
+                                    class: 'col-md-9'
                                 },
                             ],
                             class: 'row',
@@ -40,7 +40,7 @@
                         {
                             name: 'one',
                             title: 'Item one',
-                            bodyTemplate: kendo.template($("#first").html()),
+                            template: kendo.template($("#first").html()),
                             editable: true,
                             visible: true,
                             position: [0, 0, 1],
@@ -48,7 +48,7 @@
                         {
                             name: 'two',
                             title: 'Item two',
-                            bodyTemplate: kendo.template($("#second").html()),
+                            template: kendo.template($("#second").html()),
                             editable: true,
                             visible: true,
                             position: [0, 1, 1],
@@ -56,7 +56,7 @@
                         {
                             name: 'three',
                             title: 'Item three',
-                            // bodyTemplate,
+                            // template,
                             form: {
                                 formData: {
                                     ID: 1,
@@ -73,7 +73,8 @@
                 var viewModel = kendo.observable({
                     first: 'A',
                     second: 'B'
-                })
+                });
+                window.viewModel = viewModel;
                 kendo.bind('.container', viewModel);
             });
         }());

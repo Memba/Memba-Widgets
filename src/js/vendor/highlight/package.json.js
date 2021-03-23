@@ -3,4 +3,4 @@
  * Sources at https://github.com/Memba
  */
 
-export const version = '10.5.0';
+export const version = '10.7.1';

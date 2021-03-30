@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -85,7 +85,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, extend = $.extend, proxy = $.proxy, WIZARD = '.kendoWizard', CLICK = 'click', ACTIVATE = 'activate', SELECT = 'select', RESET = 'reset', SUBMIT = 'submit', PREVIOUS = 'previous', NEXT = 'next', DONE = 'done', ERROR = 'error', CONTENTLOAD = 'contentLoad', FORM_VALIDATE_FAILED = 'formValidateFailed', HIDDEN = 'k-hidden', PRIMARY = 'k-primary', STEPPER_STEP_LINK = 'k-step-link', ARIA_SELECTED = 'aria-selected', ARIA_CONTROLS = 'aria-controls', ARIA_HIDDEN = 'aria-hidden', ARIA_EXPANDED = 'aria-expanded', ARIA_LABEL = 'aria-label', VERTICAL = 'vertical', HORIZONTAL = 'horizontal', BOTTOM = 'bottom', RIGHT = 'right', LEFT = 'left', DOT = '.', SPACE = ' ', DASH = '-', ID = 'id', TABINDEX = 'tabindex', ROLE = 'role', DATA_WIZARD_PREFIX = 'data-wizard-';
+        var kendo = window.kendo, Widget = kendo.ui.Widget, extend = $.extend, proxy = $.proxy, WIZARD = '.kendoWizard', CLICK = 'click', ACTIVATE = 'activate', SELECT = 'select', RESET = 'reset', SUBMIT = 'submit', PREVIOUS = 'previous', NEXT = 'next', DONE = 'done', ERROR = 'error', CONTENTLOAD = 'contentLoad', FORM_VALIDATE_FAILED = 'formValidateFailed', HIDDEN = 'k-hidden', PRIMARY = 'k-primary', STEPPER_LIST = 'k-step-list', STEPPER_STEP_LINK = 'k-step-link', ARIA_SELECTED = 'aria-selected', ARIA_CONTROLS = 'aria-controls', ARIA_HIDDEN = 'aria-hidden', ARIA_EXPANDED = 'aria-expanded', ARIA_LABEL = 'aria-label', VERTICAL = 'vertical', HORIZONTAL = 'horizontal', BOTTOM = 'bottom', RIGHT = 'right', LEFT = 'left', DOT = '.', SPACE = ' ', DASH = '-', ID = 'id', TABINDEX = 'tabindex', ROLE = 'role', DATA_WIZARD_PREFIX = 'data-wizard-';
         var wizardClasses = {
             wizard: 'k-widget k-wizard',
             horizontalWizard: 'k-wizard-horizontal',
@@ -299,7 +299,8 @@
             },
             _processButtons: function () {
                 var options = this.options, buttonsOptions = options.buttons, defaultButtons = this._defaultButtonsConfiguration;
-                if (!buttonsOptions || !buttonsOptions.length || buttonsOptions.length <= 0) {
+                if (!buttonsOptions || !buttonsOptions.length || buttonsOptions.length === 0) {
+                    this.options.defaultButtons = true;
                     if (options.index === 0) {
                         buttonsOptions = defaultButtons.first;
                     } else if (options.index + 1 === options.totalSteps) {
@@ -392,13 +393,16 @@
                 }
             },
             insertAt: function (index, stepOptions) {
-                var steps = this._steps, numberOfSteps = steps.length, step, stepperStepOptions, alteredStepIndex, alteredStep, iterateStep = function (step, i) {
+                var steps = this._steps, numberOfSteps = steps.length, messages = this.options.messages, step, stepperStepOptions, alteredStepIndex, alteredStep, iterateStep = function (step, i) {
+                        var label;
                         if (i >= index) {
                             step.options.index += 1;
                         }
                         step.options.totalSteps += 1;
                         step.element.find(DOT + wizardClasses.wizardPager).remove();
                         step._pager();
+                        label = messages.step + ' ' + (step.options.index + 1) + ' ' + messages.of + ' ' + (numberOfSteps + 1);
+                        step.element.attr(ARIA_LABEL, label);
                     };
                 if (index === null || index === undefined || isNaN(index) || index < 0 || index > numberOfSteps) {
                     return;
@@ -409,7 +413,7 @@
                 stepperStepOptions = this._mapStepForStepper(stepOptions);
                 this.stepper.insertAt(index, stepperStepOptions);
                 stepOptions.totalSteps = numberOfSteps + 1;
-                stepOptions.messages = this.options.messages;
+                stepOptions.messages = messages;
                 stepOptions.index = index;
                 stepOptions.formTag = this.wrapper.is('form') ? 'div' : 'form';
                 if (this.options.pager === false && stepOptions.pager !== true) {
@@ -421,7 +425,9 @@
                 if (index === 0 || index === numberOfSteps) {
                     alteredStepIndex = index === 0 ? 1 : numberOfSteps - 1;
                     alteredStep = steps[alteredStepIndex];
-                    alteredStep.resetButtons();
+                    if (alteredStep.options.defaultButtons) {
+                        alteredStep.resetButtons();
+                    }
                 }
                 this._insertStepElementAtIndex(index, step.element);
             },
@@ -448,27 +454,33 @@
                 }
             },
             removeAt: function (index) {
-                var steps = this._steps, numberOfSteps = steps.length, removedStep, newSelectedStepIndex, alteredStepIndex, alteredStep, i, step;
+                var steps = this._steps, numberOfSteps = steps.length, stepContentElement = $(this.element.find(DOT + wizardClasses.wizardStep).get(index)), removedStep, newSelectedStepIndex, alteredStepIndex, alteredStep, i, step, label, messages = this.options.messages;
                 if (index === null || index === undefined || isNaN(index) || index < 0 || index > numberOfSteps || numberOfSteps === 1) {
                     return;
                 }
                 this.stepper.removeAt(index);
                 removedStep = steps.splice(index, 1)[0];
-                if (removedStep === this.selectedStep) {
-                    newSelectedStepIndex = index > 0 ? index - 1 : 0;
-                    this.selectedStep = steps[newSelectedStepIndex];
+                if (!stepContentElement.hasClass(HIDDEN)) {
+                    newSelectedStepIndex = index === 0 ? 0 : index - 1;
+                    this.select(newSelectedStepIndex);
                 }
+                kendo.destroy(stepContentElement);
+                stepContentElement.remove();
                 for (i = 0; i < numberOfSteps - 1; i += 1) {
                     step = steps[i];
                     step.options.index = i;
                     step.options.totalSteps = numberOfSteps - 1;
                     step.element.find(DOT + wizardClasses.wizardPager).remove();
                     step._pager();
+                    label = messages.step + ' ' + (i + 1) + ' ' + messages.of + ' ' + (numberOfSteps - 1);
+                    step.element.attr(ARIA_LABEL, label);
                 }
-                if (index === 0 || index === numberOfSteps - 2) {
+                if (index === 0 || index === numberOfSteps - 1) {
                     alteredStepIndex = index === 0 ? 0 : numberOfSteps - 2;
                     alteredStep = steps[alteredStepIndex];
-                    alteredStep.resetButtons();
+                    if (alteredStep.options.defaultButtons) {
+                        alteredStep.resetButtons();
+                    }
                 }
             },
             select: function (stepIndex) {
@@ -719,7 +731,7 @@
                 targetLink.attr(ARIA_SELECTED, true).focus();
             },
             _stepper: function () {
-                var wrapper = this.wrapper, stepperElement = $('<nav>').prependTo(wrapper), options = this.options, stepperOptions = options.stepper, stepsOptions = options.steps.map(this._mapStepForStepper);
+                var wrapper = this.wrapper, stepperElement = $('<div>').prependTo(wrapper), options = this.options, stepperOptions = options.stepper, stepsOptions = options.steps.map(this._mapStepForStepper);
                 stepperOptions.steps = stepsOptions;
                 stepperOptions.orientation = options.contentPosition === BOTTOM ? HORIZONTAL : VERTICAL;
                 stepperOptions.selectOnFocus = true;
@@ -736,12 +748,13 @@
                 if (!stepperSteps) {
                     return;
                 }
+                stepper.element.find(DOT + STEPPER_LIST).attr(ROLE, 'tablist');
                 for (i = 0; i < stepperSteps.length; i += 1) {
                     if (i === 0) {
                         selected = true;
                     }
                     step = stepperSteps[i];
-                    step.element.find(DOT + STEPPER_STEP_LINK).attr(ROLE, 'tab').attr(ARIA_CONTROLS, wrapperId + DASH + i).attr(ARIA_SELECTED, selected);
+                    step.element.attr(ROLE, 'tab').attr(ARIA_CONTROLS, wrapperId + DASH + i).attr(ARIA_SELECTED, selected);
                 }
             },
             _stepperSelectHandler: function (e) {
@@ -811,7 +824,6 @@
                 var that = this, element = that.element, contentPosition = that.options.contentPosition;
                 that.wrapper = element;
                 that.wrapper.addClass(wizardClasses.wizard);
-                that.wrapper.attr(ROLE, 'tablist');
                 if (contentPosition === RIGHT) {
                     that.wrapper.addClass(wizardClasses.verticalWizard + SPACE + wizardClasses.rightWizard);
                 } else if (contentPosition === LEFT) {

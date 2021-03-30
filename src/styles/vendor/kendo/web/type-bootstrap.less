@@ -182,6 +182,7 @@
 @tabstrip-items-border: transparent;
 @tabstrip-active-background: @background;
 @tabstrip-tabs-color: @accent;
+@tabstrip-content-border-focused: #656565;
 @form-widget-color: @normal-text-color;
 @drop-down-border-color: darken(@base, 12%);
 @drop-down-hover-border-color: darken(@base, 24%);
@@ -843,6 +844,7 @@
 
 // Wizard
 @wizard-focused-shadow: inset 0 0 0 2px @widget-border-color;
+@wizard-step-border-focused: #656565;
 
 
 // Textarea
@@ -2377,6 +2379,11 @@ div.k-filebrowser-dropzone em
     color: @widget-text-color;
 }
 
+.k-tabstrip .k-content:focus,
+.k-tabstrip .k-content.k-state-focused {
+    outline-color: @tabstrip-content-border-focused;
+}
+
 .k-menu.k-header,
 .k-menu .k-item
 {
@@ -3308,6 +3315,10 @@ td.k-state-focused.k-state-selected,
 .k-footer-template .k-grid-footer-sticky {
     border-left-color: @grid-sticky-border;
     border-right-color: @grid-sticky-border;
+}
+
+.k-grid-header .k-filter-row .k-grid-header-sticky {
+    background-color: @header-background-color;
 }
 
 // Locked columns

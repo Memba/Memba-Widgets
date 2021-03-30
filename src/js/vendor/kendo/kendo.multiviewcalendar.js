@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1274,6 +1274,27 @@
                     that._value = null;
                 }
                 return that._value;
+            },
+            _updateAria: function (ariaTemplate, date) {
+                var that = this;
+                var cell = that._cellByDate(date || that.current());
+                var valueType = that.view().valueType();
+                var current = date || that.current();
+                var text;
+                that._focusCell(cell);
+                if (valueType === 'month') {
+                    text = kendo.toString(current, 'MMMM');
+                } else if (valueType === 'date') {
+                    text = kendo.toString(current, 'D');
+                } else {
+                    text = cell.text();
+                }
+                cell.attr('aria-label', ariaTemplate({
+                    current: current,
+                    valueType: valueType,
+                    text: text
+                }));
+                return cell.attr('id');
             },
             clearSelection: function () {
                 var that = this;

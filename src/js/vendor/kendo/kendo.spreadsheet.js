@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -6385,6 +6385,9 @@
                     that.forEachRow(function (rowRange) {
                         var row = rowRange._ref.topLeft.row;
                         var height = sheet.rowHeight(row);
+                        if (!height) {
+                            return;
+                        }
                         rowRange.forEachCell(function (row, col, cell) {
                             var id = new CellRef(row, col).print();
                             if (secondary[id]) {
@@ -30732,22 +30735,9 @@
             if (!relrow) {
                 colWidths.push(cw);
             }
-            if (sheet.isHiddenColumn(col) || sheet.isHiddenRow(row) || !rh || !cw) {
-                return;
-            }
-            var nonEmpty = options.forScreen || shouldDrawCell(cell);
-            if (!(options.emptyCells || nonEmpty)) {
-                return;
-            }
             var id = new CellRef(row, col).print();
             if (mergedCells.secondary[id]) {
                 return;
-            }
-            if (nonEmpty) {
-                maxRow = Math.max(maxRow, relrow);
-                maxCol = Math.max(maxCol, relcol);
-            } else {
-                cell.empty = true;
             }
             cell.row = relrow;
             cell.col = relcol;
@@ -30765,10 +30755,25 @@
                 cell.rowspan = 1;
                 cell.colspan = 1;
             }
+            if (!sheet._grid._columns.sum(col, col + cell.colspan - 1) || !sheet._grid._rows.sum(row, row + cell.rowspan - 1)) {
+                return;
+            }
+            var nonEmpty = options.forScreen || shouldDrawCell(cell);
+            if (!(options.emptyCells || nonEmpty)) {
+                return;
+            }
+            if (nonEmpty) {
+                maxRow = Math.max(maxRow, relrow + cell.rowspan - 1);
+                maxCol = Math.max(maxCol, relcol + cell.colspan - 1);
+            } else {
+                cell.empty = true;
+            }
             cells.push(cell);
         });
-        rowHeights = rowHeights.slice(0, maxRow + 1);
-        colWidths = colWidths.slice(0, maxCol + 1);
+        if (!options.forScreen) {
+            rowHeights = rowHeights.slice(0, maxRow + 1);
+            colWidths = colWidths.slice(0, maxCol + 1);
+        }
         var pageWidth = options.pageWidth;
         var pageHeight = options.pageHeight;
         var scaleFactor = options.scale || 1;

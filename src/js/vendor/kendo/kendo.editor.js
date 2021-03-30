@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -10455,13 +10455,14 @@
                 }
             },
             removeTextNodes: function (trs) {
-                var i, j, childNodes, currentNode;
+                var i, j, childNodes, currentNode, row;
                 for (i = 0; i < trs.length; i++) {
-                    childNodes = trs[i].childNodes;
+                    row = trs[i];
+                    childNodes = row.childNodes;
                     for (j = 0; j < childNodes.length; j++) {
                         currentNode = childNodes[j];
                         if (currentNode.nodeType === dom.nodeTypes.TEXT_NODE) {
-                            currentNode.remove();
+                            row.removeChild(currentNode);
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.1.224'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.1.330'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2138,7 +2138,7 @@
                 };
             },
             guid: function () {
-                var id = '', i, random, chars = 'abcdefghijklmnopqrstuvwxyz';
+                var id = '', i, random, chars = 'abcdef';
                 id += chars[Math.floor(Math.random() * Math.floor(chars.length))];
                 for (i = 1; i < 32; i++) {
                     random = math.random() * 16 | 0;
@@ -6513,10 +6513,15 @@
         }
         function ownKeys(value, ignoreObjectKeys) {
             var props = [];
+            var keys, filteredObjectKeys;
             value = value || {};
+            keys = Object.getOwnPropertyNames(value);
+            filteredObjectKeys = objectKeys.filter(function (key) {
+                return keys.indexOf(key) < 0;
+            });
             while (value) {
                 Object.getOwnPropertyNames(value).forEach(function (prop) {
-                    if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || objectKeys.indexOf(prop) < 0)) {
+                    if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || filteredObjectKeys.indexOf(prop) < 0)) {
                         props.push(prop);
                     }
                 });
@@ -16137,7 +16142,7 @@
                 }
                 that.popup.one('deactivate', function () {
                     restoreTitle(target);
-                    target.removeAttr(DESCRIBEDBY);
+                    that._removeDescribedBy(target);
                     this.element.removeAttr('id').attr('aria-hidden', true);
                     DOCUMENT.off('keydown' + NS, that._documentKeyDownHandler);
                 });
@@ -16161,9 +16166,13 @@
                 that.popup = new Popup(wrapper, extend({
                     autosize: true,
                     activate: function () {
-                        var anchor = this.options.anchor, ariaId = anchor[0].id || that.element[0].id;
+                        var anchor = this.options.anchor, ariaId = anchor[0].id || that.element[0].id || kendo.guid(), describedBy = [];
+                        if (anchor.attr(DESCRIBEDBY)) {
+                            describedBy.push(anchor.attr(DESCRIBEDBY));
+                        }
                         if (ariaId) {
-                            anchor.attr(DESCRIBEDBY, ariaId + ARIAIDSUFFIX);
+                            describedBy.push(ariaId + ARIAIDSUFFIX);
+                            anchor.attr(DESCRIBEDBY, describedBy.join(' '));
                             this.element.attr('id', ariaId + ARIAIDSUFFIX);
                         }
                         if (options.callout) {
@@ -16225,6 +16234,20 @@
                 var that = this, position = that.options.position, dimensions = that.dimensions, offset = dimensions.offset, popup = that.popup, anchor = popup.options.anchor, anchorOffset = $(anchor).offset(), elementOffset = $(popup.element).offset(), cssClass = DIRCLASSES[popup.flipped ? REVERSE[position] : position], offsetAmount = anchorOffset[offset] - elementOffset[offset] + $(anchor)[dimensions.size]() / 2;
                 that._offset(position, that.options.offset);
                 that.arrow.removeClass('k-callout-n k-callout-s k-callout-w k-callout-e').addClass('k-callout-' + cssClass).css(offset, offsetAmount);
+            },
+            _removeDescribedBy: function (target) {
+                var tooltipId = this.popup.element.attr('id'), arrayAttr = target.attr(DESCRIBEDBY).split(' '), finalArray, finalDescribedbyAttr;
+                if (arrayAttr && arrayAttr.length > 0) {
+                    finalArray = arrayAttr.filter(function (val) {
+                        return val !== tooltipId;
+                    });
+                }
+                if (finalArray && finalArray.length > 0) {
+                    finalDescribedbyAttr = finalArray.join(' ');
+                    target.attr(DESCRIBEDBY, finalDescribedbyAttr);
+                } else {
+                    target.removeAttr(DESCRIBEDBY);
+                }
             },
             destroy: function () {
                 var popup = this.popup;
@@ -69536,6 +69559,13 @@
                 var virtual = currentOptions.virtual;
                 var changeEventOption = { change: proxy(that._listChange, that) };
                 var listBoundHandler = proxy(that._listBound, that);
+                var focusedElm = that._focused;
+                var inputId = that.element.attr('id');
+                var labelElm = $('label[for="' + that.element.attr('id') + '"]');
+                var labelledBy = focusedElm.attr('aria-labelledby');
+                if (!labelledBy && labelElm.length) {
+                    labelledBy = labelElm.attr('id') || that._generateLabelId(labelElm, inputId || kendo.guid());
+                }
                 virtual = typeof virtual === 'object' ? virtual : {};
                 options = $.extend({
                     autoBind: false,
@@ -69554,7 +69584,9 @@
                     dataTextField: currentOptions.dataTextField,
                     groupTemplate: currentOptions.groupTemplate,
                     fixedGroupTemplate: currentOptions.fixedGroupTemplate,
-                    template: currentOptions.template
+                    template: currentOptions.template,
+                    ariaLabel: focusedElm.attr('aria-label'),
+                    ariaLabelledBy: labelledBy
                 }, options, virtual, changeEventOption);
                 if (!options.template) {
                     options.template = '#:' + kendo.expr(options.dataTextField, 'data') + '#';
@@ -69873,12 +69905,31 @@
                 that._value = getter(options.dataValueField);
             },
             _aria: function (id) {
-                var that = this, options = that.options, element = that._focused.add(that.filterInput);
+                var that = this, options = that.options, element = that._focused, autocomplete;
                 if (options.suggest !== undefined) {
-                    element.attr('aria-autocomplete', options.suggest ? 'both' : 'list');
+                    if (options.filter === 'none') {
+                        if (options.suggest === true) {
+                            autocomplete = 'inline';
+                        } else {
+                            autocomplete = 'none';
+                        }
+                    } else {
+                        if (options.suggest === true) {
+                            autocomplete = 'both';
+                        } else {
+                            autocomplete = 'list';
+                        }
+                    }
+                    element.attr('aria-autocomplete', autocomplete);
                 }
                 id = id ? id + ' ' + that.ul[0].id : that.ul[0].id;
-                element.attr('aria-owns', id);
+                element.attr({
+                    'aria-owns': id,
+                    'aria-controls': id
+                });
+                if (that.filterInput && that.filterInput.length > 0) {
+                    that.filterInput.attr('aria-controls', id);
+                }
                 that.ul.attr('aria-live', !that._isFilterEnabled() ? 'off' : 'polite');
                 that._ariaLabel();
             },
@@ -70696,6 +70747,11 @@
                 }).on('mouseleave' + STATIC_LIST_NS, 'li', function () {
                     $(this).removeClass(HOVER);
                 });
+                if (options && options.ariaLabel) {
+                    this.element.attr('aria-label', options.ariaLabel);
+                } else if (options && options.ariaLabelledBy) {
+                    this.element.attr('aria-labelledby', options.ariaLabelledBy);
+                }
                 if (support.touch) {
                     this._touchHandlers();
                 }
@@ -70732,7 +70788,9 @@
                 selectable: true,
                 template: null,
                 groupTemplate: null,
-                fixedGroupTemplate: null
+                fixedGroupTemplate: null,
+                ariaLabel: null,
+                ariaLabelledBy: null
             },
             events: [
                 'click',
@@ -71682,6 +71740,11 @@
                 that.content = that.element.wrap('<div unselectable=\'on\' class=\'' + CONTENT + '\'></div>').parent();
                 that.wrapper = that.content.wrap('<div class=\'' + WRAPPER + '\'></div>').parent();
                 that.header = that.content.before('<div class=\'' + HEADER + '\'></div>').prev();
+                if (options.ariaLabel) {
+                    this.element.attr('aria-label', options.ariaLabel);
+                } else if (options.ariaLabelledBy) {
+                    this.element.attr('aria-labelledby', options.ariaLabelledBy);
+                }
                 if (options.columns && options.columns.length) {
                     that.element.removeClass(LIST);
                 }
@@ -71722,7 +71785,9 @@
                 groupTemplate: '#:data#',
                 fixedGroupTemplate: '#:data#',
                 mapValueTo: 'index',
-                valueMapper: null
+                valueMapper: null,
+                ariaLabel: null,
+                ariaLabelledBy: null
             },
             events: [
                 CHANGE,
@@ -72847,7 +72912,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, support = kendo.support, activeElement = kendo._activeElement, ObservableObject = kendo.data.ObservableObject, keys = kendo.keys, ns = '.kendoDropDownList', nsFocusEvent = ns + 'FocusEvent', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', FOCUSED = 'k-state-focused', DEFAULT = 'k-state-default', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', CLICKEVENTS = 'click' + ns + ' touchend' + ns, HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', MSG_INVALID_OPTION_LABEL = 'The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel', proxy = $.proxy;
+        var kendo = window.kendo, ui = kendo.ui, List = ui.List, Select = ui.Select, support = kendo.support, activeElement = kendo._activeElement, ObservableObject = kendo.data.ObservableObject, keys = kendo.keys, ns = '.kendoDropDownList', nsFocusEvent = ns + 'FocusEvent', DISABLED = 'disabled', READONLY = 'readonly', CHANGE = 'change', FOCUSED = 'k-state-focused', DEFAULT = 'k-state-default', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', CLICKEVENTS = 'click' + ns + ' touchend' + ns, HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', STATE_FILTER = 'filter', STATE_ACCEPT = 'accept', MSG_INVALID_OPTION_LABEL = 'The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel', proxy = $.proxy, OPEN = 'open', CLOSE = 'close';
         var DropDownList = Select.extend({
             init: function (element, options) {
                 var that = this;
@@ -72942,7 +73007,8 @@
                 groupTemplate: '#:data#',
                 fixedGroupTemplate: '#:data#',
                 autoWidth: false,
-                popup: null
+                popup: null,
+                filterTitle: null
             },
             events: [
                 'open',
@@ -73748,10 +73814,10 @@
                     icon = '<span class="k-icon k-i-zoom"></span>';
                     this.filterInput = $('<input class="k-textbox"/>').attr({
                         placeholder: this.element.attr('placeholder'),
-                        title: this.element.attr('title'),
-                        role: 'listbox',
+                        title: this.options.filterTitle || this.element.attr('title'),
+                        role: 'searchbox',
                         'aria-haspopup': 'listbox',
-                        'aria-expanded': false
+                        'aria-autocomplete': 'list'
                     });
                     this.list.prepend($('<span class="k-list-filter" />').append(this.filterInput.add(icon)));
                 }
@@ -73787,6 +73853,23 @@
             },
             _clearSelection: function (parent) {
                 this.select(parent.value() ? 0 : -1);
+            },
+            _openHandler: function (e) {
+                this._adjustListWidth();
+                if (this.trigger(OPEN)) {
+                    e.preventDefault();
+                } else {
+                    this.wrapper.attr('aria-expanded', true);
+                    this.ul.attr('aria-hidden', false);
+                }
+            },
+            _closeHandler: function (e) {
+                if (this.trigger(CLOSE)) {
+                    e.preventDefault();
+                } else {
+                    this.wrapper.attr('aria-expanded', false);
+                    this.ul.attr('aria-hidden', true);
+                }
             },
             _inputTemplate: function () {
                 var that = this, template = that.options.valueTemplate;
@@ -75131,6 +75214,26 @@
                     footerTemplate = footer;
                 }
                 that.footer = footer !== false ? template(footerTemplate, { useWithBlock: false }) : null;
+            },
+            _updateAria: function (ariaTemplate, date) {
+                var that = this;
+                var cell = that._cell;
+                var valueType = that.view().valueType();
+                var current = date || that.current();
+                var text;
+                if (valueType === 'month') {
+                    text = kendo.toString(current, 'MMMM');
+                } else if (valueType === 'date') {
+                    text = kendo.toString(current, 'D');
+                } else {
+                    text = cell.text();
+                }
+                cell.attr('aria-label', ariaTemplate({
+                    current: current,
+                    valueType: valueType,
+                    text: text
+                }));
+                return cell.attr('id');
             }
         });
         ui.plugin(Calendar);
@@ -75257,6 +75360,9 @@
                     },
                     toDateString: function (date) {
                         return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate();
+                    },
+                    valueType: function () {
+                        return 'date';
                     }
                 },
                 {
@@ -75318,6 +75424,9 @@
                     },
                     toDateString: function (date) {
                         return date.getFullYear() + '/' + date.getMonth() + '/1';
+                    },
+                    valueType: function () {
+                        return 'month';
                     }
                 },
                 {
@@ -75365,6 +75474,9 @@
                     },
                     toDateString: function (date) {
                         return date.getFullYear() + '/0/1';
+                    },
+                    valueType: function () {
+                        return 'year';
                     }
                 },
                 {
@@ -75425,6 +75537,9 @@
                     toDateString: function (date) {
                         var year = date.getFullYear();
                         return year - year % 10 + '/0/1';
+                    },
+                    valueType: function () {
+                        return 'decade';
                     }
                 }
             ]
@@ -76738,7 +76853,7 @@
                 month: {},
                 dates: [],
                 disableDates: null,
-                ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "D")#',
+                ARIATemplate: 'Current focused #=data.valueType# is #=data.text#',
                 dateInput: false,
                 weekNumber: false,
                 componentType: 'classic'
@@ -76976,7 +77091,7 @@
                 }
             },
             _template: function () {
-                this._ariaTemplate = template(this.options.ARIATemplate);
+                this._ariaTemplate = proxy(template(this.options.ARIATemplate), this);
             },
             _createDateInput: function (options) {
                 if (this._dateInput) {
@@ -76993,16 +77108,13 @@
                 }
             },
             _updateARIA: function (date) {
-                var cell;
                 var that = this;
                 var calendar = that.dateView.calendar;
                 if (that.element && that.element.length) {
                     that.element[0].removeAttribute('aria-activedescendant');
                 }
                 if (calendar) {
-                    cell = calendar._cell;
-                    cell.attr('aria-label', that._ariaTemplate({ current: date || calendar.current() }));
-                    that.element.attr('aria-activedescendant', cell.attr('id'));
+                    that.element.attr('aria-activedescendant', calendar._updateAria(that._ariaTemplate, date));
                 }
             }
         });
@@ -77023,7 +77135,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, ui = kendo.ui, NS = '.kendoFloatingLabel', FLOATINGLABELCONTAINER = 'k-floating-label-container', EMPTY = 'k-state-empty', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', NOCLICKCLASS = 'k-no-click', proxy = $.proxy;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, ui = kendo.ui, NS = '.kendoFloatingLabel', FLOATINGLABELCONTAINER = 'k-floating-label-container', EMPTY = 'k-state-empty', FOCUSED = 'k-state-focused', STATEDISABLED = 'k-state-disabled', NOCLICKCLASS = 'k-no-click', STATEREADONLY = 'k-state-readonly', proxy = $.proxy;
         var FloatingLabel = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -77039,7 +77151,8 @@
             },
             options: {
                 name: 'FloatingLabel',
-                widget: null
+                widget: null,
+                useReadOnlyClass: false
             },
             readonly: function (readonly) {
                 this._editable({
@@ -77076,11 +77189,11 @@
                 var readonly = options.readonly;
                 element.off(NS);
                 if (!readonly && !disable) {
-                    element.removeClass(STATEDISABLED).removeClass(NOCLICKCLASS);
+                    element.removeClass(STATEDISABLED).removeClass(that.options.useReadOnlyClass ? STATEREADONLY : NOCLICKCLASS);
                     element.on('focusin' + NS, proxy(that.refresh, that));
                     element.on('focusout' + NS, proxy(that.refresh, that));
                 } else {
-                    element.toggleClass(STATEDISABLED, disable).toggleClass(NOCLICKCLASS, readonly);
+                    element.toggleClass(STATEDISABLED, disable).toggleClass(that.options.useReadOnlyClass ? STATEREADONLY : NOCLICKCLASS, readonly);
                 }
             }
         });
@@ -77190,6 +77303,7 @@
                 format: 'n',
                 spinners: true,
                 placeholder: '',
+                selectOnFocus: false,
                 factor: 1,
                 upArrowText: 'Increase value',
                 downArrowText: 'Decrease value',

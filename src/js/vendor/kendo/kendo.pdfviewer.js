@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -489,8 +489,7 @@
                         icon: 'cursor',
                         showText: 'overflow',
                         name: 'toggleSelection',
-                        group: 'toggle-pan',
-                        enable: false
+                        group: 'toggle-pan'
                     },
                     {
                         togglable: true,
@@ -500,8 +499,7 @@
                         showText: 'overflow',
                         name: 'togglePan',
                         group: 'toggle-pan',
-                        selected: true,
-                        enable: false
+                        selected: true
                     }
                 ]
             },

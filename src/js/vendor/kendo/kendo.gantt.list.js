@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -62,7 +62,6 @@
                 }
                 TreeList.fn.init.call(this, element, options);
                 this._unbindDataSource();
-                this._adjustHeight();
                 this._setWidth();
             },
             options: {
@@ -431,6 +430,7 @@
                     }
                     this.trigger(RENDER);
                 }
+                this._adjustHeight();
             },
             _rowHeight: function (tasks) {
                 var content = this.content, options = this.options, rowHeight = typeof options.rowHeight === STRING ? options.rowHeight : options.rowHeight + 'px', table = $(kendo.format(SIZE_CALCULATION_TEMPLATE, rowHeight)), height;

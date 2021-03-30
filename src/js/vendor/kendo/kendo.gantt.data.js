@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -285,8 +285,7 @@
                 }
                 return data;
             },
-            taskChildren: function (task) {
-                var data = this.view();
+            taskChildren: function (task, fromView) {
                 var filter = {
                     field: 'parentId',
                     operator: 'eq',
@@ -296,7 +295,12 @@
                     field: 'orderId',
                     dir: 'asc'
                 };
-                var taskId;
+                var taskId, data;
+                if (fromView) {
+                    data = this.view();
+                } else {
+                    data = this.data();
+                }
                 if (!!task) {
                     taskId = task.get('id');
                     if (taskId === undefined || taskId === null || taskId === '') {
@@ -329,7 +333,7 @@
                 return this.taskChildren(parent);
             },
             taskTree: function (task) {
-                var data = [], current, tasks = this.taskChildren(task);
+                var data = [], current, tasks = this.taskChildren(task, true);
                 for (var i = 0, l = tasks.length; i < l; i++) {
                     current = tasks[i];
                     data.push(current);

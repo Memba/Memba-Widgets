@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2075,7 +2075,7 @@
                     this._restoreCurrent(currentIndex, isCurrentInHeader);
                 }
                 if (that._checkBoxSelection) {
-                    that._deselectCheckRows(that.items());
+                    that._deselectCheckRows(that.items(), true);
                 }
                 this.trigger(DATABOUND);
             },
@@ -4827,16 +4827,12 @@
             },
             clearSelection: function () {
                 var that = this;
-                var selected = this.select();
                 if (that.selectable && !that._checkBoxSelection) {
                     that.selectable.clear();
                 }
                 if (that._checkBoxSelection) {
-                    that._deselectCheckRows(that.select());
+                    that._deselectCheckRows(that.select(), true);
                     return;
-                }
-                if (selected.length || that._checkBoxSelection) {
-                    that.trigger(CHANGE);
                 }
             },
             _uncheckCheckBoxes: function () {
@@ -4844,7 +4840,7 @@
                 var tables = that.table.add(that.lockedTable);
                 tables.find('tbody ' + CHECKBOXINPUT).attr('aria-checked', false).prop('checked', false).attr('aria-label', 'Select row');
             },
-            _deselectCheckRows: function (items) {
+            _deselectCheckRows: function (items, preventChange) {
                 var that = this;
                 items = that.table.add(that.lockedTable).find(items);
                 if (that._isLocked()) {
@@ -4856,7 +4852,9 @@
                     $(this).removeClass(SELECTED).find(CHECKBOXINPUT).attr('aria-checked', false).prop('checked', false).attr('aria-label', 'Select row');
                 });
                 that._toggleHeaderCheckState(false);
-                that.trigger(CHANGE);
+                if (!preventChange) {
+                    that.trigger(CHANGE);
+                }
             },
             _headerCheckboxClick: function (e) {
                 var that = this, checkBox = $(e.target), checked = checkBox.prop('checked'), parentGrid = checkBox.closest('.k-grid.k-widget').getKendoTreeList();
@@ -4868,6 +4866,7 @@
                 } else {
                     that.clearSelection();
                 }
+                that.trigger(CHANGE);
             },
             _checkboxClick: function (e) {
                 var that = this, row = $(e.target).closest('tr'), isSelecting = !row.hasClass(SELECTED), dataItem = that.dataItem(row), children = [], selector = '';
@@ -4884,6 +4883,7 @@
                 row = $(selector);
                 if (isSelecting) {
                     that.select(row);
+                    that.trigger(CHANGE);
                 } else {
                     that._deselectCheckRows(row);
                 }

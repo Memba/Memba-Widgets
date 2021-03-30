@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -178,7 +178,7 @@
                     }
                 }));
                 div = that.dateView.div;
-                that._ariaTemplate = template(this.options.ARIATemplate);
+                that._ariaTemplate = proxy(template(this.options.ARIATemplate), that);
                 that._reset();
                 that.wrapper.attr({
                     role: 'combobox',
@@ -212,7 +212,7 @@
                 dates: [],
                 disableDates: null,
                 range: null,
-                ARIATemplate: 'Current focused date is #=kendo.toString(data.current, "D")#',
+                ARIATemplate: 'Current focused #=data.valueType# is #=data.text#',
                 weekNumber: false,
                 messages: {
                     startLabel: 'Start',
@@ -254,20 +254,18 @@
                 }
             },
             _updateARIA: function (date) {
-                var cell;
                 var that = this;
                 var calendar = that.dateView.calendar;
                 if (that.element && that.element.length) {
-                    that.element[0].removeAttribute('aria-activedescendant');
+                    that._inputs.removeAttr('aria-describedby');
                 }
                 if (calendar) {
                     if (date && !calendar._dateInViews(date)) {
                         calendar.navigate(date);
                     }
-                    cell = calendar._cellByDate(date || calendar.current());
-                    calendar._focusCell(cell);
-                    cell.attr('aria-label', that._ariaTemplate({ current: date || calendar.current() }));
-                    that.element.attr('aria-activedescendant', cell.attr('id'));
+                    if ($.contains(that.element[0], document.activeElement)) {
+                        $(document.activeElement).attr('aria-describedby', calendar._updateAria(that._ariaTemplate, date));
+                    }
                 }
             },
             _startChange: function (e) {

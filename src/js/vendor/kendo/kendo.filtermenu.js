@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -766,6 +766,11 @@
                     that.search();
                 }, 100);
             },
+            _clearSearch: function () {
+                var that = this;
+                that.searchTextBox.val('');
+                that.search();
+            },
             _clearTypingTimeout: function () {
                 if (this._typingTimeout) {
                     clearTimeout(this._typingTimeout);
@@ -812,7 +817,7 @@
                 if (!this._isMobile) {
                     html += '<div class=\'k-filter-menu-container\'>';
                     if (options.search) {
-                        html += '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'' + options.messages.search + '\'/>' + '<span class=\'k-icon k-i-zoom\'></span>' + '</div>';
+                        html += '<span class=\'k-searchbox\'>' + '<span class=\'k-input-prefix\'>' + '<span class=\'k-icon k-i-search\'></span>' + '</span>' + '<input class=\'k-input\' type=\'text\' placeholder=\'' + options.messages.search + '\' />' + '<span class=\'k-input-suffix\'>' + '<button type=\'button\' class=\'k-button k-icon-button k-button-clear\'><span class=\'k-icon k-i-close\'></span></button>' + '</span>' + '</span>';
                     }
                     html += '<ul class=\'k-reset k-multicheck-wrap\'></ul>';
                     if (options.messages.selectedItemsFormat) {
@@ -874,8 +879,10 @@
                     }
                 }
                 if (options.search) {
-                    this.searchTextBox = this.form.find('.k-textbox > input');
-                    this.searchTextBox.on('input', proxy(this._input, this));
+                    this.searchTextBox = this.form.find('.k-textbox > input, .k-searchbox > input');
+                    this.searchTextBox.on('input' + multiCheckNS, proxy(this._input, this));
+                    this.clearSearchButton = this.form.find('.k-searchbox button');
+                    this.clearSearchButton.on('click' + multiCheckNS, proxy(this._clearSearch, this));
                 }
             },
             createCheckAllItem: function () {
@@ -886,6 +893,7 @@
                 }));
                 var checkAllContainer = $(template({ all: options.messages.checkAll }));
                 this.container.prepend(checkAllContainer);
+                checkAllContainer.addClass('k-check-all-wrap');
                 this.checkBoxAll = checkAllContainer.find(':checkbox').eq(0).addClass('k-check-all');
                 this.checkAllHandler = proxy(this.checkAll, this);
                 this.checkBoxAll.on(CHANGE + multiCheckNS, this.checkAllHandler);
@@ -1071,7 +1079,14 @@
                     that.checkSource.unbind('change', that._progressHideHandler);
                 }
                 this._clearTypingTimeout();
-                this.searchTextBox = null;
+                if (this.searchTextBox) {
+                    this.searchTextBox.unbind(multiCheckNS);
+                    this.searchTextBox = null;
+                }
+                if (this.clearSearchButton) {
+                    this.clearSearchButton.unbind(multiCheckNS);
+                    this.clearSearchButton = null;
+                }
                 that.element = that.checkSource = that.container = that.checkBoxAll = that._link = that._refreshHandler = that.checkAllHandler = null;
             },
             options: {
@@ -1091,7 +1106,7 @@
                     if (mobile) {
                         return '<li class=\'k-item k-listgroup-item\'>' + '<label class=\'k-label k-listgroup-form-row\'>' + '<span class=\'k-listgroup-form-field-label k-item-title \'>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type=\'checkbox\' value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '</span>' + '</label>' + '</li>';
                     }
-                    return '<li class=\'k-item\'>' + '<label class=\'k-label\'>' + '<input type=\'checkbox\' value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '<span>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '</label>' + '</li>';
+                    return '<li class=\'k-item\'>' + '<label class=\'k-label k-checkbox-label\'>' + '<input type=\'checkbox\' class=\'k-checkbox\' value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '<span>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '</label>' + '</li>';
                 },
                 checkAll: true,
                 search: false,

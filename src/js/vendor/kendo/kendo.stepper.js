@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -615,7 +615,7 @@
             _progressBar: function () {
                 var wrapper = this.wrapper, progressBarOptions = this._progressOptions();
                 this.progressBar = $('<div>').kendoProgressBar(progressBarOptions).getKendoProgressBar();
-                this.progressBar.element.addClass('k-pos-absolute');
+                this.progressBar.element.addClass('k-pos-absolute k-overflow-hidden');
                 this.progressBar.element.css('position', 'absolute');
                 this._calculateDimensions();
                 wrapper.append(this.progressBar.element);

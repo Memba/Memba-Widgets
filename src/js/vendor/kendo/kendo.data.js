@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.224 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -357,10 +357,15 @@
         }
         function ownKeys(value, ignoreObjectKeys) {
             var props = [];
+            var keys, filteredObjectKeys;
             value = value || {};
+            keys = Object.getOwnPropertyNames(value);
+            filteredObjectKeys = objectKeys.filter(function (key) {
+                return keys.indexOf(key) < 0;
+            });
             while (value) {
                 Object.getOwnPropertyNames(value).forEach(function (prop) {
-                    if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || objectKeys.indexOf(prop) < 0)) {
+                    if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || filteredObjectKeys.indexOf(prop) < 0)) {
                         props.push(prop);
                     }
                 });

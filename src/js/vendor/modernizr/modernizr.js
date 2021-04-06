@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.11.4
+ * modernizr v3.11.6
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -35,7 +35,7 @@
    * @access public
    */
   var ModernizrProto = {
-    _version: '3.11.4',
+    _version: '3.11.6',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.
@@ -709,7 +709,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
 
     ret = callback(div, rule);
     // If this is done after page load we don't want to remove the body so check if body exists
-    if (body.fake) {
+    if (body.fake && body.parentNode) {
       body.parentNode.removeChild(body);
       docElement.style.overflow = docOverflow;
       // Trigger layout so kinetic scrolling isn't disabled in iOS6+

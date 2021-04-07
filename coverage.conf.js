@@ -9,7 +9,7 @@ const path = require('path');
 module.exports = (config) => {
     config.set({
         client: {
-            captureConsole: true,
+            // captureConsole: true,
             // mocha configuration
             mocha: {
                 ui: 'bdd',
@@ -261,7 +261,8 @@ module.exports = (config) => {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress', 'coverage'],
+        // reporters: ['progress', 'coverage'],
+        reporters: ['dots', 'coverage'],
 
         // web server port
         port: 9876,
@@ -271,7 +272,8 @@ module.exports = (config) => {
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-        logLevel: config.LOG_DEBUG, // config.LOG_INFO,
+        // logLevel: config.LOG_DEBUG,
+        logLevel: config.LOG_ERROR,
 
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,

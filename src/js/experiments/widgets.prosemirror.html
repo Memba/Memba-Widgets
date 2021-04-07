@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>widgets.markdown</title>
+    <title>widgets.prosemirror</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -10,10 +10,10 @@
     <link href="../../styles/fonts/kidoju.css" rel="stylesheet">
     <!-- Kidoju theme -->
     <link href="../../styles/themes/app.theme.nordic.css" rel="stylesheet">
-    <!-- widgets.markdown stylesheet -->
+    <!-- widgets.prosemirror stylesheet -->
     <link href="../../styles/vendor/prosemirror/prosemirror.css" rel="stylesheet">
     <link href="../../styles/vendor/prosemirror/menu.css" rel="stylesheet">
-    <!--link href="../../styles/widgets/widgets.markdown.css" rel="stylesheet" -->
+    <!--link href="../../styles/experiments/widgets.prosemirror.css" rel="stylesheet" -->
     <!-- SystemJS loader -->
     <script src="../../../test/vendor/polyfill.min.js"></script>
     <script src="../../../test/vendor/system.js"></script>
@@ -21,11 +21,11 @@
     <script>
         (function () {
             'use strict';
-            SystemJS.import('./widgets.markdown.es6').then(function () {
+            SystemJS.import('./widgets.prosemirror.es6').then(function () {
                 var kendo = window.kendo;
                 $(function () {
                     // Unbound
-                    $('#markdown1').kendoMarkdown({
+                    $('#markdown1').kendoProseMirror({
                         value: '# Hello World 1'
                     });
                     // Bound to observable
@@ -41,11 +41,11 @@
     </script>
 </head>
 <body>
-<h1>widgets.markdown</h1>
+<h1>widgets.prosemirror</h1>
 <h2>Code initialization</h2>
 <div id="markdown1" style="min-height: 100px;"></div>
 <h2>Bound to observable</h2>
-<div data-role="markdown" data-bind="value: text, visible: visible, enabled: enabled" style="min-height: 100px;"></div>
+<div data-role="prosemirror" data-bind="value: text, visible: visible, enabled: enabled" style="min-height: 100px;"></div>
 <div>
     <label>
         <input type="checkbox" data-bind="checked: visible" />

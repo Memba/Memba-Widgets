@@ -21,9 +21,9 @@ const logger = new Logger('widgets.markdown.toolbar');
 // const WIDGET_CLASS = 'k-widget m-markdown-toolbar';
 
 /**
- * MarkDownToolBar
+ * ProseMirrorToolBar
  */
-const MarkdownToolBar = ToolBar.extend({
+const ProseMirrorToolBar = ToolBar.extend({
     /**
      * Initialize widget
      * @constructor init
@@ -47,7 +47,7 @@ const MarkdownToolBar = ToolBar.extend({
      * options
      */
     options: {
-        name: 'MarkdownToolBar',
+        name: 'ProseMirrorToolBar',
     },
 
     /**
@@ -81,4 +81,4 @@ const MarkdownToolBar = ToolBar.extend({
 /**
  * Register Widget
  */
-plugin(MarkdownToolBar);
+plugin(ProseMirrorToolBar);

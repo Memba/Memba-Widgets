@@ -347,7 +347,9 @@ Fragment.prototype.descendants = function descendants (f) {
   this.nodesBetween(0, this.size, f);
 };
 
-// : (number, number, ?string, ?string) → string
+// :: (number, number, ?string, ?string) → string
+// Extract the text between `from` and `to`. See the same method on
+// [`Node`](#model.Node.textBetween).
 Fragment.prototype.textBetween = function textBetween (from, to, blockSeparator, leafText) {
   var text = "", separated = true;
   this.nodesBetween(from, to, function (node, pos) {
@@ -1583,6 +1585,10 @@ Node$1.prototype.canAppend = function canAppend (other) {
 Node$1.prototype.check = function check () {
   if (!this.type.validContent(this.content))
     { throw new RangeError(("Invalid content for node " + (this.type.name) + ": " + (this.content.toString().slice(0, 50)))) }
+  var copy = Mark.none;
+  for (var i = 0; i < this.marks.length; i++) { copy = this.marks[i].addToSet(copy); }
+  if (!Mark.sameSet(copy, this.marks))
+    { throw new RangeError(("Invalid collection of marks for node " + (this.type.name) + ": " + (this.marks.map(function (m) { return m.type.name; })))) }
   this.content.forEach(function (node) { return node.check(); });
 };
 
@@ -3095,6 +3101,8 @@ ParseContext.prototype.addTextNode = function addTextNode (dom) {
       }
     } else if (!(top.options & OPT_PRESERVE_WS_FULL)) {
       value = value.replace(/\r?\n|\r/g, " ");
+    } else {
+      value = value.replace(/\r\n?/g, "\n");
     }
     if (value) { this.insertNode(this.parser.schema.text(value)); }
     this.findInText(dom);
@@ -3113,6 +3121,7 @@ ParseContext.prototype.addElement = function addElement (dom, matchAfter) {
       (ruleID = this.parser.matchTag(dom, this, matchAfter));
   if (rule ? rule.ignore : ignoreTags.hasOwnProperty(name)) {
     this.findInside(dom);
+    this.ignoreFallback(dom);
   } else if (!rule || rule.skip || rule.closeParent) {
     if (rule && rule.closeParent) { this.open = Math.max(0, this.open - 1); }
     else if (rule && rule.skip.nodeType) { dom = rule.skip; }
@@ -3136,6 +3145,13 @@ ParseContext.prototype.addElement = function addElement (dom, matchAfter) {
 ParseContext.prototype.leafFallback = function leafFallback (dom) {
   if (dom.nodeName == "BR" && this.top.type && this.top.type.inlineContent)
     { this.addTextNode(dom.ownerDocument.createTextNode("\n")); }
+};
+
+// Called for ignored nodes
+ParseContext.prototype.ignoreFallback = function ignoreFallback (dom) {
+  // Ignored BR nodes should at least create an inline context
+  if (dom.nodeName == "BR" && (!this.top.type || !this.top.type.inlineContent))
+    { this.findPlace(this.parser.schema.text("-")); }
 };
 
 // Run any style parser associated with the node's styles. Either
@@ -4143,8 +4159,14 @@ StepResult.fromReplace = function fromReplace (doc, from, to, slice) {
 var ReplaceStep = /*@__PURE__*/(function (Step) {
   function ReplaceStep(from, to, slice, structure) {
     Step.call(this);
+    // :: number
+    // The start position of the replaced range.
     this.from = from;
+    // :: number
+    // The end position of the replaced range.
     this.to = to;
+    // :: Slice
+    // The slice to insert.
     this.slice = slice;
     this.structure = !!structure;
   }
@@ -4213,11 +4235,24 @@ Step.jsonID("replace", ReplaceStep);
 var ReplaceAroundStep = /*@__PURE__*/(function (Step) {
   function ReplaceAroundStep(from, to, gapFrom, gapTo, slice, insert, structure) {
     Step.call(this);
+    // :: number
+    // The start position of the replaced range.
     this.from = from;
+    // :: number
+    // The end position of the replaced range.
     this.to = to;
+    // :: number
+    // The start of preserved range.
     this.gapFrom = gapFrom;
+    // :: number
+    // The end of preserved range.
     this.gapTo = gapTo;
+    // :: Slice
+    // The slice to insert.
     this.slice = slice;
+    // :: number
+    // The position in the slice where the preserved range should be
+    // inserted.
     this.insert = insert;
     this.structure = !!structure;
   }
@@ -4589,9 +4624,14 @@ function dropPoint(doc, pos, slice) {
     for (var d = $pos.depth; d >= 0; d--) {
       var bias = d == $pos.depth ? 0 : $pos.pos <= ($pos.start(d + 1) + $pos.end(d + 1)) / 2 ? -1 : 1;
       var insertPos = $pos.index(d) + (bias > 0 ? 1 : 0);
-      if (pass == 1
-          ? $pos.node(d).canReplace(insertPos, insertPos, content)
-          : $pos.node(d).contentMatchAt(insertPos).findWrapping(content.firstChild.type))
+      var parent = $pos.node(d), fits = false;
+      if (pass == 1) {
+        fits = parent.canReplace(insertPos, insertPos, content);
+      } else {
+        var wrapping = parent.contentMatchAt(insertPos).findWrapping(content.firstChild.type);
+        fits = wrapping && parent.canReplaceWith(insertPos, insertPos, wrapping[0]);
+      }
+      if (fits)
         { return bias == 0 ? $pos.pos : bias < 0 ? $pos.before(d + 1) : $pos.after(d + 1) }
     }
   }
@@ -4613,8 +4653,14 @@ function mapFragment(fragment, f, parent) {
 var AddMarkStep = /*@__PURE__*/(function (Step) {
   function AddMarkStep(from, to, mark) {
     Step.call(this);
+    // :: number
+    // The start of the marked range.
     this.from = from;
+    // :: number
+    // The end of the marked range.
     this.to = to;
+    // :: Mark
+    // The mark to add.
     this.mark = mark;
   }
 
@@ -4672,8 +4718,14 @@ Step.jsonID("addMark", AddMarkStep);
 var RemoveMarkStep = /*@__PURE__*/(function (Step) {
   function RemoveMarkStep(from, to, mark) {
     Step.call(this);
+    // :: number
+    // The start of the unmarked range.
     this.from = from;
+    // :: number
+    // The end of the unmarked range.
     this.to = to;
+    // :: Mark
+    // The mark to remove.
     this.mark = mark;
   }
 
@@ -5279,7 +5331,7 @@ Transform.prototype.replaceRange = function(from, to, slice) {
     this.replace(from, to, slice);
     if (this.steps.length > startSteps) { break }
     var depth = targetDepths[i$2];
-    if (i$2 < 0) { continue }
+    if (depth < 0) { continue }
     from = $from.before(depth); to = $to.after(depth);
   }
   return this
@@ -8118,9 +8170,12 @@ function getSide(value, side) {
 
 function clientRect(node) {
   var rect = node.getBoundingClientRect();
+  // Adjust for elements with style "transform: scale()"
+  var scaleX = (rect.width / node.offsetWidth) || 1;
+  var scaleY = (rect.height / node.offsetHeight) || 1;
   // Make sure scrollbar width isn't included in the rectangle
-  return {left: rect.left, right: rect.left + node.clientWidth,
-          top: rect.top, bottom: rect.top + node.clientHeight}
+  return {left: rect.left, right: rect.left + node.clientWidth * scaleX,
+          top: rect.top, bottom: rect.top + node.clientHeight * scaleY}
 }
 
 function scrollRectIntoView(view, rect, startDOM) {
@@ -8596,15 +8651,17 @@ function endOfTextblock(view, state, dir) {
 //   is not present, the node view itself is responsible for rendering
 //   (or deciding not to render) its child nodes.
 //
-//   update:: ?(node: Node, decorations: [Decoration]) → bool
+//   update:: ?(node: Node, decorations: [Decoration], innerDecorations: DecorationSource) → bool
 //   When given, this will be called when the view is updating itself.
-//   It will be given a node (possibly of a different type), and an
-//   array of active decorations (which are automatically drawn, and
-//   the node view may ignore if it isn't interested in them), and
-//   should return true if it was able to update to that node, and
-//   false otherwise. If the node view has a `contentDOM` property (or
-//   no `dom` property), updating its child nodes will be handled by
-//   ProseMirror.
+//   It will be given a node (possibly of a different type), an array
+//   of active decorations around the node (which are automatically
+//   drawn, and the node view may ignore if it isn't interested in
+//   them), and a [decoration source](#view.DecorationSource) that
+//   represents any decorations that apply to the content of the node
+//   (which again may be ignored). It should return true if it was
+//   able to update to that node, and false otherwise. If the node
+//   view has a `contentDOM` property (or no `dom` property), updating
+//   its child nodes will be handled by ProseMirror.
 //
 //   selectNode:: ?()
 //   Can be used to override the way the node's selected status (as a
@@ -8765,7 +8822,7 @@ ViewDesc.prototype.localPosFromDOM = function localPosFromDOM (dom, offset, bias
   // parameter, to determine whether to return the position at the
   // start or at the end of this view desc.
   var atEnd;
-  if (dom == this.dom) {
+  if (dom == this.dom && this.contentDOM) {
     atEnd = offset > domIndex(this.contentDOM);
   } else if (this.contentDOM && this.contentDOM != this.dom && this.dom.contains(this.contentDOM)) {
     atEnd = dom.compareDocumentPosition(this.contentDOM) & 2;
@@ -9208,7 +9265,7 @@ var NodeViewDesc = /*@__PURE__*/(function (ViewDesc) {
       // own position)
       if (!descObj) { return pos }
       if (descObj.parent) { return descObj.parent.posBeforeChild(descObj) }
-    }, outerDeco);
+    }, outerDeco, innerDeco);
 
     var dom = spec && spec.dom, contentDOM = spec && spec.contentDOM;
     if (node.isText) {
@@ -9347,7 +9404,7 @@ var NodeViewDesc = /*@__PURE__*/(function (ViewDesc) {
     this.children = replaceNodes(this.children, pos, pos + text.length, view, desc);
   };
 
-  // : (Node, [Decoration], DecorationSet, EditorView) → bool
+  // : (Node, [Decoration], DecorationSource, EditorView) → bool
   // If this desc be updated to match the given node decoration,
   // do so and return true.
   NodeViewDesc.prototype.update = function update (node, outerDeco, innerDeco, view) {
@@ -9507,7 +9564,7 @@ var CustomNodeViewDesc = /*@__PURE__*/(function (NodeViewDesc) {
   CustomNodeViewDesc.prototype.update = function update (node, outerDeco, innerDeco, view) {
     if (this.dirty == NODE_DIRTY) { return false }
     if (this.spec.update) {
-      var result = this.spec.update(node, outerDeco);
+      var result = this.spec.update(node, outerDeco, innerDeco);
       if (result) { this.updateInner(node, outerDeco, innerDeco, view); }
       return result
     } else if (!this.contentDOM && !node.isLeaf) {
@@ -9636,8 +9693,8 @@ function patchAttributes(dom, prev, cur) {
     { if (name$1 != "class" && name$1 != "style" && name$1 != "nodeName" && cur[name$1] != prev[name$1])
       { dom.setAttribute(name$1, cur[name$1]); } }
   if (prev.class != cur.class) {
-    var prevList = prev.class ? prev.class.split(" ") : nothing;
-    var curList = cur.class ? cur.class.split(" ") : nothing;
+    var prevList = prev.class ? prev.class.split(" ").filter(Boolean) : nothing;
+    var curList = cur.class ? cur.class.split(" ").filter(Boolean) : nothing;
     for (var i = 0; i < prevList.length; i++) { if (curList.indexOf(prevList[i]) == -1)
       { dom.classList.remove(prevList[i]); } }
     for (var i$1 = 0; i$1 < curList.length; i$1++) { if (prevList.indexOf(curList[i$1]) == -1)
@@ -9686,13 +9743,7 @@ var ViewTreeUpdater = function ViewTreeUpdater(top, lockedNode) {
   // Tracks whether anything was changed
   this.changed = false;
 
-  var pre = preMatch(top.node.content, top.children);
-  this.preMatched = pre.nodes;
-  this.preMatchOffset = pre.offset;
-};
-
-ViewTreeUpdater.prototype.getPreMatch = function getPreMatch (index) {
-  return index >= this.preMatchOffset ? this.preMatched[index - this.preMatchOffset] : null
+  this.preMatch = preMatch(top.node.content, top.children);
 };
 
 // Destroy and remove the children between the given indices in
@@ -9749,18 +9800,21 @@ ViewTreeUpdater.prototype.syncToMarks = function syncToMarks (marks, inline, vie
   }
 };
 
-// : (Node, [Decoration], DecorationSet) → bool
+// : (Node, [Decoration], DecorationSource) → bool
 // Try to find a node desc matching the given data. Skip over it and
 // return true when successful.
 ViewTreeUpdater.prototype.findNodeMatch = function findNodeMatch (node, outerDeco, innerDeco, index) {
-  var found = -1, preMatch = index < 0 ? undefined : this.getPreMatch(index), children = this.top.children;
-  if (preMatch && preMatch.matchesNode(node, outerDeco, innerDeco)) {
-    found = children.indexOf(preMatch);
+  var children = this.top.children, found = -1;
+  if (index >= this.preMatch.index) {
+    for (var i = this.index; i < children.length; i++) { if (children[i].matchesNode(node, outerDeco, innerDeco)) {
+      found = i;
+      break
+    } }
   } else {
-    for (var i = this.index, e = Math.min(children.length, i + 5); i < e; i++) {
-      var child = children[i];
-      if (child.matchesNode(node, outerDeco, innerDeco) && this.preMatched.indexOf(child) < 0) {
-        found = i;
+    for (var i$1 = this.index, e = Math.min(children.length, i$1 + 1); i$1 < e; i$1++) {
+      var child = children[i$1];
+      if (child.matchesNode(node, outerDeco, innerDeco) && !this.preMatch.matched.has(child)) {
+        found = i$1;
         break
       }
     }
@@ -9771,15 +9825,15 @@ ViewTreeUpdater.prototype.findNodeMatch = function findNodeMatch (node, outerDec
   return true
 };
 
-// : (Node, [Decoration], DecorationSet, EditorView, Fragment, number) → bool
+// : (Node, [Decoration], DecorationSource, EditorView, Fragment, number) → bool
 // Try to update the next node, if any, to the given data. Checks
 // pre-matches to avoid overwriting nodes that could still be used.
 ViewTreeUpdater.prototype.updateNextNode = function updateNextNode (node, outerDeco, innerDeco, view, index) {
   for (var i = this.index; i < this.top.children.length; i++) {
     var next = this.top.children[i];
     if (next instanceof NodeViewDesc) {
-      var preMatch = this.preMatched.indexOf(next);
-      if (preMatch > -1 && preMatch + this.preMatchOffset != index) { return false }
+      var preMatch = this.preMatch.matched.get(next);
+      if (preMatch != null && preMatch != index) { return false }
       var nextDOM = next.dom;
 
       // Can't update if nextDOM is or contains this.lock, except if
@@ -9800,7 +9854,7 @@ ViewTreeUpdater.prototype.updateNextNode = function updateNextNode (node, outerD
   return false
 };
 
-// : (Node, [Decoration], DecorationSet, EditorView)
+// : (Node, [Decoration], DecorationSource, EditorView)
 // Insert the node as a newly created node desc.
 ViewTreeUpdater.prototype.addNode = function addNode (node, outerDeco, innerDeco, view, pos) {
   this.top.children.splice(this.index++, 0, NodeViewDesc.create(this.top, node, outerDeco, innerDeco, view, pos));
@@ -9837,27 +9891,27 @@ ViewTreeUpdater.prototype.addTextblockHacks = function addTextblockHacks () {
   }
 };
 
-// : (Fragment, [ViewDesc]) → [ViewDesc]
+// : (Fragment, [ViewDesc]) → {index: number, matched: Map<ViewDesc, number>}
 // Iterate from the end of the fragment and array of descs to find
-// directly matching ones, in order to avoid overeagerly reusing
-// those for other nodes. Returns an array whose positions correspond
-// to node positions in the fragment, and whose elements are either
-// descs matched to the child at that index, or empty.
+// directly matching ones, in order to avoid overeagerly reusing those
+// for other nodes. Returns the fragment index of the first node that
+// is part of the sequence of matched nodes at the end of the
+// fragment.
 function preMatch(frag, descs) {
-  var result = [], end = frag.childCount;
-  for (var i = descs.length - 1; end > 0 && i >= 0; i--) {
-    var desc = descs[i], node = desc.node;
+  var fI = frag.childCount, dI = descs.length, matched = new Map;
+  for (; fI > 0 && dI > 0; dI--) {
+    var desc = descs[dI - 1], node = desc.node;
     if (!node) { continue }
-    if (node != frag.child(end - 1)) { break }
-    result.push(desc);
-    --end;
+    if (node != frag.child(fI - 1)) { break }
+    --fI;
+    matched.set(desc, fI);
   }
-  return {nodes: result.reverse(), offset: end}
+  return {index: fI, matched: matched}
 }
 
 function compareSide(a, b) { return a.type.side - b.type.side }
 
-// : (ViewDesc, DecorationSet, (Decoration, number), (Node, [Decoration], DecorationSet, number))
+// : (ViewDesc, DecorationSource, (Decoration, number), (Node, [Decoration], DecorationSource, number))
 // This function abstracts iterating over the nodes and decorations in
 // a fragment. Calls `onNode` for each node, with its local and child
 // decorations. Splits text nodes when there is a decoration starting
@@ -10841,7 +10895,7 @@ function parseFromClipboard(view, text, html, plainText, $context) {
   var asText = text && (plainText || inCode || !html);
   if (asText) {
     view.someProp("transformPastedText", function (f) { text = f(text, inCode || plainText); });
-    if (inCode) { return new Slice(Fragment.from(view.state.schema.text(text)), 0, 0) }
+    if (inCode) { return new Slice(Fragment.from(view.state.schema.text(text.replace(/\r\n?/g, "\n"))), 0, 0) }
     var parsed = view.someProp("clipboardTextParser", function (f) { return f(text, $context, plainText); });
     if (parsed) {
       slice = parsed;
@@ -12153,7 +12207,8 @@ Object.defineProperties( Decoration.prototype, prototypeAccessors$1 );
 
 var none = [], noSpec = {};
 
-// ::- A collection of [decorations](#view.Decoration), organized in
+// :: class extends DecorationSource
+// A collection of [decorations](#view.Decoration), organized in
 // such a way that the drawing algorithm can efficiently use and
 // compare them. This is a persistent data structure—it is not
 // modified, updates create a new value.
@@ -12349,6 +12404,11 @@ DecorationSet.prototype.localsInner = function localsInner (node) {
   }
   return result
 };
+
+// DecorationSource:: interface
+// An object that can [provide](#view.EditorProps.decorations)
+// decorations. Implemented by [`DecorationSet`](#view.DecorationSet),
+// and passed to [node views](#view.EditorProps.nodeViews).
 
 var empty$1 = new DecorationSet();
 

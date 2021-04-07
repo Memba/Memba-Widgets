@@ -4,7 +4,7 @@
  */
 
 // Notes
-// https://discuss.prosemirror.net/t/custom-markdown-format/41/8
+// https://discuss.prosemirror.net/t/custom-prosemirror-format/41/8
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
@@ -13,12 +13,12 @@ import 'kendo.binder';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import pm from '../vendor/prosemirror/prosemirror.es6';
-import './widgets.markdown.toolbar.es6';
+import pm from '../vendor/prosemirror/prosemirror.mjs';
+import './widgets.prosemirror.toolbar.es6';
 
 const {
     destroy,
-    ui: { plugin, Widget, MarkdownToolBar },
+    ui: { plugin, Widget, ProseMirrorToolBar },
 } = window.kendo;
 const {
     exampleSetup: { exampleSetup }, // Menu
@@ -27,16 +27,16 @@ const {
     state: { EditorState },
     view: { EditorView },
 } = pm;
-const logger = new Logger('widgets.markdown');
-// const NS = '.kendoMarkdown';
-const WIDGET_CLASS = 'k-widget m-markdown';
+const logger = new Logger('widgets.prosemirror');
+// const NS = '.kendoProseMirror';
+const WIDGET_CLASS = 'k-widget m-prosemirror';
 
 /**
- * Markdown
- * @class Markdown
+ * ProseMirror
+ * @class ProseMirror
  * @extends Widget
  */
-const Markdown = Widget.extend({
+const ProseMirror = Widget.extend({
     /**
      * Constructor
      * @constructor init
@@ -66,7 +66,7 @@ const Markdown = Widget.extend({
      * @property options
      */
     options: {
-        name: 'Markdown',
+        name: 'ProseMirror',
         enabled: true,
         value: CONSTANTS.EMPTY,
     },
@@ -121,13 +121,13 @@ const Markdown = Widget.extend({
     _render() {
         this.wrapper = this.element;
         this.element.addClass(WIDGET_CLASS);
-        if (!(this.toolbar instanceof MarkdownToolBar)) {
+        if (!(this.toolbar instanceof ProseMirrorToolBar)) {
             this.toolbar = $(`<${CONSTANTS.DIV}/>`)
                 .appendTo(this.element)
-                .kendoMarkdownToolBar({
+                .kendoProseMirrorToolBar({
                     command: this._onToolBarCommand.bind(this),
                 })
-                .data('kendoMarkdownToolBar');
+                .data('kendoProseMirrorToolBar');
         }
         if (!(this.view instanceof EditorView)) {
             const $editorElement = $(`<${CONSTANTS.DIV}/>`).appendTo(
@@ -229,4 +229,4 @@ const Markdown = Widget.extend({
 /**
  * Registration
  */
-plugin(Markdown);
+plugin(ProseMirror);

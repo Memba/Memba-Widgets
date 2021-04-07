@@ -50,7 +50,7 @@ describe('widgets.mathinput', () => {
             expect($).not.to.be.undefined;
             expect(window.kendo).not.to.be.undefined;
             expect($.fn[WIDGET]).to.be.a(CONSTANTS.FUNCTION);
-            expect($.fn.kendoMathInputToolBar).to.be.a(CONSTANTS.FUNCTION);
+            // expect($.fn.kendoMathInputToolBar).to.be.a(CONSTANTS.FUNCTION);
             expect(roles[ROLE]).to.be.a(CONSTANTS.FUNCTION);
         });
     });
@@ -60,7 +60,7 @@ describe('widgets.mathinput', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(MathInput);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -70,7 +70,7 @@ describe('widgets.mathinput', () => {
             const options = {};
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(MathInput);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 
@@ -84,7 +84,7 @@ describe('widgets.mathinput', () => {
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(MathInput);
-            expect(element).not.to.have.class('k-widget');
+            expect(element).to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
 

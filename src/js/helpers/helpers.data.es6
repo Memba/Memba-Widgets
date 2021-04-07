@@ -28,6 +28,8 @@ const boxGenerator = () => {
         width,
     };
 };
+const colorGenerator = () =>
+    `#${JSC.string(JSC.integer(6), JSC.one_of('0123456789abcdef'))()}`;
 const quizMode = JSC.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
 const styleGenerator = () =>
     `${[
@@ -36,10 +38,7 @@ const styleGenerator = () =>
             JSC.one_of('0123456789abcdef')
         )()}`,
         'border: solid 1px #000000',
-        `color: #${JSC.string(
-            JSC.integer(6),
-            JSC.one_of('0123456789abcdef')
-        )()}`,
+        `color: ${colorGenerator()}`,
         'font-family: Georgia, serif',
         'font-size: 3rem',
         'font-weight: 800',
@@ -224,7 +223,7 @@ function getChart() {
 function getConnector() {
     return {
         attributes: {
-            color: '#00ff00',
+            color: colorGenerator(),
         },
         id: new ObjectId().toString(),
         properties: {
@@ -572,6 +571,31 @@ function getSelector() {
 }
 
 /**
+ * getShape
+ * @function getShape
+ */
+function getShape() {
+    return {
+        attributes: {
+            shape: JSC.one_of(['rectangle', 'ellipsis', 'polygon'])(),
+            angles: JSC.integer(3, 10)(),
+            text: textGenerator(),
+            fillColor: colorGenerator(),
+            strokeColor: colorGenerator(),
+            strockWidth: JSC.integer(3, 10)(),
+        },
+        properties: {
+            behavior: 'none',
+            constant: undefined,
+        },
+        id: new ObjectId().toString(),
+        rotate: angleGenerator(),
+        tool: 'shape',
+        ...boxGenerator(),
+    };
+}
+
+/**
  * getTable
  * @function getTable
  */
@@ -802,6 +826,7 @@ export {
     getNumericBox,
     getQuiz,
     getSelector,
+    getShape,
     getTable,
     getTextArea,
     getTextBox,

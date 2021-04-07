@@ -22,7 +22,7 @@ import '../../../src/js/widgets/widgets.gridlayout.es6';
 const { before, describe, it } = window;
 const {
     // bind,
-    // destroy,
+    destroy,
     // observable,
     ui: { GridLayout },
 } = window.kendo;
@@ -66,5 +66,12 @@ describe('widgets.gridlayout', () => {
         // it('from markup', () => {});
 
         // it('from markup with attributes', () => {});
+    });
+
+    afterEach(() => {
+        const fixtures = $(`#${FIXTURES}`);
+        destroy(fixtures);
+        fixtures.find('*').off();
+        fixtures.empty();
     });
 });

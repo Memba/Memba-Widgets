@@ -191,7 +191,7 @@ describe('widgets.playbar', () => {
                 .with.property('length', 4);
             expect(element.find('ul>li'))
                 .to.be.an.instanceof($)
-                .with.property('length', 2);
+                .with.property('length', 1); // 2);
             expect(element.find('span.k-pager-input>input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 1);
@@ -253,7 +253,7 @@ describe('widgets.playbar', () => {
                 .with.property('length', 4);
             expect(element.find('ul>li'))
                 .to.be.an.instanceof($)
-                .with.property('length', pageCollectionData1.length + 1);
+                .with.property('length', pageCollectionData1.length);  // + 1);
             expect(element.find('span.k-pager-input>input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 0);
@@ -282,7 +282,7 @@ describe('widgets.playbar', () => {
                 .with.property('length', 4);
             expect(element.find('ul>li'))
                 .to.be.an.instanceof($)
-                .with.property('length', widget.options.buttonCount + 2);
+                .with.property('length', widget.options.buttonCount + 1); // 2);
             expect(element.find('span.k-pager-input>input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 0);
@@ -322,7 +322,7 @@ describe('widgets.playbar', () => {
                 .with.property('length', 4);
             expect(element.find('ul>li'))
                 .to.be.an.instanceof($)
-                .with.property('length', pageCollectionData1.length + 1);
+                .with.property('length', pageCollectionData1.length); // + 1);
             expect(element.find('span.k-pager-input>input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 0);

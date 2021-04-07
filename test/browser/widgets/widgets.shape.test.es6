@@ -25,7 +25,7 @@ const {
     destroy,
     init,
     // observable,
-    ui: { shape, roles },
+    ui: { Shape, roles },
 } = window.kendo;
 const { expect } = chai;
 
@@ -42,7 +42,7 @@ function getOptions() {
             },
             opacity: JSC.number(0, 1)(),
             scale: 3,
-            shape: JSC.one_of(Object.values(shape.fn.shapes))(),
+            shape: JSC.one_of(Object.values(Shape.fn.shapes))(),
             stroke: {
                 width: 0,
             },
@@ -89,7 +89,7 @@ function getOptions() {
             },
             opacity: JSC.number(0, 1)(),
             scale: 3,
-            shape: JSC.one_of(Object.values(shape.fn.shapes))(),
+            shape: JSC.one_of(Object.values(Shape.fn.shapes))(),
             stroke: {
                 width: 0,
             },
@@ -120,7 +120,7 @@ describe('widgets.shape', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]().data(WIDGET);
-            expect(widget).to.be.an.instanceof(shape);
+            expect(widget).to.be.an.instanceof(Shape);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -129,7 +129,7 @@ describe('widgets.shape', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = getOptions();
             const widget = element[WIDGET](options).data(WIDGET);
-            expect(widget).to.be.an.instanceof(shape);
+            expect(widget).to.be.an.instanceof(Shape);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -143,7 +143,7 @@ describe('widgets.shape', () => {
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
-            expect(widget).to.be.an.instanceof(shape);
+            expect(widget).to.be.an.instanceof(Shape);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -157,7 +157,7 @@ describe('widgets.shape', () => {
                 .appendTo(`#${FIXTURES}`);
             init(`#${FIXTURES}`);
             const widget = element.data(WIDGET);
-            expect(widget).to.be.an.instanceof(shape);
+            expect(widget).to.be.an.instanceof(Shape);
             expect(element).not.to.have.class('k-widget');
             expect(element).to.have.class(`kj-${ROLE}`);
         });
@@ -175,7 +175,7 @@ describe('widgets.shape', () => {
         });
 
         // it('visible', () => {
-        //     expect(widget).to.be.an.instanceof(shape);
+        //     expect(widget).to.be.an.instanceof(Shape);
         //     expect(widget.wrapper).to.be.an.instanceof($).with.property('length', 1);
         //     TODO
         // });

@@ -54,7 +54,7 @@
                         document.getElementById('menu').style.display = 'none';
                         // now use SystemJS to load all test files
                         SystemJS.import('./' + test + '.test.es6').then(function() {
-                            mocha.checkLeaks().globals([]);
+                            mocha.checkLeaks().globals(['requestFileSystem', 'storageInfo']);
                             mocha.run();
                         });
                     }

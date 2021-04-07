@@ -17,7 +17,7 @@ const {
     deepExtend,
     destroy,
     support: { touch },
-    ui: { plugin, Widget },
+    ui: { plugin, Sortable, Widget },
 } = window.kendo;
 const NS = '.kendoGridLayout';
 const WIDGET_CLASS = 'k-widget m-grid-layout';
@@ -244,7 +244,9 @@ const GridLayout = Widget.extend({
      */
     destroy() {
         const { element, sortable } = this;
-        sortable.destroy();
+        if (sortable instanceof Sortable) {
+            sortable.destroy();
+        }
         Widget.fn.destroy.call(this);
         destroy(element);
     },

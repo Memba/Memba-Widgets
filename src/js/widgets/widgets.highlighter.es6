@@ -744,13 +744,13 @@ const HighLighter = Widget.extend({
      * @method destroy
      */
     destroy() {
-        const that = this;
-        const { wrapper } = that;
+        const { wrapper } = this;
         // Release references
-        that.items = undefined;
-        that.element.off(NS);
+        this.items = undefined;
+        this.element.off(NS);
         // Destroy kendo
-        Widget.fn.destroy.call(that);
+        Widget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
         destroy(wrapper);
         // Remove widget class
         // wrapper.removeClass(WIDGET_CLASS);

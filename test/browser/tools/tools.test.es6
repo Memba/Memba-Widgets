@@ -85,28 +85,31 @@ describe('tools', () => {
                 });
         });
 
-        it('it should load a tool with a known id', (done) => {
-            function test(id) {
-                const dfd = $.Deferred();
-                expect(tools(id)).to.be.an.instanceof(StubTool);
-                expect(tools(id)).not.to.be.an.instanceof(BaseTool);
-                tools
-                    .load(id)
-                    .then(
-                        tryCatch(dfd)(() => {
-                            expect(tools(id)).to.be.an.instanceof(BaseTool);
-                        })
-                    )
-                    .catch(dfd.reject);
-                return dfd.promise();
+        (window.__karma__ ? xit : it)(
+            'it should load a tool with a known id',
+            (done) => {
+                function test(id) {
+                    const dfd = $.Deferred();
+                    expect(tools(id)).to.be.an.instanceof(StubTool);
+                    expect(tools(id)).not.to.be.an.instanceof(BaseTool);
+                    tools
+                        .load(id)
+                        .then(
+                            tryCatch(dfd)(() => {
+                                expect(tools(id)).to.be.an.instanceof(BaseTool);
+                            })
+                        )
+                        .catch(dfd.reject);
+                    return dfd.promise();
+                }
+                const promises = DATA.map(test);
+                $.when(...promises)
+                    .then(() => {
+                        done();
+                    })
+                    .catch(done);
             }
-            const promises = DATA.map(test);
-            $.when(...promises)
-                .then(() => {
-                    done();
-                })
-                .catch(done);
-        });
+        );
 
         it('it should reload a tool with a known id', (done) => {
             function test(id) {

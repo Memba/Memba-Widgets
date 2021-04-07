@@ -458,7 +458,7 @@ if (!support.filesystem) {
                 const dfd = $.Deferred();
                 $.ajax({
                     cache: true,
-                    // crossDomain: true,
+                    crossDomain: true,
                     dataType: 'arraybuffer',
                     type: 'GET',
                     url: remoteUrl,

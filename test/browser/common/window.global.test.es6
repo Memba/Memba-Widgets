@@ -13,6 +13,10 @@ const { expect } = chai;
 
 describe('window.global', () => {
     it('app.i18n should be an empty object', () => {
-        expect(app.i18n).to.eql({});
+        if (window.__karma__) {
+            expect(app.i18n).to.have.property('en');
+        } else {
+            expect(app.i18n).to.eql({});
+        }
     });
 });

@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.0.5 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
+ * FingerprintJS v3.0.7 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -305,19 +305,20 @@ var FingerprintJS = (function (exports) {
         }
     }
 
-    var version = "3.0.5";
+    var version = "3.0.7";
 
-    var w = window;
+    function wait(durationMs, resolveWith) {
+        return new Promise(function (resolve) { return setTimeout(resolve, durationMs, resolveWith); });
+    }
     function requestIdleCallbackIfAvailable(fallbackTimeout, deadlineTimeout) {
         if (deadlineTimeout === void 0) { deadlineTimeout = Infinity; }
-        return new Promise(function (resolve) {
-            if (w.requestIdleCallback) {
-                w.requestIdleCallback(function () { return resolve(); }, { timeout: deadlineTimeout });
-            }
-            else {
-                setTimeout(resolve, Math.min(fallbackTimeout, deadlineTimeout));
-            }
-        });
+        var requestIdleCallback = window.requestIdleCallback;
+        if (requestIdleCallback) {
+            return new Promise(function (resolve) { return requestIdleCallback(function () { return resolve(); }, { timeout: deadlineTimeout }); });
+        }
+        else {
+            return wait(Math.min(fallbackTimeout, deadlineTimeout));
+        }
     }
 
     /**
@@ -371,9 +372,6 @@ var FingerprintJS = (function (exports) {
     /*
      * Functions to help with features that vary through browsers
      */
-    var w$1 = window;
-    var n = navigator;
-    var d = document;
     /**
      * Checks whether the browser is based on Trident (the Internet Explorer engine) without using user-agent.
      *
@@ -381,11 +379,13 @@ var FingerprintJS = (function (exports) {
      * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
      */
     function isTrident() {
+        var w = window;
+        var n = navigator;
         // The properties are checked to be in IE 10, IE 11 and not to be in other browsers in October 2020
         return (countTruthy([
-            'MSCSSMatrix' in w$1,
-            'msSetImmediate' in w$1,
-            'msIndexedDB' in w$1,
+            'MSCSSMatrix' in w,
+            'msSetImmediate' in w,
+            'msIndexedDB' in w,
             'msMaxTouchPoints' in n,
             'msPointerEnabled' in n,
         ]) >= 4);
@@ -398,7 +398,9 @@ var FingerprintJS = (function (exports) {
      */
     function isEdgeHTML() {
         // Based on research in October 2020
-        return (countTruthy(['msWriteProfilerMark' in w$1, 'MSStream' in w$1, 'msLaunchUri' in n, 'msSaveBlob' in n]) >= 3 &&
+        var w = window;
+        var n = navigator;
+        return (countTruthy(['msWriteProfilerMark' in w, 'MSStream' in w, 'msLaunchUri' in n, 'msSaveBlob' in n]) >= 3 &&
             !isTrident());
     }
     /**
@@ -409,14 +411,16 @@ var FingerprintJS = (function (exports) {
      */
     function isChromium() {
         // Based on research in October 2020. Tested to detect Chromium 42-86.
+        var w = window;
+        var n = navigator;
         return (countTruthy([
             'webkitPersistentStorage' in n,
             'webkitTemporaryStorage' in n,
             n.vendor.indexOf('Google') === 0,
-            'webkitResolveLocalFileSystemURL' in w$1,
-            'BatteryManager' in w$1,
-            'webkitMediaStream' in w$1,
-            'webkitSpeechGrammar' in w$1,
+            'webkitResolveLocalFileSystemURL' in w,
+            'BatteryManager' in w,
+            'webkitMediaStream' in w,
+            'webkitSpeechGrammar' in w,
         ]) >= 5);
     }
     /**
@@ -428,13 +432,15 @@ var FingerprintJS = (function (exports) {
      */
     function isWebKit() {
         // Based on research in September 2020
+        var w = window;
+        var n = navigator;
         return (countTruthy([
-            'ApplePayError' in w$1,
-            'CSSPrimitiveValue' in w$1,
-            'Counter' in w$1,
+            'ApplePayError' in w,
+            'CSSPrimitiveValue' in w,
+            'Counter' in w,
             n.vendor.indexOf('Apple') === 0,
             'getStorageUpdates' in n,
-            'WebKitMediaKeys' in w$1,
+            'WebKitMediaKeys' in w,
         ]) >= 4);
     }
     /**
@@ -444,11 +450,12 @@ var FingerprintJS = (function (exports) {
      * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
      */
     function isDesktopSafari() {
+        var w = window;
         return (countTruthy([
-            'safari' in w$1,
-            !('DeviceMotionEvent' in w$1),
-            !('ongestureend' in w$1),
-            !('standalone' in n),
+            'safari' in w,
+            !('DeviceMotionEvent' in w),
+            !('ongestureend' in w),
+            !('standalone' in navigator),
         ]) >= 3);
     }
     /**
@@ -458,15 +465,16 @@ var FingerprintJS = (function (exports) {
      * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
      */
     function isGecko() {
-        var _a;
+        var _a, _b;
+        var w = window;
         // Based on research in September 2020
         return (countTruthy([
-            'buildID' in n,
-            ((_a = d.documentElement) === null || _a === void 0 ? void 0 : _a.style) && 'MozAppearance' in d.documentElement.style,
-            'MediaRecorderErrorEvent' in w$1,
-            'mozInnerScreenX' in w$1,
-            'CSSMozDocumentRule' in w$1,
-            'CanvasCaptureMediaStream' in w$1,
+            'buildID' in navigator,
+            'MozAppearance' in ((_b = (_a = document.documentElement) === null || _a === void 0 ? void 0 : _a.style) !== null && _b !== void 0 ? _b : {}),
+            'MediaRecorderErrorEvent' in w,
+            'mozInnerScreenX' in w,
+            'CSSMozDocumentRule' in w,
+            'CanvasCaptureMediaStream' in w,
         ]) >= 4);
     }
     /**
@@ -475,11 +483,12 @@ var FingerprintJS = (function (exports) {
      */
     function isChromium86OrNewer() {
         // Checked in Chrome 85 vs Chrome 86 both on desktop and Android
+        var w = window;
         return (countTruthy([
-            !('MediaSettingsRange' in w$1),
-            'RTCEncodedAudioFrame' in w$1,
-            '' + w$1.Intl === '[object Intl]',
-            '' + w$1.Reflect === '[object Reflect]',
+            !('MediaSettingsRange' in w),
+            'RTCEncodedAudioFrame' in w,
+            '' + w.Intl === '[object Intl]',
+            '' + w.Reflect === '[object Reflect]',
         ]) >= 3);
     }
     /**
@@ -490,24 +499,24 @@ var FingerprintJS = (function (exports) {
      */
     function isWebKit606OrNewer() {
         // Checked in Safari 9–14
+        var w = window;
         return (countTruthy([
-            'DOMRectList' in w$1,
-            'RTCPeerConnectionIceEvent' in w$1,
-            'SVGGeometryElement' in w$1,
-            'ontransitioncancel' in w$1,
+            'DOMRectList' in w,
+            'RTCPeerConnectionIceEvent' in w,
+            'SVGGeometryElement' in w,
+            'ontransitioncancel' in w,
         ]) >= 3);
     }
 
-    var w$2 = window;
-    var d$1 = document;
     // Inspired by and based on https://github.com/cozylife/audio-fingerprint
     function getAudioFingerprint() {
         return __awaiter(this, void 0, void 0, function () {
-            var AudioContext, context, oscillator, compressor, buffer, error_1;
+            var w, AudioContext, hashFromIndex, hashToIndex, context, oscillator, compressor, buffer, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        AudioContext = w$2.OfflineAudioContext || w$2.webkitOfflineAudioContext;
+                        w = window;
+                        AudioContext = w.OfflineAudioContext || w.webkitOfflineAudioContext;
                         if (!AudioContext) {
                             return [2 /*return*/, -2 /* NotSupported */];
                         }
@@ -518,38 +527,35 @@ var FingerprintJS = (function (exports) {
                         if (doesCurrentBrowserSuspendAudioContext()) {
                             return [2 /*return*/, -1 /* KnownToSuspend */];
                         }
-                        context = new AudioContext(1, 44100, 44100);
+                        hashFromIndex = 4500;
+                        hashToIndex = 5000;
+                        context = new AudioContext(1, hashToIndex, 44100);
                         oscillator = context.createOscillator();
                         oscillator.type = 'triangle';
-                        setAudioParam(context, oscillator.frequency, 10000);
+                        oscillator.frequency.value = 10000;
                         compressor = context.createDynamicsCompressor();
-                        setAudioParam(context, compressor.threshold, -50);
-                        setAudioParam(context, compressor.knee, 40);
-                        setAudioParam(context, compressor.ratio, 12);
-                        setAudioParam(context, compressor.reduction, -20);
-                        setAudioParam(context, compressor.attack, 0);
-                        setAudioParam(context, compressor.release, 0.25);
+                        compressor.threshold.value = -50;
+                        compressor.knee.value = 40;
+                        compressor.ratio.value = 12;
+                        compressor.attack.value = 0;
+                        compressor.release.value = 0.25;
                         oscillator.connect(compressor);
                         compressor.connect(context.destination);
                         oscillator.start(0);
                         _a.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, 4, 5]);
+                        _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, renderAudio(context)];
                     case 2:
                         buffer = _a.sent();
-                        return [3 /*break*/, 5];
+                        return [3 /*break*/, 4];
                     case 3:
                         error_1 = _a.sent();
                         if (error_1.name === "timeout" /* Timeout */ || error_1.name === "suspended" /* Suspended */) {
                             return [2 /*return*/, -3 /* Timeout */];
                         }
                         throw error_1;
-                    case 4:
-                        oscillator.disconnect();
-                        compressor.disconnect();
-                        return [7 /*endfinally*/];
-                    case 5: return [2 /*return*/, getHash(buffer.getChannelData(0))];
+                    case 4: return [2 /*return*/, getHash(buffer.getChannelData(0).subarray(hashFromIndex))];
                 }
             });
         });
@@ -559,14 +565,6 @@ var FingerprintJS = (function (exports) {
      */
     function doesCurrentBrowserSuspendAudioContext() {
         return isWebKit() && !isDesktopSafari() && !isWebKit606OrNewer();
-    }
-    function setAudioParam(context, param, value) {
-        var isAudioParam = function (value) {
-            return value && typeof value.setValueAtTime === 'function';
-        };
-        if (isAudioParam(param)) {
-            param.setValueAtTime(value, context.currentTime);
-        }
     }
     function renderAudio(context) {
         var resumeTriesMaxCount = 3;
@@ -589,7 +587,7 @@ var FingerprintJS = (function (exports) {
                         // in background isn't a problem, therefore the retry attempts don't count in background. It can lead to
                         // a situation when a fingerprint takes very long time and finishes successfully. FYI, the audio context
                         // can be suspended when `document.hidden === false` and start running after a retry.
-                        if (!d$1.hidden) {
+                        if (!document.hidden) {
                             resumeTriesLeft--;
                         }
                         if (resumeTriesLeft > 0) {
@@ -606,7 +604,7 @@ var FingerprintJS = (function (exports) {
     }
     function getHash(signal) {
         var hash = 0;
-        for (var i = 4500; i < 5000; ++i) {
+        for (var i = 0; i < signal.length; ++i) {
             hash += Math.abs(signal[i]);
         }
         return hash;
@@ -617,12 +615,79 @@ var FingerprintJS = (function (exports) {
         return error;
     }
 
-    var d$2 = document;
+    /**
+     * Creates and keeps an invisible iframe while the given function runs.
+     * The given function is called when the iframe is loaded and has a body.
+     * The iframe allows to measure DOM sizes inside itself.
+     *
+     * Notice: passing an initial HTML code doesn't work in IE.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function withIframe(action, initialHtml, domPollInterval) {
+        var _a, _b;
+        if (domPollInterval === void 0) { domPollInterval = 50; }
+        return __awaiter(this, void 0, void 0, function () {
+            var d, iframe;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        d = document;
+                        _c.label = 1;
+                    case 1:
+                        if (!!d.body) return [3 /*break*/, 3];
+                        return [4 /*yield*/, wait(domPollInterval)];
+                    case 2:
+                        _c.sent();
+                        return [3 /*break*/, 1];
+                    case 3:
+                        iframe = d.createElement('iframe');
+                        _c.label = 4;
+                    case 4:
+                        _c.trys.push([4, , 10, 11]);
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                iframe.onload = resolve;
+                                iframe.onerror = reject;
+                                var style = iframe.style;
+                                style.setProperty('display', 'block', 'important'); // Required for browsers to calculate the layout
+                                style.position = 'absolute';
+                                style.top = '0';
+                                style.left = '0';
+                                style.visibility = 'hidden';
+                                if (initialHtml && 'srcdoc' in iframe) {
+                                    iframe.srcdoc = initialHtml;
+                                }
+                                else {
+                                    iframe.src = 'about:blank';
+                                }
+                                d.body.appendChild(iframe);
+                            })];
+                    case 5:
+                        _c.sent();
+                        _c.label = 6;
+                    case 6:
+                        if (!!((_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document.body)) return [3 /*break*/, 8];
+                        return [4 /*yield*/, wait(domPollInterval)];
+                    case 7:
+                        _c.sent();
+                        return [3 /*break*/, 6];
+                    case 8: return [4 /*yield*/, action(iframe, iframe.contentWindow)];
+                    case 9: return [2 /*return*/, _c.sent()];
+                    case 10:
+                        (_b = iframe.parentNode) === null || _b === void 0 ? void 0 : _b.removeChild(iframe);
+                        return [7 /*endfinally*/];
+                    case 11: return [2 /*return*/];
+                }
+            });
+        });
+    }
+
     // We use m or w because these two characters take up the maximum width.
     // And we use a LLi so that the same matching fonts can get separated.
     var testString = 'mmMwWLliI0O&1';
     // We test using 48px font size, we may use any size. I guess larger the better.
-    var testSize = '48px';
+    var textSize = '48px';
     // A font will be compared against all the three default fonts.
     // And if it doesn't match all 3 then that font is not available.
     var baseFonts = ['monospace', 'sans-serif', 'serif'];
@@ -681,108 +746,73 @@ var FingerprintJS = (function (exports) {
         'Vrinda',
         'ZWAdobeF',
     ];
-    var fontSpanStyle = {
-        // CSS font reset to reset external styles
-        fontStyle: 'normal',
-        fontWeight: 'normal',
-        letterSpacing: 'normal',
-        lineBreak: 'auto',
-        lineHeight: 'normal',
-        textTransform: 'none',
-        textAlign: 'left',
-        textDecoration: 'none',
-        textShadow: 'none',
-        whiteSpace: 'normal',
-        wordBreak: 'normal',
-        wordSpacing: 'normal',
-        // We need this css as in some weird browser this span elements shows up for a microSec which creates
-        // a bad user experience
-        position: 'absolute',
-        left: '-9999px',
-        fontSize: testSize,
-    };
     // kudos to http://www.lalit.org/lab/javascript-css-font-detect/
-    function getFonts() {
-        var h = d$2.body;
-        // div to load spans for the base fonts
-        var baseFontsDiv = d$2.createElement('div');
-        // div to load spans for the fonts to detect
-        var fontsDiv = d$2.createElement('div');
-        var defaultWidth = {};
-        var defaultHeight = {};
-        // creates a span where the fonts will be loaded
-        var createSpan = function () {
-            var span = d$2.createElement('span');
-            span.textContent = testString;
-            for (var _i = 0, _a = Object.keys(fontSpanStyle); _i < _a.length; _i++) {
-                var prop = _a[_i];
-                span.style[prop] = fontSpanStyle[prop];
-            }
-            return span;
-        };
-        // creates a span and load the font to detect and a base font for fallback
-        var createSpanWithFonts = function (fontToDetect, baseFont) {
-            var s = createSpan();
-            s.style.fontFamily = "'" + fontToDetect + "'," + baseFont;
-            return s;
-        };
-        // creates spans for the base fonts and adds them to baseFontsDiv
-        var initializeBaseFontsSpans = function () {
-            return baseFonts.map(function (baseFont) {
-                var s = createSpan();
-                s.style.fontFamily = baseFont;
-                baseFontsDiv.appendChild(s);
-                return s;
-            });
-        };
-        // creates spans for the fonts to detect and adds them to fontsDiv
-        var initializeFontsSpans = function () {
-            // Stores {fontName : [spans for that font]}
-            var spans = {};
-            var _loop_1 = function (font) {
-                spans[font] = baseFonts.map(function (baseFont) {
-                    var s = createSpanWithFonts(font, baseFont);
-                    fontsDiv.appendChild(s);
-                    return s;
+    function getFontsIframe() {
+        // Running the script in an iframe makes it not affect the page look and not be affected by the page CSS. See:
+        // https://github.com/fingerprintjs/fingerprintjs/issues/592
+        // https://github.com/fingerprintjs/fingerprintjs/issues/628
+        return withIframe(function (_, _a) {
+            var document = _a.document;
+            var holder = document.body;
+            holder.style.fontSize = textSize;
+            // div to load spans for the default fonts and the fonts to detect
+            var spansContainer = document.createElement('div');
+            var defaultWidth = {};
+            var defaultHeight = {};
+            // creates a span where the fonts will be loaded
+            var createSpan = function (fontFamily) {
+                var span = document.createElement('span');
+                var style = span.style;
+                style.position = 'absolute';
+                style.top = '0';
+                style.left = '0';
+                style.fontFamily = fontFamily;
+                span.textContent = testString;
+                spansContainer.appendChild(span);
+                return span;
+            };
+            // creates a span and load the font to detect and a base font for fallback
+            var createSpanWithFonts = function (fontToDetect, baseFont) {
+                return createSpan("'" + fontToDetect + "'," + baseFont);
+            };
+            // creates spans for the base fonts and adds them to baseFontsDiv
+            var initializeBaseFontsSpans = function () {
+                return baseFonts.map(createSpan);
+            };
+            // creates spans for the fonts to detect and adds them to fontsDiv
+            var initializeFontsSpans = function () {
+                // Stores {fontName : [spans for that font]}
+                var spans = {};
+                var _loop_1 = function (font) {
+                    spans[font] = baseFonts.map(function (baseFont) { return createSpanWithFonts(font, baseFont); });
+                };
+                for (var _i = 0, fontList_1 = fontList; _i < fontList_1.length; _i++) {
+                    var font = fontList_1[_i];
+                    _loop_1(font);
+                }
+                return spans;
+            };
+            // checks if a font is available
+            var isFontAvailable = function (fontSpans) {
+                return baseFonts.some(function (baseFont, baseFontIndex) {
+                    return fontSpans[baseFontIndex].offsetWidth !== defaultWidth[baseFont] ||
+                        fontSpans[baseFontIndex].offsetHeight !== defaultHeight[baseFont];
                 });
             };
-            for (var _i = 0, fontList_1 = fontList; _i < fontList_1.length; _i++) {
-                var font = fontList_1[_i];
-                _loop_1(font);
+            // create spans for base fonts
+            var baseFontsSpans = initializeBaseFontsSpans();
+            // create spans for fonts to detect
+            var fontsSpans = initializeFontsSpans();
+            // add all the spans to the DOM
+            holder.appendChild(spansContainer);
+            // get the default width for the three base fonts
+            for (var index = 0; index < baseFonts.length; index++) {
+                defaultWidth[baseFonts[index]] = baseFontsSpans[index].offsetWidth; // width for the default font
+                defaultHeight[baseFonts[index]] = baseFontsSpans[index].offsetHeight; // height for the default font
             }
-            return spans;
-        };
-        // checks if a font is available
-        var isFontAvailable = function (fontSpans) {
-            return baseFonts.some(function (baseFont, baseFontIndex) {
-                return fontSpans[baseFontIndex].offsetWidth !== defaultWidth[baseFont] ||
-                    fontSpans[baseFontIndex].offsetHeight !== defaultHeight[baseFont];
-            });
-        };
-        // create spans for base fonts
-        var baseFontsSpans = initializeBaseFontsSpans();
-        // add the spans to the DOM
-        h.appendChild(baseFontsDiv);
-        // get the default width for the three base fonts
-        for (var index = 0, length_1 = baseFonts.length; index < length_1; index++) {
-            defaultWidth[baseFonts[index]] = baseFontsSpans[index].offsetWidth; // width for the default font
-            defaultHeight[baseFonts[index]] = baseFontsSpans[index].offsetHeight; // height for the default font
-        }
-        // create spans for fonts to detect
-        var fontsSpans = initializeFontsSpans();
-        // add all the spans to the DOM
-        h.appendChild(fontsDiv);
-        // check available fonts
-        var available = [];
-        for (var i = 0, l = fontList.length; i < l; i++) {
-            if (isFontAvailable(fontsSpans[fontList[i]])) {
-                available.push(fontList[i]);
-            }
-        }
-        // remove spans from DOM
-        h.removeChild(fontsDiv);
-        h.removeChild(baseFontsDiv);
-        return available;
+            // check available fonts
+            return fontList.filter(function (font) { return isFontAvailable(fontsSpans[font]); });
+        });
     }
 
     function getPlugins() {
@@ -837,8 +867,8 @@ var FingerprintJS = (function (exports) {
         if (!isSupported(canvas, context)) {
             return { winding: false, data: '' };
         }
-        // detect browser support of canvas winding
-        // http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
+        // Detect browser support of canvas winding
+        // https://web.archive.org/web/20170825024655/http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
         // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/canvas/winding.js
         context.rect(0, 0, 10, 10);
         context.rect(2, 2, 6, 6);
@@ -847,40 +877,39 @@ var FingerprintJS = (function (exports) {
         context.fillStyle = '#f60';
         context.fillRect(125, 1, 62, 20);
         context.fillStyle = '#069';
-        // https://github.com/Valve/fingerprintjs2/issues/66
-        // this can affect FP generation when applying different CSS on different websites
+        // This can affect FP generation when applying different CSS on different websites:
+        // https://github.com/fingerprintjs/fingerprintjs/issues/66
         context.font = '11pt no-real-font-123';
-        // the choice of emojis has a gigantic impact on rendering performance (especially in FF)
-        // some newer emojis cause it to slow down 50-200 times
-        // context.fillText("Cw爨m fjordbank \ud83d\ude03 gly", 2, 15)
-        var printedText = 'Cwm fjordbank \ud83d\ude03 gly';
+        // The choice of emojis has a gigantic impact on rendering performance (especially in FF).
+        // Some newer emojis cause it to slow down 50-200 times.
+        // A bare emoji shouldn't be used because the canvas will change depending on the script encoding:
+        // https://github.com/fingerprintjs/fingerprintjs/issues/66
+        // Escape sequence shouldn't be used too because Terser will turn it into a bare unicode.
+        var printedText = "Cwm fjordbank " + String.fromCharCode(55357, 56835) /* 😃 */ + " gly";
         context.fillText(printedText, 2, 15);
         context.fillStyle = 'rgba(102, 204, 0, 0.2)';
         context.font = '18pt Arial';
         context.fillText(printedText, 4, 45);
-        // canvas blending
-        // http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
+        // Canvas blending
+        // https://web.archive.org/web/20170826194121/http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
         // http://jsfiddle.net/NDYV8/16/
         context.globalCompositeOperation = 'multiply';
-        context.fillStyle = 'rgb(255,0,255)';
-        context.beginPath();
-        context.arc(50, 50, 50, 0, Math.PI * 2, true);
-        context.closePath();
-        context.fill();
-        context.fillStyle = 'rgb(0,255,255)';
-        context.beginPath();
-        context.arc(100, 50, 50, 0, Math.PI * 2, true);
-        context.closePath();
-        context.fill();
-        context.fillStyle = 'rgb(255,255,0)';
-        context.beginPath();
-        context.arc(75, 100, 50, 0, Math.PI * 2, true);
-        context.closePath();
-        context.fill();
-        context.fillStyle = 'rgb(255,0,255)';
-        // canvas winding
+        for (var _i = 0, _b = [
+            ['#f0f', 50, 50],
+            ['#0ff', 100, 50],
+            ['#ff0', 75, 100],
+        ]; _i < _b.length; _i++) {
+            var _c = _b[_i], color = _c[0], x = _c[1], y = _c[2];
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(x, y, 50, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+        }
+        // Canvas winding
         // http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
         // http://jsfiddle.net/NDYV8/19/
+        context.fillStyle = '#f0f';
         context.arc(75, 75, 75, 0, Math.PI * 2, true);
         context.arc(75, 75, 25, 0, Math.PI * 2, true);
         context.fill('evenodd');
@@ -890,8 +919,6 @@ var FingerprintJS = (function (exports) {
         };
     }
 
-    var n$1 = navigator;
-    var w$3 = window;
     /**
      * This is a crude and primitive touch screen detection. It's not possible to currently reliably detect the availability
      * of a touch screen with a JS, without actually subscribing to a touch event.
@@ -900,13 +927,14 @@ var FingerprintJS = (function (exports) {
      * @see https://github.com/Modernizr/Modernizr/issues/548
      */
     function getTouchSupport() {
+        var n = navigator;
         var maxTouchPoints = 0;
         var touchEvent;
-        if (n$1.maxTouchPoints !== undefined) {
-            maxTouchPoints = toInt(n$1.maxTouchPoints);
+        if (n.maxTouchPoints !== undefined) {
+            maxTouchPoints = toInt(n.maxTouchPoints);
         }
-        else if (n$1.msMaxTouchPoints !== undefined) {
-            maxTouchPoints = n$1.msMaxTouchPoints;
+        else if (n.msMaxTouchPoints !== undefined) {
+            maxTouchPoints = n.msMaxTouchPoints;
         }
         try {
             document.createEvent('TouchEvent');
@@ -915,7 +943,7 @@ var FingerprintJS = (function (exports) {
         catch (_) {
             touchEvent = false;
         }
-        var touchStart = 'ontouchstart' in w$3;
+        var touchStart = 'ontouchstart' in window;
         return {
             maxTouchPoints: maxTouchPoints,
             touchEvent: touchEvent,
@@ -927,22 +955,22 @@ var FingerprintJS = (function (exports) {
         return navigator.oscpu;
     }
 
-    var n$2 = navigator;
     function getLanguages() {
+        var n = navigator;
         var result = [];
-        var language = n$2.language || n$2.userLanguage || n$2.browserLanguage || n$2.systemLanguage;
+        var language = n.language || n.userLanguage || n.browserLanguage || n.systemLanguage;
         if (language !== undefined) {
             result.push([language]);
         }
-        if (Array.isArray(n$2.languages)) {
+        if (Array.isArray(n.languages)) {
             // Starting from Chromium 86, there is only a single value in `navigator.language` in Incognito mode:
             // the value of `navigator.language`. Therefore the value is ignored in this browser.
             if (!(isChromium() && isChromium86OrNewer())) {
-                result.push(n$2.languages);
+                result.push(n.languages);
             }
         }
-        else if (typeof n$2.languages === 'string') {
-            var languages = n$2.languages;
+        else if (typeof n.languages === 'string') {
+            var languages = n.languages;
             if (languages) {
                 result.push(languages.split(','));
             }
@@ -959,21 +987,21 @@ var FingerprintJS = (function (exports) {
         return replaceNaN(toFloat(navigator.deviceMemory), undefined);
     }
 
-    var w$4 = window;
     function getScreenResolution() {
+        var s = screen;
         // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
         // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-        var dimensions = [toInt(w$4.screen.width), toInt(w$4.screen.height)];
+        var dimensions = [toInt(s.width), toInt(s.height)];
         dimensions.sort().reverse();
         return dimensions;
     }
 
-    var w$5 = window;
     function getAvailableScreenResolution() {
-        if (w$5.screen.availWidth && w$5.screen.availHeight) {
+        var s = screen;
+        if (s.availWidth && s.availHeight) {
             // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
             // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-            var dimensions = [toInt(w$5.screen.availWidth), toInt(w$5.screen.availHeight)];
+            var dimensions = [toInt(s.availWidth), toInt(s.availHeight)];
             dimensions.sort().reverse();
             return dimensions;
         }
@@ -1002,11 +1030,11 @@ var FingerprintJS = (function (exports) {
         toFloat(new Date(currentYear, 0, 1).getTimezoneOffset()), toFloat(new Date(currentYear, 6, 1).getTimezoneOffset()));
     }
 
-    var w$6 = window;
     function getTimezone() {
         var _a;
-        if ((_a = w$6.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat) {
-            return new w$6.Intl.DateTimeFormat().resolvedOptions().timeZone;
+        var DateTimeFormat = (_a = window.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat;
+        if (DateTimeFormat) {
+            return new DateTimeFormat().resolvedOptions().timeZone;
         }
         return undefined;
     }
@@ -1068,7 +1096,7 @@ var FingerprintJS = (function (exports) {
     }
 
     function getProductSub() {
-        return navigator.productSub;
+        return navigator.productSub; // It's undefined in IE
     }
 
     function getEmptyEvalLength() {
@@ -1098,7 +1126,6 @@ var FingerprintJS = (function (exports) {
         return window.chrome !== undefined;
     }
 
-    var d$3 = document;
     /**
      * navigator.cookieEnabled cannot detect custom or nuanced cookie blocking configurations. For example, when blocking
      * cookies via the Advanced Privacy Settings in IE9, it always returns true. And there have been issues in the past with
@@ -1107,6 +1134,7 @@ var FingerprintJS = (function (exports) {
      * @see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cookies.js Taken from here
      */
     function areCookiesEnabled() {
+        var d = document;
         // Taken from here: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cookies.js
         // navigator.cookieEnabled cannot detect custom or nuanced cookie blocking configurations. For example, when blocking
         // cookies via the Advanced Privacy Settings in IE9, it always returns true. And there have been issues in the past
@@ -1116,10 +1144,10 @@ var FingerprintJS = (function (exports) {
         // or in sandboxed iframes (depending on flags/context)
         try {
             // Create cookie
-            d$3.cookie = 'cookietest=1; SameSite=Strict;';
-            var result = d$3.cookie.indexOf('cookietest=') !== -1;
+            d.cookie = 'cookietest=1; SameSite=Strict;';
+            var result = d.cookie.indexOf('cookietest=') !== -1;
             // Delete cookie
-            d$3.cookie = 'cookietest=1; SameSite=Strict; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+            d.cookie = 'cookietest=1; SameSite=Strict; expires=Thu, 01-Jan-1970 00:00:01 GMT';
             return result;
         }
         catch (e) {
@@ -1154,7 +1182,7 @@ var FingerprintJS = (function (exports) {
         canvas: getCanvasFingerprint,
         // adBlock: isAdblockUsed, // https://github.com/fingerprintjs/fingerprintjs/issues/405
         touchSupport: getTouchSupport,
-        fonts: getFonts,
+        fonts: getFontsIframe,
         audio: getAudioFingerprint,
         pluginsSupport: getPluginsSupport,
         productSub: getProductSub,
@@ -1259,6 +1287,7 @@ var FingerprintJS = (function (exports) {
             set visitorId(visitorId) {
                 visitorIdCache = visitorId;
             },
+            version: version,
         };
     }
     /**
@@ -1284,7 +1313,7 @@ var FingerprintJS = (function (exports) {
                             if (options.debug) {
                                 // console.log is ok here because it's under a debug clause
                                 // eslint-disable-next-line no-console
-                                console.log("Copy the text below to get the debug data:\n\n```\nversion: " + version + "\nuserAgent: " + navigator.userAgent + "\ngetOptions: " + JSON.stringify(options, undefined, 2) + "\nvisitorId: " + result.visitorId + "\ncomponents: " + componentsToDebugString(components) + "\n```");
+                                console.log("Copy the text below to get the debug data:\n\n```\nversion: " + result.version + "\nuserAgent: " + navigator.userAgent + "\ngetOptions: " + JSON.stringify(options, undefined, 2) + "\nvisitorId: " + result.visitorId + "\ncomponents: " + componentsToDebugString(components) + "\n```");
                             }
                             return [2 /*return*/, result];
                     }

@@ -93,8 +93,14 @@ const HLJS = function(hljs) {
   /**
    * Core highlighting function.
    *
-   * @param {string} languageName - the language to use for highlighting
-   * @param {string} code - the code to highlight
+   * OLD API
+   * highlight(lang, code, ignoreIllegals, continuation)
+   *
+   * NEW API
+   * highlight(code, {lang, ignoreIllegals})
+   *
+   * @param {string} codeOrlanguageName - the language to use for highlighting
+   * @param {string | HighlightOptions} optionsOrCode - the code to highlight
    * @param {boolean} [ignoreIllegals] - whether to ignore illegal matches, default is to bail
    * @param {CompiledMode} [continuation] - current continuation mode, if any
    *
@@ -106,7 +112,24 @@ const HLJS = function(hljs) {
    * @property {CompiledMode} top - top of the current mode stack
    * @property {boolean} illegal - indicates whether any illegal matches were found
   */
-  function highlight(languageName, code, ignoreIllegals, continuation) {
+  function highlight(codeOrlanguageName, optionsOrCode, ignoreIllegals, continuation) {
+    let code = "";
+    let languageName = "";
+    if (typeof optionsOrCode === "object") {
+      code = codeOrlanguageName;
+      ignoreIllegals = optionsOrCode.ignoreIllegals;
+      languageName = optionsOrCode.language;
+      // continuation not supported at all via the new API
+      // eslint-disable-next-line no-undefined
+      continuation = undefined;
+    } else {
+      // old API
+      logger.deprecated("10.7.0", "highlight(lang, code, ...args) has been deprecated.");
+      logger.deprecated("10.7.0", "Please use highlight(code, options) instead.\nhttps://github.com/highlightjs/highlight.js/issues/2277");
+      languageName = codeOrlanguageName;
+      code = optionsOrCode;
+    }
+
     /** @type {BeforeHighlightContext} */
     const context = {
       code,
@@ -118,9 +141,9 @@ const HLJS = function(hljs) {
 
     // a before plugin can usurp the result completely by providing it's own
     // in which case we don't even need to call highlight
-    const result = context.result ?
-      context.result :
-      _highlight(context.language, context.code, ignoreIllegals, continuation);
+    const result = context.result
+      ? context.result
+      : _highlight(context.language, context.code, ignoreIllegals, continuation);
 
     result.code = context.code;
     // the plugin can change anything in result to suite it
@@ -133,14 +156,12 @@ const HLJS = function(hljs) {
    * private highlight that's used internally and does not fire callbacks
    *
    * @param {string} languageName - the language to use for highlighting
-   * @param {string} code - the code to highlight
-   * @param {boolean} [ignoreIllegals] - whether to ignore illegal matches, default is to bail
-   * @param {CompiledMode} [continuation] - current continuation mode, if any
+   * @param {string} codeToHighlight - the code to highlight
+   * @param {boolean?} [ignoreIllegals] - whether to ignore illegal matches, default is to bail
+   * @param {CompiledMode?} [continuation] - current continuation mode, if any
    * @returns {HighlightResult} - result of the highlight operation
   */
-  function _highlight(languageName, code, ignoreIllegals, continuation) {
-    const codeToHighlight = code;
-
+  function _highlight(languageName, codeToHighlight, ignoreIllegals, continuation) {
     /**
      * Return keyword data if a match is a keyword
      * @param {CompiledMode} mode - current mode
@@ -172,8 +193,14 @@ const HLJS = function(hljs) {
           buf = "";
 
           relevance += keywordRelevance;
-          const cssClass = language.classNameAliases[kind] || kind;
-          emitter.addKeyword(match[0], cssClass);
+          if (kind.startsWith("_")) {
+            // _ implied for relevance only, do not highlight
+            // by applying a class name
+            buf += match[0];
+          } else {
+            const cssClass = language.classNameAliases[kind] || kind;
+            emitter.addKeyword(match[0], cssClass);
+          }
         } else {
           buf += match[0];
         }
@@ -243,7 +270,7 @@ const HLJS = function(hljs) {
         if (mode["on:end"]) {
           const resp = new Response(mode);
           mode["on:end"](match, resp);
-          if (resp.ignore) matched = false;
+          if (resp.isMatchIgnored) matched = false;
         }
 
         if (matched) {
@@ -295,7 +322,7 @@ const HLJS = function(hljs) {
       for (const cb of beforeCallbacks) {
         if (!cb) continue;
         cb(match, resp);
-        if (resp.ignore) return doIgnore(lexeme);
+        if (resp.isMatchIgnored) return doIgnore(lexeme);
       }
 
       if (newMode && newMode.endSameAsBegin) {
@@ -508,7 +535,9 @@ const HLJS = function(hljs) {
       result = emitter.toHTML();
 
       return {
-        relevance: relevance,
+        // avoid possible breakage with v10 clients expecting
+        // this to always be an integer
+        relevance: Math.floor(relevance),
         value: result,
         language: languageName,
         illegal: false,
@@ -657,12 +686,12 @@ const HLJS = function(hljs) {
 
   /** @type {HLJSPlugin} */
   const brPlugin = {
-    "before:highlightBlock": ({ block }) => {
+    "before:highlightElement": ({ el }) => {
       if (options.useBR) {
-        block.innerHTML = block.innerHTML.replace(/\n/g, '').replace(/<br[ /]*>/g, '\n');
+        el.innerHTML = el.innerHTML.replace(/\n/g, '').replace(/<br[ /]*>/g, '\n');
       }
     },
-    "after:highlightBlock": ({ result }) => {
+    "after:highlightElement": ({ result }) => {
       if (options.useBR) {
         result.value = result.value.replace(/\n/g, "<br>");
       }
@@ -672,7 +701,7 @@ const HLJS = function(hljs) {
   const TAB_REPLACE_RE = /^(<[^>]+>|\t)+/gm;
   /** @type {HLJSPlugin} */
   const tabReplacePlugin = {
-    "after:highlightBlock": ({ result }) => {
+    "after:highlightElement": ({ result }) => {
       if (options.tabReplace) {
         result.value = result.value.replace(TAB_REPLACE_RE, (m) =>
           m.replace(/\t/g, options.tabReplace)
@@ -687,21 +716,23 @@ const HLJS = function(hljs) {
    *
    * @param {HighlightedHTMLElement} element - the HTML element to highlight
   */
-  function highlightBlock(element) {
+  function highlightElement(element) {
     /** @type HTMLElement */
     let node = null;
     const language = blockLanguage(element);
 
     if (shouldNotHighlight(language)) return;
 
-    fire("before:highlightBlock",
-      { block: element, language: language });
+    // support for v10 API
+    fire("before:highlightElement",
+      { el: element, language: language });
 
     node = element;
     const text = node.textContent;
-    const result = language ? highlight(language, text, true) : highlightAuto(text);
+    const result = language ? highlight(text, { language, ignoreIllegals: true }) : highlightAuto(text);
 
-    fire("after:highlightBlock", { block: element, result, text });
+    // support for v10 API
+    fire("after:highlightElement", { el: element, result, text });
 
     element.innerHTML = result.value;
     updateClassName(element, language, result.language);
@@ -739,18 +770,48 @@ const HLJS = function(hljs) {
    *
    * @type {Function & {called?: boolean}}
    */
+  // TODO: remove v12, deprecated
   const initHighlighting = () => {
     if (initHighlighting.called) return;
     initHighlighting.called = true;
 
+    logger.deprecated("10.6.0", "initHighlighting() is deprecated.  Use highlightAll() instead.");
+
     const blocks = document.querySelectorAll('pre code');
-    blocks.forEach(highlightBlock);
+    blocks.forEach(highlightElement);
   };
 
   // Higlights all when DOMContentLoaded fires
+  // TODO: remove v12, deprecated
   function initHighlightingOnLoad() {
-    // @ts-ignore
-    window.addEventListener('DOMContentLoaded', initHighlighting, false);
+    logger.deprecated("10.6.0", "initHighlightingOnLoad() is deprecated.  Use highlightAll() instead.");
+    wantsHighlight = true;
+  }
+
+  let wantsHighlight = false;
+
+  /**
+   * auto-highlights all pre>code elements on the page
+   */
+  function highlightAll() {
+    // if we are called too early in the loading process
+    if (document.readyState === "loading") {
+      wantsHighlight = true;
+      return;
+    }
+
+    const blocks = document.querySelectorAll('pre code');
+    blocks.forEach(highlightElement);
+  }
+
+  function boot() {
+    // if a highlight was requested before DOM was loaded, do now
+    if (wantsHighlight) highlightAll();
+  }
+
+  // make sure we are in the browser environment
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('DOMContentLoaded', boot, false);
   }
 
   /**
@@ -780,6 +841,20 @@ const HLJS = function(hljs) {
 
     if (lang.aliases) {
       registerAliases(lang.aliases, { languageName });
+    }
+  }
+
+  /**
+   * Remove a language grammar module
+   *
+   * @param {string} languageName
+   */
+  function unregisterLanguage(languageName) {
+    delete languages[languageName];
+    for (const alias of Object.keys(aliases)) {
+      if (aliases[alias] === languageName) {
+        delete aliases[alias];
+      }
     }
   }
 
@@ -828,7 +903,7 @@ const HLJS = function(hljs) {
     if (typeof aliasList === 'string') {
       aliasList = [aliasList];
     }
-    aliasList.forEach(alias => { aliases[alias] = languageName; });
+    aliasList.forEach(alias => { aliases[alias.toLowerCase()] = languageName; });
   }
 
   /**
@@ -841,9 +916,33 @@ const HLJS = function(hljs) {
   }
 
   /**
+   * Upgrades the old highlightBlock plugins to the new
+   * highlightElement API
+   * @param {HLJSPlugin} plugin
+   */
+  function upgradePluginAPI(plugin) {
+    // TODO: remove with v12
+    if (plugin["before:highlightBlock"] && !plugin["before:highlightElement"]) {
+      plugin["before:highlightElement"] = (data) => {
+        plugin["before:highlightBlock"](
+          Object.assign({ block: data.el }, data)
+        );
+      };
+    }
+    if (plugin["after:highlightBlock"] && !plugin["after:highlightElement"]) {
+      plugin["after:highlightElement"] = (data) => {
+        plugin["after:highlightBlock"](
+          Object.assign({ block: data.el }, data)
+        );
+      };
+    }
+  }
+
+  /**
    * @param {HLJSPlugin} plugin
    */
   function addPlugin(plugin) {
+    upgradePluginAPI(plugin);
     plugins.push(plugin);
   }
 
@@ -874,16 +973,31 @@ const HLJS = function(hljs) {
     return fixMarkup(arg);
   }
 
+  /**
+   *
+   * @param {HighlightedHTMLElement} el
+   */
+  function deprecateHighlightBlock(el) {
+    logger.deprecated("10.7.0", "highlightBlock will be removed entirely in v12.0");
+    logger.deprecated("10.7.0", "Please use highlightElement now.");
+
+    return highlightElement(el);
+  }
+
   /* Interface definition */
   Object.assign(hljs, {
     highlight,
     highlightAuto,
+    highlightAll,
     fixMarkup: deprecateFixMarkup,
-    highlightBlock,
+    highlightElement,
+    // TODO: Remove with v12 API
+    highlightBlock: deprecateHighlightBlock,
     configure,
     initHighlighting,
     initHighlightingOnLoad,
     registerLanguage,
+    unregisterLanguage,
     listLanguages,
     getLanguage,
     registerAliases,

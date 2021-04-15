@@ -19,7 +19,8 @@ module.exports = (config) => {
 
         // @see https://github.com/karma-runner/karma-mocha/issues/47#issuecomment-287240956
         browserConsoleLogOptions: {
-            level: 'log',
+            // level: 'log',
+            level: 'error',
             format: '%b %T: %m',
             terminal: true,
         },
@@ -246,7 +247,7 @@ module.exports = (config) => {
                     'node_modules',
                 ],
             },
-            stats: 'verbose',
+            // stats: 'verbose',
         },
 
         /*

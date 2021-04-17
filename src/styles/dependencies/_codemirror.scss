@@ -11,13 +11,13 @@
 .CodeMirror,
 .CodeMirror-scrollbar-filler,
 .CodeMirror-gutter-filler {
-    background-color: $widget-bg;
-    color: $widget-text;
+    background-color: $component-bg;
+    color: $component-text;
 }
 
 // Gutters
 .CodeMirror-gutters {
-    background-color: rgba(contrast-wcag($widget-bg), 0.04);
+    background-color: rgba(contrast-wcag($component-bg), 0.04);
     border-right: $border-width solid $border-color;
 }
 
@@ -26,7 +26,7 @@
 .CodeMirror-linenumber {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
-    color: $widget-text;
+    color: $component-text;
 }
 
 .CodeMirror-guttermarker {
@@ -36,12 +36,12 @@
 .CodeMirror-guttermarker-subtle {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
-    color: $widget-text;
+    color: $component-text;
 }
 
 // Cursor
 .CodeMirror-cursor {
-    border-left: 1px solid $widget-text;
+    border-left: 1px solid $component-text;
 }
 
 /* Shown when moving in bi-directional text */
@@ -123,7 +123,7 @@
 .cm-s-default .cm-comment {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
-    color: $widget-text;
+    color: $component-text;
 }
 
 .cm-s-default .cm-string {
@@ -161,7 +161,7 @@
 .cm-s-default .cm-hr {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
-    color: $widget-text;
+    color: $component-text;
     font-weight: bold;
 }
 

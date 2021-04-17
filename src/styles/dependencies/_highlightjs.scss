@@ -82,7 +82,7 @@
 .hljs-code {
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
-    color: $widget-text;
+    color: $component-text;
 }
 
 .hljs-regexp,

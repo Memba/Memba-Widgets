@@ -42,9 +42,9 @@
             .k-edit-buttons {
                 // @include appearance( widget ); // Fixes border color
                 @include fill(
-                    $widget-text,
-                    $widget-bg,
-                    $widget-border
+                    $component-text,
+                    $component-bg,
+                    $component-border
                 );
 
                 align-items: center;

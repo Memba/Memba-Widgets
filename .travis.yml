@@ -2,12 +2,11 @@ os: linux
 dist: xenial
 language: node_js
 node_js:
+  - "16"
   - "15"
   - "14"
   - "13"
   - "12"
-  - "11"
-  - "10"
 env:
     - NODE_ENV=test FORCE_COLOR=true
 addons:

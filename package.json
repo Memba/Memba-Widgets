@@ -1,25 +1,24 @@
 {
-  "name": "Kidoju.Widgets",
-  "filename": "kidoju.widgets",
+  "name": "Memba.Widgets",
+  "filename": "memba.widgets",
   "version": "0.3.8",
-  "description": "Kendo UI Widgets for the Kidoju platform",
+  "description": "Kendo UI Widgets for the Memba platform",
   "author": "Memba Sarl",
   "copyright": "Copyright ©2013-2019 Memba® Sarl. All rights reserved.",
   "license": "AGPL-3.0",
   "homepage": "http://widgets.kidoju.com",
   "keywords": [
     "Memba",
-    "Kidoju",
     "Kendo UI",
     "Javascript",
     "Widgets"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Memba/Kidoju-Widgets.git"
+    "url": "https://github.com/Memba/Memba-Widgets.git"
   },
   "bugs": {
-    "url": "https://github.com/Memba/Kidoju-Widgets/issues"
+    "url": "https://github.com/Memba/Memba-Widgets/issues"
   },
   "scripts": {
     "docs": "jsdoc -c ./jsdoc.json",

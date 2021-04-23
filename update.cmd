@@ -7,13 +7,13 @@ XCOPY .\node_modules\@babel\polyfill\dist .\test\vendor /C /E /I /R /Y
 REM Copy less
 REM XCOPY .\node_modules\less\dist .\test\vendor /C /E /I /R /Y
 
-REM Copy common files from Kidoju-Server
+REM Copy common files from Memba-Server
 REM ATTRIB -R .\src\js\common\pongodb.*.es6
-REM COPY ..\Kidoju.Server\src\js\common\pongodb.*.es6 .\src\js\common\pongodb.*.es6 /Y
+REM COPY ..\Memba.Server\src\js\common\pongodb.*.es6 .\src\js\common\pongodb.*.es6 /Y
 REM ATTRIB +R .\src\js\common\pongodb.*.es6
 
-REM Copy Kidoju-WebFonts
-XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
+REM Copy Memba-WebFonts
+XCOPY ..\Memba.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*
 
 REM Copy Mathquill

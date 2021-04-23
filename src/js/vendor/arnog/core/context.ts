@@ -1,36 +1,40 @@
-import { MacroDictionary, ParseMode } from '../public/core';
+import { FontSize, MacroDictionary, ParseMode } from '../public/core';
 import { Mathstyle, MATHSTYLES } from './mathstyle';
+import { Span } from './span';
 
-export type ParseModePrivate =
-    | ParseMode
-    | (
-          | 'auto'
-          | 'bbox'
-          | 'color' //color name, hex value: `'#fff'`, `'#a0a0a0'`
-          | 'colspec' // formating of a column in tabular environment, e.g. `'r@{.}l'`
-          | 'delim'
-          | 'dimen' // `'25mu'`, `'2pt'`
-          | 'number' //`+/-12.56`
-          | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
-          | 'string' // delimiter is a non-literal token (e.g. `<}>` `<$>`, etc
-          | 'balanced-string' // Delimiter is a balanced closing brace
-      );
+export type ArgumentType =
+  | ParseMode
+  | (
+      | 'auto'
+      | 'bbox'
+      | 'color' // Color name, hex value: `'#fff'`, `'#a0a0a0'`
+      | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
+      | 'delim'
+      | 'dimen' // `'25mu'`, `'2pt'`
+      | 'number' // `+/-12.56`
+      | 'rest' // `{\foo \textsize ...}` to capture "..."
+      | 'skip' // `'25mu plus 2em minus fiLll'`, `'2pt'`
+      | 'string' // Delimiter is a non-literal token (e.g. `<}>` `<$>`, etc
+      | 'balanced-string' // Delimiter is a balanced closing brace
+    );
 
 export interface ContextInterface {
-    macros?: MacroDictionary;
-    atomIdsSettings?: {
-        overrideID?: string;
-        groupNumbers: boolean;
-        seed: string | number;
-    };
-    mathstyle?: Mathstyle;
-    parentMathstyle?: Mathstyle;
-    size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
-    parentSize?: string;
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-    opacity?: number;
-    color?: string;
-    smartFence?: boolean;
+  macros?: MacroDictionary;
+  atomIdsSettings?: {
+    overrideID?: string;
+    groupNumbers: boolean;
+    seed: string | number;
+  };
+  mathstyle?: Mathstyle;
+  renderPlaceholder?: (context: Context) => Span;
+  parentMathstyle?: Mathstyle;
+  size?: FontSize | 'auto';
+  parentSize?: FontSize;
+  letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+  opacity?: number;
+  color?: string;
+  smartFence?: boolean;
+  phantomBase?: Span[];
 }
 
 /**
@@ -63,80 +67,116 @@ export interface ContextInterface {
  * @property {string} color
  */
 export class Context implements ContextInterface {
-    macros: MacroDictionary;
-    atomIdsSettings?: {
-        overrideID?: string;
-        groupNumbers: boolean;
-        seed: string | number;
-    };
-    mathstyle: Mathstyle;
-    parentMathstyle?: Mathstyle;
-    size?: string; // @revisit: set explicit possible values, e.g. 'size5', etc...
-    parentSize?: string;
-    letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-    opacity?: number;
-    color?: string;
-    smartFence?: boolean;
+  macros: MacroDictionary;
+  atomIdsSettings?: {
+    overrideID?: string;
+    groupNumbers: boolean;
+    seed: string | number;
+  };
 
-    constructor(from: ContextInterface) {
-        this.macros = from.macros ?? {};
-        this.atomIdsSettings = from.atomIdsSettings;
+  mathstyle: Mathstyle;
+  parentMathstyle?: Mathstyle;
+  size?: FontSize;
+  parentSize?: FontSize;
+  letterShapeStyle: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
+  opacity?: number;
+  color?: string;
+  renderPlaceholder?: (context: Context) => Span;
+  smartFence?: boolean;
+  phantomBase?: Span[]; // The spans to use to calculate the placement of the sup/sub
+  // Used by 'msubsup' scaffolding atoms
 
-        this.mathstyle = from.mathstyle ?? MATHSTYLES.displaystyle;
+  constructor(from: ContextInterface) {
+    this.macros = from.macros ?? {};
+    this.atomIdsSettings = from.atomIdsSettings;
 
-        this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
+    this.mathstyle = from.mathstyle ?? MATHSTYLES.displaystyle;
 
-        this.size = from.size ?? 'size5'; // medium size
+    this.letterShapeStyle = from.letterShapeStyle ?? 'tex';
 
-        this.parentMathstyle = from.parentMathstyle ?? this.mathstyle;
-        this.parentSize = from.parentSize ?? this.size;
-
-        this.opacity = from.opacity;
-        this.smartFence = from.smartFence;
+    if (from.size === 'auto') {
+      this.size = 'size5';
+    } else {
+      this.size = from.size ?? 'size5'; // Medium size
     }
 
-    /**
-     * Returns a new context with the same properties as 'this',
-     * except for the ones provided in `override`
-     */
-    clone(override: ContextInterface = {}): Context {
-        const result = new Context(this);
-        if (typeof override !== 'undefined') {
-            // `'auto'` (or undefined) to indicate that the mathstyle should in
-            // fact not be changed. This is used when specifying the mathstyle
-            // for some environments.
-            Object.assign(result, override);
-            if (!override.mathstyle) {
-                result.mathstyle = this.mathstyle;
-            } else {
-                result.parentMathstyle = this.mathstyle;
-                result.parentSize = this.size;
-                if (typeof override.mathstyle === 'string') {
-                    result.mathstyle = MATHSTYLES[override.mathstyle];
-                }
-            }
+    this.parentMathstyle = from.parentMathstyle ?? this.mathstyle;
+    this.renderPlaceholder = from.renderPlaceholder;
+    this.parentSize = from.parentSize ?? this.size;
+
+    this.opacity = from.opacity;
+    this.smartFence = from.smartFence;
+    this.phantomBase = from.phantomBase;
+  }
+
+  makeID(): string {
+    let result: string;
+    if (this.atomIdsSettings) {
+      if (typeof this.atomIdsSettings.seed === 'number') {
+        result = this.atomIdsSettings.overrideID
+          ? this.atomIdsSettings.overrideID
+          : this.atomIdsSettings.seed.toString(36);
+        this.atomIdsSettings.seed += 1;
+      } else {
+        result =
+          Date.now().toString(36).slice(-2) +
+          Math.floor(Math.random() * 0x186a0).toString(36);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns a new context with the same properties as 'this',
+   * except for the ones provided in `override`
+   */
+  clone(override: ContextInterface = {}): Context {
+    const result = new Context(this);
+    if (override !== undefined) {
+      // `'auto'` (or undefined) to indicate that the mathstyle should in
+      // fact not be changed. This is used when specifying the mathstyle
+      // for some environments.
+      const previousMathstyle = this.mathstyle;
+      Object.assign(result, override);
+      if (!override.mathstyle) {
+        result.mathstyle = previousMathstyle;
+      } else {
+        result.parentMathstyle = previousMathstyle;
+        if (typeof override.mathstyle === 'string') {
+          result.mathstyle = MATHSTYLES[override.mathstyle];
         }
-        return result;
+      }
     }
 
-    /**
-     * Change the mathstyle of this context
-     * @param value - `'auto'` to indicate that the mathstyle should in
-     * fact not be changed. This is used when specifying the mathstyle for some
-     * environments.
-     */
-    setMathstyle(value: string): void {
-        if (value && value !== 'auto') {
-            this.mathstyle = MATHSTYLES[value];
-        }
+    return result;
+  }
+
+  /**
+   * Change the mathstyle of this context
+   * @param value - `'auto'` to indicate that the mathstyle should in
+   * fact not be changed. This is used when specifying the mathstyle for some
+   * environments.
+   */
+  setMathstyle(value: string): void {
+    if (value && value !== 'auto') {
+      this.mathstyle = MATHSTYLES[value];
     }
-    cramp(): Context {
-        return this.clone({ mathstyle: this.mathstyle.cramp() });
-    }
-    sup(): Context {
-        return this.clone({ mathstyle: this.mathstyle.sup() });
-    }
-    sub(): Context {
-        return this.clone({ mathstyle: this.mathstyle.sub() });
-    }
+  }
+
+  withFontsize(size: FontSize | 'auto'): Context {
+    return this.clone({ size: size === 'auto' ? 'size5' : size });
+  }
+
+  cramp(): Context {
+    return this.clone({ mathstyle: this.mathstyle.cramp() });
+  }
+
+  sup(): Context {
+    return this.clone({ mathstyle: this.mathstyle.sup() });
+  }
+
+  sub(): Context {
+    return this.clone({ mathstyle: this.mathstyle.sub() });
+  }
 }

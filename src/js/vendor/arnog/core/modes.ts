@@ -1,7 +1,6 @@
 import './modes-utils';
-import './modes-command';
 import './modes-math';
 import './modes-text';
-import './modes-chem';
+import './modes-latex';
 
 export * from './modes-utils';

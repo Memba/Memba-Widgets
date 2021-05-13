@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -660,7 +660,7 @@
             };
         }
         var DataSource = kendo.data.DataSource;
-        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form class="k-filter-menu">' + '<ul class="k-reset">' + '#if(search){#' + '<li class="k-textbox k-space-right">' + '<input placeholder="#=messages.search#" title="#=messages.search#" autocomplete="' + AUTOCOMPLETEVALUE + '"  />' + '<span class="k-icon k-i-zoom"></span>' + '</li>' + '#}#' + '<li class="k-filter-tools">' + '<span style="#=checkAll ? "" : "visibility: hidden;" #" class="k-label k-select-all" title="#=messages.checkAll#" ' + 'aria-label="#=messages.checkAll#">#=messages.checkAll#</span>' + '<span class="k-label k-clear-all" title="#=messages.clearAll#" ' + 'aria-label="#=messages.clearAll#">#=messages.clearAll#</span>' + '</li>' + '#if(messages.selectedItemsFormat){#' + '<li>' + '<div class="k-filter-selected-items"></div>' + '</li>' + '#}#' + '<li>' + '<ul class="k-multicheck-wrap k-listgroup k-listgroup-flush"></ul>' + '</li>' + '</ul>' + '</form>' + '</div>';
+        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<a href="\\#" class="k-header-cancel k-link" title="#=messages.cancel#" ' + 'aria-label="#=messages.cancel#"><span class="k-icon k-i-arrow-chevron-left"></span></a>' + '#=messages.filter# #=messages.into# #=title#' + '<a href="\\#" class="k-header-done k-link" title="#=messages.done#" ' + 'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' + '</div>' + '<form class="k-filter-menu">' + '<ul class="k-reset">' + '#if(search){#' + '<li class="k-textbox k-space-right">' + '<input class="k-input" placeholder="#=messages.search#" title="#=messages.search#" autocomplete="' + AUTOCOMPLETEVALUE + '"  />' + '<span class="k-icon k-i-zoom"></span>' + '</li>' + '#}#' + '<li class="k-filter-tools">' + '<span style="#=checkAll ? "" : "visibility: hidden;" #" class="k-label k-select-all" title="#=messages.checkAll#" ' + 'aria-label="#=messages.checkAll#">#=messages.checkAll#</span>' + '<span class="k-label k-clear-all" title="#=messages.clearAll#" ' + 'aria-label="#=messages.clearAll#">#=messages.clearAll#</span>' + '</li>' + '#if(messages.selectedItemsFormat){#' + '<li>' + '<div class="k-filter-selected-items"></div>' + '</li>' + '#}#' + '<li>' + '<ul class="k-multicheck-wrap k-listgroup k-listgroup-flush"></ul>' + '</li>' + '</ul>' + '</form>' + '</div>';
         var FilterMultiCheck = Widget.extend({
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
@@ -907,6 +907,19 @@
                     this.checkBoxAll.prop('checked', state);
                 }
             },
+            createIsNullItem: function () {
+                var options = this.options;
+                var template = kendo.template(options.itemTemplate({
+                    field: 'isNull',
+                    mobile: this._isMobile,
+                    valueField: 'value'
+                }));
+                var isNullContainer = $(template({
+                    isNull: options.messages.isNull,
+                    value: null
+                }));
+                this.container.append(isNullContainer);
+            },
             refresh: function (e) {
                 var forceUnique = this.options.forceUnique;
                 var dataSource = this.dataSource;
@@ -944,6 +957,7 @@
                     mobile: this._isMobile,
                     type: this.type
                 };
+                var boolDataFilter = booleanFilterHandler.bind(this);
                 if (!this.options.forceUnique) {
                     data = this.checkSource.view();
                 } else if (this._foreignKeyValues()) {
@@ -955,13 +969,17 @@
                 } else {
                     data = this.checkSource.data();
                 }
+                if (this.type === 'boolean') {
+                    this.createIsNullItem();
+                    data = data.filter(boolDataFilter);
+                }
                 var template = kendo.template(options.itemTemplate(templateOptions));
                 var itemsHtml = kendo.render(template, data);
+                this.container.on(CHANGE + multiCheckNS, ':checkbox', proxy(this.updateCheckAllState, this));
+                this.container.prepend(itemsHtml);
                 if (options.checkAll && !this._isMobile) {
                     this.createCheckAllItem();
                 }
-                this.container.on(CHANGE + multiCheckNS, ':checkbox', proxy(this.updateCheckAllState, this));
-                this.container.append(itemsHtml);
             },
             checkAll: function () {
                 var state = this.checkBoxAll.is(':checked');
@@ -1104,7 +1122,7 @@
                         valueFormat = ':yyyy-MM-ddTHH:mm:sszzz';
                     }
                     if (mobile) {
-                        return '<li class=\'k-item k-listgroup-item\'>' + '<label class=\'k-label k-listgroup-form-row\'>' + '<span class=\'k-listgroup-form-field-label k-item-title \'>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type=\'checkbox\' value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '</span>' + '</label>' + '</li>';
+                        return '<li class=\'k-item k-listgroup-item\'>' + '<label class=\'k-label k-listgroup-form-row k-checkbox-label\'>' + '<span class=\'k-listgroup-form-field-label k-item-title \'>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '<span class="k-listgroup-form-field-wrapper">' + '<input type=\'checkbox\' class=\'k-checkbox\' value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '</span>' + '</label>' + '</li>';
                     }
                     return '<li class=\'k-item\'>' + '<label class=\'k-label k-checkbox-label\'>' + '<input type=\'checkbox\' class=\'k-checkbox\' value=\'#:kendo.format(\'{0' + valueFormat + '}\',' + valueField + ')#\'/>' + '<span>#:kendo.format(\'' + (format ? format : '{0}') + '\', ' + field + ')#</span>' + '</label>' + '</li>';
                 },
@@ -1114,6 +1132,7 @@
                 appendToElement: false,
                 messages: {
                     checkAll: 'Select All',
+                    isNull: 'is empty',
                     clearAll: 'Clear All',
                     clear: 'Clear',
                     filter: 'Filter',
@@ -1136,6 +1155,9 @@
                 OPEN
             ]
         });
+        function booleanFilterHandler(item) {
+            return item[this.field] !== null;
+        }
         $.extend(FilterMultiCheck.fn, {
             _click: FilterMenu.fn._click,
             _keydown: FilterMenu.fn._keydown,

@@ -33,6 +33,7 @@ SystemJS.config({
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
         'kendo.messages.en-GB':
             'src/js/vendor/kendo/messages/kendo.messages.en-GB.js',
+        'kendo.actionsheet': 'src/js/vendor/kendo/kendo.actionsheet.js',
         'kendo.appbar': 'src/js/vendor/kendo/kendo.appbar.js',
         'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
         'kendo.badge': 'src/js/vendor/kendo/kendo.badge.js',
@@ -161,8 +162,11 @@ SystemJS.config({
         'kendo.scheduler.timelineview':
             'src/js/vendor/kendo/kendo.scheduler.timelineview.js',
         'kendo.scheduler.view': 'src/js/vendor/kendo/kendo.scheduler.view.js',
+        'kendo.scheduler.yearview':
+            'src/js/vendor/kendo/kendo.scheduler.yearview.js',
         'kendo.scrollview': 'src/js/vendor/kendo/kendo.scrollview.js',
         'kendo.selectable': 'src/js/vendor/kendo/kendo.selectable.js',
+        'kendo.skeletoncontainer': 'src/js/vendor/kendo/kendo.skeletoncontainer.js',
         'kendo.slider': 'src/js/vendor/kendo/kendo.slider.js',
         'kendo.sortable': 'src/js/vendor/kendo/kendo.sortable.js',
         'kendo.splitter': 'src/js/vendor/kendo/kendo.splitter.js',
@@ -170,6 +174,7 @@ SystemJS.config({
         'kendo.stepper': 'src/js/vendor/kendo/kendo.stepper.js',
         'kendo.switch': 'src/js/vendor/kendo/kendo.switch.js',
         'kendo.tabstrip': 'src/js/vendor/kendo/kendo.tabstrip.js',
+        'kendo.taskboard': 'src/js/vendor/kendo/kendo.taskboard.js',
         'kendo.textarea': 'src/js/vendor/kendo/kendo.textarea.js',
         'kendo.textbox': 'src/js/vendor/kendo/kendo.textbox.js',
         'kendo.tilelayout': 'src/js/vendor/kendo/kendo.tilelayout.js',

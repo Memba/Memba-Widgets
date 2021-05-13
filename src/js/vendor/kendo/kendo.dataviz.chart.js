@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -118,7 +118,7 @@
                 if (options === void 0) {
                     options = {};
                 }
-                if (!text) {
+                if (typeof text === 'undefined' || text === null) {
                     return zeroSize();
                 }
                 var styleKey = objectKey(style);
@@ -4876,19 +4876,17 @@
             },
             createPanes: function () {
                 var this$1 = this;
-                var defaults = { title: { color: (this.options.title || {}).color } };
-                var panes = [];
+                var titleOptions = this.options.title || {};
+                var paneDefaults = this.options.paneDefaults;
                 var paneOptions = this.options.panes || [];
                 var panesLength = Math.max(paneOptions.length, 1);
-                function setTitle(options, defaults) {
-                    if (isString(options.title)) {
-                        options.title = { text: options.title };
-                    }
-                    options.title = deepExtend({}, defaults.title, options.title);
-                }
+                var panes = [];
+                var defaults = deepExtend({ title: { color: titleOptions.color } }, paneDefaults);
                 for (var i = 0; i < panesLength; i++) {
-                    var options = paneOptions[i] || {};
-                    setTitle(options, defaults);
+                    var options = deepExtend({}, defaults, paneOptions[i]);
+                    if (isString(options.title)) {
+                        options.title = deepExtend({ text: options.title }, defaults.title);
+                    }
                     var currentPane = new Pane(options);
                     currentPane.paneIndex = i;
                     panes.push(currentPane);
@@ -5629,6 +5627,7 @@
                 color: BLACK,
                 width: 0
             },
+            paneDefaults: { title: {} },
             legend: {
                 inactiveItems: {
                     labels: { color: '#919191' },
@@ -11565,10 +11564,10 @@
                         }
                     }
                 } else if (!point && hasInactiveOpacity) {
-                    if (multipleSeries && this._activеChartInstance) {
+                    if (multipleSeries && this._activeChartInstance) {
                         this._updateSeriesOpacity(point, true);
-                        this._applySeriesOpacity(this._activеChartInstance.children, null, true);
-                        this._activеChartInstance = null;
+                        this._applySeriesOpacity(this._activeChartInstance.children, null, true);
+                        this._activeChartInstance = null;
                     }
                     this._highlight && this._highlight.hide();
                     this._activePoint = null;
@@ -11582,7 +11581,7 @@
                 }
             },
             _displayInactiveOpacity: function (activePoint, multipleSeries, highlightPoints) {
-                var chartInstance = this._activеChartInstance = this._chartInstanceFromPoint(activePoint);
+                var chartInstance = this._activeChartInstance = this._chartInstanceFromPoint(activePoint);
                 if (multipleSeries) {
                     this._updateSeriesOpacity(activePoint);
                     this._applySeriesOpacity(chartInstance.children, null, true);
@@ -13019,7 +13018,7 @@
                 tooltip.chartElement = chartElement;
                 tooltip.template = Tooltip.template;
                 if (!tooltip.template) {
-                    tooltip.template = Tooltip.template = kendo.template('<div class=\'k-tooltip #if (!d.autoHide) {# k-tooltip-closable#}# k-chart-tooltip#= d.rtl ? " k-rtl" : ""#\' ' + 'style=\'display:none; position: absolute; font: #= d.font #;' + '#if (d.border) {# border: #= d.border.width #px solid; #}#' + 'opacity: #= d.opacity #; filter: alpha(opacity=#= d.opacity * 100 #);\'>' + '<div class="k-tooltip-content"></div>' + '#if (!d.autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close" title="Close"></a></div> #}#' + '</div>', {
+                    tooltip.template = Tooltip.template = kendo.template('<div class=\'k-tooltip #if (!d.autoHide) {# k-tooltip-closable#}# k-chart-tooltip#= d.rtl ? " k-rtl" : ""#\' ' + 'style=\'display:none; position: absolute; font: #= d.font #;' + '#if (d.border) {# border: #= d.border.width #px solid; #}#' + 'opacity: #= d.opacity #;\'>' + '<div class="k-tooltip-content"></div>' + '#if (!d.autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close" title="Close"></a></div> #}#' + '</div>', {
                         useWithBlock: false,
                         paramName: 'd'
                     });

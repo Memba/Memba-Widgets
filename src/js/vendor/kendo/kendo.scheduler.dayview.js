@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -179,7 +179,12 @@
                 }
             },
             _updateResizeHint: function (event, groupIndex, startTime, endTime) {
-                var multiday = event.isMultiDay();
+                var multiday;
+                if (this.options.enforceAllDaySlot) {
+                    multiday = event.isMultiDay();
+                } else {
+                    multiday = event.isAllDay;
+                }
                 var group = this.groups[groupIndex];
                 var ranges = group.ranges(startTime, endTime, multiday, event.isAllDay);
                 var width, height, top, hint;
@@ -226,7 +231,12 @@
                 this._resizeHint.last().addClass('k-last').find('.k-label-bottom').text(kendo.toString(kendo.timezone.toLocalDate(endTime), format));
             },
             _updateMoveHint: function (event, groupIndex, distance) {
-                var multiday = event.isMultiDay();
+                var multiday;
+                if (this.options.enforceAllDaySlot) {
+                    multiday = event.isMultiDay();
+                } else {
+                    multiday = event.isAllDay;
+                }
                 var group = this.groups[groupIndex];
                 var start = kendo.date.toUtcTime(event.start) + distance;
                 var end = start + event.duration();
@@ -234,10 +244,8 @@
                 start = kendo.timezone.toLocalDate(start);
                 end = kendo.timezone.toLocalDate(end);
                 this._removeMoveHint(event.uid);
-                if (!multiday && (getMilliseconds(end) === 0 || getMilliseconds(end) < getMilliseconds(this.startTime()))) {
-                    if (ranges.length > 1) {
-                        ranges.pop();
-                    }
+                if (!multiday && getMilliseconds(end) < getMilliseconds(this.startTime()) && end < this._end().getTime() && getMilliseconds(end) !== 0 && ranges.length > 1) {
+                    ranges.pop();
                 }
                 var eventHint = $();
                 for (var rangeIndex = 0; rangeIndex < ranges.length; rangeIndex++) {
@@ -566,7 +574,8 @@
                 currentTimeMarker: {
                     updateInterval: 10000,
                     useLocalTimezone: true
-                }
+                },
+                enforceAllDaySlot: false
             },
             events: [
                 'remove',
@@ -1264,11 +1273,11 @@
                 if (event.isAllDay) {
                     eventEndDate = getDate(event.end);
                 }
-                if (!isInDateRange(getDate(eventStartDate), startDate, endDate) && !isInDateRange(eventEndDate, startDate, endDate) || isOneDayEvent && eventStartTime < startTime && eventEndTime > endTime) {
+                if (!isInDateRange(getDate(eventStartDate), startDate, endDate) && !isInDateRange(eventEndDate, startDate, endDate) || isOneDayEvent && event.start.getTime() !== event.end.getTime() && (eventStartTime < startTime || eventStartTime >= endTime) && (eventEndTime > endTime || eventEndTime <= startTime)) {
                     middle = true;
-                } else if (getDate(eventStartDate) < startDate || isOneDayEvent && eventStartTime < startTime) {
+                } else if (getDate(eventStartDate) < startDate || isOneDayEvent && eventStartTime !== 0 && event.start.getTime() !== event.end.getTime() && (eventStartTime < startTime || eventStartTime >= endTime)) {
                     tail = true;
-                } else if (eventEndDate > endDate && !isOneDayEvent || isOneDayEvent && eventEndTime > endTime) {
+                } else if (eventEndDate > endDate && !isOneDayEvent || isOneDayEvent && eventEndTime !== 0 && event.start.getTime() !== event.end.getTime() && (eventEndTime > endTime || eventEndTime <= startTime)) {
                     head = true;
                 }
                 var resources = this.eventResources(event);
@@ -1321,7 +1330,7 @@
                     return true;
                 }
                 var overlaps = startTime !== slotEndTime;
-                return isInTimeRange(startTime, slotStartTime, slotEndTime, overlaps) || isInTimeRange(endTime, slotStartTime, slotEndTime, overlaps) || isInTimeRange(slotStartTime, startTime, endTime) || isInTimeRange(slotEndTime, startTime, endTime);
+                return isInTimeRange(startTime, slotStartTime, slotEndTime, overlaps) || isInTimeRange(endTime, slotStartTime, slotEndTime, overlaps) || isInTimeRange(slotStartTime, startTime, endTime) || isInTimeRange(slotEndTime, startTime, endTime) || event.end.getDate() > event.start.getDate() && endTime > slotStartTime;
             },
             _isInDateSlot: function (event) {
                 var groups = this.groups[0];
@@ -1352,9 +1361,13 @@
                 for (idx = 0, length = events.length; idx < length; idx++) {
                     event = events[idx];
                     if (this._isInDateSlot(event)) {
-                        var isMultiDayEvent = event.isAllDay || event.duration() >= MS_PER_DAY;
-                        var container = isMultiDayEvent && !this._isVerticallyGrouped() ? allDayEventContainer : this.content;
-                        var element, ranges, range, start, end, group;
+                        var isMultiDayEvent, container, element, ranges, range, start, end, group;
+                        if (this.options.enforceAllDaySlot) {
+                            isMultiDayEvent = event.isAllDay || event.duration() >= MS_PER_DAY;
+                        } else {
+                            isMultiDayEvent = event.isAllDay;
+                        }
+                        container = isMultiDayEvent && !this._isVerticallyGrouped() ? allDayEventContainer : this.content;
                         if (!isMultiDayEvent) {
                             if (this._isInTimeSlot(event)) {
                                 group = this.groups[groupIndex];
@@ -1436,6 +1449,7 @@
                 }
             },
             render: function (events) {
+                var that = this;
                 this._headerColumnCount = 0;
                 this._cachedEvents = events;
                 this._groups();
@@ -1455,7 +1469,11 @@
                 var eventsPerDate = $.map(this._dates, function (date) {
                     return Math.max.apply(null, $.map(eventsByResource, function (events) {
                         return $.grep(events, function (event) {
-                            return event.isMultiDay() && isInDateRange(date, getDate(event.start), getDate(event.end));
+                            if (that.options.enforceAllDaySlot) {
+                                return event.isMultiDay() && isInDateRange(date, getDate(event.start), getDate(event.end));
+                            } else {
+                                return event.isAllDay && isInDateRange(date, getDate(event.start), getDate(event.end));
+                            }
                         }).length;
                     }));
                 });
@@ -1468,10 +1486,14 @@
                 this._currentTime(false);
                 this.trigger('activate');
             },
-            _eventsByResource: function (events, resources, result) {
+            _eventsByResource: function (events, resources, result, parentValue) {
                 var resource = resources[0];
                 if (resource) {
                     var view = resource.dataSource.view();
+                    view = view.filter(function (item) {
+                        var itemParentValue = kendo.getter(resource.dataParentValueField)(item);
+                        return itemParentValue === null || itemParentValue === undefined || itemParentValue === parentValue;
+                    });
                     for (var itemIdx = 0; itemIdx < view.length; itemIdx++) {
                         var value = this._resourceValue(resource, view[itemIdx]);
                         var eventsFilteredByResource = new kendo.data.Query(events).filter({
@@ -1479,7 +1501,7 @@
                             operator: SchedulerView.groupEqFilter(value)
                         }).toArray();
                         if (resources.length > 1) {
-                            this._eventsByResource(eventsFilteredByResource, resources.slice(1), result);
+                            this._eventsByResource(eventsFilteredByResource, resources.slice(1), result, value);
                         } else {
                             result.push(eventsFilteredByResource);
                         }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -80,7 +80,8 @@
                 inputSelectors: INPUTSELECTOR,
                 multiple: false,
                 relatedTarget: $.noop,
-                ignoreOverlapped: false
+                ignoreOverlapped: false,
+                addIdToRanges: false
             },
             _isElement: function (target) {
                 var elements = this.element;
@@ -165,11 +166,16 @@
                 e.preventDefault();
             },
             _end: function (e) {
-                var that = this;
+                var that = this, rangeSelectedAttr = kendo.attr('range-selected'), uid = kendo.guid();
                 that._marquee.remove();
                 that._unselect(that.element.find(that.options.filter + '.' + UNSELECTING)).removeClass(UNSELECTING);
                 var target = that.element.find(that.options.filter + '.' + ACTIVE);
                 target = target.add(that.relatedTarget(target));
+                if (that.options.addIdToRanges) {
+                    for (var i = 0; i < that._currentlyActive.length; i++) {
+                        $(that._currentlyActive[i]).attr(rangeSelectedAttr, uid);
+                    }
+                }
                 that.value(target, e);
                 that._lastActive = that._downTarget;
                 that._items = null;
@@ -235,6 +241,27 @@
                 }
                 return that.element.find(that.options.filter + '.' + SELECTED);
             },
+            selectedRanges: function () {
+                var that = this;
+                var rangeSelectedAttr = kendo.attr('range-selected');
+                var map = {};
+                that.element.find('[' + rangeSelectedAttr + ']').each(function (_, elem) {
+                    var rangeId = $(elem).attr(rangeSelectedAttr);
+                    var mapLocation = map[rangeId];
+                    if (!mapLocation) {
+                        mapLocation = map[rangeId] = [];
+                    }
+                    mapLocation.push($(elem));
+                });
+                return map;
+            },
+            selectedSingleItems: function () {
+                var that = this;
+                var rangeSelectedAttr = kendo.attr('range-selected');
+                return that.element.find(that.options.filter + '.' + SELECTED + ':not([' + rangeSelectedAttr + '])').toArray().map(function (elem) {
+                    return $(elem);
+                });
+            },
             _firstSelectee: function () {
                 var that = this, selected;
                 if (that._lastActive !== null) {
@@ -261,7 +288,8 @@
                 if (this.trigger(UNSELECT, { element: element })) {
                     return;
                 }
-                element.removeClass(SELECTED);
+                var rangeSelectedAttr = kendo.attr('range-selected');
+                element.removeClass(SELECTED).removeAttr(rangeSelectedAttr);
                 if (this.options.aria) {
                     element.attr(ARIASELECTED, false);
                 }

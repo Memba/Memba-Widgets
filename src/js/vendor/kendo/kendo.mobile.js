@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.1.330'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.2.511'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1469,7 +1469,7 @@
                 return true;
             }
             var overflow = getComputedStyles(element, ['overflow']).overflow;
-            return overflow == 'auto' || overflow == 'scroll';
+            return overflow.indexOf('auto') > -1 || overflow.indexOf('scroll') > -1;
         }
         function scrollLeft(element, value) {
             var webkit = support.browser.webkit;
@@ -3112,6 +3112,12 @@
                 }
                 return last;
             }
+            function firstDayOfYear(date) {
+                return new Date(date.getFullYear(), 0, 1);
+            }
+            function lastDayOfYear(date) {
+                return new Date(date.getFullYear(), 11, 31);
+            }
             function moveDateToWeekStart(date, weekStartDay) {
                 if (weekStartDay !== 1) {
                     return addDays(dayOfWeek(date, weekStartDay, -1), 4);
@@ -3210,6 +3216,10 @@
                 }
                 return staticDate;
             }
+            function addYear(date, offset) {
+                var currentDate = new Date(date);
+                return new Date(currentDate.setFullYear(currentDate.getFullYear() + offset));
+            }
             return {
                 adjustDST: adjustDST,
                 dayOfWeek: dayOfWeek,
@@ -3236,7 +3246,15 @@
                 firstDayOfMonth: firstDayOfMonth,
                 lastDayOfMonth: lastDayOfMonth,
                 weekInYear: weekInYear,
-                getMilliseconds: getMilliseconds
+                getMilliseconds: getMilliseconds,
+                firstDayOfYear: firstDayOfYear,
+                lastDayOfYear: lastDayOfYear,
+                nextYear: function (date) {
+                    return addYear(date, 1);
+                },
+                previousYear: function (date) {
+                    return addYear(date, -1);
+                }
             };
         }();
         kendo.stripWhitespace = function (element) {
@@ -7494,7 +7512,7 @@
             var currentNew;
             if (newGroup.items && newGroup.items.length) {
                 for (var i = 0; i < newGroup.items.length; i++) {
-                    currOriginal = originalGroup.items[i];
+                    currOriginal = originalGroup.items[originalGroup.items.length - 1];
                     currentNew = newGroup.items[i];
                     if (currOriginal && currentNew) {
                         if (currOriginal.hasSubgroups && currOriginal.value == currentNew.value) {
@@ -15388,7 +15406,8 @@
                         duration: 100,
                         hide: true
                     }
-                }
+                },
+                omitOriginOffsets: false
             },
             _animationClose: function () {
                 var that = this;
@@ -15723,7 +15742,7 @@
                 return location.left != flipPos.left || location.top != flipPos.top;
             },
             _align: function (origin, position) {
-                var that = this, element = that.wrapper, anchor = $(that.options.anchor), verticalOrigin = origin[0], horizontalOrigin = origin[1], verticalPosition = position[0], horizontalPosition = position[1], anchorOffset = getOffset(anchor), appendTo = $(that.options.appendTo), appendToOffset, width = outerWidth(element), height = outerHeight(element) || outerHeight(element.children().first()), anchorWidth = outerWidth(anchor), anchorHeight = outerHeight(anchor), top = anchorOffset.top, left = anchorOffset.left, round = Math.round;
+                var that = this, element = that.wrapper, anchor = $(that.options.anchor), verticalOrigin = origin[0], horizontalOrigin = origin[1], verticalPosition = position[0], horizontalPosition = position[1], anchorOffset = getOffset(anchor), appendTo = $(that.options.appendTo), appendToOffset, width = outerWidth(element), height = outerHeight(element) || outerHeight(element.children().first()), anchorWidth = outerWidth(anchor), anchorHeight = outerHeight(anchor), top = that.options.omitOriginOffsets ? 0 : anchorOffset.top, left = that.options.omitOriginOffsets ? 0 : anchorOffset.left, round = Math.round;
                 if (appendTo[0] != document.body) {
                     appendToOffset = getOffset(appendTo);
                     top -= appendToOffset.top;

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -407,7 +407,8 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "dialogUpdate": "Aggiorna",
   "insertFile": "Inserisci file",
   "insertFile1": "Inserisci file",
-  "print": "Stampa"
+  "print": "Stampa",
+  "borderNone": "Nessuno"
 });
 }
 

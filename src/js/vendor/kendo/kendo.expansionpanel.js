@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, ui = kendo.ui, keys = kendo.keys, extend = $.extend, NS = '.kendoExpansionPanel', EXPAND = 'expand', COLLAPSE = 'collapse', COMPLETE = 'complete', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', EXPANDED = 'k-expanded', EXPANDER_CONTENT = 'k-expander-content', EXPANDER_CONTENT_WRAPPER = 'k-expander-content-wrapper', INDICATOR = '.k-expander-indicator', FOCUSED = 'k-state-focused', CLICK = 'click', KEYDOWN = 'keydown', HEIGHT = 'height', proxy = $.proxy, headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0">' + '#if(!useBareTemplate){#' + '<div class="k-expander-title">#:title#</div>' + '#} else {#' + '#=title#' + '#}#' + '<span class="k-expander-spacer"></span>' + '#if(!useBareTemplate){#' + '<div class="k-expander-sub-title">#:subTitle#</div>' + '#}#' + '<span class="k-expander-indicator #:iconClass#"></span>' + '</div>';
+        var kendo = window.kendo, Widget = kendo.ui.Widget, ui = kendo.ui, keys = kendo.keys, extend = $.extend, NS = '.kendoExpansionPanel', EXPAND = 'expand', COLLAPSE = 'collapse', COMPLETE = 'complete', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', EXPANDED = 'k-expanded', EXPANDER_CONTENT = 'k-expander-content', EXPANDER_CONTENT_WRAPPER = 'k-expander-content-wrapper', INDICATOR = '.k-expander-indicator', FOCUSED = 'k-state-focus', CLICK = 'click', KEYDOWN = 'keydown', HEIGHT = 'height', proxy = $.proxy, headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0">' + '#if(!useBareTemplate){#' + '<div class="k-expander-title">#:title#</div>' + '#} else {#' + '#=title#' + '#}#' + '<span class="k-expander-spacer"></span>' + '#if(!useBareTemplate){#' + '<div class="k-expander-sub-title">#:subTitle#</div>' + '#}#' + '<span class="k-expander-indicator #:iconClass#"></span>' + '</div>';
         var ExpansionPanel = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -46,7 +46,7 @@
                 if (!that.options.useBareTemplate) {
                     that.element.addClass(EXPANDER_CONTENT);
                 }
-                that.wrapper.on(CLICK + NS, '[' + headerAttribute + ']', proxy(that._click, that)).on('focus' + NS, '[' + headerAttribute + ']', proxy(that._focus, that)).on('focusout' + NS, '[' + headerAttribute + ']', proxy(that._blur, that)).on(KEYDOWN + NS, proxy(that._keydown, that));
+                that.wrapper.on(CLICK + NS, '[' + headerAttribute + ']', proxy(that._click, that)).on('focusin' + NS, proxy(that._focus, that)).on('focusout' + NS, proxy(that._blur, that)).on(KEYDOWN + NS, proxy(that._keydown, that));
                 that.toggle(that.options.expanded, false);
                 kendo.notify(that);
             },
@@ -183,13 +183,13 @@
             _blur: function () {
                 var that = this;
                 if (that.header) {
-                    that.header.removeClass(FOCUSED);
+                    that.wrapper.removeClass(FOCUSED);
                 }
             },
             _focus: function () {
                 var that = this;
-                if (that.header) {
-                    that.header.addClass(FOCUSED);
+                if (that.wrapper) {
+                    that.wrapper.addClass(FOCUSED);
                 }
             }
         });

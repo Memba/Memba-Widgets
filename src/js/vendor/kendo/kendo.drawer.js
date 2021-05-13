@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -60,7 +60,7 @@
                     if ($.contains(that.drawerItemsWrapper[0], e.event.target)) {
                         that._itemClick(e);
                     }
-                    if (that.visible && !that.trigger('hide', { sender: this })) {
+                    if (options.autoCollapse && that.visible && !that.trigger('hide', { sender: this })) {
                         that.hide();
                         e.preventDefault();
                     }
@@ -444,6 +444,7 @@
             },
             options: {
                 name: 'Drawer',
+                autoCollapse: true,
                 position: LEFT,
                 mode: 'overlay',
                 swipeToOpen: true,

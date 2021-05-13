@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1397,10 +1397,14 @@
                     this.groups[groupIndex].refresh();
                 }
             },
-            _eventsByResource: function (events, resources, result) {
+            _eventsByResource: function (events, resources, result, parentValue) {
                 var resource = resources[0];
                 if (resource) {
                     var view = resource.dataSource.view();
+                    view = view.filter(function (item) {
+                        var itemParentValue = kendo.getter(resource.dataParentValueField)(item);
+                        return itemParentValue === null || itemParentValue === undefined || itemParentValue === parentValue;
+                    });
                     for (var itemIdx = 0; itemIdx < view.length; itemIdx++) {
                         var value = this._resourceValue(resource, view[itemIdx]);
                         var eventsFilteredByResource = new kendo.data.Query(events).filter({
@@ -1408,7 +1412,7 @@
                             operator: SchedulerView.groupEqFilter(value)
                         }).toArray();
                         if (resources.length > 1) {
-                            this._eventsByResource(eventsFilteredByResource, resources.slice(1), result);
+                            this._eventsByResource(eventsFilteredByResource, resources.slice(1), result, value);
                         } else {
                             result.push(eventsFilteredByResource);
                         }
@@ -1864,6 +1868,32 @@
                     if (that.options.editable.update !== false) {
                         that._editUserEvents.destroy();
                     }
+                }
+            },
+            _resourceBySlot: function (slot) {
+                var resources = this.groupedResources;
+                var result = {}, groupOptions = this.options.group;
+                if (resources.length && groupOptions.orientation === 'horizontal' && groupOptions.date) {
+                    var resourceIndex = slot.groupIndex, levels = this.columnLevels, groupLevel = levels[levels.length - 1], resource = resources[resources.length - 1], groupLevelMember = groupLevel[resourceIndex], passedChildren, numberOfChildren, j, i;
+                    this._setResourceValue(groupLevelMember, resource, result);
+                    for (j = levels.length - 2; j >= 3; j--) {
+                        groupLevel = levels[j];
+                        resource = resources[j - 3];
+                        passedChildren = 0;
+                        for (i = 0; i < groupLevel.length; i++) {
+                            groupLevelMember = groupLevel[i];
+                            numberOfChildren = groupLevelMember.columns.length;
+                            if (numberOfChildren > resourceIndex - passedChildren) {
+                                this._setResourceValue(groupLevelMember, resource, result);
+                                i = groupLevel.length;
+                            } else {
+                                passedChildren += numberOfChildren;
+                            }
+                        }
+                    }
+                    return result;
+                } else {
+                    return SchedulerView.fn._resourceBySlot.call(this, slot);
                 }
             }
         });

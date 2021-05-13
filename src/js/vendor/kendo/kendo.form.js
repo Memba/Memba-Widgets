@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -110,6 +110,9 @@
                 var that = this;
                 Widget.fn.init.call(that, element, options);
                 that.options = kendo.deepExtend({}, that.options, options);
+                if (options && options.formData) {
+                    that.options.formData = options.formData;
+                }
                 that._wrapper();
                 that._setFields();
                 that._setModel();
@@ -230,6 +233,10 @@
             },
             _setModel: function () {
                 var that = this, options = that.options, formData = options.formData || {};
+                if (options.formData instanceof kendo.data.ObservableObject) {
+                    that._model = formData;
+                    return;
+                }
                 var MyModel = kendo.data.Model.define({ fields: that._fields });
                 that._model = new MyModel(formData);
             },

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1032,6 +1032,7 @@
                 var tables = that.element.find('.k-calendar-view table');
                 var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR + ':first').find('a'));
                 var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR + ':last').find('a'));
+                date = new Date(date.toDateString());
                 return +date <= +lastDateInView && +date >= +firstDateInView;
             },
             _fillRange: function (start, end) {

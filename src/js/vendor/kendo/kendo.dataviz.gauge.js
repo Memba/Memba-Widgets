@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -118,7 +118,7 @@
                 if (options === void 0) {
                     options = {};
                 }
-                if (!text) {
+                if (typeof text === 'undefined' || text === null) {
                     return zeroSize();
                 }
                 var styleKey = objectKey(style);
@@ -1246,6 +1246,15 @@
                 }
                 return size;
             },
+            labelsCount: function () {
+                var count = NumericAxis.fn.labelsCount.call(this);
+                var options = this.options;
+                var angle = options.endAngle - options.startAngle;
+                if (angle >= 360 && options.max % options.majorUnit === 0) {
+                    count -= 1;
+                }
+                return count;
+            },
             renderLabels: function () {
                 var this$1 = this;
                 var options = this.options;
@@ -1272,7 +1281,9 @@
                 }
                 var labels = this.labels;
                 var count = labels.length;
-                var padding = labelsOptions.padding;
+                var padding = getSpacing(labelsOptions.padding);
+                var paddingWidth = (padding.left + padding.right) / 2;
+                var paddingHeight = (padding.top + padding.bottom) / 2;
                 for (var i = 0; i < count; i++) {
                     var label = labels[i];
                     var halfWidth = label.box.width() / 2;
@@ -1280,8 +1291,8 @@
                     var angle = tickAngles[i];
                     var labelAngle = (angle - GEO_ARC_ADJUST_ANGLE) * DEGREE;
                     var lp = arc.pointAt(angle);
-                    var cx = lp.x + Math.cos(labelAngle) * (halfWidth + padding) * (isInside ? 1 : -1);
-                    var cy = lp.y + Math.sin(labelAngle) * (halfHeight + padding) * (isInside ? 1 : -1);
+                    var cx = lp.x + Math.cos(labelAngle) * (halfWidth + paddingWidth) * (isInside ? 1 : -1);
+                    var cy = lp.y + Math.sin(labelAngle) * (halfHeight + paddingHeight) * (isInside ? 1 : -1);
                     label.reflow(new Box(cx - halfWidth, cy - halfHeight, cx + halfWidth, cy + halfHeight));
                     var labelPos = new GeometryPoint(label.box.x1, label.box.y1);
                     var labelElement = void 0;
@@ -1451,6 +1462,9 @@
                 if (reverse) {
                     pos += angle;
                     step = -step;
+                }
+                if (angle >= 360 && options.max % stepValue === 0) {
+                    tickCount -= 1;
                 }
                 var positions = [];
                 for (var i = 0; i < tickCount; i++) {
@@ -1976,6 +1990,17 @@
                 };
             }
         });
+        var defaultStartAngle = 90;
+        var CircularGauge = ArcGauge.extend({
+            _createModel: function () {
+                var scaleOptions = this.options.scale;
+                if (typeof scaleOptions.startAngle !== 'number') {
+                    scaleOptions.startAngle = defaultStartAngle;
+                }
+                scaleOptions.endAngle = scaleOptions.startAngle + 360;
+                ArcGauge.fn._createModel.call(this);
+            }
+        });
         kendo.deepExtend(kendo.dataviz, {
             Gauge: Gauge,
             LinearGauge: LinearGauge,
@@ -1988,7 +2013,8 @@
             RadialScale: RadialScale,
             ArcGauge: ArcGauge,
             RangePointer: RangePointer,
-            ArcScale: ArcScale
+            ArcScale: ArcScale,
+            CircularGauge: CircularGauge
         });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -2004,6 +2030,7 @@
         var LinearGauge = dataviz.LinearGauge;
         var RadialGauge = dataviz.RadialGauge;
         var ArcGauge = dataviz.ArcGauge;
+        var CircularGauge = dataviz.CircularGauge;
         var draw = kendo.drawing;
         function themeOptions(options) {
             var themes = dataviz.ui.themes || {};
@@ -2159,6 +2186,12 @@
                 return ArcGauge;
             }
         });
+        var CircularGaugeWidget = ArcGaugeWidget.extend({
+            options: { name: 'CircularGauge' },
+            _gaugeType: function () {
+                return CircularGauge;
+            }
+        });
         function createExportMethod(name) {
             ArcGaugeWidget.fn[name] = function (options) {
                 var gauge = this;
@@ -2182,11 +2215,13 @@
         dataviz.ui.plugin(LinearGaugeWidget);
         dataviz.ui.plugin(RadialGaugeWidget);
         dataviz.ui.plugin(ArcGaugeWidget);
+        dataviz.ui.plugin(CircularGaugeWidget);
         kendo.deepExtend(dataviz, {
             Gauge: Gauge,
             LinearGauge: LinearGaugeWidget,
             RadialGauge: RadialGaugeWidget,
-            ArcGauge: ArcGaugeWidget
+            ArcGauge: ArcGaugeWidget,
+            CircularGauge: CircularGaugeWidget
         });
     }(window.kendo.jQuery));
     return window.kendo;

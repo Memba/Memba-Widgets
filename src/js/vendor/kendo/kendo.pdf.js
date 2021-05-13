@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -118,7 +118,7 @@
                 if (options === void 0) {
                     options = {};
                 }
-                if (!text) {
+                if (typeof text === 'undefined' || text === null) {
                     return zeroSize();
                 }
                 var styleKey = objectKey(style);
@@ -201,9 +201,10 @@
         window.kendo.pdf = window.kendo.pdf || {};
         var support = kendo.support;
         var supportBrowser = support.browser;
-        var kendoPdf = kendo.pdf;
         var drawing = kendo.drawing;
         var util = drawing.util;
+        var extendStatic = util.extendStatic;
+        var kendoPdf = kendo.pdf;
         var kendoGeometry = kendo.geometry;
         var HAS_TYPED_ARRAYS = typeof Uint8Array !== 'undefined' && kendo.support.browser && (!kendo.support.browser.msie || kendo.support.browser.version > 9);
         var BASE64 = function () {
@@ -490,7 +491,7 @@
                 return a - b;
             }).map(parseFloat);
         }
-        function Directory(data) {
+        var Directory = function Directory(data) {
             this.raw = data;
             this.scalerType = data.readLong();
             this.tableCount = data.readShort();
@@ -507,87 +508,87 @@
                 };
                 tables[entry.tag] = entry;
             }
-        }
-        Directory.prototype = {
-            readTable: function (name, Ctor) {
-                var def = this.tables[name];
-                if (!def) {
-                    throw new Error('Table ' + name + ' not found in directory');
-                }
-                return this[name] = def.table = new Ctor(this, def);
-            },
-            render: function (tables) {
-                var this$1 = this;
-                var tableCount = Object.keys(tables).length;
-                var maxpow2 = Math.pow(2, Math.floor(Math.log(tableCount) / Math.LN2));
-                var searchRange = maxpow2 * 16;
-                var entrySelector = Math.floor(Math.log(maxpow2) / Math.LN2);
-                var rangeShift = tableCount * 16 - searchRange;
-                var out = BinaryStream();
-                out.writeLong(this.scalerType);
-                out.writeShort(tableCount);
-                out.writeShort(searchRange);
-                out.writeShort(entrySelector);
-                out.writeShort(rangeShift);
-                var directoryLength = tableCount * 16;
-                var offset = out.offset() + directoryLength;
-                var headOffset = null;
-                var tableData = BinaryStream();
-                for (var tag in tables) {
-                    if (hasOwnProperty$1(tables, tag)) {
-                        var table = tables[tag];
-                        out.writeString(tag);
-                        out.writeLong(this$1.checksum(table));
-                        out.writeLong(offset);
-                        out.writeLong(table.length);
-                        tableData.write(table);
-                        if (tag == 'head') {
-                            headOffset = offset;
-                        }
-                        offset += table.length;
-                        while (offset % 4) {
-                            tableData.writeByte(0);
-                            offset++;
-                        }
+        };
+        Directory.prototype.readTable = function readTable(name, Ctor) {
+            var def = this.tables[name];
+            if (!def) {
+                throw new Error('Table ' + name + ' not found in directory');
+            }
+            return this[name] = def.table = new Ctor(this, def);
+        };
+        Directory.prototype.render = function render(tables) {
+            var this$1 = this;
+            var tableCount = Object.keys(tables).length;
+            var maxpow2 = Math.pow(2, Math.floor(Math.log(tableCount) / Math.LN2));
+            var searchRange = maxpow2 * 16;
+            var entrySelector = Math.floor(Math.log(maxpow2) / Math.LN2);
+            var rangeShift = tableCount * 16 - searchRange;
+            var out = BinaryStream();
+            out.writeLong(this.scalerType);
+            out.writeShort(tableCount);
+            out.writeShort(searchRange);
+            out.writeShort(entrySelector);
+            out.writeShort(rangeShift);
+            var directoryLength = tableCount * 16;
+            var offset = out.offset() + directoryLength;
+            var headOffset = null;
+            var tableData = BinaryStream();
+            for (var tag in tables) {
+                if (hasOwnProperty$1(tables, tag)) {
+                    var table = tables[tag];
+                    out.writeString(tag);
+                    out.writeLong(this$1.checksum(table));
+                    out.writeLong(offset);
+                    out.writeLong(table.length);
+                    tableData.write(table);
+                    if (tag == 'head') {
+                        headOffset = offset;
+                    }
+                    offset += table.length;
+                    while (offset % 4) {
+                        tableData.writeByte(0);
+                        offset++;
                     }
                 }
-                out.write(tableData.get());
-                var sum = this.checksum(out.get());
-                var adjustment = 2981146554 - sum;
-                out.offset(headOffset + 8);
-                out.writeLong(adjustment);
-                return out.get();
-            },
-            checksum: function (data) {
-                data = BinaryStream(data);
-                var sum = 0;
-                while (!data.eof()) {
-                    sum += data.readLong();
-                }
-                return sum & 4294967295;
             }
+            out.write(tableData.get());
+            var sum = this.checksum(out.get());
+            var adjustment = 2981146554 - sum;
+            out.offset(headOffset + 8);
+            out.writeLong(adjustment);
+            return out.get();
         };
-        function deftable(methods) {
-            function Ctor(file, def) {
-                this.definition = def;
-                this.length = def.length;
-                this.offset = def.offset;
-                this.file = file;
-                this.rawData = file.raw;
-                this.parse(file.raw);
+        Directory.prototype.checksum = function checksum(data) {
+            data = BinaryStream(data);
+            var sum = 0;
+            while (!data.eof()) {
+                sum += data.readLong();
             }
-            Ctor.prototype.raw = function () {
-                return this.rawData.slice(this.offset, this.length);
-            };
-            for (var i in methods) {
-                if (hasOwnProperty$1(methods, i)) {
-                    Ctor[i] = Ctor.prototype[i] = methods[i];
-                }
+            return sum & 4294967295;
+        };
+        var Table = function Table(file, def) {
+            this.definition = def;
+            this.length = def.length;
+            this.offset = def.offset;
+            this.file = file;
+            this.rawData = file.raw;
+            this.parse(file.raw);
+        };
+        Table.prototype.raw = function raw() {
+            return this.rawData.slice(this.offset, this.length);
+        };
+        Table.prototype.parse = function parse() {
+        };
+        var HeadTable = function (Table) {
+            function HeadTable() {
+                Table.apply(this, arguments);
             }
-            return Ctor;
-        }
-        var HeadTable = deftable({
-            parse: function (data) {
+            extendStatic(HeadTable, Table);
+            HeadTable.prototype = Object.create(Table && Table.prototype);
+            HeadTable.prototype.constructor = HeadTable;
+            HeadTable.fn = HeadTable.prototype;
+            HeadTable.fn.init = HeadTable.fn.constructor;
+            HeadTable.prototype.parse = function parse(data) {
                 data.offset(this.offset);
                 this.version = data.readLong();
                 this.revision = data.readLong();
@@ -606,8 +607,8 @@
                 this.fontDirectionHint = data.readShort_();
                 this.indexToLocFormat = data.readShort_();
                 this.glyphDataFormat = data.readShort_();
-            },
-            render: function (indexToLocFormat) {
+            };
+            HeadTable.prototype.render = function render(indexToLocFormat) {
                 var out = BinaryStream();
                 out.writeLong(this.version);
                 out.writeLong(this.revision);
@@ -627,10 +628,19 @@
                 out.writeShort_(indexToLocFormat);
                 out.writeShort_(this.glyphDataFormat);
                 return out.get();
+            };
+            return HeadTable;
+        }(Table);
+        var LocaTable = function (Table) {
+            function LocaTable() {
+                Table.apply(this, arguments);
             }
-        });
-        var LocaTable = deftable({
-            parse: function (data) {
+            extendStatic(LocaTable, Table);
+            LocaTable.prototype = Object.create(Table && Table.prototype);
+            LocaTable.prototype.constructor = LocaTable;
+            LocaTable.fn = LocaTable.prototype;
+            LocaTable.fn.init = LocaTable.fn.constructor;
+            LocaTable.prototype.parse = function parse(data) {
                 data.offset(this.offset);
                 var format = this.file.head.indexToLocFormat;
                 if (format === 0) {
@@ -640,14 +650,14 @@
                 } else {
                     this.offsets = data.times(this.length / 4, data.readLong);
                 }
-            },
-            offsetOf: function (id) {
+            };
+            LocaTable.prototype.offsetOf = function offsetOf(id) {
                 return this.offsets[id];
-            },
-            lengthOf: function (id) {
+            };
+            LocaTable.prototype.lengthOf = function lengthOf(id) {
                 return this.offsets[id + 1] - this.offsets[id];
-            },
-            render: function (offsets) {
+            };
+            LocaTable.prototype.render = function render(offsets) {
                 var out = BinaryStream();
                 var needsLongFormat = offsets[offsets.length - 1] > 65535;
                 for (var i = 0; i < offsets.length; ++i) {
@@ -661,10 +671,19 @@
                     format: needsLongFormat ? 1 : 0,
                     table: out.get()
                 };
+            };
+            return LocaTable;
+        }(Table);
+        var HheaTable = function (Table) {
+            function HheaTable() {
+                Table.apply(this, arguments);
             }
-        });
-        var HheaTable = deftable({
-            parse: function (data) {
+            extendStatic(HheaTable, Table);
+            HheaTable.prototype = Object.create(Table && Table.prototype);
+            HheaTable.prototype.constructor = HheaTable;
+            HheaTable.fn = HheaTable.prototype;
+            HheaTable.fn.init = HheaTable.fn.constructor;
+            HheaTable.prototype.parse = function parse(data) {
                 data.offset(this.offset);
                 this.version = data.readLong();
                 this.ascent = data.readShort_();
@@ -680,8 +699,8 @@
                 data.skip(4 * 2);
                 this.metricDataFormat = data.readShort_();
                 this.numOfLongHorMetrics = data.readShort();
-            },
-            render: function (ids) {
+            };
+            HheaTable.prototype.render = function render(ids) {
                 var out = BinaryStream();
                 out.writeLong(this.version);
                 out.writeShort_(this.ascent);
@@ -707,10 +726,19 @@
                 out.writeShort_(this.metricDataFormat);
                 out.writeShort(ids.length);
                 return out.get();
+            };
+            return HheaTable;
+        }(Table);
+        var MaxpTable = function (Table) {
+            function MaxpTable() {
+                Table.apply(this, arguments);
             }
-        });
-        var MaxpTable = deftable({
-            parse: function (data) {
+            extendStatic(MaxpTable, Table);
+            MaxpTable.prototype = Object.create(Table && Table.prototype);
+            MaxpTable.prototype.constructor = MaxpTable;
+            MaxpTable.fn = MaxpTable.prototype;
+            MaxpTable.fn.init = MaxpTable.fn.constructor;
+            MaxpTable.prototype.parse = function parse(data) {
                 data.offset(this.offset);
                 this.version = data.readLong();
                 this.numGlyphs = data.readShort();
@@ -727,8 +755,8 @@
                 this.maxSizeOfInstructions = data.readShort();
                 this.maxComponentElements = data.readShort();
                 this.maxComponentDepth = data.readShort();
-            },
-            render: function (glyphIds) {
+            };
+            MaxpTable.prototype.render = function render(glyphIds) {
                 var out = BinaryStream();
                 out.writeLong(this.version);
                 out.writeShort(glyphIds.length);
@@ -746,10 +774,19 @@
                 out.writeShort(this.maxComponentElements);
                 out.writeShort(this.maxComponentDepth);
                 return out.get();
+            };
+            return MaxpTable;
+        }(Table);
+        var HmtxTable = function (Table) {
+            function HmtxTable() {
+                Table.apply(this, arguments);
             }
-        });
-        var HmtxTable = deftable({
-            parse: function (data) {
+            extendStatic(HmtxTable, Table);
+            HmtxTable.prototype = Object.create(Table && Table.prototype);
+            HmtxTable.prototype.constructor = HmtxTable;
+            HmtxTable.fn = HmtxTable.prototype;
+            HmtxTable.fn.init = HmtxTable.fn.constructor;
+            HmtxTable.prototype.parse = function parse(data) {
                 data.offset(this.offset);
                 var dir = this.file, hhea = dir.hhea;
                 this.metrics = data.times(hhea.numOfLongHorMetrics, function () {
@@ -760,8 +797,8 @@
                 });
                 var lsbCount = dir.maxp.numGlyphs - dir.hhea.numOfLongHorMetrics;
                 this.leftSideBearings = data.times(lsbCount, data.readShort_);
-            },
-            forGlyph: function (id) {
+            };
+            HmtxTable.prototype.forGlyph = function forGlyph(id) {
                 var metrics = this.metrics;
                 var n = metrics.length;
                 if (id < n) {
@@ -771,8 +808,8 @@
                     advance: metrics[n - 1].advance,
                     lsb: this.leftSideBearings[id - n]
                 };
-            },
-            render: function (glyphIds) {
+            };
+            HmtxTable.prototype.render = function render(glyphIds) {
                 var this$1 = this;
                 var out = BinaryStream();
                 for (var i = 0; i < glyphIds.length; ++i) {
@@ -781,24 +818,27 @@
                     out.writeShort_(m.lsb);
                 }
                 return out.get();
-            }
-        });
-        var GlyfTable = function () {
-            function SimpleGlyph(raw) {
-                this.raw = raw;
-            }
-            SimpleGlyph.prototype = {
-                compound: false,
-                render: function () {
-                    return this.raw.get();
-                }
             };
+            return HmtxTable;
+        }(Table);
+        var GlyfTable = function () {
+            var SimpleGlyph = function SimpleGlyph(raw) {
+                this.raw = raw;
+            };
+            var prototypeAccessors = { compound: {} };
+            prototypeAccessors.compound.get = function () {
+                return false;
+            };
+            SimpleGlyph.prototype.render = function render() {
+                return this.raw.get();
+            };
+            Object.defineProperties(SimpleGlyph.prototype, prototypeAccessors);
             var ARG_1_AND_2_ARE_WORDS = 1;
             var WE_HAVE_A_SCALE = 8;
             var MORE_COMPONENTS = 32;
             var WE_HAVE_AN_X_AND_Y_SCALE = 64;
             var WE_HAVE_A_TWO_BY_TWO = 128;
-            function CompoundGlyph(data) {
+            var CompoundGlyph = function CompoundGlyph(data) {
                 this.raw = data;
                 var ids = this.glyphIds = [];
                 var offsets = this.idOffsets = [];
@@ -818,25 +858,35 @@
                         data.skip(2);
                     }
                 }
-            }
-            CompoundGlyph.prototype = {
-                compound: true,
-                render: function (old2new) {
-                    var this$1 = this;
-                    var out = BinaryStream(this.raw.get());
-                    for (var i = 0; i < this.glyphIds.length; ++i) {
-                        var id = this$1.glyphIds[i];
-                        out.offset(this$1.idOffsets[i]);
-                        out.writeShort(old2new[id]);
-                    }
-                    return out.get();
-                }
             };
-            return deftable({
-                parse: function () {
+            var prototypeAccessors$1 = { compound: {} };
+            prototypeAccessors$1.compound.get = function () {
+                return true;
+            };
+            CompoundGlyph.prototype.render = function render(old2new) {
+                var this$1 = this;
+                var out = BinaryStream(this.raw.get());
+                for (var i = 0; i < this.glyphIds.length; ++i) {
+                    var id = this$1.glyphIds[i];
+                    out.offset(this$1.idOffsets[i]);
+                    out.writeShort(old2new[id]);
+                }
+                return out.get();
+            };
+            Object.defineProperties(CompoundGlyph.prototype, prototypeAccessors$1);
+            return function (Table) {
+                function anonymous() {
+                    Table.apply(this, arguments);
+                }
+                extendStatic(anonymous, Table);
+                anonymous.prototype = Object.create(Table && Table.prototype);
+                anonymous.prototype.constructor = anonymous;
+                anonymous.fn = anonymous.prototype;
+                anonymous.fn.init = anonymous.fn.constructor;
+                anonymous.prototype.parse = function parse() {
                     this.cache = {};
-                },
-                glyphFor: function (id) {
+                };
+                anonymous.prototype.glyphFor = function glyphFor(id) {
                     var cache = this.cache;
                     if (hasOwnProperty$1(cache, id)) {
                         return cache[id];
@@ -854,43 +904,58 @@
                     var yMin = raw.readShort_();
                     var xMax = raw.readShort_();
                     var yMax = raw.readShort_();
-                    var glyph = cache[id] = numberOfContours == -1 ? new CompoundGlyph(raw) : new SimpleGlyph(raw);
+                    var glyph = cache[id] = numberOfContours < 0 ? new CompoundGlyph(raw) : new SimpleGlyph(raw);
                     glyph.numberOfContours = numberOfContours;
                     glyph.xMin = xMin;
                     glyph.yMin = yMin;
                     glyph.xMax = xMax;
                     glyph.yMax = yMax;
                     return glyph;
-                },
-                render: function (glyphs, oldIds, old2new) {
+                };
+                anonymous.prototype.render = function render(glyphs, oldIds, old2new) {
                     var out = BinaryStream(), offsets = [];
                     for (var i = 0; i < oldIds.length; ++i) {
                         var id = oldIds[i];
                         var glyph = glyphs[id];
+                        if (out.offset() % 2) {
+                            out.writeByte(0);
+                        }
                         offsets.push(out.offset());
                         if (glyph) {
                             out.write(glyph.render(old2new));
                         }
+                    }
+                    if (out.offset() % 2) {
+                        out.writeByte(0);
                     }
                     offsets.push(out.offset());
                     return {
                         table: out.get(),
                         offsets: offsets
                     };
-                }
-            });
+                };
+                return anonymous;
+            }(Table);
         }();
         var NameTable = function () {
-            function NameEntry(text, entry) {
+            var NameEntry = function NameEntry(text, entry) {
                 this.text = text;
                 this.length = text.length;
                 this.platformID = entry.platformID;
                 this.platformSpecificID = entry.platformSpecificID;
                 this.languageID = entry.languageID;
                 this.nameID = entry.nameID;
-            }
-            return deftable({
-                parse: function (data) {
+            };
+            return function (Table) {
+                function anonymous() {
+                    Table.apply(this, arguments);
+                }
+                extendStatic(anonymous, Table);
+                anonymous.prototype = Object.create(Table && Table.prototype);
+                anonymous.prototype.constructor = anonymous;
+                anonymous.fn = anonymous.prototype;
+                anonymous.fn.init = anonymous.fn.constructor;
+                anonymous.prototype.parse = function parse(data) {
                     data.offset(this.offset);
                     data.readShort();
                     var count = data.readShort();
@@ -917,8 +982,8 @@
                     }
                     this.postscriptEntry = strings[6][0];
                     this.postscriptName = this.postscriptEntry.text.replace(/[^\x20-\x7F]/g, '');
-                },
-                render: function (psName) {
+                };
+                anonymous.prototype.render = function render(psName) {
                     var this$1 = this;
                     var strings = this.strings;
                     var strCount = 0;
@@ -949,13 +1014,22 @@
                     }
                     out.write(strTable.get());
                     return out.get();
-                }
-            });
+                };
+                return anonymous;
+            }(Table);
         }();
         var PostTable = function () {
             var POSTSCRIPT_GLYPHS = '.notdef .null nonmarkingreturn space exclam quotedbl numbersign dollar percent ampersand quotesingle parenleft parenright asterisk plus comma hyphen period slash zero one two three four five six seven eight nine colon semicolon less equal greater question at A B C D E F G H I J K L M N O P Q R S T U V W X Y Z bracketleft backslash bracketright asciicircum underscore grave a b c d e f g h i j k l m n o p q r s t u v w x y z braceleft bar braceright asciitilde Adieresis Aring Ccedilla Eacute Ntilde Odieresis Udieresis aacute agrave acircumflex adieresis atilde aring ccedilla eacute egrave ecircumflex edieresis iacute igrave icircumflex idieresis ntilde oacute ograve ocircumflex odieresis otilde uacute ugrave ucircumflex udieresis dagger degree cent sterling section bullet paragraph germandbls registered copyright trademark acute dieresis notequal AE Oslash infinity plusminus lessequal greaterequal yen mu partialdiff summation product pi integral ordfeminine ordmasculine Omega ae oslash questiondown exclamdown logicalnot radical florin approxequal Delta guillemotleft guillemotright ellipsis nonbreakingspace Agrave Atilde Otilde OE oe endash emdash quotedblleft quotedblright quoteleft quoteright divide lozenge ydieresis Ydieresis fraction currency guilsinglleft guilsinglright fi fl daggerdbl periodcentered quotesinglbase quotedblbase perthousand Acircumflex Ecircumflex Aacute Edieresis Egrave Iacute Icircumflex Idieresis Igrave Oacute Ocircumflex apple Ograve Uacute Ucircumflex Ugrave dotlessi circumflex tilde macron breve dotaccent ring cedilla hungarumlaut ogonek caron Lslash lslash Scaron scaron Zcaron zcaron brokenbar Eth eth Yacute yacute Thorn thorn minus multiply onesuperior twosuperior threesuperior onehalf onequarter threequarters franc Gbreve gbreve Idotaccent Scedilla scedilla Cacute cacute Ccaron ccaron dcroat'.split(/\s+/g);
-            return deftable({
-                parse: function (data) {
+            return function (Table) {
+                function anonymous() {
+                    Table.apply(this, arguments);
+                }
+                extendStatic(anonymous, Table);
+                anonymous.prototype = Object.create(Table && Table.prototype);
+                anonymous.prototype.constructor = anonymous;
+                anonymous.fn = anonymous.prototype;
+                anonymous.fn.init = anonymous.fn.constructor;
+                anonymous.prototype.parse = function parse(data) {
                     var this$1 = this;
                     data.offset(this.offset);
                     this.format = data.readLong();
@@ -989,8 +1063,8 @@
                         this.map = data.times(this.file.maxp.numGlyphs, data.readShort);
                         break;
                     }
-                },
-                glyphFor: function (code) {
+                };
+                anonymous.prototype.glyphFor = function glyphFor(code) {
                     switch (this.format) {
                     case 65536:
                         return POSTSCRIPT_GLYPHS[code] || '.notdef';
@@ -1006,8 +1080,8 @@
                     case 262144:
                         return this.map[code] || 65535;
                     }
-                },
-                render: function (mapping) {
+                };
+                anonymous.prototype.render = function render(mapping) {
                     var this$1 = this;
                     if (this.format == 196608) {
                         return this.raw();
@@ -1037,11 +1111,12 @@
                         out.writeString(strings[i]);
                     }
                     return out.get();
-                }
-            });
+                };
+                return anonymous;
+            }(Table);
         }();
         var CmapTable = function () {
-            function CmapEntry(data, offset, codeMap) {
+            var CmapEntry = function CmapEntry(data, offset, codeMap) {
                 var self = this;
                 self.platformID = data.readShort();
                 self.platformSpecificID = data.readShort();
@@ -1116,7 +1191,7 @@
                         }
                     }
                 });
-            }
+            };
             function renderCharmap(ncid2ogid, ogid2ngid) {
                 var codes = sortedKeys(ncid2ogid);
                 var startCodes = [];
@@ -1191,8 +1266,16 @@
                 glyphIds.forEach(out.writeShort);
                 return out.get();
             }
-            return deftable({
-                parse: function (data) {
+            return function (Table) {
+                function anonymous() {
+                    Table.apply(this, arguments);
+                }
+                extendStatic(anonymous, Table);
+                anonymous.prototype = Object.create(Table && Table.prototype);
+                anonymous.prototype.constructor = anonymous;
+                anonymous.fn = anonymous.prototype;
+                anonymous.fn.init = anonymous.fn.constructor;
+                anonymous.prototype.parse = function parse(data) {
                     var self = this;
                     var offset = self.offset;
                     data.offset(offset);
@@ -1202,18 +1285,27 @@
                     self.tables = data.times(tableCount, function () {
                         return new CmapEntry(data, offset, self.codeMap);
                     });
-                },
-                render: function (ncid2ogid, ogid2ngid) {
+                };
+                anonymous.render = function render(ncid2ogid, ogid2ngid) {
                     var out = BinaryStream();
                     out.writeShort(0);
                     out.writeShort(1);
                     out.write(renderCharmap(ncid2ogid, ogid2ngid));
                     return out.get();
-                }
-            });
+                };
+                return anonymous;
+            }(Table);
         }();
-        var OS2Table = deftable({
-            parse: function (data) {
+        var OS2Table = function (Table) {
+            function OS2Table() {
+                Table.apply(this, arguments);
+            }
+            extendStatic(OS2Table, Table);
+            OS2Table.prototype = Object.create(Table && Table.prototype);
+            OS2Table.prototype.constructor = OS2Table;
+            OS2Table.fn = OS2Table.prototype;
+            OS2Table.fn.init = OS2Table.fn.constructor;
+            OS2Table.prototype.parse = function parse(data) {
                 data.offset(this.offset);
                 this.version = data.readShort();
                 this.averageCharWidth = data.readShort_();
@@ -1252,11 +1344,12 @@
                         this.maxContext = data.readShort();
                     }
                 }
-            },
-            render: function () {
+            };
+            OS2Table.prototype.render = function render() {
                 return this.raw();
-            }
-        });
+            };
+            return OS2Table;
+        }(Table);
         var subsetTag = 100000;
         function nextSubsetTag() {
             var ret = '', n = String(subsetTag);
@@ -1266,7 +1359,7 @@
             ++subsetTag;
             return ret;
         }
-        function Subfont(font) {
+        var Subfont = function Subfont(font) {
             this.font = font;
             this.subset = {};
             this.unicodes = {};
@@ -1276,110 +1369,108 @@
             this.next = this.firstChar = 1;
             this.nextGid = 1;
             this.psName = nextSubsetTag() + '+' + this.font.psName;
-        }
-        Subfont.prototype = {
-            use: function (ch) {
-                var self = this;
-                if (typeof ch == 'string') {
-                    return ucs2decode(ch).reduce(function (ret, code) {
-                        return ret + String.fromCharCode(self.use(code));
-                    }, '');
-                }
-                var code = self.unicodes[ch];
-                if (!code) {
-                    code = self.next++;
-                    self.subset[code] = ch;
-                    self.unicodes[ch] = code;
-                    var old_gid = self.font.cmap.codeMap[ch];
-                    if (old_gid) {
-                        self.ncid2ogid[code] = old_gid;
-                        if (self.ogid2ngid[old_gid] == null) {
-                            var new_gid = self.nextGid++;
-                            self.ogid2ngid[old_gid] = new_gid;
-                            self.ngid2ogid[new_gid] = old_gid;
-                        }
+        };
+        Subfont.prototype.use = function use(ch) {
+            var self = this;
+            if (typeof ch == 'string') {
+                return ucs2decode(ch).reduce(function (ret, code) {
+                    return ret + String.fromCharCode(self.use(code));
+                }, '');
+            }
+            var code = self.unicodes[ch];
+            if (!code) {
+                code = self.next++;
+                self.subset[code] = ch;
+                self.unicodes[ch] = code;
+                var old_gid = self.font.cmap.codeMap[ch];
+                if (old_gid) {
+                    self.ncid2ogid[code] = old_gid;
+                    if (self.ogid2ngid[old_gid] == null) {
+                        var new_gid = self.nextGid++;
+                        self.ogid2ngid[old_gid] = new_gid;
+                        self.ngid2ogid[new_gid] = old_gid;
                     }
                 }
-                return code;
-            },
-            encodeText: function (text) {
-                return this.use(text);
-            },
-            glyphIds: function () {
-                return sortedKeys(this.ogid2ngid);
-            },
-            glyphsFor: function (glyphIds, result) {
-                var this$1 = this;
-                if (!result) {
-                    result = {};
-                }
-                for (var i = 0; i < glyphIds.length; ++i) {
-                    var id = glyphIds[i];
-                    if (!result[id]) {
-                        var glyph = result[id] = this$1.font.glyf.glyphFor(id);
-                        if (glyph && glyph.compound) {
-                            this$1.glyphsFor(glyph.glyphIds, result);
-                        }
+            }
+            return code;
+        };
+        Subfont.prototype.encodeText = function encodeText(text) {
+            return this.use(text);
+        };
+        Subfont.prototype.glyphIds = function glyphIds() {
+            return sortedKeys(this.ogid2ngid);
+        };
+        Subfont.prototype.glyphsFor = function glyphsFor(glyphIds, result) {
+            var this$1 = this;
+            if (!result) {
+                result = {};
+            }
+            for (var i = 0; i < glyphIds.length; ++i) {
+                var id = glyphIds[i];
+                if (!result[id]) {
+                    var glyph = result[id] = this$1.font.glyf.glyphFor(id);
+                    if (glyph && glyph.compound) {
+                        this$1.glyphsFor(glyph.glyphIds, result);
                     }
                 }
-                return result;
-            },
-            render: function () {
-                var this$1 = this;
-                var glyphs = this.glyphsFor(this.glyphIds());
-                for (var old_gid in glyphs) {
-                    if (hasOwnProperty$1(glyphs, old_gid)) {
-                        old_gid = parseInt(old_gid, 10);
-                        if (this$1.ogid2ngid[old_gid] == null) {
-                            var new_gid = this$1.nextGid++;
-                            this$1.ogid2ngid[old_gid] = new_gid;
-                            this$1.ngid2ogid[new_gid] = old_gid;
-                        }
+            }
+            return result;
+        };
+        Subfont.prototype.render = function render() {
+            var this$1 = this;
+            var glyphs = this.glyphsFor(this.glyphIds());
+            for (var old_gid in glyphs) {
+                if (hasOwnProperty$1(glyphs, old_gid)) {
+                    old_gid = parseInt(old_gid, 10);
+                    if (this$1.ogid2ngid[old_gid] == null) {
+                        var new_gid = this$1.nextGid++;
+                        this$1.ogid2ngid[old_gid] = new_gid;
+                        this$1.ngid2ogid[new_gid] = old_gid;
                     }
                 }
-                var new_gid_ids = sortedKeys(this.ngid2ogid);
-                var old_gid_ids = new_gid_ids.map(function (id) {
-                    return this.ngid2ogid[id];
-                }, this);
-                var font = this.font;
-                var glyf = font.glyf.render(glyphs, old_gid_ids, this.ogid2ngid);
-                var loca = font.loca.render(glyf.offsets);
-                this.lastChar = this.next - 1;
-                var tables = {
-                    'cmap': CmapTable.render(this.ncid2ogid, this.ogid2ngid),
-                    'glyf': glyf.table,
-                    'loca': loca.table,
-                    'hmtx': font.hmtx.render(old_gid_ids),
-                    'hhea': font.hhea.render(old_gid_ids),
-                    'maxp': font.maxp.render(old_gid_ids),
-                    'post': font.post.render(old_gid_ids),
-                    'name': font.name.render(this.psName),
-                    'head': font.head.render(loca.format),
-                    'OS/2': font.os2.render()
-                };
-                return this.font.directory.render(tables);
-            },
-            cidToGidMap: function () {
-                var this$1 = this;
-                var out = BinaryStream(), len = 0;
-                for (var cid = this.firstChar; cid < this.next; ++cid) {
-                    while (len < cid) {
-                        out.writeShort(0);
-                        len++;
-                    }
-                    var old_gid = this$1.ncid2ogid[cid];
-                    if (old_gid) {
-                        var new_gid = this$1.ogid2ngid[old_gid];
-                        out.writeShort(new_gid);
-                    } else {
-                        out.writeShort(0);
-                    }
+            }
+            var new_gid_ids = sortedKeys(this.ngid2ogid);
+            var old_gid_ids = new_gid_ids.map(function (id) {
+                return this.ngid2ogid[id];
+            }, this);
+            var font = this.font;
+            var glyf = font.glyf.render(glyphs, old_gid_ids, this.ogid2ngid);
+            var loca = font.loca.render(glyf.offsets);
+            this.lastChar = this.next - 1;
+            var tables = {
+                'cmap': CmapTable.render(this.ncid2ogid, this.ogid2ngid),
+                'glyf': glyf.table,
+                'loca': loca.table,
+                'hmtx': font.hmtx.render(old_gid_ids),
+                'hhea': font.hhea.render(old_gid_ids),
+                'maxp': font.maxp.render(old_gid_ids),
+                'post': font.post.render(old_gid_ids),
+                'name': font.name.render(this.psName),
+                'head': font.head.render(loca.format),
+                'OS/2': font.os2.render()
+            };
+            return this.font.directory.render(tables);
+        };
+        Subfont.prototype.cidToGidMap = function cidToGidMap() {
+            var this$1 = this;
+            var out = BinaryStream(), len = 0;
+            for (var cid = this.firstChar; cid < this.next; ++cid) {
+                while (len < cid) {
+                    out.writeShort(0);
                     len++;
                 }
-                return out.get();
+                var old_gid = this$1.ncid2ogid[cid];
+                if (old_gid) {
+                    var new_gid = this$1.ogid2ngid[old_gid];
+                    out.writeShort(new_gid);
+                } else {
+                    out.writeShort(0);
+                }
+                len++;
             }
+            return out.get();
         };
-        function TTFFont(rawData, name) {
+        var TTFFont = function TTFFont(rawData, name) {
             var self = this;
             var data = self.contents = BinaryStream(rawData);
             if (data.readString(4) == 'ttcf') {
@@ -1405,32 +1496,30 @@
                 data.offset(0);
                 self.parse();
             }
-        }
-        TTFFont.prototype = {
-            parse: function () {
-                var dir = this.directory = new Directory(this.contents);
-                this.head = dir.readTable('head', HeadTable);
-                this.loca = dir.readTable('loca', LocaTable);
-                this.hhea = dir.readTable('hhea', HheaTable);
-                this.maxp = dir.readTable('maxp', MaxpTable);
-                this.hmtx = dir.readTable('hmtx', HmtxTable);
-                this.glyf = dir.readTable('glyf', GlyfTable);
-                this.name = dir.readTable('name', NameTable);
-                this.post = dir.readTable('post', PostTable);
-                this.cmap = dir.readTable('cmap', CmapTable);
-                this.os2 = dir.readTable('OS/2', OS2Table);
-                this.psName = this.name.postscriptName;
-                this.ascent = this.os2.ascent || this.hhea.ascent;
-                this.descent = this.os2.descent || this.hhea.descent;
-                this.lineGap = this.os2.lineGap || this.hhea.lineGap;
-                this.scale = 1000 / this.head.unitsPerEm;
-            },
-            widthOfGlyph: function (glyph) {
-                return this.hmtx.forGlyph(glyph).advance * this.scale;
-            },
-            makeSubset: function () {
-                return new Subfont(this);
-            }
+        };
+        TTFFont.prototype.parse = function parse() {
+            var dir = this.directory = new Directory(this.contents);
+            this.head = dir.readTable('head', HeadTable);
+            this.loca = dir.readTable('loca', LocaTable);
+            this.hhea = dir.readTable('hhea', HheaTable);
+            this.maxp = dir.readTable('maxp', MaxpTable);
+            this.hmtx = dir.readTable('hmtx', HmtxTable);
+            this.glyf = dir.readTable('glyf', GlyfTable);
+            this.name = dir.readTable('name', NameTable);
+            this.post = dir.readTable('post', PostTable);
+            this.cmap = dir.readTable('cmap', CmapTable);
+            this.os2 = dir.readTable('OS/2', OS2Table);
+            this.psName = this.name.postscriptName;
+            this.ascent = this.os2.ascent || this.hhea.ascent;
+            this.descent = this.os2.descent || this.hhea.descent;
+            this.lineGap = this.os2.lineGap || this.hhea.lineGap;
+            this.scale = 1000 / this.head.unitsPerEm;
+        };
+        TTFFont.prototype.widthOfGlyph = function widthOfGlyph(glyph) {
+            return this.hmtx.forGlyph(glyph).advance * this.scale;
+        };
+        TTFFont.prototype.makeSubset = function makeSubset() {
+            return new Subfont(this);
         };
         var fromCharCode = String.fromCharCode;
         var BOM = 'þÿ';
@@ -1744,114 +1833,6 @@
                 margin: margin
             };
         }
-        function PDFDocument(options) {
-            var self = this;
-            var out = makeOutput();
-            var objcount = 0;
-            var objects = [];
-            function getOption(name, defval) {
-                return options && options[name] != null ? options[name] : defval;
-            }
-            self.getOption = getOption;
-            self.attach = function (value) {
-                if (objects.indexOf(value) < 0) {
-                    wrapObject(value, ++objcount);
-                    objects.push(value);
-                }
-                return value;
-            };
-            self.pages = [];
-            self.FONTS = {};
-            self.IMAGES = {};
-            self.GRAD_COL_FUNCTIONS = {};
-            self.GRAD_OPC_FUNCTIONS = {};
-            self.GRAD_COL = {};
-            self.GRAD_OPC = {};
-            var catalog = self.attach(new PDFCatalog());
-            var pageTree = self.attach(new PDFPageTree());
-            if (getOption('autoPrint')) {
-                var nameTree = {};
-                nameTree.JavaScript = new PDFDictionary({
-                    Names: [
-                        new PDFString('JS'),
-                        self.attach(new PDFDictionary({
-                            S: _('JavaScript'),
-                            JS: new PDFString('print(true);')
-                        }))
-                    ]
-                });
-                catalog.props.Names = new PDFDictionary(nameTree);
-            }
-            catalog.setPages(pageTree);
-            var info = self.attach(new PDFDictionary({
-                Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator'), true),
-                Title: new PDFString(getOption('title', ''), true),
-                Author: new PDFString(getOption('author', ''), true),
-                Subject: new PDFString(getOption('subject', ''), true),
-                Keywords: new PDFString(getOption('keywords', ''), true),
-                Creator: new PDFString(getOption('creator', 'Kendo UI PDF Generator'), true),
-                CreationDate: getOption('date', new Date())
-            }));
-            self.addPage = function (options) {
-                var paperOptions = getPaperOptions(function (name, defval) {
-                    return options && options[name] != null ? options[name] : defval;
-                });
-                var paperSize = paperOptions.paperSize;
-                var margin = paperOptions.margin;
-                var contentWidth = paperSize[0];
-                var contentHeight = paperSize[1];
-                if (margin) {
-                    contentWidth -= margin.left + margin.right;
-                    contentHeight -= margin.top + margin.bottom;
-                }
-                var content = new PDFStream(makeOutput(), null, true);
-                var props = {
-                    Contents: self.attach(content),
-                    Parent: pageTree,
-                    MediaBox: [
-                        0,
-                        0,
-                        paperSize[0],
-                        paperSize[1]
-                    ]
-                };
-                var page = new PDFPage(self, props);
-                page._content = content;
-                pageTree.addPage(self.attach(page));
-                page.transform(1, 0, 0, -1, 0, paperSize[1]);
-                if (margin) {
-                    page.translate(margin.left, margin.top);
-                    page.rect(0, 0, contentWidth, contentHeight);
-                    page.clip();
-                }
-                self.pages.push(page);
-                return page;
-            };
-            self.render = function () {
-                var i;
-                out('%PDF-1.4', NL, '%ÂÁÚÏÎ', NL, NL);
-                for (i = 0; i < objects.length; ++i) {
-                    objects[i].renderFull(out);
-                    out(NL, NL);
-                }
-                var xrefOffset = out.offset();
-                out('xref', NL, 0, ' ', objects.length + 1, NL);
-                out('0000000000 65535 f ', NL);
-                for (i = 0; i < objects.length; ++i) {
-                    out(zeropad(objects[i]._offset, 10), ' 00000 n ', NL);
-                }
-                out(NL);
-                out('trailer', NL);
-                out(new PDFDictionary({
-                    Size: objects.length + 1,
-                    Root: catalog,
-                    Info: info
-                }), NL, NL);
-                out('startxref', NL, xrefOffset, NL);
-                out('%%EOF', NL);
-                return out.stream().offset(0);
-            };
-        }
         var FONT_CACHE = {
             'Times-Roman': true,
             'Times-Bold': true,
@@ -2008,7 +1989,9 @@
             }
             function _onload() {
                 if (size) {
-                    if (size.width >= img.width || size.height >= img.height) {
+                    var svg = blob && blob.type === 'image/svg+xml';
+                    var upscale = size.width >= img.width || size.height >= img.height;
+                    if (!svg && upscale) {
                         size = null;
                     }
                 }
@@ -2064,67 +2047,173 @@
                 loadImage(url, images[url], next, options);
             });
         };
-        PDFDocument.prototype = {
-            loadFonts: loadFonts,
-            loadImages: loadImages,
-            getFont: function (url) {
-                var font = this.FONTS[url];
-                if (!font) {
-                    font = FONT_CACHE[url];
-                    if (!font) {
-                        throw new Error('Font ' + url + ' has not been loaded');
-                    }
-                    if (font === true) {
-                        font = this.attach(new PDFStandardFont(url));
-                    } else {
-                        font = this.attach(new PDFFont(this, font));
-                    }
-                    this.FONTS[url] = font;
-                }
-                return font;
-            },
-            getImage: function (url) {
-                var img = this.IMAGES[url];
-                if (!img) {
-                    img = IMAGE_CACHE[url];
-                    if (!img) {
-                        throw new Error('Image ' + url + ' has not been loaded');
-                    }
-                    if (img === 'ERROR') {
-                        return null;
-                    }
-                    img = this.IMAGES[url] = this.attach(img.asStream(this));
-                }
-                return img;
-            },
-            getOpacityGS: function (opacity, forStroke) {
-                var id = parseFloat(opacity).toFixed(3);
-                opacity = parseFloat(id);
-                id += forStroke ? 'S' : 'F';
-                var cache = this._opacityGSCache || (this._opacityGSCache = {});
-                var gs = cache[id];
-                if (!gs) {
-                    var props = { Type: _('ExtGState') };
-                    if (forStroke) {
-                        props.CA = opacity;
-                    } else {
-                        props.ca = opacity;
-                    }
-                    gs = this.attach(new PDFDictionary(props));
-                    gs._resourceName = _('GS' + ++RESOURCE_COUNTER);
-                    cache[id] = gs;
-                }
-                return gs;
-            },
-            dict: function (props) {
-                return new PDFDictionary(props);
-            },
-            name: function (str) {
-                return _(str);
-            },
-            stream: function (props, content) {
-                return new PDFStream(content, props);
+        var PDFDocument = function PDFDocument(options) {
+            var self = this;
+            var out = makeOutput();
+            var objcount = 0;
+            var objects = [];
+            function getOption(name, defval) {
+                return options && options[name] != null ? options[name] : defval;
             }
+            self.getOption = getOption;
+            self.attach = function (value) {
+                if (objects.indexOf(value) < 0) {
+                    wrapObject(value, ++objcount);
+                    objects.push(value);
+                }
+                return value;
+            };
+            self.pages = [];
+            self.FONTS = {};
+            self.IMAGES = {};
+            self.GRAD_COL_FUNCTIONS = {};
+            self.GRAD_OPC_FUNCTIONS = {};
+            self.GRAD_COL = {};
+            self.GRAD_OPC = {};
+            var catalog = self.attach(new PDFCatalog());
+            var pageTree = self.attach(new PDFPageTree());
+            if (getOption('autoPrint')) {
+                var nameTree = {};
+                nameTree.JavaScript = new PDFDictionary({
+                    Names: [
+                        new PDFString('JS'),
+                        self.attach(new PDFDictionary({
+                            S: _('JavaScript'),
+                            JS: new PDFString('print(true);')
+                        }))
+                    ]
+                });
+                catalog.props.Names = new PDFDictionary(nameTree);
+            }
+            catalog.setPages(pageTree);
+            var info = self.attach(new PDFDictionary({
+                Producer: new PDFString(getOption('producer', 'Kendo UI PDF Generator'), true),
+                Title: new PDFString(getOption('title', ''), true),
+                Author: new PDFString(getOption('author', ''), true),
+                Subject: new PDFString(getOption('subject', ''), true),
+                Keywords: new PDFString(getOption('keywords', ''), true),
+                Creator: new PDFString(getOption('creator', 'Kendo UI PDF Generator'), true),
+                CreationDate: getOption('date', new Date())
+            }));
+            self.addPage = function (options) {
+                var paperOptions = getPaperOptions(function (name, defval) {
+                    return options && options[name] != null ? options[name] : defval;
+                });
+                var paperSize = paperOptions.paperSize;
+                var margin = paperOptions.margin;
+                var contentWidth = paperSize[0];
+                var contentHeight = paperSize[1];
+                if (margin) {
+                    contentWidth -= margin.left + margin.right;
+                    contentHeight -= margin.top + margin.bottom;
+                }
+                var content = new PDFStream(makeOutput(), null, true);
+                var props = {
+                    Contents: self.attach(content),
+                    Parent: pageTree,
+                    MediaBox: [
+                        0,
+                        0,
+                        paperSize[0],
+                        paperSize[1]
+                    ]
+                };
+                var page = new PDFPage(self, props);
+                page._content = content;
+                pageTree.addPage(self.attach(page));
+                page.transform(1, 0, 0, -1, 0, paperSize[1]);
+                if (margin) {
+                    page.translate(margin.left, margin.top);
+                    page.rect(0, 0, contentWidth, contentHeight);
+                    page.clip();
+                }
+                self.pages.push(page);
+                return page;
+            };
+            self.render = function () {
+                var i;
+                out('%PDF-1.4', NL, '%ÂÁÚÏÎ', NL, NL);
+                for (i = 0; i < objects.length; ++i) {
+                    objects[i].renderFull(out);
+                    out(NL, NL);
+                }
+                var xrefOffset = out.offset();
+                out('xref', NL, 0, ' ', objects.length + 1, NL);
+                out('0000000000 65535 f ', NL);
+                for (i = 0; i < objects.length; ++i) {
+                    out(zeropad(objects[i]._offset, 10), ' 00000 n ', NL);
+                }
+                out(NL);
+                out('trailer', NL);
+                out(new PDFDictionary({
+                    Size: objects.length + 1,
+                    Root: catalog,
+                    Info: info
+                }), NL, NL);
+                out('startxref', NL, xrefOffset, NL);
+                out('%%EOF', NL);
+                return out.stream().offset(0);
+            };
+            self.loadFonts = loadFonts;
+            self.loadImages = loadImages;
+        };
+        PDFDocument.prototype.getFont = function getFont(url) {
+            var font = this.FONTS[url];
+            if (!font) {
+                font = FONT_CACHE[url];
+                if (!font) {
+                    throw new Error('Font ' + url + ' has not been loaded');
+                }
+                if (font === true) {
+                    font = this.attach(new PDFStandardFont(url));
+                } else {
+                    font = this.attach(new PDFFont(this, font));
+                }
+                this.FONTS[url] = font;
+            }
+            return font;
+        };
+        PDFDocument.prototype.getImage = function getImage(url) {
+            var img = this.IMAGES[url];
+            if (!img) {
+                img = IMAGE_CACHE[url];
+                if (!img) {
+                    throw new Error('Image ' + url + ' has not been loaded');
+                }
+                if (img === 'ERROR') {
+                    return null;
+                }
+                img = this.IMAGES[url] = this.attach(img.asStream(this));
+            }
+            return img;
+        };
+        PDFDocument.prototype.getOpacityGS = function getOpacityGS(opacity, forStroke) {
+            var id = parseFloat(opacity).toFixed(3);
+            opacity = parseFloat(id);
+            id += forStroke ? 'S' : 'F';
+            var cache = this._opacityGSCache || (this._opacityGSCache = {});
+            var gs = cache[id];
+            if (!gs) {
+                var props = { Type: _('ExtGState') };
+                if (forStroke) {
+                    props.CA = opacity;
+                } else {
+                    props.ca = opacity;
+                }
+                gs = this.attach(new PDFDictionary(props));
+                gs._resourceName = _('GS' + ++RESOURCE_COUNTER);
+                cache[id] = gs;
+            }
+            return gs;
+        };
+        PDFDocument.prototype.dict = function dict(props) {
+            return new PDFDictionary(props);
+        };
+        PDFDocument.prototype.name = function name(str) {
+            return _(str);
+        };
+        PDFDocument.prototype.stream = function stream(props, content) {
+            return new PDFStream(content, props);
         };
         function pad(str, len, ch) {
             while (str.length < len) {
@@ -2197,27 +2286,22 @@
             }
             throw new Error('Can\'t parse unit: ' + x);
         }
-        function PDFValue() {
-        }
-        PDFValue.prototype.beforeRender = function () {
+        var PDFValue = function PDFValue() {
         };
-        function defclass(Ctor, proto, Base) {
-            if (!Base) {
-                Base = PDFValue;
+        PDFValue.prototype.beforeRender = function beforeRender() {
+        };
+        var PDFString = function (PDFValue) {
+            function PDFString(value, utf16be) {
+                PDFValue.call(this);
+                this.value = value;
+                this.utf16be = Boolean(utf16be);
             }
-            Ctor.prototype = new Base();
-            for (var i in proto) {
-                if (hasOwnProperty(proto, i)) {
-                    Ctor.prototype[i] = proto[i];
-                }
-            }
-            return Ctor;
-        }
-        var PDFString = defclass(function PDFString(value, utf16be) {
-            this.value = value;
-            this.utf16be = Boolean(utf16be);
-        }, {
-            render: function (out) {
+            extendStatic(PDFString, PDFValue);
+            PDFString.prototype = Object.create(PDFValue && PDFValue.prototype);
+            PDFString.prototype.constructor = PDFString;
+            PDFString.fn = PDFString.prototype;
+            PDFString.fn.init = PDFString.fn.constructor;
+            PDFString.prototype.render = function render(out) {
                 var txt = this.value;
                 if (this.utf16be) {
                     txt = BOM + encodeUTF16BE(txt);
@@ -2235,50 +2319,76 @@
                     data.push(41);
                     out.writeData(data);
                 }
-            },
-            toString: function () {
+            };
+            PDFString.prototype.toString = function toString() {
                 return this.value;
+            };
+            return PDFString;
+        }(PDFValue);
+        var PDFHexString = function (PDFString) {
+            function PDFHexString(value) {
+                PDFString.call(this, value);
+                this.value = value;
             }
-        });
-        var PDFHexString = defclass(function PDFHexString(value) {
-            this.value = value;
-        }, {
-            render: function (out) {
+            extendStatic(PDFHexString, PDFString);
+            PDFHexString.prototype = Object.create(PDFString && PDFString.prototype);
+            PDFHexString.prototype.constructor = PDFHexString;
+            PDFHexString.fn = PDFHexString.prototype;
+            PDFHexString.fn.init = PDFHexString.fn.constructor;
+            PDFHexString.prototype.render = function render(out) {
                 var this$1 = this;
                 out('<');
                 for (var i = 0; i < this.value.length; ++i) {
                     out(zeropad(this$1.value.charCodeAt(i).toString(16), 4));
                 }
                 out('>');
+            };
+            return PDFHexString;
+        }(PDFString);
+        var PDFName = function (PDFValue) {
+            function PDFName(name) {
+                PDFValue.call(this);
+                this.name = name;
             }
-        }, PDFString);
-        var PDFName = defclass(function PDFName(name) {
-            this.name = name;
-        }, {
-            render: function (out) {
+            extendStatic(PDFName, PDFValue);
+            PDFName.prototype = Object.create(PDFValue && PDFValue.prototype);
+            PDFName.prototype.constructor = PDFName;
+            PDFName.fn = PDFName.prototype;
+            PDFName.fn.init = PDFName.fn.constructor;
+            PDFName.get = function get(name) {
+                return _(name);
+            };
+            PDFName.prototype.render = function render(out) {
                 out('/' + this.escape());
-            },
-            escape: function () {
+            };
+            PDFName.prototype.escape = function escape() {
                 return this.name.replace(/[^\x21-\x7E]/g, function (c) {
                     return '#' + zeropad(c.charCodeAt(0).toString(16), 2);
                 });
-            },
-            toString: function () {
+            };
+            PDFName.prototype.toString = function toString() {
                 return this.name;
-            }
-        });
+            };
+            return PDFName;
+        }(PDFValue);
         var PDFName_cache = {};
-        PDFName.get = _;
         function _(name) {
             if (hasOwnProperty(PDFName_cache, name)) {
                 return PDFName_cache[name];
             }
             return PDFName_cache[name] = new PDFName(name);
         }
-        var PDFDictionary = defclass(function PDFDictionary(props) {
-            this.props = props;
-        }, {
-            render: function (out) {
+        var PDFDictionary = function (PDFValue) {
+            function PDFDictionary(props) {
+                PDFValue.call(this);
+                this.props = props;
+            }
+            extendStatic(PDFDictionary, PDFValue);
+            PDFDictionary.prototype = Object.create(PDFValue && PDFValue.prototype);
+            PDFDictionary.prototype.constructor = PDFDictionary;
+            PDFDictionary.fn = PDFDictionary.prototype;
+            PDFDictionary.fn.init = PDFDictionary.fn.constructor;
+            PDFDictionary.prototype.render = function render(out) {
                 var props = this.props, empty = true;
                 out('<<');
                 out.withIndent(function () {
@@ -2293,19 +2403,27 @@
                     out.indent();
                 }
                 out('>>');
+            };
+            return PDFDictionary;
+        }(PDFValue);
+        var PDFStream = function (PDFValue) {
+            function PDFStream(data, props, compress) {
+                PDFValue.call(this);
+                if (typeof data == 'string') {
+                    var tmp = BinaryStream();
+                    tmp.write(data);
+                    data = tmp;
+                }
+                this.data = data;
+                this.props = props || {};
+                this.compress = compress;
             }
-        });
-        var PDFStream = defclass(function PDFStream(data, props, compress) {
-            if (typeof data == 'string') {
-                var tmp = BinaryStream();
-                tmp.write(data);
-                data = tmp;
-            }
-            this.data = data;
-            this.props = props || {};
-            this.compress = compress;
-        }, {
-            render: function (out) {
+            extendStatic(PDFStream, PDFValue);
+            PDFStream.prototype = Object.create(PDFValue && PDFValue.prototype);
+            PDFStream.prototype.constructor = PDFStream;
+            PDFStream.fn = PDFStream.prototype;
+            PDFStream.fn.init = PDFStream.fn.constructor;
+            PDFStream.prototype.render = function render(out) {
                 var data = this.data.get(), props = this.props;
                 if (this.compress && kendoPdf.supportsDeflate()) {
                     if (!props.Filter) {
@@ -2320,27 +2438,42 @@
                 out(new PDFDictionary(props), ' stream', NL);
                 out.writeData(data);
                 out(NL, 'endstream');
-            }
-        });
-        var PDFCatalog = defclass(function PDFCatalog() {
-            this.props = { Type: _('Catalog') };
-        }, {
-            setPages: function (pagesObj) {
-                this.props.Pages = pagesObj;
-            }
-        }, PDFDictionary);
-        var PDFPageTree = defclass(function PDFPageTree() {
-            this.props = {
-                Type: _('Pages'),
-                Kids: [],
-                Count: 0
             };
-        }, {
-            addPage: function (pageObj) {
+            return PDFStream;
+        }(PDFValue);
+        var PDFCatalog = function (PDFDictionary) {
+            function PDFCatalog() {
+                PDFDictionary.call(this, { Type: _('Catalog') });
+            }
+            extendStatic(PDFCatalog, PDFDictionary);
+            PDFCatalog.prototype = Object.create(PDFDictionary && PDFDictionary.prototype);
+            PDFCatalog.prototype.constructor = PDFCatalog;
+            PDFCatalog.fn = PDFCatalog.prototype;
+            PDFCatalog.fn.init = PDFCatalog.fn.constructor;
+            PDFCatalog.prototype.setPages = function setPages(pagesObj) {
+                this.props.Pages = pagesObj;
+            };
+            return PDFCatalog;
+        }(PDFDictionary);
+        var PDFPageTree = function (PDFDictionary) {
+            function PDFPageTree() {
+                PDFDictionary.call(this, {
+                    Type: _('Pages'),
+                    Kids: [],
+                    Count: 0
+                });
+            }
+            extendStatic(PDFPageTree, PDFDictionary);
+            PDFPageTree.prototype = Object.create(PDFDictionary && PDFDictionary.prototype);
+            PDFPageTree.prototype.constructor = PDFPageTree;
+            PDFPageTree.fn = PDFPageTree.prototype;
+            PDFPageTree.fn.init = PDFPageTree.fn.constructor;
+            PDFPageTree.prototype.addPage = function addPage(pageObj) {
                 this.props.Kids.push(pageObj);
                 this.props.Count++;
-            }
-        }, PDFDictionary);
+            };
+            return PDFPageTree;
+        }(PDFDictionary);
         var SOF_CODES = [
             192,
             193,
@@ -2356,7 +2489,7 @@
             206,
             207
         ];
-        function PDFJpegImage(data) {
+        var PDFJpegImage = function PDFJpegImage(data) {
             data.offset(0);
             var width, height, colorSpace, bitsPerComponent;
             var soi = data.readShort();
@@ -2417,8 +2550,8 @@
                 stream._resourceName = _('I' + ++RESOURCE_COUNTER);
                 return stream;
             };
-        }
-        function PDFRawImage(width, height, rgb, alpha) {
+        };
+        var PDFRawImage = function PDFRawImage(width, height, rgb, alpha) {
             this.asStream = function (pdf) {
                 var mask = new PDFStream(alpha, {
                     Type: _('XObject'),
@@ -2440,53 +2573,67 @@
                 stream._resourceName = _('I' + ++RESOURCE_COUNTER);
                 return stream;
             };
-        }
-        var PDFStandardFont = defclass(function PDFStandardFont(name) {
-            this.props = {
-                Type: _('Font'),
-                Subtype: _('Type1'),
-                BaseFont: _(name)
-            };
-            this._resourceName = _('F' + ++RESOURCE_COUNTER);
-        }, {
-            encodeText: function (str) {
-                return new PDFString(String(str));
+        };
+        var PDFStandardFont = function (PDFDictionary) {
+            function PDFStandardFont(name) {
+                PDFDictionary.call(this, {
+                    Type: _('Font'),
+                    Subtype: _('Type1'),
+                    BaseFont: _(name)
+                });
+                this._resourceName = _('F' + ++RESOURCE_COUNTER);
             }
-        }, PDFDictionary);
-        var PDFFont = defclass(function PDFFont(pdf, font, props) {
-            props = this.props = props || {};
-            props.Type = _('Font');
-            props.Subtype = _('Type0');
-            props.Encoding = _('Identity-H');
-            this._pdf = pdf;
-            this._font = font;
-            this._sub = font.makeSubset();
-            this._resourceName = _('F' + ++RESOURCE_COUNTER);
-            var head = font.head;
-            this.name = font.psName;
-            var scale = this.scale = font.scale;
-            this.bbox = [
-                head.xMin * scale,
-                head.yMin * scale,
-                head.xMax * scale,
-                head.yMax * scale
-            ];
-            this.italicAngle = font.post.italicAngle;
-            this.ascent = font.ascent * scale;
-            this.descent = font.descent * scale;
-            this.lineGap = font.lineGap * scale;
-            this.capHeight = font.os2.capHeight || this.ascent;
-            this.xHeight = font.os2.xHeight || 0;
-            this.stemV = 0;
-            this.familyClass = (font.os2.familyClass || 0) >> 8;
-            this.isSerif = this.familyClass >= 1 && this.familyClass <= 7;
-            this.isScript = this.familyClass == 10;
-            this.flags = (font.post.isFixedPitch ? 1 : 0) | (this.isSerif ? 1 << 1 : 0) | (this.isScript ? 1 << 3 : 0) | (this.italicAngle !== 0 ? 1 << 6 : 0) | 1 << 5;
-        }, {
-            encodeText: function (text) {
+            extendStatic(PDFStandardFont, PDFDictionary);
+            PDFStandardFont.prototype = Object.create(PDFDictionary && PDFDictionary.prototype);
+            PDFStandardFont.prototype.constructor = PDFStandardFont;
+            PDFStandardFont.fn = PDFStandardFont.prototype;
+            PDFStandardFont.fn.init = PDFStandardFont.fn.constructor;
+            PDFStandardFont.prototype.encodeText = function encodeText(str) {
+                return new PDFString(String(str));
+            };
+            return PDFStandardFont;
+        }(PDFDictionary);
+        var PDFFont = function (PDFDictionary) {
+            function PDFFont(pdf, font, props) {
+                PDFDictionary.call(this, {});
+                props = this.props;
+                props.Type = _('Font');
+                props.Subtype = _('Type0');
+                props.Encoding = _('Identity-H');
+                this._pdf = pdf;
+                this._font = font;
+                this._sub = font.makeSubset();
+                this._resourceName = _('F' + ++RESOURCE_COUNTER);
+                var head = font.head;
+                this.name = font.psName;
+                var scale = this.scale = font.scale;
+                this.bbox = [
+                    head.xMin * scale,
+                    head.yMin * scale,
+                    head.xMax * scale,
+                    head.yMax * scale
+                ];
+                this.italicAngle = font.post.italicAngle;
+                this.ascent = font.ascent * scale;
+                this.descent = font.descent * scale;
+                this.lineGap = font.lineGap * scale;
+                this.capHeight = font.os2.capHeight || this.ascent;
+                this.xHeight = font.os2.xHeight || 0;
+                this.stemV = 0;
+                this.familyClass = (font.os2.familyClass || 0) >> 8;
+                this.isSerif = this.familyClass >= 1 && this.familyClass <= 7;
+                this.isScript = this.familyClass == 10;
+                this.flags = (font.post.isFixedPitch ? 1 : 0) | (this.isSerif ? 1 << 1 : 0) | (this.isScript ? 1 << 3 : 0) | (this.italicAngle !== 0 ? 1 << 6 : 0) | 1 << 5;
+            }
+            extendStatic(PDFFont, PDFDictionary);
+            PDFFont.prototype = Object.create(PDFDictionary && PDFDictionary.prototype);
+            PDFFont.prototype.constructor = PDFFont;
+            PDFFont.fn = PDFFont.prototype;
+            PDFFont.fn.init = PDFFont.fn.constructor;
+            PDFFont.prototype.encodeText = function encodeText(text) {
                 return new PDFHexString(this._sub.encodeText(String(text)));
-            },
-            getTextWidth: function (fontSize, text) {
+            };
+            PDFFont.prototype.getTextWidth = function getTextWidth(fontSize, text) {
                 var this$1 = this;
                 var width = 0, codeMap = this._font.cmap.codeMap;
                 for (var i = 0; i < text.length; ++i) {
@@ -2494,8 +2641,8 @@
                     width += this$1._font.widthOfGlyph(glyphId || 0);
                 }
                 return width * fontSize / 1000;
-            },
-            beforeRender: function () {
+            };
+            PDFFont.prototype.beforeRender = function beforeRender() {
                 var self = this;
                 var sub = self._sub;
                 var data = sub.render();
@@ -2554,17 +2701,25 @@
                 var unimapStream = new PDFStream(makeOutput(), null, true);
                 unimapStream.data(unimap);
                 dict.ToUnicode = self._pdf.attach(unimapStream);
-            },
-            _makeCidToGidMap: function () {
+            };
+            PDFFont.prototype._makeCidToGidMap = function _makeCidToGidMap() {
                 return new PDFStream(BinaryStream(this._sub.cidToGidMap()), null, true);
+            };
+            return PDFFont;
+        }(PDFDictionary);
+        var PDFToUnicodeCmap = function (PDFValue) {
+            function PDFToUnicodeCmap(firstChar, lastChar, map) {
+                PDFValue.call(this);
+                this.firstChar = firstChar;
+                this.lastChar = lastChar;
+                this.map = map;
             }
-        }, PDFDictionary);
-        var PDFToUnicodeCmap = defclass(function PDFUnicodeCMap(firstChar, lastChar, map) {
-            this.firstChar = firstChar;
-            this.lastChar = lastChar;
-            this.map = map;
-        }, {
-            render: function (out) {
+            extendStatic(PDFToUnicodeCmap, PDFValue);
+            PDFToUnicodeCmap.prototype = Object.create(PDFValue && PDFValue.prototype);
+            PDFToUnicodeCmap.prototype.constructor = PDFToUnicodeCmap;
+            PDFToUnicodeCmap.fn = PDFToUnicodeCmap.prototype;
+            PDFToUnicodeCmap.fn.init = PDFToUnicodeCmap.fn.constructor;
+            PDFToUnicodeCmap.prototype.render = function render(out) {
                 out.indent('/CIDInit /ProcSet findresource begin');
                 out.indent('12 dict begin');
                 out.indent('begincmap');
@@ -2596,8 +2751,9 @@
                 out.indent('CMapName currentdict /CMap defineresource pop');
                 out.indent('end');
                 out.indent('end');
-            }
-        });
+            };
+            return PDFToUnicodeCmap;
+        }(PDFValue);
         function makeHash(a) {
             return a.map(function (x) {
                 return isArray(x) ? makeHash(x) : typeof x == 'number' ? (Math.round(x * 1000) / 1000).toFixed(3) : x;
@@ -2850,85 +3006,92 @@
                 opacity: opacity
             };
         }
-        var PDFPage = defclass(function PDFPage(pdf, props) {
-            this._pdf = pdf;
-            this._rcount = 0;
-            this._textMode = false;
-            this._fontResources = {};
-            this._gsResources = {};
-            this._xResources = {};
-            this._patResources = {};
-            this._shResources = {};
-            this._opacity = 1;
-            this._matrix = [
-                1,
-                0,
-                0,
-                1,
-                0,
-                0
-            ];
-            this._annotations = [];
-            this._font = null;
-            this._fontSize = null;
-            this._contextStack = [];
-            props = this.props = props || {};
-            props.Type = _('Page');
-            props.ProcSet = [
-                _('PDF'),
-                _('Text'),
-                _('ImageB'),
-                _('ImageC'),
-                _('ImageI')
-            ];
-            props.Resources = new PDFDictionary({
-                Font: new PDFDictionary(this._fontResources),
-                ExtGState: new PDFDictionary(this._gsResources),
-                XObject: new PDFDictionary(this._xResources),
-                Pattern: new PDFDictionary(this._patResources),
-                Shading: new PDFDictionary(this._shResources)
-            });
-            props.Annots = this._annotations;
-        }, {
-            _out: function () {
+        var PDFPage = function (PDFDictionary) {
+            function PDFPage(pdf, props) {
+                PDFDictionary.call(this, props);
+                this._pdf = pdf;
+                this._rcount = 0;
+                this._textMode = false;
+                this._fontResources = {};
+                this._gsResources = {};
+                this._xResources = {};
+                this._patResources = {};
+                this._shResources = {};
+                this._opacity = 1;
+                this._matrix = [
+                    1,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0
+                ];
+                this._annotations = [];
+                this._font = null;
+                this._fontSize = null;
+                this._contextStack = [];
+                props = this.props;
+                props.Type = _('Page');
+                props.ProcSet = [
+                    _('PDF'),
+                    _('Text'),
+                    _('ImageB'),
+                    _('ImageC'),
+                    _('ImageI')
+                ];
+                props.Resources = new PDFDictionary({
+                    Font: new PDFDictionary(this._fontResources),
+                    ExtGState: new PDFDictionary(this._gsResources),
+                    XObject: new PDFDictionary(this._xResources),
+                    Pattern: new PDFDictionary(this._patResources),
+                    Shading: new PDFDictionary(this._shResources)
+                });
+                props.Annots = this._annotations;
+            }
+            extendStatic(PDFPage, PDFDictionary);
+            PDFPage.prototype = Object.create(PDFDictionary && PDFDictionary.prototype);
+            PDFPage.prototype.constructor = PDFPage;
+            PDFPage.fn = PDFPage.prototype;
+            PDFPage.fn.init = PDFPage.fn.constructor;
+            PDFPage.prototype._out = function _out() {
                 this._content.data.apply(null, arguments);
-            },
-            transform: function (a, b, c, d, e, f) {
+            };
+            PDFPage.prototype.transform = function transform(a, b, c, d, e, f) {
                 if (!isIdentityMatrix(arguments)) {
                     this._matrix = mmul(arguments, this._matrix);
                     this._out(a, ' ', b, ' ', c, ' ', d, ' ', e, ' ', f, ' cm');
                     this._out(NL);
                 }
-            },
-            translate: function (dx, dy) {
+            };
+            PDFPage.prototype.translate = function translate(dx, dy) {
                 this.transform(1, 0, 0, 1, dx, dy);
-            },
-            scale: function (sx, sy) {
+            };
+            PDFPage.prototype.scale = function scale(sx, sy) {
                 this.transform(sx, 0, 0, sy, 0, 0);
-            },
-            rotate: function (angle) {
+            };
+            PDFPage.prototype.rotate = function rotate(angle) {
                 var cos = Math.cos(angle), sin = Math.sin(angle);
                 this.transform(cos, sin, -sin, cos, 0, 0);
-            },
-            beginText: function () {
+            };
+            PDFPage.prototype.beginText = function beginText() {
                 this._textMode = true;
                 this._out('BT', NL);
-            },
-            endText: function () {
+            };
+            PDFPage.prototype.endText = function endText() {
                 this._textMode = false;
                 this._out('ET', NL);
-            },
-            _requireTextMode: function () {
+            };
+            PDFPage.prototype._requireTextMode = function _requireTextMode() {
                 if (!this._textMode) {
                     throw new Error('Text mode required; call page.beginText() first');
                 }
-            },
-            _requireFont: function () {
+            };
+            PDFPage.prototype._requireFont = function _requireFont() {
                 if (!this._font) {
                     throw new Error('No font selected; call page.setFont() first');
                 }
-            },
-            setFont: function (font, size) {
+            };
+            PDFPage.prototype.setFont = function setFont(font, size) {
                 this._requireTextMode();
                 if (font == null) {
                     font = this._font;
@@ -2942,16 +3105,16 @@
                 this._font = font;
                 this._fontSize = size;
                 this._out(font._resourceName, ' ', size, ' Tf', NL);
-            },
-            setTextLeading: function (size) {
+            };
+            PDFPage.prototype.setTextLeading = function setTextLeading(size) {
                 this._requireTextMode();
                 this._out(size, ' TL', NL);
-            },
-            setTextRenderingMode: function (mode) {
+            };
+            PDFPage.prototype.setTextRenderingMode = function setTextRenderingMode(mode) {
                 this._requireTextMode();
                 this._out(mode, ' Tr', NL);
-            },
-            showText: function (text, requestedWidth) {
+            };
+            PDFPage.prototype.showText = function showText(text, requestedWidth) {
                 this._requireFont();
                 if (text.length > 1 && requestedWidth && this._font instanceof PDFFont) {
                     var outputWidth = this._font.getTextWidth(this._fontSize, text);
@@ -2959,12 +3122,12 @@
                     this._out(scale, ' Tz ');
                 }
                 this._out(this._font.encodeText(text), ' Tj', NL);
-            },
-            showTextNL: function (text) {
+            };
+            PDFPage.prototype.showTextNL = function showTextNL(text) {
                 this._requireFont();
                 this._out(this._font.encodeText(text), ' \'', NL);
-            },
-            addLink: function (uri, box) {
+            };
+            PDFPage.prototype.addLink = function addLink(uri, box) {
                 var ll = this._toPage({
                     x: box.left,
                     y: box.bottom
@@ -2993,33 +3156,33 @@
                         URI: new PDFString(uri)
                     })
                 }));
-            },
-            setStrokeColor: function (r, g, b) {
+            };
+            PDFPage.prototype.setStrokeColor = function setStrokeColor(r, g, b) {
                 this._out(r, ' ', g, ' ', b, ' RG', NL);
-            },
-            setOpacity: function (opacity) {
+            };
+            PDFPage.prototype.setOpacity = function setOpacity(opacity) {
                 this.setFillOpacity(opacity);
                 this.setStrokeOpacity(opacity);
                 this._opacity *= opacity;
-            },
-            setStrokeOpacity: function (opacity) {
+            };
+            PDFPage.prototype.setStrokeOpacity = function setStrokeOpacity(opacity) {
                 if (opacity < 1) {
                     var gs = this._pdf.getOpacityGS(this._opacity * opacity, true);
                     this._gsResources[gs._resourceName] = gs;
                     this._out(gs._resourceName, ' gs', NL);
                 }
-            },
-            setFillColor: function (r, g, b) {
+            };
+            PDFPage.prototype.setFillColor = function setFillColor(r, g, b) {
                 this._out(r, ' ', g, ' ', b, ' rg', NL);
-            },
-            setFillOpacity: function (opacity) {
+            };
+            PDFPage.prototype.setFillOpacity = function setFillOpacity(opacity) {
                 if (opacity < 1) {
                     var gs = this._pdf.getOpacityGS(this._opacity * opacity, false);
                     this._gsResources[gs._resourceName] = gs;
                     this._out(gs._resourceName, ' gs', NL);
                 }
-            },
-            gradient: function (gradient, box) {
+            };
+            PDFPage.prototype.gradient = function gradient(gradient, box) {
                 this.save();
                 this.rect(box.left, box.top, box.width, box.height);
                 this.clip();
@@ -3036,52 +3199,52 @@
                 }
                 this._out('/' + sname + ' sh', NL);
                 this.restore();
-            },
-            setDashPattern: function (dashArray, dashPhase) {
+            };
+            PDFPage.prototype.setDashPattern = function setDashPattern(dashArray, dashPhase) {
                 this._out(dashArray, ' ', dashPhase, ' d', NL);
-            },
-            setLineWidth: function (width) {
+            };
+            PDFPage.prototype.setLineWidth = function setLineWidth(width) {
                 this._out(width, ' w', NL);
-            },
-            setLineCap: function (lineCap) {
+            };
+            PDFPage.prototype.setLineCap = function setLineCap(lineCap) {
                 this._out(lineCap, ' J', NL);
-            },
-            setLineJoin: function (lineJoin) {
+            };
+            PDFPage.prototype.setLineJoin = function setLineJoin(lineJoin) {
                 this._out(lineJoin, ' j', NL);
-            },
-            setMitterLimit: function (mitterLimit) {
+            };
+            PDFPage.prototype.setMitterLimit = function setMitterLimit(mitterLimit) {
                 this._out(mitterLimit, ' M', NL);
-            },
-            save: function () {
+            };
+            PDFPage.prototype.save = function save() {
                 this._contextStack.push(this._context());
                 this._out('q', NL);
-            },
-            restore: function () {
+            };
+            PDFPage.prototype.restore = function restore() {
                 this._out('Q', NL);
                 this._context(this._contextStack.pop());
-            },
-            moveTo: function (x, y) {
+            };
+            PDFPage.prototype.moveTo = function moveTo(x, y) {
                 this._out(x, ' ', y, ' m', NL);
-            },
-            lineTo: function (x, y) {
+            };
+            PDFPage.prototype.lineTo = function lineTo(x, y) {
                 this._out(x, ' ', y, ' l', NL);
-            },
-            bezier: function (x1, y1, x2, y2, x3, y3) {
+            };
+            PDFPage.prototype.bezier = function bezier(x1, y1, x2, y2, x3, y3) {
                 this._out(x1, ' ', y1, ' ', x2, ' ', y2, ' ', x3, ' ', y3, ' c', NL);
-            },
-            bezier1: function (x1, y1, x3, y3) {
+            };
+            PDFPage.prototype.bezier1 = function bezier1(x1, y1, x3, y3) {
                 this._out(x1, ' ', y1, ' ', x3, ' ', y3, ' y', NL);
-            },
-            bezier2: function (x2, y2, x3, y3) {
+            };
+            PDFPage.prototype.bezier2 = function bezier2(x2, y2, x3, y3) {
                 this._out(x2, ' ', y2, ' ', x3, ' ', y3, ' v', NL);
-            },
-            close: function () {
+            };
+            PDFPage.prototype.close = function close() {
                 this._out('h', NL);
-            },
-            rect: function (x, y, w, h) {
+            };
+            PDFPage.prototype.rect = function rect(x, y, w, h) {
                 this._out(x, ' ', y, ' ', w, ' ', h, ' re', NL);
-            },
-            ellipse: function (x, y, rx, ry) {
+            };
+            PDFPage.prototype.ellipse = function ellipse(x, y, rx, ry) {
                 function _X(v) {
                     return x + v;
                 }
@@ -3094,45 +3257,45 @@
                 this.bezier(_X(rx), _Y(-ry * k), _X(rx * k), _Y(-ry), _X(0), _Y(-ry));
                 this.bezier(_X(-rx * k), _Y(-ry), _X(-rx), _Y(-ry * k), _X(-rx), _Y(0));
                 this.bezier(_X(-rx), _Y(ry * k), _X(-rx * k), _Y(ry), _X(0), _Y(ry));
-            },
-            circle: function (x, y, r) {
+            };
+            PDFPage.prototype.circle = function circle(x, y, r) {
                 this.ellipse(x, y, r, r);
-            },
-            stroke: function () {
+            };
+            PDFPage.prototype.stroke = function stroke() {
                 this._out('S', NL);
-            },
-            nop: function () {
+            };
+            PDFPage.prototype.nop = function nop() {
                 this._out('n', NL);
-            },
-            clip: function () {
+            };
+            PDFPage.prototype.clip = function clip() {
                 this._out('W n', NL);
-            },
-            clipStroke: function () {
+            };
+            PDFPage.prototype.clipStroke = function clipStroke() {
                 this._out('W S', NL);
-            },
-            closeStroke: function () {
+            };
+            PDFPage.prototype.closeStroke = function closeStroke() {
                 this._out('s', NL);
-            },
-            fill: function () {
+            };
+            PDFPage.prototype.fill = function fill() {
                 this._out('f', NL);
-            },
-            fillStroke: function () {
+            };
+            PDFPage.prototype.fillStroke = function fillStroke() {
                 this._out('B', NL);
-            },
-            drawImage: function (url) {
+            };
+            PDFPage.prototype.drawImage = function drawImage(url) {
                 var img = this._pdf.getImage(url);
                 if (img) {
                     this._xResources[img._resourceName] = img;
                     this._out(img._resourceName, ' Do', NL);
                 }
-            },
-            comment: function (txt) {
+            };
+            PDFPage.prototype.comment = function comment(txt) {
                 var self = this;
                 txt.split(/\r?\n/g).forEach(function (line) {
                     self._out('% ', line, NL);
                 });
-            },
-            _context: function (val) {
+            };
+            PDFPage.prototype._context = function _context(val) {
                 if (val != null) {
                     this._opacity = val.opacity;
                     this._matrix = val.matrix;
@@ -3142,16 +3305,17 @@
                         matrix: this._matrix
                     };
                 }
-            },
-            _toPage: function (p) {
+            };
+            PDFPage.prototype._toPage = function _toPage(p) {
                 var m = this._matrix;
                 var a = m[0], b = m[1], c = m[2], d = m[3], e = m[4], f = m[5];
                 return {
                     x: a * p.x + c * p.y + e,
                     y: b * p.x + d * p.y + f
                 };
-            }
-        }, PDFDictionary);
+            };
+            return PDFPage;
+        }(PDFDictionary);
         function unquote(str) {
             return str.replace(/^\s*(['"])(.*)\1\s*$/, '$2');
         }
@@ -3365,7 +3529,7 @@
             round: 1,
             bevel: 2
         };
-        function render(group, callback) {
+        function render$1(group, callback) {
             var fonts = [], images = {}, options = group.options;
             function getOption(name, defval, hash) {
                 if (!hash) {
@@ -3471,12 +3635,12 @@
             });
         }
         function toDataURL(group, callback) {
-            render(group, function (data) {
+            render$1(group, function (data) {
                 callback('data:application/pdf;base64,' + data.base64());
             });
         }
         function toBlob(group, callback) {
-            render(group, function (data) {
+            render$1(group, function (data) {
                 callback(new window.Blob([data.get()], { type: 'application/pdf' }));
             });
         }
@@ -3534,7 +3698,7 @@
                 Circle: drawCircle,
                 Arc: drawArc,
                 Text: drawText,
-                Image: drawImage,
+                Image: drawImage$1,
                 Group: drawGroup,
                 Rect: drawRect
             }, element, page, pdf);
@@ -3793,7 +3957,7 @@
                 drawElement(children[i], page, pdf);
             }
         }
-        function drawImage(element, page) {
+        function drawImage$1(element, page) {
             var url = element.src();
             if (!url) {
                 return;
@@ -3989,7 +4153,7 @@
             saveAs: saveAs$1,
             toDataURL: toDataURL,
             toBlob: toBlob,
-            render: render
+            render: render$1
         });
         kendo.drawing.exportPDF = kendo.pdf.exportPDF;
         kendo.drawing.pdf = kendo.pdf;

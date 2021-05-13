@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -118,7 +118,7 @@
                 if (options === void 0) {
                     options = {};
                 }
-                if (!text) {
+                if (typeof text === 'undefined' || text === null) {
                     return zeroSize();
                 }
                 var styleKey = objectKey(style);
@@ -2589,6 +2589,13 @@
                     max: this.labelsCount()
                 };
             },
+            normalizeLabelRotation: function (labelOptions) {
+                var rotation = labelOptions.rotation;
+                if (isObject(rotation)) {
+                    labelOptions.alignRotation = rotation.align;
+                    labelOptions.rotation = rotation.angle;
+                }
+            },
             createLabels: function () {
                 var this$1 = this;
                 var options = this.options;
@@ -2600,18 +2607,18 @@
                 var step = Math.max(1, labelOptions.step);
                 this.clearLabels();
                 if (labelOptions.visible) {
-                    var range = this.labelsRange();
-                    var rotation = labelOptions.rotation;
-                    if (isObject(rotation)) {
-                        labelOptions.alignRotation = rotation.align;
-                        labelOptions.rotation = rotation.angle;
-                    }
+                    this.normalizeLabelRotation(labelOptions);
                     if (labelOptions.rotation === 'auto') {
                         labelOptions.rotation = 0;
                         options.autoRotateLabels = true;
                     }
+                    var range = this.labelsRange();
                     for (var idx = range.min; idx < range.max; idx += step) {
-                        var label = this$1.createAxisLabel(idx, labelOptions);
+                        var labelContext = {
+                            index: idx,
+                            count: range.max
+                        };
+                        var label = this$1.createAxisLabel(idx, labelOptions, labelContext);
                         if (label) {
                             this$1.append(label);
                             this$1.labels.push(label);
@@ -2948,76 +2955,99 @@
                 var labels = ref.labels;
                 var labelsBetweenTicks = this.labelsBetweenTicks();
                 var vertical = options.vertical;
-                var lineBox = this.lineBox();
                 var mirror = options.labels.mirror;
                 var tickPositions = this.getLabelsTickPositions();
-                var labelOffset = this.getActualTickSize() + options.margin;
                 for (var idx = 0; idx < labels.length; idx++) {
                     var label = labels[idx];
                     var tickIx = this$1.labelTickIndex(label);
                     var labelSize = vertical ? label.box.height() : label.box.width();
-                    var labelPos = tickPositions[tickIx] - labelSize / 2;
-                    var labelBox = void 0, firstTickPosition = void 0, nextTickPosition = void 0;
+                    var firstTickPosition = tickPositions[tickIx];
+                    var nextTickPosition = tickPositions[tickIx + 1];
+                    var positionStart = void 0, positionEnd = void 0;
                     if (vertical) {
                         if (labelsBetweenTicks) {
-                            firstTickPosition = tickPositions[tickIx];
-                            nextTickPosition = tickPositions[tickIx + 1];
                             var middle = firstTickPosition + (nextTickPosition - firstTickPosition) / 2;
-                            labelPos = middle - labelSize / 2;
-                        }
-                        var labelX = lineBox.x2;
-                        if (mirror) {
-                            labelX += labelOffset;
-                            label.options.rotationOrigin = LEFT;
+                            positionStart = middle - labelSize / 2;
                         } else {
-                            labelX -= labelOffset + label.box.width();
-                            label.options.rotationOrigin = RIGHT;
+                            positionStart = firstTickPosition - labelSize / 2;
                         }
-                        labelBox = label.box.move(labelX, labelPos);
+                        positionEnd = positionStart;
                     } else {
                         if (labelsBetweenTicks) {
-                            firstTickPosition = tickPositions[tickIx];
-                            nextTickPosition = tickPositions[tickIx + 1];
+                            positionStart = firstTickPosition;
+                            positionEnd = nextTickPosition;
                         } else {
-                            firstTickPosition = labelPos;
-                            nextTickPosition = labelPos + labelSize;
+                            positionStart = firstTickPosition - labelSize / 2;
+                            positionEnd = positionStart + labelSize;
                         }
-                        var labelY = lineBox.y1;
-                        if (mirror) {
-                            labelY -= labelOffset + label.box.height();
-                            label.options.rotationOrigin = BOTTOM;
-                        } else {
-                            labelY += labelOffset;
-                            label.options.rotationOrigin = TOP;
-                        }
-                        labelBox = new Box(firstTickPosition, labelY, nextTickPosition, labelY + label.box.height());
                     }
-                    label.reflow(labelBox);
+                    this$1.positionLabel(label, mirror, positionStart, positionEnd);
                 }
             },
+            positionLabel: function (label, mirror, positionStart, positionEnd) {
+                if (positionEnd === void 0) {
+                    positionEnd = positionStart;
+                }
+                var options = this.options;
+                var vertical = options.vertical;
+                var lineBox = this.lineBox();
+                var labelOffset = this.getActualTickSize() + options.margin;
+                var labelBox;
+                if (vertical) {
+                    var labelX = lineBox.x2;
+                    if (mirror) {
+                        labelX += labelOffset;
+                        label.options.rotationOrigin = LEFT;
+                    } else {
+                        labelX -= labelOffset + label.box.width();
+                        label.options.rotationOrigin = RIGHT;
+                    }
+                    labelBox = label.box.move(labelX, positionStart);
+                } else {
+                    var labelY = lineBox.y1;
+                    if (mirror) {
+                        labelY -= labelOffset + label.box.height();
+                        label.options.rotationOrigin = BOTTOM;
+                    } else {
+                        labelY += labelOffset;
+                        label.options.rotationOrigin = TOP;
+                    }
+                    labelBox = new Box(positionStart, labelY, positionEnd, labelY + label.box.height());
+                }
+                label.reflow(labelBox);
+            },
+            autoRotateLabelAngle: function (labelBox, slotWidth) {
+                if (labelBox.width() < slotWidth) {
+                    return 0;
+                }
+                if (labelBox.height() > slotWidth) {
+                    return -90;
+                }
+                return -45;
+            },
             autoRotateLabels: function () {
-                if (this.options.autoRotateLabels && !this.options.vertical) {
-                    var tickPositions = this.getMajorTickPositions();
-                    var labels = this.labels;
-                    var angle;
-                    for (var idx = 0; idx < labels.length; idx++) {
-                        var width = Math.abs(tickPositions[idx + 1] - tickPositions[idx]);
-                        var labelBox = labels[idx].box;
-                        if (labelBox.width() > width) {
-                            if (labelBox.height() > width) {
-                                angle = -90;
-                                break;
-                            }
-                            angle = -45;
-                        }
+                var this$1 = this;
+                if (!this.options.autoRotateLabels || this.options.vertical) {
+                    return false;
+                }
+                var tickPositions = this.getMajorTickPositions();
+                var labels = this.labels;
+                var limit = Math.min(labels.length, tickPositions.length - 1);
+                var angle = 0;
+                for (var idx = 0; idx < limit; idx++) {
+                    var width = Math.abs(tickPositions[idx + 1] - tickPositions[idx]);
+                    var labelBox = labels[idx].box;
+                    angle = this$1.autoRotateLabelAngle(labelBox, width);
+                    if (angle === -90) {
+                        break;
                     }
-                    if (angle) {
-                        for (var idx$1 = 0; idx$1 < labels.length; idx$1++) {
-                            labels[idx$1].options.rotation = angle;
-                            labels[idx$1].reflow(new Box());
-                        }
-                        return true;
+                }
+                if (angle !== 0) {
+                    for (var idx$1 = 0; idx$1 < labels.length; idx$1++) {
+                        labels[idx$1].options.rotation = angle;
+                        labels[idx$1].reflow(new Box());
                     }
+                    return true;
                 }
             },
             arrangeTitle: function () {
@@ -3072,18 +3102,28 @@
                 this.box[pos + 1] -= this.lineBox()[pos + 1] - lineBox[pos + 1];
                 this.box[pos + 2] -= this.lineBox()[pos + 2] - lineBox[pos + 2];
             },
-            axisLabelText: function (value, dataItem, options) {
+            axisLabelText: function (value, options, context) {
+                var this$1 = this;
+                var text;
                 var tmpl = getTemplate(options);
-                var text = value;
+                var defaultText = function () {
+                    if (!options.format) {
+                        return value;
+                    }
+                    return this$1.chartService.format.localeAuto(options.format, [value], options.culture);
+                };
                 if (tmpl) {
-                    text = tmpl({
+                    var templateContext = $.extend({}, context, {
+                        get text() {
+                            return defaultText();
+                        },
                         value: value,
-                        dataItem: dataItem,
                         format: options.format,
                         culture: options.culture
                     });
-                } else if (options.format) {
-                    text = this.chartService.format.localeAuto(options.format, [value], options.culture);
+                    text = tmpl(templateContext);
+                } else {
+                    text = defaultText();
                 }
                 return text;
             },
@@ -3582,7 +3622,7 @@
                 var ref = this;
                 var box = ref.box;
                 var labels = ref.labels;
-                if (labels.length) {
+                if (labels.length > 0) {
                     var valueAxis = this.options.vertical ? Y : X;
                     var start = box[valueAxis + 1];
                     var end = box[valueAxis + 2];
@@ -3831,11 +3871,12 @@
                     max: (options.categories.length ? max + (justified ? 1 : 0) : 0) - start
                 };
             },
-            createAxisLabel: function (index, labelOptions) {
+            createAxisLabel: function (index, labelOptions, labelContext) {
                 var options = this.options;
                 var dataItem = options.dataItems ? options.dataItems[index] : null;
                 var category = valueOrDefault(options.categories[index], '');
-                var text = this.axisLabelText(category, dataItem, labelOptions);
+                labelContext.dataItem = dataItem;
+                var text = this.axisLabelText(category, labelOptions, labelContext);
                 return new AxisLabel(category, text, index, dataItem, labelOptions);
             },
             shouldRenderNote: function (value) {
@@ -4039,7 +4080,8 @@
                     this.valueEnd = lowerEnd;
                     this.displayEnd = roundToBaseUnit || expandEnd ? this.end : end;
                 } else {
-                    this.valueEnd = this.roundToTotalStep(max, false, !justified && dateEquals(max, this.roundToTotalStep(max)) ? -1 : 0);
+                    var next = !justified && dateEquals(max, this.roundToTotalStep(max)) ? -1 : 0;
+                    this.valueEnd = this.roundToTotalStep(max, false, next);
                     this.displayEnd = roundToBaseUnit ? this.roundToTotalStep(max, !justified) : options.max;
                 }
                 if (this.valueEnd < this.valueStart) {
@@ -4271,6 +4313,7 @@
                     options.baseUnit = options.baseUnit || DAYS;
                     this.dataRange = this.divisionRange = new EmptyDateRange(options);
                 }
+                this.rangeLabels = [];
             },
             tickIndices: function (stepSize) {
                 var ref = this;
@@ -4470,16 +4513,162 @@
             range: function () {
                 return this.dataRange.displayRange();
             },
-            createAxisLabel: function (index, labelOptions) {
+            createLabels: function () {
+                CategoryAxis.fn.createLabels.call(this);
+                this.createRangeLabels();
+            },
+            clearLabels: function () {
+                CategoryAxis.fn.clearLabels.call(this);
+                this.rangeLabels = [];
+            },
+            arrangeLabels: function () {
+                this.arrangeRangeLabels();
+                CategoryAxis.fn.arrangeLabels.call(this);
+            },
+            arrangeRangeLabels: function () {
+                var ref = this;
+                var options = ref.options;
+                var rangeLabels = ref.rangeLabels;
+                if (rangeLabels.length === 0) {
+                    return;
+                }
+                var lineBox = this.lineBox();
+                var vertical = options.vertical;
+                var mirror = options.rangeLabels.mirror || options.labels.mirror;
+                var firstLabel = rangeLabels[0];
+                if (firstLabel) {
+                    var position = vertical ? lineBox.y1 - firstLabel.box.height() / 2 : lineBox.x1;
+                    this.positionLabel(firstLabel, mirror, position);
+                }
+                var lastLabel = rangeLabels[1];
+                if (lastLabel) {
+                    var position$1 = vertical ? lineBox.y2 - lastLabel.box.height() / 2 : lineBox.x2;
+                    this.positionLabel(lastLabel, mirror, position$1);
+                }
+            },
+            autoRotateLabels: function () {
+                CategoryAxis.fn.autoRotateLabels.call(this);
+                this.autoRotateRangeLabels();
+            },
+            hideOutOfRangeLabels: function () {
+                CategoryAxis.fn.hideOutOfRangeLabels.call(this);
+                this.hideOverlappingLabels();
+            },
+            hideOverlappingLabels: function () {
+                var ref = this;
+                var rangeLabels = ref.rangeLabels;
+                var labels = ref.labels;
+                if (rangeLabels.length === 0) {
+                    return;
+                }
+                function clip(rangeLabel, label) {
+                    if (!label.options.visible || label.box.overlaps(rangeLabel.box)) {
+                        label.options.visible = false;
+                        return true;
+                    }
+                    return false;
+                }
+                var firstRangeLabel = rangeLabels[0];
+                if (firstRangeLabel && firstRangeLabel.options.visible) {
+                    for (var i = 0; i < labels.length; i++) {
+                        var overlaps = clip(firstRangeLabel, labels[i]);
+                        if (!overlaps) {
+                            break;
+                        }
+                    }
+                }
+                var lastRangeLabel = rangeLabels[1];
+                if (lastRangeLabel && lastRangeLabel.options.visible) {
+                    for (var i$1 = labels.length - 1; i$1 > 0; --i$1) {
+                        var overlaps$1 = clip(lastRangeLabel, labels[i$1]);
+                        if (!overlaps$1) {
+                            break;
+                        }
+                    }
+                }
+            },
+            contentBox: function () {
+                var box = CategoryAxis.fn.contentBox.call(this);
+                var rangeLabels = this.rangeLabels;
+                for (var i = 0; i < rangeLabels.length; i++) {
+                    var label = rangeLabels[i];
+                    if (label.options.visible) {
+                        box.wrap(label.box);
+                    }
+                }
+                return box;
+            },
+            createAxisLabel: function (index, labelOptions, labelContext) {
+                if (labelContext === void 0) {
+                    labelContext = {};
+                }
                 var options = this.options;
                 var dataItem = options.dataItems && !options.maxDivisions ? options.dataItems[index] : null;
                 var date = this.divisionRange.dateAt(index);
                 var unitFormat = labelOptions.dateFormats[this.divisionRange.options.baseUnit];
                 labelOptions.format = labelOptions.format || unitFormat;
-                var text = this.axisLabelText(date, dataItem, labelOptions);
+                labelContext.dataItem = dataItem;
+                var text = this.axisLabelText(date, labelOptions, labelContext);
                 if (text) {
                     return new AxisLabel(date, text, index, dataItem, labelOptions);
                 }
+            },
+            createRangeLabels: function () {
+                var this$1 = this;
+                var ref = this.divisionRange;
+                var displayStart = ref.displayStart;
+                var displayEnd = ref.displayEnd;
+                var options = this.options;
+                var labelOptions = $.extend({}, options.labels, options.rangeLabels, {
+                    align: CENTER,
+                    zIndex: options.zIndex
+                });
+                if (labelOptions.visible !== true) {
+                    return;
+                }
+                this.normalizeLabelRotation(labelOptions);
+                labelOptions.alignRotation = CENTER;
+                if (labelOptions.rotation === 'auto') {
+                    labelOptions.rotation = 0;
+                    options.autoRotateRangeLabels = true;
+                }
+                var unitFormat = labelOptions.dateFormats[this.divisionRange.options.baseUnit];
+                labelOptions.format = labelOptions.format || unitFormat;
+                var createLabel = function (index, date, text) {
+                    if (text) {
+                        var label = new AxisLabel(date, text, index, null, labelOptions);
+                        this$1.append(label);
+                        this$1.rangeLabels.push(label);
+                    }
+                };
+                var startText = this.axisLabelText(displayStart, labelOptions, {
+                    index: 0,
+                    count: 2
+                });
+                createLabel(0, displayStart, startText);
+                var endText = this.axisLabelText(displayEnd, labelOptions, {
+                    index: 1,
+                    count: 2
+                });
+                createLabel(1, displayEnd, endText);
+            },
+            autoRotateRangeLabels: function () {
+                var this$1 = this;
+                var labels = this.rangeLabels;
+                if (!this.options.autoRotateRangeLabels || this.options.vertical || labels.length !== 2) {
+                    return;
+                }
+                var rotateLabel = function (label, tickPositions, index) {
+                    var width = Math.abs(tickPositions[index + 1] - tickPositions[index]) * 2;
+                    var angle = this$1.autoRotateLabelAngle(label.box, width);
+                    if (angle !== 0) {
+                        label.options.rotation = angle;
+                        label.reflow(new Box());
+                    }
+                };
+                var tickPositions = this.getMajorTickPositions();
+                rotateLabel(labels[0], tickPositions, 0);
+                rotateLabel(labels[1], tickPositions, tickPositions.length - 2);
             },
             categoryIndex: function (value) {
                 return this.dataRange.valueIndex(value);
@@ -4579,6 +4768,7 @@
         setDefaultOptions(DateCategoryAxis, {
             type: DATE,
             labels: { dateFormats: DateLabelFormats },
+            rangeLabels: { visible: false },
             autoBaseUnitSteps: {
                 milliseconds: [
                     1,
@@ -4836,10 +5026,10 @@
             labelsCount: function () {
                 return this.getDivisions(this.options.majorUnit);
             },
-            createAxisLabel: function (index, labelOptions) {
+            createAxisLabel: function (index, labelOptions, labelContext) {
                 var options = this.options;
                 var value = round(options.min + index * options.majorUnit, DEFAULT_PRECISION);
-                var text = this.axisLabelText(value, null, labelOptions);
+                var text = this.axisLabelText(value, labelOptions, labelContext);
                 return new AxisLabel(value, text, index, null, labelOptions);
             },
             shouldRenderNote: function (value) {
@@ -5041,7 +5231,7 @@
             labelsCount: function () {
                 return this.getDivisions(this.options.majorUnit);
             },
-            createAxisLabel: function (index, labelOptions) {
+            createAxisLabel: function (index, labelOptions, labelContext) {
                 var options = this.options;
                 var offset = index * options.majorUnit;
                 var weekStartDay = options.weekStartDay || 0;
@@ -5051,7 +5241,7 @@
                 }
                 var unitFormat = labelOptions.dateFormats[options.baseUnit];
                 labelOptions.format = labelOptions.format || unitFormat;
-                var text = this.axisLabelText(date, null, labelOptions);
+                var text = this.axisLabelText(date, labelOptions, labelContext);
                 return new AxisLabel(date, text, index, null, labelOptions);
             },
             translateRange: function (delta, exact) {
@@ -5416,10 +5606,10 @@
                     }
                 }
             },
-            createAxisLabel: function (index, labelOptions) {
+            createAxisLabel: function (index, labelOptions, labelContext) {
                 var power = Math.ceil(this.logMin + index);
                 var value = Math.pow(this.options.majorUnit, power);
-                var text = this.axisLabelText(value, null, labelOptions);
+                var text = this.axisLabelText(value, labelOptions, labelContext);
                 return new AxisLabel(value, text, index, null, labelOptions);
             },
             shouldRenderNote: function (value) {

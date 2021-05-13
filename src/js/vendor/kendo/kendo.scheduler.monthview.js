@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -276,6 +276,7 @@
                 var configuration = [];
                 var data = resource.dataSource.view();
                 for (var dataIndex = 0; dataIndex < data.length * NUMBER_OF_ROWS; dataIndex++) {
+                    var value = kendo.getter(resource.dataValueField)(data[dataIndex % data.length]);
                     var obj = {
                         text: groupHeaderTemplate({
                             text: kendo.htmlEncode(kendo.getter(resource.dataTextField)(data[dataIndex % data.length])),
@@ -283,11 +284,12 @@
                             field: resource.field,
                             title: resource.title,
                             name: resource.name,
-                            value: kendo.getter(resource.dataValueField)(data[dataIndex % data.length])
+                            value: value
                         }),
-                        className: 'k-slot-cell'
+                        className: 'k-slot-cell',
+                        value: value
                     };
-                    obj.columns = view._createColumnsLayout(resources.slice(1), null, groupHeaderTemplate);
+                    obj.columns = view._createColumnsLayout(resources.slice(1), null, groupHeaderTemplate, null, null, value);
                     configuration.push(obj);
                 }
                 return configuration;
@@ -1237,10 +1239,14 @@
                     }
                 }
             },
-            _renderGroups: function (events, resources, offset, columnLevel) {
+            _renderGroups: function (events, resources, offset, columnLevel, parentValue) {
                 var resource = resources[0];
                 if (resource) {
                     var view = resource.dataSource.view();
+                    view = view.filter(function (item) {
+                        var itemParentValue = kendo.getter(resource.dataParentValueField)(item);
+                        return itemParentValue === null || itemParentValue === undefined || itemParentValue === parentValue;
+                    });
                     for (var itemIdx = 0; itemIdx < view.length; itemIdx++) {
                         var value = this._resourceValue(resource, view[itemIdx]);
                         var tmp = new kendo.data.Query(events).filter({
@@ -1248,7 +1254,7 @@
                             operator: SchedulerView.groupEqFilter(value)
                         }).toArray();
                         if (resources.length > 1) {
-                            offset = this._renderGroups(tmp, resources.slice(1), offset++, columnLevel + 1);
+                            offset = this._renderGroups(tmp, resources.slice(1), offset++, columnLevel + 1, value);
                         } else {
                             this._renderEvents(tmp, offset++);
                         }

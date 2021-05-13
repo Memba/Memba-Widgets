@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -454,10 +454,12 @@
                     var initialCssWidth = that.element[0].style.width;
                     initialCssWidth = initialCssWidth === 'auto' ? '' : initialCssWidth;
                     if (isHorizontal) {
-                        $(window).on(RESIZE, kendo.throttle(function () {
-                            that._setOverflowWrapperWidth(initialWidth, initialCssWidth);
-                            that._toggleScrollButtons(that.element, backwardBtn, forwardBtn, isHorizontal);
-                        }, 100));
+                        $(window).on(RESIZE, function () {
+                            setTimeout(function () {
+                                that._setOverflowWrapperWidth(initialWidth, initialCssWidth);
+                                that._toggleScrollButtons(that.element, backwardBtn, forwardBtn, isHorizontal);
+                            }, 300);
+                        });
                     }
                     that._setOverflowWrapperWidth(initialWidth, initialCssWidth);
                     that._toggleScrollButtons(that.element, backwardBtn, forwardBtn, isHorizontal);

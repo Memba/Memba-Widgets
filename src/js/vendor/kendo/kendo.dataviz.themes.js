@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -118,7 +118,7 @@
                 if (options === void 0) {
                     options = {};
                 }
-                if (!text) {
+                if (typeof text === 'undefined' || text === null) {
                     return zeroSize();
                 }
                 var styleKey = objectKey(style);
@@ -485,7 +485,7 @@
                 return cache;
             }
             var theme = { chart: kendo.dataviz.chartBaseTheme() };
-            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-var--chart-area-inactive-opacity"></div>' + '  <div class="k-var--chart-line-inactive-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series-unset"></div>' + '  <div class="k-var--series">' + seriesTemplate() + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
+            var hook = $('<div style="display: none">' + '  <div class="k-var--accent"></div>' + '  <div class="k-var--accent-contrast"></div>' + '  <div class="k-var--base"></div>' + '  <div class="k-var--background"></div>' + '  <div class="k-var--normal-background"></div>' + '  <div class="k-var--normal-text-color"></div>' + '  <div class="k-var--hover-background"></div>' + '  <div class="k-var--hover-text-color"></div>' + '  <div class="k-var--selected-background"></div>' + '  <div class="k-var--selected-text-color"></div>' + '  <div class="k-var--chart-error-bars-background"></div>' + '  <div class="k-var--chart-notes-background"></div>' + '  <div class="k-var--chart-notes-border"></div>' + '  <div class="k-var--chart-notes-lines"></div>' + '  <div class="k-var--chart-crosshair-background"></div>' + '  <div class="k-var--chart-inactive"></div>' + '  <div class="k-var--chart-major-lines"></div>' + '  <div class="k-var--chart-minor-lines"></div>' + '  <div class="k-var--chart-area-opacity"></div>' + '  <div class="k-var--chart-area-inactive-opacity"></div>' + '  <div class="k-var--chart-line-inactive-opacity"></div>' + '  <div class="k-widget k-chart">' + '      <div class="k-var--chart-font"></div>' + '      <div class="k-var--chart-title-font"></div>' + '      <div class="k-var--chart-pane-title-font"></div>' + '      <div class="k-var--chart-label-font"></div>' + '  </div>' + '  <div class="k-var--series-unset"></div>' + '  <div class="k-var--series">' + seriesTemplate() + '  </div>' + '  <div class="k-var--gauge-pointer"></div>' + '  <div class="k-var--gauge-track"></div>' + '</div>').appendTo(document.body);
             function mapColor(key, varName) {
                 set(key, queryStyle(varName, 'backgroundColor'));
             }
@@ -586,10 +586,11 @@
             }());
             (function setFonts() {
                 function font(varName) {
-                    return queryStyle(varName, 'fontSize') + ' ' + queryStyle(varName, 'fontFamily');
+                    return queryStyle(varName, 'fontWeight') + ' ' + queryStyle(varName, 'fontSize') + ' ' + queryStyle(varName, 'fontFamily');
                 }
                 var defaultFont = font('chart-font');
                 var titleFont = font('chart-title-font');
+                var paneTitleFont = font('chart-pane-title-font');
                 var labelFont = font('chart-label-font');
                 set('chart.axisDefaults.labels.font', labelFont);
                 set('chart.axisDefaults.notes.label.font', defaultFont);
@@ -598,6 +599,7 @@
                 set('chart.seriesDefaults.labels.font', labelFont);
                 set('chart.seriesDefaults.notes.label.font', defaultFont);
                 set('chart.title.font', titleFont);
+                set('chart.paneDefaults.title.font', paneTitleFont);
             }());
             (function setSeriesColors() {
                 function letterPos(letter) {

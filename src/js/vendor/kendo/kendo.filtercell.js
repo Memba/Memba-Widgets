@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.1.330 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -145,7 +145,7 @@
                     value: null,
                     operatorVisible: function () {
                         var val = this.get('value');
-                        return val !== null && val !== undefined && val != 'undefined' || isNonValueFilter(this.get('operator')) && !that._clearInProgress;
+                        return val !== null && val !== undefined && val != 'undefined' || isNonValueFilter(this.get('operator')) && that.dataSource.filter() && !that._clearInProgress;
                     }
                 });
                 that._prevOperator = options.operator;
@@ -279,6 +279,9 @@
                     viewModel.set('operator', filter.operator);
                 }
                 viewModel.set('value', filter.value);
+                if ($.isEmptyObject(filter)) {
+                    viewModel.trigger(CHANGE, { field: 'operatorVisible' });
+                }
                 that.manuallyUpdatingVM = false;
             },
             _applyFilter: function (filter) {

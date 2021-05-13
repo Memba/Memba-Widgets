@@ -1,3 +1,5 @@
+/* globals SystemJS */
+
 const count = window.location.pathname.match(/\//g).length;
 const baseURL = new Array(count - 2).fill('../').join('');
 
@@ -166,7 +168,8 @@ SystemJS.config({
             'src/js/vendor/kendo/kendo.scheduler.yearview.js',
         'kendo.scrollview': 'src/js/vendor/kendo/kendo.scrollview.js',
         'kendo.selectable': 'src/js/vendor/kendo/kendo.selectable.js',
-        'kendo.skeletoncontainer': 'src/js/vendor/kendo/kendo.skeletoncontainer.js',
+        'kendo.skeletoncontainer':
+            'src/js/vendor/kendo/kendo.skeletoncontainer.js',
         'kendo.slider': 'src/js/vendor/kendo/kendo.slider.js',
         'kendo.sortable': 'src/js/vendor/kendo/kendo.sortable.js',
         'kendo.splitter': 'src/js/vendor/kendo/kendo.splitter.js',

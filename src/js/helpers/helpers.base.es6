@@ -13,7 +13,7 @@ const { __karma__, location } = window;
 const base = __karma__
     ? 'base'
     : `${location.protocol}//${location.host}${
-        /^\/Kidoju.Widgets\//.test(location.pathname) ? '/Kidoju.Widgets' : ''
+        /^\/Memba.Widgets\//.test(location.pathname) ? '/Memba.Widgets' : ''
     }`;
 /* eslint-enable prettier/prettier */
 

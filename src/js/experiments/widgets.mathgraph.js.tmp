@@ -14,8 +14,8 @@
         './common/window.assert.es6',
         './common/window.logger.es6',
         './kidoju.util',
-        './kidoju.widgets.mathgraph.tools',
-        './kidoju.widgets.mathgraph.toolbar'
+        './Memba.Widgets.mathgraph.tools',
+        './Memba.Widgets.mathgraph.toolbar'
     ], f);
 })(function (math) {
 
@@ -44,7 +44,7 @@
         var Widget = kendo.ui.Widget;
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.drawing');
+        var logger = new window.Logger('Memba.Widgets.drawing');
         var util = window.kidoju.util;
         var NUMBER = 'number';
         var OBJECT = 'object';

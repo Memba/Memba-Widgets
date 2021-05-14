@@ -16,7 +16,7 @@ window.DEBUG = true;
 const base = window.__karma__
     ? 'base'
     : `${window.location.protocol}//${window.location.host}${
-        /^\/Kidoju.Widgets\//.test(window.location.pathname) ? '/Kidoju.Widgets' : ''
+        /^\/Memba.Widgets\//.test(window.location.pathname) ? '/Memba.Widgets' : ''
     }`;
 /* eslint-enable prettier/prettier */
 

@@ -72,7 +72,7 @@ module.exports = (config) => {
         // saucelabs configuration
         sauceLabs: {
             startConnect: true,
-            testName: 'Kidoju.Widgets',
+            testName: 'Memba.Widgets',
             recordVideo: true,
             recordScreenshots: true,
         },

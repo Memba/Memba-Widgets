@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.0.7 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
+ * FingerprintJS v3.1.2 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -305,7 +305,15 @@ var FingerprintJS = (function (exports) {
         }
     }
 
-    var version = "3.0.7";
+    function __spreadArrays() {
+        for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+        for (var r = Array(s), k = 0, i = 0; i < il; i++)
+            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                r[k] = a[j];
+        return r;
+    }
+
+    var version = "3.1.2";
 
     function wait(durationMs, resolveWith) {
         return new Promise(function (resolve) { return setTimeout(resolve, durationMs, resolveWith); });
@@ -367,6 +375,64 @@ var FingerprintJS = (function (exports) {
     }
     function countTruthy(values) {
         return values.reduce(function (sum, value) { return sum + (value ? 1 : 0); }, 0);
+    }
+    function round(value, base) {
+        if (base === void 0) { base = 1; }
+        if (Math.abs(base) >= 1) {
+            return Math.round(value / base) * base;
+        }
+        else {
+            // Sometimes when a number is multiplied by a small number, precision is lost,
+            // for example 1234 * 0.0001 === 0.12340000000000001, and it's more precise divide: 1234 / (1 / 0.0001) === 0.1234.
+            var counterBase = 1 / base;
+            return Math.round(value * counterBase) / counterBase;
+        }
+    }
+    /**
+     * Parses a CSS selector into tag name with HTML attributes.
+     * Only single element selector are supported (without operators like space, +, >, etc).
+     *
+     * Multiple values can be returned for each attribute. You decide how to handle them.
+     */
+    function parseSimpleCssSelector(selector) {
+        var _a, _b;
+        var errorMessage = "Unexpected syntax '" + selector + "'";
+        var tagMatch = /^\s*([a-z-]*)(.*)$/i.exec(selector);
+        var tag = tagMatch[1] || undefined;
+        var attributes = {};
+        var partsRegex = /([.:#][\w-]+|\[.+?\])/gi;
+        var addAttribute = function (name, value) {
+            attributes[name] = attributes[name] || [];
+            attributes[name].push(value);
+        };
+        for (;;) {
+            var match = partsRegex.exec(tagMatch[2]);
+            if (!match) {
+                break;
+            }
+            var part = match[0];
+            switch (part[0]) {
+                case '.':
+                    addAttribute('class', part.slice(1));
+                    break;
+                case '#':
+                    addAttribute('id', part.slice(1));
+                    break;
+                case '[': {
+                    var attributeMatch = /^\[([\w-]+)([~|^$*]?=("(.*?)"|([\w-]+)))?(\s+[is])?\]$/.exec(part);
+                    if (attributeMatch) {
+                        addAttribute(attributeMatch[1], (_b = (_a = attributeMatch[4]) !== null && _a !== void 0 ? _a : attributeMatch[5]) !== null && _b !== void 0 ? _b : '');
+                    }
+                    else {
+                        throw new Error(errorMessage);
+                    }
+                    break;
+                }
+                default:
+                    throw new Error(errorMessage);
+            }
+        }
+        return [tag, attributes];
     }
 
     /*
@@ -507,8 +573,67 @@ var FingerprintJS = (function (exports) {
             'ontransitioncancel' in w,
         ]) >= 3);
     }
+    /**
+     * Checks whether the device is an iPad.
+     * It doesn't check that the engine is WebKit and that the WebKit isn't desktop.
+     */
+    function isIPad() {
+        // Checked on:
+        // Safari on iPadOS (both mobile and desktop modes): 8, 11, 12, 13, 14
+        // Chrome on iPadOS (both mobile and desktop modes): 11, 12, 13, 14
+        // Safari on iOS (both mobile and desktop modes): 9, 10, 11, 12, 13, 14
+        // Chrome on iOS (both mobile and desktop modes): 9, 10, 11, 12, 13, 14
+        // Before iOS 13. Safari tampers the value in "request desktop site" mode since iOS 13.
+        if (navigator.platform === 'iPad') {
+            return true;
+        }
+        var s = screen;
+        var screenRatio = s.width / s.height;
+        return (countTruthy([
+            'MediaSource' in window,
+            !!Element.prototype.webkitRequestFullscreen,
+            screenRatio > 2 / 3 && screenRatio < 3 / 2,
+        ]) >= 2);
+    }
+    /**
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
+     */
+    function getFullscreenElement() {
+        var d = document;
+        return d.fullscreenElement || d.msFullscreenElement || d.mozFullScreenElement || d.webkitFullscreenElement || null;
+    }
+    function exitFullscreen() {
+        var d = document;
+        // `call` is required because the function throws an error without a proper "this" context
+        return (d.exitFullscreen || d.msExitFullscreen || d.mozCancelFullScreen || d.webkitExitFullscreen).call(d);
+    }
+    /**
+     * Checks whether the device runs on Android without using user-agent.
+     */
+    function isAndroid() {
+        var isItChromium = isChromium();
+        var isItGecko = isGecko();
+        // Only 2 browser engines are presented on Android.
+        // Actually, there is also Android 4.1 browser, but it's not worth detecting it at the moment.
+        if (!isItChromium && !isItGecko) {
+            return false;
+        }
+        var w = window;
+        // Chrome removes all words "Android" from `navigator` when desktop version is requested
+        // Firefox keeps "Android" in `navigator.appVersion` when desktop version is requested
+        return (countTruthy([
+            'onorientationchange' in w,
+            'orientation' in w,
+            isItChromium && 'SharedWorker' in w,
+            isItGecko && /android/i.test(navigator.appVersion),
+        ]) >= 2);
+    }
 
-    // Inspired by and based on https://github.com/cozylife/audio-fingerprint
+    /**
+     * A deep description: https://fingerprintjs.com/blog/audio-fingerprinting/
+     * Inspired by and based on https://github.com/cozylife/audio-fingerprint
+     */
     function getAudioFingerprint() {
         return __awaiter(this, void 0, void 0, function () {
             var w, AudioContext, hashFromIndex, hashToIndex, context, oscillator, compressor, buffer, error_1;
@@ -655,13 +780,17 @@ var FingerprintJS = (function (exports) {
                                 style.top = '0';
                                 style.left = '0';
                                 style.visibility = 'hidden';
+                                d.body.appendChild(iframe);
+                                // The order is important here.
+                                // The `iframe.srcdoc = ...` expression must go after the `body.appendChild(iframe)` expression,
+                                // otherwise the iframe will never load nor fail in WeChat built-in browser.
+                                // See https://github.com/fingerprintjs/fingerprintjs/issues/645#issuecomment-828189330
                                 if (initialHtml && 'srcdoc' in iframe) {
                                     iframe.srcdoc = initialHtml;
                                 }
                                 else {
                                     iframe.src = 'about:blank';
                                 }
-                                d.body.appendChild(iframe);
                             })];
                     case 5:
                         _c.sent();
@@ -681,6 +810,19 @@ var FingerprintJS = (function (exports) {
                 }
             });
         });
+    }
+    /**
+     * Creates a DOM element that matches the given selector.
+     * Only single element selector are supported (without operators like space, +, >, etc).
+     */
+    function selectorToElement(selector) {
+        var _a = parseSimpleCssSelector(selector), tag = _a[0], attributes = _a[1];
+        var element = document.createElement(tag !== null && tag !== void 0 ? tag : 'div');
+        for (var _i = 0, _b = Object.keys(attributes); _i < _b.length; _i++) {
+            var name_1 = _b[_i];
+            element.setAttribute(name_1, attributes[name_1].join(' '));
+        }
+        return element;
     }
 
     // We use m or w because these two characters take up the maximum width.
@@ -747,7 +889,7 @@ var FingerprintJS = (function (exports) {
         'ZWAdobeF',
     ];
     // kudos to http://www.lalit.org/lab/javascript-css-font-detect/
-    function getFontsIframe() {
+    function getFonts() {
         // Running the script in an iframe makes it not affect the page look and not be affected by the page CSS. See:
         // https://github.com/fingerprintjs/fingerprintjs/issues/592
         // https://github.com/fingerprintjs/fingerprintjs/issues/628
@@ -816,16 +958,14 @@ var FingerprintJS = (function (exports) {
     }
 
     function getPlugins() {
-        if (isTrident()) {
-            return [];
-        }
-        if (!navigator.plugins) {
+        var rawPlugins = navigator.plugins;
+        if (!rawPlugins) {
             return undefined;
         }
         var plugins = [];
         // Safari 10 doesn't support iterating navigator.plugins with for...of
-        for (var i = 0; i < navigator.plugins.length; ++i) {
-            var plugin = navigator.plugins[i];
+        for (var i = 0; i < rawPlugins.length; ++i) {
+            var plugin = rawPlugins[i];
             if (!plugin) {
                 continue;
             }
@@ -846,77 +986,95 @@ var FingerprintJS = (function (exports) {
         return plugins;
     }
 
+    // https://www.browserleaks.com/canvas#how-does-it-work
+    function getCanvasFingerprint() {
+        var _a = makeCanvasContext(), canvas = _a[0], context = _a[1];
+        if (!isSupported(canvas, context)) {
+            return { winding: false, geometry: '', text: '' };
+        }
+        return {
+            winding: doesSupportWinding(context),
+            geometry: makeGeometryImage(canvas, context),
+            // Text is unstable:
+            // https://github.com/fingerprintjs/fingerprintjs/issues/583
+            // https://github.com/fingerprintjs/fingerprintjs/issues/103
+            // Therefore it's extracted into a separate image.
+            text: makeTextImage(canvas, context),
+        };
+    }
     function makeCanvasContext() {
         var canvas = document.createElement('canvas');
-        canvas.width = 240;
-        canvas.height = 140;
-        canvas.style.display = 'inline';
+        canvas.width = 1;
+        canvas.height = 1;
         return [canvas, canvas.getContext('2d')];
     }
     function isSupported(canvas, context) {
         // TODO: look into: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
         return !!(context && canvas.toDataURL);
     }
-    function save(canvas) {
-        // TODO: look into: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
-        return canvas.toDataURL();
-    }
-    // https://www.browserleaks.com/canvas#how-does-it-work
-    function getCanvasFingerprint() {
-        var _a = makeCanvasContext(), canvas = _a[0], context = _a[1];
-        if (!isSupported(canvas, context)) {
-            return { winding: false, data: '' };
-        }
-        // Detect browser support of canvas winding
+    function doesSupportWinding(context) {
         // https://web.archive.org/web/20170825024655/http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
         // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/canvas/winding.js
         context.rect(0, 0, 10, 10);
         context.rect(2, 2, 6, 6);
-        var winding = !context.isPointInPath(5, 5, 'evenodd');
+        return !context.isPointInPath(5, 5, 'evenodd');
+    }
+    function makeTextImage(canvas, context) {
+        // Resizing the canvas cleans it
+        canvas.width = 240;
+        canvas.height = 60;
         context.textBaseline = 'alphabetic';
         context.fillStyle = '#f60';
-        context.fillRect(125, 1, 62, 20);
+        context.fillRect(100, 1, 62, 20);
         context.fillStyle = '#069';
-        // This can affect FP generation when applying different CSS on different websites:
-        // https://github.com/fingerprintjs/fingerprintjs/issues/66
-        context.font = '11pt no-real-font-123';
+        // It's important to use explicit built-in fonts in order to exclude the affect of font preferences
+        // (there is a separate entropy source for them).
+        context.font = '11pt "Times New Roman"';
         // The choice of emojis has a gigantic impact on rendering performance (especially in FF).
         // Some newer emojis cause it to slow down 50-200 times.
+        // There must be no text to the right of the emoji, see https://github.com/fingerprintjs/fingerprintjs/issues/574
         // A bare emoji shouldn't be used because the canvas will change depending on the script encoding:
         // https://github.com/fingerprintjs/fingerprintjs/issues/66
         // Escape sequence shouldn't be used too because Terser will turn it into a bare unicode.
-        var printedText = "Cwm fjordbank " + String.fromCharCode(55357, 56835) /* 😃 */ + " gly";
+        var printedText = "Cwm fjordbank gly " + String.fromCharCode(55357, 56835) /* 😃 */;
         context.fillText(printedText, 2, 15);
         context.fillStyle = 'rgba(102, 204, 0, 0.2)';
         context.font = '18pt Arial';
         context.fillText(printedText, 4, 45);
+        return save(canvas);
+    }
+    function makeGeometryImage(canvas, context) {
+        // Resizing the canvas cleans it
+        canvas.width = 122;
+        canvas.height = 110;
         // Canvas blending
         // https://web.archive.org/web/20170826194121/http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
         // http://jsfiddle.net/NDYV8/16/
         context.globalCompositeOperation = 'multiply';
-        for (var _i = 0, _b = [
-            ['#f0f', 50, 50],
-            ['#0ff', 100, 50],
-            ['#ff0', 75, 100],
-        ]; _i < _b.length; _i++) {
-            var _c = _b[_i], color = _c[0], x = _c[1], y = _c[2];
+        for (var _i = 0, _a = [
+            ['#f2f', 40, 40],
+            ['#2ff', 80, 40],
+            ['#ff2', 60, 80],
+        ]; _i < _a.length; _i++) {
+            var _b = _a[_i], color = _b[0], x = _b[1], y = _b[2];
             context.fillStyle = color;
             context.beginPath();
-            context.arc(x, y, 50, 0, Math.PI * 2, true);
+            context.arc(x, y, 40, 0, Math.PI * 2, true);
             context.closePath();
             context.fill();
         }
         // Canvas winding
         // http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
         // http://jsfiddle.net/NDYV8/19/
-        context.fillStyle = '#f0f';
-        context.arc(75, 75, 75, 0, Math.PI * 2, true);
-        context.arc(75, 75, 25, 0, Math.PI * 2, true);
+        context.fillStyle = '#f9c';
+        context.arc(60, 60, 60, 0, Math.PI * 2, true);
+        context.arc(60, 60, 20, 0, Math.PI * 2, true);
         context.fill('evenodd');
-        return {
-            winding: winding,
-            data: save(canvas),
-        };
+        return save(canvas);
+    }
+    function save(canvas) {
+        // TODO: look into: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+        return canvas.toDataURL();
     }
 
     /**
@@ -996,29 +1154,132 @@ var FingerprintJS = (function (exports) {
         return dimensions;
     }
 
-    function getAvailableScreenResolution() {
-        var s = screen;
-        if (s.availWidth && s.availHeight) {
-            // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
-            // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-            var dimensions = [toInt(s.availWidth), toInt(s.availHeight)];
-            dimensions.sort().reverse();
-            return dimensions;
+    var screenFrameCheckInterval = 2500;
+    var roundingPrecision = 10;
+    // The type is readonly to protect from unwanted mutations
+    var screenFrameBackup;
+    var screenFrameSizeTimeoutId;
+    /**
+     * Starts watching the screen frame size. When a non-zero size appears, the size is saved and the watch is stopped.
+     * Later, when `getScreenFrame` is called, it will return the saved non-zero size if the current size is null.
+     *
+     * This trick is required to mitigate the fact that the screen frame turns null in some cases.
+     * See more on this at https://github.com/fingerprintjs/fingerprintjs/issues/568
+     */
+    function watchScreenFrame() {
+        if (screenFrameSizeTimeoutId !== undefined) {
+            return;
         }
-        return undefined;
+        var checkScreenFrame = function () {
+            var frameSize = getCurrentScreenFrame();
+            if (isFrameSizeNull(frameSize)) {
+                screenFrameSizeTimeoutId = setTimeout(checkScreenFrame, screenFrameCheckInterval);
+            }
+            else {
+                screenFrameBackup = frameSize;
+                screenFrameSizeTimeoutId = undefined;
+            }
+        };
+        checkScreenFrame();
+    }
+    function getScreenFrame() {
+        return __awaiter(this, void 0, void 0, function () {
+            var frameSize;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        frameSize = getCurrentScreenFrame();
+                        if (!isFrameSizeNull(frameSize)) return [3 /*break*/, 2];
+                        if (screenFrameBackup) {
+                            return [2 /*return*/, __spreadArrays(screenFrameBackup)];
+                        }
+                        if (!getFullscreenElement()) return [3 /*break*/, 2];
+                        // Some browsers set the screen frame to zero when programmatic fullscreen is on.
+                        // There is a chance of getting a non-zero frame after exiting the fullscreen.
+                        // See more on this at https://github.com/fingerprintjs/fingerprintjs/issues/568
+                        return [4 /*yield*/, exitFullscreen()];
+                    case 1:
+                        // Some browsers set the screen frame to zero when programmatic fullscreen is on.
+                        // There is a chance of getting a non-zero frame after exiting the fullscreen.
+                        // See more on this at https://github.com/fingerprintjs/fingerprintjs/issues/568
+                        _a.sent();
+                        frameSize = getCurrentScreenFrame();
+                        _a.label = 2;
+                    case 2:
+                        if (!isFrameSizeNull(frameSize)) {
+                            screenFrameBackup = frameSize;
+                        }
+                        return [2 /*return*/, frameSize];
+                }
+            });
+        });
+    }
+    /**
+     * Sometimes the available screen resolution changes a bit, e.g. 1900x1440 → 1900x1439. A possible reason: macOS Dock
+     * shrinks to fit more icons when there is too little space. The rounding is used to mitigate the difference.
+     */
+    function getRoundedScreenFrame() {
+        return __awaiter(this, void 0, void 0, function () {
+            var processSize, frameSize;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        processSize = function (sideSize) { return (sideSize === null ? null : round(sideSize, roundingPrecision)); };
+                        return [4 /*yield*/, getScreenFrame()
+                            // It might look like I don't know about `for` and `map`.
+                            // In fact, such code is used to avoid TypeScript issues without using `as`.
+                        ];
+                    case 1:
+                        frameSize = _a.sent();
+                        // It might look like I don't know about `for` and `map`.
+                        // In fact, such code is used to avoid TypeScript issues without using `as`.
+                        return [2 /*return*/, [processSize(frameSize[0]), processSize(frameSize[1]), processSize(frameSize[2]), processSize(frameSize[3])]];
+                }
+            });
+        });
+    }
+    function getCurrentScreenFrame() {
+        var s = screen;
+        // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
+        // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
+        //
+        // Some browsers (IE, Edge ≤18) don't provide `screen.availLeft` and `screen.availTop`. The property values are
+        // replaced with 0 in such cases to not lose the entropy from `screen.availWidth` and `screen.availHeight`.
+        return [
+            replaceNaN(toFloat(s.availTop), null),
+            replaceNaN(toFloat(s.width) - toFloat(s.availWidth) - replaceNaN(toFloat(s.availLeft), 0), null),
+            replaceNaN(toFloat(s.height) - toFloat(s.availHeight) - replaceNaN(toFloat(s.availTop), 0), null),
+            replaceNaN(toFloat(s.availLeft), null),
+        ];
+    }
+    function isFrameSizeNull(frameSize) {
+        for (var i = 0; i < 4; ++i) {
+            if (frameSize[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     function getHardwareConcurrency() {
-        try {
-            // sometimes hardware concurrency is a string
-            var concurrency = toInt(navigator.hardwareConcurrency);
-            return isNaN(concurrency) ? 1 : concurrency;
-        }
-        catch (e) {
-            return 1;
-        }
+        // sometimes hardware concurrency is a string
+        return replaceNaN(toInt(navigator.hardwareConcurrency), undefined);
     }
 
+    function getTimezone() {
+        var _a;
+        var DateTimeFormat = (_a = window.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat;
+        if (DateTimeFormat) {
+            var timezone = new DateTimeFormat().resolvedOptions().timeZone;
+            if (timezone) {
+                return timezone;
+            }
+        }
+        // For browsers that don't support timezone names
+        // The minus is intentional because the JS offset is opposite to the real offset
+        var offset = -getTimezoneOffset();
+        return "UTC" + (offset >= 0 ? '+' : '') + Math.abs(offset);
+    }
     function getTimezoneOffset() {
         var currentYear = new Date().getFullYear();
         // The timezone offset may change over time due to daylight saving time (DST) shifts.
@@ -1028,15 +1289,6 @@ var FingerprintJS = (function (exports) {
         return Math.max(
         // `getTimezoneOffset` returns a number as a string in some unidentified cases
         toFloat(new Date(currentYear, 0, 1).getTimezoneOffset()), toFloat(new Date(currentYear, 6, 1).getTimezoneOffset()));
-    }
-
-    function getTimezone() {
-        var _a;
-        var DateTimeFormat = (_a = window.Intl) === null || _a === void 0 ? void 0 : _a.DateTimeFormat;
-        if (DateTimeFormat) {
-            return new DateTimeFormat().resolvedOptions().timeZone;
-        }
-        return undefined;
     }
 
     function getSessionStorage() {
@@ -1083,47 +1335,66 @@ var FingerprintJS = (function (exports) {
         return navigator.cpuClass;
     }
 
-    /**
-     * It should be improved to handle mock value on iOS:
-     * https://github.com/fingerprintjs/fingerprintjs/issues/514#issuecomment-727782842
-     */
     function getPlatform() {
-        return navigator.platform;
-    }
-
-    function getPluginsSupport() {
-        return navigator.plugins !== undefined;
-    }
-
-    function getProductSub() {
-        return navigator.productSub; // It's undefined in IE
-    }
-
-    function getEmptyEvalLength() {
-        return eval.toString().length;
-    }
-
-    function getErrorFF() {
-        try {
-            throw 'a';
-        }
-        catch (e) {
-            try {
-                e.toSource();
-                return true;
-            }
-            catch (e2) {
-                return false;
+        // Android Chrome 86 and 87 and Android Firefox 80 and 84 don't mock the platform value when desktop mode is requested
+        var platform = navigator.platform;
+        // iOS mocks the platform value when desktop version is requested: https://github.com/fingerprintjs/fingerprintjs/issues/514
+        // iPad uses desktop mode by default since iOS 13
+        // The value is 'MacIntel' on M1 Macs
+        // The value is 'iPhone' on iPod Touch
+        if (platform === 'MacIntel') {
+            if (isWebKit() && !isDesktopSafari()) {
+                return isIPad() ? 'iPad' : 'iPhone';
             }
         }
+        return platform;
     }
 
     function getVendor() {
-        return navigator.vendor;
+        return navigator.vendor || '';
     }
 
-    function getChrome() {
-        return window.chrome !== undefined;
+    /**
+     * Checks for browser-specific (not engine specific) global variables to tell browsers with the same engine apart.
+     * Only somewhat popular browsers are considered.
+     */
+    function getVendorFlavors() {
+        var flavors = [];
+        for (var _i = 0, _a = [
+            // Blink and some browsers on iOS
+            'chrome',
+            // Safari on macOS
+            'safari',
+            // Chrome on iOS (checked in 85 on 13 and 87 on 14)
+            '__crWeb',
+            '__gCrWeb',
+            // Yandex Browser on iOS, macOS and Android (checked in 21.2 on iOS 14, macOS and Android)
+            'yandex',
+            // Yandex Browser on iOS (checked in 21.2 on 14)
+            '__yb',
+            '__ybro',
+            // Firefox on iOS (checked in 32 on 14)
+            '__firefox__',
+            // Edge on iOS (checked in 46 on 14)
+            '__edgeTrackingPreventionStatistics',
+            'webkit',
+            // Opera Touch on iOS (checked in 2.6 on 14)
+            'oprt',
+            // Samsung Internet on Android (checked in 11.1)
+            'samsungAr',
+            // UC Browser on Android (checked in 12.10 and 13.0)
+            'ucweb',
+            'UCShellJava',
+            // Puffin on Android (checked in 9.0)
+            'puffinDevice',
+        ]; _i < _a.length; _i++) {
+            var key = _a[_i];
+            var value = window[key];
+            if (value && typeof value === 'object') {
+                flavors.push(key);
+            }
+        }
+        return flavors.sort();
     }
 
     /**
@@ -1156,6 +1427,704 @@ var FingerprintJS = (function (exports) {
     }
 
     /**
+     * Only single element selector are supported (no operators like space, +, >, etc).
+     * `embed` and `position: fixed;` will be considered as blocked anyway because it always has no offsetParent.
+     * Avoid `iframe` and anything with `[src=]` because they produce excess HTTP requests.
+     *
+     * See docs/content_blockers.md to learn how to make the list
+     */
+    var filters = {
+        abpIndo: [
+            '#Iklan-Melayang',
+            '#Kolom-Iklan-728',
+            '#SidebarIklan-wrapper',
+            'a[title="7naga poker" i]',
+            '[title="ALIENBOLA" i]',
+        ],
+        abpvn: [
+            '#quangcaomb',
+            '.i-said-no-thing-can-stop-me-warning.dark',
+            '.quangcao',
+            '[href^="https://r88.vn/"]',
+            '[href^="https://zbet.vn/"]',
+        ],
+        adBlockFinland: [
+            '.mainostila',
+            '.sponsorit',
+            '.ylamainos',
+            'a[href*="/clickthrgh.asp?"]',
+            'a[href^="https://app.readpeak.com/ads"]',
+        ],
+        adBlockPersian: [
+            '#navbar_notice_50',
+            'a[href^="https://iqoption.com/lp/mobile-partner/?aff="]',
+            '.kadr',
+            'TABLE[width="140px"]',
+            '#divAgahi',
+        ],
+        adBlockWarningRemoval: [
+            '#adblock_message',
+            '.adblockInfo',
+            '.deadblocker-header-bar',
+            '.no-ad-reminder',
+            '#AdBlockDialog',
+        ],
+        adGuardAnnoyances: ['amp-embed[type="zen"]', '.hs-sosyal', '#cookieconsentdiv', 'div[class^="app_gdpr"]', '.as-oil'],
+        adGuardBase: ['#gads_middle', '.tjads', '.BetterJsPopOverlay', '#ad_300X250', '#bannerfloat22'],
+        adGuardChinese: [
+            'a[href*=".123ch.cn"]',
+            'a[href*=".ttz5.cn"]',
+            'a[href*=".yabovip2027.com/"]',
+            '.tm3all2h4b',
+            '#j-new-ad',
+        ],
+        adGuardFrench: [
+            '#div_banniere_pub',
+            'a[href^="https://secure.securitetotale.fr/"]',
+            'a[href*="fducks.com/"]',
+            'a[href^="http://frtyd.com/"]',
+            '.publicite1',
+        ],
+        adGuardGerman: [
+            '.banneritemwerbung_head_1',
+            '.boxstartwerbung',
+            '.werbung3',
+            'a[href^="http://www.ichwuerde.com/?ref="]',
+            'a[href^="http://partners.adklick.de/tracking.php?"]',
+        ],
+        adGuardJapanese: [
+            '.ad-text-blockA01',
+            '._popIn_infinite_video',
+            '[class^=blogroll_wrapper]',
+            'a[href^="http://ad2.trafficgate.net/"]',
+            'a[href^="http://www.rssad.jp/"]',
+        ],
+        adGuardMobile: ['amp-auto-ads', '#mgid_iframe', '.amp_ad', 'amp-sticky-ad', '.plugin-blogroll'],
+        adGuardRussian: [
+            'a[href^="https://ya-distrib.ru/r/"]',
+            '[onclick*=".twkv.ru"]',
+            '.reclama',
+            'div[id^="smi2adblock"]',
+            'div[id^="AdFox_banner_"]',
+        ],
+        adGuardSocial: [
+            'a[href^="//www.stumbleupon.com/submit?url="]',
+            'a[href^="//telegram.me/share/url?"]',
+            '.etsy-tweet',
+            '#inlineShare',
+            '.popup-social',
+        ],
+        adGuardSpanishPortuguese: [
+            '#barraPublicidade',
+            '#Publicidade',
+            '#publiEspecial',
+            '#queTooltip',
+            '[href^="http://ads.glispa.com/"]',
+        ],
+        adGuardTrackingProtection: [
+            'amp-embed[type="taboola"]',
+            '#qoo-counter',
+            'a[href^="http://click.hotlog.ru/"]',
+            'a[href^="http://hitcounter.ru/top/stat.php"]',
+            'a[href^="http://top.mail.ru/jump"]',
+        ],
+        adGuardTurkish: [
+            '#backkapat',
+            '#reklami',
+            'a[href^="http://adserv.ontek.com.tr/"]',
+            'a[href^="http://izlenzi.com/campaign/"]',
+            'a[href^="http://www.installads.net/"]',
+        ],
+        bulgarian: ['td#freenet_table_ads', '#newAd', '#ea_intext_div', '.lapni-pop-over', '#xenium_hot_offers'],
+        easyList: ['[lazy-ad="leftthin_banner"]', '#ad_300x250_2', '#interstitialAd', '#wide_ad_unit', '.showcaseAd'],
+        easyListChina: [
+            'a[href*=".wensixuetang.com/"]',
+            'A[href*="/hth107.com/"]',
+            '.appguide-wrap[onclick*="bcebos.com"]',
+            '.frontpageAdvM',
+            '#taotaole',
+        ],
+        easyListCookie: ['#CookieEU', '#__cookies_', '#les_cookies', '.asset_balaNotification', '.gdpr-tab'],
+        easyListCzechSlovak: ['#onlajny-stickers', '#reklamni-box', '.reklama-megaboard', '.sklik', '[id^="sklikReklama"]'],
+        easyListDutch: [
+            '#advertentie',
+            '#vipAdmarktBannerBlock',
+            '.adstekst',
+            'a[href^="http://adserver.webads.nl/adclick/"]',
+            '#semilo-lrectangle',
+        ],
+        easyListGermany: [
+            '#LxWerbeteaser',
+            'a[href^="http://www.kontakt-vermittler.de/?wm="]',
+            '.werbung301',
+            '.ads_bueroklammer',
+            '#Werbung_Sky',
+        ],
+        easyListItaly: [
+            '.box_adv_annunci',
+            '.sb-box-pubbliredazionale',
+            'a[href^="http://affiliazioniads.snai.it/"]',
+            'a[href^="https://adserver.html.it/"]',
+            'a[href^="https://affiliazioniads.snai.it/"]',
+        ],
+        easyListLithuania: [
+            '.reklamos_tarpas',
+            '.reklamos_nuorodos',
+            'img[alt="Reklaminis skydelis"]',
+            'img[alt="Dedikuoti.lt serveriai"]',
+            'img[alt="Hostingas Serveriai.lt"]',
+        ],
+        estonian: ['A[href*="http://pay4results24.eu"]'],
+        fanboyAnnoyances: [
+            '#feedback-tab',
+            '#taboola-below-article',
+            '.feedburnerFeedBlock',
+            '.widget-feedburner-counter',
+            '[title="Subscribe to our blog"]',
+        ],
+        fanboyAntiFacebook: ['.util-bar-module-firefly-visible'],
+        fanboyEnhancedTrackers: [
+            '.open.pushModal',
+            '#issuem-leaky-paywall-articles-zero-remaining-nag',
+            'div[style*="box-shadow: rgb(136, 136, 136) 0px 0px 12px; color: "]',
+            'div[class$="-hide"][zoompage-fontsize][style="display: block;"]',
+            '.BlockNag__Card',
+        ],
+        fanboySocial: [
+            '.td-tags-and-social-wrapper-box',
+            '.twitterContainer',
+            '.youtube-social',
+            'a[title^="Like us on Facebook"]',
+            'img[alt^="Share on Digg"]',
+        ],
+        frellwitSwedish: [
+            'a[href*="casinopro.se"][target="_blank"]',
+            'a[href*="doktor-se.onelink.me"]',
+            'article.category-samarbete',
+            'div.holidAds',
+            'ul.adsmodern',
+        ],
+        greekAdBlock: [
+            'A[href*="adman.otenet.gr/click?"]',
+            'A[href*="http://axiabanners.exodus.gr/"]',
+            'A[href*="http://interactive.forthnet.gr/click?"]',
+            'DIV.agores300',
+            'TABLE.advright',
+        ],
+        hungarian: [
+            'A[href*="ad.eval.hu"]',
+            'A[href*="ad.netmedia.hu"]',
+            'A[href*="daserver.ultraweb.hu"]',
+            '#cemp_doboz',
+            '.optimonk-iframe-container',
+        ],
+        iDontCareAboutCookies: [
+            '.alert-info[data-block-track*="CookieNotice"]',
+            '.ModuleTemplateCookieIndicator',
+            '.o--cookies--container',
+            '.cookie-msg-info-container',
+            '#cookies-policy-sticky',
+        ],
+        icelandicAbp: ['A[href^="/framework/resources/forms/ads.aspx"]'],
+        latvian: [
+            'a[href="http://www.salidzini.lv/"][style="display: block; width: 120px; height: 40px; overflow: hidden; position: relative;"]',
+            'a[href="http://www.salidzini.lv/"][style="display: block; width: 88px; height: 31px; overflow: hidden; position: relative;"]',
+        ],
+        listKr: [
+            'a[href*="//kingtoon.slnk.kr"]',
+            'a[href*="//playdsb.com/kr"]',
+            'div.logly-lift-adz',
+            'div[data-widget_id="ml6EJ074"]',
+            'ins.daum_ddn_area',
+        ],
+        listeAr: [
+            '.geminiLB1Ad',
+            '.right-and-left-sponsers',
+            'a[href*=".aflam.info"]',
+            'a[href*="booraq.org"]',
+            'a[href*="dubizzle.com/ar/?utm_source="]',
+        ],
+        listeFr: [
+            'a[href^="http://promo.vador.com/"]',
+            '#adcontainer_recherche',
+            'a[href*="weborama.fr/fcgi-bin/"]',
+            '.site-pub-interstitiel',
+            'div[id^="crt-"][data-criteo-id]',
+        ],
+        officialPolish: [
+            '#ceneo-placeholder-ceneo-12',
+            '[href^="https://aff.sendhub.pl/"]',
+            'a[href^="http://advmanager.techfun.pl/redirect/"]',
+            'a[href^="http://www.trizer.pl/?utm_source"]',
+            'div#skapiec_ad',
+        ],
+        ro: [
+            'a[href^="//afftrk.altex.ro/Counter/Click"]',
+            'a[href^="/magazin/"]',
+            'a[href^="https://blackfridaysales.ro/trk/shop/"]',
+            'a[href^="https://event.2performant.com/events/click"]',
+            'a[href^="https://l.profitshare.ro/"]',
+        ],
+        ruAd: [
+            'a[href*="//febrare.ru/"]',
+            'a[href*="//utimg.ru/"]',
+            'a[href*="://chikidiki.ru"]',
+            '#pgeldiz',
+            '.yandex-rtb-block',
+        ],
+        thaiAds: ['a[href*=macau-uta-popup]', '#ads-google-middle_rectangle-group', '.ads300s', '.bumq', '.img-kosana'],
+        webAnnoyancesUltralist: [
+            '#mod-social-share-2',
+            '#social-tools',
+            '.ctpl-fullbanner',
+            '.zergnet-recommend',
+            '.yt.btn-link.btn-md.btn',
+        ],
+    };
+    /** Just a syntax sugar */
+    var filterNames = Object.keys(filters);
+    /**
+     * The returned array order means nothing (it's always sorted alphabetically).
+     *
+     * Notice that the source is slightly unstable.
+     * Safari provides a 2-taps way to disable all content blockers on a page temporarily.
+     * Also content blockers can be disabled permanently for a domain, but it requires 4 taps.
+     * So empty array shouldn't be treated as "no blockers", it should be treated as "no signal".
+     * If you are a website owner, don't make your visitors want to disable content blockers.
+     */
+    function getDomBlockers(_a) {
+        var debug = (_a === void 0 ? {} : _a).debug;
+        return __awaiter(this, void 0, void 0, function () {
+            var allSelectors, blockedSelectors, activeBlockers;
+            var _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (!isApplicable()) {
+                            return [2 /*return*/, undefined];
+                        }
+                        allSelectors = (_b = []).concat.apply(_b, filterNames.map(function (filterName) { return filters[filterName]; }));
+                        return [4 /*yield*/, getBlockedSelectors(allSelectors)];
+                    case 1:
+                        blockedSelectors = _c.sent();
+                        if (debug) {
+                            printDebug(blockedSelectors);
+                        }
+                        activeBlockers = filterNames.filter(function (filterName) {
+                            var selectors = filters[filterName];
+                            var blockedCount = countTruthy(selectors.map(function (selector) { return blockedSelectors[selector]; }));
+                            return blockedCount > selectors.length * 0.5;
+                        });
+                        activeBlockers.sort();
+                        return [2 /*return*/, activeBlockers];
+                }
+            });
+        });
+    }
+    function isApplicable() {
+        // Safari (desktop and mobile) and all Android browsers keep content blockers in both regular and private mode
+        return isWebKit() || isAndroid();
+    }
+    function getBlockedSelectors(selectors) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function () {
+            var d, root, elements, blockedSelectors, _i, selectors_1, selector, element, holder, i;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        d = document;
+                        root = d.createElement('div');
+                        elements = [];
+                        blockedSelectors = {} // Set() isn't used just in case somebody need older browser support
+                        ;
+                        forceShow(root);
+                        // First create all elements that can be blocked. If the DOM steps below are done in a single cycle,
+                        // browser will alternate tree modification and layout reading, that is very slow.
+                        for (_i = 0, selectors_1 = selectors; _i < selectors_1.length; _i++) {
+                            selector = selectors_1[_i];
+                            element = selectorToElement(selector);
+                            holder = d.createElement('div') // Protects from unwanted effects of `+` and `~` selectors of filters
+                            ;
+                            forceShow(holder);
+                            holder.appendChild(element);
+                            root.appendChild(holder);
+                            elements.push(element);
+                        }
+                        _b.label = 1;
+                    case 1:
+                        if (!!d.body) return [3 /*break*/, 3];
+                        return [4 /*yield*/, wait(50)];
+                    case 2:
+                        _b.sent();
+                        return [3 /*break*/, 1];
+                    case 3:
+                        d.body.appendChild(root);
+                        try {
+                            // Then check which of the elements are blocked
+                            for (i = 0; i < selectors.length; ++i) {
+                                if (!elements[i].offsetParent) {
+                                    blockedSelectors[selectors[i]] = true;
+                                }
+                            }
+                        }
+                        finally {
+                            // Then remove the elements
+                            (_a = root.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(root);
+                        }
+                        return [2 /*return*/, blockedSelectors];
+                }
+            });
+        });
+    }
+    function forceShow(element) {
+        element.style.setProperty('display', 'block', 'important');
+    }
+    function printDebug(blockedSelectors) {
+        var message = 'DOM blockers debug:\n```';
+        for (var _i = 0, filterNames_1 = filterNames; _i < filterNames_1.length; _i++) {
+            var filterName = filterNames_1[_i];
+            message += "\n" + filterName + ":";
+            for (var _a = 0, _b = filters[filterName]; _a < _b.length; _a++) {
+                var selector = _b[_a];
+                message += "\n  " + selector + " " + (blockedSelectors[selector] ? '🚫' : '➡️');
+            }
+        }
+        // console.log is ok here because it's under a debug clause
+        // eslint-disable-next-line no-console
+        console.log(message + "\n```");
+    }
+
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/color-gamut
+     */
+    function getColorGamut() {
+        // rec2020 includes p3 and p3 includes srgb
+        for (var _i = 0, _a = ['rec2020', 'p3', 'srgb']; _i < _a.length; _i++) {
+            var gamut = _a[_i];
+            if (matchMedia("(color-gamut: " + gamut + ")").matches) {
+                return gamut;
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/inverted-colors
+     */
+    function areColorsInverted() {
+        if (doesMatch('inverted')) {
+            return true;
+        }
+        if (doesMatch('none')) {
+            return false;
+        }
+        return undefined;
+    }
+    function doesMatch(value) {
+        return matchMedia("(inverted-colors: " + value + ")").matches;
+    }
+
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
+     */
+    function areColorsForced() {
+        if (doesMatch$1('active')) {
+            return true;
+        }
+        if (doesMatch$1('none')) {
+            return false;
+        }
+        return undefined;
+    }
+    function doesMatch$1(value) {
+        return matchMedia("(forced-colors: " + value + ")").matches;
+    }
+
+    var maxValueToCheck = 100;
+    /**
+     * If the display is monochrome (e.g. black&white), the value will be ≥0 and will mean the number of bits per pixel.
+     * If the display is not monochrome, the returned value will be 0.
+     * If the browser doesn't support this feature, the returned value will be undefined.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/monochrome
+     */
+    function getMonochromeDepth() {
+        if (!matchMedia('(min-monochrome: 0)').matches) {
+            // The media feature isn't supported by the browser
+            return undefined;
+        }
+        // A variation of binary search algorithm can be used here.
+        // But since expected values are very small (≤10), there is no sense in adding the complexity.
+        for (var i = 0; i <= maxValueToCheck; ++i) {
+            if (matchMedia("(max-monochrome: " + i + ")").matches) {
+                return i;
+            }
+        }
+        throw new Error('Too high value');
+    }
+
+    /**
+     * @see https://www.w3.org/TR/mediaqueries-5/#prefers-contrast
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast
+     */
+    function getContrastPreference() {
+        if (doesMatch$2('no-preference')) {
+            return 0 /* None */;
+        }
+        // The sources contradict on the keywords. Probably 'high' and 'low' will never be implemented.
+        // Need to check it when all browsers implement the feature.
+        if (doesMatch$2('high') || doesMatch$2('more')) {
+            return 1 /* More */;
+        }
+        if (doesMatch$2('low') || doesMatch$2('less')) {
+            return -1 /* Less */;
+        }
+        if (doesMatch$2('forced')) {
+            return 10 /* ForcedColors */;
+        }
+        return undefined;
+    }
+    function doesMatch$2(value) {
+        return matchMedia("(prefers-contrast: " + value + ")").matches;
+    }
+
+    /**
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+     */
+    function isMotionReduced() {
+        if (doesMatch$3('reduce')) {
+            return true;
+        }
+        if (doesMatch$3('no-preference')) {
+            return false;
+        }
+        return undefined;
+    }
+    function doesMatch$3(value) {
+        return matchMedia("(prefers-reduced-motion: " + value + ")").matches;
+    }
+
+    /**
+     * @see https://www.w3.org/TR/mediaqueries-5/#dynamic-range
+     */
+    function isHDR() {
+        if (doesMatch$4('high')) {
+            return true;
+        }
+        if (doesMatch$4('standard')) {
+            return false;
+        }
+        return undefined;
+    }
+    function doesMatch$4(value) {
+        return matchMedia("(dynamic-range: " + value + ")").matches;
+    }
+
+    var M = Math; // To reduce the minified code size
+    var fallbackFn = function () { return 0; };
+    // Native operations
+    var acos = M.acos || fallbackFn;
+    var acosh = M.acosh || fallbackFn;
+    var asin = M.asin || fallbackFn;
+    var asinh = M.asinh || fallbackFn;
+    var atanh = M.atanh || fallbackFn;
+    var atan = M.atan || fallbackFn;
+    var sin = M.sin || fallbackFn;
+    var sinh = M.sinh || fallbackFn;
+    var cos = M.cos || fallbackFn;
+    var cosh = M.cosh || fallbackFn;
+    var tan = M.tan || fallbackFn;
+    var tanh = M.tanh || fallbackFn;
+    var exp = M.exp || fallbackFn;
+    var expm1 = M.expm1 || fallbackFn;
+    var log1p = M.log1p || fallbackFn;
+    // Operation polyfills
+    var powPI = function (value) { return M.pow(M.PI, value); };
+    var acoshPf = function (value) { return M.log(value + M.sqrt(value * value - 1)); };
+    var asinhPf = function (value) { return M.log(value + M.sqrt(value * value + 1)); };
+    var atanhPf = function (value) { return M.log((1 + value) / (1 - value)) / 2; };
+    var sinhPf = function (value) { return M.exp(value) - 1 / M.exp(value) / 2; };
+    var coshPf = function (value) { return (M.exp(value) + 1 / M.exp(value)) / 2; };
+    var expm1Pf = function (value) { return M.exp(value) - 1; };
+    var tanhPf = function (value) { return (M.exp(2 * value) - 1) / (M.exp(2 * value) + 1); };
+    var log1pPf = function (value) { return M.log(1 + value); };
+    /**
+     * @see https://gitlab.torproject.org/legacy/trac/-/issues/13018
+     * @see https://bugzilla.mozilla.org/show_bug.cgi?id=531915
+     */
+    function getMathFingerprint() {
+        // Note: constant values are empirical
+        return {
+            acos: acos(0.123124234234234242),
+            acosh: acosh(1e308),
+            acoshPf: acoshPf(1e154),
+            asin: asin(0.123124234234234242),
+            asinh: asinh(1),
+            asinhPf: asinhPf(1),
+            atanh: atanh(0.5),
+            atanhPf: atanhPf(0.5),
+            atan: atan(0.5),
+            sin: sin(-1e300),
+            sinh: sinh(1),
+            sinhPf: sinhPf(1),
+            cos: cos(10.000000000123),
+            cosh: cosh(1),
+            coshPf: coshPf(1),
+            tan: tan(-1e300),
+            tanh: tanh(1),
+            tanhPf: tanhPf(1),
+            exp: exp(1),
+            expm1: expm1(1),
+            expm1Pf: expm1Pf(1),
+            log1p: log1p(10),
+            log1pPf: log1pPf(10),
+            powPI: powPI(-100),
+        };
+    }
+
+    /**
+     * We use m or w because these two characters take up the maximum width.
+     * Also there are a couple of ligatures.
+     */
+    var defaultText = 'mmMwWLliI0fiflO&1';
+    /**
+     * Settings of text blocks to measure. The keys are random but persistent words.
+     */
+    var presets = {
+        /**
+         * The default font. User can change it in desktop Chrome, desktop Firefox, IE 11,
+         * Android Chrome (but only when the size is ≥ than the default) and Android Firefox.
+         */
+        default: [],
+        /** OS font on macOS. User can change its size and weight. Applies after Safari restart. */
+        apple: [{ font: '-apple-system-body' }],
+        /** User can change it in desktop Chrome and desktop Firefox. */
+        serif: [{ fontFamily: 'serif' }],
+        /** User can change it in desktop Chrome and desktop Firefox. */
+        sans: [{ fontFamily: 'sans-serif' }],
+        /** User can change it in desktop Chrome and desktop Firefox. */
+        mono: [{ fontFamily: 'monospace' }],
+        /**
+         * Check the minimal allowed font size. User can change it in desktop Chrome, desktop Firefox and desktop Safari.
+         * The height can be 0 in Chrome on a retina display.
+         */
+        min: [{ fontSize: '1px' }],
+        /** Tells one OS from another in desktop Chrome. */
+        system: [{ fontFamily: 'system-ui' }],
+    };
+    /**
+     * The result is a dictionary of the width of the text samples.
+     * Heights aren't included because they give no extra entropy and are unstable.
+     *
+     * The result is very stable in IE 11, Edge 18 and Safari 14.
+     * The result changes when the OS pixel density changes in Chromium 87. The real pixel density is required to solve,
+     * but seems like it's impossible: https://stackoverflow.com/q/1713771/1118709.
+     * The "min" and the "mono" (only on Windows) value may change when the page is zoomed in Firefox 87.
+     */
+    function getFontPreferences() {
+        return withNaturalFonts(function (document, container) {
+            var elements = {};
+            var sizes = {};
+            // First create all elements to measure. If the DOM steps below are done in a single cycle,
+            // browser will alternate tree modification and layout reading, that is very slow.
+            for (var _i = 0, _a = Object.keys(presets); _i < _a.length; _i++) {
+                var key = _a[_i];
+                var _b = presets[key], _c = _b[0], style = _c === void 0 ? {} : _c, _d = _b[1], text = _d === void 0 ? defaultText : _d;
+                var element = document.createElement('span');
+                element.textContent = text;
+                element.style.whiteSpace = 'nowrap';
+                for (var _e = 0, _f = Object.keys(style); _e < _f.length; _e++) {
+                    var name_1 = _f[_e];
+                    var value = style[name_1];
+                    if (value !== undefined) {
+                        element.style[name_1] = value;
+                    }
+                }
+                elements[key] = element;
+                container.appendChild(document.createElement('br'));
+                container.appendChild(element);
+            }
+            // Then measure the created elements
+            for (var _g = 0, _h = Object.keys(presets); _g < _h.length; _g++) {
+                var key = _h[_g];
+                sizes[key] = elements[key].getBoundingClientRect().width;
+            }
+            return sizes;
+        });
+    }
+    /**
+     * Creates a DOM environment that provides the most natural font available, including Android OS font.
+     * Measurements of the elements are zoom-independent.
+     * Don't put a content to measure inside an absolutely positioned element.
+     */
+    function withNaturalFonts(action, containerWidthPx) {
+        if (containerWidthPx === void 0) { containerWidthPx = 4000; }
+        /*
+         * Requirements for Android Chrome to apply the system font size to a text inside an iframe:
+         * - The iframe mustn't have a `display: none;` style;
+         * - The text mustn't be positioned absolutely;
+         * - The text block must be wide enough.
+         *   2560px on some devices in portrait orientation for the biggest font size option (32px);
+         * - There must be much enough text to form a few lines (I don't know the exact numbers);
+         * - The text must have the `text-size-adjust: none` style. Otherwise the text will scale in "Desktop site" mode;
+         *
+         * Requirements for Android Firefox to apply the system font size to a text inside an iframe:
+         * - The iframe document must have a header: `<meta name="viewport" content="width=device-width, initial-scale=1" />`.
+         *   The only way to set it is to use the `srcdoc` attribute of the iframe;
+         * - The iframe content must get loaded before adding extra content with JavaScript;
+         *
+         * https://example.com as the iframe target always inherits Android font settings so it can be used as a reference.
+         *
+         * Observations on how page zoom affects the measurements:
+         * - macOS Safari 11.1, 12.1, 13.1, 14.0: zoom reset + offsetWidth = 100% reliable;
+         * - macOS Safari 11.1, 12.1, 13.1, 14.0: zoom reset + getBoundingClientRect = 100% reliable;
+         * - macOS Safari 14.0: offsetWidth = 5% fluctuation;
+         * - macOS Safari 14.0: getBoundingClientRect = 5% fluctuation;
+         * - iOS Safari 9, 10, 11.0, 12.0: haven't found a way to zoom a page (pinch doesn't change layout);
+         * - iOS Safari 13.1, 14.0: zoom reset + offsetWidth = 100% reliable;
+         * - iOS Safari 13.1, 14.0: zoom reset + getBoundingClientRect = 100% reliable;
+         * - iOS Safari 14.0: offsetWidth = 100% reliable;
+         * - iOS Safari 14.0: getBoundingClientRect = 100% reliable;
+         * - Chrome 42, 65, 80, 87: zoom 1/devicePixelRatio + offsetWidth = 1px fluctuation;
+         * - Chrome 42, 65, 80, 87: zoom 1/devicePixelRatio + getBoundingClientRect = 100% reliable;
+         * - Chrome 87: offsetWidth = 1px fluctuation;
+         * - Chrome 87: getBoundingClientRect = 0.7px fluctuation;
+         * - Firefox 48, 51: offsetWidth = 10% fluctuation;
+         * - Firefox 48, 51: getBoundingClientRect = 10% fluctuation;
+         * - Firefox 52, 53, 57, 62, 66, 67, 68, 71, 75, 80, 84: offsetWidth = width 100% reliable, height 10% fluctuation;
+         * - Firefox 52, 53, 57, 62, 66, 67, 68, 71, 75, 80, 84: getBoundingClientRect = width 100% reliable, height 10%
+         *   fluctuation;
+         * - Android Chrome 86: haven't found a way to zoom a page (pinch doesn't change layout);
+         * - Android Firefox 84: font size in accessibility settings changes all the CSS sizes, but offsetWidth and
+         *   getBoundingClientRect keep measuring with regular units, so the size reflects the font size setting and doesn't
+         *   fluctuate;
+         * - IE 11, Edge 18: zoom 1/devicePixelRatio + offsetWidth = 100% reliable;
+         * - IE 11, Edge 18: zoom 1/devicePixelRatio + getBoundingClientRect = reflects the zoom level;
+         * - IE 11, Edge 18: offsetWidth = 100% reliable;
+         * - IE 11, Edge 18: getBoundingClientRect = 100% reliable;
+         */
+        return withIframe(function (_, iframeWindow) {
+            var iframeDocument = iframeWindow.document;
+            var iframeBody = iframeDocument.body;
+            var bodyStyle = iframeBody.style;
+            bodyStyle.width = containerWidthPx + "px";
+            bodyStyle.webkitTextSizeAdjust = bodyStyle.textSizeAdjust = 'none';
+            // See the big comment above
+            if (isChromium()) {
+                iframeBody.style.zoom = "" + 1 / iframeWindow.devicePixelRatio;
+            }
+            else if (isWebKit()) {
+                iframeBody.style.zoom = 'reset';
+            }
+            // See the big comment above
+            var linesOfText = iframeDocument.createElement('div');
+            linesOfText.textContent = __spreadArrays(Array((containerWidthPx / 20) << 0)).map(function () { return 'word'; }).join(' ');
+            iframeBody.appendChild(linesOfText);
+            return action(iframeDocument, iframeBody);
+        }, '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">');
+    }
+
+    /**
      * The list of entropy sources used to make visitor identifiers.
      *
      * This value isn't restricted by Semantic Versioning, i.e. it may be changed without bumping minor or major version of
@@ -1163,14 +2132,18 @@ var FingerprintJS = (function (exports) {
      */
     var sources = {
         // Expected errors and default values must be handled inside the functions. Unexpected errors must be thrown.
+        // The sources run in this exact order. The asynchronous sources are at the start to run in parallel with other sources.
+        fonts: getFonts,
+        domBlockers: getDomBlockers,
+        fontPreferences: getFontPreferences,
+        audio: getAudioFingerprint,
+        screenFrame: getRoundedScreenFrame,
         osCpu: getOsCpu,
         languages: getLanguages,
         colorDepth: getColorDepth,
         deviceMemory: getDeviceMemory,
         screenResolution: getScreenResolution,
-        availableScreenResolution: getAvailableScreenResolution,
         hardwareConcurrency: getHardwareConcurrency,
-        timezoneOffset: getTimezoneOffset,
         timezone: getTimezone,
         sessionStorage: getSessionStorage,
         localStorage: getLocalStorage,
@@ -1180,18 +2153,50 @@ var FingerprintJS = (function (exports) {
         platform: getPlatform,
         plugins: getPlugins,
         canvas: getCanvasFingerprint,
-        // adBlock: isAdblockUsed, // https://github.com/fingerprintjs/fingerprintjs/issues/405
         touchSupport: getTouchSupport,
-        fonts: getFontsIframe,
-        audio: getAudioFingerprint,
-        pluginsSupport: getPluginsSupport,
-        productSub: getProductSub,
-        emptyEvalLength: getEmptyEvalLength,
-        errorFF: getErrorFF,
         vendor: getVendor,
-        chrome: getChrome,
+        vendorFlavors: getVendorFlavors,
         cookiesEnabled: areCookiesEnabled,
+        colorGamut: getColorGamut,
+        invertedColors: areColorsInverted,
+        forcedColors: areColorsForced,
+        monochrome: getMonochromeDepth,
+        contrast: getContrastPreference,
+        reducedMotion: isMotionReduced,
+        hdr: isHDR,
+        math: getMathFingerprint,
     };
+    function ensureErrorWithMessage(error) {
+        return error && typeof error === 'object' && 'message' in error ? error : { message: error };
+    }
+    /**
+     * Gets a component from the given entropy source.
+     */
+    function getComponent(source, sourceOptions) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, startTime, error_1;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        startTime = Date.now();
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        _a = {};
+                        return [4 /*yield*/, source(sourceOptions)];
+                    case 2:
+                        result = (_a.value = _b.sent(), _a);
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _b.sent();
+                        result = { error: ensureErrorWithMessage(error_1) };
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/, __assign(__assign({}, result), { duration: Date.now() - startTime })];
+                }
+            });
+        });
+    }
     /**
      * Gets a components list from the given list of entropy sources.
      *
@@ -1200,43 +2205,60 @@ var FingerprintJS = (function (exports) {
      */
     function getComponents(sources, sourceOptions, excludeSources) {
         return __awaiter(this, void 0, void 0, function () {
-            var timestamp, components, _i, _a, sourceKey, result, error_1, nextTimestamp;
-            var _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var sourcePromises, components, loopReleaseInterval, lastLoopReleaseTime, _loop_1, _i, _a, sourceKey;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        timestamp = Date.now();
+                        sourcePromises = [];
                         components = {};
+                        loopReleaseInterval = 16;
+                        lastLoopReleaseTime = Date.now();
+                        _loop_1 = function (sourceKey) {
+                            var now;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!excludes(excludeSources, sourceKey)) {
+                                            return [2 /*return*/, "continue"];
+                                        }
+                                        // Create the keys immediately to keep the component keys order the same as the sources keys order
+                                        components[sourceKey] = undefined;
+                                        sourcePromises.push(getComponent(sources[sourceKey], sourceOptions).then(function (component) {
+                                            components[sourceKey] = component;
+                                        }));
+                                        now = Date.now();
+                                        if (!(now >= lastLoopReleaseTime + loopReleaseInterval)) return [3 /*break*/, 2];
+                                        lastLoopReleaseTime = now;
+                                        // Allows asynchronous sources to complete and measure the duration correctly before running the next sources
+                                        return [4 /*yield*/, new Promise(function (resolve) { return setTimeout(resolve); })];
+                                    case 1:
+                                        // Allows asynchronous sources to complete and measure the duration correctly before running the next sources
+                                        _a.sent();
+                                        return [3 /*break*/, 4];
+                                    case 2: return [4 /*yield*/, undefined];
+                                    case 3:
+                                        _a.sent();
+                                        _a.label = 4;
+                                    case 4: return [2 /*return*/];
+                                }
+                            });
+                        };
                         _i = 0, _a = Object.keys(sources);
-                        _c.label = 1;
+                        _b.label = 1;
                     case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 7];
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
                         sourceKey = _a[_i];
-                        if (!excludes(excludeSources, sourceKey)) {
-                            return [3 /*break*/, 6];
-                        }
-                        result = void 0;
-                        _c.label = 2;
+                        return [5 /*yield**/, _loop_1(sourceKey)];
                     case 2:
-                        _c.trys.push([2, 4, , 5]);
-                        _b = {};
-                        return [4 /*yield*/, sources[sourceKey](sourceOptions)];
+                        _b.sent();
+                        _b.label = 3;
                     case 3:
-                        result = (_b.value = _c.sent(), _b);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        error_1 = _c.sent();
-                        result = error_1 && typeof error_1 === 'object' && 'message' in error_1 ? { error: error_1 } : { error: { message: error_1 } };
-                        return [3 /*break*/, 5];
-                    case 5:
-                        nextTimestamp = Date.now();
-                        components[sourceKey] = __assign(__assign({}, result), { duration: nextTimestamp - timestamp }); // TypeScript has beaten me here
-                        timestamp = nextTimestamp;
-                        _c.label = 6;
-                    case 6:
                         _i++;
                         return [3 /*break*/, 1];
-                    case 7: return [2 /*return*/, components];
+                    case 4: return [4 /*yield*/, Promise.all(sourcePromises)];
+                    case 5:
+                        _b.sent();
+                        return [2 /*return*/, components];
                 }
             });
         });
@@ -1244,13 +2266,13 @@ var FingerprintJS = (function (exports) {
     /**
      * Collects entropy components from the built-in sources to make the visitor identifier.
      */
-    function getBuiltinComponents() {
-        return getComponents(sources, undefined, []);
+    function getBuiltinComponents(options) {
+        return getComponents(sources, options, []);
     }
 
     function componentsToCanonicalString(components) {
         var result = '';
-        for (var _i = 0, _a = Object.keys(components); _i < _a.length; _i++) {
+        for (var _i = 0, _a = Object.keys(components).sort(); _i < _a.length; _i++) {
             var componentKey = _a[_i];
             var component = components[componentKey];
             var value = component.error ? 'error' : JSON.stringify(component.value);
@@ -1296,6 +2318,7 @@ var FingerprintJS = (function (exports) {
      */
     var OpenAgent = /** @class */ (function () {
         function OpenAgent() {
+            watchScreenFrame();
         }
         /**
          * @inheritDoc
@@ -1306,7 +2329,7 @@ var FingerprintJS = (function (exports) {
                 var components, result;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, getBuiltinComponents()];
+                        case 0: return [4 /*yield*/, getBuiltinComponents(options)];
                         case 1:
                             components = _a.sent();
                             result = makeLazyGetResult(components);
@@ -1360,6 +2383,8 @@ var FingerprintJS = (function (exports) {
     exports.componentsToDebugString = componentsToDebugString;
     exports.default = index;
     exports.getComponents = getComponents;
+    exports.getFullscreenElement = getFullscreenElement;
+    exports.getScreenFrame = getScreenFrame;
     exports.hashComponents = hashComponents;
     exports.isChromium = isChromium;
     exports.isDesktopSafari = isDesktopSafari;

@@ -1,5 +1,5 @@
 /*!
- * modernizr v3.11.6
+ * modernizr v3.11.7
  * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-filesystem-flexbox-getusermedia-hashchange-history-inlinesvg-localstorage-sessionstorage-speechrecognition-speechsynthesis-svg-svgasimg-touchevents-video-webworkers-xhr2-setclasses-dontmin
  *
  * Copyright (c)
@@ -35,7 +35,7 @@
    * @access public
    */
   var ModernizrProto = {
-    _version: '3.11.6',
+    _version: '3.11.7',
 
     // Any settings that don't work as separate modules
     // can go in here as configuration.
@@ -600,7 +600,7 @@ Detects support for SVG in `<embed>` or `<object>` elements.
    *
    * Modernizr._prefixes is the internal list of prefixes that we test against
    * inside of things like [prefixed](#modernizr-prefixed) and [prefixedCSS](#-code-modernizr-prefixedcss). It is simply
-   * an array of kebab-case vendor prefixes you can use within your code.
+   * an array of hyphen-case vendor prefixes you can use within your code.
    *
    * Some common use cases include
    *
@@ -1012,13 +1012,13 @@ Modernizr.video.ogg     // 'probably'
   
 
   /**
-   * domToCSS takes a camelCase string and converts it to kebab-case
+   * domToCSS takes a camelCase string and converts it to hyphen-case
    * e.g. boxSizing -> box-sizing
    *
    * @access private
    * @function domToCSS
    * @param {string} name - String name of camelCase prop we want to convert
-   * @returns {string} The kebab-case version of the supplied name
+   * @returns {string} The hyphen-case version of the supplied name
    */
   function domToCSS(name) {
     return name.replace(/([A-Z])/g, function(str, m1) {
@@ -1069,12 +1069,12 @@ Modernizr.video.ogg     // 'probably'
   ;
 
   /**
-   * cssToDOM takes a kebab-case string and converts it to camelCase
+   * cssToDOM takes a hyphen-case string and converts it to camelCase
    * e.g. box-sizing -> boxSizing
    *
    * @access private
    * @function cssToDOM
-   * @param {string} name - String name of kebab-case prop we want to convert
+   * @param {string} name - String name of hyphen-case prop we want to convert
    * @returns {string} The camelCase version of the supplied name
    */
   function cssToDOM(name) {
@@ -1096,7 +1096,7 @@ Modernizr.video.ogg     // 'probably'
   // on our modernizr element, but instead just testing undefined vs
   // empty string.
 
-  // Property names can be provided in either camelCase or kebab-case.
+  // Property names can be provided in either camelCase or hyphen-case.
 
   function testProps(props, prefixed, value, skipValueTest) {
     skipValueTest = is(skipValueTest, 'undefined') ? false : skipValueTest;
@@ -1190,7 +1190,7 @@ Modernizr.video.ogg     // 'probably'
    * @example
    *
    * Modernizr._domPrefixes is exactly the same as [_prefixes](#modernizr-_prefixes), but rather
-   * than kebab-case properties, all properties are their Capitalized variant
+   * than hyphen-case properties, all properties are their Capitalized variant
    *
    * ```js
    * Modernizr._domPrefixes === [ "Moz", "O", "ms", "Webkit" ];
@@ -1305,7 +1305,7 @@ Modernizr.video.ogg     // 'probably'
    * @optionProp testAllProps
    * @access public
    * @function testAllProps
-   * @param {string} prop - String naming the property to test (either camelCase or kebab-case)
+   * @param {string} prop - String naming the property to test (either camelCase or hyphen-case)
    * @param {string} [value] - String of the value to test
    * @param {boolean} [skipValueTest=false] - Whether to skip testing that the value is supported when using non-native detection
    * @returns {string|boolean} returns the string version of the property, or `false` if it is unsupported
@@ -1484,7 +1484,7 @@ to be the File object's prototype.)
    * @example
    *
    * Modernizr.prefixed takes a string css value in the DOM style camelCase (as
-   * opposed to the css style kebab-case) form and returns the (possibly prefixed)
+   * opposed to the css style hyphen-case) form and returns the (possibly prefixed)
    * version of that property that the browser actually supports.
    *
    * For example, in older Firefox...
@@ -1529,7 +1529,7 @@ to be the File object's prototype.)
    * var transEndEventName = transEndEventNames[ Modernizr.prefixed('transition') ];
    * ```
    *
-   * If you want a similar lookup, but in kebab-case, you can use [prefixedCSS](#modernizr-prefixedcss).
+   * If you want a similar lookup, but in hyphen-case, you can use [prefixedCSS](#modernizr-prefixedcss).
    */
   var prefixed = ModernizrProto.prefixed = function(prop, obj, elem) {
     if (prop.indexOf('@') === 0) {
@@ -1537,7 +1537,7 @@ to be the File object's prototype.)
     }
 
     if (prop.indexOf('-') !== -1) {
-      // Convert kebab-case to camelCase
+      // Convert hyphen-case to camelCase
       prop = cssToDOM(prop);
     }
     if (!obj) {

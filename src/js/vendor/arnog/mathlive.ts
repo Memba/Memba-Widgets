@@ -9,12 +9,13 @@ import type {
   ErrorListener,
   ParserErrorCode,
   MathfieldErrorCode,
+  MacroDictionary,
 } from './public/core';
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
-import { coalesce, makeStruts, Span } from './core/span';
-import { MACROS, MacroDictionary } from './core-definitions/definitions';
+import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
+import { MACROS } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
 import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
 import {
@@ -27,7 +28,6 @@ import MathLiveDebug, {
   asciiMathToLatex,
   latexToAsciiMath,
 } from './addons/debug';
-import { MATHSTYLES } from './core/mathstyle';
 import { defaultSpeakHook } from './editor/speech';
 import {
   defaultReadAloudHook,
@@ -44,6 +44,8 @@ import './addons/definitions-metadata';
 import './editor/virtual-keyboard-commands';
 import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboard';
 import { Context } from './core/context';
+import { DEFAULT_FONT_SIZE } from './core/font-metrics';
+import { l10n } from './editor/l10n';
 
 export { MathfieldElement } from './public/mathfield-element';
 
@@ -68,69 +70,103 @@ export function convertLatexToMarkup(
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
+    colorMap?: (name: string) => string;
+    backgroundColorMap?: (name: string) => string;
     onError?: ErrorListener<ParserErrorCode>;
     format?: string;
   }
 ): string {
   options = options ?? {};
   options.mathstyle = options.mathstyle ?? 'displaystyle';
-  options.letterShapeStyle = options.letterShapeStyle ?? 'auto';
-  options.macros = { ...MACROS, ...(options.macros ?? {}) };
+  let letterShapeStyle = options.letterShapeStyle ?? 'auto';
+  if (letterShapeStyle === 'auto') {
+    letterShapeStyle = l10n.locale.startsWith('fr') ? 'french' : 'tex';
+  }
+  options.macros = {
+    ...MACROS,
+    ...(options.macros ?? {}),
+  };
 
   //
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
 
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(
-    text,
-    'math',
-    null,
-    options.macros,
-    false,
-    options.onError
-  );
+  root.body = parseLatex(text, {
+    parseMode: 'math',
+    macros: options.macros,
+    onError: options.onError,
+    colorMap: options.colorMap,
+    backgroundColorMap: options.backgroundColorMap,
+  });
+
   //
-  // 2. Transform the math atoms into elementary spans
-  //    for example from genfrac to vlist.
-  //    Simplify by coalescing adjacent nodes
-  //    for example, from <span>1</span><span>2</span>
-  //    to <span>12</span>
+  // 2. Transform the math atoms into elementary boxes
+  // for example from genfrac to VBox.
   //
-  const span = coalesce(
-    root.render(
-      new Context({
-        mathstyle: MATHSTYLES[options.mathstyle],
-        letterShapeStyle: options.letterShapeStyle,
-        renderPlaceholder: (_context: Context) => new Span(null),
-      })
+  const box = root.render(
+    new Context(
+      {
+        macros: options.macros,
+        smartFence: false,
+        renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
+      },
+      {
+        fontSize: DEFAULT_FONT_SIZE,
+        letterShapeStyle: letterShapeStyle,
+      },
+      options.mathstyle
     )
   );
 
   //
+  // 3. Adjust to `mord` according to TeX spacing rules
+  //
+  adjustInterAtomSpacing(box);
+
+  //
+  // 2. Simplify by coalescing adjacent boxes
+  //    for example, from <span>1</span><span>2</span>
+  //    to <span>12</span>
+  //
+  coalesce(box);
+
+  //
   // 4. Wrap the expression with struts
   //
-  const wrapper = makeStruts(span, { classes: 'ML__mathlive' });
+  const wrapper = makeStruts(box, { classes: 'ML__mathlive' });
 
   //
   // 5. Generate markup
   //
 
-  return wrapper.toMarkup({ hscale: 1 });
+  return wrapper.toMarkup();
 }
 
 export function convertLatexToMathMl(
   latex: string,
   options: Partial<{
     macros: MacroDictionary;
+    colorMap?: (name: string) => string;
+    backgroundColorMap?: (name: string) => string;
     onError: ErrorListener<ParserErrorCode>;
     generateID: boolean;
   }> = {}
 ): string {
-  options.macros = { ...MACROS, ...(options.macros ?? {}) };
+  options.macros = {
+    ...MACROS,
+    ...(options.macros ?? {}),
+  };
 
   return atomsToMathML(
-    parseLatex(latex, 'math', [], options.macros, false, options.onError),
+    parseLatex(latex, {
+      parseMode: 'math',
+      args: () => '',
+      macros: options.macros,
+      onError: options.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    }),
     options
   );
 }
@@ -158,10 +194,12 @@ function latexToAST(
   options = options ?? {};
   options.macros = { ...MACROS, ...(options.macros ?? {}) };
 
-  // Return parseLatex(latex, options);
-
   return atomtoMathJson(
-    parseLatex(latex, 'math', null, options.macros, false, options.onError),
+    parseLatex(latex, {
+      parseMode: 'math',
+      macros: options.macros,
+      onError: options.onError,
+    }),
     options
   );
 }
@@ -183,6 +221,8 @@ export function convertLatexToSpeakableText(
   options: Partial<
     TextToSpeechOptions & {
       macros?: MacroDictionary;
+      colorMap?: (name: string) => string;
+      backgroundColorMap?: (name: string) => string;
       onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
     }
   > = {}
@@ -190,14 +230,13 @@ export function convertLatexToSpeakableText(
   options.macros = options.macros ?? {};
   Object.assign(options.macros, MACROS);
 
-  const atoms = parseLatex(
-    latex,
-    'math',
-    null,
-    options.macros,
-    false,
-    options.onError
-  );
+  const atoms = parseLatex(latex, {
+    parseMode: 'math',
+    macros: options.macros,
+    onError: options.onError,
+    colorMap: options.colorMap,
+    backgroundColorMap: options.backgroundColorMap,
+  });
 
   return atomToSpeakableText(atoms, options as Required<TextToSpeechOptions>);
 }
@@ -300,7 +339,7 @@ function getOriginalContent(
 }
 
 // This SDK_VERSION variable will be replaced during the build process.
-const version = '{{SDK_VERSION}}';
+export const version = '{{SDK_VERSION}}';
 
 function deprecated(method: string, remedy: string) {
   console.warn(`"${method}" is deprecated. 
@@ -319,10 +358,6 @@ use
 }
 
 export const debug = {
-  // getStyle: MathLiveDebug.getStyle,
-  getType: MathLiveDebug.getType,
-  // spanToString: MathLiveDebug.spanToString,
-  // hasClass: MathLiveDebug.hasClass,
   latexToAsciiMath,
   asciiMathToLatex,
   FUNCTIONS: MathLiveDebug.FUNCTIONS,
@@ -332,6 +367,7 @@ export const debug = {
   MACROS: MathLiveDebug.MACROS,
   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
+  INLINE_SHORTCUTS: MathLiveDebug.INLINE_SHORTCUTS,
 };
 
 export default {

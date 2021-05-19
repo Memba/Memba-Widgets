@@ -1,9 +1,9 @@
-import { ParseMode, Style } from '../public/core';
+import type { ParseMode, Style } from '../public/core';
 
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { MATHSTYLES, MathStyleName } from '../core/mathstyle';
-import { Span, SpanType } from '../core/span';
+import type { MathstyleName } from '../core/mathstyle';
+import type { Box, BoxType } from '../core/box';
 
 export class GroupAtom extends Atom {
   latexOpen?: string;
@@ -11,14 +11,14 @@ export class GroupAtom extends Atom {
   cssId?: string;
   htmlData?: string;
   customClass?: string;
-  mathStyleName: MathStyleName;
-  spanType: SpanType;
+  mathstyleName: MathstyleName;
+  boxType: BoxType;
   constructor(
     arg: Atom[],
     options?: {
-      spanType?: SpanType;
+      boxType?: BoxType;
       changeMode?: boolean;
-      mathStyleName?: MathStyleName;
+      mathstyleName?: MathstyleName;
       latexOpen?: string;
       latexClose?: string;
       cssId?: string;
@@ -27,16 +27,17 @@ export class GroupAtom extends Atom {
       mode?: ParseMode;
       style?: Style;
       captureSelection?: boolean;
-      toLatexOverride?: (atom: GroupAtom, options: ToLatexOptions) => string;
+      serialize?: (atom: GroupAtom, options: ToLatexOptions) => string;
     }
   ) {
     super('group', {
       mode: options?.mode ?? 'math',
-      toLatexOverride: options?.toLatexOverride,
+      serialize: options?.serialize,
       style: options?.style,
+      displayContainsHighlight: true,
     });
     this.body = arg;
-    this.mathStyleName = options?.mathStyleName;
+    this.mathstyleName = options?.mathstyleName;
 
     this.latexOpen = options?.latexOpen;
     this.latexClose = options?.latexClose;
@@ -44,42 +45,39 @@ export class GroupAtom extends Atom {
     this.htmlData = options?.htmlData;
     this.customClass = options?.customClass;
 
-    this.spanType = options?.spanType;
+    this.boxType = options?.boxType;
     this.skipBoundary = true;
     this.captureSelection = options?.captureSelection;
     this.changeMode = options?.changeMode ?? false;
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box {
     // The scope of the context is this group, so clone it
     // so that any changes to it will be discarded when finished
     // with this group.
     // Note that the mathstyle property is optional and could be undefined
     // If that's the case, clone() returns a clone of the
     // context with the same mathstyle.
-    const localContext = context.clone({
-      mathstyle: this.mathStyleName
-        ? MATHSTYLES[this.mathStyleName]
-        : undefined,
-    });
-    const span = new Span(Atom.render(localContext, this.body), {
-      type: this.spanType ?? 'mord',
+    const localContext = new Context(context, this.style, this.mathstyleName);
+    const box = Atom.createBox(localContext, this.body, {
+      type: this.boxType,
       classes: this.customClass,
       mode: this.mode,
       style: {
         backgroundColor: this.style.backgroundColor,
       },
-    }); // @revisit
-    if (this.cssId) span.cssId = this.cssId;
-    if (this.htmlData) span.htmlData = this.htmlData;
-    if (this.caret) span.caret = this.caret;
+    });
+    if (!box) return box;
+    if (this.cssId) box.cssId = this.cssId;
+    if (this.htmlData) box.htmlData = this.htmlData;
+    if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    return this.bind(context, span);
+    return this.bind(context, box);
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let result = this.bodyToLatex(options);
 
     if (typeof this.latexOpen === 'string') {

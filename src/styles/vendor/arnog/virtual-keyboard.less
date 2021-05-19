@@ -1,5 +1,6 @@
 @keyboard-zindex: 105;
 @keyboard-height: 276px;
+@keycap-height: 52px;
 @system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
   'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
@@ -38,7 +39,7 @@
   --keyboard-alternate-key-aside-font-size: 12px;
 
   --keyboard-height: @keyboard-height;
-  --keycap-height: 52px;
+  --keycap-height: @keycap-height;
   --keycap-font-size: 20px;
   --keycap-small-font-size: calc(var(--keycap-font-size) * 0.8);
   --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
@@ -178,8 +179,8 @@
         color: var(--keyboard-alternate-text);
         fill: currentColor;
         &:hover,
-        &.pressed,
-        &.active {
+        &.is-pressed,
+        &.is-active {
           box-shadow: @shadow3;
           background: var(--keyboard-alternate-background-active);
           color: var(--keyboard-text-active);
@@ -212,11 +213,11 @@
           justify-content: center;
           border-radius: 5px;
           &:hover,
-          &.pressed,
-          &.active {
+          &.is-pressed,
+          &.is-active {
             background: red;
           }
-          svg {
+          svg.svg-glyph {
             width: 50px;
             height: 50px;
           }
@@ -303,7 +304,7 @@
 
       &.disabled svg,
       &.disabled:hover svg,
-      &.disabled.pressed svg {
+      &.disabled.is-pressed svg {
         color: var(--keyboard-text);
         opacity: 0.2;
       }
@@ -321,8 +322,8 @@
       }
       &:hover,
       &:active,
-      &.pressed,
-      &.active {
+      &.is-pressed,
+      &.is-active {
         color: var(--keyboard-text-active);
       }
       &.selected {
@@ -400,7 +401,7 @@
           padding-right: 4px;
         }
 
-        svg {
+        svg.svg-glyph {
           width: 20px;
           height: 20px;
         }
@@ -418,7 +419,7 @@
           align-items: center;
           justify-content: center;
           margin-bottom: -2px;
-          svg {
+          svg.svg-glyph {
             width: 16px;
             height: 16px;
           }
@@ -427,7 +428,7 @@
             width: 16px;
             min-height: 16px;
             min-width: 16px;
-            svg {
+            svg.svg-glyph {
               width: 14px;
               height: 14px;
             }
@@ -467,21 +468,25 @@
         }
         // &.tt {font-size: 30px;}
         &:hover,
-        &.pressed {
+        &.is-pressed {
           // box-shadow: inset 0 0 1px 1px #8d8f92;
           background: var(--keycap-background-active);
           color: var(--keyboard-text-active);
         }
         &.keycap:active,
-        &.keycap.active,
+        &.keycap.is-active,
         &.action:active,
-        &.action.active {
-          transform: translateY(-20px) scale(1.4, 1.4);
+        &.action.is-active {
+          // -0.2 = 1.0 - 1.4
+          transform: translateY(
+              calc(-0.2 * var(--keycap-height, @keycap-height))
+            )
+            scale(1.4, 1.4);
           z-index: calc(var(--keyboard-zindex, @keyboard-zindex) - 5);
           color: var(--keyboard-text-active);
         }
         &.modifier:active,
-        &.modifier.active {
+        &.modifier.is-active {
           background: var(--keyboard-text-active);
           color: var(--keycap-text-active);
         }
@@ -527,8 +532,8 @@
           color: var(--keyboard-text-active);
           &:hover,
           &:active,
-          &.pressed,
-          &.active {
+          &.is-pressed,
+          &.is-active {
             color: white;
           }
         }
@@ -600,9 +605,9 @@
     /* Tablet size */
     @media only screen and (min-width: 768px) and (max-width: 1024px) {
       & > ul {
-        height: var(--keycap-height, 52px);
+        height: var(--keycap-height, @keycap-height);
         & > li {
-          height: var(--keycap-height, 52px);
+          height: var(--keycap-height, @keycap-height);
           width: 51px;
           margin-right: 4px;
         }
@@ -623,9 +628,9 @@
     /* Desktop size */
     @media only screen and (min-width: 1025px) {
       & > ul {
-        height: var(--keycap-height, 52px);
+        height: var(--keycap-height, @keycap-height);
         & > li {
-          height: var(--keycap-height, 52px);
+          height: var(--keycap-height, @keycap-height);
           width: 66px;
           margin-right: 6px;
         }
@@ -718,8 +723,8 @@ div.ML__keyboard.material {
 
     ul li:hover,
     ul li:active,
-    ul li.active,
-    ul li.pressed {
+    ul li.is-active,
+    ul li.is-pressed {
       border: 1px solid transparent;
       background: @material-primary;
       color: white;
@@ -733,8 +738,8 @@ div.ML__keyboard.material {
     }
     div div:hover,
     div div:active,
-    div.div.active,
-    div.div.pressed {
+    div.div.is-active,
+    div.div.is-pressed {
       color: @material-primary;
       fill: currentColor;
     }
@@ -767,8 +772,8 @@ div.ML__keyboard.material {
 
       &:hover,
       &:active,
-      &.active,
-      &.pressed {
+      &.is-active,
+      &.is-pressed {
         background: #d0d0d0;
         box-shadow: none;
         transform: none;
@@ -779,8 +784,8 @@ div.ML__keyboard.material {
       background: var(--keycap-background-active);
       box-shadow: none;
     }
-    &:not([data-key=' ']).pressed,
-    &:not([data-key=' ']).active,
+    &:not([data-key=' ']).is-pressed,
+    &:not([data-key=' ']).is-active,
     &:not([data-key=' ']):active {
       background: var(--keyboard-alternate-background);
       color: var(--keyboard-alternate-text);
@@ -792,7 +797,7 @@ div.ML__keyboard.material {
         width: 19.5px;
         margin-right: 10px;
         margin-left: 10px;
-        transform: translateY(-20px) scale(2, 2);
+        transform: translateY(-10px) scale(2, 2);
         // transition: .07s cubic-bezier(.4, 0, .2, 1);
         transition: none;
         justify-content: flex-start;
@@ -804,7 +809,7 @@ div.ML__keyboard.material {
       }
     }
     &:last-child:active,
-    &:last-child.active {
+    &:last-child.is-active {
       @media only screen and (max-width: 767px) {
         margin-right: 0;
         margin-left: 14px;
@@ -827,8 +832,8 @@ div.ML__keyboard.material {
     }
     &:hover,
     &:active,
-    &.active,
-    &.pressed {
+    &.is-active,
+    &.is-pressed {
       border: 0;
       color: var(--keycap-text);
       background: var(--keycap-background-active);
@@ -849,8 +854,8 @@ div.ML__keyboard.material {
     }
     &:hover,
     &:active,
-    &.pressed,
-    &.active {
+    &.is-pressed,
+    &.is-active {
       border: 0;
       color: @material-primary;
       fill: currentColor;

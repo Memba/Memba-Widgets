@@ -1,11 +1,16 @@
-import { makeStruts } from '../core/span';
-import { MATHSTYLES } from '../core/mathstyle';
+import { adjustInterAtomSpacing, makeStruts } from '../core/box';
 
-import { Rect, getSelectionBounds, isValidMathfield } from './utils';
+import {
+  Rect,
+  getSelectionBounds,
+  isValidMathfield,
+  getAtomBounds,
+  adjustForScrolling,
+} from './utils';
 import type { MathfieldPrivate } from './mathfield-private';
 
 import { atomsToMathML } from '../addons/math-ml';
-import { Atom, Context } from '../core/core';
+import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
 
 /*
@@ -86,54 +91,63 @@ export function render(
   if (hasFocus) {
     let ancestor = model.at(model.position).parent;
     while (ancestor) {
-      // The `surd` and `leftright` types of atom have a special display,
-      // mark the first of them in the path from the caret (`position`) to
-      // the root  as such.
-      if (ancestor.type === 'surd' || ancestor.type === 'leftright') {
-        ancestor.containsCaret = true;
-        break;
-      }
-
+      ancestor.containsCaret = true;
       ancestor = ancestor.parent;
     }
   }
 
   //
-  // 3. Render spans
+  // 3. Render boxes
   //
   const base = model.root.render(
-    new Context({
-      mathstyle:
-        mathfield.options.defaultMode === 'inline-math'
-          ? MATHSTYLES.textstyle
-          : MATHSTYLES.displaystyle,
-      letterShapeStyle: mathfield.options.letterShapeStyle,
-      atomIdsSettings: {
-        // Using the hash as a seed for the ID
-        // keeps the IDs the same until the content of the field changes.
-        seed: hash(Atom.toLatex(model.root, { expandMacro: false })),
-        // The `groupNumbers` flag indicates that extra spans should be generated
-        // to represent group of atoms, for example, a span to group
-        // consecutive digits to represent a number.
-        groupNumbers: renderOptions.forHighlighting,
+    new Context(
+      {
+        macros: mathfield.options.macros,
+        atomIdsSettings: {
+          // Using the hash as a seed for the ID
+          // keeps the IDs the same until the content of the field changes.
+          seed: hash(
+            Atom.serialize(model.root, {
+              expandMacro: false,
+              defaultMode: mathfield.options.defaultMode,
+            })
+          ),
+          // The `groupNumbers` flag indicates that extra boxes should be generated
+          // to represent group of atoms, for example, a box to group
+          // consecutive digits to represent a number.
+          groupNumbers: renderOptions.forHighlighting,
+        },
+        smartFence: mathfield.options.smartFence,
+        renderPlaceholder: undefined,
+        isSelected: model.root.isSelected,
       },
-      smartFence: mathfield.options.smartFence,
-      macros: mathfield.options.macros,
-    })
+      {
+        fontSize: DEFAULT_FONT_SIZE,
+        letterShapeStyle: mathfield.options.letterShapeStyle,
+      },
+      mathfield.options.defaultMode === 'inline-math'
+        ? 'textstyle'
+        : 'displaystyle'
+    )
   );
 
   //
-  // 4. Construct struts around the spans
+  // 4. Construct struts around the boxes
   //
-  const wrapper = makeStruts(base, { classes: 'ML__mathlive' });
-  wrapper.attributes = {
-    // Sometimes Google Translate kicks in an attempts to 'translate' math
-    // This doesn't work very well, so turn off translate
-    'translate': 'no',
-    // Hint to screen readers to not attempt to read this <span>.
-    // They should use instead the 'aria-label' attribute.
-    'aria-hidden': 'true',
-  };
+  const wrapper = makeStruts(
+    adjustInterAtomSpacing(base, mathfield.options.horizontalSpacingScale),
+    {
+      classes: 'ML__mathlive',
+      attributes: {
+        // Sometimes Google Translate kicks in an attempts to 'translate' math
+        // This doesn't work very well, so turn off translate
+        'translate': 'no',
+        // Hint to screen readers to not attempt to read this <span>.
+        // They should use instead the 'aria-label' attribute.
+        'aria-hidden': 'true',
+      },
+    }
+  );
 
   //
   // 5. Generate markup and accessible node
@@ -145,12 +159,7 @@ export function render(
     mathfield.field.classList.add('ML__focused');
   }
 
-  mathfield.field.innerHTML = mathfield.options.createHTML(
-    wrapper.toMarkup({
-      hskip: 0,
-      hscale: mathfield.options.horizontalSpacingScale,
-    })
-  );
+  mathfield.field.innerHTML = mathfield.options.createHTML(wrapper.toMarkup());
   mathfield.fieldContent = mathfield.field.querySelector('.ML__mathlive');
 
   mathfield.accessibleNode.innerHTML = mathfield.options.createHTML(
@@ -160,27 +169,67 @@ export function render(
   );
 
   //
-  // 6. Render the selection
+  // 6. Render the selection/caret
   //
-  if (!model.selectionIsCollapsed) {
-    renderSelection(mathfield);
-    if (!(renderOptions.interactive ?? false)) {
-      // (re-render a bit later because the layout, sometimes, is not
-      // up to date by now)
-      setTimeout(() => renderSelection(mathfield), 32);
-    }
-  } else {
-    // The popover is relative to the location of the caret
-    setTimeout(() => updatePopoverPosition(mathfield), 32);
+  renderSelection(mathfield);
+  if (!(renderOptions.interactive ?? false)) {
+    // (re-render a bit later because the layout may not be up to date right
+    //  now. This happens in particular when first loading and the fonts are
+    //  not yet available. )
+    setTimeout(() => renderSelection(mathfield), 32);
   }
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {
-  for (const element of mathfield.field.querySelectorAll('.ML__selection')) {
+  // Remove existing selection
+  for (const element of mathfield.field.querySelectorAll(
+    '.ML__selection, .ML__contains-highlight'
+  )) {
     element.remove();
   }
 
-  for (const x of unionRects(getSelectionBounds(mathfield))) {
+  if (!mathfield.hasFocus() || mathfield.options.readOnly) return;
+
+  const model = mathfield.model;
+
+  if (model.selectionIsCollapsed) {
+    //
+    // 1.1. Display the popover relative to the location of the caret
+    //
+    setTimeout(() => updatePopoverPosition(mathfield), 32);
+
+    //
+    // 1.2. Display the 'contains' highlight
+    //
+    let atom = model.at(model.position);
+    while (atom && !(atom.containsCaret && atom.displayContainsHighlight)) {
+      atom = atom.parent;
+    }
+    if (atom?.containsCaret && atom.displayContainsHighlight) {
+      let bounds = getAtomBounds(mathfield, atom);
+      if (bounds) {
+        bounds = adjustForScrolling(mathfield, bounds);
+        const element = document.createElement('div');
+        element.classList.add('ML__contains-highlight');
+        element.style.position = 'absolute';
+        element.style.left = `${bounds.left}px`;
+        element.style.top = `${bounds.top}px`;
+        element.style.width = `${Math.ceil(bounds.right - bounds.left)}px`;
+        element.style.height = `${Math.ceil(bounds.bottom - bounds.top - 1)}px`;
+        mathfield.field.insertBefore(element, mathfield.field.childNodes[0]);
+      }
+    }
+
+    return;
+  }
+
+  //
+  // 2. Display the non-collapsed selection
+  //
+
+  for (const x of unionRects(
+    getSelectionBounds(mathfield, { excludeAtomsWithBackground: true })
+  )) {
     const selectionElement = document.createElement('div');
     selectionElement.classList.add('ML__selection');
     selectionElement.style.position = 'absolute';

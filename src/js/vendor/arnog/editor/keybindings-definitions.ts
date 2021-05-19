@@ -60,8 +60,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   },
 
   { key: '[Escape]', ifMode: 'math', command: ['switchMode', 'latex'] },
+  { key: '[Escape]', ifMode: 'text', command: ['switchMode', 'latex'] },
 
   { key: '\\', ifMode: 'math', command: ['switchMode', 'latex'] },
+  // { key: '[Backslash]', ifMode: 'math', command: ['switchMode', 'latex'] },
+  { key: '[IntlBackslash]', ifMode: 'math', command: ['switchMode', 'latex'] }, // On UK QWERTY keyboards
 
   {
     key: 'alt+[Equal]',
@@ -230,7 +233,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     ifMode: 'math',
     command: ['insert', '$$\\sum_{i=#?}^{#?}$$'],
   },
-  // { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
+  { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
   { key: 'alt+u', ifMode: 'math', command: ['insert', '$$\\cup$$'] },
   { key: 'alt+n', ifMode: 'math', command: ['insert', '$$\\cap$$'] },
   { key: 'alt+o', ifMode: 'math', command: ['insert', '$$\\emptyset$$'] },

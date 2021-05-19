@@ -1,3 +1,4 @@
+import { supportLocalFontEnumeration } from '../common/capabilities';
 import { resolveRelativeUrl } from '../common/script-url';
 import { ErrorListener, MathfieldErrorCode } from '../public/core';
 
@@ -48,10 +49,7 @@ export async function loadFonts(
     ];
     let fontsLoaded = false;
 
-    // Firefox and Safari return true for fonts that are not loaded...
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1252821 🤦‍♂️
-    // So, if on Firefox, always assume that the fonts are not loaded.
-    if (!/firefox|safari/i.test(navigator.userAgent)) {
+    if (supportLocalFontEnumeration()) {
       try {
         fontsLoaded = fontFamilies.every((x) =>
           document.fonts.check('16px ' + x)
@@ -69,28 +67,30 @@ export async function loadFonts(
 
     document.body.classList.add('ML__fonts-loading');
 
-    const fonts: FontFace[] = ([
-      ['KaTeX_Main-Regular'],
-      ['KaTeX_Main-BoldItalic', { style: 'italic', weight: 'bold' }],
-      ['KaTeX_Main-Bold', { weight: 'bold' }],
-      ['KaTeX_Main-Italic', { style: 'italic' }],
-      ['KaTeX_Math-Italic', { style: 'italic' }],
-      ['KaTeX_Math-BoldItalic', { style: 'italic', weight: 'bold' }],
-      ['KaTeX_AMS-Regular'],
-      ['KaTeX_Caligraphic-Regular'],
-      ['KaTeX_Caligraphic-Bold', { weight: 'bold' }],
-      ['KaTeX_Fraktur-Regular'],
-      ['KaTeX_Fraktur-Bold', { weight: 'bold' }],
-      ['KaTeX_SansSerif-Regular', { style: 'italic' }],
-      ['KaTeX_SansSerif-Bold', { weight: 'bold' }],
-      ['KaTeX_SansSerif-Italic', { style: 'italic' }],
-      ['KaTeX_Script-Regular'],
-      ['KaTeX_Typewriter-Regular'],
-      ['KaTeX_Size1-Regular'],
-      ['KaTeX_Size2-Regular'],
-      ['KaTeX_Size3-Regular'],
-      ['KaTeX_Size4-Regular'],
-    ] as [string, Record<string, string>][]).map((x) =>
+    const fonts: FontFace[] = (
+      [
+        ['KaTeX_Main-Regular'],
+        ['KaTeX_Main-BoldItalic', { style: 'italic', weight: 'bold' }],
+        ['KaTeX_Main-Bold', { weight: 'bold' }],
+        ['KaTeX_Main-Italic', { style: 'italic' }],
+        ['KaTeX_Math-Italic', { style: 'italic' }],
+        ['KaTeX_Math-BoldItalic', { style: 'italic', weight: 'bold' }],
+        ['KaTeX_AMS-Regular'],
+        ['KaTeX_Caligraphic-Regular'],
+        ['KaTeX_Caligraphic-Bold', { weight: 'bold' }],
+        ['KaTeX_Fraktur-Regular'],
+        ['KaTeX_Fraktur-Bold', { weight: 'bold' }],
+        ['KaTeX_SansSerif-Regular', { style: 'italic' }],
+        ['KaTeX_SansSerif-Bold', { weight: 'bold' }],
+        ['KaTeX_SansSerif-Italic', { style: 'italic' }],
+        ['KaTeX_Script-Regular'],
+        ['KaTeX_Typewriter-Regular'],
+        ['KaTeX_Size1-Regular'],
+        ['KaTeX_Size2-Regular'],
+        ['KaTeX_Size3-Regular'],
+        ['KaTeX_Size4-Regular'],
+      ] as [string, Record<string, string>][]
+    ).map((x) =>
       makeFontFace(
         x[0].replace(/-[a-zA-Z]+$/, ''),
         fontsFolder + '/' + x[0],
@@ -98,7 +98,7 @@ export async function loadFonts(
       )
     );
     try {
-      const loadedFonts = ((await Promise.all(
+      const loadedFonts = (await Promise.all(
         fonts.map((x) => {
           try {
             return x.load();
@@ -106,7 +106,7 @@ export async function loadFonts(
 
           return undefined;
         })
-      )) as unknown) as FontFace[];
+      )) as unknown as FontFace[];
       // Render them at the same time
       loadedFonts.forEach((font) => document.fonts.add(font));
     } catch (error: unknown) {

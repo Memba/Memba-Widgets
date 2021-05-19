@@ -30,8 +30,9 @@ function findInBranch(
   while (length > 0) {
     // Consider each possible position in the branch
     for (let i = 1; i < branch.length - length + 1; i++) {
-      const latex = Atom.toLatex(branch.slice(i, i + length), {
+      const latex = Atom.serialize(branch.slice(i, i + length), {
         expandMacro: false,
+        defaultMode: model.mathfield.options.defaultMode,
       });
       if (match(value, latex)) {
         result.push([
@@ -99,8 +100,9 @@ function replaceInBranch(
     let length = branch.length - i;
     while (length > 0) {
       let matched = false;
-      const latex = Atom.toLatex(branch.slice(i, i + length), {
+      const latex = Atom.serialize(branch.slice(i, i + length), {
         expandMacro: false,
+        defaultMode: model.mathfield.options.defaultMode,
       });
       const replacementArgs: any = { latex };
       if (typeof pattern === 'string' && latex === pattern) {
@@ -154,7 +156,7 @@ function replaceInBranch(
         }
 
         const lastChild = atom.addChildrenAfter(
-          parseLatex(replacementString, atom.mode),
+          parseLatex(replacementString, { parseMode: atom.mode }),
           branch[i - 1]
         );
         i = branch.indexOf(lastChild) + 1;

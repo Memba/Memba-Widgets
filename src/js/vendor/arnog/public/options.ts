@@ -168,8 +168,8 @@ export type Keybinding = {
  * shortcut apply in all modes.
  *
  * The `'after'` key, if present, indicate in what context (surrounding characters)
- * the shortcut will apply. One or more values can be specified, separated by a '+'
- * sign. If any of the values match, the shortcut will be applicable.
+ * the shortcut will apply. One or more values can be specified, separated by a '|'
+ * character. If any of the values match, the shortcut will be applicable.
  *
  *
  * Possible values are:
@@ -426,11 +426,13 @@ export type VirtualKeyboardOptions = {
    *     well.
    *
    * The value of the properties should be either a string, the name of an
-   * audio file in the `soundsDirectory` directory, or an `HTMLAudioElement`.
+   * audio file in the `soundsDirectory` directory, an `HTMLAudioElement` or
+   * null to supress the sound.
    */
   keypressSound:
     | string
     | HTMLAudioElement
+    | null
     | {
         spacebar?: string | HTMLAudioElement;
         return?: string | HTMLAudioElement;
@@ -441,10 +443,12 @@ export type VirtualKeyboardOptions = {
    * Sound played to provide feedback when a command has no effect, for example
    * when pressing the spacebar at the root level.
    *
-   * The property is either a string, the name of an audio file in the
-   * `soundsDirectory` directory, or an `HTMLAudioElement`.
+   * The property is either:
+   * - a string, the name of an audio file in the `soundsDirectory` directory
+   * - an `HTMLAudioElement`
+   * - null to turn off the sound
    */
-  plonkSound?: string | HTMLAudioElement;
+  plonkSound?: string | HTMLAudioElement | null;
 
   /**
    * The right hand side toolbar configuration.
@@ -790,6 +794,29 @@ mf.setConfig({
   macros: MacroDictionary;
 
   /**
+   * Map a color name as used in commands such as `\textcolor{}{}` or
+   * `\colorbox{}{}` to a CSS color value.
+   *
+   * Use this option to override the standard mapping of colors such as "yellow"
+   * or "red".
+   *
+   * If the name is not one you expected, return `undefined` and the default
+   * color mapping will be applied.
+   *
+   * If a `backgroundColorMap()` function is not provided, the `colorMap()`
+   * function will be used instead.
+   *
+   * If `colorMap()` is not provided, default color mappings are applied.
+   *
+   * The following color names have been optimized for a legible foreground
+   * and background values, and are recommended:
+   * - `red`, `orange`, `yellow`, `lime`, `green`, `teal`, `blue`, `indigo`,
+   * `purple`, `magenta`, `black`, `dark-grey`, `grey`, `light-grey`, `white`
+   */
+  colorMap: (name: string) => string | undefined;
+  backgroundColorMap: (name: string) => string | undefined;
+
+  /**
    * Scaling factor to be applied to horizontal spacing between elements of
    * the formula. A value greater than 1.0 can be used to improve the
    * legibility.
@@ -958,19 +985,6 @@ export type MathfieldOptions = LayoutOptions &
      *
      */
     onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
-
-    /**
-     * This function provides the option of substituting the focusable DOM
-     * element used to capture keyboard input.
-     *
-     * An (invisible) DOM element is used to capture the keyboard events. By
-     * default, this element is a `<textarea>` on desktop and a `<span>` on
-     * mobile devices, to prevent the device virtual keyboard from being
-     * displayed.
-     *
-     * Alternatively, the ID of a DOM element can be provided.
-     */
-    substituteTextArea: string | (() => HTMLElement);
   };
 
 /**

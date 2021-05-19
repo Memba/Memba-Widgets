@@ -1,8 +1,6 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { addSVGOverlay, Span } from '../core/span';
+import { addSVGOverlay, Box } from '../core/box';
 import { Context } from '../core/context';
-import { colorToString } from '../core/color';
 import { Style } from '../public/core';
 
 export type EncloseAtomOptions = {
@@ -78,7 +76,7 @@ export class EncloseAtom extends Atom {
     this.captureSelection = true; // Do not let children be selected
   }
 
-  toLatex(options: ToLatexOptions): string {
+  serialize(options: ToLatexOptions): string {
     let result = this.command;
     if (this.command === '\\enclose') {
       result += '{' + Object.keys(this.notation).join(' ') + '}';
@@ -87,8 +85,7 @@ export class EncloseAtom extends Atom {
       let style = '';
       let sep = '';
       if (this.backgroundcolor && this.backgroundcolor !== 'transparent') {
-        style +=
-          sep + 'mathbackground="' + colorToString(this.backgroundcolor) + '"';
+        style += sep + 'mathbackground="' + this.backgroundcolor + '"';
         sep = ',';
       }
 
@@ -101,7 +98,7 @@ export class EncloseAtom extends Atom {
         style += sep + this.borderStyle;
         sep = ',';
       } else if (this.strokeColor && this.strokeColor !== 'currentColor') {
-        style += sep + 'mathcolor="' + colorToString(this.strokeColor) + '"';
+        style += sep + 'mathcolor="' + this.strokeColor + '"';
         sep = ',';
       }
 
@@ -114,16 +111,18 @@ export class EncloseAtom extends Atom {
     return result;
   }
 
-  render(context: Context): Span {
-    const base = new Span(Atom.render(context, this.body), { type: 'mord' });
+  render(parentContext: Context): Box {
+    const context = new Context(parentContext, this.style);
+
+    const base = Atom.createBox(context, this.body);
 
     // Account for the padding
     const padding =
-      typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
+      typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
 
-    // The 'ML__notation' class is required to prevent the span from being omitted
-    // during rendering (it looks like an empty, no-op span)
-    const notation = new Span(null, { classes: 'ML__notation' });
+    // The 'ML__notation' class is required to prevent the box from being omitted
+    // during rendering (it looks like an empty, no-op box)
+    const notation = new Box(null, { classes: 'ML__notation' });
     notation.setStyle('position', 'absolute');
     notation.setStyle('height', base.height + base.depth + 2 * padding, 'em');
     notation.height = base.height + padding;
@@ -291,7 +290,7 @@ export class EncloseAtom extends Atom {
       addSVGOverlay(notation, svg, svgStyle);
     }
 
-    const result = new Span([notation, base]);
+    const result = new Box([notation, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
@@ -305,6 +304,6 @@ export class EncloseAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return result;
+    return result.wrap(context);
   }
 }

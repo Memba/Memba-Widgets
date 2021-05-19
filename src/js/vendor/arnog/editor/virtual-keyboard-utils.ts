@@ -1,11 +1,9 @@
 import { Atom } from '../core/atom';
-import { Span, makeStruts } from '../core/span';
+import { Box, makeStruts, coalesce, adjustInterAtomSpacing } from '../core/box';
 import { parseLatex } from '../core/parser';
-import { LINE_COLORS, AREA_COLORS } from '../core/color';
+import { BACKGROUND_COLORS, FOREGROUND_COLORS } from '../core/color';
 import { l10n as l10nOptions, localize as l10n } from './l10n';
-import { MATHSTYLES } from '../core/mathstyle';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
-import { releaseSharedElement } from '../editor-mathfield/utils';
 
 import { inject as injectStylesheet } from '../common/stylesheet';
 
@@ -26,22 +24,180 @@ import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
 import { MACROS } from '../core-definitions/definitions';
+import { Scrim } from './scrim';
+import { Context } from '../core/context';
+import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+
+let gScrim: Scrim = null;
+
+export function showAlternateKeys(
+  keyboard: VirtualKeyboard,
+  altKeysetName: string,
+  altKeys: (string | any)[]
+): boolean {
+  const altContainer = document.createElement('div');
+  altContainer.setAttribute('aria-hidden', 'true');
+  altContainer.className =
+    'ML__keyboard alternate-keys' +
+    (keyboard.element.classList.contains('material') ? ' material' : '');
+  altContainer.id = 'mathlive-alternate-keys-panel';
+
+  if (altKeys.length >= 14) {
+    // Width 5: 5 key wide
+    altContainer.style.width = '236px';
+  } else if (altKeys.length >= 7) {
+    // Width 4
+    altContainer.style.width = '286px';
+  } else if (altKeys.length === 4 || altKeys.length === 2) {
+    // Width 2
+    altContainer.style.width = '146px';
+  } else if (altKeys.length === 1) {
+    // Width 1
+    altContainer.style.width = '86px';
+  } else {
+    // Width 3
+    altContainer.style.width = '146px';
+  }
+
+  // Reset container height
+  altContainer.style.height = 'auto';
+  let markup = '';
+  for (const altKey of altKeys) {
+    markup += '<li';
+    if (typeof altKey === 'string') {
+      markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
+    } else {
+      if (altKey.latex) {
+        markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.content) {
+        markup +=
+          ' data-content="' + altKey.content.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.insert) {
+        markup +=
+          ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.command) {
+        markup +=
+          " data-command='" + altKey.command.replace(/"/g, '&quot;') + "'";
+      }
+
+      if (altKey.aside) {
+        markup += ' data-aside="' + altKey.aside.replace(/"/g, '&quot;') + '"';
+      }
+
+      if (altKey.classes) {
+        markup += ' data-classes="' + altKey.classes + '"';
+      }
+    }
+
+    markup += '>';
+    markup += altKey.label || '';
+    markup += '</li>';
+  }
+
+  markup = '<ul>' + markup + '</ul>';
+  altContainer.innerHTML = keyboard.options.createHTML(markup);
+
+  //
+  // Associate a command which each of the alternate keycaps
+  //
+  makeKeycap(
+    keyboard,
+    [...altContainer.querySelectorAll('li')],
+    'performAlternateKeys'
+  );
+
+  //
+  // Create the scrim and attach the alternate key panel to it
+  //
+  if (gScrim === null) gScrim = new Scrim();
+  gScrim.open({
+    root: keyboard.options.virtualKeyboardContainer,
+    child: altContainer,
+  });
+
+  //
+  // Position the alternate panel
+  //
+
+  const keycapElement = keyboard?.element.querySelector(
+    'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
+      altKeysetName +
+      '"]'
+  );
+  const position = keycapElement.getBoundingClientRect();
+  if (position) {
+    if (position.top - altContainer.clientHeight < 0) {
+      // AltContainer.style.maxWidth = '320px';  // Up to six columns
+      altContainer.style.width = 'auto';
+      if (altKeys.length <= 6) {
+        altContainer.style.height = '56px'; // 1 row
+      } else if (altKeys.length <= 12) {
+        altContainer.style.height = '108px'; // 2 rows
+      } else if (altKeys.length <= 18) {
+        altContainer.style.height = '205px'; // 3 rows
+      } else {
+        altContainer.classList.add('compact');
+      }
+    }
+
+    const top =
+      (position.top - altContainer.clientHeight + 5).toString() + 'px';
+    const left =
+      Math.max(
+        0,
+        Math.min(
+          window.innerWidth - altContainer.offsetWidth,
+          (position.left + position.right - altContainer.offsetWidth) / 2
+        )
+      ) + 'px';
+    altContainer.style.transform = 'translate(' + left + ',' + top + ')';
+    altContainer.classList.add('is-visible');
+  }
+
+  return false;
+}
+
+export function hideAlternateKeys(): boolean {
+  const altContainer = document.querySelector<HTMLElement>(
+    '#mathlive-alternate-keys-panel'
+  );
+  if (altContainer) {
+    altContainer.classList.remove('is-visible');
+    altContainer.innerHTML = '';
+  }
+
+  gScrim?.close();
+
+  return false;
+}
 
 export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
   _executeCommand: ExecuteCommandFunction;
+  private readonly _focus: () => void;
+  private readonly _blur: () => void;
 
   constructor(
     options: VirtualKeyboardOptions & CoreOptions,
     alt?: {
       executeCommand: ExecuteCommandFunction;
+      focus: () => void;
+      blur: () => void;
     }
   ) {
     this.options = options;
     this.visible = false;
     this._executeCommand = alt?.executeCommand;
+    this._focus = alt?.focus;
+    this._blur = alt?.blur;
     // Listen to know when the mouse has been released without being
     // captured to remove the alternate keys panel and the shifted state of the
     // keyboard.
@@ -90,14 +246,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       case 'blur':
       case 'touchend':
       case 'touchcancel':
+        // Safari on iOS will aggressively attempt to select when there is a long
+        // press. Restore the userSelect on mouse up
+        document.body.style.userSelect = '';
+
         unshiftKeyboardLayer(this);
         break;
     }
   }
 
-  focusMathfield(): void {}
+  focusMathfield(): void {
+    this._focus();
+  }
 
-  blurMathfield(): void {}
+  blurMathfield(): void {
+    this._blur();
+  }
 
   enable(): void {}
 
@@ -129,10 +293,8 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   dispose(): void {
+    hideAlternateKeys();
     this.visible = false;
-    releaseSharedElement(
-      document.querySelector('#mathlive-alternate-keys-panel')
-    );
     window.removeEventListener('mouseup', this);
     window.removeEventListener('blur', this);
     window.removeEventListener('touchend', this);
@@ -183,7 +345,7 @@ const KEYBOARDS: Record<string, VirtualKeyboardDefinition> = {
     // doing a simple layer switch, as we want to enter latex mode
     // when the keyboard is activated
     command: ['switchMode', 'latex'],
-    label: `<svg><use xlink:href='#svg-command' /></svg>`,
+    label: `<svg class="svg-glyph"><use xlink:href='#svg-command' /></svg>`,
     layers: ['latex-lower', 'latex-upper', 'latex-symbols'],
   },
   style: {
@@ -381,12 +543,11 @@ const ALT_KEYS_BASE = {
     '\\gtrdot',
   ],
 
-  'set': ['\\in', '\\owns', '\\subset', '\\nsubset', '\\supset', '\\nsupset'],
+  'in': ['\\owns'],
+  '!in': ['\\backepsilon'],
 
-  '!set': ['\\notin', '\\backepsilon'],
-
-  'subset': [],
-  'supset': [],
+  'subset': ['\\subseteq', '\\nsubset', '\\nsubseteq'],
+  'superset': ['\\supseteq', '\\nsupset', '\\nsupseteq'],
 
   'infinity': ['\\aleph_0', '\\aleph_1', '\\omega', '\\mathfrak{m}'],
 
@@ -428,6 +589,53 @@ const ALT_KEYS_BASE = {
     '\\tilde{#@}',
     '\\grave{#@}',
   ],
+  'underline': [
+    '\\underbrace{#@}',
+    '\\underlinesegment{#@}',
+    '\\underleftrightarrow{#@}',
+    '\\underrightarrow{#@}',
+    '\\underleftarrow{#@}',
+    '\\undergroup{#@}',
+  ],
+  'overline': [
+    '\\overbrace{#@}',
+    '\\overlinesegment{#@}',
+    '\\overleftrightarrow{#@}',
+    '\\overrightarrow{#@}',
+    '\\overleftarrow{#@}',
+    '\\overgroup{#@}',
+  ],
+
+  'xleftarrows': [
+    '\\xlongequal{}',
+    '\\xleftrightarrow{}',
+    '\\xLeftrightarrow{}',
+    '\\xleftrightharpoons{}',
+    '\\xLeftarrow{}',
+    '\\xleftharpoonup{}',
+    '\\xleftharpoondown{}',
+    '\\xtwoheadleftarrow{}',
+    '\\xhookleftarrow{}',
+    '\\xtofrom{}',
+    '\\xleftequilibrium{}', // From mhchem.sty package
+    '\\xrightleftarrows{}', // From mhchem.sty package
+  ],
+  'xrightarrows': [
+    '\\xlongequal{}',
+    '\\xleftrightarrow{}',
+    '\\xLeftrightarrow{}',
+    '\\xleftrightharpoons{}',
+    '\\xRightarrow{}',
+    '\\xrightharpoonup{}',
+    '\\xrightharpoondown{}',
+    '\\xtwoheadrightarrow{}',
+    '\\xrightleftharpoons{}',
+    '\\xhookrightarrow{}',
+    '\\xmapsto{}',
+    '\\xrightequilibrium{}', // From mhchem.sty package
+    '\\xrightleftarrows{}', // From mhchem.sty package
+  ],
+
   // 'absnorm': [{latex:'\\lVert #@ \\rVert', aside:'norm'},
   //     {latex:'\\lvert #@ \\rvert', aside:'determinant'},
   //     {latex:'\\begin{cardinality} #@ \\end{cardinality}', aside:'cardinality'},
@@ -601,7 +809,7 @@ const ALT_KEYS_BASE = {
   'delete': [
     {
       label:
-        '<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>',
+        '<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>',
       command: '"deleteAll"',
     },
   ],
@@ -645,8 +853,8 @@ const LAYERS = {
                 <li class='action font-glyph bottom right' data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             </ul>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428; box-sizing: border-box'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590; box-sizing: border-box'></span></li>
                 <li class='separator w5'></li>
                 <row name='numpad-4'/>
                 <li class='separator w5'></li>
@@ -671,7 +879,7 @@ const LAYERS = {
             <ul>
                 <row name='numpad-4' class='if-wide'/>
                 <li class='keycap' >;</li>
-                <li class='keycap' data-alt-keys=','>,</li>
+                <li class='keycap' >,</li>
                 <li class='keycap w50' data-key=' ' data-alt-keys='space'>&nbsp;</li>
                 <arrows/>
             </ul>
@@ -705,8 +913,8 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\lbrace '>{</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrace '>}</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-alt-keys='set' data-insert='\\in '>&#x2208;</li>
-                <li class='keycap tex' data-alt-keys='!set' data-insert='\\notin '>&#x2209;</li>
+                <li class='keycap tex' data-alt-keys='in' data-insert='\\in '>&#x2208;</li>
+                <li class='keycap tex' data-alt-keys='!in' data-insert='\\notin '>&#x2209;</li>
                 <li class='keycap tex' data-insert='\\Re '>&#x211c;<aside>Real</aside></li>
                 <li class='keycap tex' data-insert='\\Im '>&#x2111;<aside>Imaginary</aside></li>
                 <li class='keycap w15' data-insert='\\ulcorner#0\\urcorner '><span><sup>&#x250c;</sup><span><span style='color:#ddd'>o</span><sup>&#x2510;</sup></span><aside>ceil</aside></li>
@@ -720,7 +928,7 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rbrack '>]</li>
                 <li class='separator w5'></li>
                 <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
-                <li class='keycap tex' data-alt-keys='supset' data-insert='\\supset '>&#x2283;</li>
+                <li class='keycap tex' data-alt-keys='superset' data-insert='\\supset '>&#x2283;</li>
                 <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
                 <li class='keycap' data-insert='$$^{\\prime} $$'><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
@@ -733,15 +941,15 @@ const LAYERS = {
                 <li class='keycap tex' data-alt-keys='(' data-insert='\\langle '>&#x27e8;</li>
                 <li class='keycap tex' data-alt-keys=')' data-insert='\\rangle '>&#x27e9;</li>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='\\subseteq '>&#x2286;</li>
-                <li class='keycap tex' data-insert='\\supseteq '>&#x2287;</li>
-                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\vec{#@}$$' data-latex='\\vec{#?}' data-aside='vector'></li>
-                <li class='keycap tex' data-alt-keys='accents' data-insert='$$\\bar{#@}$$' data-latex='\\bar{#?}' data-aside='bar'></li>
+                <li class='keycap tex' data-alt-keys='overline' data-latex='\\overline{#?}' data-aside='overline'></li>
+                <li class='keycap tex' data-alt-keys='underline' data-latex='\\underline{#?}' data-aside='underline'></li>
+                <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
+                <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\xleftarrow{}' ></li>
+                <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\xrightarrow{}' ></li>
                 <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\left| #0 \\right|$$' data-latex='\\left| #? \\right|' data-aside='abs'></li>
-                <li class='keycap tex' data-insert='\\ast '>&#x2217;<aside>asterisk</aside></li>
 
                 <li class='action font-glyph bottom right w15'
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
@@ -790,7 +998,7 @@ const LAYERS = {
                 <li class='keycap tex' data-insert='\\nu '><i>&nu;</i></li>
                 <li class='keycap tex' data-insert='\\mu '><i>&mu;</i></li>
                 <li class='action font-glyph bottom right w15'
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
@@ -888,7 +1096,7 @@ const LAYERS = {
                 <li class='keycap tt'>'</li>
                 <li class='keycap tt'>"</li>
                 <li class='action font-glyph bottom right'
-                    data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+                    data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                     data-shifted-command='"deleteAll"'
                     data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                 >&#x232b;</li>
@@ -950,12 +1158,12 @@ const LAYERS = {
   'style': `
         <div class='rows'>
             <ul>
-                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"#cc2428"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
-                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"#fff590"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
+                <li class='keycap' data-alt-keys='foreground-color' data-command='["applyStyle",{"color":"red"}]'><span style='border-radius: 50%;width:22px;height:22px; border: 3px solid #cc2428'></span></li>
+                <li class='keycap' data-alt-keys='background-color' data-command='["applyStyle",{"backgroundColor":"yellow"}]'><span style='border-radius: 50%;width:22px;height:22px; background:#fff590'></span></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"size3"}]' data-latex='\\scriptsize\\text{small}'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"size5"}]' data-latex='\\scriptsize\\text{normal}'></li>
-                <li class='keycap' data-command='["applyStyle",{"size":"size9"}]' data-latex='\\huge\\text{big}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"3"}]' data-latex='\\scriptsize\\text{small}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"5"}]' data-latex='\\scriptsize\\text{normal}'></li>
+                <li class='keycap' data-command='["applyStyle",{"size":"9"}]' data-latex='\\huge\\text{big}'></li>
                 <li class='separator w5'></li>
                 <li class='keycap' data-latex='\\langle' data-command='["insert", "\\\\langle", {"smartFence":true}]'></li>
             </ul>
@@ -988,20 +1196,35 @@ const LAYERS = {
         </div>`,
 };
 
-function latexToMarkup(latex: string, arg): string {
+function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
-  return makeStruts(
-    new Span(
-      Atom.render(
-        { mathstyle: MATHSTYLES.displaystyle },
-        parseLatex(latex, 'math', arg, MACROS)
-      ),
-      { classes: 'ML__base' }
-    ),
-    { classes: 'ML__mathlive' }
-  ).toMarkup();
+  const root = new Atom('root', { mode: 'math' });
+  root.body = parseLatex(latex, {
+    parseMode: 'math',
+    args: arg,
+    macros: MACROS,
+  });
+
+  const box = coalesce(
+    adjustInterAtomSpacing(
+      new Box(
+        root.render(
+          new Context(
+            { macros: MACROS, smartFence: false },
+            {
+              fontSize: DEFAULT_FONT_SIZE,
+            },
+            'displaystyle'
+          )
+        ),
+        { classes: 'ML__base' }
+      )
+    )
+  );
+
+  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 /**
@@ -1047,8 +1270,9 @@ function makeKeyboardToolbar(
         if (typeof keyboards[keyboard].command === 'string') {
           result += `data-command='"${keyboards[keyboard].command as string}"'`;
         } else if (Array.isArray(keyboards[keyboard].command)) {
-          result += `data-command='"${(keyboards[keyboard]
-            .command as string[]).join('')}"'`;
+          result += `data-command='"${(
+            keyboards[keyboard].command as string[]
+          ).join('')}"'`;
         }
 
         if (keyboards[keyboard].layer) {
@@ -1121,7 +1345,7 @@ export function makeKeycap(
     if (element.getAttribute('data-latex')) {
       html = latexToMarkup(
         element.getAttribute('data-latex').replace(/&quot;/g, '"'),
-        { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
+        () => '\\placeholder{}'
       );
     } else if (
       element.getAttribute('data-insert') &&
@@ -1129,7 +1353,7 @@ export function makeKeycap(
     ) {
       html = latexToMarkup(
         element.getAttribute('data-insert').replace(/&quot;/g, '"'),
-        { '?': '{\\color{#555}{\\scriptstyle \\char"2B1A}}' }
+        () => '\\placeholder{}'
       );
     } else if (element.getAttribute('data-content')) {
       html = element.getAttribute('data-content').replace(/&quot;/g, '"');
@@ -1293,17 +1517,19 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
 
     if (!layoutName || layoutName === 'auto') {
       layoutName =
-        ({
-          fr: 'azerty',
-          be: 'azerty',
-          al: 'qwertz',
-          ba: 'qwertz',
-          cz: 'qwertz',
-          de: 'qwertz',
-          hu: 'qwertz',
-          sk: 'qwertz',
-          ch: 'qwertz',
-        } as const)[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
+        (
+          {
+            fr: 'azerty',
+            be: 'azerty',
+            al: 'qwertz',
+            ba: 'qwertz',
+            cz: 'qwertz',
+            de: 'qwertz',
+            hu: 'qwertz',
+            sk: 'qwertz',
+            ch: 'qwertz',
+          } as const
+        )[l10nOptions.locale.slice(0, 2)] ?? 'qwerty';
     }
   }
 
@@ -1316,17 +1542,17 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
     /<arrows\/>/g,
     `
         <li class='action' data-command='["performWithFeedback","moveToPreviousChar"]'
-            data-shifted='<svg><use xlink:href="#svg-angle-double-left" /></svg>'
+            data-shifted='<svg class="svg-glyph"><use xlink:href="#svg-angle-double-left" /></svg>'
             data-shifted-command='["performWithFeedback","extendToPreviousChar"]'>
-            <svg><use xlink:href='#svg-arrow-left' /></svg>
+            <svg class="svg-glyph"><use xlink:href='#svg-arrow-left' /></svg>
         </li>
         <li class='action' data-command='["performWithFeedback","moveToNextChar"]'
-            data-shifted='<svg><use xlink:href="#svg-angle-double-right" /></svg>'
+            data-shifted='<svg class="svg-glyph"><use xlink:href="#svg-angle-double-right" /></svg>'
             data-shifted-command='["performWithFeedback","extendToNextChar"]'>
-            <svg><use xlink:href='#svg-arrow-right' /></svg>
+            <svg class="svg-glyph"><use xlink:href='#svg-arrow-right' /></svg>
         </li>
         <li class='action' data-command='["performWithFeedback","moveToNextPlaceholder"]'>
-        <svg><use xlink:href='#svg-tab' /></svg></li>`
+        <svg class="svg-glyph"><use xlink:href='#svg-tab' /></svg></li>`
   );
 
   let m: string[] = result.match(/(<row\s+)(.*)((?:<\/row|\/)>)/);
@@ -1353,7 +1579,7 @@ function expandLayerMarkup(options: VirtualKeyboardOptions, layer): string {
             keys.length - (keys.match(/ /g) || []).length / 2 === 10
               ? 'w10'
               : 'w15';
-          row += `' data-shifted='<span class="warning"><svg><use xlink:href="#svg-trash" /></svg></span>'
+          row += `' data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
                         data-shifted-command='"deleteAll"'
                         data-alt-keys='delete' data-command='["performWithFeedback","deleteBackward"]'
                         >&#x232b;</li>`;
@@ -1472,24 +1698,24 @@ export function makeKeyboardElement(
 
   // Auto-populate the ALT_KEYS table
   ALT_KEYS_BASE['foreground-color'] = [];
-  for (const color of LINE_COLORS) {
+  for (const color of Object.keys(FOREGROUND_COLORS)) {
     ALT_KEYS_BASE['foreground-color'].push({
       classes: 'small-button',
       content:
         '<span style="border-radius:50%;width:32px;height:32px; box-sizing: border-box; border: 3px solid ' +
-        color +
+        FOREGROUND_COLORS[color] +
         '"></span>',
       command: '["applyStyle",{"color":"' + color + '"}]',
     });
   }
 
   ALT_KEYS_BASE['background-color'] = [];
-  for (const color of AREA_COLORS) {
+  for (const color of Object.keys(BACKGROUND_COLORS)) {
     ALT_KEYS_BASE['background-color'].push({
       classes: 'small-button',
       content:
         '<span style="border-radius:50%;width:32px;height:32px; background:' +
-        color +
+        BACKGROUND_COLORS[color] +
         '"></span>',
       command: '["applyStyle",{"backgroundColor":"' + color + '"}]',
     });
@@ -1813,19 +2039,6 @@ export function makeKeyboardElement(
   layerElements[0]?.classList.add('is-visible');
 
   return result;
-}
-
-export function hideAlternateKeys(): boolean {
-  const altContainer = document.querySelector<HTMLElement>(
-    '#mathlive-alternate-keys-panel'
-  );
-  if (altContainer) {
-    altContainer.classList.remove('is-visible');
-    altContainer.innerHTML = '';
-    releaseSharedElement(altContainer);
-  }
-
-  return false;
 }
 
 /*

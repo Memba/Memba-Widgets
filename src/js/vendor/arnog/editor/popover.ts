@@ -1,6 +1,16 @@
 import { isArray } from '../common/types';
 
-import { MATHSTYLES, Span, makeStruts, parseLatex, Atom } from '../core/core';
+import {
+  makeStruts,
+  parseLatex,
+  Atom,
+  coalesce,
+  Box,
+  Context,
+  MACROS,
+  adjustInterAtomSpacing,
+  DEFAULT_FONT_SIZE,
+} from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
@@ -268,21 +278,28 @@ function getNote(symbol: string): string {
   return result;
 }
 
-function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
-  const parse = parseLatex(latex, 'math', null, mf.options.macros);
-  const spans = Atom.render(
-    {
-      mathstyle: MATHSTYLES.displaystyle,
-      macros: mf.options.macros,
-    },
-    parse
+function latexToMarkup(latex: string): string {
+  const root = new Atom('root', { mode: 'math' });
+  root.body = parseLatex(latex, { parseMode: 'math', macros: MACROS });
+
+  const box = coalesce(
+    adjustInterAtomSpacing(
+      new Box(
+        root.render(
+          new Context(
+            { macros: MACROS, smartFence: false },
+            {
+              fontSize: DEFAULT_FONT_SIZE,
+            },
+            'displaystyle'
+          )
+        ),
+        { classes: 'ML__base' }
+      )
+    )
   );
 
-  const wrapper = makeStruts(new Span(spans, { classes: 'ML__base' }), {
-    classes: 'ML__mathlive',
-  });
-
-  return wrapper.toMarkup();
+  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 export function showPopoverWithLatex(
@@ -296,7 +313,7 @@ export function showPopoverWithLatex(
   }
 
   const command = latex;
-  const commandMarkup = latexToMarkup(latex, mf);
+  const commandMarkup = latexToMarkup(latex);
   const commandNote = getNote(command);
   const keybinding = getKeybindingsForCommand(mf.keybindings, command).join(
     '<br>'

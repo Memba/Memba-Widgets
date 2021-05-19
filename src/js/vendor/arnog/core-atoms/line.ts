@@ -1,7 +1,6 @@
 import { Atom } from '../core/atom-class';
-import { MATHSTYLES } from '../core/mathstyle';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { Span, makeVlist } from '../core/span';
+import { Box } from '../core/box';
+import { VBox } from '../core/v-box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -18,34 +17,32 @@ export class LineAtom extends Atom {
     this.position = options.position;
   }
 
-  render(context: Context): Span {
-    const { mathstyle } = context;
+  render(parentContext: Context): Box {
     // TeXBook:443. Rule 9 and 10
-    const inner = new Span(Atom.render(context.cramp(), this.body));
+    const context = new Context(parentContext, this.style, 'cramp');
+    const inner = Atom.createBox(context, this.body);
     const ruleWidth =
-      FONTMETRICS.defaultRuleThickness / mathstyle.sizeMultiplier;
-    const line = new Span(null, {
-      classes:
-        context.mathstyle.adjustTo(MATHSTYLES.textstyle) +
-        ' ' +
-        this.position +
-        '-line',
-    });
+      context.metrics.defaultRuleThickness / context.scalingFactor;
+    const line = new Box(null, { classes: this.position + '-line' });
     line.height = ruleWidth;
-    line.maxFontSize = 1;
-    let vlist: Span;
+    line.maxFontSize = ruleWidth * 1.125 * context.scalingFactor;
+    let stack: Box;
     if (this.position === 'overline') {
-      vlist = makeVlist(context, [inner, 3 * ruleWidth, line, ruleWidth]);
+      stack = new VBox({
+        shift: 0,
+        children: [{ box: inner }, 3 * ruleWidth, { box: line }, ruleWidth],
+      });
     } else {
-      vlist = makeVlist(
-        context,
-        [ruleWidth, line, 3 * ruleWidth, inner],
-        'top',
-        { initialPos: inner.height }
-      );
+      stack = new VBox({
+        top: inner.height,
+        children: [ruleWidth, { box: line }, 3 * ruleWidth, { box: inner }],
+      });
     }
 
-    if (this.caret) vlist.caret = this.caret;
-    return new Span(vlist, { classes: this.position, type: 'mord' });
+    if (this.caret) stack.caret = this.caret;
+    return new Box(stack, {
+      classes: this.position,
+      type: 'mord',
+    });
   }
 }

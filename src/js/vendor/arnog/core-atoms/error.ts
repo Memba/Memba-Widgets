@@ -1,5 +1,5 @@
 import { Atom } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 
 /*
@@ -8,12 +8,11 @@ import { Context } from '../core/context';
 export class ErrorAtom extends Atom {
   constructor(value: string) {
     super('error', { value, command: value, mode: 'math' });
-    this.latex = value;
+    this.verbatimLatex = value;
   }
 
-  render(context: Context): Span {
-    const result = this.makeSpan(context, this.value);
-    result.classes = 'ML__error';
+  render(context: Context): Box {
+    const result = this.createBox(context, { classes: 'ML__error' });
 
     if (this.caret) result.caret = this.caret;
 

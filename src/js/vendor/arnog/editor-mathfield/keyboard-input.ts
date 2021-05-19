@@ -128,12 +128,10 @@ export function onKeystroke(
       let i = 0;
       while (!shortcut && i < candidate.length) {
         const context: Atom[] = mathfield.keystrokeBufferStates[i]
-          ? parseLatex(
-              mathfield.keystrokeBufferStates[i].latex,
-              effectiveMode(mathfield.options),
-              null,
-              mathfield.options.macros
-            )
+          ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
+              parseMode: effectiveMode(mathfield.options),
+              macros: mathfield.options.macros,
+            })
           : // The context is from the start of the group to the current position
             model.getAtoms(
               model.offsetOf(model.at(model.position).firstSibling),
@@ -474,11 +472,13 @@ export function onTypedText(
       // This is important to handle synthetic text input and
       // non-US keyboards, on which, fop example, the '^' key is
       // not mapped to 'Shift-Digit6'.
-      let selector: SelectorPrivate | [SelectorPrivate, ...unknown[]] = ({
-        '^': 'moveToSuperscript',
-        '_': 'moveToSubscript',
-        ' ': 'moveAfterParent',
-      } as const)[c];
+      let selector: SelectorPrivate | [SelectorPrivate, ...unknown[]] = (
+        {
+          '^': 'moveToSuperscript',
+          '_': 'moveToSubscript',
+          ' ': 'moveAfterParent',
+        } as const
+      )[c];
       if (c === ' ' && mathfield.options.mathModeSpace) {
         selector = ['insert', mathfield.options.mathModeSpace];
       }

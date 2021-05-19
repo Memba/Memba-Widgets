@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { depth as spanDepth, height as spanHeight, Span } from '../core/span';
+import { Box } from '../core/box';
 import { makeLeftRightDelim } from '../core/delimiters';
 import { Context } from '../core/context';
 import { joinLatex } from '../core/tokenizer';
@@ -27,20 +27,23 @@ export class LeftRightAtom extends Atom {
       style?: Style;
     }
   ) {
-    super('leftright', { style: options.style });
+    super('leftright', {
+      style: options.style,
+      displayContainsHighlight: true,
+    });
     this.body = body;
     this.inner = options.inner ?? false;
     this.leftDelim = options.leftDelim;
     this.rightDelim = options.rightDelim;
   }
 
-  toLatex(options: ToLatexOptions): string {
-    let segments = [];
+  serialize(options: ToLatexOptions): string {
+    let segments: string[] = [];
     if (this.inner) {
       segments = [
-        '\\left' + (this.leftDelim || '.'),
+        '\\left' + (this.leftDelim ?? '.'),
         this.bodyToLatex(options),
-        '\\right' + (this.rightDelim || '.'),
+        '\\right' + (this.rightDelim ?? '.'),
       ];
     } else if (options.expandMacro) {
       // If we're in 'expandMacro' mode (i.e. interchange format
@@ -54,56 +57,62 @@ export class LeftRightAtom extends Atom {
       ];
     } else {
       segments = [
-        '\\mleft' + (this.leftDelim || '.'),
+        '\\mleft' + (this.leftDelim ?? '.'),
         this.bodyToLatex(options),
-        '\\mright' + (this.rightDelim || '.'),
+        '\\mright' + (this.rightDelim ?? '.'),
       ];
     }
 
     return joinLatex(segments);
   }
 
-  render(context: Context): Span {
+  render(parentContext: Context): Box {
+    const context = new Context(parentContext, this.style);
+
     if (!this.body) {
       // No body, only a delimiter
+      const boxes: Box[] = [];
       if (this.leftDelim) {
-        return new Atom('mopen', { value: this.leftDelim }).render(context);
+        boxes.push(
+          new Atom('mopen', { value: this.leftDelim }).render(context)
+        );
       }
 
       if (this.rightDelim) {
-        return new Atom('mclose', { value: this.rightDelim }).render(context);
+        boxes.push(
+          new Atom('mclose', { value: this.rightDelim }).render(context)
+        );
       }
-
-      return null;
+      if (boxes.length === 0) return null;
+      return new Box(boxes, { type: 'minner' });
     }
 
-    // The scope of the context is this group, so make a copy of it
-    // so that any changes to it will be discarded when finished
-    // with this group.
-    const inner = Atom.render(context.clone(), this.body);
-    const localContext = context.clone({
-      size: this.style?.fontSize ?? 'size5',
-    });
-    const { mathstyle } = localContext;
-    let spans: Span[] = [];
     // Calculate its height and depth
     // The size of delimiters is the same, regardless of what mathstyle we are
     // in. Thus, to correctly calculate the size of delimiter we need around
     // a group, we scale down the inner size based on the size.
-    const innerHeight = spanHeight(inner) * mathstyle.sizeMultiplier;
-    const innerDepth = spanDepth(inner) * mathstyle.sizeMultiplier;
+    const delimContext = new Context(parentContext, this.style, 'textstyle');
+    const inner: Box =
+      Atom.createBox(context, this.body, { newList: true }) ??
+      new Box(null, { newList: true });
+    const innerHeight = inner.height / delimContext.scalingFactor;
+    const innerDepth = inner.depth / delimContext.scalingFactor;
 
+    const boxes: Box[] = [];
     // Add the left delimiter to the beginning of the expression
+    // @revisit: we call bind() on three difference boxes. Each box should
+    // have a different ID. We should have a Box.hitTest() method to properly
+    // handle the different boxes.
     if (this.leftDelim) {
-      spans.push(
+      boxes.push(
         this.bind(
-          context,
+          delimContext,
           makeLeftRightDelim(
             'mopen',
             this.leftDelim,
             innerHeight,
             innerDepth,
-            localContext,
+            delimContext,
             {
               classes:
                 'ML__open' + (this.containsCaret ? ' ML__contains-caret' : ''),
@@ -116,26 +125,26 @@ export class LeftRightAtom extends Atom {
     }
 
     if (inner) {
-      // Replace the delim (\middle) spans with proper ones now that we know
+      // Replace the delim (\middle) boxes with proper ones now that we know
       // the height/depth
-      for (let i = 0; i < inner.length; i++) {
-        if (inner[i].delim) {
-          const savedCaret = inner[i].caret;
-          inner[i] = this.bind(
+      for (let i = 0; i < inner.children?.length; i++) {
+        if (inner.children[i].delim) {
+          const savedCaret = inner.children[i].caret;
+          inner.children[i] = this.bind(
             context,
             makeLeftRightDelim(
               'minner',
-              inner[i].delim,
+              inner.children[i].delim,
               innerHeight,
               innerDepth,
-              localContext
+              context
             )
           );
-          inner[i].caret = savedCaret;
+          inner.children[i].caret = savedCaret;
         }
       }
 
-      spans = spans.concat(inner);
+      boxes.push(inner);
     }
 
     // Add the right delimiter to the end of the expression.
@@ -151,6 +160,7 @@ export class LeftRightAtom extends Atom {
               '[': '\\rbrack',
               '\\{': '\\}',
               '\\lbrace': '\\rbrace',
+              '\\lparen': '\\rparen',
               '\\langle': '\\rangle',
               '\\lfloor': '\\rfloor',
               '\\lceil': '\\rceil',
@@ -170,15 +180,15 @@ export class LeftRightAtom extends Atom {
         }
       }
 
-      spans.push(
+      boxes.push(
         this.bind(
-          context,
+          delimContext,
           makeLeftRightDelim(
             'mclose',
             delim,
             innerHeight,
             innerDepth,
-            localContext,
+            delimContext,
             {
               classes: classes + ' ML__close',
               mode: this.mode,
@@ -194,13 +204,13 @@ export class LeftRightAtom extends Atom {
     // Otherwise, include a `\mathopen{}...\mathclose{}`. That's the
     // behavior for `\mleft...\mright`, which allows for tighter spacing
     // for example in `\sin\mleft(x\mright)`
-    const result = new Span(spans, {
-      classes: mathstyle.cls(),
+    const result = new Box(boxes, {
       type: this.inner ? 'minner' : 'mclose',
+      classes: 'left-right',
     });
 
     if (this.caret) result.caret = this.caret;
 
-    return this.bind(context, result);
+    return this.bind(context, result.wrap(context));
   }
 }

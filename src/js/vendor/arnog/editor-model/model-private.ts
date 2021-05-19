@@ -285,6 +285,12 @@ export class ModelPrivate implements Model {
     const first = Math.min(start, end) + 1;
     const last = Math.max(start, end);
 
+    if (first === 1 && last === this.lastOffset) {
+      // This is the entire selection,
+      // return the root
+      return [this.root];
+    }
+
     let result: Atom[] = [];
     for (let i = first; i <= last; i++) {
       const atom = this.atoms[i];
@@ -330,7 +336,10 @@ export class ModelPrivate implements Model {
   }
 
   extractAtoms(range: Range): Atom[] {
-    const result = this.getAtoms(range);
+    let result = this.getAtoms(range);
+    if (result.length === 1 && result[0].type === 'root') {
+      result = result[0].children;
+    }
     for (const child of result) child.parent.removeChild(child);
     return result;
   }
@@ -344,8 +353,9 @@ export class ModelPrivate implements Model {
     const format: string = inFormat ?? 'latex';
     let result = '';
     if (format === 'latex' || format === 'latex-expanded') {
-      result = Atom.toLatex(atom, {
+      result = Atom.serialize(atom, {
         expandMacro: format === 'latex-expanded',
+        defaultMode: this.mathfield.options.defaultMode,
       });
     } else if (format === 'mathML' /* @deprecated */ || format === 'math-ml') {
       if (format === 'mathML') {
@@ -385,17 +395,18 @@ export class ModelPrivate implements Model {
       // current Latex
       const json = atomtoMathJson(
         parseLatex(
-          Atom.toLatex(atom, { expandMacro: false }),
-          'math',
-          null,
-          this.mathfield.options.macros
+          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
+          {
+            parseMode: 'math',
+            macros: this.mathfield.options.macros,
+          }
         )
       );
       result = JSON.stringify(json);
     } else if (format === 'json-2') {
       console.log('deprecated format. Use MathJSON');
       const json = atomtoMathJson(atom);
-      // Const json = parseLatex(root.toLatex(true), {
+      // Const json = parseLatex(root.serialize(true), {
       //     form: 'canonical',
       // });
       result = JSON.stringify(json, null, 2);
@@ -451,9 +462,10 @@ export class ModelPrivate implements Model {
     if (format === 'latex' || format === 'latex-expanded') {
       const options: ToLatexOptions = {
         expandMacro: format === 'latex-expanded',
+        defaultMode: this.mathfield.options.defaultMode,
       };
       return joinLatex(
-        ranges.map((range) => Atom.toLatex(this.getAtoms(range), options))
+        ranges.map((range) => Atom.serialize(this.getAtoms(range), options))
       );
     }
 

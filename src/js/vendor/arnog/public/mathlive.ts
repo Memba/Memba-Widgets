@@ -353,7 +353,7 @@ export type AutoRenderOptions = {
    *  not be scanned for delimiters (unless their class matches the `processClass`
    * pattern below.
    *
-   * **Default:** `['noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
+   * **Default:** `['math-field', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml']`
    */
   skipTags?: string[];
 
@@ -416,9 +416,19 @@ export type AutoRenderOptions = {
    */
   readAloud?: boolean;
 
+  asciiMath?: {
+    delimiters?: {
+      display?: [openDelim: string, closeDelim: string][];
+      inline?: [openDelim: string, closeDelim: string][];
+    };
+  };
+
   TeX?: {
-    /** If false, math expression
-     * that start with `\begin{` will not automatically be rendered.
+    /**
+     * If true, math expression that start with `\begin{` will automatically be
+     * rendered.
+     *
+     * **Default**: true.
      */
 
     processEnvironments?: boolean;

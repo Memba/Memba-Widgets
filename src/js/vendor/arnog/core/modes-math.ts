@@ -1,5 +1,4 @@
 /* eslint-disable no-new */
-import { colorToString } from './color';
 import {
   getInfo,
   mathVariantToUnicode,
@@ -8,7 +7,8 @@ import { Atom, ToLatexOptions } from './atom';
 import { joinLatex } from './tokenizer';
 import { getPropertyRuns, Mode } from './modes-utils';
 import { Style } from '../public/core';
-import { Span } from './span';
+import { Box } from './box';
+import { BoxAtom } from '../core-atoms/box';
 
 // Each entry indicate the font-name (to be used to calculate font metrics)
 // and the CSS classes (for proper markup styling) for each possible
@@ -18,7 +18,7 @@ const VARIANTS: Record<string, [string, string]> = {
   'main': ['Main-Regular', 'ML__cmr'],
   'main-italic': ['Main-Italic', 'ML__cmr ML__it'],
   'main-bold': ['Main-Bold', 'ML__cmr ML__bold'],
-  'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML_bold ML__it'],
+  'main-bolditalic': ['Main-BoldItalic', 'ML__cmr ML__bold ML__it'],
 
   'normal': ['Main-Regular', 'ML__cmr'], // 'main' font. There is no 'math' regular (upright)
   'normal-bold': ['Main-Bold', 'ML__mathbf'], // 'main' font. There is no 'math' bold
@@ -68,12 +68,15 @@ const VARIANT_REPERTOIRE = {
   'script': /^[A-Z ]$/,
   'calligraphic': /^[\dA-Z ]$/,
   'fraktur': /^[\dA-Za-z ]$|^[!"#$%&'()*+,\-./:;=?[]^’‘]$/,
-  'monospace': /^[\dA-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039B\u039E\u03A0\u03A3\u03A5\u03A8\u03A9]$/,
-  'sans-serif': /^[\dA-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039B\u039E\u03A0\u03A3\u03A5\u03A8\u03A9]$/,
+  'monospace':
+    /^[\dA-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039B\u039E\u03A0\u03A3\u03A5\u03A8\u03A9]$/,
+  'sans-serif':
+    /^[\dA-Za-z ]$|^[!"&'()*+,\-./:;=?@[\]^_~\u0131\u0237\u0393\u0394\u0398\u039B\u039E\u03A0\u03A3\u03A5\u03A8\u03A9]$/,
 };
 
 const GREEK_LOWERCASE = /^[\u03B1-\u03C9]|\u03D1|\u03D5|\u03D6|\u03F1|\u03F5]$/;
-const GREEK_UPPERCASE = /^[\u0393|\u0394\u0398\u039B\u039E\u03A0\u03A3\u03A5\u03A6\u03A8\u03A9]$/;
+const GREEK_UPPERCASE =
+  /^[\u0393|\u0394\u0398\u039B\u039E\u03A0\u03A3\u03A5\u03A6\u03A8\u03A9]$/;
 
 const LETTER_SHAPE_RANGES = [
   /^[a-z]$/, // Lowercase latin
@@ -100,11 +103,10 @@ export class MathMode extends Mode {
 
   createAtom(command: string, style: Style): Atom | null {
     const info = getInfo(command, 'math');
-    const value = info?.value ?? command;
     const result = new Atom(info?.type ?? 'mord', {
       mode: 'math',
       command,
-      value,
+      value: info?.codepoint ? String.fromCodePoint(info?.codepoint) : command,
       style,
     });
     if (info?.isFunction ?? false) {
@@ -112,22 +114,80 @@ export class MathMode extends Mode {
     }
 
     if (command.startsWith('\\')) {
-      result.latex = command;
+      result.verbatimLatex = command;
     }
 
     return result;
   }
 
-  toLatex(run: Atom[], options: ToLatexOptions): string {
+  serialize(run: Atom[], options: ToLatexOptions): string {
+    const { parent } = run[0];
+    const contextFontsize = parent?.computedStyle.fontSize;
+    return joinLatex(
+      getPropertyRuns(run, 'fontSize').map((x) => {
+        const result = this.emitBackgroundColorRun(x, options);
+        const fontsize = x[0].computedStyle.fontSize;
+        if (fontsize && (!parent || contextFontsize !== fontsize)) {
+          return (
+            '\\' +
+            [
+              '',
+              'tiny',
+              'scriptsize',
+              'footnotesize',
+              'small',
+              'normalsize',
+              'large',
+              'Large',
+              'LARGE',
+              'huge',
+              'Huge',
+            ][fontsize] +
+            ' ' +
+            result
+          );
+        }
+        return result;
+      })
+    );
+  }
+
+  emitBackgroundColorRun(run: Atom[], options: ToLatexOptions): string {
+    const { parent } = run[0];
+    const parentColor = parent?.computedStyle.backgroundColor;
+    return joinLatex(
+      getPropertyRuns(run, 'backgroundColor').map((x) => {
+        let result = this.emitColorRun(x, options);
+        const style = x[0].computedStyle;
+        if (
+          style.backgroundColor &&
+          (!parent || parentColor !== style.backgroundColor) &&
+          (x.length > 0 || !(x[0] instanceof BoxAtom))
+        ) {
+          if (options.defaultMode === 'inline-math') {
+            result = `\\( ${result} \\)`;
+          } else {
+            result = `\\[ ${result} \\]`;
+          }
+          result = `\\colorbox{${
+            style.verbatimBackgroundColor ?? style.backgroundColor
+          }}{${result}}`;
+        }
+        return result;
+      })
+    );
+  }
+
+  emitColorRun(run: Atom[], options: ToLatexOptions): string {
     const { parent } = run[0];
     const parentMode = parent?.mode ?? 'math';
-    const contextValue = variantString(parent);
+    const contextVariant = variantString(parent);
     const contextColor = parent?.computedStyle.color;
     return joinLatex(
       getPropertyRuns(run, 'color').map((x) => {
         const result = joinLatex(
           getPropertyRuns(x, 'variant').map((x) => {
-            const value = variantString(x[0]);
+            const variant = variantString(x[0]);
             // Check if all the atoms in this run have a base
             // variant identical to the current variant
             // If so, we can skip wrapping them
@@ -136,14 +196,14 @@ export class MathMode extends Mode {
                 const info = getInfo(x.command, parentMode, null);
                 if (!info || !info.variant) return false;
 
-                return variantString(x) === value;
+                return variantString(x) === variant;
               })
             ) {
-              return joinLatex(x.map((x) => Atom.toLatex(x, options)));
+              return joinLatex(x.map((x) => Atom.serialize(x, options)));
             }
 
             let command = '';
-            if (value && value !== contextValue) {
+            if (variant && variant !== contextVariant) {
               command = {
                 'calligraphic': '\\mathcal{',
                 'fraktur': '\\mathfrak{',
@@ -168,20 +228,26 @@ export class MathMode extends Mode {
                 // mathbbm, mathbbmss, mathbbmtt, mathds, swab, goth
                 // In addition, the 'main' and 'math' font technically
                 // map to \mathnormal{}
-              }[value];
+              }[variant];
               console.assert(command !== undefined);
             }
 
             return (
-              joinLatex([command, ...x.map((x) => Atom.toLatex(x, options))]) +
-              (command ? '}' : '')
+              joinLatex([
+                command,
+                ...x.map((x) => Atom.serialize(x, options)),
+              ]) + (command ? '}' : '')
             );
           })
         );
         const style = x[0].computedStyle;
         if (style.color && (!parent || contextColor !== style.color)) {
           return (
-            '\\textcolor{' + colorToString(style.color) + '}{' + result + '}'
+            '\\textcolor{' +
+            (style.verbatimColor ?? style.color) +
+            '}{' +
+            result +
+            '}'
           );
         }
 
@@ -190,7 +256,7 @@ export class MathMode extends Mode {
     );
   }
 
-  applyStyle(span: Span, style: Style): string {
+  applyStyle(box: Box, style: Style): string {
     // If no variant specified, don't change the font
     if (style.variant === undefined) return '';
 
@@ -217,7 +283,7 @@ export class MathMode extends Mode {
     if (
       variant === 'normal' &&
       !variantStyle &&
-      /[\u00A3\u0131\u0237]/.test(span.value)
+      /[\u00A3\u0131\u0237]/.test(box.value)
     ) {
       variant = 'main';
       variantStyle = 'italic';
@@ -225,10 +291,10 @@ export class MathMode extends Mode {
 
     // 2. If no explicit variant style, auto-italicize some symbols,
     // depending on the letterShapeStyle
-    if (variant === 'normal' && !variantStyle && span.value.length === 1) {
+    if (variant === 'normal' && !variantStyle && box.value.length === 1) {
       LETTER_SHAPE_RANGES.forEach((x, i) => {
         if (
-          x.test(span.value) &&
+          x.test(box.value) &&
           LETTER_SHAPE_MODIFIER[letterShapeStyle][i] === 'it'
         ) {
           variantStyle = 'italic';
@@ -251,23 +317,23 @@ export class MathMode extends Mode {
     // (return NULL to use default metrics)
     if (
       VARIANT_REPERTOIRE[variant] &&
-      !VARIANT_REPERTOIRE[variant].test(span.value)
+      !VARIANT_REPERTOIRE[variant].test(box.value)
     ) {
       // Map to unicode character
-      span.value = mathVariantToUnicode(span.value, variant, variantStyle);
+      box.value = mathVariantToUnicode(box.value, variant, variantStyle);
       // Return NULL to use default metrics
       return null;
     }
 
     // Lowercase greek letters have an incomplete repertoire (no bold)
     // so, for \mathbf to behave correctly, add a 'lcGreek' class.
-    if (GREEK_LOWERCASE.test(span.value)) {
-      span.classes += ' lcGreek';
+    if (GREEK_LOWERCASE.test(box.value)) {
+      box.classes += ' lcGreek';
     }
 
     // 5. Assign classes based on the font
     if (classes) {
-      span.classes += ' ' + classes;
+      box.classes += ' ' + classes;
     }
 
     return fontName;

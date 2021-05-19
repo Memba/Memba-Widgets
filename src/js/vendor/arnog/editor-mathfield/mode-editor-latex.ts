@@ -25,6 +25,7 @@ export class LatexModeEditor extends ModeEditor {
     const text = ev.clipboardData.getData('text/plain');
 
     if (text) {
+      mathfield.snapshot();
       if (this.insert(mathfield.model, text)) {
         requestUpdate(mathfield);
       }
@@ -35,18 +36,6 @@ export class LatexModeEditor extends ModeEditor {
     }
 
     return false;
-  }
-
-  onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
-    const value: Range = mathfield.model.selectionIsCollapsed
-      ? [0, mathfield.model.lastOffset]
-      : range(mathfield.selection);
-    ev.clipboardData.setData(
-      'text/plain',
-      mathfield.getValue(value, 'latex-expanded')
-    );
-    // Prevent the current document selection from being written to the clipboard.
-    ev.preventDefault();
   }
 
   insert(model: ModelPrivate, text: string, options?: InsertOptions): boolean {
@@ -77,8 +66,8 @@ export class LatexModeEditor extends ModeEditor {
       model.collapseSelection('forward');
     }
 
+    // Short-circuit the tokenizer and parser when in Latex mode
     const newAtoms: Atom[] = [];
-    // Short-circuit the tokenizer and parser if in command mode
     for (const c of text) {
       if (COMMAND_MODE_CHARACTERS.test(c)) {
         newAtoms.push(new LatexAtom(c));

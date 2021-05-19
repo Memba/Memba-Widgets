@@ -18,7 +18,7 @@ import { defineFunction } from './definitions-utils';
 import { parseLatex } from '../core/parser';
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 
 class ChemAtom extends Atom {
   constructor(command: string, arg: string) {
@@ -29,20 +29,23 @@ class ChemAtom extends Atom {
     );
 
     this.body = parseLatex(tex);
-    this.latex = command + '{' + arg + '}';
+    this.verbatimLatex = command + '{' + arg + '}';
     this.captureSelection = true;
   }
-  render(context: Context): Span {
-    const span = new Span(Atom.render(context, this.body), '', 'chem');
+  render(context: Context): Box {
+    const box = Atom.createBox(context, this.body, {
+      type: 'chem',
+      newList: true,
+    });
 
-    if (this.caret) span.caret = this.caret;
+    if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    return this.bind(context, span);
+    return this.bind(context, box);
   }
-  toLatex(_options: ToLatexOptions): string {
-    return this.latex;
+  serialize(_options: ToLatexOptions): string {
+    return this.verbatimLatex;
   }
 }
 

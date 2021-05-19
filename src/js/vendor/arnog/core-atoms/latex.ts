@@ -1,4 +1,4 @@
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
 import { Style } from '../public/core';
 
@@ -19,21 +19,22 @@ export class LatexAtom extends Atom {
     super('latex', { value, mode: 'latex' });
     this.isSuggestion = options?.isSuggestion ?? false;
     this.isError = false;
-    this.latex = value;
+    this.verbatimLatex = value;
   }
 
   get computedStyle(): Style {
     return {};
   }
 
-  render(context: Context): Span {
-    const result = new Span(this.value, {
+  render(context: Context): Box {
+    const result = new Box(this.value, {
       classes: this.isSuggestion
         ? 'ML__suggestion'
         : this.isError
         ? 'ML__error'
         : '',
       type: 'latex',
+      maxFontSize: 1.0,
     });
     if (this.caret) result.caret = this.caret;
     return this.bind(context, result);
@@ -52,17 +53,17 @@ export class LatexGroupAtom extends Atom {
     this.skipBoundary = false;
   }
 
-  render(context: Context): Span {
-    const span = new Span(Atom.render(context, this.body), { type: 'mord' });
+  render(context: Context): Box {
+    const box = Atom.createBox(context, this.body, { newList: true });
 
-    if (this.caret) span.caret = this.caret;
+    if (this.caret) box.caret = this.caret;
     // Need to bind the group so that the DOM element can be matched
     // and the atom iterated recursively. Otherwise, it behaves
     // as if `captureSelection === true`
-    return this.bind(context, span);
+    return this.bind(context, box);
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     return this.body.map((x) => x.value).join('');
   }
 }

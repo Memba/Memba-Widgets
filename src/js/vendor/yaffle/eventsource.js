@@ -25,14 +25,14 @@
   var TextEncoder = global.TextEncoder;
   var AbortController = global.AbortController;
 
-  if (typeof window !== "undefined" && !("readyState" in document) && document.body == null) { // Firefox 2
+  if (typeof window !== "undefined" && typeof document !== "undefined" && !("readyState" in document) && document.body == null) { // Firefox 2
     document.readyState = "loading";
     window.addEventListener("load", function (event) {
       document.readyState = "complete";
     }, false);
   }
 
-  if (XMLHttpRequest == null) { // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest_in_IE6
+  if (XMLHttpRequest == null && ActiveXObject != null) { // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest_in_IE6
     XMLHttpRequest = function () {
       return new ActiveXObject("Microsoft.XMLHTTP");
     };
@@ -736,6 +736,7 @@
   function start(es, url, options) {
     url = String(url);
     var withCredentials = Boolean(options.withCredentials);
+    var lastEventIdQueryParameterName = options.lastEventIdQueryParameterName || "lastEventId";
 
     var initialRetry = clampDuration(1000);
     var heartbeatTimeout = parseDuration(options.heartbeatTimeout, 45000);
@@ -908,6 +909,9 @@
         var event = new ErrorEvent("error", {error: error});
         es.dispatchEvent(event);
         fire(es, es.onerror, event);
+        if (error != undefined) {
+          console.error(error);
+        }
       }
     };
 
@@ -964,7 +968,13 @@
       var requestURL = url;
       if (url.slice(0, 5) !== "data:" && url.slice(0, 5) !== "blob:") {
         if (lastEventId !== "") {
-          requestURL += (url.indexOf("?") === -1 ? "?" : "&") + "lastEventId=" + encodeURIComponent(lastEventId);
+          // Remove the lastEventId parameter if it's already part of the request URL.
+          var i = url.indexOf("?");
+          requestURL = i === -1 ? url : url.slice(0, i + 1) + url.slice(i + 1).replace(/(?:^|&)([^=&]*)(?:=[^&]*)?/g, function (p, paramName) {
+            return paramName === lastEventIdQueryParameterName ? '' : p;
+          });
+          // Append the current lastEventId to the request URL.
+          requestURL += (url.indexOf("?") === -1 ? "?" : "&") + lastEventIdQueryParameterName +"=" + encodeURIComponent(lastEventId);
         }
       }
       var withCredentials = es.withCredentials;
@@ -1035,4 +1045,4 @@
     exports.NativeEventSource = NativeEventSource;
     exports.EventSource = R;
   });
-}(typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : this));
+}(typeof globalThis === 'undefined' ? (typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : this) : globalThis));

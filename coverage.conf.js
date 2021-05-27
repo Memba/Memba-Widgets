@@ -246,7 +246,7 @@ module.exports = (config) => {
                     'node_modules',
                 ],
             },
-            stats: 'verbose',
+            // stats: 'verbose',
         },
 
         /*

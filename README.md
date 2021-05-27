@@ -1,7 +1,7 @@
 # Memba-Widgets
 
 [![Join the chat at https://gitter.im/Memba/Memba-Widgets](https://badges.gitter.im/Memba/Memba-Widgets.svg)](https://gitter.im/Memba/Memba-Widgets?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://github.com/Memba/Memba-Widgets)](https://github.com/Memba/Memba-Widgets/actions/workflows/node.js.yml/badge.svg)
+[![Build Status](https://github.com/Memba/Memba-Widgets/actions/workflows/node.js.yml/badge.svg)](https://github.com/Memba/Memba-Widgets/actions/workflows/node.js.yml)
 [![dependencies Status](https://david-dm.org/Memba/Memba-Widgets/status.svg)](https://david-dm.org/Memba/Memba-Widgets)
 [![devDependencies Status](https://david-dm.org/Memba/Memba-Widgets/dev-status.svg)](https://david-dm.org/Memba/Memba-Widgets?type=dev)
 

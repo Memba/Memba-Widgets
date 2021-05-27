@@ -9,7 +9,7 @@ const path = require('path');
 module.exports = (config) => {
     config.set({
         client: {
-            // captureConsole: true,
+            captureConsole: true,
             // mocha configuration
             mocha: {
                 ui: 'bdd',
@@ -19,8 +19,7 @@ module.exports = (config) => {
 
         // @see https://github.com/karma-runner/karma-mocha/issues/47#issuecomment-287240956
         browserConsoleLogOptions: {
-            // level: 'log',
-            level: 'error',
+            level: 'log',
             format: '%b %T: %m',
             terminal: true,
         },
@@ -247,7 +246,7 @@ module.exports = (config) => {
                     'node_modules',
                 ],
             },
-            // stats: 'verbose',
+            stats: 'verbose',
         },
 
         /*
@@ -262,8 +261,8 @@ module.exports = (config) => {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        // reporters: ['progress', 'coverage'],
-        reporters: ['dots', 'coverage'],
+        reporters: ['progress', 'coverage'],
+        // reporters: ['dots', 'coverage'],
 
         // web server port
         port: 9876,
@@ -273,8 +272,7 @@ module.exports = (config) => {
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-        // logLevel: config.LOG_DEBUG,
-        logLevel: config.LOG_ERROR,
+        logLevel: config.LOG_DEBUG, // config.LOG_INFO,
 
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,

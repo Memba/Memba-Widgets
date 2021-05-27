@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
+import baseUrl from '../../../src/js/helpers/helpers.base.es6';
 import '../../../src/js/widgets/widgets.mathinput.es6';
 
 const { afterEach, before, beforeEach, describe, it } = window;
@@ -37,6 +38,8 @@ const WIDGET = 'kendoMathInput';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
+
+MathInput.fn.options.fontsDirectory = baseUrl('/src/styles/vendor/khan/fonts');
 
 describe('widgets.mathinput', () => {
     before(() => {

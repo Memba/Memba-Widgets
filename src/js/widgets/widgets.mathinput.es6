@@ -60,6 +60,9 @@ const MathInput = Widget.extend({
     options: {
         name: 'MathInput',
         enabled: true,
+        // fontsDirectory: '../../../styles/vendor/arnog/fonts',
+        fontsDirectory: '../../../styles/vendor/khan/fonts',
+        virtualKeyboardMode: 'onfocus',
         value: '',
     },
 
@@ -97,10 +100,10 @@ const MathInput = Widget.extend({
      * @private
      */
     _config() {
+        const { fontsDirectory, virtualKeyboardMode } = this.options;
         return {
-            fontsDirectory: '../../../styles/vendor/khan/fonts',
-            // fontsDirectory: '../../../styles/vendor/arnog/fonts',
-            virtualKeyboardMode: 'onfocus',
+            fontsDirectory,
+            virtualKeyboardMode,
         };
     },
 

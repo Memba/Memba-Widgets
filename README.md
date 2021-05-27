@@ -1,17 +1,16 @@
-# Kidoju-Widgets
+# Memba-Widgets
 
-[![Join the chat at https://gitter.im/Kidoju/Kidoju-Widgets](https://badges.gitter.im/Kidoju/Kidoju-Widgets.svg)](https://gitter.im/Kidoju/Kidoju-Widgets?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/kidoju/Kidoju-Widgets.svg?branch=master)](https://travis-ci.org/kidoju/Kidoju-Widgets)
-[![dependencies Status](https://david-dm.org/kidoju/Kidoju-Widgets/status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets)
-[![devDependencies Status](https://david-dm.org/kidoju/Kidoju-Widgets/dev-status.svg)](https://david-dm.org/kidoju/Kidoju-Widgets?type=dev)
+[![Join the chat at https://gitter.im/Memba/Memba-Widgets](https://badges.gitter.im/Memba/Memba-Widgets.svg)](https://gitter.im/Memba/Memba-Widgets?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://github.com/Memba/Memba-Widgets)](https://github.com/Memba/Memba-Widgets/actions/workflows/node.js.yml/badge.svg)
+[![dependencies Status](https://david-dm.org/Memba/Memba-Widgets/status.svg)](https://david-dm.org/Memba/Memba-Widgets)
+[![devDependencies Status](https://david-dm.org/Memba/Memba-Widgets/dev-status.svg)](https://david-dm.org/Memba/Memba-Widgets?type=dev)
 
-
-> UI Widgets for the Kidoju platform.
+> UI Widgets for the Memba platform.
 
 ## Architecture and design
 
 These widgets are architectured and designed in compliance with the [Kendo UI framework documentation](http://docs.telerik.com/kendo-ui/howto/create-custom-kendo-widget).
-Refer to [our wiki](https://github.com/kidoju/Kidoju-Widgets/wiki) for more information.
+Refer to [our wiki](https://github.com/Memba/Memba-Widgets/wiki) for more information.
 
 ## Requirements
 

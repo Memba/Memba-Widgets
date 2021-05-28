@@ -204,10 +204,8 @@ if (window.kendo && window.kendo.ui) {
             true,
             markeditor.messages.dialogs,
             {
-                cancel:
-                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler',
-                okText:
-                    '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
+                cancel: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler',
+                okText: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
                 headingsDialog: {
                     title: 'Titres',
                     buttons: {

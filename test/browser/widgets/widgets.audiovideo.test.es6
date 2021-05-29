@@ -433,7 +433,7 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        it('toggleMute', (done) => {
+        (/^Win/i.test(platform) ? it : xit)('toggleMute', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget.media).to.be.an.instanceof($);
             expect(widget.toolbar).to.be.an.instanceof($);
@@ -499,13 +499,9 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        xit('volume', () => {
-            // TODO
-        });
+        // xit('volume', () => {});
 
-        xit('seek', () => {
-            // TODO
-        });
+        // xit('seek', () => {});
     });
 
     xdescribe('Events', () => {
@@ -520,8 +516,7 @@ describe('widgets.audiovideo', () => {
             // change = sinon.spy();
         });
 
-        it('event', () => {
-            // TODO: No event at this stage
+        xit('event', () => {
             $.noop(widget);
         });
     });

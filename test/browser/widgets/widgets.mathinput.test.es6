@@ -40,6 +40,9 @@ chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
 MathInput.fn.options.fontsDirectory = baseUrl('/src/styles/vendor/khan/fonts');
+MathInput.fn.options.soundsDirectory = baseUrl(
+    '/src/styles/vendor/arnog/sounds'
+);
 
 describe('widgets.mathinput', () => {
     before(() => {

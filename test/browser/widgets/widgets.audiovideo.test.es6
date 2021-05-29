@@ -26,7 +26,7 @@ const {
     init,
     ui: { AudioVideo, roles, Slider },
 } = window.kendo;
-const { webdriver } = window.navigator;
+const { platform, webdriver } = window.navigator;
 const { expect } = chai;
 
 const FIXTURES = 'fixtures';
@@ -263,7 +263,7 @@ describe('widgets.audiovideo', () => {
         });
 
         // Note: Fails on Github
-        (/^Win/i.test(navigator.platform) ? it : xit)('toggleMute', (done) => {
+        (/^Win/i.test(platform) ? it : xit)('toggleMute', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
@@ -314,7 +314,7 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        (/^Win/i.test(navigator.platform) ? it : xit)('volume', (done) => {
+        (/^Win/i.test(platform) ? it : xit)('volume', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
@@ -330,7 +330,7 @@ describe('widgets.audiovideo', () => {
             }, TTL);
         });
 
-        it('seek', (done) => {
+        (/^Win/i.test(platform) ? it : xit)('seek', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);

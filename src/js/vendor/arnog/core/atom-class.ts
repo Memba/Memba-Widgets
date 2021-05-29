@@ -1,8 +1,8 @@
-import type { Style, ParseMode, FontSize } from '../public/core';
+import type { Style, ParseMode, FontSize, Glue } from '../public/core';
 
 import { isArray } from '../common/types';
 
-import { Context, Glue, PrivateStyle } from './context';
+import { Context, PrivateStyle } from './context';
 
 import { PT_PER_EM, X_HEIGHT } from './font-metrics';
 import { BoxType, isBoxType, Box } from './box';
@@ -104,7 +104,7 @@ export type AtomType =
 
 export type BBoxParameter = {
   backgroundcolor?: string;
-  padding?: number;
+  padding?: string;
   border?: string;
 };
 
@@ -171,10 +171,12 @@ export class Atom {
   // - 'adjacent': to the right, above and below the baseline (for example
   // for operators in `textstyle` style)
   // - 'auto': 'over-under' in \displaystyle, 'adjacent' otherwise
+  // If `undefined`, the subsup should be placed on a separate `msubsup` atom.
   subsupPlacement?: 'auto' | 'over-under' | 'adjacent';
 
-  // True if the subsupPlacement was set by `\limits` or `\nolimits`.
-  // Necessary so the propert latex can be output
+  // True if the subsupPlacement was set by `\limits`, `\nolimits` or
+  // `\displaylimits`.
+  // Necessary so the proper LaTeX can be output.
   explicitSubsupPlacement?: boolean;
 
   // If true, when the caret reaches the first position in this element's body,
@@ -197,8 +199,8 @@ export class Atom {
   // changing command (`\text`).
   changeMode?: boolean;
 
-  // The amount of glue (expandable/shrinkable kern) to the right of this atom
-  glue?: Glue;
+  // The kern to the right of this atom
+  kern?: Glue;
 
   //
   // The following properties are reset and updated through each rendering loop.
@@ -208,7 +210,10 @@ export class Atom {
   // This account the atoms that surrounds it, so that a '-' between two
   // ordinary atoms will have more space around it than a '-' with no
   // atom to its left, i.e. `12 + 3` vs `-123`.
-  kernType: BoxType;
+  interAtomType: BoxType;
+  // The amount of glue between this atom and the one to the right
+  // based on the calculated kernType
+  interAtomKern: Glue;
 
   // True if the item currently part of the selection
   isSelected: boolean;
@@ -273,14 +278,6 @@ export class Atom {
         parent = parent.parent;
       }
     }
-  }
-
-  // Kern to the right of this atom
-  get kern(): number {
-    if (this.glue) {
-      return this.glue.value;
-    }
-    return 0;
   }
 
   /**

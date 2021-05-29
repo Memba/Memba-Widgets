@@ -1,4 +1,4 @@
-/* 0.65.0 */import { MathfieldOptions } from './options';
+import { MathfieldOptions } from './options';
 import { Selector } from './commands';
 import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection, FindOptions, ReplacementFunction } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
@@ -82,6 +82,8 @@ export interface MathfieldElementAttributes {
      * the formula. A value greater than 1.0 can be used to improve the
      * legibility.
      *
+     * @deprecated Use registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`
+     *
      */
     'horizontal-spacing-scale': string;
     /**
@@ -108,6 +110,23 @@ export interface MathfieldElementAttributes {
      */
     'inline-shortcut-timeout': string;
     'keypress-vibration': boolean;
+    /**
+     * When a key on the virtual keyboard is pressed, produce a short audio
+     * feedback.
+     *
+     * The value of the properties should a string, the name of an audio file in
+     * the `soundsDirectory` directory or 'none' to supress the sound.
+     */
+    'keypress-sound': string;
+    /**
+     * Sound played to provide feedback when a command has no effect, for example
+     * when pressing the spacebar at the root level.
+     *
+     * The property is either:
+     * - a string, the name of an audio file in the `soundsDirectory` directory
+     * - 'none' to turn off the sound
+     */
+    'plonk-sound': string;
     'letter-shape-style': string;
     /**
      * The locale (language + region) to use for string localization.
@@ -354,6 +373,8 @@ export interface MathfieldElementAttributes {
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
  * | `keypress-vibration` | `options.keypressVibration` |
+ * | `keypress-sound` | `options.keypressSound` |
+ * | `plonk-sound` | `options.plonkSound` |
  * | `letter-shape-style` | `options.letterShapeStyle` |
  * | `locale` | `options.locale` |
  * | `math-mode-space` | `options.mathModeSpace` |
@@ -422,18 +443,23 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     static get observedAttributes(): string[];
     private _mathfield;
     private _slotValue;
+    private _style;
     /**
        * To create programmatically a new mahfield use:
        * ```javascript
       let mfe = new MathfieldElement();
+  
       // Set initial value and options
       mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
+  
       // Options can be set either as an attribute (for simple options)...
       mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+  
       // ... or using `setOptions()`
       mfe.setOptions({
           virtualKeyboardMode: 'manual',
       });
+  
       // Attach the element to the DOM
       document.body.appendChild(mfe);
       * ```
@@ -612,6 +638,8 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * @internal
      */
     attributeChangedCallback(name: string, oldValue: unknown, newValue: unknown): void;
+    get readonly(): boolean;
+    set readonly(value: boolean);
     get disabled(): boolean;
     set disabled(value: boolean);
     /**
@@ -626,6 +654,66 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      *  @category Accessing and changing the content
      */
     set value(value: string);
+    get defaultMode(): 'inline-math' | 'math' | 'text';
+    set defaultMode(value: 'inline-math' | 'math' | 'text');
+    get fontsDirectory(): string;
+    set fontsDirectory(value: string);
+    get mathModeSpace(): string;
+    set mathModeSpace(value: string);
+    get inlineShortcutTimeout(): number;
+    set inlineShortcutTimeout(value: number);
+    get keypressVibration(): boolean;
+    set keypressVibration(value: boolean);
+    get keypressSound(): string | HTMLAudioElement | null | {
+        spacebar?: string | HTMLAudioElement;
+        return?: string | HTMLAudioElement;
+        delete?: string | HTMLAudioElement;
+        default: string | HTMLAudioElement;
+    };
+    set keypressSound(value: string | HTMLAudioElement | null | {
+        spacebar?: string | HTMLAudioElement;
+        return?: string | HTMLAudioElement;
+        delete?: string | HTMLAudioElement;
+        default: string | HTMLAudioElement;
+    });
+    get plonkSound(): string | HTMLAudioElement | null;
+    set plonkSound(value: string | HTMLAudioElement);
+    get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright';
+    set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright');
+    get locale(): string;
+    set locale(value: string);
+    get readOnly(): boolean;
+    set readOnly(value: boolean);
+    get removeExtraneousParentheses(): boolean;
+    set removeExtraneousParentheses(value: boolean);
+    get smartFence(): boolean;
+    set smartFence(value: boolean);
+    get smartMode(): boolean;
+    set smartMode(value: boolean);
+    get smartSuperscript(): boolean;
+    set smartSuperscript(value: boolean);
+    get speechEngine(): 'local' | 'amazon';
+    set speechEngine(value: 'local' | 'amazon');
+    get speechEngineRate(): string;
+    set speechEngineRate(value: string);
+    get speechEngineVoice(): string;
+    set speechEngineVoice(value: string);
+    get textToSpeechMarkup(): '' | 'ssml' | 'ssml_step' | 'mac';
+    set textToSpeechMarkup(value: '' | 'ssml' | 'ssml_step' | 'mac');
+    get textToSpeechRules(): 'mathlive' | 'sre';
+    set textToSpeechRule(value: 'mathlive' | 'sre');
+    get virtualKeyboardLayout(): 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak';
+    set virtualKeyboardLayout(value: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak');
+    get virtualKeyboardMode(): 'auto' | 'manual' | 'onfocus' | 'off';
+    set virtualKeyboardMode(value: 'auto' | 'manual' | 'onfocus' | 'off');
+    get virtualKeyboardTheme(): 'material' | 'apple' | '';
+    set virtualKeyboardTheme(value: 'material' | 'apple' | '');
+    get virtualKeyboars(): string;
+    set virtualKeyboars(value: string);
+    get useSharedVirtualKeyboard(): boolean;
+    set useSharedVirtualKeyboard(value: boolean);
+    get sharedVirtualKeyboardTargetOrigin(): string;
+    set sharedVirtualKeyboardTargetOrigin(value: string);
     /**
      * An array of ranges representing the selection.
      *

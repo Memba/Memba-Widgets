@@ -93,6 +93,22 @@
       'light-grey': '#d4d5d2',
       'white': '#ffffff',
   };
+  // Map some of the DVIPS color names to Chromatic
+  const DVIPS_TO_CHROMATIC = {
+      Red: 'red',
+      Orange: 'orange',
+      Yellow: 'yellow',
+      LimeGreen: 'lime',
+      Green: 'green',
+      TealBlue: 'teal',
+      Blue: 'blue',
+      Violet: 'indigo',
+      Purple: 'purple',
+      Magenta: 'magenta',
+      Black: 'black',
+      Gray: 'grey',
+      White: 'white',
+  };
   /**
    * 68 colors (+ white) known to dvips used in LaTeX.
    *
@@ -107,74 +123,74 @@
    *
    */
   const DVIPS_COLORS = {
-      apricot: '#FBB982',
-      aquamarine: '#00B5BE',
-      bittersweet: '#C04F17',
-      black: '#221E1F',
-      blue: '#2D2F92',
-      bluegreen: '#00B3B8',
-      blueviolet: '#473992',
-      brickred: '#B6321C',
-      brown: '#792500',
-      burntorange: '#F7921D',
-      cadetblue: '#74729A',
-      carnationpink: '#F282B4',
-      cerulean: '#00A2E3',
-      cornflowerblue: '#41B0E4',
-      cyan: '#00AEEF',
-      dandelion: '#FDBC42',
-      darkorchid: '#A4538A',
-      emerald: '#00A99D',
-      forestgreen: '#009B55',
-      fuchsia: '#8C368C',
-      goldenrod: '#FFDF42',
-      gray: '#949698',
-      green: '#00A64F',
-      greenyellow: '#DFE674',
-      junglegreen: '#00A99A',
-      lavender: '#F49EC4',
-      limegreen: '#8DC73E',
-      magenta: '#EC008C',
-      mahogany: '#A9341F',
-      maroon: '#AF3235',
-      melon: '#F89E7B',
-      midnightblue: '#006795',
-      mulberry: '#A93C93',
-      navyblue: '#006EB8',
-      olivegreen: '#3C8031',
-      orange: '#F58137',
-      orangered: '#ED135A',
-      orchid: '#AF72B0',
-      peach: '#F7965A',
-      periwinkle: '#7977B8',
-      pinegreen: '#008B72',
-      plum: '#92268F',
-      processblue: '#00B0F0',
-      purple: '#99479B',
-      rawsienna: '#974006',
-      red: '#ED1B23',
-      redorange: '#F26035',
-      redviolet: '#A1246B',
-      rhodamine: '#EF559F',
-      royalblue: '#0071BC',
-      royalpurple: '#613F99',
-      rubinered: '#ED017D',
-      salmon: '#F69289',
-      seagreen: '#3FBC9D',
-      sepia: '#671800',
-      skyblue: '#46C5DD',
-      springgreen: '#C6DC67',
-      tan: '#DA9D76',
-      tealblue: '#00AEB3',
-      thistle: '#D883B7',
-      turquoise: '#00B4CE',
-      violet: '#58429B',
-      violetred: '#EF58A0',
-      white: '#FFFFFF',
-      wildstrawberry: '#EE2967',
-      yellow: '#FFF200',
-      yellowgreen: '#98CC70',
-      yelloworange: '#FAA21A',
+      Apricot: '#FBB982',
+      Aquamarine: '#00B5BE',
+      Bittersweet: '#C04F17',
+      Black: '#221E1F',
+      Blue: '#2D2F92',
+      BlueGreen: '#00B3B8',
+      BlueViolet: '#473992',
+      Brickred: '#B6321C',
+      Brown: '#792500',
+      BurntOrange: '#F7921D',
+      CadetBlue: '#74729A',
+      CarnationPink: '#F282B4',
+      Cerulean: '#00A2E3',
+      CornflowerBlue: '#41B0E4',
+      Cyan: '#00AEEF',
+      Dandelion: '#FDBC42',
+      DarkOrchid: '#A4538A',
+      Emerald: '#00A99D',
+      ForestGreen: '#009B55',
+      Fuchsia: '#8C368C',
+      Goldenrod: '#FFDF42',
+      Gray: '#949698',
+      Green: '#00A64F',
+      GreenYellow: '#DFE674',
+      JungleGreen: '#00A99A',
+      Lavender: '#F49EC4',
+      Limegreen: '#8DC73E',
+      Magenta: '#EC008C',
+      Mahogany: '#A9341F',
+      Maroon: '#AF3235',
+      Melon: '#F89E7B',
+      MidnightBlue: '#006795',
+      Mulberry: '#A93C93',
+      NavyBlue: '#006EB8',
+      OliveGreen: '#3C8031',
+      Orange: '#F58137',
+      OrangeRed: '#ED135A',
+      Orchid: '#AF72B0',
+      Peach: '#F7965A',
+      Periwinkle: '#7977B8',
+      Pinegreen: '#008B72',
+      Plum: '#92268F',
+      ProcessBlue: '#00B0F0',
+      Purple: '#99479B',
+      RawSienna: '#974006',
+      Red: '#ED1B23',
+      RedOrange: '#F26035',
+      RedViolet: '#A1246B',
+      Rhodamine: '#EF559F',
+      RoyalBlue: '#0071BC',
+      RoyalPurple: '#613F99',
+      RubineRed: '#ED017D',
+      Salmon: '#F69289',
+      SeaGreen: '#3FBC9D',
+      Sepia: '#671800',
+      SkyBlue: '#46C5DD',
+      SpringGreen: '#C6DC67',
+      Tan: '#DA9D76',
+      TealBlue: '#00AEB3',
+      Thistle: '#D883B7',
+      Turquoise: '#00B4CE',
+      Violet: '#58429B',
+      VioletRed: '#EF58A0',
+      White: '#FFFFFF',
+      WildStrawberry: '#EE2967',
+      Yellow: '#FFF200',
+      YellowGreen: '#98CC70',
+      YellowOrange: '#FAA21A',
   };
   // Other color lists: SVG colors, x11 colors
   /*
@@ -331,8 +347,8 @@
    * Return a CSS color (#rrggbb) from a string.
    *
    * Possible formats include:
-   * - named colors from the DVI color set: 'Yellow', 'red'... Case insensitive.
-   * - colors from the Mathematica set: 'm1'...'m9'
+   * - named colors from the DVI color set: 'Yellow', 'red'... Case sensitive.
+   * - colors from the Mathematica set: 'M1'...'M9'
    * - 3-digit hex: `'#d50'`
    * - 6-digit hex: `'#dd5500'`
    * - RGB functional: `'rgb(240, 20, 10)'`
@@ -340,9 +356,9 @@
    * In addition, colors can be mixed using the following syntax:
    * `<mix> = <color>![<value>][!<mix>]`
    * For example:
-   * - `'blue!20'`  = 20% blue + 80% white
-   * - `'blue!20!black'` = 20% + 80% black
-   * - `'blue!20!black!30!green'` = (20% + 80% black) * 30 % + 70% green
+   * - `'Blue!20'`  = 20% blue + 80% white
+   * - `'Blue!20!Black'` = 20% + 80% black
+   * - `'Blue!20!Black!30!Green'` = (20% + 80% black) * 30 % + 70% green
    *
    * If the input string is prefixed with a dash, the complementary color
    * of the expression is returned.
@@ -353,8 +369,8 @@
    * @return An RGB color expressed as a hex-triplet preceded by `#`
    */
   function defaultColorMap(s) {
-      var _a, _b, _c, _d, _e;
-      const colorSpec = s.toLowerCase().split('!');
+      var _a, _b, _c, _d, _e, _f;
+      const colorSpec = s.split('!');
       let baseRed;
       let baseGreen;
       let baseBlue;
@@ -370,8 +386,9 @@
           baseRed = red;
           baseGreen = green;
           baseBlue = blue;
-          const colorName = (_a = colorSpec[i].match(/([a-z\d]*)/)) === null || _a === void 0 ? void 0 : _a[1];
-          const color = (_e = (_d = (_c = (_b = FOREGROUND_COLORS[colorName]) !== null && _b !== void 0 ? _b : MATLAB_COLORS[colorName]) !== null && _c !== void 0 ? _c : DVIPS_COLORS[colorName]) !== null && _d !== void 0 ? _d : MATHEMATICA_COLORS[colorName]) !== null && _e !== void 0 ? _e : colorSpec[i];
+          const colorName = (_a = colorSpec[i].trim().match(/^([A-Za-z\d]+)/)) === null || _a === void 0 ? void 0 : _a[1];
+          const lcColorName = colorName === null || colorName === void 0 ? void 0 : colorName.toLowerCase();
+          const color = (_f = (_e = (_d = (_c = (_b = FOREGROUND_COLORS[lcColorName]) !== null && _b !== void 0 ? _b : FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]]) !== null && _c !== void 0 ? _c : MATLAB_COLORS[colorName]) !== null && _d !== void 0 ? _d : DVIPS_COLORS[colorName]) !== null && _e !== void 0 ? _e : MATHEMATICA_COLORS[colorName]) !== null && _f !== void 0 ? _f : colorSpec[i].trim();
           let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
           if ((m === null || m === void 0 ? void 0 : m[1]) && m[2] && m[3]) {
               // It's a six-digit hex number
@@ -429,8 +446,9 @@
           ('00' + Math.round(blue).toString(16)).slice(-2));
   }
   function defaultBackgroundColorMap(s) {
-      var _a;
-      return (_a = BACKGROUND_COLORS[s.toLowerCase()]) !== null && _a !== void 0 ? _a : defaultColorMap(s);
+      var _a, _b;
+      s = s.trim();
+      return ((_b = (_a = BACKGROUND_COLORS[s.toLowerCase()]) !== null && _a !== void 0 ? _a : BACKGROUND_COLORS[DVIPS_TO_CHROMATIC[s]]) !== null && _b !== void 0 ? _b : defaultColorMap(s));
   }
   function parseHex(hex) {
       if (!hex)
@@ -2745,17 +2763,6 @@
       bigOpSpacing4: [0.6, 0.611, 0.611],
       bigOpSpacing5: [0.1, 0.143, 0.143],
       sqrtRuleThickness: [0.04, 0.04, 0.04],
-      // pxPerEm: (PT_PER_EM * 4) / 3, // A CSS pt is fixed at 1.333px
-      // The space between adjacent `|` columns in an array definition. From
-      // `\showthe\doublerulesep` in LaTeX. Equals 2.0 / ptPerEm.
-      doubleRuleSep: [0.2, 0.2, 0.2],
-      // The width of separator lines in {array} environments. From
-      // `\showthe\arrayrulewidth` in LaTeX. Equals 0.4 / ptPerEm.
-      arrayRuleWidth: [0.04, 0.04, 0.04],
-      arrayColSep: [0.5, 0.5, 0.5],
-      baselineSkip: [BASELINE_SKIP, BASELINE_SKIP, BASELINE_SKIP],
-      fboxSep: [0.3, 0.3, 0.3],
-      fboxRule: [0.04, 0.04, 0.04], // 0.4 pt / ptPerEm
   };
   // Maps a scale index from 1..10 to a value expressed in `em` relative
   // to the fontsize of the mathfield.
@@ -2908,45 +2915,6 @@
           skew: 0,
       };
   }
-  /**
-   *
-   * @param value If value is a string, it may be suffixed
-   * with a unit, which will override the `unit` paramter
-   */
-  function convertDimenToEm(value, unit, precision = Number.NaN) {
-      if (typeof value === 'string') {
-          const m = value.match(/([-+]?[\d.]*)\s*([a-zA-Z]+)/);
-          if (!m) {
-              value = Number.parseFloat(value);
-          }
-          else {
-              value = Number.parseFloat(m[1]);
-              unit = m[2].toLowerCase();
-          }
-      }
-      // If the units are missing, TeX assumes 'pt'
-      const f = {
-          pt: 1,
-          mm: 7227 / 2540,
-          cm: 7227 / 254,
-          ex: 35271 / 8192,
-          px: 3 / 4,
-          em: PT_PER_EM,
-          bp: 803 / 800,
-          dd: 1238 / 1157,
-          pc: 12,
-          in: 72.27,
-          mu: 10 / 18,
-      }[unit] || 1;
-      if (Number.isFinite(precision)) {
-          const factor = 10 ** precision;
-          return Math.round((value / PT_PER_EM) * f * factor) / factor;
-      }
-      return (value / PT_PER_EM) * f;
-  }
-  function convertDimenToPx(value, unit) {
-      return convertDimenToEm(value, unit) * (4 / 3) * PT_PER_EM;
-  }
 
   /**
    * This file contains information and classes for the 'math styles' used by TeX,
@@ -3076,6 +3044,41 @@
   MATHSTYLES.scriptstyle = MATHSTYLES[S];
   MATHSTYLES.scriptscriptstyle = MATHSTYLES[SS];
 
+  function convertDimensionToPt(value, precision) {
+      var _a;
+      if (!value)
+          return 0;
+      // If the units are missing, TeX assumes 'pt'
+      const f = (_a = {
+          pt: 1,
+          mm: 7227 / 2540,
+          cm: 7227 / 254,
+          ex: 35271 / 8192,
+          px: 3 / 4,
+          em: PT_PER_EM,
+          bp: 803 / 800,
+          dd: 1238 / 1157,
+          pc: 12,
+          in: 72.27,
+          mu: 10 / 18,
+      }[value.unit]) !== null && _a !== void 0 ? _a : 1;
+      if (Number.isFinite(precision)) {
+          const factor = 10 ** precision;
+          return Math.round((value.dimension / PT_PER_EM) * f * factor) / factor;
+      }
+      return value.dimension * f;
+  }
+  function convertDimensionToEm(value, precision) {
+      return convertDimensionToPt(value, precision) / PT_PER_EM;
+  }
+  function convertGlueToEm(value) {
+      return convertDimensionToEm(value.glue);
+  }
+  function serializeDimension(value) {
+      var _a;
+      return `${value.dimension}${(_a = value.unit) !== null && _a !== void 0 ? _a : 'pt'}`;
+  }
+
   /**
    * This structure contains the rendering context of the current parse level.
    *
@@ -3113,6 +3116,8 @@
           console.assert(parent instanceof Context || inMathstyle !== undefined);
           if (parent instanceof Context)
               this.parent = parent;
+          if (!(parent instanceof Context))
+              this.registers = parent.registers;
           this.isSelected = (_b = (_a = style === null || style === void 0 ? void 0 : style.isSelected) !== null && _a !== void 0 ? _a : parent === null || parent === void 0 ? void 0 : parent.isSelected) !== null && _b !== void 0 ? _b : false;
           this.isPhantom = (_e = (_c = style === null || style === void 0 ? void 0 : style.isPhantom) !== null && _c !== void 0 ? _c : (_d = this.parent) === null || _d === void 0 ? void 0 : _d.isPhantom) !== null && _e !== void 0 ? _e : false;
           const from = {
@@ -3195,20 +3200,63 @@
       }
       getRegister(name) {
           var _a;
-          if ((_a = this._registers) === null || _a === void 0 ? void 0 : _a[name])
-              return this._registers[name];
+          if ((_a = this.registers) === null || _a === void 0 ? void 0 : _a[name])
+              return this.registers[name];
           if (this.parent)
               return this.parent.getRegister(name);
           return undefined;
       }
+      getRegisterAsGlue(name) {
+          var _a;
+          if ((_a = this.registers) === null || _a === void 0 ? void 0 : _a[name]) {
+              const value = this.registers[name];
+              if (typeof value === 'object' && 'glue' in value) {
+                  return value;
+              }
+              else if (typeof value === 'object' && 'dimension' in value) {
+                  return { glue: { dimension: value.dimension } };
+              }
+              else if (typeof value === 'number') {
+                  return { glue: { dimension: value } };
+              }
+              return undefined;
+          }
+          if (this.parent)
+              return this.parent.getRegisterAsGlue(name);
+          return undefined;
+      }
+      getRegisterAsEm(name) {
+          return convertDimensionToEm(this.getRegisterAsDimension(name));
+      }
+      getRegisterAsDimension(name) {
+          var _a;
+          if ((_a = this.registers) === null || _a === void 0 ? void 0 : _a[name]) {
+              const value = this.registers[name];
+              if (typeof value === 'object' && 'glue' in value) {
+                  return value.glue;
+              }
+              else if (typeof value === 'object' && 'dimension' in value) {
+                  return value;
+              }
+              else if (typeof value === 'number') {
+                  return { dimension: value };
+              }
+              return undefined;
+          }
+          if (this.parent)
+              return this.parent.getRegisterAsDimension(name);
+          return undefined;
+      }
       setRegister(name, value) {
-          this._registers[name] = value;
+          this.registers[name] = value;
       }
       setGlobalRegister(name, value) {
           // eslint-disable-next-line @typescript-eslint/no-this-alias
           let root = this;
-          while (root.parent)
+          while (root.parent) {
+              root.setRegister(name, undefined);
               root = root.parent;
+          }
           root.setRegister(name, value);
       }
       get size() {
@@ -3353,6 +3401,8 @@
       widetilde2: [1033, 286, 0.286],
       widetilde3: [2339, 306, 0.306],
       widetilde4: [2340, 312, 0.34],
+      overarc: [1061, 159, 0.3],
+      underarc: [1061, 159, 0.3],
   };
   // From https://github.com/KaTeX/KaTeX/blob/master/src/svgGeometry.js
   const PATHS = {
@@ -3391,6 +3441,23 @@ c-10 4-16 7.7-18 11 0 8.7 6 14.3 18 17 47.3 18.7 87.8 47 121.5 85S196 441.3 208
  35.313 51.3 80.813 93.8 136.5 127.5 55.688 33.7 117.188 55.8 184.5 66.5.688
  0 2 .3 4 1 18.688 2.7 76 4.3 172 5h399450v120H429l-6-1c-124.688-8-235-61.7
 -331-161C60.687 138.7 32.312 99.3 7 54L0 41V6z`,
+      overarc: `M529 0c179 0 524 115 524 115 5 1 9 5 9 10 0 1-1 2-1 3l-4 22c-1 5-5 9-11 9h-2s-338-93-512-92c-174 0-513 92-513 92h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13 0 0 342-115 520-115z`,
+      underarc: `m 529 160
+  c -179 0 -524 -115 -524 -115
+  c -5 -1 -9 -5 -9 -10
+  c 0 -1 1 -2 1 -3
+  l 4 -22
+  c 1 -5 5 -9 11 -9
+  h 2
+  s 338 93 512 92
+  c 174 0 513 -92 513 -92
+  h 2
+  c 5 0 9 4 11 9
+  l 5 22
+  c 1 6 -2 12 -8 13
+  c 0 0 -342 115 -520 115
+  z
+  `,
       // Overgroup is from the MnSymbol package (public domain)
       leftgroup: `M400000 80
 H435C64 80 168.3 229.4 21 260c-5.9 1.2-18 0-18 0-2 0-3-1-3-3v-38C76 61 257 0
@@ -3614,14 +3681,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    */
   function svgBodyToMarkup(svgBodyName) {
       if (SVG_ACCENTS[svgBodyName]) {
-          const height = SVG_ACCENTS[svgBodyName][2];
+          const [vbWidth, vbHeight, height] = SVG_ACCENTS[svgBodyName];
           const result = `<span class="stretchy" style="height:${height}em">` +
-              `<svg width="100%" height="${height}em"` +
-              `viewBox="0 0 ${SVG_ACCENTS[svgBodyName][0]} ${SVG_ACCENTS[svgBodyName][1]}"` +
-              `preserveAspectRatio="none">` +
+              `<svg width="100%" height="${height}em" ` +
+              `viewBox="0 0 ${vbWidth} ${vbHeight}" ` +
+              `preserveAspectRatio="none" >` +
               `<path d="${PATHS[svgBodyName]}"></path>` +
               `</svg></span>`;
-          return `<span style="height:${height}em;min-width:0">${result}</span>`;
+          return `<span style="display:inline-block;height:${height / 2}em;min-width:0">${result}</span>`;
       }
       const [paths, minWidth, viewBoxHeight, align] = SVG_BODY[svgBodyName];
       let widthClasses;
@@ -3804,17 +3871,23 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   /**
    * TeXBook, p. 170
    *
-   * In fact, TEX’s rules for spacing in formulas are fairly simple. A formula is
-   * converted to a math list as described at the end of Chapter 17, and the math
-   * list consists chiefly of “atoms” of eight basic types: Ord (ordinary),
-   * Op (large operator), Bin (binary operation), Rel (relation), Open (opening),
-   * Close (closing), Punct (punctuation), and Inner (a delimited subformula).
-   * Other kinds of atoms, which arise from commands like \overline or
-   * \mathaccent or \vcenter, etc., are all treated as type Ord; fractions are
-   * treated as type Inner.
+   * > In fact, TEX’s rules for spacing in formulas are fairly simple. A formula is
+   * > converted to a math list as described at the end of Chapter 17, and the math
+   * > list consists chiefly of “atoms” of eight basic types: Ord (ordinary),
+   * > Op (large operator), Bin (binary operation), Rel (relation), Open (opening),
+   * > Close (closing), Punct (punctuation), and Inner (a delimited subformula).
+   * > Other kinds of atoms, which arise from commands like \overline or
+   * > \mathaccent or \vcenter, etc., are all treated as type Ord; fractions are
+   * > treated as type Inner.
    *
-   * The following table is used to determine the spacing between pair of adjacent
-   * atoms.
+   * > The following table is used to determine the spacing between pair of adjacent
+   * > atoms.
+   *
+   * In this table
+   * - "3" = `\thinmuskip`
+   * - "4" = `\medmuskip`
+   * - "5" = `\thickmuskip`
+   *
    */
   const INTER_ATOM_SPACING = {
       mord: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
@@ -5167,7 +5240,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    * @param s - A string of LaTeX. It can include comments (with the `%`
    * marker) and multiple lines.
    */
-  function tokenize(s, args) {
+  function tokenize(s, args = null) {
       // Merge multiple lines into one, and remove comments
       const lines = s.toString().split(/\r?\n/);
       let stream = '';
@@ -5219,9 +5292,23 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return result;
   }
 
+  // Return true if this is a browser environment, false if this is
+  // a server side environment (node.js) or web worker.
+  function isBrowser() {
+      return 'window' in globalThis && 'document' in globalThis;
+  }
+  function throwIfNotInBrowser() {
+      if (!isBrowser()) {
+          throw new Error('<math-field> is an interactive component that needs to run in a browser environment\n' +
+              'If you are using nextjs, see https://nextjs.org/docs/advanced-features/dynamic-import#with-no-ssr');
+      }
+  }
   function isTouchCapable() {
       var _a, _b;
-      return (_b = (_a = window.matchMedia) === null || _a === void 0 ? void 0 : _a.call(window, '(any-pointer: coarse)').matches) !== null && _b !== void 0 ? _b : false;
+      return ((_b = (isBrowser() && ((_a = window.matchMedia) === null || _a === void 0 ? void 0 : _a.call(window, '(any-pointer: coarse)').matches))) !== null && _b !== void 0 ? _b : false);
+  }
+  function canVibrate() {
+      return isBrowser() && typeof navigator.vibrate === 'function';
   }
   function osPlatform() {
       const platform = navigator.platform;
@@ -5243,7 +5330,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return 'other';
   }
   function supportRegexPropertyEscape() {
-      if (navigator === undefined)
+      if (!isBrowser())
           return true;
       if (/firefox/i.test(navigator.userAgent)) {
           const m = navigator.userAgent.match(/firefox\/(\d+)/i);
@@ -5267,17 +5354,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // Firefox and Safari return true for fonts that are not loaded...
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1252821 🤦‍♂️
       // So, if on Firefox, always assume that the fonts are not loaded.
-      return !/firefox|safari/i.test(navigator.userAgent);
+      return isBrowser() && !/firefox|safari/i.test(navigator.userAgent);
   }
 
   const MATH_SYMBOLS = {};
-  // Map a character to some corresponding Latex
+  // Map a character to some corresponding Latex.
+  //
   // This is used for some characters such as ² SUPERSCRIPT TWO.
   // This is also an opportunity to specify the prefered form when
   // a unicode character is encountered that maps to multiple commands,
-  // for example ≠ could map either to \ne or \neq
-  // The table will also be populated by any registered symbol
-  // from MATH_SYMBOLS
+  // for example ≠ could map either to \ne or \neq.
+  // The table will also be populated by any registered symbol from MATH_SYMBOLS,
+  //  so an explicit entry is only needed in case of ambiguous mappings.
+  //
   // prettier-ignore
   const REVERSE_MATH_SYMBOLS = {
       0x003C: '<',
@@ -5351,6 +5440,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       0x27F7: '\\biconditional',
       0x27F8: '\\impliedby',
       0x27F9: '\\implies',
+      0x27fa: '\\iff',
       0x2102: '\\C',
       0x2115: '\\N',
       0x2119: '\\P',
@@ -5360,18 +5450,94 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   };
   const LEGACY_COMMANDS = {};
   const ENVIRONMENTS = {};
-  const MACROS = {
-      iff: '\\;\u27FA\\;',
-      nicefrac: '^{#1}\\!\\!/\\!_{#2}',
-      // From bracket.sty, Dirac notation
-      bra: '\\mathinner{\\langle{#1}|}',
-      ket: '\\mathinner{|{#1}\\rangle}',
-      braket: '\\mathinner{\\langle{#1}\\rangle}',
-      set: '\\mathinner{\\lbrace #1 \\rbrace}',
-      Bra: '\\left\\langle #1\\right|',
-      Ket: '\\left|#1\\right\\rangle',
-      Braket: '\\left\\langle{#1}\\right\\rangle',
-      Set: '\\left\\lbrace #1 \\right\\rbrace',
+  const TEXVC_MACROS = {
+      //////////////////////////////////////////////////////////////////////
+      // texvc.sty
+      // The texvc package contains macros available in mediawiki pages.
+      // We omit the functions deprecated at
+      // https://en.wikipedia.org/wiki/Help:Displaying_a_formula#Deprecated_syntax
+      // We also omit texvc's \O, which conflicts with \text{\O}
+      darr: '\\downarrow',
+      dArr: '\\Downarrow',
+      Darr: '\\Downarrow',
+      lang: '\\langle',
+      rang: '\\rangle',
+      uarr: '\\uparrow',
+      uArr: '\\Uparrow',
+      Uarr: '\\Uparrow',
+      N: '\\mathbb{N}',
+      R: '\\mathbb{R}',
+      Z: '\\mathbb{Z}',
+      alef: '\\aleph',
+      alefsym: '\\aleph',
+      Alpha: '\\mathrm{A}',
+      Beta: '\\mathrm{B}',
+      bull: '\\bullet',
+      Chi: '\\mathrm{X}',
+      clubs: '\\clubsuit',
+      cnums: '\\mathbb{C}',
+      Complex: '\\mathbb{C}',
+      Dagger: '\\ddagger',
+      diamonds: '\\diamondsuit',
+      empty: '\\emptyset',
+      Epsilon: '\\mathrm{E}',
+      Eta: '\\mathrm{H}',
+      exist: '\\exists',
+      harr: '\\leftrightarrow',
+      hArr: '\\Leftrightarrow',
+      Harr: '\\Leftrightarrow',
+      hearts: '\\heartsuit',
+      image: '\\Im',
+      infin: '\\infty',
+      Iota: '\\mathrm{I}',
+      isin: '\\in',
+      Kappa: '\\mathrm{K}',
+      larr: '\\leftarrow',
+      lArr: '\\Leftarrow',
+      Larr: '\\Leftarrow',
+      lrarr: '\\leftrightarrow',
+      lrArr: '\\Leftrightarrow',
+      Lrarr: '\\Leftrightarrow',
+      Mu: '\\mathrm{M}',
+      natnums: '\\mathbb{N}',
+      Nu: '\\mathrm{N}',
+      Omicron: '\\mathrm{O}',
+      plusmn: '\\pm',
+      rarr: '\\rightarrow',
+      rArr: '\\Rightarrow',
+      Rarr: '\\Rightarrow',
+      real: '\\Re',
+      reals: '\\mathbb{R}',
+      Reals: '\\mathbb{R}',
+      Rho: '\\mathrm{P}',
+      sdot: '\\cdot',
+      sect: '\\S',
+      spades: '\\spadesuit',
+      sub: '\\subset',
+      sube: '\\subseteq',
+      supe: '\\supseteq',
+      Tau: '\\mathrm{T}',
+      thetasym: '\\vartheta',
+      // TODO: varcoppa: { def: "\\\mbox{\\coppa}", expand: false },
+      weierp: '\\wp',
+      Zeta: '\\mathrm{Z}',
+  };
+  const AMSMATH_MACROS = {
+      // amsmath.sty
+      // http://mirrors.concertpass.com/tex-archive/macros/latex/required/amsmath/amsmath.pdf
+      // Italic Greek capital letters.  AMS defines these with \DeclareMathSymbol,
+      // but they are equivalent to \mathit{\Letter}.
+      varGamma: '\\mathit{\\Gamma}',
+      varDelta: '\\mathit{\\Delta}',
+      varTheta: '\\mathit{\\Theta}',
+      varLambda: '\\mathit{\\Lambda}',
+      varXi: '\\mathit{\\Xi}',
+      varPi: '\\mathit{\\Pi}',
+      varSigma: '\\mathit{\\Sigma}',
+      varUpsilon: '\\mathit{\\Upsilon}',
+      varPhi: '\\mathit{\\Phi}',
+      varPsi: '\\mathit{\\Psi}',
+      varOmega: '\\mathit{\\Omega}',
       // From http://tug.ctan.org/macros/latex/required/amsmath/amsmath.dtx
       // > \newcommand{\pod}[1]{
       // >    \allowbreak
@@ -5417,27 +5583,51 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           def: '\\;\\mathbin{\\operatorname{mod }}',
           expand: false,
       },
+  };
+  // From `braket.sty`, Dirac notation
+  const BRAKET_MACROS = {
+      bra: '\\mathinner{\\langle{#1}|}',
+      ket: '\\mathinner{|{#1}\\rangle}',
+      braket: '\\mathinner{\\langle{#1}\\rangle}',
+      set: '\\mathinner{\\lbrace #1 \\rbrace}',
+      Bra: '\\left\\langle #1\\right|',
+      Ket: '\\left|#1\\right\\rangle',
+      Braket: '\\left\\langle{#1}\\right\\rangle',
+      Set: '\\left\\lbrace #1 \\right\\rbrace',
+  };
+  const DEFAULT_MACROS = {
+      'iff': '\\;\u27FA\\;',
+      'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
       // Proof Wiki
-      rd: '\\mathrm{d}',
-      rD: '\\mathrm{D}',
+      'rd': '\\mathrm{d}',
+      'rD': '\\mathrm{D}',
       // From Wolfram Alpha
-      doubleStruckCapitalN: '\\mathbb{N}',
-      doubleStruckCapitalR: '\\mathbb{R}',
-      doubleStruckCapitalQ: '\\mathbb{Q}',
-      doubleStruckCapitalZ: '\\mathbb{Z}',
-      doubleStruckCapitalP: '\\mathbb{P}',
-      scriptCapitalE: '\\mathscr{E}',
-      scriptCapitalH: '\\mathscr{H}',
-      scriptCapitalL: '\\mathscr{L}',
-      gothicCapitalC: '\\mathfrak{C}',
-      gothicCapitalH: '\\mathfrak{H}',
-      gothicCapitalI: '\\mathfrak{I}',
-      gothicCapitalR: '\\mathfrak{R}',
-      imaginaryI: '\\mathrm{i}',
-      imaginaryJ: '\\mathrm{j}',
-      exponentialE: '\\mathrm{e}',
-      differentialD: '\\mathrm{d}',
-      capitalDifferentialD: '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+      'doubleStruckCapitalN': '\\mathbb{N}',
+      'doubleStruckCapitalR': '\\mathbb{R}',
+      'doubleStruckCapitalQ': '\\mathbb{Q}',
+      'doubleStruckCapitalZ': '\\mathbb{Z}',
+      'doubleStruckCapitalP': '\\mathbb{P}',
+      'scriptCapitalE': '\\mathscr{E}',
+      'scriptCapitalH': '\\mathscr{H}',
+      'scriptCapitalL': '\\mathscr{L}',
+      'gothicCapitalC': '\\mathfrak{C}',
+      'gothicCapitalH': '\\mathfrak{H}',
+      'gothicCapitalI': '\\mathfrak{I}',
+      'gothicCapitalR': '\\mathfrak{R}',
+      'imaginaryI': '\\mathrm{i}',
+      'imaginaryJ': '\\mathrm{j}',
+      'exponentialE': '\\mathrm{e}',
+      'differentialD': '\\mathrm{d}',
+      'capitalDifferentialD': '\\mathrm{D}',
+      'braket.sty': { package: BRAKET_MACROS },
+      'amsmath.sty': {
+          package: AMSMATH_MACROS,
+          expand: false,
+      },
+      'texvc.sty': {
+          package: TEXVC_MACROS,
+          expand: false,
+      },
   };
   // Body-text symbols
   // See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
@@ -6035,48 +6225,73 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               LEGACY_COMMANDS['\\' + name] = data;
       }
   }
+  let _DEFAULT_MACROS;
+  function getMacros(otherMacros) {
+      if (!_DEFAULT_MACROS) {
+          _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
+      }
+      if (!otherMacros)
+          return _DEFAULT_MACROS;
+      return { ..._DEFAULT_MACROS, ...normalizeMacroDictionary(otherMacros) };
+  }
+  function normalizeMacroDefinition(def, options) {
+      var _a, _b, _c, _d;
+      if (typeof def === 'string') {
+          // It's a shorthand definition, let's expand it
+          let argCount = 0;
+          const defString = def;
+          // Let's see if there are arguments in the definition.
+          if (/(^|[^\\])#1/.test(defString))
+              argCount = 1;
+          if (/(^|[^\\])#2/.test(defString))
+              argCount = 2;
+          if (/(^|[^\\])#3/.test(defString))
+              argCount = 3;
+          if (/(^|[^\\])#4/.test(defString))
+              argCount = 4;
+          if (/(^|[^\\])#5/.test(defString))
+              argCount = 5;
+          if (/(^|[^\\])#6/.test(defString))
+              argCount = 6;
+          if (/(^|[^\\])#7/.test(defString))
+              argCount = 7;
+          if (/(^|[^\\])#8/.test(defString))
+              argCount = 8;
+          if (/(^|[^\\])#9/.test(defString))
+              argCount = 9;
+          return {
+              expand: (_a = options === null || options === void 0 ? void 0 : options.expand) !== null && _a !== void 0 ? _a : true,
+              captureSelection: (_b = options === null || options === void 0 ? void 0 : options.captureSelection) !== null && _b !== void 0 ? _b : true,
+              args: argCount,
+              def: defString,
+          };
+      }
+      return {
+          expand: (_c = options === null || options === void 0 ? void 0 : options.expand) !== null && _c !== void 0 ? _c : true,
+          captureSelection: (_d = options === null || options === void 0 ? void 0 : options.captureSelection) !== null && _d !== void 0 ? _d : true,
+          args: 0,
+          ...def,
+      };
+  }
   function normalizeMacroDictionary(macros) {
       if (!macros)
           return null;
       const result = {};
       for (const macro of Object.keys(macros)) {
-          if (typeof macros[macro] === 'string') {
-              // It's a shorthand definition, let's expand it
-              let argCount = 0;
-              const def = macros[macro];
-              // Let's see if there are arguments in the definition.
-              if (/(^|[^\\])#1/.test(def))
-                  argCount = 1;
-              if (/(^|[^\\])#2/.test(def))
-                  argCount = 2;
-              if (/(^|[^\\])#3/.test(def))
-                  argCount = 3;
-              if (/(^|[^\\])#4/.test(def))
-                  argCount = 4;
-              if (/(^|[^\\])#5/.test(def))
-                  argCount = 5;
-              if (/(^|[^\\])#6/.test(def))
-                  argCount = 6;
-              if (/(^|[^\\])#7/.test(def))
-                  argCount = 7;
-              if (/(^|[^\\])#8/.test(def))
-                  argCount = 8;
-              if (/(^|[^\\])#9/.test(def))
-                  argCount = 9;
-              result[macro] = {
-                  def: def,
-                  args: argCount,
-                  expand: true,
-                  captureSelection: true,
-              };
+          const macroDef = macros[macro];
+          if (macroDef === undefined || macroDef === null) {
+              delete result[macro];
+          }
+          else if (typeof macroDef === 'object' && 'package' in macroDef) {
+              for (const packageMacro of Object.keys(macroDef.package)) {
+                  result[packageMacro] = normalizeMacroDefinition(macroDef.package[packageMacro], {
+                      expand: macroDef.expand,
+                      captureSelection: macroDef.captureSelection,
+                  });
+              }
           }
           else {
-              result[macro] = {
-                  expand: true,
-                  captureSelection: true,
-                  args: 0,
-                  ...macros[macro],
-              };
+              result[macro] = normalizeMacroDefinition(macroDef);
           }
       }
       return result;
@@ -6152,13 +6367,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   parent = parent.parent;
               }
           }
-      }
-      // Kern to the right of this atom
-      get kern() {
-          if (this.glue) {
-              return this.glue.value;
-          }
-          return 0;
       }
       /**
        * Return a list of boxes equivalent to atoms.
@@ -7145,9 +7353,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       render(_context) {
           var _a;
           let result;
-          if (Number.isFinite(this.width)) {
+          if (this.width) {
               result = new Box(null, { classes: 'mspace' });
-              result.left = this.width;
+              result.left = convertGlueToEm(this.width);
           }
           else {
               const spacingCls = (_a = {
@@ -7172,16 +7380,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // \quad, etc... which take no parameters.
           let result = this.command;
           if (this.command === '\\hspace' || this.command === '\\hspace*') {
-              result += '{';
-              result += Number.isFinite(this.width)
-                  ? Number(this.width).toString() + 'em'
-                  : '0em';
-              result += '}';
+              if (Number.isFinite(this.width)) {
+                  result += `{${this.width}em'}`;
+              }
+              else {
+                  result += `{0pt}`;
+              }
           }
           else {
-              result += ' ';
               if (Number.isFinite(this.width)) {
-                  result += Number(this.width).toString() + 'em ';
+                  result += ` ${this.width}em`;
               }
           }
           return result;
@@ -7788,6 +7996,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       const axisHeight = AXIS_HEIGHT * context.scalingFactor;
       // Taken from TeX source, tex.web, function make_left_right
       const delimiterFactor = 901; // Plain.tex:327, texboox:152
+      // @todo: use register `\delimitershortfall`
       const delimiterExtend = 5 / PT_PER_EM; // Plain.tex:345, texboox:152
       const maxDistFromAxis = Math.max(height - axisHeight, depth + axisHeight);
       const totalHeight = Math.max((maxDistFromAxis / 500) * delimiterFactor, 2 * maxDistFromAxis - delimiterExtend);
@@ -8074,66 +8283,131 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return !/^<({|}|\$|\$\$|space)>$/.test(token);
   }
   /**
-   * Transform a list of tokens into a list of atoms.
+   * Transform a list of tokens into a list of atoms (a mathlist in TeX's parlance)
    *
-
-   * @property tokens - An array of tokens generated by the lexer.
-   * @property args - Optional arguments to substitute the `#` token.
-   * @property macros - A dictionary of objects, index by the name of
-   * the macro, with the following keys:
-   *    * args: an integer, the number of arguments, default 0. They can be referenced as #0,
-   *       #1, #2... inside the definition of the macro
-   *    * def: a string, the definition of the macro, which can reference other macros
-   * @property index - The current token to be parsed: index in `this.tokens`
-   * @property atoms - Accumulated result of the parsing by
-   * `parseAtom()`
-   * @property style - The font, weight, color, etc. to apply to the
-   * upcoming tokens
-   * @property parseMode - The parse mode indicates the syntax rules to
-   * use to parse the upcoming tokens.
-   * @property tabularMode - When in tabular mode, `'&'` is interpreted as
-   *  a column separator and `'\'` as a row separator. Used for matrixes, etc...
-   * @property endCount - Counter to prevent deadlock. If `end()` is
-   * called too many times (1,000) in a row for the same token, bail.
    */
   class Parser {
       /**
        * @param tokens - An array of tokens generated by the lexer.
-       * @param args - An optional list of arguments. `#n` tokens will be
-       * substituted with the corresponding element in the args object. This is used
-       * when parsing macros.
        */
       constructor(tokens, options) {
+          var _a, _b, _c, _d, _e, _f;
+          // The current token to be parsed: index in `this.tokens`
           this.index = 0;
           this.smartFence = false;
-          this.style = {};
-          this.tabularMode = false; // For arrays, matrix, etc. different parsing rules apply.
-          this.atoms = [];
+          // Counter to prevent deadlock. If `end()` is called too many times (1,000)
+          // in a row for the same token, bail.
           this.endCount = 0;
-          // The parser keeps track of the state of these variable, as they can
-          // influence the parsing, e.g. the `\mathchoice` command
-          this.parseMode = 'math';
-          this.mathstyle = 'displaystyle';
           this.tokens = tokens;
-          this.args = options.args;
+          this.args = (_a = options.args) !== null && _a !== void 0 ? _a : null;
           this.macros = options.macros;
           this.colorMap = options.colorMap;
-          this.backgroundColorMap = options.backgroundColorMap;
-          this.onError = (err) => options.onError({
-              before: tokensToString(this.tokens.slice(this.index, this.index + 10)),
-              after: tokensToString(this.tokens.slice(Math.max(0, this.index - 10), this.index)),
-              ...err,
+          this.backgroundColorMap = (_b = options.backgroundColorMap) !== null && _b !== void 0 ? _b : this.colorMap;
+          this.smartFence = (_c = options.smartFence) !== null && _c !== void 0 ? _c : false;
+          this.onError = options.onError
+              ? (err) => options.onError({
+                  before: tokensToString(this.tokens.slice(this.index, this.index + 10)),
+                  after: tokensToString(this.tokens.slice(Math.max(0, this.index - 10), this.index)),
+                  ...err,
+              })
+              : () => { };
+          this._parsingContexts = [
+              {
+                  parseMode: (_d = options.parseMode) !== null && _d !== void 0 ? _d : 'math',
+                  mathstyle: (_e = options.mathstyle) !== null && _e !== void 0 ? _e : 'displaystyle',
+                  registers: options.registers,
+                  tabular: false,
+                  style: (_f = options.style) !== null && _f !== void 0 ? _f : {},
+                  mathlist: [],
+              },
+          ];
+      }
+      // swapMathlist(atoms: Atom[]): Atom[] {
+      //   const result = this.mathlist;
+      //   this.mathlist = atoms;
+      //   return result;
+      // }
+      // swapParseMode(mode: ParseMode): ParseMode {
+      //   const result = this.parseMode;
+      //   this.parseMode = mode;
+      //   return result;
+      // }
+      get currentContext() {
+          return this._parsingContexts[this._parsingContexts.length - 1];
+      }
+      beginContext(options) {
+          var _a, _b, _c;
+          this._parsingContexts.push({
+              parseMode: (_a = options === null || options === void 0 ? void 0 : options.mode) !== null && _a !== void 0 ? _a : this.currentContext.parseMode,
+              mathstyle: (_b = options === null || options === void 0 ? void 0 : options.mathstyle) !== null && _b !== void 0 ? _b : this.currentContext.mathstyle,
+              registers: undefined,
+              style: { ...this.currentContext.style },
+              tabular: (_c = options === null || options === void 0 ? void 0 : options.tabular) !== null && _c !== void 0 ? _c : false,
+              mathlist: [],
           });
       }
-      swapAtoms(newAtoms = []) {
-          const result = this.atoms;
-          this.atoms = newAtoms;
-          return result;
+      endContext() {
+          this._parsingContexts.pop();
       }
-      swapParseMode(mode) {
-          const result = this.parseMode;
-          this.parseMode = mode;
-          return result;
+      get mathlist() {
+          return this._parsingContexts[this._parsingContexts.length - 1].mathlist;
+      }
+      set mathlist(value) {
+          this._parsingContexts[this._parsingContexts.length - 1].mathlist = value;
+      }
+      get parseMode() {
+          return this._parsingContexts[this._parsingContexts.length - 1].parseMode;
+      }
+      // @revisit
+      set parseMode(value) {
+          this._parsingContexts[this._parsingContexts.length - 1].parseMode = value;
+      }
+      get tabularMode() {
+          return this._parsingContexts[this._parsingContexts.length - 1].tabular;
+      }
+      get style() {
+          // Style is inherited
+          let i = this._parsingContexts.length - 1;
+          let result = this._parsingContexts[i].style;
+          while (result === undefined && i > 0) {
+              i -= 1;
+              result = this._parsingContexts[i].style;
+          }
+          return result !== null && result !== void 0 ? result : {};
+      }
+      // @revisit
+      set style(value) {
+          this._parsingContexts[this._parsingContexts.length - 1].style = value;
+      }
+      getRegister(name) {
+          var _a, _b, _c;
+          console.assert(name[0] !== '\\');
+          if (name.startsWith('global ')) {
+              return (_a = this._parsingContexts[0].registers[name.slice(7)]) !== null && _a !== void 0 ? _a : 0;
+          }
+          let i = this._parsingContexts.length - 1;
+          let registers = this._parsingContexts[i].registers;
+          while (i >= 0 && registers[name] === undefined) {
+              i -= 1;
+              registers = (_b = this._parsingContexts[i]) === null || _b === void 0 ? void 0 : _b.registers;
+          }
+          return (_c = registers === null || registers === void 0 ? void 0 : registers[name]) !== null && _c !== void 0 ? _c : 0;
+      }
+      setRegister(name, value) {
+          if (name.startsWith('global ')) {
+              // Set the global register, clear all the local ones.
+              name = name.slice(7);
+              let i = this._parsingContexts.length - 1;
+              while (i > 0) {
+                  this._parsingContexts[i].registers[name] = undefined;
+                  i -= 1;
+              }
+              this._parsingContexts[0].registers[name] = value;
+              return;
+          }
+          // Set the local register
+          this._parsingContexts[this._parsingContexts.length - 1].registers[name] =
+              value;
       }
       /**
        * True if we've reached the end of the token stream
@@ -8168,8 +8442,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        */
       lastSubsupAtom() {
           let atom;
-          if (this.atoms.length > 0) {
-              atom = this.atoms[this.atoms.length - 1];
+          if (this.mathlist.length > 0) {
+              atom = this.mathlist[this.mathlist.length - 1];
               // If this is a `subsup` atom, it can have a `subsup` attached to it.
               if (atom.type === 'msubsup')
                   return atom;
@@ -8181,7 +8455,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           // Create a new `subsup` atom and return it
           atom = new SubsupAtom({ style: this.style });
-          this.atoms.push(atom);
+          this.mathlist.push(atom);
           return atom;
       }
       /**
@@ -8240,6 +8514,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return parseLatex(placeHolderArg, {
               parseMode: this.parseMode,
               onError: this.onError,
+              registers: this.currentContext.registers,
+              mathstyle: 'textstyle',
               colorMap: this.colorMap,
               backgroundColorMap: this.backgroundColorMap,
           });
@@ -8481,66 +8757,81 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return negative ? -result : result;
       }
       /**
-       * Return as a floating point number a dimension in pt (1 em = 10 pt)
+       * Return a dimension
        *
        * See TeX:8831
-       * @todo: note that some units depend on the font (em, ex). So it might be
-       * better to return a dimen struct with the value + unit and resolve
-       * later when we have a font context....
        */
       scanDimen() {
-          const value = this.scanNumber(false);
-          if (value === null)
-              return null;
+          var _a, _b;
+          let value = this.scanNumber(false);
+          if (value === null) {
+              // This wasn't a number, but perhaps it's a register name?
+              if ((_a = this.peek()) === null || _a === void 0 ? void 0 : _a.startsWith('\\')) {
+                  value = 1;
+              }
+              else {
+                  return null;
+              }
+          }
           this.matchWhitespace();
           let result;
           if (this.matchKeyword('pt')) {
-              result = convertDimenToEm(value, 'pt');
+              result = { dimension: value, unit: 'pt' };
           }
           else if (this.matchKeyword('mm')) {
-              result = convertDimenToEm(value, 'mm');
+              result = { dimension: value, unit: 'mm' };
           }
           else if (this.matchKeyword('cm')) {
-              result = convertDimenToEm(value, 'cm');
+              result = { dimension: value, unit: 'cm' };
           }
           else if (this.matchKeyword('ex')) {
-              result = convertDimenToEm(value, 'ex');
+              result = { dimension: value, unit: 'ex' };
           }
           else if (this.matchKeyword('px')) {
-              result = convertDimenToEm(value, 'px');
+              result = { dimension: value, unit: 'px' };
           }
           else if (this.matchKeyword('em')) {
-              result = convertDimenToEm(value, 'em');
+              result = { dimension: value, unit: 'em' };
           }
           else if (this.matchKeyword('bp')) {
-              result = convertDimenToEm(value, 'bp');
+              result = { dimension: value, unit: 'bp' };
           }
           else if (this.matchKeyword('dd')) {
-              result = convertDimenToEm(value, 'dd');
+              result = { dimension: value, unit: 'dd' };
           }
           else if (this.matchKeyword('pc')) {
-              result = convertDimenToEm(value, 'pc');
+              result = { dimension: value, unit: 'pc' };
           }
           else if (this.matchKeyword('in')) {
-              result = convertDimenToEm(value, 'in');
+              result = { dimension: value, unit: 'in' };
           }
           else if (this.matchKeyword('mu')) {
-              result = convertDimenToEm(value, 'mu');
+              result = { dimension: value, unit: 'mu' };
           }
           else {
-              // If the units are missing, TeX assumes 'pt'
-              this.onError({ code: 'missing-unit' });
-              result = convertDimenToEm(value, 'pt');
+              if ((_b = this.peek()) === null || _b === void 0 ? void 0 : _b.startsWith('\\')) {
+                  result = convertToDimension(this.getRegister(this.get().slice(1)), this.currentContext.registers);
+                  result.dimension *= value;
+              }
+              else {
+                  if (!this.match('\\relax')) {
+                      // If the units are missing, TeX assumes 'pt'
+                      this.onError({ code: 'missing-unit' });
+                  }
+                  result = { dimension: value, unit: 'pt' };
+              }
           }
           return result;
       }
       scanGlue() {
-          const result = this.scanDimen();
-          if (result === null)
+          const result = { glue: this.scanDimen() };
+          if (result.glue === null)
               return null;
           // We parse, but ignore, the optional 'plus' and 'minus'
           // arguments.
           this.matchWhitespace();
+          if (this.match('\\relax'))
+              return result;
           // 'plus', optionally followed by 'minus'
           // ('minus' cannot come before 'plus')
           // dimen or 'hfill'
@@ -8548,6 +8839,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               // @todo there could also be a \hFilLlL command here
               this.scanDimen();
           }
+          this.matchWhitespace();
+          if (this.match('\\relax'))
+              return result;
           this.matchWhitespace();
           if (this.matchKeyword('minus')) {
               // @todo there could also be a \hFilLlL command here
@@ -8571,11 +8865,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               else if (literal === '@') {
                   if (this.match('<{>')) {
-                      const savedParsemode = this.swapParseMode('math');
+                      this.beginContext({ mode: 'math' });
                       result.push({
                           gap: this.parse((token) => token === '<}>'),
                       });
-                      this.swapParseMode(savedParsemode);
+                      this.endContext();
                   }
                   if (!this.match('<}>')) {
                       this.onError({ code: 'unbalanced-braces' });
@@ -8596,7 +8890,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               final = '\\]';
           if (!final)
               return null;
-          const savedParsemode = this.swapParseMode('math');
+          this.beginContext({
+              mode: 'math',
+              mathstyle: final === '\\)' ? 'textstyle' : 'displaystyle',
+          });
           const result = new GroupAtom(this.parse((token) => token === final), {
               mathstyleName: final === '\\)' ? 'textstyle' : 'displaystyle',
               latexOpen: final === '\\]' ? '\\[' : '\\(',
@@ -8606,7 +8903,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           if (!this.match(final)) {
               this.onError({ code: 'unbalanced-mode-shift' });
           }
-          this.swapParseMode(savedParsemode);
+          this.endContext();
           if (result.hasEmptyBranch('body'))
               return null;
           return result;
@@ -8622,7 +8919,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               final = '<$$>';
           if (!final)
               return null;
-          const savedParsemode = this.swapParseMode('math');
+          this.beginContext({
+              mode: 'math',
+              mathstyle: 'textstyle' ,
+          });
           const result = new GroupAtom(this.parse((token) => token === final), {
               mathstyleName: final === '<$>' ? 'textstyle' : 'displaystyle',
               latexOpen: final === '<$>' ? '$ ' : '$$ ',
@@ -8631,7 +8931,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           if (!this.match(final)) {
               this.onError({ code: 'unbalanced-mode-shift' });
           }
-          this.swapParseMode(savedParsemode);
+          this.endContext();
           if (result.hasEmptyBranch('body'))
               return null;
           return result;
@@ -8680,12 +8980,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   }
               }
           }
-          // Some environments change the mode
-          const savedMode = this.parseMode;
-          const savedTabularMode = this.tabularMode;
-          const saveAtoms = this.swapAtoms([]);
-          // @todo: since calling scanImplicitGroup(), may not need to save/restore the atoms
-          this.tabularMode = def.tabular;
+          this.beginContext({ tabular: def.tabular });
           const array = [];
           const rowGaps = [];
           let row = [];
@@ -8706,23 +9001,25 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               if (!done) {
                   if (this.matchColumnSeparator()) {
-                      row.push(this.swapAtoms([]));
+                      row.push(this.mathlist);
+                      this.mathlist = [];
                   }
                   else if (this.matchRowSeparator()) {
-                      row.push(this.swapAtoms([]));
-                      let gap = 0;
+                      row.push(this.mathlist);
+                      this.mathlist = [];
+                      let gap = { dimension: 0 };
                       this.matchWhitespace();
                       if (this.match('[')) {
                           gap = this.scanDimen();
                           this.matchWhitespace();
                           this.match(']');
                       }
-                      rowGaps.push(gap || 0);
+                      rowGaps.push(gap !== null && gap !== void 0 ? gap : { dimension: 0 });
                       array.push(row);
                       row = [];
                   }
                   else {
-                      this.atoms = this.atoms.concat(this.parse((token) => token === '<}>' ||
+                      this.mathlist = this.mathlist.concat(this.parse((token) => token === '<}>' ||
                           token === '&' ||
                           token === '\\end' ||
                           token === '\\cr' ||
@@ -8730,18 +9027,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   }
               }
           } while (!done);
-          row.push(this.swapAtoms([]));
+          row.push(this.mathlist);
           if (row.length > 0)
               array.push(row);
-          const newAtoms = this.swapAtoms(saveAtoms);
-          // If we're in tabular mode, we should end up with an empty atoms list
-          console.assert(!this.tabularMode || newAtoms.length === 0, 'Leftover atoms in tabular mode');
-          this.parseMode = savedMode;
-          this.tabularMode = savedTabularMode;
-          if (!def.tabular && newAtoms.length === 0)
-              return null;
-          if (def.tabular && array.length === 0)
-              return null;
+          this.endContext();
           return def.createAtom(envName, array, rowGaps, args);
       }
       /**
@@ -8755,7 +9044,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        * token signals the end of an implicit group
        */
       parse(done) {
-          const savedStyle = this.style;
+          this.beginContext();
           if (!done) {
               // Default group end marker
               done = (token) => token === '<}>';
@@ -8766,7 +9055,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           let infixInfo = null;
           let infixArgs = [];
           let prefix = null;
-          const saveAtoms = this.swapAtoms([]);
+          const saveAtoms = this.mathlist;
+          this.mathlist = [];
           while (!this.end() && !done(this.peek())) {
               if (this.hasInfixCommand() && !infix) {
                   // The next token is an infix and we have not seen one yet
@@ -8781,7 +9071,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                       infixArgs = this.parseArguments(infixInfo)[1];
                   }
                   // Save the math list so far and start a new one
-                  prefix = this.swapAtoms([]);
+                  prefix = this.mathlist;
+                  this.mathlist = [];
               }
               else {
                   this.parseToken();
@@ -8790,7 +9081,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           let result;
           if (infix) {
               console.assert(Boolean(infixInfo));
-              infixArgs.unshift(this.swapAtoms(saveAtoms)); // Suffix
+              infixArgs.unshift(this.mathlist); // Suffix
+              this.mathlist = saveAtoms;
               if (prefix)
                   infixArgs.unshift(prefix);
               result = [
@@ -8801,9 +9093,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               ];
           }
           else {
-              result = this.swapAtoms(saveAtoms);
+              result = this.mathlist;
+              this.mathlist = saveAtoms;
           }
-          this.style = savedStyle;
+          this.endContext();
           return result;
       }
       /**
@@ -8832,7 +9125,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           if (!this.match('('))
               return null;
           // We've found an open paren... Convert to a `\mleft...\mright`
-          const saveAtoms = this.swapAtoms([]);
+          this.beginContext();
           let nestLevel = 1;
           while (!this.end() && nestLevel !== 0) {
               if (this.match('('))
@@ -8844,11 +9137,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           if (nestLevel === 0)
               this.match(')');
-          return new LeftRightAtom(this.swapAtoms(saveAtoms), {
+          const result = new LeftRightAtom(this.mathlist, {
               inner: false,
               leftDelim: '(',
               rightDelim: nestLevel === 0 ? ')' : '?',
           });
+          this.endContext();
+          return result;
       }
       /**
        * Scan a delimiter, e.g. '(', '|', '\vert', '\ulcorner'
@@ -8902,7 +9197,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               this.onError({ code: 'unbalanced-braces' });
               return null;
           }
-          const savedStyle = this.style;
           let close = '\\right';
           if (!this.match('\\left')) {
               if (!this.match('\\mleft'))
@@ -8912,16 +9206,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           const leftDelim = this.scanDelim();
           if (!leftDelim)
               return null;
-          const saveAtoms = this.swapAtoms([]);
+          this.beginContext();
           while (!this.end() && !this.match(close)) {
               this.parseToken();
           }
-          this.style = savedStyle;
+          const body = this.mathlist;
+          this.endContext();
           // If we've reached the end and there was no `\right` or
           // there isn't a valid delimiter after `\right`, we'll
           // consider the `\right` missing and set the `rightDelim` to undefined
           const rightDelim = this.scanDelim();
-          return new LeftRightAtom(this.swapAtoms(saveAtoms), {
+          return new LeftRightAtom(body, {
               leftDelim,
               rightDelim,
               inner: close === '\\right',
@@ -8984,14 +9279,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        * `displaystyle` prefers `\limits`).
        */
       parseLimits() {
-          // Note: `\limits` and `\nolimits` are only applicable after an operator.
+          // Note: `\limits`, `\nolimits` and `\displaylimits` are only applicable \
+          // after an operator.
           // We skip them and ignore them if they are after something other
           // than an operator (TeX throws an error)
           const isLimits = this.match('\\limits');
           const isNoLimits = !isLimits && this.match('\\nolimits');
-          if (!isLimits && !isNoLimits)
+          const isDisplayLimits = !isNoLimits && !isLimits && this.match('\\displaylimits');
+          if (!isLimits && !isNoLimits && !isDisplayLimits)
               return false;
-          const opAtom = this.atoms.length > 0 ? this.atoms[this.atoms.length - 1] : null;
+          const opAtom = this.mathlist.length > 0 ? this.mathlist[this.mathlist.length - 1] : null;
           if (opAtom.type !== 'mop')
               return false;
           if (isLimits) {
@@ -9003,6 +9300,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           if (isNoLimits) {
               opAtom.subsupPlacement = 'adjacent';
+              opAtom.explicitSubsupPlacement = true;
+              return true;
+          }
+          if (isDisplayLimits) {
+              opAtom.subsupPlacement = 'auto';
               opAtom.explicitSubsupPlacement = true;
               return true;
           }
@@ -9048,8 +9350,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                               args.push(0);
                               break;
                           case 'dimen':
+                              args.push({ dimension: 0, unit: 'pt' });
+                              break;
                           case 'glue':
-                              args.push('0mu');
+                              args.push({ glue: { dimension: 0, unit: 'pt' } });
                               break;
                           case 'string':
                           case 'balanced-string':
@@ -9087,16 +9391,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               if (argType === 'text' || argType === 'math') {
                   // Parse a single token.
-                  const savedParseMode = this.swapParseMode(argType);
+                  this.beginContext();
                   const atom = this.parseSimpleToken();
-                  this.swapParseMode(savedParseMode);
+                  this.endContext();
                   return atom;
               }
           }
-          const saveAtoms = this.swapAtoms([]);
           if (argType === 'text' || argType === 'math') {
-              const savedParseMode = this.parseMode;
-              this.parseMode = argType;
+              this.beginContext({ mode: argType });
               // Collect an array of tokens until a balanced "}"
               const initialIndex = this.index;
               let depth = 1;
@@ -9115,13 +9417,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   parse: (mode, tokens, options) => {
                       const parser = new Parser(tokens, {
                           args: options.args,
+                          parseMode: mode,
+                          smartFence: this.smartFence,
                           macros: options.macros,
+                          registers: this.currentContext.registers,
+                          mathstyle: this.currentContext.mathstyle,
                           colorMap: this.colorMap,
                           backgroundColorMap: this.backgroundColorMap,
+                          style: options.style,
                           onError: this.onError,
                       });
-                      parser.parseMode = mode;
-                      parser.style = options.style;
                       result = parser.parse();
                       return [result, tokens.slice(parser.index)];
                   },
@@ -9130,12 +9435,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   // No mode-specific result. Try again from the start
                   this.index = initialIndex;
                   do {
-                      this.atoms = this.atoms.concat(this.parse());
+                      this.mathlist = this.mathlist.concat(this.parse());
                   } while (!this.match('<}>') && !this.end());
               }
-              this.parseMode = savedParseMode;
           }
           else {
+              this.beginContext();
               if (argType === 'string') {
                   result = this.scanString();
               }
@@ -9158,12 +9463,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   result = (_b = this.scanDelim()) !== null && _b !== void 0 ? _b : '.';
               }
               if (result === null) {
-                  this.swapAtoms(saveAtoms);
+                  this.endContext();
                   return null;
               }
               this.skipUntilToken('<}>');
           }
-          const atoms = this.swapAtoms(saveAtoms);
+          const atoms = this.mathlist;
+          this.endContext();
           return result !== null && result !== void 0 ? result : atoms;
       }
       parseOptionalArgument(argType) {
@@ -9171,8 +9477,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           this.matchWhitespace();
           if (!this.match('['))
               return null;
-          const savedParseMode = this.parseMode;
-          const saveAtoms = this.swapAtoms();
           let result;
           while (!this.end() && !this.match(']')) {
               if (argType === 'string') {
@@ -9210,7 +9514,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                       else {
                           const m = element.match(/^\s*([\d.]+)\s*([a-z]{2})/);
                           if (m) {
-                              bboxParameter.padding = convertDimenToEm(m[1], m[2]);
+                              bboxParameter.padding = m[0];
                           }
                           else {
                               const m = element.match(/^\s*border\s*:\s*(.*)/);
@@ -9223,13 +9527,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   result = bboxParameter;
               }
               else if (argType === 'math') {
-                  this.parseMode = argType;
-                  this.atoms = this.atoms.concat(this.parse((token) => token === ']'));
-                  this.parseMode = savedParseMode;
+                  this.beginContext({ mode: 'math' });
+                  result = this.mathlist.concat(this.parse((token) => token === ']'));
+                  this.endContext();
               }
           }
-          const atoms = this.swapAtoms(saveAtoms);
-          return result !== null && result !== void 0 ? result : atoms;
+          return result;
       }
       parseCommand(command) {
           var _a, _b;
@@ -9267,7 +9570,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               // \hskip and \kern have a special syntax and requires a non-braced
               // 'skip' argument
               const width = this.scanGlue();
-              if (!Number.isFinite(width))
+              if (!width)
                   return null;
               return [new SpacingAtom(command, this.style, width)];
           }
@@ -9376,10 +9679,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           if (result instanceof Atom &&
               !/^\\(llap|rlap|class|cssId|htmlData)$/.test(command)) {
-              const argString = tokensToString(this.tokens.slice(initialIndex, this.index));
-              if (argString && result.command) {
-                  result.verbatimLatex = result.command + argString;
-              }
+              result.verbatimLatex =
+                  result.command +
+                      tokensToString(this.tokens.slice(initialIndex, this.index));
               if (result.isFunction && this.smartFence) {
                   // The command was a function that may be followed by
                   // an argument, like `\sin(`
@@ -9461,6 +9763,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   parseMode: this.parseMode,
                   args: (arg) => args[arg],
                   macros: this.macros,
+                  registers: this.currentContext.registers,
+                  mathstyle: this.currentContext.mathstyle,
                   colorMap: this.colorMap,
                   backgroundColorMap: this.backgroundColorMap,
                   onError: this.onError,
@@ -9469,7 +9773,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       /**
        * Make an atom for the current token or token group and
-       * add it to the parser's current atoms
+       * add it to the parser's mathlist
        */
       parseToken() {
           let result = this.parseEnvironment() ||
@@ -9488,10 +9792,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // We could have no atom for tokens that were skipped, a ' ' in math mode
           // for example
           if (isArray(result)) {
-              this.atoms = this.atoms.concat(result);
+              this.mathlist = this.mathlist.concat(result);
           }
           else if (result) {
-              this.atoms.push(result);
+              this.mathlist.push(result);
           }
           return result !== null;
       }
@@ -9504,21 +9808,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    * as `\left...\right` or `\mleft...\mright`
    */
   function parseLatex(s, options) {
-      var _a, _b, _c, _d, _e, _f, _g, _h;
+      var _a, _b, _c, _d, _e, _f, _g;
       const parser = new Parser(tokenize(s, (_a = options === null || options === void 0 ? void 0 : options.args) !== null && _a !== void 0 ? _a : null), {
           args: (_b = options === null || options === void 0 ? void 0 : options.args) !== null && _b !== void 0 ? _b : null,
-          macros: normalizeMacroDictionary((_c = options === null || options === void 0 ? void 0 : options.macros) !== null && _c !== void 0 ? _c : null),
+          macros: getMacros(options === null || options === void 0 ? void 0 : options.macros),
+          registers: options === null || options === void 0 ? void 0 : options.registers,
+          mathstyle: (_c = options === null || options === void 0 ? void 0 : options.mathstyle) !== null && _c !== void 0 ? _c : 'displaystyle',
           colorMap: (_d = options === null || options === void 0 ? void 0 : options.colorMap) !== null && _d !== void 0 ? _d : defaultColorMap,
-          backgroundColorMap: (_f = (_e = options === null || options === void 0 ? void 0 : options.backgroundColorMap) !== null && _e !== void 0 ? _e : options === null || options === void 0 ? void 0 : options.colorMap) !== null && _f !== void 0 ? _f : defaultBackgroundColorMap,
+          parseMode: (_e = options === null || options === void 0 ? void 0 : options.parseMode) !== null && _e !== void 0 ? _e : 'math',
+          smartFence: options === null || options === void 0 ? void 0 : options.smartFence,
+          backgroundColorMap: (_g = (_f = options === null || options === void 0 ? void 0 : options.backgroundColorMap) !== null && _f !== void 0 ? _f : options === null || options === void 0 ? void 0 : options.colorMap) !== null && _g !== void 0 ? _g : defaultBackgroundColorMap,
           onError: (err) => {
               if (typeof (options === null || options === void 0 ? void 0 : options.onError) === 'function') {
                   options.onError({ ...err, latex: s });
               }
           },
       });
-      parser.parseMode = (_g = options === null || options === void 0 ? void 0 : options.parseMode) !== null && _g !== void 0 ? _g : 'math';
-      if ((_h = options === null || options === void 0 ? void 0 : options.smartFence) !== null && _h !== void 0 ? _h : false)
-          parser.smartFence = true;
       let atoms = [];
       while (!parser.end()) {
           const more = parser.parse();
@@ -9527,6 +9832,33 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           atoms = atoms.concat(more);
       }
       return atoms;
+  }
+  function convertToGlue(value, registers) {
+      // If it's already a Glue, return it.
+      if (typeof value === 'object' && 'glue' in value)
+          return value;
+      if (typeof value === 'object' && 'dimension' in value) {
+          return { glue: value };
+      }
+      if (typeof value === 'number')
+          return { glue: { dimension: value } };
+      // It's a string, attempt to parse it.
+      const parser = new Parser(tokenize(value), { registers });
+      return parser.scanGlue();
+  }
+  /**  Return a dimension. */
+  function convertToDimension(value, registers) {
+      if (typeof value === 'number')
+          return { dimension: value, unit: 'pt' };
+      if (typeof value === 'object' && 'glue' in value) {
+          value = value.glue;
+      }
+      if (typeof value === 'object' && 'dimension' in value) {
+          return value;
+      }
+      // It's a string
+      const parser = new Parser(tokenize(value), { registers });
+      return parser.scanDimen();
   }
 
   class AccentAtom extends Atom {
@@ -9798,8 +10130,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       render(parentContext) {
           const context = new Context(parentContext, this.style);
+          const fboxsep = convertDimensionToEm(context.getRegisterAsDimension('fboxsep'));
           // The padding extends outside of the base
-          const padding = typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
+          const padding = this.padding === undefined
+              ? fboxsep
+              : convertDimensionToEm(convertToDimension(this.padding, parentContext.registers));
           // Base is the main content "inside" the box
           const content = Atom.createBox(parentContext, this.body);
           content.setStyle('vertical-align', -content.height, 'em');
@@ -9819,7 +10154,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           else {
               box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-              box.setStyle('top', context.metrics.fboxSep, 'em'); // empirical
+              box.setStyle('top', fboxsep, 'em'); // empirical
               box.setStyle('left', -padding, 'em');
           }
           box.setStyle('z-index', '-1'); // Ensure the box is *behind* the base
@@ -9827,7 +10162,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               box.setStyle('background-color', this.backgroundcolor);
           }
           if (this.framecolor) {
-              box.setStyle('border', `${context.metrics.fboxRule}em solid ${this.framecolor}`);
+              box.setStyle('border', `${convertDimensionToEm(context.getRegisterAsDimension('fboxrule'))}em solid ${this.framecolor}`);
           }
           if (this.border)
               box.setStyle('border', this.border);
@@ -10179,7 +10514,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       constructor(command, options) {
           var _a;
           super('rule', { command, style: options.style });
-          this.shift = (_a = options.shift) !== null && _a !== void 0 ? _a : 0;
+          this.shift = (_a = options.shift) !== null && _a !== void 0 ? _a : { dimension: 0 };
           this.height = options.height;
           this.width = options.width;
       }
@@ -10188,9 +10523,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // apply to the dimensions of rules. Create a 'textstyle'
           // context to do the measurements without accounting for the mathstyle.
           const context = new Context(parentContext, this.style, 'textstyle');
-          const shift = Number.isFinite(this.shift) ? this.shift : 0;
-          const width = this.width;
-          const height = this.height;
+          const shift = convertDimensionToEm(this.shift);
+          const width = convertDimensionToEm(this.width);
+          const height = convertDimensionToEm(this.height);
           const result = new Box(null, { classes: 'rule', type: 'mord' });
           result.setStyle('border-right-width', width, 'em');
           result.setStyle('border-top-width', height, 'em');
@@ -10206,14 +10541,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               result.caret = this.caret;
           return result.wrap(context);
       }
-      serialize(options) {
+      serialize(_options) {
           let result = this.command;
           if (this.shift) {
-              result += `[${Atom.serialize(this.shift, options)}em]`;
+              result += `[${serializeDimension(this.shift)}]`;
           }
-          result +=
-              `{${Atom.serialize(this.width, options)}em}` +
-                  `{${Atom.serialize(this.height, options)}em}`;
+          result += `{${serializeDimension(this.width)}}{${serializeDimension(this.height)}}`;
           return result;
       }
   }
@@ -10313,22 +10646,23 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           });
       }
       serialize(options) {
-          let result = '';
+          const result = [];
           if (this.value !== '\u200B') {
               // Not ZERO-WIDTH
-              result +=
-                  this.command === '\\mathop' || this.command === '\\operatorname'
-                      ? this.command + `{${this.bodyToLatex(options)}}`
-                      : this.command;
+              result.push(this.command === '\\mathop' || this.command === '\\operatorname'
+                  ? this.command + `{${this.bodyToLatex(options)}}`
+                  : this.command);
+              if (this.explicitSubsupPlacement) {
+                  if (this.subsupPlacement === 'over-under')
+                      result.push('\\limits');
+                  if (this.subsupPlacement === 'adjacent')
+                      result.push('\\nolimits');
+                  if (this.subsupPlacement === 'auto')
+                      result.push('\\displaylimits');
+              }
           }
-          if (this.explicitSubsupPlacement) {
-              if (this.subsupPlacement === 'over-under')
-                  result += '\\limits';
-              if (this.subsupPlacement === 'adjacent')
-                  result += '\\nolimits';
-          }
-          result = joinLatex([result, this.supsubToLatex(options)]);
-          return result;
+          result.push(this.supsubToLatex(options));
+          return joinLatex(result);
       }
   }
 
@@ -10421,8 +10755,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                           atom.border !== undefined ||
                           atom.backgroundcolor !== undefined) {
                           const bboxParameters = [];
-                          if (Number.isFinite(atom.padding)) {
-                              bboxParameters.push(`${Math.floor(1e2 * atom.padding) / 1e2}em`);
+                          if (atom.padding) {
+                              bboxParameters.push(atom.padding);
                           }
                           if (atom.border) {
                               bboxParameters.push(`border: ${atom.border}`);
@@ -10841,7 +11175,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // \hspace* inserts a non-breakable space, but since we don't line break...
       // it's the same as \hspace.
   ], '{width:glue}', {
-      createAtom: (name, args, style) => { var _a; return new SpacingAtom(name, style, (_a = args[0]) !== null && _a !== void 0 ? _a : 0); },
+      createAtom: (name, args, style) => {
+          var _a;
+          return new SpacingAtom(name, style, (_a = args[0]) !== null && _a !== void 0 ? _a : { glue: { dimension: 0 } });
+      },
   });
   defineFunction('mathop', '{:auto}', {
       createAtom: (command, args, style) => new OperatorAtom(command, args[0], {
@@ -11149,6 +11486,23 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           });
       },
   });
+  defineFunction(['overarc', 'overparen', 'wideparen'], '{body:auto}', {
+      createAtom: (command, args, style) => {
+          return new AccentAtom(command, args[0], {
+              style,
+              svgAccent: 'overarc',
+          });
+      },
+  });
+  defineFunction(['underarc', 'underparen'], '{body:auto}', {
+      createAtom: (command, args, style) => {
+          return new OverunderAtom(command, {
+              body: args[0],
+              style,
+              svgBelow: 'underarc',
+          });
+      },
+  });
   defineFunction('utilde', '{body:auto}', {
       createAtom: (command, args, style) => {
           const baseString = parseArgAsString(args[0]);
@@ -11309,7 +11663,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   style += sep + 'shadow="' + this.shadow + '"';
                   sep = ',';
               }
-              if (this.strokeWidth !== 1 || this.strokeStyle !== 'solid') {
+              if (this.strokeWidth || this.strokeStyle !== 'solid') {
                   style += sep + this.borderStyle;
                   sep = ',';
               }
@@ -11328,7 +11682,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           const context = new Context(parentContext, this.style);
           const base = Atom.createBox(context, this.body);
           // Account for the padding
-          const padding = typeof this.padding === 'number' ? this.padding : context.metrics.fboxSep;
+          const padding = convertDimensionToEm(this.padding && this.padding !== 'auto'
+              ? convertToDimension(this.padding, parentContext.registers)
+              : context.getRegisterAsDimension('fboxsep'));
           // The 'ML__notation' class is required to prevent the box from being omitted
           // during rendering (it looks like an empty, no-op box)
           const notation = new Box(null, { classes: 'ML__notation' });
@@ -11416,59 +11772,67 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               svg += '/>';
           }
-          // If (this.notation.updiagonalarrow) {
-          //     const t = 1;
-          //     const length = Math.sqrt(w * w + h * h);
-          //     const f = 1 / length / 0.075 * t;
-          //     const wf = w * f;
-          //     const hf = h * f;
-          //     const x = w - t / 2;
-          //     let y = t / 2;
-          //     if (y + hf - .4 * wf < 0 ) y = 0.4 * wf - hf;
-          //     svg += '<line ';
-          //     svg += `x1="1" y1="${h - 1}px" x2="${x - .7 * wf}px" y2="${y + .7 * hf}px"`;
-          //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
-          //     svg += ' stroke-linecap="round"';
-          //     if (this.svgStrokeStyle) {
-          //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-          //     }
-          //     svg += '/>';
-          //     svg += '<polygon points="';
-          //     svg += `${x},${y} ${x - wf - .4 * hf},${y + hf - .4 * wf} `;
-          //     svg += `${x - .7 * wf},${y + .7 * hf} ${x - wf + .4 * hf},${y + hf + .4 * wf} `;
-          //     svg += `${x},${y}`;
-          //     svg += `" stroke='none' fill="${this.strokeColor}"`;
-          //     svg += '/>';
+          // if (this.notation.updiagonalarrow) {
+          //   const t = 1;
+          //   const length = Math.sqrt(w * w + h * h);
+          //   const f = (1 / length / 0.075) * t;
+          //   const wf = w * f;
+          //   const hf = h * f;
+          //   const x = w - t / 2;
+          //   let y = t / 2;
+          //   if (y + hf - 0.4 * wf < 0) y = 0.4 * wf - hf;
+          //   svg += '<line ';
+          //   svg += `x1="1" y1="${h - 1}px" x2="${x - 0.7 * wf}px" y2="${
+          //     y + 0.7 * hf
+          //   }px"`;
+          //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}"`;
+          //   svg += ' stroke-linecap="round"';
+          //   if (this.svgStrokeStyle) {
+          //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+          //   }
+          //   svg += '/>';
+          //   svg += '<polygon points="';
+          //   svg += `${x},${y} ${x - wf - 0.4 * hf},${y + hf - 0.4 * wf} `;
+          //   svg += `${x - 0.7 * wf},${y + 0.7 * hf} ${x - wf + 0.4 * hf},${
+          //     y + hf + 0.4 * wf
+          //   } `;
+          //   svg += `${x},${y}`;
+          //   svg += `" stroke='none' fill="${this.strokeColor}"`;
+          //   svg += '/>';
           // }
           // if (this.notation.phasorangle) {
-          //     svg += '<path d="';
-          //     svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
-          //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-          //     if (this.svgStrokeStyle) {
-          //         svg += ' stroke-linecap="round"';
-          //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-          //     }
-          //     svg += '/>';
+          //   svg += '<path d="';
+          //   svg += `M ${h / 2},1 L1,${h} L${w},${h} "`;
+          //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+          //   if (this.svgStrokeStyle) {
+          //     svg += ' stroke-linecap="round"';
+          //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+          //   }
+          //   svg += '/>';
           // }
           // if (this.notation.radical) {
-          //     svg += '<path d="';
-          //     svg += `M 0,${.6 * h} L1,${h} L${emToPx(padding) * 2},1 "`;
-          //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-          //     if (this.svgStrokeStyle) {
-          //         svg += ' stroke-linecap="round"';
-          //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-          //     }
-          //     svg += '/>';
+          //   svg += '<path d="';
+          //   svg += `M 0,${0.6 * h} L1,${h} L${
+          //     convertDimensionToPixel(padding) * 2
+          //   },1 "`;
+          //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+          //   if (this.svgStrokeStyle) {
+          //     svg += ' stroke-linecap="round"';
+          //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+          //   }
+          //   svg += '/>';
           // }
           // if (this.notation.longdiv) {
-          //     svg += '<path d="';
-          //     svg += `M ${w} 1 L1 1 a${emToPx(padding)} ${h / 2}, 0, 0, 1, 1 ${h} "`;
-          //     svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
-          //     if (this.svgStrokeStyle) {
-          //         svg += ' stroke-linecap="round"';
-          //         svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
-          //     }
-          //     svg += '/>';
+          //   svg += '<path d="';
+          //   svg += `M ${w} 1 L1 1 a${convertDimensionToPixel(padding)} ${
+          //     h / 2
+          //   }, 0, 0, 1, 1 ${h} "`;
+          //   svg += ` stroke-width="${this.strokeWidth}" stroke="${this.strokeColor}" fill="none"`;
+          //   if (this.svgStrokeStyle) {
+          //     svg += ' stroke-linecap="round"';
+          //     svg += ` stroke-dasharray="${this.svgStrokeStyle}"`;
+          //   }
+          //   svg += '/>';
           // }
           if (svg) {
               let svgStyle;
@@ -11505,7 +11869,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           var _a;
           const options = {
               strokeColor: 'currentColor',
-              strokeWidth: 1,
+              strokeWidth: '',
               strokeStyle: 'solid',
               backgroundcolor: 'transparent',
               padding: 'auto',
@@ -11523,10 +11887,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               for (const s of styles) {
                   const shorthand = s.match(/\s*(\S+)\s+(\S+)\s+(.*)/);
                   if (shorthand) {
-                      options.strokeWidth = convertDimenToPx(shorthand[1], 'px');
-                      if (!Number.isFinite(options.strokeWidth)) {
-                          options.strokeWidth = 1;
-                      }
+                      options.strokeWidth = shorthand[1];
                       options.strokeStyle = shorthand[2];
                       options.strokeColor = shorthand[3];
                   }
@@ -11540,7 +11901,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                               options.strokeColor = attribute[2];
                           }
                           else if (attribute[1] === 'padding') {
-                              options.padding = convertDimenToPx(attribute[2], 'px');
+                              options.padding = attribute[2];
                           }
                           else if (attribute[1] === 'shadow') {
                               options.shadow = attribute[2];
@@ -11570,7 +11931,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   defineFunction('cancel', '{body:auto}', {
       createAtom: (name, args, style) => new EncloseAtom(name, args[0], { updiagonalstrike: true }, {
           strokeColor: 'currentColor',
-          strokeWidth: 1,
+          strokeWidth: '',
           strokeStyle: 'solid',
           borderStyle: '1px solid currentColor',
           backgroundcolor: 'transparent',
@@ -11582,7 +11943,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   defineFunction('bcancel', '{body:auto}', {
       createAtom: (name, args, style) => new EncloseAtom(name, args[0], { downdiagonalstrike: true }, {
           strokeColor: 'currentColor',
-          strokeWidth: 1,
+          strokeWidth: '',
           strokeStyle: 'solid',
           borderStyle: '1px solid currentColor',
           backgroundcolor: 'transparent',
@@ -11594,7 +11955,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   defineFunction('xcancel', '{body:auto}', {
       createAtom: (name, args, style) => new EncloseAtom(name, args[0], { updiagonalstrike: true, downdiagonalstrike: true }, {
           strokeColor: 'currentColor',
-          strokeWidth: 1,
+          strokeWidth: '',
           strokeStyle: 'solid',
           borderStyle: '1px solid currentColor',
           backgroundcolor: 'transparent',
@@ -11823,11 +12184,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // and http://tug.ctan.org/macros/latex/base/lttab.dtx
           var _a, _b;
           const innerContext = new Context(context, this.style, this.mathstyleName);
+          const arrayRuleWidth = innerContext.getRegisterAsEm('arrayrulewidth');
+          const arrayColSep = innerContext.getRegisterAsEm('arraycolsep');
+          const doubleRuleSep = innerContext.getRegisterAsEm('doublerulesep');
           // Row spacing
           const arraystretch = this.arraystretch;
-          let arraycolsep = typeof this.arraycolsep === 'number'
-              ? this.arraycolsep
-              : context.metrics.arrayColSep;
+          let arraycolsep = typeof this.arraycolsep === 'number' ? this.arraycolsep : arrayColSep;
           if (this.colSeparationType === 'small') {
               // We're in a {smallmatrix}. Default column space is \thickspace,
               // i.e. 5/18em = 0.2778em, per amsmath.dtx for {smallmatrix}.
@@ -11861,7 +12223,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   height = Math.max(height, elt.height);
                   outrow.cells.push(elt);
               }
-              let gap = (_b = this.rowGaps[r]) !== null && _b !== void 0 ? _b : 0;
+              let gap = (_b = convertDimensionToEm(this.rowGaps[r])) !== null && _b !== void 0 ? _b : 0;
               if (gap > 0) {
                   // \@argarraycr
                   gap += arstrutDepth;
@@ -11951,7 +12313,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   //
                   const separator = new Box(null, { classes: 'vertical-separator' });
                   separator.setStyle('height', totalHeight, 'em');
-                  separator.setStyle('border-right', `${context.metrics.arrayRuleWidth}em ${colDesc.separator} currentColor`);
+                  separator.setStyle('border-right', `${arrayRuleWidth}em ${colDesc.separator} currentColor`);
                   // We have box-sizing border-box, no need to correct the margin
                   // separator.setStyle(
                   //   'margin',
@@ -11960,10 +12322,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   separator.setStyle('vertical-align', -(totalHeight - offset), 'em');
                   let gap = 0;
                   if (previousColRule) {
-                      gap = context.metrics.doubleRuleSep - context.metrics.arrayRuleWidth;
+                      gap = doubleRuleSep - arrayRuleWidth;
                   }
                   else if (previousColContent) {
-                      gap = arraycolsep - context.metrics.arrayRuleWidth;
+                      gap = arraycolsep - arrayRuleWidth;
                   }
                   separator.left = gap;
                   cols.push(separator);
@@ -15341,11 +15703,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       ['\\partial', 0x2202],
       ['\\ell', 0x2113],
       ['\\hbar', 0x210f],
-      ['\\N', 0x004e, 'mord', 'double-struck'],
-      ['\\R', 0x0052, 'mord', 'double-struck'],
       ['\\Q', 0x0051, 'mord', 'double-struck'],
       ['\\C', 0x0043, 'mord', 'double-struck'],
-      ['\\Z', 0x005a, 'mord', 'double-struck'],
       ['\\P', 0x0050, 'mord', 'double-struck'],
       ['\\pounds', 0x00a3],
       ['\\euro', 0x20ac], // NOTE: not TeX built-in, but textcomp package
@@ -15943,7 +16302,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   async function loadFonts(fontsDirectory, onError) {
       var _a;
       // If we're already loading the fonts, we're done.
-      if (document.body.classList.contains('ML__fonts-loading')) {
+      if (!isBrowser() || document.body.classList.contains('ML__fonts-loading')) {
           return;
       }
       // If the "mathlive-fonts.css" stylesheet is included in the <head> of the
@@ -16045,6 +16404,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 
   function inject(element, css) {
       var _a, _b;
+      throwIfNotInBrowser();
       if (!css)
           return null;
       let root = (_a = element === null || element === void 0 ? void 0 : element.getRootNode()) !== null && _a !== void 0 ? _a : document === null || document === void 0 ? void 0 : document.head;
@@ -20864,6 +21224,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
   }
   function getSharedElement(id, cls) {
+      throwIfNotInBrowser();
       let result = document.getElementById(id);
       if (result) {
           result.dataset.refcount = Number(Number.parseInt(result.getAttribute('data-refcount')) + 1).toString();
@@ -23434,7 +23795,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   if (pressAndHoldTimer) {
                       clearTimeout(pressAndHoldTimer);
                   }
-                  pressAndHoldTimer = window.setTimeout(() => {
+                  pressAndHoldTimer = setTimeout(() => {
                       if (element.classList.contains('is-pressed')) {
                           executeCommand(JSON.parse(pressAndHoldStartCommand));
                       }
@@ -23528,6 +23889,215 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           ev.stopPropagation();
           ev.preventDefault();
+      });
+  }
+
+  /**
+   * Registers
+   *
+   * Registers are scoped to the current group.
+   *
+   * - When accessing a register, the scope chain is used to resolve it.
+   * Unless `\global` is used, in which case the global register is returned.
+   *
+   * - When modifying a register, the local one is modified and all the parent
+   * ones, except for the global one are cleared.
+   *
+  ```tex
+  \newcount\R
+  global $R = $\the\abc  ~ (default value is 0)
+
+  {
+    \par
+    before top $R =$ \the\R ~ ($= 0$ access global)
+    \R=1
+    \par
+    local top $R =$ \the\R ~ ($ = 1$ modifies local register)
+    {
+      \par
+      inner before $R = $ \the\R ~ ($= 1$ access parent register)
+      \abc=2
+      \par
+      inner after $R = $ \the\R ~ ($= 2$ local value)
+      
+      global R $R = $ \the\global\R ~ ($= 0$ global value)
+
+      \global\R=1000
+      
+      $R = $ \the\R  ~ ($=1000 $ sets global and clear all locals)
+      
+    }
+    \par
+    after top $R = $ \the\R ~($= 1000$ local cleared)
+  }
+
+  \par
+  global $R = $\the\R ~($= 1000$)
+  ```
+   *
+   *
+   */
+  const DEFAULT_DIMENSION_REGISTERS = {
+      'p@': '1pt ',
+      'z@': '0pt',
+      'maxdimen': '16383.99999pt',
+      'hfuzz': '0.1pt',
+      'vfuzz': '0.1pt',
+      'overfullrule': '5pt',
+      'hsize': '6.5in',
+      'vsize': '8.9in',
+      'parindent': '20pt',
+      'maxdepth': '4pt',
+      'splitmaxdepth': '\\maxdimen',
+      'boxmaxdepth': '\\maxdimen',
+      'delimitershortfall': '5pt',
+      'nulldelimiterspace': '1.2pt',
+      'scriptspace': '0.5pt',
+      'topskip': '10pt',
+      'splittopskip': '10pt',
+      'normalbaselineskip': '12pt',
+      'normallineskip': '1pt',
+      'normallineskiplimit': '0pt',
+      // @todo: The vertical space between the lines for all math expressions which
+      // allow multiple lines (see array, multline)
+      'jot': '3pt',
+      // The space between adjacent `|` columns in an array definition.
+      // From article.cls.txt:455
+      'doublerulesep': '2pt',
+      // The width of separator lines in {array} environments.
+      'arrayrulewidth': '0.4pt',
+      'arraycolsep': '5pt',
+      // Two values from LaTeX source2e:
+      'fboxsep': '3pt',
+      'fboxrule': '0.4pt', // From letter.dtx:1627
+  };
+  const DEFAULT_GLUE_REGISTERS = {
+      'z@skip': '0pt plust0pt minus0pt',
+      'hideskip': '-1000pt plust 1fill',
+      '@flushglue': '0pt plust 1fill',
+      'parskip': '0pt plus 1pt',
+      // @todo  the "shortskip" are used if the formula starts to the right of the
+      // line before (i.e. centered and short line before)
+      'abovedisplayskip': '12pt plus 3pt minus 9pt',
+      'abovedisplayshortskip': '0pt plus 3pt',
+      'belowdisplayskip': '12pt plus 3pt minus 9pt',
+      'belowdisplayshortskip': '7pt plus 3pt minus 4pt',
+      'parfillskip': '0pt plus 1fil',
+      'thinmuskip': '3mu',
+      'medmuskip': '4mu plus 2mu minus 4mu',
+      'thickmuskip': '5mu plus 5mu',
+      'smallskipamount': '3pt plus1pt minus1pt',
+      'medskipamount': '6pt plus2pt minus2pt',
+      'bigskipamount': '12pt plus4pt minus4pt',
+  };
+  // From TeXBook p.348
+  // See also https://ctan.math.washington.edu/tex-archive/info/macros2e/macros2e.pdf
+  const DEFAULT_NUMBER_REGISTERS = {
+      // 'voidb@x'
+      pretolerance: 100,
+      tolerance: 200,
+      hbadness: 1000,
+      vbadness: 1000,
+      linepenalty: 10,
+      hyphenpenalty: 50,
+      exhyphenpenalty: 50,
+      binoppenalty: 700,
+      relpenalty: 500,
+      clubpenalty: 150,
+      widowpenalty: 150,
+      displaywidowpenalty: 50,
+      brokenpenalty: 100,
+      predisplaypenalty: 10000,
+      doublehyphendemerits: 10000,
+      finalhyphendemerits: 5000,
+      adjdemerits: 10000,
+      tracinglostchars: 1,
+      uchyph: 1,
+      delimiterfactor: 901,
+      defaulthyphenchar: '\\-',
+      defaultskewchar: -1,
+      newlinechar: -1,
+      showboxbreadth: 5,
+      showboxdepth: 3,
+      errorcontextlines: 5,
+      interdisplaylinepenalty: 100,
+      interfootnotelinepenalty: 100,
+      baselineSkip: 1.2,
+      // @todo:
+      arraystretch: '',
+      month: new Date().getMonth() + 1,
+      day: new Date().getDate(),
+      year: new Date().getFullYear(),
+  };
+  let _DEFAULT_REGISTERS;
+  function getDefaultRegisters() {
+      if (_DEFAULT_REGISTERS)
+          return _DEFAULT_REGISTERS;
+      _DEFAULT_REGISTERS = {
+          ...DEFAULT_NUMBER_REGISTERS,
+      };
+      for (const reg of Object.keys(DEFAULT_DIMENSION_REGISTERS)) {
+          _DEFAULT_REGISTERS[reg] = convertToDimension(DEFAULT_DIMENSION_REGISTERS[reg], _DEFAULT_REGISTERS);
+      }
+      for (const reg of Object.keys(DEFAULT_GLUE_REGISTERS)) {
+          _DEFAULT_REGISTERS[reg] = convertToGlue(DEFAULT_GLUE_REGISTERS[reg], _DEFAULT_REGISTERS);
+      }
+      return _DEFAULT_REGISTERS;
+  }
+
+  /**
+   * Apply typsetting rules to a mathlist.
+   *
+   * The glue of math Atoms is calculated based on the type ('ord', 'rel', etc...)
+   * of the atoms around them.
+   *
+   * TeXBook, p. 170
+   *
+   * > In fact, TEX’s rules for spacing in formulas are fairly simple. A formula is
+   * > converted to a math list as described at the end of Chapter 17, and the math
+   * > list consists chiefly of “atoms” of eight basic types: Ord (ordinary),
+   * > Op (large operator), Bin (binary operation), Rel (relation), Open (opening),
+   * > Close (closing), Punct (punctuation), and Inner (a delimited subformula).
+   * > Other kinds of atoms, which arise from commands like \overline or
+   * > \mathaccent or \vcenter, etc., are all treated as type Ord; fractions are
+   * > treated as type Inner.
+   *
+   * > The following table is used to determine the spacing between pair of adjacent
+   * > atoms.
+   *
+   * In this table
+   * - "3" = `\thinmuskip`
+   * - "4" = `\medmuskip`
+   * - "5" = `\thickmuskip`
+   *
+   */
+  // const INTER_ATOM_SPACING = {
+  //   mord: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
+  //   mop: { mord: 3, mop: 3, rel: 5, minner: 3 },
+  //   mbin: { mord: 4, mop: 4, mopen: 4, minner: 4 },
+  //   mrel: { mord: 5, mop: 5, mopen: 5, minner: 5 },
+  //   mclose: { mop: 3, mbin: 4, mrel: 5, minner: 3 },
+  //   mpunct: { mord: 3, mop: 3, mrel: 3, mopen: 3, mpunct: 3, minner: 3 },
+  //   minner: { mord: 3, mop: 3, mbin: 4, mrel: 5, mopen: 3, mpunct: 3, minner: 3 },
+  // };
+  // /**
+  //  * This table is used when the mathstyle is 'tight' (scriptstyle or
+  //  * scriptscriptstyle).
+  //  */
+  // const INTER_ATOM_TIGHT_SPACING = {
+  //   mord: { mop: 3 },
+  //   mop: { mord: 3, mop: 3 },
+  //   mclose: { mop: 3 },
+  //   minner: { mop: 3 },
+  // };
+  function typesetRecursive(atoms, _options) {
+      // 1. Apply inter-atom spacing rules
+      return atoms;
+  }
+  function typeset(atoms, options) {
+      // 1. Apply inter-atom spacing rules
+      return typesetRecursive(atoms, {
+          registers: (options === null || options === void 0 ? void 0 : options.registers) ? options.registers : getDefaultRegisters(),
       });
   }
 
@@ -23772,8 +24342,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   }
   function latexToMarkup$1(latex) {
       const root = new Atom('root', { mode: 'math' });
-      root.body = parseLatex(latex, { parseMode: 'math', macros: MACROS });
-      const box = coalesce(adjustInterAtomSpacing(new Box(root.render(new Context({ macros: MACROS, smartFence: false }, {
+      root.body = typeset(parseLatex(latex, {
+          parseMode: 'math',
+          macros: getMacros(),
+          registers: getDefaultRegisters(),
+      }));
+      const box = coalesce(adjustInterAtomSpacing(new Box(root.render(new Context({
+          macros: getMacros(),
+          registers: getDefaultRegisters(),
+          smartFence: false,
+      }, {
           fontSize: DEFAULT_FONT_SIZE,
       }, 'displaystyle')), { classes: 'ML__base' })));
       return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
@@ -23838,7 +24416,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // Call ourselves again later, typically after the
           // rendering/layout of the DOM has been completed
           // (don't do it on next frame, it might be too soon)
-          window.setTimeout(() => updatePopoverPosition(mf), 100);
+          setTimeout(() => updatePopoverPosition(mf), 100);
           return;
       }
       if (((_a = mf.model.at(mf.model.position)) === null || _a === void 0 ? void 0 : _a.type) !== 'latex') {
@@ -23852,6 +24430,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
   }
   function setPopoverPosition(mf, position) {
+      throwIfNotInBrowser();
       // Get screen width & height (browser compatibility)
       const screenHeight = window.innerHeight ||
           document.documentElement.clientHeight ||
@@ -23926,6 +24505,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    */
   function render(mathfield, renderOptions) {
       var _a;
+      throwIfNotInBrowser();
+      if (!isValidMathfield(mathfield))
+          return;
       renderOptions = renderOptions !== null && renderOptions !== void 0 ? renderOptions : {};
       mathfield.dirty = false;
       const { model } = mathfield;
@@ -23969,6 +24551,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       //
       const base = model.root.render(new Context({
           macros: mathfield.options.macros,
+          registers: mathfield.options.registers,
           atomIdsSettings: {
               // Using the hash as a seed for the ID
               // keeps the IDs the same until the content of the field changes.
@@ -24031,11 +24614,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
   }
   function renderSelection(mathfield) {
+      throwIfNotInBrowser();
+      // In some rare cases, we can get called (via a timeout) when the field
+      // is either no longer ready, or not yet ready. Bail.
+      if (!mathfield.field)
+          return;
       // Remove existing selection
       for (const element of mathfield.field.querySelectorAll('.ML__selection, .ML__contains-highlight')) {
           element.remove();
       }
-      if (!mathfield.hasFocus() || mathfield.options.readOnly)
+      if (!mathfield.hasFocus())
           return;
       const model = mathfield.model;
       if (model.selectionIsCollapsed) {
@@ -25390,7 +25978,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       var _a, _b, _c;
       // @revisit: have a registry of commands -> sound
       mathfield.focus();
-      if (mathfield.options.keypressVibration && (navigator === null || navigator === void 0 ? void 0 : navigator.vibrate)) {
+      if (mathfield.options.keypressVibration && canVibrate()) {
           navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
       }
       // Convert kebab case to camel case.
@@ -26489,8 +27077,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return false;
       }
       let target = model.at(model.position);
-      if (target.subsupPlacement !== 'over-under' &&
-          target.subsupPlacement !== 'auto') {
+      if (target.subsupPlacement === undefined) {
           // This atom can't have a superscript/subscript:
           // add an adjacent `msubsup` atom instead.
           if (((_a = target.rightSibling) === null || _a === void 0 ? void 0 : _a.type) !== 'msubsup') {
@@ -26515,8 +27102,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return false;
       }
       let target = model.at(model.position);
-      if (target.subsupPlacement !== 'over-under' &&
-          target.subsupPlacement !== 'auto') {
+      if (target.subsupPlacement === undefined) {
           // This atom can't have a superscript/subscript:
           // add an adjacent `msubsup` atom instead.
           if (((_a = model.at(model.position + 1)) === null || _a === void 0 ? void 0 : _a.type) !== 'msubsup') {
@@ -26540,24 +27126,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    * elements.
    */
   function getTabbableElements() {
-      // Const focussableElements = `a[href]:not([disabled]),
-      // button:not([disabled]),
-      // textarea:not([disabled]),
-      // input[type=text]:not([disabled]),
-      // select:not([disabled]),
-      // [contentEditable="true"],
-      // [tabindex]:not([disabled]):not([tabindex="-1"])`;
-      // // Get all the potentially focusable elements
-      // // and exclude (1) those that are invisible (width and height = 0)
-      // // (2) not the active element
-      // // (3) the ancestor of the active element
-      // return Array.prototype.filter.call(
-      //     document.querySelectorAll(focussableElements),
-      //     (element) =>
-      //         ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
-      //             !element.contains(document.activeElement)) ||
-      //         element === document.activeElement
-      // );
       function tabbable(element) {
           const regularTabbables = [];
           const orderedTabbables = [];
@@ -26646,7 +27214,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return !checked || checked === node;
       }
       function isHidden(element) {
-          if (element === document.activeElement ||
+          if (!isBrowser() ||
+              element === document.activeElement ||
               element.contains(document.activeElement)) {
               return false;
           }
@@ -26665,6 +27234,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           return false;
       }
+      if (!isBrowser())
+          return [];
       return tabbable(document.body);
   }
   /**
@@ -27267,6 +27838,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               return;
           }
           defer(handleTypedText);
+          // Do not propagate the event (it crosses the shadow dom barrier)
+          ev.preventDefault();
+          ev.stopPropagation();
       });
       return {
           cancelComposition: () => {
@@ -27317,6 +27891,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   }
   function deepActiveElement$1() {
       var _a;
+      if (!isBrowser())
+          return null;
       let a = document.activeElement;
       while ((_a = a === null || a === void 0 ? void 0 : a.shadowRoot) === null || _a === void 0 ? void 0 : _a.activeElement) {
           a = a.shadowRoot.activeElement;
@@ -28216,12 +28792,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
   const NO_OP_LISTENER = () => { };
   function loadSound(soundDirectory, sound) {
-      if (sound === null)
+      if (sound === null || sound === 'none' || sound === 'null')
           return null;
       if (sound instanceof HTMLAudioElement) {
           sound.load();
           return sound;
       }
+      sound = sound.trim();
+      if (sound.length === 0)
+          return null;
       const url = resolveRelativeUrl((soundDirectory === undefined || soundDirectory.length === 0
           ? './sounds'
           : soundDirectory) +
@@ -28461,7 +29040,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           fontsDirectory: './fonts',
           soundsDirectory: './sounds',
           defaultMode: 'math',
-          macros: MACROS,
+          macros: getMacros(),
+          registers: { ...getDefaultRegisters() },
           colorMap: null,
           backgroundColorMap: null,
           horizontalSpacingScale: 1,
@@ -28519,6 +29099,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           onReadAloudStatus: NO_OP_LISTENER,
           onCommit: NO_OP_LISTENER,
           onError: () => { },
+          value: undefined,
       };
   }
   function effectiveMode(options) {
@@ -29367,6 +29948,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   new MathModeEditor();
 
   function showKeystroke(mathfield, keystroke) {
+      if (mathfield.options.readOnly)
+          return;
       const vb = mathfield.keystrokeCaption;
       if (vb && mathfield.keystrokeCaptionVisible) {
           const bounds = mathfield.element.getBoundingClientRect();
@@ -29406,7 +29989,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // 3. Reset the timer for the keystroke buffer reset
       clearTimeout(mathfield.keystrokeBufferResetTimer);
       // 4. Give a chance to the custom keystroke handler to intercept the event
-      if (mathfield.options.onKeystroke &&
+      if (!mathfield.options.readOnly &&
+          mathfield.options.onKeystroke &&
           !mathfield.options.onKeystroke(mathfield, keystroke, evt)) {
           if (evt === null || evt === void 0 ? void 0 : evt.preventDefault) {
               evt.preventDefault();
@@ -29664,7 +30248,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           mathfield.focus();
       }
       if (options.feedback) {
-          if (mathfield.options.keypressVibration && (navigator === null || navigator === void 0 ? void 0 : navigator.vibrate)) {
+          if (mathfield.options.keypressVibration && canVibrate()) {
               navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
           }
           (_a = mathfield.keypressSound) === null || _a === void 0 ? void 0 : _a.play().catch(console.warn);
@@ -29698,6 +30282,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       };
       if (!model.selectionIsCollapsed) {
           model.position = model.deleteAtoms(range(model.selection));
+          mathfield.snapshot();
       }
       // Decompose the string into an array of graphemes.
       // This is necessary to correctly process what is displayed as a single
@@ -29930,7 +30515,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       const size = (_a = style.size) !== null && _a !== void 0 ? _a : style.fontSize;
       if (typeof size === 'number') {
-          result.fontSize = Math.min(1, Math.max(10, size));
+          result.fontSize = Math.max(1, Math.min(10, size));
       }
       else if (typeof size === 'string') {
           result.fontSize =
@@ -30291,9 +30876,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return result;
   }
 
-  var css_248z$4 = ".ML__keyboard{--keyboard-background:rgba(209,213,217,0.97);--keyboard-text:#000;--keyboard-text-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-background-border:#ddd;--keycap-background:#fff;--keycap-background-active:#e5e5e5;--keycap-background-border:#e5e6e9;--keycap-background-border-bottom:#8d8f92;--keycap-text:#000;--keycap-text-active:#fff;--keycap-secondary-text:#000;--keycap-modifier-background:#b9bdc7;--keycap-modifier-border:#c5c9d0;--keycap-modifier-border-bottom:#989da6;--keyboard-alternate-background:#fff;--keyboard-alternate-background-active:#e5e5e5;--keyboard-alternate-text:#000;--keyboard-alternate-key-length:70px;--keyboard-alternate-key-font-size:30px;--keyboard-alternate-key-aside-font-size:12px;--keyboard-height:276px;--keycap-height:52px;--keycap-font-size:20px;--keycap-small-font-size:calc(var(--keycap-font-size)*0.8);--keycap-extra-small-font-size:calc(var(--keycap-font-size)/1.42);--keycap-tt-font-size:calc(var(--keycap-font-size)*1.5);position:fixed;left:0;bottom:calc(var(--keyboard-height, 276px)*-1);width:100vw;z-index:var(--keyboard-zindex,105);padding-top:5px;transform:translate(0);opacity:0;visibility:hidden;transition:.28s cubic-bezier(0,0,.2,1);transition-property:transform,opacity;-webkit-backdrop-filter:grayscale(50%);backdrop-filter:grayscale(50%);background-color:var(--keyboard-background);border:1px solid var(--keyboard-background-border);font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:16px;font-weight:400;margin:0;text-shadow:none;box-sizing:border-box;touch-action:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23)}.ML__keyboard.is-visible{transform:translateY(calc(var(--keyboard-height, 276px)*-1));opacity:1;visibility:visible;transition-timing-function:cubic-bezier(.4,0,1,1)}.ML__keyboard .tex{font-family:KaTeX_Math,KaTeX_Main,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .tex-math{font-family:KaTeX_Math,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .tt{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace!important;font-size:var(--keycap-tt-font-size,30px);font-weight:400}.ML__keyboard.alternate-keys{visibility:hidden;max-width:286px;background-color:var(--keyboard-alternate-background);text-align:center;border-radius:6px;position:fixed;bottom:auto;top:0;box-sizing:content-box;transform:none;z-index:calc(var(--keyboard-zindex, 105) + 1);display:flex;flex-direction:row;justify-content:center;align-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:none}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys{max-width:320px}}.ML__keyboard.alternate-keys.is-visible{visibility:visible}.ML__keyboard.alternate-keys.compact{--keyboard-alternate-key-length:50px;--keyboard-alternate-key-font-size:24px;--keyboard-alternate-key-aside-font-size:10px}.ML__keyboard.alternate-keys ul{list-style:none;margin:3px;padding:0;display:flex;flex-flow:row wrap-reverse;justify-content:center}.ML__keyboard.alternate-keys ul>li{display:flex;flex-flow:column;align-items:center;justify-content:center;font-size:var(--keyboard-alternate-key-font-size);height:var(--keyboard-alternate-key-length);width:var(--keyboard-alternate-key-length);box-sizing:border-box;margin:0;background:transparent;border:1px solid transparent;border-radius:5px;pointer-events:all;color:var(--keyboard-alternate-text);fill:currentColor}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys ul>li{font-size:24px;height:50px;width:50px}}.ML__keyboard.alternate-keys ul>li.is-active,.ML__keyboard.alternate-keys ul>li.is-pressed,.ML__keyboard.alternate-keys ul>li:hover{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);background:var(--keyboard-alternate-background-active);color:var(--keyboard-text-active)}.ML__keyboard.alternate-keys ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard.alternate-keys ul>li.small-button{width:42px;height:42px;margin:2px;background:#fbfbfb}.ML__keyboard.alternate-keys ul>li.small-button:hover{background:var(--keyboard-alternate-background-active)}.ML__keyboard.alternate-keys ul>li.box>div,.ML__keyboard.alternate-keys ul>li.box>span{border:1px dashed rgba(0,0,0,.24)}.ML__keyboard.alternate-keys ul>li .warning{min-height:60px;min-width:60px;background:#cd0030;color:#fff;padding:5px;display:flex;align-items:center;justify-content:center;border-radius:5px}.ML__keyboard.alternate-keys ul>li .warning.is-active,.ML__keyboard.alternate-keys ul>li .warning.is-pressed,.ML__keyboard.alternate-keys ul>li .warning:hover{background:red}.ML__keyboard.alternate-keys ul>li .warning svg.svg-glyph{width:50px;height:50px}.ML__keyboard.alternate-keys ul>li aside{font-size:var(--keyboard-alternate-key-aside-font-size);line-height:12px;opacity:.78;padding-top:2px}.ML__keyboard>div.keyboard-layer{display:none;outline:none}.ML__keyboard>div.keyboard-layer.is-visible{display:flex;flex-flow:column}.ML__keyboard>div>div.keyboard-toolbar{align-self:center;display:flex;flex-flow:row;justify-content:space-between;width:736px}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard>div>div.keyboard-toolbar{width:556px}}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar{width:365px;max-width:100vw}}.ML__keyboard>div>div.keyboard-toolbar svg{height:20px;width:20px}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar svg{height:13px;width:17px}}.ML__keyboard>div>div.keyboard-toolbar>.left{position:relative;display:flex;justify-content:flex-start;flex-flow:row}.ML__keyboard>div>div.keyboard-toolbar>.right{display:flex;justify-content:flex-end;flex-flow:row}.ML__keyboard>div>div.keyboard-toolbar>div>div{display:flex;align-items:baseline;justify-content:center;pointer-events:all;color:var(--keyboard-text);fill:currentColor;background:0;font-size:110%;cursor:pointer;min-height:0;padding:4px 10px;margin:7px 4px 6px;box-shadow:none;border:none;border-bottom:2px solid transparent}.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled.is-pressed svg,.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled:hover svg,.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled svg{color:var(--keyboard-text);opacity:.2}@media only screen and (max-width:414px){.ML__keyboard>div>div.keyboard-toolbar>div>div{font-size:100%;padding:0 6px 0 0}}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar>div>div{padding-left:4px;padding-right:4px;font-size:90%}}.ML__keyboard>div>div.keyboard-toolbar>div>div.is-active,.ML__keyboard>div>div.keyboard-toolbar>div>div.is-pressed,.ML__keyboard>div>div.keyboard-toolbar>div>div:active,.ML__keyboard>div>div.keyboard-toolbar>div>div:hover{color:var(--keyboard-text-active)}.ML__keyboard>div>div.keyboard-toolbar>div>div.selected{color:var(--keyboard-text-active);border-bottom:2px solid var(--keyboard-text-active);margin-bottom:8px;padding-bottom:0}.ML__keyboard div .rows{border:0;border-collapse:separate;clear:both;margin:auto;display:flex;flex-flow:column;align-items:center}.ML__keyboard div .rows>ul{list-style:none;height:40px;margin:0 0 3px;padding:0}.ML__keyboard div .rows>ul>li{display:flex;flex-flow:column;align-items:center;justify-content:center;width:34px;margin-right:2px;height:40px;box-sizing:border-box;padding:8px 0;vertical-align:top;text-align:center;float:left;color:var(--keycap-text);fill:currentColor;font-size:var(--keycap-font-size,20px);background:var(--keycap-background);border:1px solid var(--keycap-background-border);border-bottom-color:var(--keycap-background-border-bottom);border-radius:5px;pointer-events:all;position:relative;overflow:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}.ML__keyboard div .rows>ul>li:last-child{margin-right:0}.ML__keyboard div .rows>ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard div .rows>ul>li.tt{color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.bottom{justify-content:flex-end}.ML__keyboard div .rows>ul>li.left{align-items:flex-start;padding-left:4px}.ML__keyboard div .rows>ul>li.right{align-items:flex-end;padding-right:4px}.ML__keyboard div .rows>ul>li svg.svg-glyph{width:20px;height:20px}.ML__keyboard div .rows>ul>li .warning{height:25px;width:25px;min-height:25px;min-width:25px;background:#cd0030;color:#fff;border-radius:100%;padding:5px;display:flex;align-items:center;justify-content:center;margin-bottom:-2px}.ML__keyboard div .rows>ul>li .warning svg.svg-glyph{width:16px;height:16px}@media only screen and (max-width:768px){.ML__keyboard div .rows>ul>li .warning{height:16px;width:16px;min-height:16px;min-width:16px}.ML__keyboard div .rows>ul>li .warning svg.svg-glyph{width:14px;height:14px}}.ML__keyboard div .rows>ul>li>.w0{width:0}.ML__keyboard div .rows>ul>li>.w5{width:16px}.ML__keyboard div .rows>ul>li>.w15{width:52px}.ML__keyboard div .rows>ul>li>.w20{width:70px}.ML__keyboard div .rows>ul>li>.w50{width:178px}.ML__keyboard div .rows>ul>li.separator{background:transparent;border:none;pointer-events:none}@media only screen and (max-width:560px){.ML__keyboard div .rows>ul>li.if-wide{display:none}}.ML__keyboard div .rows>ul>li.tex-math{font-size:25px}.ML__keyboard div .rows>ul>li.is-pressed,.ML__keyboard div .rows>ul>li:hover{background:var(--keycap-background-active);color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.action.is-active,.ML__keyboard div .rows>ul>li.action:active,.ML__keyboard div .rows>ul>li.keycap.is-active,.ML__keyboard div .rows>ul>li.keycap:active{transform:translateY(calc(var(--keycap-height, 52px)*-0.2)) scale(1.4);z-index:calc(var(--keyboard-zindex, 105) - 5);color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.modifier.is-active,.ML__keyboard div .rows>ul>li.modifier:active{background:var(--keyboard-text-active);color:var(--keycap-text-active)}.ML__keyboard div .rows>ul>li.action.font-glyph,.ML__keyboard div .rows>ul>li.modifier.font-glyph{font-size:18px}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.action.font-glyph,.ML__keyboard div .rows>ul>li.modifier.font-glyph{font-size:16px}}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.fnbutton{font-size:12px}}.ML__keyboard div .rows>ul>li.bigfnbutton{font-size:var(--keycap-extra-small-font-size,14px)}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.bigfnbutton{font-size:calc(var(--keycap-extra-small-font-size, 14px)/1.55)}}.ML__keyboard div .rows>ul>li.action,.ML__keyboard div .rows>ul>li.modifier{background-color:var(--keycap-modifier-background);border-bottom-color:var(--keycap-modifier-border);border-color:var(--keycap-modifier-border) var(--keycap-modifier-border) var(--keycap-modifier-border-bottom);font-size:65%;font-weight:100}.ML__keyboard div .rows>ul>li.action.selected,.ML__keyboard div .rows>ul>li.modifier.selected{color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.action.selected.is-active,.ML__keyboard div .rows>ul>li.action.selected.is-pressed,.ML__keyboard div .rows>ul>li.action.selected:active,.ML__keyboard div .rows>ul>li.action.selected:hover,.ML__keyboard div .rows>ul>li.modifier.selected.is-active,.ML__keyboard div .rows>ul>li.modifier.selected.is-pressed,.ML__keyboard div .rows>ul>li.modifier.selected:active,.ML__keyboard div .rows>ul>li.modifier.selected:hover{color:#fff}.ML__keyboard div .rows>ul>li.keycap.w50{font-size:80%;padding-top:10px;font-weight:100}.ML__keyboard div .rows>ul>li small{color:#555}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li small{font-size:9px}}.ML__keyboard div .rows>ul>li aside{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:10px;line-height:10px;color:#666}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li aside{display:none}}@media only screen and (max-width:414px){.ML__keyboard div .rows>ul>li{width:calc(10vw - 2px);margin-right:2px}.ML__keyboard div .rows>ul>.w5{width:calc(5vw - 2px)}.ML__keyboard div .rows>ul>.w15{width:calc(15vw - 2px)}.ML__keyboard div .rows>ul>.w20{width:calc(20vw - 2px)}.ML__keyboard div .rows>ul>.w50{width:calc(50vw - 2px)}}@media only screen and (min-width:415px) and (max-width:768px){.ML__keyboard div .rows>ul>li{width:37px;margin-right:3px}.ML__keyboard div .rows>ul>.w5{width:17px}.ML__keyboard div .rows>ul>.w15{width:57px}.ML__keyboard div .rows>ul>.w20{width:77px}.ML__keyboard div .rows>ul>.w50{width:197px}}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard div .rows>ul>li{height:var(--keycap-height,52px);width:51px;margin-right:4px}.ML__keyboard div .rows>ul>.w5{width:23.5px}.ML__keyboard div .rows>ul>.w15{width:78.5px}.ML__keyboard div .rows>ul>.w20{width:106px}.ML__keyboard div .rows>ul>.w50{width:271px}}@media only screen and (min-width:1025px){.ML__keyboard div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard div .rows>ul>li{height:var(--keycap-height,52px);width:66px;margin-right:6px}.ML__keyboard div .rows>ul>.action,.ML__keyboard div .rows>ul>.modifier{font-size:80%}.ML__keyboard div .rows>ul>.w5{width:30px}.ML__keyboard div .rows>ul>.w15{width:102px}.ML__keyboard div .rows>ul>.w20{width:138px}.ML__keyboard div .rows>ul>.w50{width:354px}}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}div.ML__keyboard.material{--keyboard-background:rgba(209,213,217,0.9);--keyboard-background-border:#ddd;--keycap-background:transparent;--keycap-background-active:#cccfd1;--keycap-background-border:transparent;--keyboard-alternate-background:#efefef;--keyboard-alternate-text:#000;font-family:Roboto,sans-serif}div.ML__keyboard.material.alternate-keys{background:var(--keyboard-alternate-background);border:1px solid transparent;border-radius:5px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)}div.ML__keyboard.material.alternate-keys ul li.is-active,div.ML__keyboard.material.alternate-keys ul li.is-pressed,div.ML__keyboard.material.alternate-keys ul li:active,div.ML__keyboard.material.alternate-keys ul li:hover{border:1px solid transparent;background:#5f97fc;color:#fff;fill:currentColor}div.ML__keyboard.material .keyboard-toolbar>div>div{font-size:16px}div.ML__keyboard.material .keyboard-toolbar div.div.is-active,div.ML__keyboard.material .keyboard-toolbar div.div.is-pressed,div.ML__keyboard.material .keyboard-toolbar div div:active,div.ML__keyboard.material .keyboard-toolbar div div:hover{color:#5f97fc;fill:currentColor}div.ML__keyboard.material .keyboard-toolbar>div>.selected{color:#5f97fc;fill:currentColor;border-bottom:2px solid #5f97fc;margin-bottom:8px;padding-bottom:0}div.ML__keyboard.material div>.rows>ul>.keycap{background:transparent;border:1px solid transparent;border-radius:5px;color:var(--keycap-text);fill:currentColor;transition:none}div.ML__keyboard.material div>.rows>ul>.keycap.tt{color:#5f97fc}div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]{margin-top:10px;margin-bottom:10px;height:20px;background:#e0e0e0}div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"].is-active,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"].is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]:active,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]:hover{background:#d0d0d0;box-shadow:none;transform:none}div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):hover{border:1px solid transparent;background:var(--keycap-background-active);box-shadow:none}div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{background:var(--keyboard-alternate-background);color:var(--keyboard-alternate-text);box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23)}@media only screen and (max-width:767px){div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);font-size:10px;vertical-align:top;width:19.5px;margin-right:10px;margin-left:10px;transform:translateY(-10px) scale(2);transition:none;justify-content:flex-start;padding:2px 0 0;z-index:calc(var(--ML_keyboard-zindex, 105) - 5)}}@media only screen and (max-width:414px){div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{width:16.5px}}@media only screen and (max-width:767px){div.ML__keyboard.material div>.rows>ul>.keycap:last-child.is-active,div.ML__keyboard.material div>.rows>ul>.keycap:last-child:active{margin-right:0;margin-left:14px}}div.ML__keyboard.material div div.rows ul li.action,div.ML__keyboard.material div div.rows ul li.modifier{background:transparent;border:0;color:#869096;fill:currentColor;font-size:16px;transition:none}div.ML__keyboard.material div div.rows ul li.action.selected,div.ML__keyboard.material div div.rows ul li.modifier.selected{color:#5f97fc;border-radius:0;border-bottom:2px solid #5f97fc}div.ML__keyboard.material div div.rows ul li.action.is-active,div.ML__keyboard.material div div.rows ul li.action.is-pressed,div.ML__keyboard.material div div.rows ul li.action:active,div.ML__keyboard.material div div.rows ul li.action:hover,div.ML__keyboard.material div div.rows ul li.modifier.is-active,div.ML__keyboard.material div div.rows ul li.modifier.is-pressed,div.ML__keyboard.material div div.rows ul li.modifier:active,div.ML__keyboard.material div div.rows ul li.modifier:hover{border:0;color:var(--keycap-text);background:var(--keycap-background-active);box-shadow:none}div.ML__keyboard.material div div.rows ul li.bigfnbutton,div.ML__keyboard.material div div.rows ul li.fnbutton{background:transparent;border:0}div.ML__keyboard.material div div.rows ul li.bigfnbutton.selected,div.ML__keyboard.material div div.rows ul li.fnbutton.selected{color:#5f97fc;fill:currentColor;border-radius:0;border-bottom:2px solid #5f97fc}div.ML__keyboard.material div div.rows ul li.bigfnbutton.is-active,div.ML__keyboard.material div div.rows ul li.bigfnbutton.is-pressed,div.ML__keyboard.material div div.rows ul li.bigfnbutton:active,div.ML__keyboard.material div div.rows ul li.bigfnbutton:hover,div.ML__keyboard.material div div.rows ul li.fnbutton.is-active,div.ML__keyboard.material div div.rows ul li.fnbutton.is-pressed,div.ML__keyboard.material div div.rows ul li.fnbutton:active,div.ML__keyboard.material div div.rows ul li.fnbutton:hover{border:0;color:#5f97fc;fill:currentColor;background:var(--keycap-background-active);box-shadow:none}@media (prefers-color-scheme:dark){body:not([theme=light]) div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}";
+  var css_248z$4 = ".ML__keyboard{--keyboard-background:rgba(209,213,217,0.97);--keyboard-text:#000;--keyboard-text-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-background-border:#ddd;--keycap-background:#fff;--keycap-background-active:#e5e5e5;--keycap-background-border:#e5e6e9;--keycap-background-border-bottom:#8d8f92;--keycap-text:#000;--keycap-text-active:#fff;--keycap-secondary-text:#000;--keycap-modifier-background:#b9bdc7;--keycap-modifier-border:#c5c9d0;--keycap-modifier-border-bottom:#989da6;--keyboard-alternate-background:#fff;--keyboard-alternate-background-active:#e5e5e5;--keyboard-alternate-text:#000;--keyboard-alternate-key-length:70px;--keyboard-alternate-key-font-size:30px;--keyboard-alternate-key-aside-font-size:12px;--keyboard-height:276px;--keycap-height:52px;--keycap-font-size:20px;--keycap-small-font-size:calc(var(--keycap-font-size)*0.8);--keycap-extra-small-font-size:calc(var(--keycap-font-size)/1.42);--keycap-tt-font-size:calc(var(--keycap-font-size)*1.5);-webkit-backdrop-filter:grayscale(50%);backdrop-filter:grayscale(50%);background-color:var(--keyboard-background);border:1px solid var(--keyboard-background-border);bottom:calc(var(--keyboard-height, 276px)*-1);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);box-sizing:border-box;cursor:pointer;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:16px;font-weight:400;left:0;margin:0;opacity:0;padding-top:5px;position:fixed;text-shadow:none;touch-action:none;transform:translate(0);transition:.28s cubic-bezier(0,0,.2,1);transition-property:transform,opacity;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;visibility:hidden;width:100vw;z-index:var(--keyboard-zindex,#105)}.ML__keyboard.is-visible{opacity:1;transform:translateY(calc(var(--keyboard-height, 276px)*-1));transition-timing-function:cubic-bezier(.4,0,1,1);visibility:visible}.ML__keyboard .tex{font-family:KaTeX_Math,KaTeX_Main,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .tex-math{font-family:KaTeX_Math,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .tt{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace!important;font-size:var(--keycap-tt-font-size,30px);font-weight:400}.ML__keyboard.alternate-keys{align-content:center;background-color:var(--keyboard-alternate-background);border-radius:6px;bottom:auto;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);box-sizing:content-box;display:flex;flex-direction:row;justify-content:center;max-width:286px;position:fixed;text-align:center;top:0;transform:none;transition:none;visibility:hidden;z-index:calc(var(--keyboard-zindex, 105) + 1)}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys{max-width:320px}}.ML__keyboard.alternate-keys.is-visible{visibility:visible}.ML__keyboard.alternate-keys.compact{--keyboard-alternate-key-length:50px;--keyboard-alternate-key-font-size:24px;--keyboard-alternate-key-aside-font-size:10px}.ML__keyboard.alternate-keys ul{display:flex;flex-flow:row wrap-reverse;justify-content:center;list-style:none;margin:3px;padding:0}.ML__keyboard.alternate-keys ul>li{fill:currentColor;align-items:center;background:transparent;border:1px solid transparent;border-radius:5px;box-sizing:border-box;color:var(--keyboard-alternate-text);display:flex;flex-flow:column;font-size:var(--keyboard-alternate-key-font-size);height:var(--keyboard-alternate-key-length);justify-content:center;margin:0;pointer-events:all;width:var(--keyboard-alternate-key-length)}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys ul>li{font-size:24px;height:50px;width:50px}}.ML__keyboard.alternate-keys ul>li.is-active,.ML__keyboard.alternate-keys ul>li.is-pressed,.ML__keyboard.alternate-keys ul>li:hover{background:var(--keyboard-alternate-background-active);box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);color:var(--keyboard-text-active)}.ML__keyboard.alternate-keys ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard.alternate-keys ul>li.small-button{background:#fbfbfb;height:42px;margin:2px;width:42px}.ML__keyboard.alternate-keys ul>li.small-button:hover{background:var(--keyboard-alternate-background-active)}.ML__keyboard.alternate-keys ul>li.box>div,.ML__keyboard.alternate-keys ul>li.box>span{border:1px dashed rgba(0,0,0,.24)}.ML__keyboard.alternate-keys ul>li .warning{align-items:center;background:#cd0030;border-radius:5px;color:#fff;display:flex;justify-content:center;min-height:60px;min-width:60px;padding:5px}.ML__keyboard.alternate-keys ul>li .warning.is-active,.ML__keyboard.alternate-keys ul>li .warning.is-pressed,.ML__keyboard.alternate-keys ul>li .warning:hover{background:red}.ML__keyboard.alternate-keys ul>li .warning svg.svg-glyph{height:50px;width:50px}.ML__keyboard.alternate-keys ul>li aside{font-size:var(--keyboard-alternate-key-aside-font-size);line-height:12px;opacity:.78;padding-top:2px}.ML__keyboard>div.keyboard-layer{display:none;outline:none}.ML__keyboard>div.keyboard-layer.is-visible{display:flex;flex-flow:column}.ML__keyboard>div>div.keyboard-toolbar{align-self:center;display:flex;flex-flow:row;justify-content:space-between;width:736px}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard>div>div.keyboard-toolbar{width:556px}}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar{max-width:100vw;width:365px}}.ML__keyboard>div>div.keyboard-toolbar svg{height:20px;width:20px}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar svg{height:13px;width:17px}}.ML__keyboard>div>div.keyboard-toolbar>.left{display:flex;flex-flow:row;justify-content:flex-start;position:relative}.ML__keyboard>div>div.keyboard-toolbar>.right{display:flex;flex-flow:row;justify-content:flex-end}.ML__keyboard>div>div.keyboard-toolbar>div>div{fill:currentColor;align-items:baseline;background:0;border:none;border-bottom:2px solid transparent;box-shadow:none;color:var(--keyboard-text);cursor:pointer;display:flex;font-size:110%;justify-content:center;margin:7px 4px 6px;min-height:0;padding:4px 10px;pointer-events:all}.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled.is-pressed svg,.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled:hover svg,.ML__keyboard>div>div.keyboard-toolbar>div>div.disabled svg{color:var(--keyboard-text);opacity:.2}@media only screen and (max-width:414px){.ML__keyboard>div>div.keyboard-toolbar>div>div{font-size:100%;padding:0 6px 0 0}}@media only screen and (max-width:767px){.ML__keyboard>div>div.keyboard-toolbar>div>div{font-size:90%;padding-left:4px;padding-right:4px}}.ML__keyboard>div>div.keyboard-toolbar>div>div.is-active,.ML__keyboard>div>div.keyboard-toolbar>div>div.is-pressed,.ML__keyboard>div>div.keyboard-toolbar>div>div:active,.ML__keyboard>div>div.keyboard-toolbar>div>div:hover{color:var(--keyboard-text-active)}.ML__keyboard>div>div.keyboard-toolbar>div>div.selected{border-bottom:2px solid var(--keyboard-text-active);color:var(--keyboard-text-active);margin-bottom:8px;padding-bottom:0}.ML__keyboard div .rows{align-items:center;border:0;border-collapse:separate;clear:both;display:flex;flex-flow:column;margin:auto}.ML__keyboard div .rows>ul{height:40px;list-style:none;margin:0 0 3px;padding:0}.ML__keyboard div .rows>ul>li{fill:currentColor;-webkit-tap-highlight-color:transparent;align-items:center;background:var(--keycap-background);border:1px solid var(--keycap-background-border);border-bottom-color:var(--keycap-background-border-bottom);border-radius:5px;box-sizing:border-box;color:var(--keycap-text);display:flex;flex-flow:column;float:left;font-size:var(--keycap-font-size,20px);height:40px;justify-content:center;margin-right:2px;overflow:hidden;padding:8px 0;pointer-events:all;position:relative;text-align:center;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:top;width:34px}.ML__keyboard div .rows>ul>li:last-child{margin-right:0}.ML__keyboard div .rows>ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard div .rows>ul>li.tt{color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.bottom{justify-content:flex-end}.ML__keyboard div .rows>ul>li.left{align-items:flex-start;padding-left:4px}.ML__keyboard div .rows>ul>li.right{align-items:flex-end;padding-right:4px}.ML__keyboard div .rows>ul>li svg.svg-glyph{height:20px;width:20px}.ML__keyboard div .rows>ul>li .warning{align-items:center;background:#cd0030;border-radius:100%;color:#fff;display:flex;height:25px;justify-content:center;margin-bottom:-2px;min-height:25px;min-width:25px;padding:5px;width:25px}.ML__keyboard div .rows>ul>li .warning svg.svg-glyph{height:16px;width:16px}@media only screen and (max-width:768px){.ML__keyboard div .rows>ul>li .warning{height:16px;min-height:16px;min-width:16px;width:16px}.ML__keyboard div .rows>ul>li .warning svg.svg-glyph{height:14px;width:14px}}.ML__keyboard div .rows>ul>li>.w0{width:0}.ML__keyboard div .rows>ul>li>.w5{width:16px}.ML__keyboard div .rows>ul>li>.w15{width:52px}.ML__keyboard div .rows>ul>li>.w20{width:70px}.ML__keyboard div .rows>ul>li>.w50{width:178px}.ML__keyboard div .rows>ul>li.separator{background:transparent;border:none;pointer-events:none}@media only screen and (max-width:560px){.ML__keyboard div .rows>ul>li.if-wide{display:none}}.ML__keyboard div .rows>ul>li.tex-math{font-size:25px}.ML__keyboard div .rows>ul>li.is-pressed,.ML__keyboard div .rows>ul>li:hover{background:var(--keycap-background-active);color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.action.is-active,.ML__keyboard div .rows>ul>li.action:active,.ML__keyboard div .rows>ul>li.keycap.is-active,.ML__keyboard div .rows>ul>li.keycap:active{color:var(--keyboard-text-active);transform:translateY(calc(var(--keycap-height, 52px)*-.2)) scale(1.4);z-index:calc(var(--keyboard-zindex, 105) - 5)}.ML__keyboard div .rows>ul>li.modifier.is-active,.ML__keyboard div .rows>ul>li.modifier:active{background:var(--keyboard-text-active);color:var(--keycap-text-active)}.ML__keyboard div .rows>ul>li.action.font-glyph,.ML__keyboard div .rows>ul>li.modifier.font-glyph{font-size:18px}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.action.font-glyph,.ML__keyboard div .rows>ul>li.modifier.font-glyph{font-size:16px}}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.fnbutton{font-size:12px}}.ML__keyboard div .rows>ul>li.bigfnbutton{font-size:var(--keycap-extra-small-font-size,14px)}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li.bigfnbutton{font-size:calc(var(--keycap-extra-small-font-size, 14px)/1.55)}}.ML__keyboard div .rows>ul>li.action,.ML__keyboard div .rows>ul>li.modifier{background-color:var(--keycap-modifier-background);border-bottom-color:var(--keycap-modifier-border);border-color:var(--keycap-modifier-border) var(--keycap-modifier-border) var(--keycap-modifier-border-bottom);font-size:65%;font-weight:100}.ML__keyboard div .rows>ul>li.action.selected,.ML__keyboard div .rows>ul>li.modifier.selected{color:var(--keyboard-text-active)}.ML__keyboard div .rows>ul>li.action.selected.is-active,.ML__keyboard div .rows>ul>li.action.selected.is-pressed,.ML__keyboard div .rows>ul>li.action.selected:active,.ML__keyboard div .rows>ul>li.action.selected:hover,.ML__keyboard div .rows>ul>li.modifier.selected.is-active,.ML__keyboard div .rows>ul>li.modifier.selected.is-pressed,.ML__keyboard div .rows>ul>li.modifier.selected:active,.ML__keyboard div .rows>ul>li.modifier.selected:hover{color:#fff}.ML__keyboard div .rows>ul>li.keycap.w50{font-size:80%;font-weight:100;padding-top:10px}.ML__keyboard div .rows>ul>li small{color:#555}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li small{font-size:9px}}.ML__keyboard div .rows>ul>li aside{color:#666;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:10px;line-height:10px}@media only screen and (max-width:767px){.ML__keyboard div .rows>ul>li aside{display:none}}@media only screen and (max-width:414px){.ML__keyboard div .rows>ul>li{margin-right:2px;width:calc(10vw - 2px)}.ML__keyboard div .rows>ul>.w5{width:calc(5vw - 2px)}.ML__keyboard div .rows>ul>.w15{width:calc(15vw - 2px)}.ML__keyboard div .rows>ul>.w20{width:calc(20vw - 2px)}.ML__keyboard div .rows>ul>.w50{width:calc(50vw - 2px)}}@media only screen and (min-width:415px) and (max-width:768px){.ML__keyboard div .rows>ul>li{margin-right:3px;width:37px}.ML__keyboard div .rows>ul>.w5{width:17px}.ML__keyboard div .rows>ul>.w15{width:57px}.ML__keyboard div .rows>ul>.w20{width:77px}.ML__keyboard div .rows>ul>.w50{width:197px}}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard div .rows>ul>li{height:var(--keycap-height,52px);margin-right:4px;width:51px}.ML__keyboard div .rows>ul>.w5{width:23.5px}.ML__keyboard div .rows>ul>.w15{width:78.5px}.ML__keyboard div .rows>ul>.w20{width:106px}.ML__keyboard div .rows>ul>.w50{width:271px}}@media only screen and (min-width:1025px){.ML__keyboard div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard div .rows>ul>li{height:var(--keycap-height,52px);margin-right:6px;width:66px}.ML__keyboard div .rows>ul>.action,.ML__keyboard div .rows>ul>.modifier{font-size:80%}.ML__keyboard div .rows>ul>.w5{width:30px}.ML__keyboard div .rows>ul>.w15{width:102px}.ML__keyboard div .rows>ul>.w20{width:138px}.ML__keyboard div .rows>ul>.w50{width:354px}}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keyboard{--hue:#206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] .ML__keyboard{--hue:#206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}div.ML__keyboard.material{--keyboard-background:rgba(209,213,217,0.9);--keyboard-background-border:#ddd;--keycap-background:transparent;--keycap-background-active:#cccfd1;--keycap-background-border:transparent;--keyboard-alternate-background:#efefef;--keyboard-alternate-text:#000;font-family:Roboto,sans-serif}div.ML__keyboard.material.alternate-keys{background:var(--keyboard-alternate-background);border:1px solid transparent;border-radius:5px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)}div.ML__keyboard.material.alternate-keys ul li.is-active,div.ML__keyboard.material.alternate-keys ul li.is-pressed,div.ML__keyboard.material.alternate-keys ul li:active,div.ML__keyboard.material.alternate-keys ul li:hover{fill:currentColor;background:#5f97fc;border:1px solid transparent;color:#fff}div.ML__keyboard.material .keyboard-toolbar>div>div{font-size:16px}div.ML__keyboard.material .keyboard-toolbar div.div.is-active,div.ML__keyboard.material .keyboard-toolbar div.div.is-pressed,div.ML__keyboard.material .keyboard-toolbar div div:active,div.ML__keyboard.material .keyboard-toolbar div div:hover{fill:currentColor;color:#5f97fc}div.ML__keyboard.material .keyboard-toolbar>div>.selected{fill:currentColor;border-bottom:2px solid #5f97fc;color:#5f97fc;margin-bottom:8px;padding-bottom:0}div.ML__keyboard.material div>.rows>ul>.keycap{fill:currentColor;background:transparent;border:1px solid transparent;border-radius:5px;color:var(--keycap-text);transition:none}div.ML__keyboard.material div>.rows>ul>.keycap.tt{color:#5f97fc}div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]{background:#e0e0e0;height:20px;margin-bottom:10px;margin-top:10px}div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"].is-active,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"].is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]:active,div.ML__keyboard.material div>.rows>ul>.keycap[data-key=\" \"]:hover{background:#d0d0d0;box-shadow:none;transform:none}div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):hover{background:var(--keycap-background-active);border:1px solid transparent;box-shadow:none}div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{background:var(--keyboard-alternate-background);box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);color:var(--keyboard-alternate-text)}@media only screen and (max-width:767px){div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);font-size:10px;justify-content:flex-start;margin-left:10px;margin-right:10px;padding:2px 0 0;transform:translateY(-10px) scale(2);transition:none;vertical-align:top;width:19.5px;z-index:calc(var(--ML_keyboard-zindex, 105) - 5)}}@media only screen and (max-width:414px){div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material div>.rows>ul>.keycap:not([data-key=\" \"]):active{width:16.5px}}@media only screen and (max-width:767px){div.ML__keyboard.material div>.rows>ul>.keycap:last-child.is-active,div.ML__keyboard.material div>.rows>ul>.keycap:last-child:active{margin-left:14px;margin-right:0}}div.ML__keyboard.material div div.rows ul li.action,div.ML__keyboard.material div div.rows ul li.modifier{fill:currentColor;background:transparent;border:0;color:#869096;font-size:16px;transition:none}div.ML__keyboard.material div div.rows ul li.action.selected,div.ML__keyboard.material div div.rows ul li.modifier.selected{border-bottom:2px solid #5f97fc;border-radius:0;color:#5f97fc}div.ML__keyboard.material div div.rows ul li.action.is-active,div.ML__keyboard.material div div.rows ul li.action.is-pressed,div.ML__keyboard.material div div.rows ul li.action:active,div.ML__keyboard.material div div.rows ul li.action:hover,div.ML__keyboard.material div div.rows ul li.modifier.is-active,div.ML__keyboard.material div div.rows ul li.modifier.is-pressed,div.ML__keyboard.material div div.rows ul li.modifier:active,div.ML__keyboard.material div div.rows ul li.modifier:hover{background:var(--keycap-background-active);border:0;box-shadow:none;color:var(--keycap-text)}div.ML__keyboard.material div div.rows ul li.bigfnbutton,div.ML__keyboard.material div div.rows ul li.fnbutton{background:transparent;border:0}div.ML__keyboard.material div div.rows ul li.bigfnbutton.selected,div.ML__keyboard.material div div.rows ul li.fnbutton.selected{fill:currentColor;border-bottom:2px solid #5f97fc;border-radius:0;color:#5f97fc}div.ML__keyboard.material div div.rows ul li.bigfnbutton.is-active,div.ML__keyboard.material div div.rows ul li.bigfnbutton.is-pressed,div.ML__keyboard.material div div.rows ul li.bigfnbutton:active,div.ML__keyboard.material div div.rows ul li.bigfnbutton:hover,div.ML__keyboard.material div div.rows ul li.fnbutton.is-active,div.ML__keyboard.material div div.rows ul li.fnbutton.is-pressed,div.ML__keyboard.material div div.rows ul li.fnbutton:active,div.ML__keyboard.material div div.rows ul li.fnbutton:hover{fill:currentColor;background:var(--keycap-background-active);border:0;box-shadow:none;color:#5f97fc}@media (prefers-color-scheme:dark){body:not([theme=light]) div.ML__keyboard.material{--hue:#198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] div.ML__keyboard.material{--hue:#198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}";
 
-  var css_248z$3 = ".ML__sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__base{visibility:inherit;display:inline-block;position:relative;cursor:text;padding:0;margin:0;box-sizing:content-box;border:0;outline:0;vertical-align:baseline;font-weight:inherit;font-family:inherit;font-style:inherit;text-decoration:none;width:-webkit-min-content;width:-moz-min-content;width:min-content}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-weight:700;font-style:italic}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{color:#007cb2;background:#edd1b0}.ML__center{text-align:center}.ML__frac-line{width:100%;min-height:1px}.ML__frac-line:after{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor;box-sizing:content-box;transform:translate(0)}.ML__sqrt,.ML__sqrt-sign{display:inline-block}.ML__sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__sqrt-line{display:inline-block;height:.04em;width:100%}.ML__sqrt-line:before{content:\"\";display:block;margin-top:-.04em;min-height:.04em;background:currentColor}.ML__sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__sqrt-index{margin-left:.27777778em;margin-right:-.55555556em}.ML__delim-size1{font-family:KaTeX_Size1}.ML__delim-size2{font-family:KaTeX_Size2}.ML__delim-size3{font-family:KaTeX_Size3}.ML__delim-size4{font-family:KaTeX_Size4}.ML__delim-mult .delim-size1>span{font-family:KaTeX_Size1}.ML__delim-mult .delim-size4>span{font-family:KaTeX_Size4}.ML__accent-body>span{font-family:KaTeX_Main;width:0}.ML__accent-vec>span{position:relative;left:.38em}.ML__mathlive{display:inline-block;direction:ltr;text-align:left;text-indent:0;text-rendering:auto;font-family:KaTeX_Main;font-style:normal;font-size-adjust:none;font-stretch:normal;font-variant-caps:normal;letter-spacing:normal;word-wrap:normal;word-spacing:normal;white-space:nowrap;text-shadow:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:-webkit-min-content;width:-moz-min-content;width:min-content;transform:translateZ(0)}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .left-right,.ML__mathlive .mfrac{display:inline-block}.ML__mathlive .vlist-t{display:inline-table;table-layout:fixed;border-collapse:collapse}.ML__mathlive .vlist-r{display:table-row}.ML__mathlive .vlist{display:table-cell;vertical-align:bottom;position:relative}.ML__mathlive .vlist>span{display:block;height:0;position:relative}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .vlist>span>.pstrut{overflow:hidden;width:0}.ML__mathlive .vlist-t2{margin-right:-2px}.ML__mathlive .vlist-s{display:table-cell;vertical-align:bottom;font-size:1px;width:2px;min-width:2px}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .negativethinspace{display:inline-block;margin-left:-.16667em}.ML__mathlive .thinspace{display:inline-block;width:.16667em}.ML__mathlive .mediumspace{display:inline-block;width:.22222em}.ML__mathlive .thickspace{display:inline-block;width:.27778em}.ML__mathlive .enspace{display:inline-block;width:.5em}.ML__mathlive .quad{display:inline-block;width:1em}.ML__mathlive .qquad{display:inline-block;width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{width:0;position:relative;display:inline-block}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{display:inline-block;border:0 solid;position:relative;box-sizing:border-box}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;min-height:thin;content:\"\";display:block;margin-top:-1px}.ML__mathlive .stretchy{display:block;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{display:block;position:absolute;width:100%;height:inherit;fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;position:absolute;width:50.2%;overflow:hidden}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;position:absolute;left:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-2-of-3{display:inline-flex;position:absolute;left:25%;width:50%;overflow:hidden}.ML__mathlive .slice-3-of-3{display:inline-flex;position:absolute;right:0;width:25.1%;overflow:hidden}.ML__mathlive .slice-1-of-1{display:inline-flex;position:absolute;width:100%;left:0;overflow:hidden}.ML__mathlive .nulldelimiter{width:.12em;display:inline-block}.ML__mathlive .op-group{display:inline-block}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .mtable .vertical-separator{display:inline-block;min-width:1px;box-sizing:border-box}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist-t{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist-t{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-repeat:repeat-x;background-size:3px 3px;background-position:0 98%}.ML__composition{background:#fff1c2;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}@media (prefers-color-scheme:dark){.ML__composition{background:#69571c;color:#fff}}.ML__placeholder{color:var(--caret,hsl(var(--hue,212),40%,49%));padding-left:.4ex;padding-right:.4ex;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}";
+  var css_248z$3 = ".ML__sr-only{clip:rect(0,0,0,0);border:0;height:1px;overflow:hidden;padding:0;position:absolute;white-space:nowrap;width:1px}.ML__base,.ML__isInline{display:inline-block}.ML__base{border:0;box-sizing:content-box;cursor:text;font-family:inherit;font-style:inherit;font-weight:inherit;margin:0;outline:0;padding:0;position:relative;text-decoration:none;vertical-align:baseline;visibility:inherit;width:-webkit-min-content;width:-moz-min-content;width:min-content}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-style:italic;font-weight:700}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{background:#edd1b0;color:#007cb2}.ML__center{text-align:center}.ML__frac-line{min-height:1px;width:100%}.ML__frac-line:after{background:currentColor;box-sizing:content-box;content:\"\";display:block;margin-top:-.04em;min-height:.04em;transform:translate(0)}.ML__sqrt,.ML__sqrt-sign{display:inline-block}.ML__sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__sqrt-line{display:inline-block;height:.04em;width:100%}.ML__sqrt-line:before{background:currentColor;content:\"\";display:block;margin-top:-.04em;min-height:.04em}.ML__sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__sqrt-index{margin-left:.27777778em;margin-right:-.55555556em}.ML__delim-size1{font-family:KaTeX_Size1}.ML__delim-size2{font-family:KaTeX_Size2}.ML__delim-size3{font-family:KaTeX_Size3}.ML__delim-size4{font-family:KaTeX_Size4}.ML__delim-mult .delim-size1>span{font-family:KaTeX_Size1}.ML__delim-mult .delim-size4>span{font-family:KaTeX_Size4}.ML__accent-body>span{font-family:KaTeX_Main;width:0}.ML__accent-vec>span{left:.38em;position:relative}.ML__mathlive{text-rendering:auto;word-wrap:normal;direction:ltr;display:inline-block;font-family:KaTeX_Main;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-caps:normal;letter-spacing:normal;text-align:left;text-indent:0;text-shadow:none;transform:translateZ(0);-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;width:-webkit-min-content;width:-moz-min-content;width:min-content;word-spacing:normal}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .left-right,.ML__mathlive .mfrac{display:inline-block}.ML__mathlive .vlist-t{border-collapse:collapse;display:inline-table;table-layout:fixed}.ML__mathlive .vlist-r{display:table-row}.ML__mathlive .vlist{display:table-cell;position:relative;vertical-align:bottom}.ML__mathlive .vlist>span{display:block;height:0;position:relative}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .vlist>span>.pstrut{overflow:hidden;width:0}.ML__mathlive .vlist-t2{margin-right:-2px}.ML__mathlive .vlist-s{display:table-cell;font-size:1px;min-width:2px;vertical-align:bottom;width:2px}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .negativethinspace{display:inline-block;margin-left:-.16667em}.ML__mathlive .thinspace{display:inline-block;width:.16667em}.ML__mathlive .mediumspace{display:inline-block;width:.22222em}.ML__mathlive .thickspace{display:inline-block;width:.27778em}.ML__mathlive .enspace{display:inline-block;width:.5em}.ML__mathlive .quad{display:inline-block;width:1em}.ML__mathlive .qquad{display:inline-block;width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{display:inline-block;position:relative;width:0}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{border:0 solid;box-sizing:border-box;display:inline-block;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block;margin-top:-1px;min-height:thin}.ML__mathlive .stretchy{display:block;left:0;overflow:hidden;position:absolute;width:100%}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:block;height:inherit;position:absolute;width:100%}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;overflow:hidden;position:absolute;width:50.2%}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;left:0;overflow:hidden;position:absolute;width:25.1%}.ML__mathlive .slice-2-of-3{display:inline-flex;left:25%;overflow:hidden;position:absolute;width:50%}.ML__mathlive .slice-3-of-3{display:inline-flex;overflow:hidden;position:absolute;right:0;width:25.1%}.ML__mathlive .slice-1-of-1{display:inline-flex;left:0;overflow:hidden;position:absolute;width:100%}.ML__mathlive .nulldelimiter{display:inline-block;width:.12em}.ML__mathlive .op-group{display:inline-block}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .mtable .vertical-separator{box-sizing:border-box;display:inline-block;min-width:1px}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist-t{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist-t{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-position:0 98%;background-repeat:repeat-x;background-size:3px 3px}.ML__composition{background:#fff1c2;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}@media (prefers-color-scheme:dark){.ML__composition{background:#69571c;color:#fff}}.ML__placeholder{color:var(--caret,hsl(var(--hue,212),40%,49%));font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;padding-left:.4ex;padding-right:.4ex}";
 
   class Scrim {
       /**
@@ -30408,6 +30993,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
 
   let gScrim = null;
   function showAlternateKeys(keyboard, altKeysetName, altKeys) {
+      throwIfNotInBrowser();
       const altContainer = document.createElement('div');
       altContainer.setAttribute('aria-hidden', 'true');
       altContainer.className =
@@ -30516,6 +31102,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return false;
   }
   function hideAlternateKeys() {
+      throwIfNotInBrowser();
       const altContainer = document.querySelector('#mathlive-alternate-keys-panel');
       if (altContainer) {
           altContainer.classList.remove('is-visible');
@@ -31468,12 +32055,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // Since we don't have preceding atoms, we'll interpret #@ as a placeholder
       latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
       const root = new Atom('root', { mode: 'math' });
-      root.body = parseLatex(latex, {
+      root.body = typeset(parseLatex(latex, {
           parseMode: 'math',
           args: arg,
-          macros: MACROS,
-      });
-      const box = coalesce(adjustInterAtomSpacing(new Box(root.render(new Context({ macros: MACROS, smartFence: false }, {
+          macros: getMacros(),
+          registers: getDefaultRegisters(),
+      }));
+      const box = coalesce(adjustInterAtomSpacing(new Box(root.render(new Context({
+          macros: getMacros(),
+          registers: getDefaultRegisters(),
+          smartFence: false,
+      }, {
           fontSize: DEFAULT_FONT_SIZE,
       }, 'displaystyle')), { classes: 'ML__base' })));
       return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
@@ -31482,7 +32074,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    * Return a markup string for the keyboard toolbar for the specified layer.
    */
   function makeKeyboardToolbar(options, keyboardIDs, currentKeyboard) {
-      var _a, _b;
+      var _a, _b, _c;
       // The left hand side of the toolbar has a list of all the available keyboards
       let result = "<div class='left'>";
       const keyboardList = keyboardIDs.replace(/\s+/g, ' ').split(' ');
@@ -31509,7 +32101,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               result += ((_b = keyboards[keyboard].classes) !== null && _b !== void 0 ? _b : '') + "'";
               if (keyboards[keyboard].tooltip) {
                   result +=
-                      "data-ML__tooltip='" + localize(keyboards[keyboard].tooltip) + "' ";
+                      "data-ML__tooltip='" +
+                          ((_c = localize(keyboards[keyboard].tooltip)) !== null && _c !== void 0 ? _c : keyboards[keyboard].tooltip) +
+                          "' ";
                   result += "data-placement='top' data-delay='1s'";
               }
               if (keyboard !== currentKeyboard) {
@@ -31845,6 +32439,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    */
   function makeKeyboardElement(keyboard, theme) {
       var _a, _b, _c, _d;
+      throwIfNotInBrowser();
       const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">
@@ -32410,6 +33005,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           keyboard.element.dispatchEvent(new Event('virtual-keyboard-toggle', {
               bubbles: true,
               cancelable: false,
+              composed: true,
           }));
           // Remove the element from the DOM
           keyboard.element.remove();
@@ -32425,11 +33021,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       onUndoStateChanged: (keyboard, canUndoState, canRedoState) => onUndoStateChanged(keyboard, canUndoState, canRedoState),
   }, { target: 'virtual-keyboard' });
 
-  var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{content:\"\";border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-2px;position:relative;left:-1px;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__text-caret:after{content:\"\";border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));margin-right:-1px;position:relative;left:0;-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__latex-caret:after{content:\"_\";border:none;margin-right:calc(-1ex - 2px);position:relative;color:var(--caret,hsl(var(--hue,212),40%,49%));-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards}.ML__fieldcontainer{display:flex;flex-flow:row;justify-content:space-between;align-items:flex-end;min-height:39px;touch-action:none;width:100%}.ML__fieldcontainer__field{display:flex;align-items:center;align-self:center;position:relative;overflow:hidden;padding:2px 0 2px 1px;width:100%}.ML__virtual-keyboard-toggle{display:none}.ML__virtual-keyboard-toggle>span{display:flex;align-self:center;align-items:center}.ML__virtual-keyboard-toggle.is-visible{display:flex;align-self:center;align-items:center;flex-shrink:0;flex-direction:column;justify-content:center;width:34px;height:34px;padding:0;margin-right:4px;cursor:pointer;box-sizing:border-box;border-radius:8px;border:1px solid transparent;transition:background .2s cubic-bezier(.64,.09,.08,1);color:var(--primary,hsl(var(--hue,212),40%,50%));fill:currentColor;background:transparent}.ML__virtual-keyboard-toggle.is-visible:hover{background:hsla(0,0%,70%,.5);color:#333;fill:currentColor;border-radius:8px}.ML__textarea__textarea{display:inline-block;transform:scale(0);resize:none;outline:none;border:none;position:absolute;clip:rect(0 0 0 0);width:1px;height:1px;font-size:1em;font-family:KaTeX_Main}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{opacity:var(--smart-fence-opacity,.5);color:var(--smart-fence-color,currentColor)}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret .ML__sqrt-line,.ML__contains-caret .ML__sqrt-sign,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__contains-highlight{background:var(--contains-highlight,var(--highlight,hsl(var(--hue,212),40%,95%)));box-sizing:border-box}.ML__latex{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400;color:var(--primary,hsl(var(--hue,212),40%,50%))}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.is-visible.is-pressed:hover{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__virtual-keyboard-toggle:focus{outline:none;border-radius:8px;border:2px solid var(--primary,hsl(var(--hue,212),40%,50%))}.ML__virtual-keyboard-toggle.is-active,.ML__virtual-keyboard-toggle.is-active:hover,.ML__virtual-keyboard-toggle.is-pressed{background:hsl(var(--hue,212),25%,35%);color:#fafafa;fill:currentColor}.ML__scroller{position:fixed;z-index:1;top:0;height:100vh;width:200px}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{top:inherit;bottom:100%}[data-ML__tooltip]:after{position:absolute;display:none;content:attr(data-ML__tooltip);top:110%;width:-webkit-max-content;width:-moz-max-content;width:max-content;max-width:200px;padding:8px;background:#616161;color:#fff;text-align:center;z-index:2;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);border-radius:2px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-weight:400;font-size:12px;opacity:0;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1)}@media only screen and (max-width:767px){[data-ML__tooltip]:after{padding:8px 16px;font-size:14px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{visibility:visible;display:inline-table;opacity:1;transform:scale(1)}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+  var css_248z$2 = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));content:\"\";left:-1px;margin-right:-2px;position:relative}.ML__text-caret:after{-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));content:\"\";left:0;margin-right:-1px;position:relative}.ML__latex-caret:after{-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;color:var(--caret,hsl(var(--hue,212),40%,49%));content:\"_\";margin-right:calc(-1ex - 2px);position:relative}.ML__fieldcontainer{align-items:flex-end;display:flex;flex-flow:row;justify-content:space-between;min-height:39px;touch-action:none;width:100%}.ML__fieldcontainer__field{align-items:center;align-self:center;display:flex;overflow:hidden;padding:2px 0 2px 1px;position:relative;width:100%}.ML__virtual-keyboard-toggle{display:none}.ML__virtual-keyboard-toggle>span{align-items:center;align-self:center;display:flex}.ML__virtual-keyboard-toggle.is-visible{fill:currentColor;align-items:center;align-self:center;background:transparent;border:1px solid transparent;border-radius:8px;box-sizing:border-box;color:var(--primary,hsl(var(--hue,212),40%,50%));cursor:pointer;display:flex;flex-direction:column;flex-shrink:0;height:34px;justify-content:center;margin-right:4px;padding:0;transition:background .2s cubic-bezier(.64,.09,.08,1);width:34px}.ML__virtual-keyboard-toggle.is-visible:hover{fill:currentColor;background:hsla(0,0%,70%,.5);border-radius:8px;color:#333}.ML__textarea__textarea{clip:rect(0 0 0 0);border:none;display:inline-block;font-family:KaTeX_Main;font-size:1em;height:1px;outline:none;position:absolute;resize:none;transform:scale(0);width:1px}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{color:var(--smart-fence-color,currentColor);opacity:var(--smart-fence-opacity,.5)}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret .ML__sqrt-line,.ML__contains-caret .ML__sqrt-sign,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__contains-highlight{background:var(--contains-highlight,var(--highlight,hsl(var(--hue,212),40%,95%)));box-sizing:border-box}.ML__latex{color:var(--primary,hsl(var(--hue,212),40%,50%));font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.is-visible.is-pressed:hover{fill:currentColor;background:hsl(var(--hue,212),25%,35%);color:#fafafa}.ML__virtual-keyboard-toggle:focus{border:2px solid var(--primary,hsl(var(--hue,212),40%,50%));border-radius:8px;outline:none}.ML__virtual-keyboard-toggle.is-active,.ML__virtual-keyboard-toggle.is-active:hover,.ML__virtual-keyboard-toggle.is-pressed{fill:currentColor;background:hsl(var(--hue,212),25%,35%);color:#fafafa}.ML__scroller{height:100vh;position:fixed;top:0;width:200px;z-index:1}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{bottom:100%;top:inherit}[data-ML__tooltip]:after{background:#616161;border-radius:2px;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);color:#fff;content:attr(data-ML__tooltip);display:none;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:12px;font-weight:400;max-width:200px;opacity:0;padding:8px;position:absolute;text-align:center;top:110%;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1);width:-webkit-max-content;width:-moz-max-content;width:max-content;z-index:2}@media only screen and (max-width:767px){[data-ML__tooltip]:after{font-size:14px;padding:8px 16px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{display:inline-table;opacity:1;transform:scale(1);visibility:visible}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
-  var css_248z$1 = ".ML__popover{visibility:hidden;min-width:160px;background-color:rgba(97,97,97,.95);color:#fff;text-align:center;border-radius:6px;position:fixed;z-index:1;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);transition:all .2s cubic-bezier(.64,.09,.08,1)}.ML__popover:after{content:\"\";position:absolute;top:-5px;left:calc(50% - 3px);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;font-size:1rem;border-bottom:5px solid rgba(97,97,97,.9)}.ML__popover--reverse-direction:after{top:auto;bottom:-5px;border-top:5px solid rgba(97,97,97,.9);border-bottom:0}div.ML__popover.is-visible{visibility:inherit;-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1)}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;padding:2px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px}.ML__popover__content a{color:#5ea6fd;padding-top:.3em;margin-top:.4em;display:block}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.is-active,.ML__popover__content.is-pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-size:1.6rem;font-family:KaTeX_Main}.ML__popover__prev-shortcut{height:31px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:4px;padding-bottom:2px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.is-active,.ML__popover__next-shortcut.is-pressed,.ML__popover__prev-shortcut.is-active,.ML__popover__prev-shortcut.is-pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{padding:5px;border-radius:8px;width:20px;height:20px;display:inline-block}.ML__popover__prev-shortcut>span>span{margin-top:-2px;display:block}.ML__popover__next-shortcut>span>span{margin-top:2px;display:block}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{height:34px;opacity:.1;cursor:pointer;margin-left:8px;margin-right:8px;padding-top:2px;padding-bottom:4px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
+  var css_248z$1 = ".ML__popover{background-color:rgba(97,97,97,.95);border-radius:6px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:160px;position:fixed;text-align:center;transition:all .2s cubic-bezier(.64,.09,.08,1);visibility:hidden;z-index:1}.ML__popover:after{border-bottom:5px solid rgba(97,97,97,.9);border-left:5px solid transparent;border-right:5px solid transparent;content:\"\";font-size:1rem;height:0;left:calc(50% - 3px);position:absolute;top:-5px;width:0}.ML__popover--reverse-direction:after{border-bottom:0;border-top:5px solid rgba(97,97,97,.9);bottom:-5px;top:auto}div.ML__popover.is-visible{-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);visibility:inherit}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px;min-height:100px;padding:2px}.ML__popover__content a{color:#5ea6fd;display:block;margin-top:.4em;padding-top:.3em}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.is-active,.ML__popover__content.is-pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-family:KaTeX_Main;font-size:1.6rem}.ML__popover__prev-shortcut{cursor:pointer;height:31px;margin-left:8px;margin-right:8px;opacity:.1;padding-bottom:2px;padding-top:4px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.is-active,.ML__popover__next-shortcut.is-pressed,.ML__popover__prev-shortcut.is-active,.ML__popover__prev-shortcut.is-pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{border-radius:8px;display:inline-block;height:20px;padding:5px;width:20px}.ML__popover__prev-shortcut>span>span{display:block;margin-top:-2px}.ML__popover__next-shortcut>span>span{display:block;margin-top:2px}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{cursor:pointer;height:34px;margin-left:8px;margin-right:8px;opacity:.1;padding-bottom:4px;padding-top:2px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
-  var css_248z = ".ML__keystroke-caption{visibility:hidden;background:var(--secondary,hsl(var(--hue,212),19%,26%));border-color:var(--secondary-border,#e8e8e8);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);text-align:center;border-radius:6px;padding:16px;position:absolute;z-index:1;display:flex;flex-direction:row;justify-content:center;--keystroke:#fff;--on-keystroke:#555;--keystroke-border:#f7f7f7}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}}body[theme=dark] .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}.ML__keystroke-caption>span{min-width:14px;margin:0 8px 0 0;padding:4px;background-color:var(--keystroke);color:var(--on-keystroke);fill:currentColor;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:1em;border-radius:6px;border:2px solid var(--keystroke-border)}";
+  var css_248z = ".ML__keystroke-caption{--keystroke:#fff;--on-keystroke:#555;--keystroke-border:#f7f7f7;background:var(--secondary,hsl(var(--hue,212),19%,26%));border-color:var(--secondary-border,#e8e8e8);border-radius:6px;box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);display:flex;flex-direction:row;justify-content:center;padding:16px;position:absolute;text-align:center;visibility:hidden;z-index:1}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}}body[theme=dark] .ML__keystroke-caption{--keystroke:hsl(var(--hue,212),50%,30%);--on-keystroke:#fafafa;--keystroke-border:hsl(var(--hue,212),50%,25%)}.ML__keystroke-caption>span{fill:currentColor;background-color:var(--keystroke);border:2px solid var(--keystroke-border);border-radius:6px;color:var(--on-keystroke);font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:1em;margin:0 8px 0 0;min-width:14px;padding:4px}";
 
   class TextModeEditor extends ModeEditor {
       constructor() {
@@ -32522,7 +33118,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       s = s.replace(/\^/g, '\\textasciicircum ');
       s = s.replace(/~/g, '\\textasciitilde ');
       s = s.replace(/£/g, '\\textsterling ');
-      return parseLatex(s, { parseMode: 'text' });
+      return parseLatex(s, { parseMode: 'text', registers: {} });
   }
   new TextModeEditor();
 
@@ -32718,7 +33314,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        * Note that `element.mathfield` is this object.
        */
       constructor(element, options) {
-          var _a, _b;
+          var _a, _b, _c;
           this.eventHandlingInProgress = '';
           this.stylesheets = [];
           // Setup default config options
@@ -32742,7 +33338,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               if (!result)
                   result = defaultColorMap(name);
-              return result !== null && result !== void 0 ? result : name;
+              return result;
           };
           this.backgroundColorMap = (name) => {
               let result;
@@ -32754,7 +33350,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               if (!result)
                   result = defaultBackgroundColorMap(name);
-              return result !== null && result !== void 0 ? result : name;
+              return result;
           };
           // The virtual keyboard can be either attached to this mathfield
           // or a delegate that mirrors a global virtual keyboard attached
@@ -32777,7 +33373,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   });
           }
           this.plonkSound = this.options.plonkSound;
-          if (this.options.keypressSound &&
+          if (!this.options.keypressSound) {
+              this.keypressSound = null;
+              this.spacebarKeypressSound = null;
+              this.returnKeypressSound = null;
+              this.deleteKeypressSound = null;
+          }
+          else if (this.options.keypressSound &&
               typeof this.options.keypressSound !== 'string' &&
               !(this.options.keypressSound instanceof HTMLAudioElement)) {
               this.keypressSound = this.options.keypressSound
@@ -32793,7 +33395,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           element.mathfield = this;
           // Save existing content
           this.originalContent = element.innerHTML;
-          let elementText = this.element.textContent;
+          let elementText = (_a = options.value) !== null && _a !== void 0 ? _a : this.element.textContent;
           if (elementText) {
               elementText = elementText.trim();
           }
@@ -32812,7 +33414,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           markup += isTouchCapable()
               ? `<span class='ML__textarea__textarea' tabindex="-1" role="textbox"></span>`
               : '<textarea class="ML__textarea__textarea" autocapitalize="off" autocomplete="off" ' +
-                  `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${(_a = element.tabIndex) !== null && _a !== void 0 ? _a : 0}"></textarea>`;
+                  `autocorrect="off" spellcheck="false" aria-hidden="true" tabindex="${(_b = element.tabIndex) !== null && _b !== void 0 ? _b : 0}"></textarea>`;
           markup += '</span>';
           // 2/ The field, where the math equation will be displayed
           markup +=
@@ -32820,7 +33422,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // 2.1/ The virtual keyboard toggle
           markup += `<div part='virtual-keyboard-toggle' class="ML__virtual-keyboard-toggle" role="button" data-ML__tooltip="${localize('tooltip.toggle virtual keyboard')}">`;
           markup +=
-              (_b = this.options.virtualKeyboardToggleGlyph) !== null && _b !== void 0 ? _b : DEFAULT_KEYBOARD_TOGGLE_GLYPH;
+              (_c = this.options.virtualKeyboardToggleGlyph) !== null && _c !== void 0 ? _c : DEFAULT_KEYBOARD_TOGGLE_GLYPH;
           markup += '</div>';
           markup += '</span>';
           // 3.1/ The aria-live region for announcements
@@ -32865,6 +33467,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           else {
               this.virtualKeyboardToggle.classList.remove('is-visible');
+          }
+          if (this.options.readOnly) {
+              this.element.classList.add('ML__isReadOnly');
+          }
+          else {
+              this.element.classList.remove('ML__isReadOnly');
+          }
+          if (this.options.defaultMode === 'inline-math') {
+              this.element.classList.add('ML__isInline');
+          }
+          else {
+              this.element.classList.remove('ML__isInline');
           }
           attachButtonHandlers((command) => this.executeCommand(command), this.virtualKeyboardToggle, {
               default: 'toggleVirtualKeyboard',
@@ -32944,9 +33558,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               compositionUpdate: (composition) => this.onCompositionUpdate(composition),
               compositionEnd: (composition) => this.onCompositionEnd(composition),
           });
-          if (this.options.readOnly) {
-              this.element.classList.add('ML__isReadOnly');
-          }
           // Delegate mouse and touch events
           if (window.PointerEvent) {
               // Use modern pointer events if available
@@ -33009,7 +33620,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // When fonts are done loading, re-render
           // (the selection highlighting may be out of date due to the HTML layout
           // having been updated with the new font metrics)
-          document.fonts.ready.then(() => render(this));
+          if (isBrowser()) {
+              document.fonts.ready.then(() => render(this));
+          }
       }
       get virtualKeyboardState() {
           var _a;
@@ -33067,7 +33680,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           this._keybindings = undefined;
           this.plonkSound = this.options.plonkSound;
-          if (typeof this.options.keypressSound !== 'string' &&
+          if (this.options.keypressSound &&
+              typeof this.options.keypressSound !== 'string' &&
               !(this.options.keypressSound instanceof HTMLAudioElement)) {
               this.keypressSound = this.options.keypressSound
                   .default;
@@ -33088,6 +33702,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           else {
               this.virtualKeyboardToggle.classList.remove('is-visible');
           }
+          if (this.options.readOnly) {
+              this.element.classList.add('ML__isReadOnly');
+          }
+          else {
+              this.element.classList.remove('ML__isReadOnly');
+          }
+          if (this.options.defaultMode === 'inline-math') {
+              this.element.classList.add('ML__isInline');
+          }
+          else {
+              this.element.classList.remove('ML__isInline');
+          }
           this.colorMap = (name) => {
               let result;
               if (typeof this.options.colorMap === 'function') {
@@ -33095,7 +33721,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               if (!result)
                   result = defaultColorMap(name);
-              return result !== null && result !== void 0 ? result : name;
+              return result;
           };
           this.backgroundColorMap = (name) => {
               let result;
@@ -33107,7 +33733,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
               if (!result)
                   result = defaultBackgroundColorMap(name);
-              return result !== null && result !== void 0 ? result : name;
+              return result;
           };
           // Changing some config options (i.e. `macros`) may
           // require the content to be reparsed and re-rendered
@@ -33135,7 +33761,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return get(this.options, keys);
       }
       getOption(key) {
-          return get(this.options, key);
+          return get(this.options, key)[key];
       }
       /*
        * HandleEvent is a function invoked when an event is registered with an
@@ -33172,9 +33798,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   break;
               case 'resize': {
                   if (this.resizeTimer) {
-                      window.cancelAnimationFrame(this.resizeTimer);
+                      cancelAnimationFrame(this.resizeTimer);
                   }
-                  this.resizeTimer = window.requestAnimationFrame(() => isValidMathfield(this) && this.onResize());
+                  this.resizeTimer = requestAnimationFrame(() => isValidMathfield(this) && this.onResize());
                   break;
               }
               default:
@@ -33404,7 +34030,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   this.focus();
               }
               if (options.feedback) {
-                  if (this.options.keypressVibration && (navigator === null || navigator === void 0 ? void 0 : navigator.vibrate)) {
+                  if (this.options.keypressVibration && canVibrate()) {
                       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
                   }
                   void ((_a = this.keypressSound) === null || _a === void 0 ? void 0 : _a.play().catch(console.warn));
@@ -33513,7 +34139,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return this.hasFocus();
       }
       hasFocus() {
-          return document.hasFocus() && this.keyboardDelegate.hasFocus();
+          return (isBrowser() && document.hasFocus() && this.keyboardDelegate.hasFocus());
       }
       focus() {
           if (!this.hasFocus()) {
@@ -33548,7 +34174,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           deprecated$1('$clearSelection');
           deleteRange(this.model, range(this.model.selection));
       }
-      applyStyle(style, inOptions = {}) {
+      applyStyle(inStyle, inOptions = {}) {
           var _a, _b;
           const options = {
               operation: 'set',
@@ -33562,6 +34188,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               options.suppressChangeNotifications =
                   (_a = inOptions.suppressChangeNotifications) !== null && _a !== void 0 ? _a : false;
           }
+          const style = validateStyle(this, inStyle);
           const operation = (_b = options.operation) !== null && _b !== void 0 ? _b : 'set';
           this.model.deferNotifications({ content: !options.suppressChangeNotifications }, () => {
               if (options.range === undefined) {
@@ -33700,8 +34327,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       onFocus() {
           var _a, _b, _c;
-          if (this.options.readOnly)
-              return;
           if (this.blurred) {
               this.blurred = false;
               this.keyboardDelegate.focus();
@@ -33899,6 +34524,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return data;
   }
   function createMathMLNode(latex, options) {
+      throwIfNotInBrowser();
       // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
       // This node has a style that makes it be invisible to display but is seen by AT
       const span = document.createElement('span');
@@ -33916,31 +34542,30 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return span;
   }
   function createMarkupNode(text, options, mathstyle, createNodeOnFailure) {
+      throwIfNotInBrowser();
       // Create a node for displaying math.
       //   This is slightly ugly because in the case of failure to create the markup,
       //   sometimes a text node is desired and sometimes not.
       //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
       // This node is made invisible to AT (screen readers)
-      let span = document.createElement('span');
-      span.setAttribute('aria-hidden', 'true');
+      const element = document.createElement(mathstyle === 'displaystyle' ? 'div' : 'span');
+      element.setAttribute('aria-hidden', 'true');
       try {
           const html = options.renderToMarkup(text, {
               mathstyle: mathstyle !== null && mathstyle !== void 0 ? mathstyle : 'displaystyle',
               format: 'html',
               macros: options.macros,
           });
-          span.innerHTML = options.createHTML ? options.createHTML(html) : html;
+          element.innerHTML = options.createHTML ? options.createHTML(html) : html;
       }
       catch (error) {
           console.error("Could not parse'" + text + "' with ", error);
           if (createNodeOnFailure) {
-              span = document.createTextNode(text);
+              return document.createTextNode(text);
           }
-          else {
-              return null;
-          }
+          return null;
       }
-      return span;
+      return element;
   }
   function createAccessibleMarkupPair(latex, mathstyle, options, createNodeOnFailure) {
       // Create a math node (a span with an accessible component and a visual component)
@@ -33949,6 +34574,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       const markupNode = createMarkupNode(latex, options, mathstyle, createNodeOnFailure);
       if (markupNode &&
           /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)) {
+          throwIfNotInBrowser();
           const fragment = document.createElement('span');
           if (/\bmathml\b/i.test(options.renderAccessibleContent) &&
               options.renderToMathML) {
@@ -33969,8 +34595,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   }
   function scanText(text, options) {
       var _a, _b;
-      // If the text starts with '\begin'...
-      // (this is a MathJAX behavior)
+      throwIfNotInBrowser();
+      // If the text starts with '\begin'... (this is a MathJAX behavior)
       let fragment = null;
       if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
           fragment = document.createDocumentFragment();
@@ -34083,7 +34709,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // Otherwise, it's something else, and ignore it.
       }
   }
-  const defaultOptions = {
+  const DEFAULT_AUTO_RENDER_OPTIONS = {
       // Optional namespace for the `data-` attributes.
       namespace: '',
       // Name of tags whose content will not be scanned for math delimiters
@@ -34128,13 +34754,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           },
       },
   };
-  function renderMathInElement$1(element, options) {
+  function autoRenderMathInElement(element, options) {
       try {
-          options = { ...defaultOptions, ...options };
+          options = { ...DEFAULT_AUTO_RENDER_OPTIONS, ...options };
           options.ignoreClassPattern = new RegExp(options.ignoreClass);
           options.processClassPattern = new RegExp(options.processClass);
           options.processScriptTypePattern = new RegExp(options.processScriptType);
-          options.macros = MACROS;
+          options.macros = getMacros(options.macros);
           // Validate the namespace (used for `data-` attributes)
           if (options.namespace) {
               if (!/^[a-z]+-?$/.test(options.namespace)) {
@@ -34144,6 +34770,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   options.namespace += '-';
               }
           }
+          // Load the fonts and inject the stylesheet once to
+          // avoid having to do it many times in the case of a `renderMathInDocument()`
+          // call.
           void loadFonts(options.fontsDirectory);
           inject(null, css_248z$3);
           scanElement(element, options);
@@ -34157,9 +34786,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
       }
   }
-  var AutoRender = {
-      renderMathInElement: renderMathInElement$1,
-  };
 
   /**
    * This module contains utilities to debug mathlive internal data structures.
@@ -34181,7 +34807,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       MATH_SYMBOLS,
       TEXT_SYMBOLS,
       ENVIRONMENTS,
-      MACROS,
       INLINE_SHORTCUTS,
       DEFAULT_KEYBINDINGS,
       getKeybindingMarkup,
@@ -35231,19 +35856,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   var _a, _b;
   const MATHFIELD_TEMPLATE = document.createElement('template');
   MATHFIELD_TEMPLATE.innerHTML = `<style>
-:host {
-    display: block;
-}
-:host([hidden]) {
-    display: none;
-}
-:host([disabled]) {
-    opacity:  .5;
-}
+:host { display: block; }
+:host([hidden]) { display: none; }
+:host([disabled]) { opacity:  .5; }
 :host(:focus), :host(:focus-within) {
-    outline: Highlight auto 1px;    /* For Firefox */
-    outline: -webkit-focus-ring-color auto 1px;
+  outline: Highlight auto 1px;    /* For Firefox */
+  outline: -webkit-focus-ring-color auto 1px;
 }
+:host([readonly]), :host([read-only]) { outline: none; }
 </style>
 <div></div><slot style="display:none"></slot>`;
   //
@@ -35362,6 +35982,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
    * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
    * | `keypress-vibration` | `options.keypressVibration` |
+   * | `keypress-sound` | `options.keypressSound` |
+   * | `plonk-sound` | `options.plonkSound` |
    * | `letter-shape-style` | `options.letterShapeStyle` |
    * | `locale` | `options.locale` |
    * | `math-mode-space` | `options.mathModeSpace` |
@@ -35422,20 +36044,24 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
          * To create programmatically a new mahfield use:
          * ```javascript
         let mfe = new MathfieldElement();
+    
         // Set initial value and options
         mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
+    
         // Options can be set either as an attribute (for simple options)...
         mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+    
         // ... or using `setOptions()`
         mfe.setOptions({
             virtualKeyboardMode: 'manual',
         });
+    
         // Attach the element to the DOM
         document.body.appendChild(mfe);
         * ```
         */
       constructor(options) {
-          var _a;
+          throwIfNotInBrowser();
           super();
           this.attachShadow({ mode: 'open' });
           this.shadowRoot.append(MATHFIELD_TEMPLATE.content.cloneNode(true));
@@ -35453,7 +36079,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           try {
               const json = slot
                   .assignedElements()
-                  .filter((x) => x.tagName === 'SCRIPT' &&
+                  .filter((x) => x.tagName.toLowerCase() === 'script' &&
                   x.type === 'application/json')
                   .map((x) => x.textContent)
                   .join('');
@@ -35464,18 +36090,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           catch (error) {
               console.log(error);
           }
+          try {
+              this._style = slot
+                  .assignedElements()
+                  .filter((x) => x.tagName.toLowerCase() === 'style')
+                  .map((x) => x.textContent)
+                  .join('');
+          }
+          catch (error) {
+              console.log(error);
+          }
           // Record the (optional) configuration options, as a deferred state
           if (options) {
               this.setOptions(options);
-          }
-          // Check if there is a `value` attribute and set the initial value
-          // of the mathfield from it
-          if (this.hasAttribute('value')) {
-              this.value = this.getAttribute('value');
-          }
-          else {
-              this.value =
-                  (_a = slot === null || slot === void 0 ? void 0 : slot.assignedNodes().map((x) => (x.nodeType === 3 ? x.textContent : '')).join('').trim()) !== null && _a !== void 0 ? _a : '';
           }
       }
       /**
@@ -35490,6 +36117,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               'math-mode-space': 'string',
               'inline-shortcut-timeout': 'string',
               'keypress-vibration': 'boolean',
+              'keypress-sound': 'string',
+              'plonk-sound': 'string',
               'letter-shape-style': 'string',
               'locale': 'string',
               'read-only': 'boolean',
@@ -35515,7 +36144,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        * @internal
        */
       static get observedAttributes() {
-          return [...Object.keys(MathfieldElement.optionsAttributes), 'disabled'];
+          return [
+              ...Object.keys(MathfieldElement.optionsAttributes),
+              'disabled',
+              'readonly', // A semi-global attribute (not all standard elements support it, but some do)
+          ];
       }
       get mode() {
           var _a;
@@ -35538,7 +36171,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        *  @category Options
        */
       getOption(key) {
-          return this.getOptions([key]);
+          return this.getOptions([key])[key];
       }
       /**
        *  @category Options
@@ -35548,13 +36181,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               this._mathfield.setOptions(options);
           }
           else if (gDeferredState.has(this)) {
+              const mergedOptions = {
+                  ...gDeferredState.get(this).options,
+                  ...options,
+              };
               gDeferredState.set(this, {
                   value: gDeferredState.get(this).value,
-                  selection: { ranges: options.readOnly ? [[0, 0]] : [[0, -1]] },
-                  options: {
-                      ...gDeferredState.get(this).options,
-                      ...options,
-                  },
+                  selection: { ranges: mergedOptions.readOnly ? [[0, 0]] : [[0, -1]] },
+                  options: mergedOptions,
               });
           }
           else {
@@ -35615,7 +36249,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   end = -1;
                   format = arg1;
               }
-              if (format === 'latex' && start === 0 && end === -1) {
+              if ((format === undefined || format === 'latex') &&
+                  start === 0 &&
+                  end === -1) {
                   return gDeferredState.get(this).value;
               }
           }
@@ -35630,25 +36266,25 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               return;
           }
           if (gDeferredState.has(this)) {
+              const options = gDeferredState.get(this).options;
               gDeferredState.set(this, {
                   value,
                   selection: {
-                      ranges: gDeferredState.get(this).options.readOnly
-                          ? [[0, 0]]
-                          : [[0, -1]],
+                      ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
                       direction: 'forward',
                   },
-                  options: gDeferredState.get(this).options,
+                  options,
               });
               return;
           }
+          const attrOptions = getOptionsFromAttributes(this);
           gDeferredState.set(this, {
               value,
               selection: {
-                  ranges: getOptionsFromAttributes(this).readOnly ? [[0, 0]] : [[0, -1]],
+                  ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
                   direction: 'forward',
               },
-              options: getOptionsFromAttributes(this),
+              options: attrOptions,
           });
       }
       /**
@@ -35679,12 +36315,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        */
       focus() {
           super.focus();
-          // If (this._mathfield) {
-          //     // Don't call this._mathfield.focus(): it checks the focus state,
-          //     // but super.focus() just changed it...
-          //     this._mathfield.keyboardDelegate.focus();
-          //     this._mathfield.model.announce('line');
-          // }
       }
       /**
        * Remove the focus from the mathfield (will no longer respond to keyboard
@@ -35695,11 +36325,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        */
       blur() {
           super.blur();
-          // If (this._mathfield) {
-          //     // Don't call this._mathfield.focs(): it checks the focus state,
-          //     // but super.blur() just changed it...
-          //     this._mathfield.keyboardDelegate.blur();
-          // }
       }
       /**
        * Select the content of the mathfield.
@@ -35804,22 +36429,42 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        * @internal
        */
       connectedCallback() {
+          var _a;
           if (!this.hasAttribute('role'))
               this.setAttribute('role', 'textbox');
           // This.setAttribute('aria-multiline', 'false');
           if (!this.hasAttribute('tabindex'))
               this.setAttribute('tabindex', '0');
+          // Add shadowed stylesheet if one was provided
+          if (this._style) {
+              const styleElement = document.createElement('style');
+              styleElement.textContent = this._style;
+              this.shadowRoot.appendChild(styleElement);
+          }
+          const slot = this.shadowRoot.querySelector('slot:not([name])');
+          let value = '';
+          // Check if there is a `value` attribute and set the initial value
+          // of the mathfield from it
+          if (this.hasAttribute('value')) {
+              value = this.getAttribute('value');
+          }
+          else {
+              value =
+                  (_a = slot === null || slot === void 0 ? void 0 : slot.assignedNodes().map((x) => (x.nodeType === 3 ? x.textContent : '')).join('').trim()) !== null && _a !== void 0 ? _a : '';
+          }
           this._mathfield = new MathfieldPrivate(this.shadowRoot.querySelector(':host > div'), {
               onBlur: () => {
                   this.dispatchEvent(new Event('blur', {
                       cancelable: false,
-                      bubbles: false, // DOM 'focus' and 'blur' don't bubble
+                      bubbles: false,
+                      composed: true,
                   }));
               },
               onContentDidChange: () => {
                   this.dispatchEvent(new Event('input', {
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onError: (err) => {
@@ -35833,12 +36478,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                       },
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onFocus: () => {
                   this.dispatchEvent(new Event('focus', {
                       cancelable: false,
-                      bubbles: false, // DOM 'focus' and 'blur' don't bubble
+                      bubbles: false,
+                      composed: true,
                   }));
               },
               onKeystroke: (_sender, keystroke, ev) => {
@@ -35849,12 +36496,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                       },
                       cancelable: true,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onModeChange: (_sender, _mode) => {
                   this.dispatchEvent(new Event('mode-change', {
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onCommit: (_sender) => {
@@ -35864,6 +36513,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   this.dispatchEvent(new Event('change', {
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onMoveOutOf: (_sender, direction) => {
@@ -35871,6 +36521,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                       detail: { direction },
                       cancelable: true,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onTabOutOf: (_sender, direction) => {
@@ -35878,45 +36529,47 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                       detail: { direction },
                       cancelable: true,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onReadAloudStatus: () => {
                   this.dispatchEvent(new Event('read-aloud-status-change', {
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onSelectionDidChange: () => {
                   this.dispatchEvent(new Event('selection-change', {
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
               onUndoStateDidChange: () => {
                   this.dispatchEvent(new Event('undo-state-change', {
                       cancelable: false,
                       bubbles: true,
+                      composed: true,
                   }));
               },
-              ...getOptionsFromAttributes(this),
-              ...(gDeferredState.has(this) ? gDeferredState.get(this).options : {}),
+              ...(gDeferredState.has(this)
+                  ? gDeferredState.get(this).options
+                  : getOptionsFromAttributes(this)),
+              value,
           });
-          this.upgradeProperty('disabled');
+          if (!gDeferredState.has(this)) {
+              this.upgradeProperty('disabled');
+              this.upgradeProperty('readonly');
+              for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+                  this.upgradeProperty(toCamelCase(attr));
+              }
+          }
           // The mathfield creation could have failed
           if (!this._mathfield || !this._mathfield.model) {
               this._mathfield = null;
               return;
           }
-          // This._mathfield.field.parentElement.addEventListener(
-          //     'focus',
-          //     (_event) => this._mathfield.focus(),
-          //     true
-          // );
-          // this._mathfield.field.parentElement.addEventListener(
-          //     'blur',
-          //     (_event) => this._mathfield.blur(),
-          //     true
-          // );
           if (gDeferredState.has(this)) {
               this._mathfield.model.deferNotifications({ content: false, selection: false }, () => {
                   this._mathfield.setValue(gDeferredState.get(this).value);
@@ -35924,7 +36577,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   gDeferredState.delete(this);
               });
           }
-          const slot = this.shadowRoot.querySelector('slot:not([name])');
           slot.addEventListener('slotchange', (event) => {
               if (event.target !== slot)
                   return;
@@ -35945,10 +36597,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               }
           });
           // Notify listeners that we're mounted and ready
-          this.dispatchEvent(new Event('mount', {
-              cancelable: false,
-              bubbles: true,
-          }));
+          this.dispatchEvent(new Event('mount', { cancelable: false, bubbles: true, composed: true }));
       }
       /**
        * Custom elements lifecycle hooks
@@ -35956,17 +36605,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        */
       disconnectedCallback() {
           // Notify listeners that we're about to be unmounted
-          this.dispatchEvent(new Event('unmount', {
-              cancelable: false,
-              bubbles: true,
-          }));
+          this.dispatchEvent(new Event('unmount', { cancelable: false, bubbles: true, composed: true }));
           if (!this._mathfield)
               return;
-          // Save the state (in case the elements get reconnected later)
+          // Save the state (in case the element gets reconnected later)
           const options = {};
-          Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-              options[toCamelCase(x)] = this._mathfield.getOption(toCamelCase(x));
-          });
+          for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+              const prop = toCamelCase(attr);
+              options[prop] = this._mathfield.getOption(prop);
+          }
           gDeferredState.set(this, {
               value: this._mathfield.getValue(),
               selection: this._mathfield.selection,
@@ -35987,6 +36634,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               // the element was connected: delete the property (after saving its value)
               // and use the setter to (re-)set its value.
               delete this[prop];
+              if (prop === 'readonly')
+                  prop = 'readOnly';
               this[prop] = value;
           }
       }
@@ -36002,7 +36651,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               case 'disabled':
                   this.disabled = hasValue;
                   break;
+              case 'readonly':
+                  this.readOnly = hasValue;
+                  break;
           }
+      }
+      get readonly() {
+          return this.hasAttribute('readonly') || this.hasAttribute('read-only');
+      }
+      set readonly(value) {
+          const isDisabled = Boolean(value);
+          if (isDisabled)
+              this.setAttribute('disabled', '');
+          else
+              this.removeAttribute('disabled');
+          this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
+          this.setOptions({ readOnly: isDisabled });
       }
       get disabled() {
           return this.hasAttribute('disabled');
@@ -36031,6 +36695,156 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
        */
       set value(value) {
           this.setValue(value);
+      }
+      get defaultMode() {
+          return this.getOption('defaultMode');
+      }
+      set defaultMode(value) {
+          this.setOptions({ defaultMode: value });
+      }
+      get fontsDirectory() {
+          return this.getOption('fontsDirectory');
+      }
+      set fontsDirectory(value) {
+          this.setOptions({ fontsDirectory: value });
+      }
+      get mathModeSpace() {
+          return this.getOption('fontsDirectory');
+      }
+      set mathModeSpace(value) {
+          this.setOptions({ mathModeSpace: value });
+      }
+      get inlineShortcutTimeout() {
+          return this.getOption('inlineShortcutTimeout');
+      }
+      set inlineShortcutTimeout(value) {
+          this.setOptions({ inlineShortcutTimeout: value });
+      }
+      get keypressVibration() {
+          return this.getOption('keypressVibration');
+      }
+      set keypressVibration(value) {
+          this.setOptions({ keypressVibration: value });
+      }
+      get keypressSound() {
+          return this.getOption('keypressSound');
+      }
+      set keypressSound(value) {
+          this.setOptions({ keypressSound: value });
+      }
+      get plonkSound() {
+          return this.getOption('plonkSound');
+      }
+      set plonkSound(value) {
+          this.setOptions({ plonkSound: value });
+      }
+      get letterShapeStyle() {
+          return this.getOption('letterShapeStyle');
+      }
+      set letterShapeStyle(value) {
+          this.setOptions({ letterShapeStyle: value });
+      }
+      get locale() {
+          return this.getOption('locale');
+      }
+      set locale(value) {
+          this.setOptions({ locale: value });
+      }
+      get readOnly() {
+          return this.getOption('readOnly');
+      }
+      set readOnly(value) {
+          this.setOptions({ readOnly: value });
+      }
+      get removeExtraneousParentheses() {
+          return this.getOption('removeExtraneousParentheses');
+      }
+      set removeExtraneousParentheses(value) {
+          this.setOptions({ removeExtraneousParentheses: value });
+      }
+      get smartFence() {
+          return this.getOption('smartFence');
+      }
+      set smartFence(value) {
+          this.setOptions({ smartFence: value });
+      }
+      get smartMode() {
+          return this.getOption('smartMode');
+      }
+      set smartMode(value) {
+          this.setOptions({ smartMode: value });
+      }
+      get smartSuperscript() {
+          return this.getOption('smartSuperscript');
+      }
+      set smartSuperscript(value) {
+          this.setOptions({ smartSuperscript: value });
+      }
+      get speechEngine() {
+          return this.getOption('speechEngine');
+      }
+      set speechEngine(value) {
+          this.setOptions({ speechEngine: value });
+      }
+      get speechEngineRate() {
+          return this.getOption('speechEngineRate');
+      }
+      set speechEngineRate(value) {
+          this.setOptions({ speechEngineRate: value });
+      }
+      get speechEngineVoice() {
+          return this.getOption('speechEngineVoice');
+      }
+      set speechEngineVoice(value) {
+          this.setOptions({ speechEngineVoice: value });
+      }
+      get textToSpeechMarkup() {
+          return this.getOption('textToSpeechMarkup');
+      }
+      set textToSpeechMarkup(value) {
+          this.setOptions({ textToSpeechMarkup: value });
+      }
+      get textToSpeechRules() {
+          return this.getOption('textToSpeechRules');
+      }
+      set textToSpeechRule(value) {
+          this.setOptions({ textToSpeechRules: value });
+      }
+      get virtualKeyboardLayout() {
+          return this.getOption('virtualKeyboardLayout');
+      }
+      set virtualKeyboardLayout(value) {
+          this.setOptions({ virtualKeyboardLayout: value });
+      }
+      get virtualKeyboardMode() {
+          return this.getOption('virtualKeyboardMode');
+      }
+      set virtualKeyboardMode(value) {
+          this.setOptions({ virtualKeyboardMode: value });
+      }
+      get virtualKeyboardTheme() {
+          return this.getOption('virtualKeyboardTheme');
+      }
+      set virtualKeyboardTheme(value) {
+          this.setOptions({ virtualKeyboardTheme: value });
+      }
+      get virtualKeyboars() {
+          return this.getOption('virtualKeyboards');
+      }
+      set virtualKeyboars(value) {
+          this.setOptions({ virtualKeyboards: value });
+      }
+      get useSharedVirtualKeyboard() {
+          return this.getOption('useSharedVirtualKeyboard');
+      }
+      set useSharedVirtualKeyboard(value) {
+          this.setOptions({ useSharedVirtualKeyboard: value });
+      }
+      get sharedVirtualKeyboardTargetOrigin() {
+          return this.getOption('sharedVirtualKeyboardTargetOrigin');
+      }
+      set sharedVirtualKeyboardTargetOrigin(value) {
+          this.setOptions({ sharedVirtualKeyboardTargetOrigin: value });
       }
       /**
        * An array of ranges representing the selection.
@@ -36167,34 +36981,34 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       new RemoteVirtualKeyboard(options);
   }
   function convertLatexToMarkup(text, options) {
-      var _a, _b, _c;
+      var _a, _b;
       options = options !== null && options !== void 0 ? options : {};
       options.mathstyle = (_a = options.mathstyle) !== null && _a !== void 0 ? _a : 'displaystyle';
       let letterShapeStyle = (_b = options.letterShapeStyle) !== null && _b !== void 0 ? _b : 'auto';
       if (letterShapeStyle === 'auto') {
           letterShapeStyle = l10n.locale.startsWith('fr') ? 'french' : 'tex';
       }
-      options.macros = {
-          ...MACROS,
-          ...((_c = options.macros) !== null && _c !== void 0 ? _c : {}),
-      };
+      options.macros = getMacros(options === null || options === void 0 ? void 0 : options.macros);
       //
       // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
       //
       const root = new Atom('root', { mode: 'math' });
-      root.body = parseLatex(text, {
+      root.body = typeset(parseLatex(text, {
           parseMode: 'math',
           macros: options.macros,
+          registers: options.registers,
+          mathstyle: options.mathstyle,
           onError: options.onError,
           colorMap: options.colorMap,
           backgroundColorMap: options.backgroundColorMap,
-      });
+      }), { registers: options.registers });
       //
       // 2. Transform the math atoms into elementary boxes
       // for example from genfrac to VBox.
       //
       const box = root.render(new Context({
           macros: options.macros,
+          registers: getDefaultRegisters(),
           smartFence: false,
           renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
       }, {
@@ -36221,15 +37035,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return wrapper.toMarkup();
   }
   function convertLatexToMathMl(latex, options = {}) {
-      var _a;
-      options.macros = {
-          ...MACROS,
-          ...((_a = options.macros) !== null && _a !== void 0 ? _a : {}),
-      };
+      options.macros = getMacros(options === null || options === void 0 ? void 0 : options.macros);
       return atomsToMathML(parseLatex(latex, {
           parseMode: 'math',
           args: () => '',
           macros: options.macros,
+          registers: options.registers,
+          mathstyle: 'displaystyle',
           onError: options.onError,
           colorMap: options.colorMap,
           backgroundColorMap: options.backgroundColorMap,
@@ -36241,12 +37053,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   }
   /** @deprecated Use MathJSON */
   function latexToAST(latex, options) {
-      var _a;
       options = options !== null && options !== void 0 ? options : {};
-      options.macros = { ...MACROS, ...((_a = options.macros) !== null && _a !== void 0 ? _a : {}) };
+      options.macros = getMacros(options === null || options === void 0 ? void 0 : options.macros);
       return atomtoMathJson(parseLatex(latex, {
           parseMode: 'math',
           macros: options.macros,
+          registers: getDefaultRegisters(),
           onError: options.onError,
       }), options);
   }
@@ -36256,12 +37068,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // Return emitLatex(expr, options);
   }
   function convertLatexToSpeakableText(latex, options = {}) {
-      var _a;
-      options.macros = (_a = options.macros) !== null && _a !== void 0 ? _a : {};
-      Object.assign(options.macros, MACROS);
+      options.macros = getMacros(options === null || options === void 0 ? void 0 : options.macros);
       const atoms = parseLatex(latex, {
           parseMode: 'math',
           macros: options.macros,
+          registers: options.registers,
+          mathstyle: 'displaystyle',
           onError: options.onError,
           colorMap: options.colorMap,
           backgroundColorMap: options.backgroundColorMap,
@@ -36273,27 +37085,27 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return convertLatexToSpeakableText(latex, options);
   }
   function renderMathInDocument(options) {
+      throwIfNotInBrowser();
       renderMathInElement(document.body, options);
   }
   function getElement(element) {
-      if (typeof element === 'string') {
+      if (typeof element === 'string' && isBrowser()) {
           const result = document.getElementById(element);
           if (result === null) {
               throw new Error(`The element with ID "${element}" could not be found.`);
           }
           return result;
       }
-      return element;
+      return typeof element === 'string' ? null : element;
   }
   function renderMathInElement(element, options) {
-      var _a, _b, _c, _d;
+      var _a, _b, _c;
       options = options !== null && options !== void 0 ? options : {};
       options.renderToMarkup = (_a = options.renderToMarkup) !== null && _a !== void 0 ? _a : convertLatexToMarkup;
       options.renderToMathML = (_b = options.renderToMathML) !== null && _b !== void 0 ? _b : convertLatexToMathMl;
       options.renderToSpeakableText =
           (_c = options.renderToSpeakableText) !== null && _c !== void 0 ? _c : convertLatexToSpeakableText;
-      options.macros = (_d = options.macros) !== null && _d !== void 0 ? _d : MACROS;
-      AutoRender.renderMathInElement(getElement(element), options);
+      autoRenderMathInElement(getElement(element), options);
   }
   function validateNamespace(options) {
       if (typeof options.namespace === 'string') {
@@ -36335,7 +37147,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return element.getAttribute('data-' + ((_a = options.namespace) !== null && _a !== void 0 ? _a : '') + 'original-content');
   }
   // This SDK_VERSION variable will be replaced during the build process.
-  const version = '0.65.0';
+  const version = '{{SDK_VERSION}}';
   function deprecated(method, remedy) {
       console.warn(`"${method}" is deprecated. 
 ${remedy !== null && remedy !== void 0 ? remedy : ''}`);
@@ -36357,7 +37169,6 @@ use
       MATH_SYMBOLS: MathliveDebug.MATH_SYMBOLS,
       TEXT_SYMBOLS: MathliveDebug.TEXT_SYMBOLS,
       ENVIRONMENTS: MathliveDebug.ENVIRONMENTS,
-      MACROS: MathliveDebug.MACROS,
       DEFAULT_KEYBINDINGS: MathliveDebug.DEFAULT_KEYBINDINGS,
       getKeybindingMarkup: MathliveDebug.getKeybindingMarkup,
       INLINE_SHORTCUTS: MathliveDebug.INLINE_SHORTCUTS,
@@ -36445,3 +37256,4 @@ use
   Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=mathlive.js.map

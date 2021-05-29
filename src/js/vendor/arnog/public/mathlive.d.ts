@@ -1,4 +1,4 @@
-/* 0.65.0 *//**
+/**
  *
  * Use MathLive to render and edit mathematical formulas.
  *
@@ -13,19 +13,19 @@
  * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference 0.65.0
- * @version 0.65.0
+ * @packageDocumentation MathLive SDK Reference {{SDK_VERSION}}
+ * @version {{SDK_VERSION}}
  *
  */
 import { Mathfield } from './mathfield';
 import { MathfieldElement } from './mathfield-element';
 import { MathfieldOptions, RemoteVirtualKeyboardOptions, TextToSpeechOptions } from './options';
-import { MacroDictionary, ErrorListener, ParserErrorCode } from './core';
+import { MacroDictionary, ErrorListener, ParserErrorCode, Registers } from './core';
 export { Mathfield };
 export { MathfieldOptions as MathfieldConfig };
 export { MathfieldElement };
 /**
- * Current version: `0.65.0`
+ * Current version: `{{SDK_VERSION}}`
  *
  * The version string of the SDK using the [semver](https://semver.org/) convention:
  *
@@ -126,11 +126,12 @@ export declare function convertLatexToMarkup(text: string, options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
+    registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
- * @deprecated Use [[`convertLatexToMarkup`]]
  * @category Converting
+ * @deprecated Use [[`convertLatexToMarkup`]]
  */
 export declare function latexToMarkup(text: string, options?: {
     mathstyle?: 'displaystyle' | 'textstyle';
@@ -153,6 +154,7 @@ export declare function latexToMarkup(text: string, options?: {
  */
 export declare function convertLatexToMathMl(latex: string, options?: {
     macros?: MacroDictionary;
+    registers?: Registers;
     generateID: boolean;
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
@@ -234,6 +236,7 @@ export declare function astToLatex(mathJson: any, options?: {
  */
 export declare function convertLatexToSpeakableText(latex: string, options: TextToSpeechOptions & {
     macros?: MacroDictionary;
+    registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
@@ -242,6 +245,7 @@ export declare function convertLatexToSpeakableText(latex: string, options: Text
  */
 export declare function latexToSpeakableText(latex: string, options: TextToSpeechOptions & {
     macros?: MacroDictionary;
+    registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 export declare type AutoRenderOptions = {
@@ -298,6 +302,8 @@ export declare type AutoRenderOptions = {
     createHTML?: (html: string) => any;
     /** Custom LaTeX macros */
     macros?: MacroDictionary;
+    /** LaTeX global register overrides */
+    registers?: Registers;
     /** An array of tag names whose content will
      *  not be scanned for delimiters (unless their class matches the `processClass`
      * pattern below.

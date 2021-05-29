@@ -4,7 +4,7 @@ import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
 import {
-  MACROS,
+  getMacros,
   normalizeMacroDictionary,
 } from '../core-definitions/definitions';
 
@@ -15,6 +15,7 @@ import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
 import { isTouchCapable } from '../common/capabilities';
+import { getDefaultRegisters } from '../core/registers';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -26,18 +27,22 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
     command: string, // Verb
     previousPosition: number,
     atoms: Atom[] // Object of the command
-  ) => void; // @revisit 1.0: rename announceHook
+  ) => void; // @revisit 1.0: rename announceHook,
+  value: string;
 };
 
 function loadSound(
   soundDirectory: string,
   sound: string | HTMLAudioElement | null
 ): HTMLAudioElement | null {
-  if (sound === null) return null;
+  if (sound === null || sound === 'none' || sound === 'null') return null;
   if (sound instanceof HTMLAudioElement) {
     sound.load();
     return sound;
   }
+
+  sound = sound.trim();
+  if (sound.length === 0) return null;
 
   const url = resolveRelativeUrl(
     (soundDirectory === undefined || soundDirectory.length === 0
@@ -312,7 +317,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     soundsDirectory: './sounds',
 
     defaultMode: 'math',
-    macros: MACROS,
+    macros: getMacros(),
+    registers: { ...getDefaultRegisters() },
     colorMap: null,
     backgroundColorMap: null,
     horizontalSpacingScale: 1,
@@ -380,6 +386,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onCommit: NO_OP_LISTENER,
 
     onError: (): void => {},
+    value: undefined,
   };
 }
 

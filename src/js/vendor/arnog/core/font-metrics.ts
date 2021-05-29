@@ -59,20 +59,6 @@ export interface FontMetrics<T = number> {
   bigOpSpacing5: T; // xi13; cmex7: 0.143
 
   sqrtRuleThickness: T;
-
-  // The space between adjacent `|` columns in an array definition.
-  // From article.cls.txt:455
-  doubleRuleSep: T;
-
-  // The width of separator lines in {array} environments. From
-  // `\showthe\arrayrulewidth` in LaTeX. Equals 0.4 / ptPerEm.
-  arrayRuleWidth: T;
-  arrayColSep: T;
-  baselineSkip: T;
-
-  // Two values from LaTeX source2e:
-  fboxSep: T; // From letter.dtx:1626
-  fboxRule: T; // From letter.dtx:1627
 }
 
 // This regex combines
@@ -164,21 +150,6 @@ export const FONT_METRICS: FontMetrics<
   bigOpSpacing4: [0.6, 0.611, 0.611],
   bigOpSpacing5: [0.1, 0.143, 0.143],
   sqrtRuleThickness: [0.04, 0.04, 0.04],
-
-  // pxPerEm: (PT_PER_EM * 4) / 3, // A CSS pt is fixed at 1.333px
-
-  // The space between adjacent `|` columns in an array definition. From
-  // `\showthe\doublerulesep` in LaTeX. Equals 2.0 / ptPerEm.
-  doubleRuleSep: [0.2, 0.2, 0.2],
-
-  // The width of separator lines in {array} environments. From
-  // `\showthe\arrayrulewidth` in LaTeX. Equals 0.4 / ptPerEm.
-  arrayRuleWidth: [0.04, 0.04, 0.04],
-  arrayColSep: [0.5, 0.5, 0.5],
-  baselineSkip: [BASELINE_SKIP, BASELINE_SKIP, BASELINE_SKIP],
-
-  fboxSep: [0.3, 0.3, 0.3], //        3 pt / ptPerEm
-  fboxRule: [0.04, 0.04, 0.04], // 0.4 pt / ptPerEm
 };
 
 // Maps a scale index from 1..10 to a value expressed in `em` relative
@@ -346,52 +317,4 @@ export function getCharacterMetrics(
     italic: 0,
     skew: 0,
   };
-}
-
-/**
- *
- * @param value If value is a string, it may be suffixed
- * with a unit, which will override the `unit` paramter
- */
-export function convertDimenToEm(
-  value: number | string,
-  unit: string,
-  precision = Number.NaN
-): number {
-  if (typeof value === 'string') {
-    const m = value.match(/([-+]?[\d.]*)\s*([a-zA-Z]+)/);
-    if (!m) {
-      value = Number.parseFloat(value);
-    } else {
-      value = Number.parseFloat(m[1]);
-      unit = m[2].toLowerCase();
-    }
-  }
-
-  // If the units are missing, TeX assumes 'pt'
-  const f =
-    {
-      pt: 1,
-      mm: 7227 / 2540,
-      cm: 7227 / 254,
-      ex: 35271 / 8192,
-      px: 3 / 4,
-      em: PT_PER_EM,
-      bp: 803 / 800,
-      dd: 1238 / 1157,
-      pc: 12,
-      in: 72.27,
-      mu: 10 / 18,
-    }[unit] || 1;
-
-  if (Number.isFinite(precision)) {
-    const factor = 10 ** precision;
-    return Math.round((value / PT_PER_EM) * f * factor) / factor;
-  }
-
-  return (value / PT_PER_EM) * f;
-}
-
-export function convertDimenToPx(value: string | number, unit: string): number {
-  return convertDimenToEm(value, unit) * (4 / 3) * PT_PER_EM;
 }

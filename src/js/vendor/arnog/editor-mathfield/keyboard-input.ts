@@ -33,11 +33,14 @@ import { range } from '../editor-model/selection-utils';
 import { insertSmartFence } from './mode-editor-math';
 import { ModeEditor } from './mode-editor';
 import { effectiveMode } from '../editor/options';
+import { canVibrate } from '../common/capabilities';
 
 export function showKeystroke(
   mathfield: MathfieldPrivate,
   keystroke: string
 ): void {
+  if (mathfield.options.readOnly) return;
+
   const vb = mathfield.keystrokeCaption;
   if (vb && mathfield.keystrokeCaptionVisible) {
     const bounds = mathfield.element.getBoundingClientRect();
@@ -92,6 +95,7 @@ export function onKeystroke(
 
   // 4. Give a chance to the custom keystroke handler to intercept the event
   if (
+    !mathfield.options.readOnly &&
     mathfield.options.onKeystroke &&
     !mathfield.options.onKeystroke(mathfield, keystroke, evt)
   ) {
@@ -405,7 +409,7 @@ export function onTypedText(
   }
 
   if (options.feedback) {
-    if (mathfield.options.keypressVibration && navigator?.vibrate) {
+    if (mathfield.options.keypressVibration && canVibrate()) {
       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
 
@@ -444,6 +448,7 @@ export function onTypedText(
   };
   if (!model.selectionIsCollapsed) {
     model.position = model.deleteAtoms(range(model.selection));
+    mathfield.snapshot();
   }
 
   // Decompose the string into an array of graphemes.

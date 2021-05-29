@@ -122,6 +122,18 @@ export type FontSeries = 'auto' | 'm' | 'b' | 'l' | '';
 
 export type FontSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
+/**
+ * Use a `Style` object  literal to modify the visual appearance of a
+ * mathfield or a portion of a mathfield.
+ *
+ * You can control the color ("ink") and background color ("paper"),
+ * the font variant, weight (`FontSeries`), size and more.
+ *
+ * **See Also**
+ * * [`applyStyle`](http://cortexjs.io/docs/mathlive/?q=applyStyle)
+ * * [Interacting with a Mathfield](/mathlive/guides/interacting/)
+ */
+
 export interface Style {
   color?: string;
   backgroundColor?: string;
@@ -136,7 +148,7 @@ export interface Style {
 /**
  * **See Also**
  * * [[`MacroDictionary`]]
- * * [Macros Example](/mathlive/examples/macros/)
+ * * [Macros](/mathlive/guides/macros/)
  *
  */
 export type MacroDefinition = {
@@ -145,6 +157,69 @@ export type MacroDefinition = {
   expand?: boolean;
   captureSelection?: boolean;
 };
+
+export type MacroPackageDefinition = {
+  package: Record<string, string | MacroDefinition>;
+  expand?: boolean;
+  captureSelection?: boolean;
+};
+
+/**
+ * Glue represents flexible spacing, that is a dimension that
+ * can grow (by the `grow` property) or shrink (by the `shrink` property).
+ */
+export type Glue = {
+  glue: Dimension;
+  shrink?: Dimension;
+  grow?: Dimension;
+};
+
+/**
+ *
+ */
+export type DimensionUnit =
+  | 'pt'
+  | 'mm'
+  | 'cm'
+  | 'ex'
+  | 'px'
+  | 'em'
+  | 'bp'
+  | 'dd'
+  | 'pc'
+  | 'in'
+  | 'mu'
+  | 'fil'
+  | 'fill'
+  | 'filll';
+
+/**
+ * A dimension is used to specify the size of things
+ *
+ */
+export type Dimension = {
+  dimension: number;
+  unit?: DimensionUnit; // If missing, assumes 'pt'
+};
+
+export type RegisterValue = Dimension | Glue | number | string;
+
+/**
+ * TeX registers represent 'variables' and 'constants'.
+ *
+ * Changing the values of some registers can modify the layout
+ * of math expressions.
+ *
+ * The following registers might be of interest:
+ *
+ * - `thinmuskip`
+ * - `medmuskip`
+ * - `thickmuskip`
+ * - `nulldelimiterspace`
+ * - `delimitershortfall`
+ * - `jot`
+ */
+export type Registers = Record<string, RegisterValue>;
 
 /**
  * A dictionary of LaTeX macros to be used to interpret and render the content.
@@ -162,6 +237,9 @@ The code above will support the following notation:
 \smallfrac{5}{16}
 ```
  * **See Also**
- * * [Macros Example](/mathlive/examples/macros/)
+ * * [Macros Example](/mathlive/guides/macros/)
  */
-export type MacroDictionary = Record<string, string | MacroDefinition>;
+export type MacroDictionary = Record<
+  string,
+  string | MacroDefinition | MacroPackageDefinition
+>;

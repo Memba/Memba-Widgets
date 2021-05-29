@@ -1,6 +1,6 @@
-/* 0.65.0 */import { Selector } from './commands';
+import { Selector } from './commands';
 import { CoreOptions, MathfieldOptions, VirtualKeyboardOptions } from './options';
-import { ParseMode, MacroDictionary, Style } from './core';
+import { ParseMode, MacroDictionary, Style, Registers } from './core';
 /**
  *
 | Format                | Description             |
@@ -49,6 +49,7 @@ export declare type InsertOptions = {
      */
     smartFence?: boolean;
     macros?: MacroDictionary;
+    registers?: Registers;
     /** If true, the mathfield will be focused after
      * the insertion
      */

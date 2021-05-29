@@ -88,6 +88,23 @@ export const FOREGROUND_COLORS = {
   'white': '#ffffff',
 };
 
+// Map some of the DVIPS color names to Chromatic
+const DVIPS_TO_CHROMATIC = {
+  Red: 'red',
+  Orange: 'orange',
+  Yellow: 'yellow',
+  LimeGreen: 'lime',
+  Green: 'green',
+  TealBlue: 'teal',
+  Blue: 'blue',
+  Violet: 'indigo',
+  Purple: 'purple',
+  Magenta: 'magenta',
+  Black: 'black',
+  Gray: 'grey',
+  White: 'white',
+};
+
 /**
  * 68 colors (+ white) known to dvips used in LaTeX.
  *
@@ -102,74 +119,74 @@ export const FOREGROUND_COLORS = {
  *
  */
 const DVIPS_COLORS: Record<string, string> = {
-  apricot: '#FBB982',
-  aquamarine: '#00B5BE',
-  bittersweet: '#C04F17',
-  black: '#221E1F', // Indeed.
-  blue: '#2D2F92',
-  bluegreen: '#00B3B8',
-  blueviolet: '#473992',
-  brickred: '#B6321C',
-  brown: '#792500',
-  burntorange: '#F7921D',
-  cadetblue: '#74729A',
-  carnationpink: '#F282B4',
-  cerulean: '#00A2E3',
-  cornflowerblue: '#41B0E4',
-  cyan: '#00AEEF',
-  dandelion: '#FDBC42',
-  darkorchid: '#A4538A',
-  emerald: '#00A99D',
-  forestgreen: '#009B55',
-  fuchsia: '#8C368C',
-  goldenrod: '#FFDF42',
-  gray: '#949698',
-  green: '#00A64F',
-  greenyellow: '#DFE674',
-  junglegreen: '#00A99A',
-  lavender: '#F49EC4',
-  limegreen: '#8DC73E',
-  magenta: '#EC008C',
-  mahogany: '#A9341F',
-  maroon: '#AF3235',
-  melon: '#F89E7B',
-  midnightblue: '#006795',
-  mulberry: '#A93C93',
-  navyblue: '#006EB8',
-  olivegreen: '#3C8031',
-  orange: '#F58137',
-  orangered: '#ED135A',
-  orchid: '#AF72B0',
-  peach: '#F7965A',
-  periwinkle: '#7977B8',
-  pinegreen: '#008B72',
-  plum: '#92268F',
-  processblue: '#00B0F0',
-  purple: '#99479B',
-  rawsienna: '#974006',
-  red: '#ED1B23',
-  redorange: '#F26035',
-  redviolet: '#A1246B',
-  rhodamine: '#EF559F',
-  royalblue: '#0071BC',
-  royalpurple: '#613F99',
-  rubinered: '#ED017D',
-  salmon: '#F69289',
-  seagreen: '#3FBC9D',
-  sepia: '#671800',
-  skyblue: '#46C5DD',
-  springgreen: '#C6DC67',
-  tan: '#DA9D76',
-  tealblue: '#00AEB3',
-  thistle: '#D883B7',
-  turquoise: '#00B4CE',
-  violet: '#58429B',
-  violetred: '#EF58A0',
-  white: '#FFFFFF',
-  wildstrawberry: '#EE2967',
-  yellow: '#FFF200',
-  yellowgreen: '#98CC70',
-  yelloworange: '#FAA21A',
+  Apricot: '#FBB982',
+  Aquamarine: '#00B5BE',
+  Bittersweet: '#C04F17',
+  Black: '#221E1F', // Indeed.
+  Blue: '#2D2F92',
+  BlueGreen: '#00B3B8',
+  BlueViolet: '#473992',
+  Brickred: '#B6321C',
+  Brown: '#792500',
+  BurntOrange: '#F7921D',
+  CadetBlue: '#74729A',
+  CarnationPink: '#F282B4',
+  Cerulean: '#00A2E3',
+  CornflowerBlue: '#41B0E4',
+  Cyan: '#00AEEF',
+  Dandelion: '#FDBC42',
+  DarkOrchid: '#A4538A',
+  Emerald: '#00A99D',
+  ForestGreen: '#009B55',
+  Fuchsia: '#8C368C',
+  Goldenrod: '#FFDF42',
+  Gray: '#949698',
+  Green: '#00A64F',
+  GreenYellow: '#DFE674',
+  JungleGreen: '#00A99A',
+  Lavender: '#F49EC4',
+  Limegreen: '#8DC73E',
+  Magenta: '#EC008C',
+  Mahogany: '#A9341F',
+  Maroon: '#AF3235',
+  Melon: '#F89E7B',
+  MidnightBlue: '#006795',
+  Mulberry: '#A93C93',
+  NavyBlue: '#006EB8',
+  OliveGreen: '#3C8031',
+  Orange: '#F58137',
+  OrangeRed: '#ED135A',
+  Orchid: '#AF72B0',
+  Peach: '#F7965A',
+  Periwinkle: '#7977B8',
+  Pinegreen: '#008B72',
+  Plum: '#92268F',
+  ProcessBlue: '#00B0F0',
+  Purple: '#99479B',
+  RawSienna: '#974006',
+  Red: '#ED1B23',
+  RedOrange: '#F26035',
+  RedViolet: '#A1246B',
+  Rhodamine: '#EF559F',
+  RoyalBlue: '#0071BC',
+  RoyalPurple: '#613F99',
+  RubineRed: '#ED017D',
+  Salmon: '#F69289',
+  SeaGreen: '#3FBC9D',
+  Sepia: '#671800',
+  SkyBlue: '#46C5DD',
+  SpringGreen: '#C6DC67',
+  Tan: '#DA9D76',
+  TealBlue: '#00AEB3',
+  Thistle: '#D883B7',
+  Turquoise: '#00B4CE',
+  Violet: '#58429B',
+  VioletRed: '#EF58A0',
+  White: '#FFFFFF',
+  WildStrawberry: '#EE2967',
+  Yellow: '#FFF200',
+  YellowGreen: '#98CC70',
+  YellowOrange: '#FAA21A',
 };
 
 // Other color lists: SVG colors, x11 colors
@@ -328,8 +345,8 @@ yellowgreen	rgb(154, 205, 50)
  * Return a CSS color (#rrggbb) from a string.
  *
  * Possible formats include:
- * - named colors from the DVI color set: 'Yellow', 'red'... Case insensitive.
- * - colors from the Mathematica set: 'm1'...'m9'
+ * - named colors from the DVI color set: 'Yellow', 'red'... Case sensitive.
+ * - colors from the Mathematica set: 'M1'...'M9'
  * - 3-digit hex: `'#d50'`
  * - 6-digit hex: `'#dd5500'`
  * - RGB functional: `'rgb(240, 20, 10)'`
@@ -337,9 +354,9 @@ yellowgreen	rgb(154, 205, 50)
  * In addition, colors can be mixed using the following syntax:
  * `<mix> = <color>![<value>][!<mix>]`
  * For example:
- * - `'blue!20'`  = 20% blue + 80% white
- * - `'blue!20!black'` = 20% + 80% black
- * - `'blue!20!black!30!green'` = (20% + 80% black) * 30 % + 70% green
+ * - `'Blue!20'`  = 20% blue + 80% white
+ * - `'Blue!20!Black'` = 20% + 80% black
+ * - `'Blue!20!Black!30!Green'` = (20% + 80% black) * 30 % + 70% green
  *
  * If the input string is prefixed with a dash, the complementary color
  * of the expression is returned.
@@ -349,8 +366,8 @@ yellowgreen	rgb(154, 205, 50)
  * @param s - An expression representing a color value
  * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
-export function defaultColorMap(s: string): string {
-  const colorSpec = s.toLowerCase().split('!');
+export function defaultColorMap(s: string): string | null {
+  const colorSpec = s.split('!');
 
   let baseRed: number;
   let baseGreen: number;
@@ -369,14 +386,16 @@ export function defaultColorMap(s: string): string {
     baseGreen = green;
     baseBlue = blue;
 
-    const colorName = colorSpec[i].match(/([a-z\d]*)/)?.[1];
+    const colorName = colorSpec[i].trim().match(/^([A-Za-z\d]+)/)?.[1];
+    const lcColorName = colorName?.toLowerCase();
 
     const color =
-      FOREGROUND_COLORS[colorName] ??
+      FOREGROUND_COLORS[lcColorName] ??
+      FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]] ??
       MATLAB_COLORS[colorName] ??
       DVIPS_COLORS[colorName] ??
       MATHEMATICA_COLORS[colorName] ??
-      colorSpec[i];
+      colorSpec[i].trim();
 
     let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
     if (m?.[1] && m[2] && m[3]) {
@@ -439,8 +458,13 @@ export function defaultColorMap(s: string): string {
   );
 }
 
-export function defaultBackgroundColorMap(s: string): string {
-  return BACKGROUND_COLORS[s.toLowerCase()] ?? defaultColorMap(s);
+export function defaultBackgroundColorMap(s: string): string | null {
+  s = s.trim();
+  return (
+    BACKGROUND_COLORS[s.toLowerCase()] ??
+    BACKGROUND_COLORS[DVIPS_TO_CHROMATIC[s]] ??
+    defaultColorMap(s)
+  );
 }
 
 function parseHex(

@@ -7,9 +7,9 @@ import {
   coalesce,
   Box,
   Context,
-  MACROS,
   adjustInterAtomSpacing,
   DEFAULT_FONT_SIZE,
+  getMacros,
 } from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
@@ -17,6 +17,9 @@ import { attachButtonHandlers } from '../editor-mathfield/buttons';
 import { getCaretPoint } from '../editor-mathfield/utils';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { typeset } from '../core/typeset';
+import { getDefaultRegisters } from '../core/registers';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -280,14 +283,24 @@ function getNote(symbol: string): string {
 
 function latexToMarkup(latex: string): string {
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(latex, { parseMode: 'math', macros: MACROS });
+  root.body = typeset(
+    parseLatex(latex, {
+      parseMode: 'math',
+      macros: getMacros(),
+      registers: getDefaultRegisters(),
+    })
+  );
 
   const box = coalesce(
     adjustInterAtomSpacing(
       new Box(
         root.render(
           new Context(
-            { macros: MACROS, smartFence: false },
+            {
+              macros: getMacros(),
+              registers: getDefaultRegisters(),
+              smartFence: false,
+            },
             {
               fontSize: DEFAULT_FONT_SIZE,
             },
@@ -389,7 +402,7 @@ export function updatePopoverPosition(
     // Call ourselves again later, typically after the
     // rendering/layout of the DOM has been completed
     // (don't do it on next frame, it might be too soon)
-    window.setTimeout(() => updatePopoverPosition(mf), 100);
+    setTimeout(() => updatePopoverPosition(mf), 100);
     return;
   }
 
@@ -406,6 +419,7 @@ function setPopoverPosition(
   mf: MathfieldPrivate,
   position: { x: number; y: number; height: number }
 ): void {
+  throwIfNotInBrowser();
   // Get screen width & height (browser compatibility)
   const screenHeight =
     window.innerHeight ||

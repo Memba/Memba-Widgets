@@ -1,13 +1,14 @@
 /* eslint no-console:0 */
 import '../core/atom';
-import { MACROS, MacroDictionary } from '../core-definitions/definitions';
+import { MacroDictionary, getMacros } from '../core-definitions/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
-import { ErrorListener, ParserErrorCode } from '../public/core';
+import { ErrorListener, ParserErrorCode, Registers } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
 import { parseMathString } from '../editor/parse-math-string';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
@@ -19,6 +20,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: 'displaystyle' | 'textstyle';
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
       macros?: MacroDictionary;
+      registers?: Registers;
       onError?: ErrorListener<ParserErrorCode>;
       format?: string;
     }
@@ -34,6 +36,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: string;
       format?: string;
       macros?: MacroDictionary;
+      registers?: Registers;
     }
   ) => string;
 
@@ -45,6 +48,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: string;
       format?: string;
       macros?: MacroDictionary;
+      registers?: Registers;
     }
   ) => string;
   ignoreClassPattern?: RegExp;
@@ -239,6 +243,8 @@ function createMathMLNode(
   latex: string,
   options: AutoRenderOptionsPrivate
 ): HTMLElement {
+  throwIfNotInBrowser();
+
   // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
   // This node has a style that makes it be invisible to display but is seen by AT
   const span = document.createElement('span');
@@ -263,13 +269,17 @@ function createMarkupNode(
   mathstyle: 'displaystyle' | 'textstyle',
   createNodeOnFailure: boolean
 ): HTMLSpanElement | Text {
+  throwIfNotInBrowser();
+
   // Create a node for displaying math.
   //   This is slightly ugly because in the case of failure to create the markup,
   //   sometimes a text node is desired and sometimes not.
   //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
   // This node is made invisible to AT (screen readers)
-  let span: HTMLSpanElement | Text = document.createElement('span');
-  span.setAttribute('aria-hidden', 'true');
+  const element = document.createElement(
+    mathstyle === 'displaystyle' ? 'div' : 'span'
+  );
+  element.setAttribute('aria-hidden', 'true');
 
   try {
     const html = options.renderToMarkup(text, {
@@ -277,17 +287,16 @@ function createMarkupNode(
       format: 'html',
       macros: options.macros,
     });
-    span.innerHTML = options.createHTML ? options.createHTML(html) : html;
+    element.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
     if (createNodeOnFailure) {
-      span = document.createTextNode(text);
-    } else {
-      return null;
+      return document.createTextNode(text);
     }
+    return null;
   }
 
-  return span;
+  return element;
 }
 
 function createAccessibleMarkupPair(
@@ -310,6 +319,7 @@ function createAccessibleMarkupPair(
     markupNode &&
     /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)
   ) {
+    throwIfNotInBrowser();
     const fragment = document.createElement('span');
     if (
       /\bmathml\b/i.test(options.renderAccessibleContent) &&
@@ -337,8 +347,9 @@ function createAccessibleMarkupPair(
 }
 
 function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
-  // If the text starts with '\begin'...
-  // (this is a MathJAX behavior)
+  throwIfNotInBrowser();
+
+  // If the text starts with '\begin'... (this is a MathJAX behavior)
   let fragment: Node = null;
   if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
     fragment = document.createDocumentFragment();
@@ -500,7 +511,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
   }
 }
 
-const defaultOptions: AutoRenderOptions = {
+const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   // Optional namespace for the `data-` attributes.
   namespace: '',
 
@@ -554,16 +565,16 @@ const defaultOptions: AutoRenderOptions = {
   },
 };
 
-function renderMathInElement(
+export function autoRenderMathInElement(
   element: HTMLElement | string,
-  options: AutoRenderOptionsPrivate
+  options?: AutoRenderOptionsPrivate
 ): void {
   try {
-    options = { ...defaultOptions, ...options };
+    options = { ...DEFAULT_AUTO_RENDER_OPTIONS, ...options };
     options.ignoreClassPattern = new RegExp(options.ignoreClass);
     options.processClassPattern = new RegExp(options.processClass);
     options.processScriptTypePattern = new RegExp(options.processScriptType);
-    options.macros = MACROS;
+    options.macros = getMacros(options.macros);
 
     // Validate the namespace (used for `data-` attributes)
     if (options.namespace) {
@@ -578,6 +589,9 @@ function renderMathInElement(
       }
     }
 
+    // Load the fonts and inject the stylesheet once to
+    // avoid having to do it many times in the case of a `renderMathInDocument()`
+    // call.
     void loadFonts(options.fontsDirectory);
     injectStylesheet(null, coreStylesheet);
 
@@ -593,7 +607,3 @@ function renderMathInElement(
     }
   }
 }
-
-export default {
-  renderMathInElement,
-};

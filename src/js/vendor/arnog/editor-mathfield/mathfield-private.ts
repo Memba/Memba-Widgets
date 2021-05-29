@@ -91,8 +91,9 @@ import './mode-editor-text';
 
 import { VirtualKeyboardDelegate } from './remote-virtual-keyboard';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
-import { isTouchCapable } from '../common/capabilities';
+import { canVibrate, isBrowser, isTouchCapable } from '../common/capabilities';
 import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
+import { validateStyle } from './styling';
 
 export class MathfieldPrivate implements Mathfield {
   model: ModelPrivate;
@@ -186,16 +187,16 @@ export class MathfieldPrivate implements Mathfield {
     );
     this.macros = this.options.macros as NormalizedMacroDictionary;
 
-    this.colorMap = (name: string): string => {
+    this.colorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.colorMap === 'function') {
         result = this.options.colorMap(name);
       }
       if (!result) result = defaultColorMap(name);
 
-      return result ?? name;
+      return result;
     };
-    this.backgroundColorMap = (name: string): string => {
+    this.backgroundColorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.backgroundColorMap === 'function') {
         result = this.options.backgroundColorMap(name);
@@ -205,7 +206,7 @@ export class MathfieldPrivate implements Mathfield {
       }
       if (!result) result = defaultBackgroundColorMap(name);
 
-      return result ?? name;
+      return result;
     };
 
     // The virtual keyboard can be either attached to this mathfield
@@ -229,7 +230,12 @@ export class MathfieldPrivate implements Mathfield {
           });
     }
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
-    if (
+    if (!this.options.keypressSound) {
+      this.keypressSound = null;
+      this.spacebarKeypressSound = null;
+      this.returnKeypressSound = null;
+      this.deleteKeypressSound = null;
+    } else if (
       this.options.keypressSound &&
       typeof this.options.keypressSound !== 'string' &&
       !(this.options.keypressSound instanceof HTMLAudioElement)
@@ -249,7 +255,7 @@ export class MathfieldPrivate implements Mathfield {
 
     // Save existing content
     this.originalContent = element.innerHTML;
-    let elementText = this.element.textContent;
+    let elementText = options.value ?? this.element.textContent;
     if (elementText) {
       elementText = elementText.trim();
     }
@@ -346,6 +352,16 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboardToggle.classList.add('is-visible');
     } else {
       this.virtualKeyboardToggle.classList.remove('is-visible');
+    }
+    if (this.options.readOnly) {
+      this.element.classList.add('ML__isReadOnly');
+    } else {
+      this.element.classList.remove('ML__isReadOnly');
+    }
+    if (this.options.defaultMode === 'inline-math') {
+      this.element.classList.add('ML__isInline');
+    } else {
+      this.element.classList.remove('ML__isInline');
     }
     attachButtonHandlers(
       (command) => this.executeCommand(command),
@@ -448,10 +464,6 @@ export class MathfieldPrivate implements Mathfield {
       }
     );
 
-    if (this.options.readOnly) {
-      this.element.classList.add('ML__isReadOnly');
-    }
-
     // Delegate mouse and touch events
     if (window.PointerEvent) {
       // Use modern pointer events if available
@@ -542,7 +554,9 @@ export class MathfieldPrivate implements Mathfield {
     // When fonts are done loading, re-render
     // (the selection highlighting may be out of date due to the HTML layout
     // having been updated with the new font metrics)
-    document.fonts.ready.then(() => render(this));
+    if (isBrowser()) {
+      document.fonts.ready.then(() => render(this));
+    }
   }
 
   get virtualKeyboardState(): 'hidden' | 'visible' {
@@ -611,6 +625,7 @@ export class MathfieldPrivate implements Mathfield {
 
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (
+      this.options.keypressSound &&
       typeof this.options.keypressSound !== 'string' &&
       !(this.options.keypressSound instanceof HTMLAudioElement)
     ) {
@@ -636,16 +651,27 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboardToggle.classList.remove('is-visible');
     }
 
-    this.colorMap = (name: string): string => {
+    if (this.options.readOnly) {
+      this.element.classList.add('ML__isReadOnly');
+    } else {
+      this.element.classList.remove('ML__isReadOnly');
+    }
+    if (this.options.defaultMode === 'inline-math') {
+      this.element.classList.add('ML__isInline');
+    } else {
+      this.element.classList.remove('ML__isInline');
+    }
+
+    this.colorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.colorMap === 'function') {
         result = this.options.colorMap(name);
       }
       if (!result) result = defaultColorMap(name);
 
-      return result ?? name;
+      return result;
     };
-    this.backgroundColorMap = (name: string): string => {
+    this.backgroundColorMap = (name: string): string | null => {
       let result: string;
       if (typeof this.options.backgroundColorMap === 'function') {
         result = this.options.backgroundColorMap(name);
@@ -655,7 +681,7 @@ export class MathfieldPrivate implements Mathfield {
       }
       if (!result) result = defaultBackgroundColorMap(name);
 
-      return result ?? name;
+      return result;
     };
 
     // Changing some config options (i.e. `macros`) may
@@ -708,7 +734,7 @@ export class MathfieldPrivate implements Mathfield {
   getOption<K extends keyof MathfieldOptionsPrivate>(
     key: K
   ): MathfieldOptionsPrivate[K] {
-    return getOptions(this.options, key);
+    return getOptions(this.options, key)[key];
   }
 
   /*
@@ -748,10 +774,10 @@ export class MathfieldPrivate implements Mathfield {
         break;
       case 'resize': {
         if (this.resizeTimer) {
-          window.cancelAnimationFrame(this.resizeTimer);
+          cancelAnimationFrame(this.resizeTimer);
         }
 
-        this.resizeTimer = window.requestAnimationFrame(
+        this.resizeTimer = requestAnimationFrame(
           () => isValidMathfield(this) && this.onResize()
         );
         break;
@@ -1033,7 +1059,7 @@ export class MathfieldPrivate implements Mathfield {
       }
 
       if (options.feedback) {
-        if (this.options.keypressVibration && navigator?.vibrate) {
+        if (this.options.keypressVibration && canVibrate()) {
           navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
         }
 
@@ -1160,7 +1186,9 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   hasFocus(): boolean {
-    return document.hasFocus() && this.keyboardDelegate.hasFocus();
+    return (
+      isBrowser() && document.hasFocus() && this.keyboardDelegate.hasFocus()
+    );
   }
 
   focus(): void {
@@ -1203,7 +1231,7 @@ export class MathfieldPrivate implements Mathfield {
     deleteRange(this.model, range(this.model.selection));
   }
 
-  applyStyle(style: Style, inOptions: Range | ApplyStyleOptions = {}): void {
+  applyStyle(inStyle: Style, inOptions: Range | ApplyStyleOptions = {}): void {
     const options: ApplyStyleOptions = {
       operation: 'set',
       suppressChangeNotifications: false,
@@ -1215,7 +1243,7 @@ export class MathfieldPrivate implements Mathfield {
       options.suppressChangeNotifications =
         inOptions.suppressChangeNotifications ?? false;
     }
-
+    const style = validateStyle(this, inStyle);
     const operation = options.operation ?? 'set';
     this.model.deferNotifications(
       { content: !options.suppressChangeNotifications },
@@ -1373,7 +1401,6 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   private onFocus(): void {
-    if (this.options.readOnly) return;
     if (this.blurred) {
       this.blurred = false;
       this.keyboardDelegate.focus();

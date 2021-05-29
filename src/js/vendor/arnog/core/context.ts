@@ -1,93 +1,25 @@
-import { FontSize, MacroDictionary, Style } from '../public/core';
+import {
+  Dimension,
+  FontSize,
+  Glue,
+  MacroDictionary,
+  Registers,
+  RegisterValue,
+  Style,
+} from '../public/core';
 import { highlight } from './color';
 
 import { FontMetrics, FONT_SCALE } from './font-metrics';
 import { D, Dc, Mathstyle, MathstyleName, MATHSTYLES } from './mathstyle';
 import { Box } from './box';
+import { convertDimensionToEm } from './registers-utils';
 
 // Using boxes and glue in TeX and LaTeX:
 // https://www.math.utah.edu/~beebe/reports/2009/boxes.pdf
 
-export type Glue = {
-  value: number;
-  shrink: number;
-  grow: number;
-};
-
-// From TeXBook p.348
-export const DEFAULT_REGISTERS: Record<string, number | string> = {
-  'p@': 'pt ',
-  'z@': '0',
-  'z@skip': 0,
-  // 'voidb@x'
-
-  'maxdimen': 16383.99999, // In pt.
-
-  'pretolerance': 100,
-  'tolerance': 200,
-  'hbadness': 1000,
-  'vbadness': 1000,
-  'linepenalty': 10,
-  'hyphenpenalty': 50,
-  'exhyphenpenalty': 50,
-  'binoppenalty': 700,
-  'relpenalty': 500,
-  'clubpenalty': 150,
-  'widowpenalty': 150,
-  'displaywidowpenalty': 50,
-  'brokenpenalty': 100,
-  'predisplaypenalty': 10000,
-  'doublehyphendemerits': 10000,
-  'finalhyphendemerits': 5000,
-  'adjdemerits': 10000,
-  'tracinglostchars': 1,
-  'uchyph': 1,
-  'delimiterfactor': 901,
-  'defaulthyphenchar': '\\-',
-  'defaultskewchar': -1,
-  'newlinechar': -1,
-  'showboxbreadth': 5,
-  'showboxdepth': 3,
-  'errorcontextlines': 5,
-  'hfuzz': 0.1, // In pt.
-  'vfuzz': 0.1, // In pt.
-  'overfullrule': 5, // In pt.
-  'hsize': '6.5in',
-  'vsize': '8.9in',
-  'parindent': 20, // In pt.
-  'maxdepth': 4, // In pt.
-  'splitmaxdepth': '\\maxdimen',
-  'boxmaxdepth': '\\maxdimen',
-  'delimitershortfall': 5, // In pt.
-  'nulldelimiterspace': 1.2, // In pt.
-  'scriptspace': 0.5, //    // In pt.
-  'parskip': '0pt plus 1pt',
-  'abovedisplayskip': '12pt plus 3pt minus 9pt',
-  'abovedisplayshortskip': '0pt plus 3pt',
-  'belowdisplayskip': '12pt plus 3pt minus 9pt',
-  'belowdisplayshortskip': '7pt plus 3pt minus 4pt',
-
-  'topskip': '10pt',
-  'splittopskip': '10pt',
-  'parfillskip': '0pt plus 1fil',
-
-  'thinmuskip': '3mu',
-  'medmuskip': '4mu plus 2mu minus 4mu',
-  'thickmuskip': '5mu plus 5mu',
-
-  'smallskipamount': '3pt plus1pt minus1pt',
-  'medskipamount': '6pt plus2pt minus2pt',
-  'bigskipamount': '12pt plus4pt minus4pt',
-  'normalbaselineskip': '12pt',
-  'normallineskip': '1pt',
-  'normallineskiplimit': '0pt',
-  'jot': '3pt',
-  'interdisplaylinepenalty': '100',
-  'interfootnotelinepenalty': '100',
-};
-
 export interface ContextInterface {
   macros?: MacroDictionary;
+  registers: Registers;
   atomIdsSettings?: {
     overrideID?: string;
     groupNumbers: boolean;
@@ -164,7 +96,7 @@ export class Context implements ContextInterface {
 
   readonly _size?: FontSize;
   private _mathstyle?: Mathstyle;
-  private _registers?: Record<string, string | number | Glue>;
+  registers: Registers;
 
   parent?: Context;
 
@@ -190,6 +122,7 @@ export class Context implements ContextInterface {
     console.assert(parent instanceof Context || inMathstyle !== undefined);
 
     if (parent instanceof Context) this.parent = parent;
+    if (!(parent instanceof Context)) this.registers = parent.registers;
 
     this.isSelected = style?.isSelected ?? parent?.isSelected ?? false;
     this.isPhantom = style?.isPhantom ?? this.parent?.isPhantom ?? false;
@@ -286,23 +219,59 @@ export class Context implements ContextInterface {
     return result;
   }
 
-  getRegister(name: string): undefined | string | number | Glue {
-    if (this._registers?.[name]) return this._registers[name];
+  getRegister(name: string): RegisterValue {
+    if (this.registers?.[name]) return this.registers[name];
     if (this.parent) return this.parent.getRegister(name);
     return undefined;
   }
 
-  setRegister(name: string, value: undefined | string | number | Glue): void {
-    this._registers[name] = value;
+  getRegisterAsGlue(name: string): Glue | undefined {
+    if (this.registers?.[name]) {
+      const value = this.registers[name];
+      if (typeof value === 'object' && 'glue' in value) {
+        return value;
+      } else if (typeof value === 'object' && 'dimension' in value) {
+        return { glue: { dimension: value.dimension } };
+      } else if (typeof value === 'number') {
+        return { glue: { dimension: value } };
+      }
+      return undefined;
+    }
+    if (this.parent) return this.parent.getRegisterAsGlue(name);
+    return undefined;
   }
 
-  setGlobalRegister(
-    name: string,
-    value: undefined | string | number | Glue
-  ): void {
+  getRegisterAsEm(name: string): number {
+    return convertDimensionToEm(this.getRegisterAsDimension(name));
+  }
+
+  getRegisterAsDimension(name: string): Dimension | undefined {
+    if (this.registers?.[name]) {
+      const value = this.registers[name];
+      if (typeof value === 'object' && 'glue' in value) {
+        return value.glue;
+      } else if (typeof value === 'object' && 'dimension' in value) {
+        return value;
+      } else if (typeof value === 'number') {
+        return { dimension: value };
+      }
+      return undefined;
+    }
+    if (this.parent) return this.parent.getRegisterAsDimension(name);
+    return undefined;
+  }
+
+  setRegister(name: string, value: RegisterValue | undefined): void {
+    this.registers[name] = value;
+  }
+
+  setGlobalRegister(name: string, value: RegisterValue): void {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let root: Context = this;
-    while (root.parent) root = root.parent;
+    while (root.parent) {
+      root.setRegister(name, undefined);
+      root = root.parent;
+    }
     root.setRegister(name, value);
   }
 

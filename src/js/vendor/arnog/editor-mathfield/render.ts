@@ -12,6 +12,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { atomsToMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -55,6 +56,9 @@ export function render(
   mathfield: MathfieldPrivate,
   renderOptions?: { forHighlighting?: boolean; interactive?: boolean }
 ): void {
+  throwIfNotInBrowser();
+  if (!isValidMathfield(mathfield)) return;
+
   renderOptions = renderOptions ?? {};
   mathfield.dirty = false;
   const { model } = mathfield;
@@ -103,6 +107,7 @@ export function render(
     new Context(
       {
         macros: mathfield.options.macros,
+        registers: mathfield.options.registers,
         atomIdsSettings: {
           // Using the hash as a seed for the ID
           // keeps the IDs the same until the content of the field changes.
@@ -181,6 +186,12 @@ export function render(
 }
 
 export function renderSelection(mathfield: MathfieldPrivate): void {
+  throwIfNotInBrowser();
+
+  // In some rare cases, we can get called (via a timeout) when the field
+  // is either no longer ready, or not yet ready. Bail.
+  if (!mathfield.field) return;
+
   // Remove existing selection
   for (const element of mathfield.field.querySelectorAll(
     '.ML__selection, .ML__contains-highlight'
@@ -188,7 +199,7 @@ export function renderSelection(mathfield: MathfieldPrivate): void {
     element.remove();
   }
 
-  if (!mathfield.hasFocus() || mathfield.options.readOnly) return;
+  if (!mathfield.hasFocus()) return;
 
   const model = mathfield.model;
 

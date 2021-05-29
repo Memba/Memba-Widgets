@@ -19,6 +19,7 @@ import {
 } from '../editor/options';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { isOffset, isRange, isSelection } from '../editor/model';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 //
 // Custom Events
@@ -114,19 +115,14 @@ declare global {
 
 const MATHFIELD_TEMPLATE = document.createElement('template');
 MATHFIELD_TEMPLATE.innerHTML = `<style>
-:host {
-    display: block;
-}
-:host([hidden]) {
-    display: none;
-}
-:host([disabled]) {
-    opacity:  .5;
-}
+:host { display: block; }
+:host([hidden]) { display: none; }
+:host([disabled]) { opacity:  .5; }
 :host(:focus), :host(:focus-within) {
-    outline: Highlight auto 1px;    /* For Firefox */
-    outline: -webkit-focus-ring-color auto 1px;
+  outline: Highlight auto 1px;    /* For Firefox */
+  outline: -webkit-focus-ring-color auto 1px;
 }
+:host([readonly]), :host([read-only]) { outline: none; }
 </style>
 <div></div><slot style="display:none"></slot>`;
 
@@ -163,6 +159,8 @@ export interface MathfieldElementAttributes {
    * the formula. A value greater than 1.0 can be used to improve the
    * legibility.
    *
+   * @deprecated Use registers `\thinmuskip`, `\medmuskip` and `\thickmuskip`
+   *
    */
   'horizontal-spacing-scale': string;
   /**
@@ -189,6 +187,24 @@ export interface MathfieldElementAttributes {
    */
   'inline-shortcut-timeout': string;
   'keypress-vibration': boolean;
+  /**
+   * When a key on the virtual keyboard is pressed, produce a short audio
+   * feedback.
+   *
+   * The value of the properties should a string, the name of an audio file in
+   * the `soundsDirectory` directory or 'none' to supress the sound.
+   */
+  'keypress-sound': string;
+  /**
+   * Sound played to provide feedback when a command has no effect, for example
+   * when pressing the spacebar at the root level.
+   *
+   * The property is either:
+   * - a string, the name of an audio file in the `soundsDirectory` directory
+   * - 'none' to turn off the sound
+   */
+  'plonk-sound': string;
+
   'letter-shape-style': string;
   /**
    * The locale (language + region) to use for string localization.
@@ -445,6 +461,8 @@ export interface MathfieldElementAttributes {
  * | `horizontal-spacing-scale` | `options.horizontalSpacingScale` |
  * | `inline-shortcut-timeout` | `options.inlineShortcutTimeout` |
  * | `keypress-vibration` | `options.keypressVibration` |
+ * | `keypress-sound` | `options.keypressSound` |
+ * | `plonk-sound` | `options.plonkSound` |
  * | `letter-shape-style` | `options.letterShapeStyle` |
  * | `locale` | `options.locale` |
  * | `math-mode-space` | `options.mathModeSpace` |
@@ -516,6 +534,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
       'keypress-vibration': 'boolean',
+      'keypress-sound': 'string',
+      'plonk-sound': 'string',
       'letter-shape-style': 'string',
       'locale': 'string',
       'read-only': 'boolean',
@@ -542,33 +562,45 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * @internal
    */
   static get observedAttributes(): string[] {
-    return [...Object.keys(MathfieldElement.optionsAttributes), 'disabled'];
+    return [
+      ...Object.keys(MathfieldElement.optionsAttributes),
+      'disabled', // Global attribute
+      'readonly', // A semi-global attribute (not all standard elements support it, but some do)
+    ];
   }
 
   private _mathfield: MathfieldPrivate;
-  // The original text content of the slot
-  // Recored at construction to avoid reacting to it if a
-  // slotchange event gets fired as part of the construction
-  // (different browsers behave differently).
+  // The original text content of the slot.
+  // Recorded at construction to avoid reacting to it if a `slotchange` event
+  // gets fired as part of the construction (different browsers behave
+  // differently).
   private _slotValue: string;
+
+  // The content of <style> tags inside the element.
+  private _style: string;
 
   /**
      * To create programmatically a new mahfield use:
      * ```javascript
     let mfe = new MathfieldElement();
+
     // Set initial value and options
     mfe.value = "\\frac{\\sin(x)}{\\cos(x)}";
+
     // Options can be set either as an attribute (for simple options)...
     mfe.setAttribute('virtual-keyboard-layout', 'dvorak');
+
     // ... or using `setOptions()`
     mfe.setOptions({
         virtualKeyboardMode: 'manual',
     });
+
     // Attach the element to the DOM
     document.body.appendChild(mfe);
     * ```
     */
   constructor(options?: Partial<MathfieldOptions>) {
+    throwIfNotInBrowser();
     super();
 
     this.attachShadow({ mode: 'open' });
@@ -600,7 +632,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         .assignedElements()
         .filter(
           (x) =>
-            x.tagName === 'SCRIPT' &&
+            x.tagName.toLowerCase() === 'script' &&
             (x as HTMLScriptElement).type === 'application/json'
         )
         .map((x) => x.textContent)
@@ -612,22 +644,19 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       console.log(error);
     }
 
+    try {
+      this._style = slot
+        .assignedElements()
+        .filter((x) => x.tagName.toLowerCase() === 'style')
+        .map((x) => x.textContent)
+        .join('');
+    } catch (error: unknown) {
+      console.log(error);
+    }
+
     // Record the (optional) configuration options, as a deferred state
     if (options) {
       this.setOptions(options);
-    }
-
-    // Check if there is a `value` attribute and set the initial value
-    // of the mathfield from it
-    if (this.hasAttribute('value')) {
-      this.value = this.getAttribute('value');
-    } else {
-      this.value =
-        slot
-          ?.assignedNodes()
-          .map((x) => (x.nodeType === 3 ? x.textContent : ''))
-          .join('')
-          .trim() ?? '';
     }
   }
 
@@ -665,7 +694,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *  @category Options
    */
   getOption<K extends keyof MathfieldOptions>(key: K): MathfieldOptions[K] {
-    return this.getOptions([key]) as unknown as MathfieldOptions[K];
+    return this.getOptions([key])[key];
   }
 
   /**
@@ -675,13 +704,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     if (this._mathfield) {
       this._mathfield.setOptions(options);
     } else if (gDeferredState.has(this)) {
+      const mergedOptions = {
+        ...gDeferredState.get(this).options,
+        ...options,
+      };
       gDeferredState.set(this, {
         value: gDeferredState.get(this).value,
-        selection: { ranges: options.readOnly ? [[0, 0]] : [[0, -1]] },
-        options: {
-          ...gDeferredState.get(this).options,
-          ...options,
-        },
+        selection: { ranges: mergedOptions.readOnly ? [[0, 0]] : [[0, -1]] },
+        options: mergedOptions,
       });
     } else {
       gDeferredState.set(this, {
@@ -753,7 +783,11 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         format = arg1 as OutputFormat;
       }
 
-      if (format === 'latex' && start === 0 && end === -1) {
+      if (
+        (format === undefined || format === 'latex') &&
+        start === 0 &&
+        end === -1
+      ) {
         return gDeferredState.get(this).value;
       }
     }
@@ -771,26 +805,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
 
     if (gDeferredState.has(this)) {
+      const options = gDeferredState.get(this).options;
       gDeferredState.set(this, {
         value,
         selection: {
-          ranges: gDeferredState.get(this).options.readOnly
-            ? [[0, 0]]
-            : [[0, -1]],
+          ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
           direction: 'forward',
         },
-        options: gDeferredState.get(this).options,
+        options,
       });
       return;
     }
 
+    const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
       value,
       selection: {
-        ranges: getOptionsFromAttributes(this).readOnly ? [[0, 0]] : [[0, -1]],
+        ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
         direction: 'forward',
       },
-      options: getOptionsFromAttributes(this),
+      options: attrOptions,
     });
   }
 
@@ -823,12 +857,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   focus(): void {
     super.focus();
-    // If (this._mathfield) {
-    //     // Don't call this._mathfield.focus(): it checks the focus state,
-    //     // but super.focus() just changed it...
-    //     this._mathfield.keyboardDelegate.focus();
-    //     this._mathfield.model.announce('line');
-    // }
   }
 
   /**
@@ -840,11 +868,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   blur(): void {
     super.blur();
-    // If (this._mathfield) {
-    //     // Don't call this._mathfield.focs(): it checks the focus state,
-    //     // but super.blur() just changed it...
-    //     this._mathfield.keyboardDelegate.blur();
-    // }
   }
 
   /**
@@ -958,8 +981,33 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   connectedCallback(): void {
     if (!this.hasAttribute('role')) this.setAttribute('role', 'textbox');
+
     // This.setAttribute('aria-multiline', 'false');
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
+
+    // Add shadowed stylesheet if one was provided
+    if (this._style) {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = this._style;
+      this.shadowRoot.appendChild(styleElement);
+    }
+
+    const slot =
+      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
+
+    let value = '';
+    // Check if there is a `value` attribute and set the initial value
+    // of the mathfield from it
+    if (this.hasAttribute('value')) {
+      value = this.getAttribute('value');
+    } else {
+      value =
+        slot
+          ?.assignedNodes()
+          .map((x) => (x.nodeType === 3 ? x.textContent : ''))
+          .join('')
+          .trim() ?? '';
+    }
 
     this._mathfield = new MathfieldPrivate(
       this.shadowRoot.querySelector(':host > div'),
@@ -969,6 +1017,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('blur', {
               cancelable: false,
               bubbles: false, // DOM 'focus' and 'blur' don't bubble
+              composed: true,
             })
           );
         },
@@ -977,6 +1026,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('input', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -998,6 +1048,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               },
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1006,6 +1057,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('focus', {
               cancelable: false,
               bubbles: false, // DOM 'focus' and 'blur' don't bubble
+              composed: true,
             })
           );
         },
@@ -1022,6 +1074,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               },
               cancelable: true,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1030,6 +1083,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('mode-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1041,6 +1095,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1053,6 +1108,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               detail: { direction },
               cancelable: true,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1065,6 +1121,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
               detail: { direction },
               cancelable: true,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1073,6 +1130,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('read-aloud-status-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1081,6 +1139,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('selection-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
@@ -1089,32 +1148,30 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
             new Event('undo-state-change', {
               cancelable: false,
               bubbles: true,
+              composed: true,
             })
           );
         },
-        ...getOptionsFromAttributes(this),
-        ...(gDeferredState.has(this) ? gDeferredState.get(this).options : {}),
+        ...(gDeferredState.has(this)
+          ? gDeferredState.get(this).options
+          : getOptionsFromAttributes(this)),
+        value,
       }
     );
 
-    this.upgradeProperty('disabled');
+    if (!gDeferredState.has(this)) {
+      this.upgradeProperty('disabled');
+      this.upgradeProperty('readonly');
+      for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+        this.upgradeProperty(toCamelCase(attr));
+      }
+    }
 
     // The mathfield creation could have failed
     if (!this._mathfield || !this._mathfield.model) {
       this._mathfield = null;
       return;
     }
-
-    // This._mathfield.field.parentElement.addEventListener(
-    //     'focus',
-    //     (_event) => this._mathfield.focus(),
-    //     true
-    // );
-    // this._mathfield.field.parentElement.addEventListener(
-    //     'blur',
-    //     (_event) => this._mathfield.blur(),
-    //     true
-    // );
 
     if (gDeferredState.has(this)) {
       this._mathfield.model.deferNotifications(
@@ -1127,8 +1184,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       );
     }
 
-    const slot =
-      this.shadowRoot.querySelector<HTMLSlotElement>('slot:not([name])');
     slot.addEventListener('slotchange', (event) => {
       if (event.target !== slot) return;
       const value = slot
@@ -1148,10 +1203,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // Notify listeners that we're mounted and ready
     this.dispatchEvent(
-      new Event('mount', {
-        cancelable: false,
-        bubbles: true,
-      })
+      new Event('mount', { cancelable: false, bubbles: true, composed: true })
     );
   }
 
@@ -1162,21 +1214,17 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   disconnectedCallback(): void {
     // Notify listeners that we're about to be unmounted
     this.dispatchEvent(
-      new Event('unmount', {
-        cancelable: false,
-        bubbles: true,
-      })
+      new Event('unmount', { cancelable: false, bubbles: true, composed: true })
     );
 
     if (!this._mathfield) return;
 
-    // Save the state (in case the elements get reconnected later)
+    // Save the state (in case the element gets reconnected later)
     const options = {};
-    Object.keys(MathfieldElement.optionsAttributes).forEach((x) => {
-      options[toCamelCase(x)] = this._mathfield.getOption(
-        toCamelCase(x) as any
-      );
-    });
+    for (const attr of Object.keys(MathfieldElement.optionsAttributes)) {
+      const prop = toCamelCase(attr);
+      options[prop] = this._mathfield.getOption(prop as any);
+    }
     gDeferredState.set(this, {
       value: this._mathfield.getValue(),
       selection: this._mathfield.selection,
@@ -1199,6 +1247,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       // the element was connected: delete the property (after saving its value)
       // and use the setter to (re-)set its value.
       delete this[prop];
+      if (prop === 'readonly') prop = 'readOnly';
       this[prop] = value;
     }
   }
@@ -1218,8 +1267,24 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       case 'disabled':
         this.disabled = hasValue;
         break;
+      case 'readonly':
+        this.readOnly = hasValue;
+        break;
       default:
     }
+  }
+
+  get readonly(): boolean {
+    return this.hasAttribute('readonly') || this.hasAttribute('read-only');
+  }
+
+  set readonly(value: boolean) {
+    const isDisabled = Boolean(value);
+    if (isDisabled) this.setAttribute('disabled', '');
+    else this.removeAttribute('disabled');
+
+    this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
+    this.setOptions({ readOnly: isDisabled });
   }
 
   get disabled(): boolean {
@@ -1251,6 +1316,187 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   set value(value: string) {
     this.setValue(value);
+  }
+
+  get defaultMode(): 'inline-math' | 'math' | 'text' {
+    return this.getOption('defaultMode');
+  }
+  set defaultMode(value: 'inline-math' | 'math' | 'text') {
+    this.setOptions({ defaultMode: value });
+  }
+  get fontsDirectory(): string {
+    return this.getOption('fontsDirectory');
+  }
+  set fontsDirectory(value: string) {
+    this.setOptions({ fontsDirectory: value });
+  }
+  get mathModeSpace(): string {
+    return this.getOption('fontsDirectory');
+  }
+  set mathModeSpace(value: string) {
+    this.setOptions({ mathModeSpace: value });
+  }
+  get inlineShortcutTimeout(): number {
+    return this.getOption('inlineShortcutTimeout');
+  }
+  set inlineShortcutTimeout(value: number) {
+    this.setOptions({ inlineShortcutTimeout: value });
+  }
+  get keypressVibration(): boolean {
+    return this.getOption('keypressVibration');
+  }
+  set keypressVibration(value: boolean) {
+    this.setOptions({ keypressVibration: value });
+  }
+  get keypressSound():
+    | string
+    | HTMLAudioElement
+    | null
+    | {
+        spacebar?: string | HTMLAudioElement;
+        return?: string | HTMLAudioElement;
+        delete?: string | HTMLAudioElement;
+        default: string | HTMLAudioElement;
+      } {
+    return this.getOption('keypressSound');
+  }
+  set keypressSound(
+    value:
+      | string
+      | HTMLAudioElement
+      | null
+      | {
+          spacebar?: string | HTMLAudioElement;
+          return?: string | HTMLAudioElement;
+          delete?: string | HTMLAudioElement;
+          default: string | HTMLAudioElement;
+        }
+  ) {
+    this.setOptions({ keypressSound: value });
+  }
+  get plonkSound(): string | HTMLAudioElement | null {
+    return this.getOption('plonkSound');
+  }
+  set plonkSound(value: string | HTMLAudioElement) {
+    this.setOptions({ plonkSound: value });
+  }
+  get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright' {
+    return this.getOption('letterShapeStyle');
+  }
+  set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright') {
+    this.setOptions({ letterShapeStyle: value });
+  }
+  get locale(): string {
+    return this.getOption('locale');
+  }
+  set locale(value: string) {
+    this.setOptions({ locale: value });
+  }
+  get readOnly(): boolean {
+    return this.getOption('readOnly');
+  }
+  set readOnly(value: boolean) {
+    this.setOptions({ readOnly: value });
+  }
+  get removeExtraneousParentheses(): boolean {
+    return this.getOption('removeExtraneousParentheses');
+  }
+  set removeExtraneousParentheses(value: boolean) {
+    this.setOptions({ removeExtraneousParentheses: value });
+  }
+  get smartFence(): boolean {
+    return this.getOption('smartFence');
+  }
+  set smartFence(value: boolean) {
+    this.setOptions({ smartFence: value });
+  }
+  get smartMode(): boolean {
+    return this.getOption('smartMode');
+  }
+  set smartMode(value: boolean) {
+    this.setOptions({ smartMode: value });
+  }
+  get smartSuperscript(): boolean {
+    return this.getOption('smartSuperscript');
+  }
+  set smartSuperscript(value: boolean) {
+    this.setOptions({ smartSuperscript: value });
+  }
+
+  get speechEngine(): 'local' | 'amazon' {
+    return this.getOption('speechEngine');
+  }
+  set speechEngine(value: 'local' | 'amazon') {
+    this.setOptions({ speechEngine: value });
+  }
+  get speechEngineRate(): string {
+    return this.getOption('speechEngineRate');
+  }
+  set speechEngineRate(value: string) {
+    this.setOptions({ speechEngineRate: value });
+  }
+  get speechEngineVoice(): string {
+    return this.getOption('speechEngineVoice');
+  }
+  set speechEngineVoice(value: string) {
+    this.setOptions({ speechEngineVoice: value });
+  }
+  get textToSpeechMarkup(): '' | 'ssml' | 'ssml_step' | 'mac' {
+    return this.getOption('textToSpeechMarkup');
+  }
+  set textToSpeechMarkup(value: '' | 'ssml' | 'ssml_step' | 'mac') {
+    this.setOptions({ textToSpeechMarkup: value });
+  }
+  get textToSpeechRules(): 'mathlive' | 'sre' {
+    return this.getOption('textToSpeechRules');
+  }
+  set textToSpeechRule(value: 'mathlive' | 'sre') {
+    this.setOptions({ textToSpeechRules: value });
+  }
+
+  get virtualKeyboardLayout():
+    | 'auto'
+    | 'qwerty'
+    | 'azerty'
+    | 'qwertz'
+    | 'dvorak'
+    | 'colemak' {
+    return this.getOption('virtualKeyboardLayout');
+  }
+  set virtualKeyboardLayout(
+    value: 'auto' | 'qwerty' | 'azerty' | 'qwertz' | 'dvorak' | 'colemak'
+  ) {
+    this.setOptions({ virtualKeyboardLayout: value });
+  }
+  get virtualKeyboardMode(): 'auto' | 'manual' | 'onfocus' | 'off' {
+    return this.getOption('virtualKeyboardMode');
+  }
+  set virtualKeyboardMode(value: 'auto' | 'manual' | 'onfocus' | 'off') {
+    this.setOptions({ virtualKeyboardMode: value });
+  }
+  get virtualKeyboardTheme(): 'material' | 'apple' | '' {
+    return this.getOption('virtualKeyboardTheme');
+  }
+  set virtualKeyboardTheme(value: 'material' | 'apple' | '') {
+    this.setOptions({ virtualKeyboardTheme: value });
+  }
+  get virtualKeyboars(): string {
+    return this.getOption('virtualKeyboards');
+  }
+  set virtualKeyboars(value: string) {
+    this.setOptions({ virtualKeyboards: value });
+  }
+  get useSharedVirtualKeyboard(): boolean {
+    return this.getOption('useSharedVirtualKeyboard');
+  }
+  set useSharedVirtualKeyboard(value: boolean) {
+    this.setOptions({ useSharedVirtualKeyboard: value });
+  }
+  get sharedVirtualKeyboardTargetOrigin(): string {
+    return this.getOption('sharedVirtualKeyboardTargetOrigin');
+  }
+  set sharedVirtualKeyboardTargetOrigin(value: string) {
+    this.setOptions({ sharedVirtualKeyboardTargetOrigin: value });
   }
 
   /**

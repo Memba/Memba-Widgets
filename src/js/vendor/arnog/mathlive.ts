@@ -10,14 +10,18 @@ import type {
   ParserErrorCode,
   MathfieldErrorCode,
   MacroDictionary,
+  Registers,
 } from './public/core';
 
 import { Atom } from './core/atom-class';
 import { parseLatex } from './core/parser';
 import { adjustInterAtomSpacing, coalesce, makeStruts, Box } from './core/box';
-import { MACROS } from './core-definitions/definitions';
+import { getMacros } from './core-definitions/definitions';
 import { MathfieldPrivate } from './editor-mathfield/mathfield-private';
-import AutoRender, { AutoRenderOptionsPrivate } from './addons/auto-render';
+import {
+  AutoRenderOptionsPrivate,
+  autoRenderMathInElement,
+} from './addons/auto-render';
 import {
   MathJsonLatexOptions,
   MathJson,
@@ -46,6 +50,9 @@ import { RemoteVirtualKeyboard } from './editor-mathfield/remote-virtual-keyboar
 import { Context } from './core/context';
 import { DEFAULT_FONT_SIZE } from './core/font-metrics';
 import { l10n } from './editor/l10n';
+import { typeset } from './core/typeset';
+import { getDefaultRegisters } from './core/registers';
+import { isBrowser, throwIfNotInBrowser } from './common/capabilities';
 
 export { MathfieldElement } from './public/mathfield-element';
 
@@ -70,6 +77,7 @@ export function convertLatexToMarkup(
     mathstyle?: 'displaystyle' | 'textstyle';
     letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
     macros?: MacroDictionary;
+    registers?: Registers;
     colorMap?: (name: string) => string;
     backgroundColorMap?: (name: string) => string;
     onError?: ErrorListener<ParserErrorCode>;
@@ -82,23 +90,25 @@ export function convertLatexToMarkup(
   if (letterShapeStyle === 'auto') {
     letterShapeStyle = l10n.locale.startsWith('fr') ? 'french' : 'tex';
   }
-  options.macros = {
-    ...MACROS,
-    ...(options.macros ?? {}),
-  };
+  options.macros = getMacros(options?.macros);
 
   //
   // 1. Parse the formula and return a tree of atoms, e.g. 'genfrac'.
   //
 
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(text, {
-    parseMode: 'math',
-    macros: options.macros,
-    onError: options.onError,
-    colorMap: options.colorMap,
-    backgroundColorMap: options.backgroundColorMap,
-  });
+  root.body = typeset(
+    parseLatex(text, {
+      parseMode: 'math',
+      macros: options.macros,
+      registers: options.registers,
+      mathstyle: options.mathstyle,
+      onError: options.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    }),
+    { registers: options.registers }
+  );
 
   //
   // 2. Transform the math atoms into elementary boxes
@@ -108,6 +118,7 @@ export function convertLatexToMarkup(
     new Context(
       {
         macros: options.macros,
+        registers: getDefaultRegisters(),
         smartFence: false,
         renderPlaceholder: () => new Box(0xa0, { maxFontSize: 1.0 }),
       },
@@ -147,22 +158,22 @@ export function convertLatexToMathMl(
   latex: string,
   options: Partial<{
     macros: MacroDictionary;
+    registers?: Registers;
     colorMap?: (name: string) => string;
     backgroundColorMap?: (name: string) => string;
     onError: ErrorListener<ParserErrorCode>;
     generateID: boolean;
   }> = {}
 ): string {
-  options.macros = {
-    ...MACROS,
-    ...(options.macros ?? {}),
-  };
+  options.macros = getMacros(options?.macros);
 
   return atomsToMathML(
     parseLatex(latex, {
       parseMode: 'math',
       args: () => '',
       macros: options.macros,
+      registers: options.registers,
+      mathstyle: 'displaystyle',
       onError: options.onError,
       colorMap: options.colorMap,
       backgroundColorMap: options.backgroundColorMap,
@@ -192,12 +203,13 @@ function latexToAST(
   }
 ): MathJson {
   options = options ?? {};
-  options.macros = { ...MACROS, ...(options.macros ?? {}) };
+  options.macros = getMacros(options?.macros);
 
   return atomtoMathJson(
     parseLatex(latex, {
       parseMode: 'math',
       macros: options.macros,
+      registers: getDefaultRegisters(),
       onError: options.onError,
     }),
     options
@@ -221,18 +233,20 @@ export function convertLatexToSpeakableText(
   options: Partial<
     TextToSpeechOptions & {
       macros?: MacroDictionary;
+      registers?: Registers;
       colorMap?: (name: string) => string;
       backgroundColorMap?: (name: string) => string;
       onError?: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
     }
   > = {}
 ): string {
-  options.macros = options.macros ?? {};
-  Object.assign(options.macros, MACROS);
+  options.macros = getMacros(options?.macros);
 
   const atoms = parseLatex(latex, {
     parseMode: 'math',
     macros: options.macros,
+    registers: options.registers,
+    mathstyle: 'displaystyle',
     onError: options.onError,
     colorMap: options.colorMap,
     backgroundColorMap: options.backgroundColorMap,
@@ -255,11 +269,12 @@ function latexToSpeakableText(
 }
 
 export function renderMathInDocument(options: AutoRenderOptionsPrivate): void {
+  throwIfNotInBrowser();
   renderMathInElement(document.body, options);
 }
 
 function getElement(element: string | HTMLElement): HTMLElement {
-  if (typeof element === 'string') {
+  if (typeof element === 'string' && isBrowser()) {
     const result: HTMLElement = document.getElementById(element);
     if (result === null) {
       throw new Error(`The element with ID "${element}" could not be found.`);
@@ -268,20 +283,19 @@ function getElement(element: string | HTMLElement): HTMLElement {
     return result;
   }
 
-  return element;
+  return typeof element === 'string' ? null : element;
 }
 
 export function renderMathInElement(
   element: HTMLElement,
-  options: AutoRenderOptionsPrivate
+  options?: AutoRenderOptionsPrivate
 ): void {
   options = options ?? {};
   options.renderToMarkup = options.renderToMarkup ?? convertLatexToMarkup;
   options.renderToMathML = options.renderToMathML ?? convertLatexToMathMl;
   options.renderToSpeakableText =
     options.renderToSpeakableText ?? convertLatexToSpeakableText;
-  options.macros = options.macros ?? MACROS;
-  AutoRender.renderMathInElement(getElement(element), options);
+  autoRenderMathInElement(getElement(element), options);
 }
 
 function validateNamespace(options): void {
@@ -364,7 +378,6 @@ export const debug = {
   MATH_SYMBOLS: MathLiveDebug.MATH_SYMBOLS,
   TEXT_SYMBOLS: MathLiveDebug.TEXT_SYMBOLS,
   ENVIRONMENTS: MathLiveDebug.ENVIRONMENTS,
-  MACROS: MathLiveDebug.MACROS,
   DEFAULT_KEYBINDINGS: MathLiveDebug.DEFAULT_KEYBINDINGS,
   getKeybindingMarkup: MathLiveDebug.getKeybindingMarkup,
   INLINE_SHORTCUTS: MathLiveDebug.INLINE_SHORTCUTS,

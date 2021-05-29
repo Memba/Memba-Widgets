@@ -3,6 +3,7 @@ import type { ModelPrivate } from './model-private';
 import { Atom, BranchName } from '../core/atom';
 import { SubsupAtom } from '../core-atoms/subsup';
 import { move, skip } from './commands';
+import { isBrowser } from '../common/capabilities';
 
 export function moveAfterParent(model: ModelPrivate): boolean {
   const previousPosition = model.position;
@@ -77,10 +78,7 @@ function moveToSuperscript(model: ModelPrivate): boolean {
 
   let target = model.at(model.position);
 
-  if (
-    target.subsupPlacement !== 'over-under' &&
-    target.subsupPlacement !== 'auto'
-  ) {
+  if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (target.rightSibling?.type !== 'msubsup') {
@@ -115,10 +113,7 @@ function moveToSubscript(model: ModelPrivate): boolean {
 
   let target = model.at(model.position);
 
-  if (
-    target.subsupPlacement !== 'over-under' &&
-    target.subsupPlacement !== 'auto'
-  ) {
+  if (target.subsupPlacement === undefined) {
     // This atom can't have a superscript/subscript:
     // add an adjacent `msubsup` atom instead.
     if (model.at(model.position + 1)?.type !== 'msubsup') {
@@ -150,26 +145,6 @@ function moveToSubscript(model: ModelPrivate): boolean {
  * elements.
  */
 function getTabbableElements(): HTMLElement[] {
-  // Const focussableElements = `a[href]:not([disabled]),
-  // button:not([disabled]),
-  // textarea:not([disabled]),
-  // input[type=text]:not([disabled]),
-  // select:not([disabled]),
-  // [contentEditable="true"],
-  // [tabindex]:not([disabled]):not([tabindex="-1"])`;
-  // // Get all the potentially focusable elements
-  // // and exclude (1) those that are invisible (width and height = 0)
-  // // (2) not the active element
-  // // (3) the ancestor of the active element
-
-  // return Array.prototype.filter.call(
-  //     document.querySelectorAll(focussableElements),
-  //     (element) =>
-  //         ((element.offsetWidth > 0 || element.offsetHeight > 0) &&
-  //             !element.contains(document.activeElement)) ||
-  //         element === document.activeElement
-  // );
-
   function tabbable(element: HTMLElement) {
     const regularTabbables = [];
     const orderedTabbables = [];
@@ -288,6 +263,7 @@ function getTabbableElements(): HTMLElement[] {
 
   function isHidden(element: HTMLElement) {
     if (
+      !isBrowser() ||
       element === document.activeElement ||
       element.contains(document.activeElement)
     ) {
@@ -310,6 +286,7 @@ function getTabbableElements(): HTMLElement[] {
     return false;
   }
 
+  if (!isBrowser()) return [];
   return tabbable(document.body);
 }
 

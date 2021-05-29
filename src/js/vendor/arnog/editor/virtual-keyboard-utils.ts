@@ -23,10 +23,13 @@ import { loadFonts } from '../core/fonts';
 import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
 import { ExecuteCommandFunction } from './commands-definitions';
-import { MACROS } from '../core-definitions/definitions';
+import { getMacros } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
 import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
+import { typeset } from '../core/typeset';
+import { getDefaultRegisters } from '../core/registers';
+import { throwIfNotInBrowser } from '../common/capabilities';
 
 let gScrim: Scrim = null;
 
@@ -35,6 +38,8 @@ export function showAlternateKeys(
   altKeysetName: string,
   altKeys: (string | any)[]
 ): boolean {
+  throwIfNotInBrowser();
+
   const altContainer = document.createElement('div');
   altContainer.setAttribute('aria-hidden', 'true');
   altContainer.className =
@@ -164,6 +169,8 @@ export function showAlternateKeys(
 }
 
 export function hideAlternateKeys(): boolean {
+  throwIfNotInBrowser();
+
   const altContainer = document.querySelector<HTMLElement>(
     '#mathlive-alternate-keys-panel'
   );
@@ -1201,18 +1208,25 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
   latex = latex.replace(/(^|[^\\])#@/g, '$1#?');
 
   const root = new Atom('root', { mode: 'math' });
-  root.body = parseLatex(latex, {
-    parseMode: 'math',
-    args: arg,
-    macros: MACROS,
-  });
+  root.body = typeset(
+    parseLatex(latex, {
+      parseMode: 'math',
+      args: arg,
+      macros: getMacros(),
+      registers: getDefaultRegisters(),
+    })
+  );
 
   const box = coalesce(
     adjustInterAtomSpacing(
       new Box(
         root.render(
           new Context(
-            { macros: MACROS, smartFence: false },
+            {
+              macros: getMacros(),
+              registers: getDefaultRegisters(),
+              smartFence: false,
+            },
             {
               fontSize: DEFAULT_FONT_SIZE,
             },
@@ -1262,7 +1276,9 @@ function makeKeyboardToolbar(
 
       if (keyboards[keyboard].tooltip) {
         result +=
-          "data-ML__tooltip='" + l10n(keyboards[keyboard].tooltip) + "' ";
+          "data-ML__tooltip='" +
+          (l10n(keyboards[keyboard].tooltip) ?? keyboards[keyboard].tooltip) +
+          "' ";
         result += "data-placement='top' data-delay='1s'";
       }
 
@@ -1641,6 +1657,8 @@ export function makeKeyboardElement(
   keyboard: VirtualKeyboard,
   theme: 'apple' | 'material' | ''
 ): HTMLDivElement {
+  throwIfNotInBrowser();
+
   const svgIcons = `<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 
             <symbol id="svg-command" viewBox="0 0 640 512">

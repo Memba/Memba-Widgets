@@ -263,7 +263,7 @@ describe('widgets.audiovideo', () => {
         });
 
         // Note: Fails on Github
-        xit('toggleMute', (done) => {
+        (/^Win/i.test(navigator.platform) ? it : xit)('toggleMute', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
@@ -286,9 +286,6 @@ describe('widgets.audiovideo', () => {
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);
             expect(mediaElement).to.be.an.instanceof(window.HTMLVideoElement);
-
-            /* This function's cyclomatic complexity is too high */
-            /* jshint -W074 */
 
             // Yield some time for media files to load
             setTimeout(() => {
@@ -315,11 +312,9 @@ describe('widgets.audiovideo', () => {
                 ).to.be.false;
                 done();
             }, TTL);
-
-            /* jshint +W074 */
         });
 
-        it('volume', (done) => {
+        (/^Win/i.test(navigator.platform) ? it : xit)('volume', (done) => {
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             const mediaElement = widget.media.get(0);

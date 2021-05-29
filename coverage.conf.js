@@ -85,7 +85,8 @@ module.exports = (config) => {
             },
             // Other files made available on demand
             {
-                pattern: 'src/js/**/*.{es6,js,mjs}',
+                // pattern: 'src/js/**/*.{es6,js,mjs}', <-- This breaks karma start
+                pattern: 'src/js/**/*',
                 served: true,
                 included: false,
             },

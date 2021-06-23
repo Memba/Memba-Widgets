@@ -3,7 +3,7 @@ Language: Less
 Description: It's CSS, with just a little more.
 Author:   Max Mikhailov <seven.phases.max@gmail.com>
 Website: http://lesscss.org
-Category: common, css
+Category: common, css, web
 */
 
 import * as css from "./lib/css-shared.js";
@@ -58,7 +58,7 @@ export default function(hljs) {
     hljs.C_BLOCK_COMMENT_MODE,
     STRING_MODE("'"),
     STRING_MODE('"'),
-    hljs.CSS_NUMBER_MODE, // fixme: it does not include dot for numbers like .5em :(
+    modes.CSS_NUMBER_MODE, // fixme: it does not include dot for numbers like .5em :(
     {
       begin: '(url|data-uri)\\(',
       starts: {
@@ -200,8 +200,9 @@ export default function(hljs) {
         begin: '::(' + css.PSEUDO_ELEMENTS.join('|') + ')'
       },
       {
-        begin: '\\(',
-        end: '\\)',
+        begin: /\(/,
+        end: /\)/,
+        relevance: 0,
         contains: VALUE_WITH_RULESETS
       }, // argument list of parametric mixins
       {

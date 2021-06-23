@@ -3,7 +3,7 @@ Language: CoffeeScript
 Author: Dmytrii Nagirniak <dnagir@gmail.com>
 Contributors: Oleg Efimov <efimovov@gmail.com>, Cédric Néhémie <cedric.nehemie@gmail.com>
 Description: CoffeeScript is a programming language that transcompiles to JavaScript. For info about language see http://coffeescript.org/
-Category: common, scripting
+Category: scripting
 Website: https://coffeescript.org
 */
 
@@ -164,7 +164,8 @@ export default function(hljs) {
     ],
     keywords: KEYWORDS,
     illegal: /\/\*/,
-    contains: EXPRESSIONS.concat([
+    contains: [
+      ...EXPRESSIONS,
       hljs.COMMENT('###', '###'),
       hljs.HASH_COMMENT_MODE,
       {
@@ -211,6 +212,6 @@ export default function(hljs) {
         returnEnd: true,
         relevance: 0
       }
-    ])
+    ]
   };
 }

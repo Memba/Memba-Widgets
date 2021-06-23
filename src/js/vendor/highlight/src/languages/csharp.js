@@ -329,7 +329,7 @@ export default function(hljs) {
         begin: '#',
         end: '$',
         keywords: {
-          'meta-keyword': 'if else elif endif define undef warning error line region endregion pragma checksum'
+          keyword: 'if else elif endif define undef warning error line region endregion pragma checksum'
         }
       },
       STRING,
@@ -375,13 +375,13 @@ export default function(hljs) {
       {
         // [Attributes("")]
         className: 'meta',
-        begin: '^\\s*\\[',
+        begin: '^\\s*\\[(?=[\\w])',
         excludeBegin: true,
         end: '\\]',
         excludeEnd: true,
         contains: [
           {
-            className: 'meta-string',
+            className: 'string',
             begin: /"/,
             end: /"/
           }

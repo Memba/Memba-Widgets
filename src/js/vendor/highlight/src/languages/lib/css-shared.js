@@ -1,15 +1,15 @@
 export const MODES = (hljs) => {
   return {
     IMPORTANT: {
-      className: 'meta',
+      scope: 'meta',
       begin: '!important'
     },
     HEXCOLOR: {
-      className: 'number',
+      scope: 'number',
       begin: '#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})'
     },
     ATTRIBUTE_SELECTOR_MODE: {
-      className: 'selector-attr',
+      scope: 'selector-attr',
       begin: /\[/,
       end: /\]/,
       illegal: '$',
@@ -17,6 +17,19 @@ export const MODES = (hljs) => {
         hljs.APOS_STRING_MODE,
         hljs.QUOTE_STRING_MODE
       ]
+    },
+    CSS_NUMBER_MODE: {
+      scope: 'number',
+      begin: hljs.NUMBER_RE + '(' +
+        '%|em|ex|ch|rem' +
+        '|vw|vh|vmin|vmax' +
+        '|cm|mm|in|pt|pc|px' +
+        '|deg|grad|rad|turn' +
+        '|s|ms' +
+        '|Hz|kHz' +
+        '|dpi|dpcm|dppx' +
+        ')?',
+      relevance: 0
     }
   };
 };

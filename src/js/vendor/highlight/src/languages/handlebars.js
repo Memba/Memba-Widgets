@@ -11,7 +11,8 @@ import * as regex from '../lib/regex.js';
 
 export default function(hljs) {
   const BUILT_INS = {
-    'builtin-name': [
+    $pattern: /[\w.\/]+/,
+    built_in: [
       'action',
       'bindattr',
       'collection',
@@ -45,6 +46,7 @@ export default function(hljs) {
   };
 
   const LITERALS = {
+    $pattern: /[\w.\/]+/,
     literal: [
       'true',
       'false',
@@ -87,8 +89,7 @@ export default function(hljs) {
   );
 
   const HELPER_NAME_OR_PATH_EXPRESSION = {
-    begin: IDENTIFIER_REGEX,
-    lexemes: /[\w.\/]+/
+    begin: IDENTIFIER_REGEX
   };
 
   const HELPER_PARAMETER = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, {

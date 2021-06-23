@@ -32,6 +32,7 @@ export const keywords = [
   // strings below will be fed into the regular `keywords` engine while regex
   // will result in additional modes being created to scan for those keywords to
   // avoid conflicts with other rules
+  'actor',
   'associatedtype',
   'async',
   'await',
@@ -297,6 +298,7 @@ export const keywordAttributes = [
   'objcMembers',
   'propertyWrapper',
   'requires_stored_property_inits',
+  'resultBuilder',
   'testable',
   'UIApplicationMain',
   'unknown',

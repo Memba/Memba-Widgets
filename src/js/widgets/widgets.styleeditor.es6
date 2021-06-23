@@ -9,7 +9,7 @@
 // TODO Add whitelist
 
 // TODO add background-image and other background styles - https://github.com/kidoju/Kidoju-Widgets/issues/250
-// TODO share the kidoju.Style class with Memba.Widgets.formatStrip - https://github.com/kidoju/Kidoju-Widgets/issues/113
+// TODO share the Style class with widgets.formatstrip - https://github.com/kidoju/Kidoju-Widgets/issues/113
 // TODO load and use web fonts - https://github.com/kidoju/Kidoju-Widgets/issues/68
 // TODO review height in options - https://github.com/kidoju/Kidoju-Widgets/issues/54
 // TODO whitelist/blacklist styles - https://github.com/kidoju/Kidoju-Widgets/issues/43

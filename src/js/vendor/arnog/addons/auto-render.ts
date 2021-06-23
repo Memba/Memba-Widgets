@@ -9,6 +9,7 @@ import { inject as injectStylesheet } from '../common/stylesheet';
 import coreStylesheet from '../../css/core.less';
 import { parseMathString } from '../editor/parse-math-string';
 import { throwIfNotInBrowser } from '../common/capabilities';
+import { hashCode } from '../common/hash-code';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
@@ -103,7 +104,12 @@ function splitAtDelimiters(
   rawData?: string;
   mathstyle?: string;
 }[] {
-  const finalData = [];
+  const finalData: {
+    type: string;
+    data: string;
+    rawData?: string;
+    mathstyle?: string;
+  }[] = [];
 
   for (const startDatum of startData) {
     if (startDatum.type === 'text') {
@@ -251,7 +257,7 @@ function createMathMLNode(
   try {
     const html =
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-      options.renderToMathML(latex, options) +
+      options.renderToMathML!(latex, options) +
       '</math>';
     span.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
@@ -268,7 +274,7 @@ function createMarkupNode(
   options: AutoRenderOptionsPrivate,
   mathstyle: 'displaystyle' | 'textstyle',
   createNodeOnFailure: boolean
-): HTMLSpanElement | Text {
+): HTMLSpanElement | Text | null {
   throwIfNotInBrowser();
 
   // Create a node for displaying math.
@@ -282,7 +288,7 @@ function createMarkupNode(
   element.setAttribute('aria-hidden', 'true');
 
   try {
-    const html = options.renderToMarkup(text, {
+    const html = options.renderToMarkup!(text, {
       mathstyle: mathstyle ?? 'displaystyle',
       format: 'html',
       macros: options.macros,
@@ -304,7 +310,7 @@ function createAccessibleMarkupPair(
   mathstyle: 'displaystyle' | 'textstyle' | string,
   options: AutoRenderOptionsPrivate,
   createNodeOnFailure: boolean
-): Node {
+): Node | null {
   // Create a math node (a span with an accessible component and a visual component)
   // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
   //   'null' is returned or an accessible node with the text used.
@@ -314,22 +320,16 @@ function createAccessibleMarkupPair(
     mathstyle as 'displaystyle' | 'textstyle',
     createNodeOnFailure
   );
-
-  if (
-    markupNode &&
-    /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)
-  ) {
+  const accessibleContent = options.renderAccessibleContent ?? '';
+  if (markupNode && /\b(mathml|speakable-text)\b/i.test(accessibleContent)) {
     throwIfNotInBrowser();
     const fragment = document.createElement('span');
-    if (
-      /\bmathml\b/i.test(options.renderAccessibleContent) &&
-      options.renderToMathML
-    ) {
+    if (/\bmathml\b/i.test(accessibleContent) && options.renderToMathML) {
       fragment.append(createMathMLNode(latex, options));
     }
 
     if (
-      /\bspeakable-text\b/i.test(options.renderAccessibleContent) &&
+      /\bspeakable-text\b/i.test(accessibleContent) &&
       options.renderToSpeakableText
     ) {
       const span = document.createElement('span');
@@ -346,16 +346,18 @@ function createAccessibleMarkupPair(
   return markupNode;
 }
 
-function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
+function scanText(
+  text: string,
+  options: AutoRenderOptionsPrivate
+): Node | null {
   throwIfNotInBrowser();
 
   // If the text starts with '\begin'... (this is a MathJAX behavior)
-  let fragment: Node = null;
-  if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
+  let fragment: Node | null = null;
+  if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
     fragment = document.createDocumentFragment();
-    fragment.appendChild(
-      createAccessibleMarkupPair(text, undefined, options, true)
-    );
+    const node = createAccessibleMarkupPair(text, '', options, true);
+    if (node) fragment.appendChild(node);
   } else {
     if (!text.trim()) return null;
     const data = splitWithDelimiters(
@@ -374,9 +376,13 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
       if (datum.type === 'text') {
         fragment.appendChild(document.createTextNode(datum.data));
       } else {
-        fragment.appendChild(
-          createAccessibleMarkupPair(datum.data, datum.mathstyle, options, true)
+        const node = createAccessibleMarkupPair(
+          datum.data,
+          datum.mathstyle ?? '',
+          options,
+          true
         );
+        if (node) fragment.appendChild(node);
       }
     }
   }
@@ -410,11 +416,9 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
     // This is a node with textual content only. Perhaps an opportunity
     // to simplify and avoid creating extra nested elements...
     const text = element.childNodes[0].textContent;
-    if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
+    if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
       element.textContent = '';
-      element.append(
-        createAccessibleMarkupPair(text, undefined, options, true)
-      );
+      element.append(createAccessibleMarkupPair(text, '', options, true));
       return;
     }
 
@@ -430,7 +434,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       element.append(
         createAccessibleMarkupPair(
           data[0].data,
-          data[0].mathstyle,
+          data[0].mathstyle ?? '',
           options,
           true
         )
@@ -463,7 +467,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       const tag = childNode.nodeName.toLowerCase();
       if (
         tag === 'script' &&
-        options.processScriptTypePattern.test(childNode.type)
+        options.processScriptTypePattern?.test(childNode.type)
       ) {
         let style = 'displaystyle';
         for (const l of childNode.type.split(';')) {
@@ -485,10 +489,10 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
         // Element node
         // console.assert(childNode.className !== 'formula');
         const shouldRender =
-          options.processClassPattern.test(childNode.className) ||
+          (options.processClassPattern?.test(childNode.className) ?? false) ||
           !(
-            options.skipTags.includes(tag) ||
-            options.ignoreClassPattern.test(childNode.className)
+            (options.skipTags?.includes(tag) ?? false) ||
+            (options.ignoreClassPattern?.test(childNode.className) ?? false)
           );
 
         if (shouldRender) {
@@ -538,10 +542,6 @@ const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   // be processed when they appear inside ones that are ignored.
   processClass: 'tex2jax_process',
 
-  // Indicate whether to preserve or discard the original content of the
-  // elements being rendered in a 'data-original-content' attribute.
-  preserveOriginalContent: true,
-
   // Indicate the format to use to render accessible content
   renderAccessibleContent: 'mathml',
 
@@ -571,9 +571,11 @@ export function autoRenderMathInElement(
 ): void {
   try {
     options = { ...DEFAULT_AUTO_RENDER_OPTIONS, ...options };
-    options.ignoreClassPattern = new RegExp(options.ignoreClass);
-    options.processClassPattern = new RegExp(options.processClass);
-    options.processScriptTypePattern = new RegExp(options.processScriptType);
+    options.ignoreClassPattern = new RegExp(options.ignoreClass ?? '');
+    options.processClassPattern = new RegExp(options.processClass ?? '');
+    options.processScriptTypePattern = new RegExp(
+      options.processScriptType ?? ''
+    );
     options.macros = getMacros(options.macros);
 
     // Validate the namespace (used for `data-` attributes)
@@ -593,7 +595,11 @@ export function autoRenderMathInElement(
     // avoid having to do it many times in the case of a `renderMathInDocument()`
     // call.
     void loadFonts(options.fontsDirectory);
-    injectStylesheet(null, coreStylesheet);
+    injectStylesheet(
+      null,
+      coreStylesheet,
+      hashCode(coreStylesheet).toString(36)
+    );
 
     scanElement(element, options);
   } catch (error: unknown) {

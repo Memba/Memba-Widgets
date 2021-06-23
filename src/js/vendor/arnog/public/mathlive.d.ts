@@ -1,4 +1,4 @@
-/**
+/* 0.69.3 *//**
  *
  * Use MathLive to render and edit mathematical formulas.
  *
@@ -13,8 +13,8 @@
  * console.log(convertLatexToSpeakableText('e^{i\\pi}+1=0'));
  * </script>
  *
- * @packageDocumentation MathLive SDK Reference {{SDK_VERSION}}
- * @version {{SDK_VERSION}}
+ * @packageDocumentation MathLive SDK Reference 0.69.3
+ * @version 0.69.3
  *
  */
 import { Mathfield } from './mathfield';
@@ -25,7 +25,7 @@ export { Mathfield };
 export { MathfieldOptions as MathfieldConfig };
 export { MathfieldElement };
 /**
- * Current version: `{{SDK_VERSION}}`
+ * Current version: `0.69.3`
  *
  * The version string of the SDK using the [semver](https://semver.org/) convention:
  *
@@ -36,31 +36,6 @@ export { MathfieldElement };
  * * **`PATCH`** is incremented for bug fixes
  */
 export declare const version: string;
-/**
- * Convert a DOM element into an editable mathfield.
- *
- * Consider using a `<math-field>` tag or `new MathfieldElement()` instead. {.notice--warning}
- *
- * The `mathfield` property of the DOM element is a reference to the corresponding
- * `Mathfield` object. This value is also returned by `makeMathField()`.
- *
- * @param element A DOM element, for example as obtained
- * by `document.getElementById()`, or the ID of a DOM element as a string.
- *
- *
- * Given the HTML markup:
- * ```html
- * <span id='equation'>$f(x)=sin(x)$</span>
- * ```
- * The following code will turn the span into an editable mathfield.
- * ```javascript
- * import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
- * makeMathField('equation');
- * ```
- * @keywords create, make, mathfield
- * @deprecated Use `new [[MathfieldElement]]()`
- */
-export declare function makeMathField(element: HTMLElement | string, options: Partial<MathfieldOptions>): Mathfield;
 /**
  * Initialize remote client for mathfield elements rendered in child frames.
  * This client instance control focus between multiple frames and mathfield elements and
@@ -74,7 +49,7 @@ export declare function makeMathField(element: HTMLElement | string, options: Pa
  *      <math-field virtual-keyboard-mode="onfocus" use-shared-virtual-keyboard />
  *
  *      <script type="module">
- *          import { makeMathField } from 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
+ *          import 'https://unpkg.com/mathlive/dist/mathlive.min.mjs';
  *      </script>
  * </iframe>
  * ```
@@ -130,16 +105,6 @@ export declare function convertLatexToMarkup(text: string, options?: {
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
- * @category Converting
- * @deprecated Use [[`convertLatexToMarkup`]]
- */
-export declare function latexToMarkup(text: string, options?: {
-    mathstyle?: 'displaystyle' | 'textstyle';
-    letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
-    macros?: MacroDictionary;
-    onError?: ErrorListener<ParserErrorCode>;
-}): string;
-/**
  * Convert a LaTeX string to a string of MathML markup.
  *
  * @param latex A string of valid LaTeX. It does not have to start
@@ -159,65 +124,6 @@ export declare function convertLatexToMathMl(latex: string, options?: {
     onError?: ErrorListener<ParserErrorCode>;
 }): string;
 /**
- * @deprecated Use [[`convertLatexToMathMl`]]
- * @category Converting
- */
-export declare function latexToMathML(latex: string, options?: {
-    macros?: MacroDictionary;
-    generateID: boolean;
-    onError?: ErrorListener<ParserErrorCode>;
-}): string;
-/**
- * Convert a LaTeX string to a {@tutorial math-json | MathJSON } Abstract Syntax Tree
- *
- * **See Also:** [[astToLatex|astToLatex()]]
- *
- * @param latex A string of valid LaTeX. It does not have to start
- * with a mode token such as a `$$` or `\(`.
- * @param options.macros A dictionary of LaTeX macros
- * @param options.onError Callback invoked when an error is encountered while
- * parsing the input string.
- *
- * @return  The Abstract Syntax Tree as an object literal using the MathJSON format.
- * @category Converting
- * @keywords convert, latex, mathjson, ast
- * @deprecated Use MathJSON
- */
-export declare function latexToAST(latex: string, options?: {
-    macros?: MacroDictionary;
-    onError?: ErrorListener<ParserErrorCode | string>;
-}): any;
-/**
- * Converts a {@tutorial math-json | MathJSON } Abstract Syntax Tree to a LaTeX string.
- *
- * **See Also:** [[latexToAST|latexToAST()]]
- *
- * @return The LaTeX representation of the Abstract Syntax Tree, if valid.
- * @category Converting
- * @keywords convert, latex, mathjson, ast
- * @deprecated Use MathJSON
- */
-export declare function astToLatex(mathJson: any, options?: {
-    /** The number of digits used in the representation of numbers. **Default** = 14 */
-    precision?: number;
-    /** The character used as the decimal marker. **Default** = `"."`. */
-    decimalMarker?: string;
-    /** The character used to separate group of numbers, typically thousands. **Default** = `"\\, "` */
-    groupSeparator?: string;
-    /** The character used to indicate product. Other option would be `"\\times "`. **Default** = `"\\cdot "` */
-    product?: string;
-    /** The character used before an exponent indicator. **Default** = `"\\cdot "` */
-    exponentProduct?: string;
-    /** The character used to indicate an exponent. **Default** = `""` */
-    exponentMarker?: string;
-    /** The format used for numbers using the scientific notation. **Default** = `"auto"` * /
-        scientificNotation?: 'auto' | 'engineering' | 'on';
-        /** The string used at the begining of repeating digits. **Default** = `"\\overline{"` */
-    beginRepeatingDigits?: string;
-    /** The string used at the end of repeating digits. **Default** = `"}"` */
-    endRepeatingDigits?: string;
-}): string;
-/**
  * Convert a LaTeX string to a textual representation ready to be spoken
  *
  * @param latex A string of valid LaTeX. It does not have to start
@@ -235,15 +141,6 @@ export declare function astToLatex(mathJson: any, options?: {
  * @keywords convert, latex, speech, speakable, text, speakable text
  */
 export declare function convertLatexToSpeakableText(latex: string, options: TextToSpeechOptions & {
-    macros?: MacroDictionary;
-    registers?: Registers;
-    onError?: ErrorListener<ParserErrorCode>;
-}): string;
-/**
- * @deprecated Use [[`convertLatexToSpeakableText`]]
- * @category Converting
- */
-export declare function latexToSpeakableText(latex: string, options: TextToSpeechOptions & {
     macros?: MacroDictionary;
     registers?: Registers;
     onError?: ErrorListener<ParserErrorCode>;
@@ -299,7 +196,7 @@ export declare type AutoRenderOptions = {
      * by injecting a string of HTML, allowing that string to be sanitized
      * according to a policy defined by the host.
      */
-    createHTML?: (html: string) => any;
+    createHTML?: (html: string) => string;
     /** Custom LaTeX macros */
     macros?: MacroDictionary;
     /** LaTeX global register overrides */
@@ -346,17 +243,6 @@ export declare type AutoRenderOptions = {
      * **Default**: `'mathml'`
      */
     renderAccessibleContent?: string;
-    /** If true, store the
-     * original textual content of the element in a `data-original-content`
-     * attribute. This value can be accessed for example to restore the element to
-     * its original value:
-     * ```javascript
-     *      elem.innerHTML = elem.dataset.originalContent;
-     * ```
-     * @deprecated
-     *
-     */
-    preserveOriginalContent?: boolean;
     /**
      * If true, generate markup that can
      * be read aloud later using {@linkcode speak}
@@ -428,51 +314,3 @@ export declare function renderMathInDocument(options?: AutoRenderOptions): void;
  * @keywords render, element, htmlelement
  */
 export declare function renderMathInElement(element: string | HTMLElement, options?: AutoRenderOptions): void;
-/**
- * After calling {@linkcode renderMathInElement}
- * or {@linkcode makeMathField} the original content
- * can be restored by calling this function.
- *
- * @category Rendering
- * @keywords revert, original, content
- * @deprecated
- */
-export declare function revertToOriginalContent(element: HTMLElement, 
-/** The namespace used for the `data-`
- * attributes. If you used a namespace with `renderMathInElement`, you must
- * use the same namespace here.
- */
-options?: {
-    namespace?: string;
-}): void;
-/**
- * After calling {@linkcode renderMathInElement}
- * or {@linkcode makeMathField} the original content
- * can be retrieved by calling this function.
- *
- * Given the following markup:
- * ```html
- * <span id='equation'>$$f(x)=sin(x)$$</span>
- * ```
- * The following code:
- * ```javascript
- * renderMathInElement('equation');
- * console.log(getOriginalContent('equation'));
- * ```
- * will output:
- * ```
- * $$f(x)=sin(x)$$
- * ```
- * @param {string | HTMLElement | Mathfield} element - A DOM element ID, a DOM
- * element or a Mathfield.
- *
- * @category Rendering
- * @keywords original, content
- * @deprecated
- */
-export declare function getOriginalContent(element: string | HTMLElement, options?: {
-    /** The namespace used for the `data-` attributes.
-     * If you used a namespace with `renderMathInElement()`, you must
-     * use the same namespace here. */
-    namespace?: string;
-}): string;

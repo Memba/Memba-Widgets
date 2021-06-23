@@ -11,8 +11,8 @@ export class GroupAtom extends Atom {
   cssId?: string;
   htmlData?: string;
   customClass?: string;
-  mathstyleName: MathstyleName;
-  boxType: BoxType;
+  mathstyleName?: MathstyleName;
+  boxType?: BoxType;
   constructor(
     arg: Atom[],
     options?: {
@@ -49,9 +49,10 @@ export class GroupAtom extends Atom {
     this.skipBoundary = true;
     this.captureSelection = options?.captureSelection;
     this.changeMode = options?.changeMode ?? false;
+    this.displayContainsHighlight = false;
   }
 
-  render(context: Context): Box {
+  render(context: Context): Box | null {
     // The scope of the context is this group, so clone it
     // so that any changes to it will be discarded when finished
     // with this group.
@@ -85,13 +86,13 @@ export class GroupAtom extends Atom {
     }
 
     if (this.htmlData) {
-      result = `\\htmlData{${this.htmlData}}${result}`;
+      result = `\\htmlData{${this.htmlData}}{${result}}`;
     }
     if (this.customClass) {
-      result = `\\class{${this.customClass}}${result}`;
+      result = `\\class{${this.customClass}}{${result}}`;
     }
     if (this.cssId) {
-      result = `\\cssId{${this.cssId}}${result}`;
+      result = `\\cssId{${this.cssId}}{${result}}`;
     }
 
     return result;

@@ -44,8 +44,8 @@ export function isNamedBranch(branch: Branch): branch is BranchName {
   return typeof branch === 'string' && NAMED_BRANCHES.includes(branch);
 }
 
-export function isColRowBranch(branch: Branch): branch is [number, number] {
-  return Array.isArray(branch) && branch.length === 2;
+export function isColRowBranch(branch?: Branch): branch is [number, number] {
+  return branch !== undefined && Array.isArray(branch) && branch.length === 2;
 }
 
 export type Branches = {
@@ -116,14 +116,14 @@ export type BBoxParameter = {
  * are tracked by Box objects which are created by the `createBox()` function.
  */
 export class Atom {
-  parent: Atom | null;
+  parent: Atom | undefined;
 
   // An atom can have multiple "branches" of children,
   // e.g. `body` and `superscript`.
   //
   // The `treeBranch` property indicate which branch of the parent this
   // atom belongs to or if in an array, the row and column
-  treeBranch: Branch;
+  treeBranch?: Branch;
 
   value: string; // If no branches
 
@@ -134,7 +134,7 @@ export class Atom {
   type: AtomType;
 
   // Latex command ('\sin') or character ('a')
-  command: string;
+  command?: string;
 
   // Verbatim Latex of the command and its arguments
   verbatimLatex?: string;
@@ -158,7 +158,7 @@ export class Atom {
   private _changeCounter: number;
 
   // Cached list of children, invalidated when isDirty = true
-  private _children: Atom[];
+  private _children: Atom[] | undefined;
 
   // Optional, per instance, override of the `serialize()` method
   serializeOverride?: (atom: Atom, options: ToLatexOptions) => string;
@@ -266,14 +266,14 @@ export class Atom {
     if (dirty) {
       this._changeCounter++;
       this.verbatimLatex = undefined;
-      this._children = null;
+      this._children = undefined;
 
       let { parent } = this;
       while (parent) {
         parent._isDirty = true;
         parent._changeCounter++;
         parent.verbatimLatex = undefined;
-        parent._children = null;
+        parent._children = undefined;
 
         parent = parent.parent;
       }
@@ -360,12 +360,12 @@ export class Atom {
    * Given an atom or an array of atoms, return a LaTeX string representation
    */
   static serialize(
-    value: boolean | number | string | Atom | Atom[],
+    value: boolean | number | string | Atom | Atom[] | undefined,
     options: ToLatexOptions
   ): string {
     let result = '';
     if (isArray<Atom>(value)) {
-      if (value.length > 0) result = atomsToLatex(value, options);
+      result = atomsToLatex(value, options);
     } else if (typeof value === 'number' || typeof value === 'boolean') {
       result = value.toString();
     } else if (typeof value === 'string') {
@@ -390,7 +390,7 @@ export class Atom {
   /**
    * The common ancestor between two atoms
    */
-  static commonAncestor(a: Atom, b: Atom): Atom {
+  static commonAncestor(a: Atom, b: Atom): Atom | undefined {
     if (a === b) return a.parent;
 
     // Short-circuit a common case
@@ -413,7 +413,7 @@ export class Atom {
     }
 
     console.assert(Boolean(parent)); // Never reached
-    return null;
+    return undefined;
   }
 
   /**
@@ -451,37 +451,51 @@ export class Atom {
   }
 
   bodyToLatex(options: ToLatexOptions): string {
-    return Atom.serialize(this.body, options);
+    return atomsToLatex(this.body, options);
   }
 
   aboveToLatex(options: ToLatexOptions): string {
-    return Atom.serialize(this.above, options);
+    return atomsToLatex(this.above, options);
   }
 
   belowToLatex(options: ToLatexOptions): string {
-    return Atom.serialize(this.below, options);
+    return atomsToLatex(this.below, options);
   }
 
   supsubToLatex(options: ToLatexOptions): string {
     let result = '';
-    if (!this.hasEmptyBranch('superscript')) {
-      let sup = Atom.serialize(this.superscript, options);
-      if (sup.length === 1) {
-        if (sup === '\u2032') {
-          sup = '\\prime ';
-        } else if (sup === '\u2033') {
-          sup = '\\doubleprime ';
-        }
+    // Note: **important** we must check only for the existence of the branch
+    // not if it is non-empty (`hasEmptyBranch`) because we must serialize
+    // e.g. `x^`. If we don't do this correctly, weird things will happen
+    // like inline shortcuts (which rely on the undo buffer and serialization)
+    // will fail, for example in `e^pi`.
 
-        result += '^' + sup;
+    if (this.branch('subscript') !== undefined) {
+      const sub = atomsToLatex(this.subscript, options);
+      if (sub.length === 0) {
+        result += '_';
+      } else if (sub.length === 1) {
+        result += '_' + sub;
       } else {
-        result += '^{' + sup + '}';
+        result += `_{${sub}}`;
       }
     }
 
-    if (!this.hasEmptyBranch('subscript')) {
-      const sub = Atom.serialize(this.subscript, options);
-      result += sub.length === 1 ? '_' + sub : '_{' + sub + '}';
+    if (this.branch('superscript') !== undefined) {
+      const sup = atomsToLatex(this.superscript, options);
+      if (sup.length === 0) {
+        result += '^';
+      } else if (sup.length === 1) {
+        if (sup === '\u2032') {
+          result += '^\\prime ';
+        } else if (sup === '\u2033') {
+          result += '^\\doubleprime ';
+        } else {
+          result += '^' + sup;
+        }
+      } else {
+        result += `^{${sup}}`;
+      }
     }
 
     return result;
@@ -501,7 +515,7 @@ export class Atom {
   get inCaptureSelection(): boolean {
     let result = false;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let atom: Atom = this;
+    let atom: Atom | undefined = this;
     while (atom) {
       if (atom.captureSelection) {
         result = true;
@@ -515,9 +529,9 @@ export class Atom {
   /**
    * Return the atoms in the branch, if it exists, otherwise null
    */
-  branch(name: Branch): Atom[] | null {
-    if (!isNamedBranch(name)) return null;
-    if (!this._branches) return null;
+  branch(name: Branch): Atom[] | undefined {
+    if (!isNamedBranch(name)) return undefined;
+    if (!this._branches) return undefined;
     return this._branches[name];
   }
 
@@ -527,7 +541,7 @@ export class Atom {
    */
   get branches(): Branch[] {
     if (!this._branches) return [];
-    const result = [];
+    const result: Branch[] = [];
     for (const branch of NAMED_BRANCHES) {
       if (this._branches[branch]) {
         result.push(branch);
@@ -551,7 +565,7 @@ export class Atom {
     }
 
     this.isDirty = true;
-    return this._branches[name];
+    return this._branches[name]!;
   }
 
   get row(): number {
@@ -564,43 +578,43 @@ export class Atom {
     return this.treeBranch[1];
   }
 
-  get body(): Atom[] {
+  get body(): Atom[] | undefined {
     return this._branches?.body;
   }
 
-  set body(atoms: Atom[]) {
+  set body(atoms: Atom[] | undefined) {
     this.setChildren(atoms, 'body');
   }
 
-  get superscript(): Atom[] {
+  get superscript(): Atom[] | undefined {
     return this._branches?.superscript;
   }
 
-  set superscript(atoms: Atom[]) {
+  set superscript(atoms: Atom[] | undefined) {
     this.setChildren(atoms, 'superscript');
   }
 
-  get subscript(): Atom[] {
+  get subscript(): Atom[] | undefined {
     return this._branches?.subscript;
   }
 
-  set subscript(atoms: Atom[]) {
+  set subscript(atoms: Atom[] | undefined) {
     this.setChildren(atoms, 'subscript');
   }
 
-  get above(): Atom[] {
+  get above(): Atom[] | undefined {
     return this._branches?.above;
   }
 
-  set above(atoms: Atom[]) {
+  set above(atoms: Atom[] | undefined) {
     this.setChildren(atoms, 'above');
   }
 
-  get below(): Atom[] {
+  get below(): Atom[] | undefined {
     return this._branches?.below;
   }
 
-  set below(atoms: Atom[]) {
+  set below(atoms: Atom[] | undefined) {
     this.setChildren(atoms, 'below');
   }
 
@@ -656,10 +670,10 @@ export class Atom {
   }
 
   getInitialBaseElement(): Atom {
-    let result: Atom;
+    let result: Atom | undefined = undefined;
     if (!this.hasEmptyBranch('body')) {
-      console.assert(this.body[0].type === 'first');
-      result = this.body[1].getInitialBaseElement();
+      console.assert(this.body?.[0].type === 'first');
+      result = this.body![1].getInitialBaseElement();
     }
 
     return result ?? this;
@@ -667,7 +681,7 @@ export class Atom {
 
   getFinalBaseElement(): Atom {
     if (!this.hasEmptyBranch('body')) {
-      return this.body[this.body.length - 1].getFinalBaseElement();
+      return this.body![this.body!.length - 1].getFinalBaseElement();
     }
 
     return this;
@@ -692,7 +706,7 @@ export class Atom {
    * The children should *not* start with a `'first'` atom:
    * the `first` atom will be added if necessary
    */
-  setChildren(children: Atom[], branch: Branch): void {
+  setChildren(children: Atom[] | undefined, branch: Branch): void {
     if (!children) return;
     console.assert(isNamedBranch(branch));
     if (!isNamedBranch(branch)) return;
@@ -735,7 +749,8 @@ export class Atom {
   }
 
   addChildBefore(child: Atom, before: Atom): void {
-    const branch = this.createBranch(before.treeBranch);
+    console.assert(before.treeBranch !== undefined);
+    const branch = this.createBranch(before.treeBranch!);
     branch.splice(branch.indexOf(before), 0, child);
     this.isDirty = true;
 
@@ -745,7 +760,8 @@ export class Atom {
   }
 
   addChildAfter(child: Atom, after: Atom): void {
-    const branch = this.createBranch(after.treeBranch);
+    console.assert(after.treeBranch !== undefined);
+    const branch = this.createBranch(after.treeBranch!);
     branch.splice(branch.indexOf(after) + 1, 0, child);
     this.isDirty = true;
 
@@ -763,7 +779,8 @@ export class Atom {
    */
   addChildrenAfter(children: Atom[], after: Atom): Atom {
     console.assert(children.length === 0 || children[0].type !== 'first');
-    const branch = this.createBranch(after.treeBranch);
+    console.assert(after.treeBranch !== undefined);
+    const branch = this.createBranch(after.treeBranch!);
     branch.splice(branch.indexOf(after) + 1, 0, ...children);
     this.isDirty = true;
 
@@ -778,11 +795,12 @@ export class Atom {
   removeBranch(name: Branch): Atom[] {
     const children = this.branch(name);
     if (isNamedBranch(name)) {
-      this._branches[name] = null;
+      this._branches[name] = undefined;
     }
+    if (!children) return [];
 
     for (const child of children) {
-      child.parent = null;
+      child.parent = undefined;
       child.treeBranch = undefined;
     }
     // Drop the 'first' element
@@ -799,20 +817,20 @@ export class Atom {
     if (child.type === 'first') return;
 
     // Update the parent
-    const branch = this.branch(child.treeBranch);
+    const branch = this.branch(child.treeBranch!)!;
     const index = branch.indexOf(child);
     console.assert(index >= 0);
     branch.splice(index, 1);
     this.isDirty = true;
 
     // Update the child
-    child.parent = null;
+    child.parent = undefined;
     child.treeBranch = undefined;
   }
 
   get siblings(): Atom[] {
     if (this.type === 'root') return [];
-    return this.parent.branch(this.treeBranch);
+    return this.parent!.branch(this.treeBranch!)!;
   }
 
   get firstSibling(): Atom {
@@ -839,12 +857,14 @@ export class Atom {
   }
 
   get leftSibling(): Atom {
-    const siblings = this.parent.branch(this.treeBranch);
+    console.assert(this.parent !== undefined);
+    const siblings = this.parent!.branch(this.treeBranch!)!;
     return siblings[siblings.indexOf(this) - 1];
   }
 
   get rightSibling(): Atom {
-    const siblings = this.parent.branch(this.treeBranch);
+    console.assert(this.parent !== undefined);
+    const siblings = this.parent!.branch(this.treeBranch!)!;
     return siblings[siblings.indexOf(this) + 1];
   }
 
@@ -872,10 +892,10 @@ export class Atom {
   get children(): Atom[] {
     if (this._children) return this._children;
     if (!this._branches) return [];
-    const result = [];
+    const result: Atom[] = [];
     for (const branchName of NAMED_BRANCHES) {
       if (this._branches[branchName]) {
-        for (const x of this._branches[branchName]) {
+        for (const x of this._branches[branchName]!) {
           result.push(...x.children);
           result.push(x);
         }
@@ -902,7 +922,7 @@ export class Atom {
     const context = new Context(parentContext, this.style);
     let result: Box = this.createBox(context, {
       classes: this.type === 'root' ? ' ML__base' : '',
-      newList: options?.newList || this.type === 'first',
+      newList: options?.newList === true || this.type === 'first',
     });
     if (!result) return null;
 
@@ -934,15 +954,15 @@ export class Atom {
     // Superscript and subscripts are discussed in the TeXbook
     // on page 445-446, rules 18(a-f).
     // TeX:14859-14945
-    let supBox: Box = null;
-    let subBox: Box = null;
+    let supBox: Box | null = null;
+    let subBox: Box | null = null;
     const isCharacterBox = options.isCharacterBox ?? this.isCharacterBox();
 
     // Rule 18a, p445
 
     let supShift = 0;
     if (superscript) {
-      const context = new Context(parentContext, null, 'superscript');
+      const context = new Context(parentContext, undefined, 'superscript');
       supBox = Atom.createBox(context, superscript, { newList: true });
       if (!isCharacterBox) {
         supShift =
@@ -952,7 +972,7 @@ export class Atom {
 
     let subShift = 0;
     if (subscript) {
-      const context = new Context(parentContext, null, 'subscript');
+      const context = new Context(parentContext, undefined, 'subscript');
       subBox = Atom.createBox(context, subscript, { newList: true });
       if (!isCharacterBox) {
         subShift =
@@ -1088,14 +1108,15 @@ export class Atom {
    * Add an ID attribute to both the box and this atom so that the atom
    * can be retrieved from the box later on, e.g. when the box is clicked on.
    */
-  bind(context: Context, box: Box): Box {
+  bind(context: Context, box: Box | null): Box | null {
+    if (!box) return null;
     // Don't bind to phantom boxes (they won't be interactive, so no need for the id)
     if (context.isPhantom) return box;
 
     if (!box || this.value === '\u200B') return box;
 
     if (!this.id) this.id = context.makeID();
-    box.atomID = this.id;
+    box.atomID = this.id!;
 
     return box;
   }
@@ -1113,7 +1134,9 @@ export class Atom {
     const value = this.value ?? this.body;
 
     // Ensure that the atom type is a valid Box type
-    const type: BoxType = isBoxType(this.type) ? this.type : undefined;
+    const type: BoxType | undefined = isBoxType(this.type)
+      ? this.type
+      : undefined;
 
     // The font family is determined by:
     // - the base font family associated with this atom (optional). For example,
@@ -1183,7 +1206,11 @@ export class Atom {
  * @param options.expandMacro true if macros should be expanded
  * @result a LaTeX string
  */
-function atomsToLatex(atoms: Atom[], options: ToLatexOptions): string {
+function atomsToLatex(
+  atoms: undefined | Atom[],
+  options: ToLatexOptions
+): string {
+  if (!atoms || atoms.length === 0) return '';
   if (atoms[0].type === 'first') {
     if (atoms.length === 1) return '';
     // Remove the 'first' atom, if present
@@ -1204,10 +1231,10 @@ function atomsToLatex(atoms: Atom[], options: ToLatexOptions): string {
 }
 
 function getStyleRuns(atoms: Atom[]): Atom[][] {
-  let style: Style;
+  let style: Style | undefined = undefined;
   let selected;
-  const runs = [];
-  let run = [];
+  const runs: Atom[][] = [];
+  let run: Atom[] = [];
   for (const atom of atoms) {
     const atomStyle = atom.computedStyle;
     if (!style && !atom.style) {
@@ -1271,7 +1298,9 @@ function renderStyleRun(
 
   let boxes: Box[] | null = [];
   if (atoms.length === 1) {
-    const box = atoms[0].render(context, { newList: options?.newList });
+    const box = atoms[0].render(context, {
+      newList: options?.newList ?? false,
+    });
     if (box && displaySelection && atoms[0].isSelected) {
       box.selected(true);
     }
@@ -1290,9 +1319,9 @@ function renderStyleRun(
         context.atomIdsSettings.overrideID = digitOrTextStringID;
       }
 
-      const box: Box = atom.render(context, { newList: isNewList });
+      const box = atom.render(context, { newList: isNewList });
       if (context.atomIdsSettings) {
-        context.atomIdsSettings.overrideID = null;
+        context.atomIdsSettings.overrideID = undefined;
       }
 
       if (box) {
@@ -1303,7 +1332,7 @@ function renderStyleRun(
             if (!digitOrTextStringID || lastWasDigit !== isDigit(atom)) {
               // Changed from text to digits or vice-versa
               lastWasDigit = isDigit(atom);
-              digitOrTextStringID = atom.id;
+              digitOrTextStringID = atom.id ?? '';
             }
           }
 

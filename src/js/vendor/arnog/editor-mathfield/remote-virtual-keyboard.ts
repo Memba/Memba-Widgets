@@ -65,19 +65,10 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
     // options should be set on it
   }
 
+  public create(): void {}
+
   public dispose(): void {
     this.disable();
-  }
-
-  public executeCommand(
-    command: SelectorPrivate | [SelectorPrivate, ...any[]]
-  ): boolean {
-    if (getCommandTarget(command) === 'virtual-keyboard') {
-      this.sendMessage('executeCommand', { command });
-      return false;
-    }
-
-    return this._executeCommand(command);
   }
 
   public enable(): void {
@@ -92,6 +83,17 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
       window.removeEventListener('message', this);
       this.enabled = false;
     }
+  }
+
+  public executeCommand(
+    command: SelectorPrivate | [SelectorPrivate, ...any[]]
+  ): boolean {
+    if (getCommandTarget(command) === 'virtual-keyboard') {
+      this.sendMessage('executeCommand', { command });
+      return false;
+    }
+
+    return this._executeCommand(command);
   }
 
   focusMathfield(): void {}
@@ -115,10 +117,10 @@ export class VirtualKeyboardDelegate implements VirtualKeyboardInterface {
       const { action } = event.data;
 
       if (action === 'executeCommand') {
-        this.executeCommand(event.data.command);
+        this.executeCommand(event.data.command!);
       } else if (action === 'updateState') {
-        this.visible = event.data.state.visible;
-        this.height = event.data.state.height;
+        this.visible = event.data.state!.visible;
+        this.height = event.data.state!.height;
       } else if (action === 'focus') {
         this._focus();
       } else if (action === 'blur') {
@@ -166,7 +168,6 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
 
   static get defaultOptions(): RemoteVirtualKeyboardOptions {
     return {
-      namespace: '',
       createHTML: (s: string): any => s,
       fontsDirectory: './fonts',
       soundsDirectory: './sounds',
@@ -187,6 +188,8 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
 
       virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
       virtualKeyboardMode: 'auto',
+
+      virtualKeyboardContainer: globalThis.document?.body ?? null,
     };
   }
 
@@ -207,7 +210,7 @@ export class RemoteVirtualKeyboard extends VirtualKeyboard {
         const { command } = event.data;
         this.sourceFrame = event.source as Window;
 
-        this.executeCommand(command);
+        this.executeCommand(command!);
       }
     }
   }

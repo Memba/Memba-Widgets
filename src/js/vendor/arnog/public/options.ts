@@ -6,8 +6,9 @@ import {
   MathfieldErrorCode,
   Registers,
 } from './core';
-import type { Mathfield } from './mathfield';
+import type { Mathfield, Range } from './mathfield';
 import type { Selector } from './commands';
+import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/math-json';
 
 /**
  * Specify behaviour for origin validation.
@@ -141,6 +142,10 @@ export type Keybinding = {
     | '!android'
     | 'chromeos'
     | '!chromeos';
+
+  // An array of ids of a keyboard layout that this keybinding
+  // is applicable to. If undefined, applies to all keyboard layouts.
+  ifLayout?: string[];
 };
 
 /**
@@ -266,7 +271,7 @@ export type TextToSpeechOptions = {
    * twice the default rate.
    */
   speechEngineRate: string;
-  speakHook: (text: string, config: Partial<MathfieldOptions>) => void; // @revisit 1.0: rename speakHook
+  speakHook: (text: string, config: Partial<MathfieldOptions>) => void;
   readAloudHook: (
     element: HTMLElement,
     text: string,
@@ -281,7 +286,7 @@ export interface VirtualKeyboardKeycap {
   /**
    * The HTML markup displayed for the keycap
    */
-  label?: string;
+  label: string;
   /**
    * Command to perform when the keycap is pressed
    */
@@ -290,17 +295,17 @@ export interface VirtualKeyboardKeycap {
    * Latex fragment to insert when the keycap is pressed
    * (ignored if command is specified)
    */
-  insert?: string;
+  insert: string;
   /**
    * Label of the key as a Latex expression, also the Latex
    * inserted if no `command` or `insert` property is specified.
    */
-  latex?: string;
+  latex: string;
   /**
    * Key to insert when keycap is pressed
    * (ignored if `command`, `insert` or `latex` is specified)
    */
-  key?: string;
+  key: string;
 
   /**
    * CSS classes to apply to the keycap.
@@ -317,26 +322,43 @@ export interface VirtualKeyboardKeycap {
    * - `bottom`, `left`, `right`: alignment of the label
    *
    */
-  class?: string;
+  class: string;
+
+  /**
+   * HTML markup to represent the keycap.
+   *
+   * This property is only useful when using a custom keycap shape or appearance.
+   * Usually, setting the `label` property is sufficient.
+   */
+  content: string;
 
   /**
    * Markup displayed with the key label (for example to explain what the
    * symbol of the key is)
    */
-  aside?: string;
+  aside: string;
 
   /**
-   * A named set of alternate keys to display when there is a long press on the key.
+   * A set of keycap variants displayed on a long press
+   *
+   * ```js
+   * variants: [
+   *  '\\alpha',    // Same label as value inserted
+   *  { latex: '\\beta', label: 'beta' }
+   * ]
+   *
+   * ```
    */
-  altKeys?: string;
+  variants: (string | Partial<VirtualKeyboardKeycap>)[];
+
   /**
    * Markup for the label of the key when the shift key is pressed
    */
-  shifted?: string;
+  shifted: string;
   /**
    * Command to perform when the shifted key is pressed
    */
-  shiftedCommand?: Selector | [Selector, ...any[]];
+  shiftedCommand: Selector | [Selector, ...any[]];
 }
 
 export interface VirtualKeyboardDefinition {
@@ -350,13 +372,13 @@ export interface VirtualKeyboardDefinition {
 
 export interface VirtualKeyboardLayer {
   /** The CSS stylesheet associated with this layer */
-  styles?: string;
+  styles: string;
   /** A CSS class name to customize the appearance of the background of the layer */
-  backdrop?: string;
+  backdrop: string;
   /** A CSS class name to customize the appearance of the container the layer */
-  container?: string;
+  container: string;
   /** The rows of keycaps in this layer */
-  rows?: VirtualKeyboardKeycap[][];
+  rows: Partial<VirtualKeyboardKeycap>[][];
 }
 
 export type VirtualKeyboardToolbarOptions = 'none' | 'default';
@@ -397,7 +419,10 @@ export type VirtualKeyboardOptions = {
    *
    *
    */
-  customVirtualKeyboardLayers: Record<string, string | VirtualKeyboardLayer>;
+  customVirtualKeyboardLayers: Record<
+    string,
+    string | Partial<VirtualKeyboardLayer>
+  >;
   customVirtualKeyboards: Record<string, VirtualKeyboardDefinition>;
   /**
    * The visual theme of the virtual keyboard.
@@ -435,10 +460,10 @@ export type VirtualKeyboardOptions = {
     | HTMLAudioElement
     | null
     | {
-        spacebar?: string | HTMLAudioElement;
-        return?: string | HTMLAudioElement;
-        delete?: string | HTMLAudioElement;
-        default: string | HTMLAudioElement;
+        spacebar?: null | string | HTMLAudioElement;
+        return?: null | string | HTMLAudioElement;
+        delete?: null | string | HTMLAudioElement;
+        default: null | string | HTMLAudioElement;
       };
   /**
    * Sound played to provide feedback when a command has no effect, for example
@@ -449,14 +474,14 @@ export type VirtualKeyboardOptions = {
    * - an `HTMLAudioElement`
    * - null to turn off the sound
    */
-  plonkSound?: string | HTMLAudioElement | null;
+  plonkSound: string | HTMLAudioElement | null;
 
   /**
    * The right hand side toolbar configuration.
    *
    * Use `none` to disable right hand side toolbar of virtual keyboard.
    */
-  virtualKeyboardToolbar?: VirtualKeyboardToolbarOptions;
+  virtualKeyboardToolbar: VirtualKeyboardToolbarOptions;
 
   /**
    * Markup for  the virtual keyboard toggle glyph.
@@ -479,7 +504,9 @@ export type VirtualKeyboardOptions = {
    */
   virtualKeyboardMode: 'auto' | 'manual' | 'onfocus' | 'off';
   /**
-   * Element the virtual keyboard element gets appended to.
+   * Element the virtual keyboard element gets appended to. The `position`
+   * attribute of this element should be `relative` so that the virtual keyboard
+   * can correctly be placed relative to this element.
    *
    * When using [full screen elements](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API)
    * that contain mathfield, set this property to the full screen element to
@@ -487,14 +514,14 @@ export type VirtualKeyboardOptions = {
    *
    * **Default**: `document.body`
    */
-  virtualKeyboardContainer?: HTMLElement;
+  virtualKeyboardContainer: null | HTMLElement;
 };
 
 /**
- * These methods provide an opportunity to intercept or modify an action.
- * Their return value indicate whether the default handling should proceed.
+ * These hooks provide an opportunity to intercept or modify an action.
+ * When their return value is a boolean, it indicates if the default handling
+ * should proceed.
  *
- * @deprecated Use corresponding events of `MathfieldEvent` instead
  */
 export interface MathfieldHooks {
   /**
@@ -504,11 +531,14 @@ export interface MathfieldHooks {
    * -   <var>ev</var>: the native keyboard event
    *
    * Return `false` to stop the handling of the event.
+   *
+   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   *
    */
   onKeystroke: (
     sender: Mathfield,
     keystroke: string,
-    ev: KeyboardEvent
+    ev?: KeyboardEvent
   ) => boolean;
   /**
    * A hook invoked when keyboard navigation would cause the insertion
@@ -517,17 +547,19 @@ export interface MathfieldHooks {
    * - <var>direction</var> indicates the direction of the navigation, either
    * `"forward"` or `"backward"` or `"upward"` or `"downward"`.
    *
-   * Return `false` to prevent the move, `true` to wrap around to the
-   * start of the field.
+   * Return `false` if the move has been handled by the hook.
    *
-   * By default, the insertion point will wrap around.
+   * Return `true` for the default behavior, which is playing a "plonk" sound.
+   *
+   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   *
    */
   onMoveOutOf: (
     sender: Mathfield,
     direction: 'forward' | 'backward' | 'upward' | 'downward'
   ) => boolean;
   /**
-   * A hook invoked when pressing tab (or shift-tab) would cause the
+   * This hook is invoked when pressing tab (or shift-tab) would cause the
    * insertion point to leave the mathfield.
    *
    * <var>direction</var> indicates the direction of the navigation.
@@ -535,8 +567,30 @@ export interface MathfieldHooks {
    * By default, the insertion point jumps to the next/previous focussable
    * element.
    *
+   * @deprecated Use corresponding events of `MathfieldEvent` instead
+   *
+   *
    */
   onTabOutOf: (sender: Mathfield, direction: 'forward' | 'backward') => boolean;
+
+  /**
+   * This hooks is invoked when the user has requested to export the content
+   * of the mathfield, for example when pressing ctrl/command+C.
+   *
+   * This hook should return as a string what should be exported.
+   *
+   * The `range` argument indicates which portion of the mathfield should be
+   * exported. It is not always equal to the current selection, but it can
+   * be used to export a format other than Latex.
+   *
+   * By default this is:
+   *
+   * ```
+   *  return `\\begin{equation*}${latex}\\end{equation*}`;
+   * ```
+   *
+   */
+  onExport: (from: Mathfield, latex: string, range: Range) => string;
 }
 
 export type RemoteVirtualKeyboardOptions = CoreOptions &
@@ -599,17 +653,6 @@ export type KeyboardOptions = {
 };
 
 export type InlineShortcutsOptions = {
-  /** @deprecated Use:
-   * ```javascript
-   * mf.setConfig(
-   *      'inlineShortcuts',
-   *      {   ...mf.getConfig('inlineShortcuts'),
-   *          ...newShortcuts
-   *      }
-   * )
-   * ```
-   * to add `newShortcuts` to the default ones */
-  overrideDefaultInlineShortcuts: boolean;
   /**
    * The keys of this object literal indicate the sequence of characters
    * that will trigger an inline shortcut.
@@ -865,17 +908,6 @@ mf.setConfig({
 
 export type CoreOptions = {
   /**
-   * Namespace that is added to `data-` attributes to avoid collisions
-   * with other libraries.
-   *
-   * The namespace should be a string of lowercase letters.
-   *
-   * It is empty by default.
-   *
-   * @deprecated
-   */
-  namespace: string;
-  /**
    * A URL fragment pointing to the directory containing the fonts
    * necessary to render a formula.
    *
@@ -991,13 +1023,10 @@ export type MathfieldOptions = LayoutOptions &
      * This could also be another kind of error, such as an invalid keybinding.
      *
      */
-    onError: ErrorListener<ParserErrorCode | MathfieldErrorCode>;
+    onError: ErrorListener<
+      ParserErrorCode | MathfieldErrorCode | MathJsonErrorCode
+    >;
   };
-
-/**
- * @deprecated Use [[`MathfieldOptions`]]
- */
-export type MathfieldConfig = MathfieldOptions;
 
 /**
  * See [[`setKeyboardLayout`]].

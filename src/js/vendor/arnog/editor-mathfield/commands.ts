@@ -3,6 +3,7 @@ import { register as registerCommand } from '../editor/commands';
 import { complete } from './autocomplete';
 import type { MathfieldPrivate } from './mathfield-private';
 import { onTypedText } from './keyboard-input';
+import { toggleKeystrokeCaption } from './keystroke-caption';
 
 registerCommand({
   undo: (mathfield: MathfieldPrivate) => {
@@ -21,29 +22,26 @@ registerCommand({
     return true;
   },
   scrollToStart: (mathfield: MathfieldPrivate) => {
-    mathfield.field.scroll(0, 0);
+    mathfield.field!.scroll(0, 0);
     return true;
   },
   scrollToEnd: (mathfield: MathfieldPrivate) => {
-    const fieldBounds = mathfield.field.getBoundingClientRect();
-    mathfield.field.scroll(fieldBounds.left - window.scrollX, 0);
+    const fieldBounds = mathfield.field!.getBoundingClientRect();
+    mathfield.field!.scroll(fieldBounds.left - window.scrollX, 0);
     return true;
   },
   enterLatexMode: (mathfield: MathfieldPrivate) => {
     mathfield.switchMode('latex');
     return true;
   },
-  toggleKeystrokeCaption: (mathfield: MathfieldPrivate) => {
-    mathfield.keystrokeCaptionVisible = !mathfield.keystrokeCaptionVisible;
-    mathfield.keystrokeCaption.innerHTML = '';
-    if (!mathfield.keystrokeCaptionVisible) {
-      mathfield.keystrokeCaption.style.visibility = 'hidden';
-    }
-
-    return false;
-  },
-  switchMode: (mathfield: MathfieldPrivate, mode: ParseMode) => {
-    mathfield.switchMode(mode);
+  toggleKeystrokeCaption: toggleKeystrokeCaption,
+  switchMode: (
+    mathfield: MathfieldPrivate,
+    mode: ParseMode,
+    prefix: string,
+    suffix: string
+  ) => {
+    mathfield.switchMode(mode, prefix, suffix);
     return true;
   },
   insert: (mathfield: MathfieldPrivate, s: string, options) =>

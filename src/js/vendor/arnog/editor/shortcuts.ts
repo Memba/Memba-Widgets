@@ -15,17 +15,13 @@ export function getInlineShortcutsStartingWith(
   s: string,
   config: MathfieldOptionsPrivate
 ): string[] {
-  const result = [];
-
-  const skipDefaultShortcuts = config.overrideDefaultInlineShortcuts;
+  const result: string[] = [];
 
   for (let i = 0; i <= s.length - 1; i++) {
     const s2 = s.slice(Math.max(0, i));
-    if (!skipDefaultShortcuts) {
-      for (const key of Object.keys(INLINE_SHORTCUTS)) {
-        if (key.startsWith(s2) && !result.includes(key)) {
-          result.push(key);
-        }
+    for (const key of Object.keys(INLINE_SHORTCUTS)) {
+      if (key.startsWith(s2) && !result.includes(key)) {
+        result.push(key);
       }
     }
 
@@ -35,7 +31,7 @@ export function getInlineShortcutsStartingWith(
     if (customInlineShortcuts) {
       for (const key of Object.keys(customInlineShortcuts)) {
         if (key.startsWith(s2)) {
-          result.push(key);
+          result.push(key!);
         }
       }
     }
@@ -49,7 +45,7 @@ export function getInlineShortcutsStartingWith(
  * @param siblings atoms preceding this potential shortcut
  */
 function validateShortcut(
-  siblings: Atom[],
+  siblings: null | Atom[],
   shortcut: InlineShortcutDefinition
 ): string {
   if (!shortcut) return '';
@@ -141,7 +137,7 @@ function validateShortcut(
  * @return A replacement string matching the shortcut (e.g. `'\pi'`)
  */
 export function getInlineShortcut(
-  context: Atom[],
+  context: null | Atom[],
   s: string,
   shortcuts?: Record<string, InlineShortcutDefinition>
 ): string {

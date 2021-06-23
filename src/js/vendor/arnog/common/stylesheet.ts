@@ -1,10 +1,13 @@
 import type { Releasable } from './releasable';
-import { hashCode } from './hash-code';
 import { throwIfNotInBrowser } from './capabilities';
 
 export type Stylesheet = Releasable;
 
-export function inject(element: HTMLElement, css: string): Releasable {
+export function inject(
+  element: HTMLElement | null,
+  css: string,
+  id: string
+): null | Releasable {
   throwIfNotInBrowser();
 
   if (!css) return null;
@@ -14,7 +17,6 @@ export function inject(element: HTMLElement, css: string): Releasable {
   if (!root) return null;
   if (root === document) root = document.head;
 
-  const id = hashCode(css).toString(36);
   const element_ = (root as HTMLElement).querySelector<HTMLElement>(
     `style[data-id="${id}"]`
   );

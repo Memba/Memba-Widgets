@@ -45,7 +45,7 @@ export function switchKeyboardLayer(
     // If we were in a temporarily shifted state (shift-key held down)
     // restore our state before switching to a new layer.
     unshiftKeyboardLayer(keyboard);
-    const layers = keyboard?.element.querySelectorAll('.keyboard-layer');
+    const layers = keyboard?.element!.querySelectorAll('.keyboard-layer');
     // Search for the requested layer
     let found = false;
     for (const layer_ of layers) {
@@ -74,7 +74,7 @@ export function switchKeyboardLayer(
 }
 
 export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
-  const keycaps = keyboard?.element.querySelectorAll<HTMLElement>(
+  const keycaps = keyboard?.element!.querySelectorAll<HTMLElement>(
     'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
   );
   if (keycaps) {
@@ -160,7 +160,7 @@ export function toggleVirtualKeyboardAlt(keyboard: VirtualKeyboard): boolean {
   let hadAltTheme = false;
   if (keyboard?.element) {
     hadAltTheme = keyboard?.element.classList.contains('material');
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   showVirtualKeyboard(keyboard, hadAltTheme ? '' : 'material');
@@ -177,9 +177,9 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
     colemak: 'qwerty',
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
-    keyboard?.element.querySelector('div.keyboard-layer.is-visible').id ?? '';
+    keyboard?.element!.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
   if (keyboard) {
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   showVirtualKeyboard(keyboard);
@@ -219,6 +219,8 @@ function toggleVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme?: 'apple' | 'material' | ''
 ): boolean {
+  if (!keyboard.options.virtualKeyboardContainer) return false;
+
   keyboard.visible = !keyboard.visible;
   if (keyboard.visible) {
     keyboard.focusMathfield();
@@ -226,7 +228,7 @@ function toggleVirtualKeyboard(
       keyboard.element.classList.add('is-visible');
     } else {
       // Construct the virtual keyboard
-      keyboard.element = makeKeyboardElement(keyboard, theme);
+      keyboard.element = makeKeyboardElement(keyboard, theme ?? '');
       // Let's make sure that tapping on the keyboard focuses the field
       on(keyboard.element, 'touchstart:passive mousedown', () =>
         keyboard.focusMathfield()
@@ -240,7 +242,6 @@ function toggleVirtualKeyboard(
       keyboard?.element?.classList.add('is-visible');
     }, 1);
   } else if (keyboard.element) {
-    keyboard.element.classList.remove('is-visible');
     keyboard.element.dispatchEvent(
       new Event('virtual-keyboard-toggle', {
         bubbles: true,
@@ -249,8 +250,7 @@ function toggleVirtualKeyboard(
       })
     );
     // Remove the element from the DOM
-    keyboard.element.remove();
-    keyboard.element = undefined;
+    keyboard.disable();
   }
 
   keyboard.stateChanged();

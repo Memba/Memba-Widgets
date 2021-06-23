@@ -1,4 +1,4 @@
-import { MathfieldOptions } from './options';
+/* 0.69.3 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
 import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection, FindOptions, ReplacementFunction } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
@@ -42,12 +42,20 @@ export declare type KeystrokeEvent = {
 };
 /**
  * The `focus-out` event signals that the mathfield has lost focus through keyboard
- * navigation with arrow keys or the tab key.
+ * navigation with the **tab** key.
  *
- * The event `detail.direction` property indicates the direction the cursor
- * was moving which can be useful to decide which element to focus next.
+ * The event `detail.direction` property indicates if **tab**
+ * (`direction === "forward"`) or **shift+tab** (`direction === "backward") was
+ * pressed which can be useful to decide which element to focus next.
  *
- * The event is cancelable, which will prevent the field from losing focus.
+ * If the event is canceled by calling `ev.preventDefault()`, no change of
+ * focus will occur (but you can manually change the focus in your event
+ * handler: this gives you an opportunity to override the default behavior
+ * and selects which element should get the focus, or to prevent from a change
+ * of focus altogether).
+ *
+ * If the event is not canceled, the default behavior will take place, which is
+ * to change the focus to the next/previous focusable element.
  *
  * ```javascript
  * mfe.addEventListener('focus-out', (ev) => {
@@ -56,6 +64,20 @@ export declare type KeystrokeEvent = {
  * ```
  */
 export declare type FocusOutEvent = {
+    direction: 'forward' | 'backward';
+};
+/**
+ * The `move-out` event signals that the user pressed an **arrow** key but
+ * there was no navigation possible inside the mathfield.
+ *
+ * This event provides an opportunity to handle this situation, for example
+ * by focusing an element adjacent to the mathfield.
+ *
+ * If the event is canceled (i.e. `evt.preventDefault()` is called inside your
+ * event handler), the default behavior is to play a "plonk" sound.
+ *
+ */
+export declare type MoveOutEvent = {
     direction: 'forward' | 'backward' | 'upward' | 'downward';
 };
 declare global {
@@ -63,10 +85,17 @@ declare global {
      * Map the custom event names to types
      * @internal
      */
-    interface DocumentEventMap {
-        ['math-error']: CustomEvent<MathErrorEvent>;
-        ['keystroke']: CustomEvent<KeystrokeEvent>;
-        ['focus-out']: CustomEvent<FocusOutEvent>;
+    interface HTMLElementEventMap {
+        'selection-change': Event;
+        'undo-state-change': Event;
+        'mode-change': Event;
+        'read-aloud-status-change': Event;
+        'mount': Event;
+        'unmount': Event;
+        'math-error': CustomEvent<MathErrorEvent>;
+        'keystroke': CustomEvent<KeystrokeEvent>;
+        'focus-out': CustomEvent<FocusOutEvent>;
+        'move-out': CustomEvent<MoveOutEvent>;
     }
 }
 /**
@@ -423,7 +452,8 @@ export interface MathfieldElementAttributes {
  * | `virtual-keyboard-toggle` | The visibility of the virtual keyboard panel has changed |
  * | `blur` | The mathfield is losing focus |
  * | `focus` | The mathfield is gaining focus |
- * | `focus-out` | The user is navigating out of the mathfield, typically using the keyboard<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `focus-out` | The user is navigating out of the mathfield, typically using the **tab** key<br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
+ * | `move-out` | The user has pressed an **arrow** key, but there is nowhere to go. This is an opportunity to change the focus to another element if desired. <br> `detail: {direction: 'forward' | 'backward' | 'upward' | 'downward'}` **cancellable**|
  * | `math-error` | A parsing or configuration error happened <br> `detail: ErrorListener<ParserErrorCode | MathfieldErrorCode>` |
  * | `keystroke` | The user typed a keystroke with a physical keyboard <br> `detail: {keystroke: string, event: KeyboardEvent}` |
  * | `mount` | The element has been attached to the DOM |
@@ -465,6 +495,8 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
       * ```
       */
     constructor(options?: Partial<MathfieldOptions>);
+    addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
     get mode(): ParseMode;
     set mode(value: ParseMode);
     /**
@@ -585,11 +617,11 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * See also [[`setCaretPoint`]]
      * @category Selection
      */
-    get caretPoint(): {
+    get caretPoint(): null | {
         x: number;
         y: number;
     };
-    set caretPoint(point: {
+    set caretPoint(point: null | {
         x: number;
         y: number;
     });
@@ -665,19 +697,19 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     get keypressVibration(): boolean;
     set keypressVibration(value: boolean);
     get keypressSound(): string | HTMLAudioElement | null | {
-        spacebar?: string | HTMLAudioElement;
-        return?: string | HTMLAudioElement;
-        delete?: string | HTMLAudioElement;
-        default: string | HTMLAudioElement;
+        spacebar?: null | string | HTMLAudioElement;
+        return?: null | string | HTMLAudioElement;
+        delete?: null | string | HTMLAudioElement;
+        default: null | string | HTMLAudioElement;
     };
     set keypressSound(value: string | HTMLAudioElement | null | {
-        spacebar?: string | HTMLAudioElement;
-        return?: string | HTMLAudioElement;
-        delete?: string | HTMLAudioElement;
-        default: string | HTMLAudioElement;
+        spacebar?: null | string | HTMLAudioElement;
+        return?: null | string | HTMLAudioElement;
+        delete?: null | string | HTMLAudioElement;
+        default: null | string | HTMLAudioElement;
     });
     get plonkSound(): string | HTMLAudioElement | null;
-    set plonkSound(value: string | HTMLAudioElement);
+    set plonkSound(value: string | HTMLAudioElement | null);
     get letterShapeStyle(): 'auto' | 'tex' | 'iso' | 'french' | 'upright';
     set letterShapeStyle(value: 'auto' | 'tex' | 'iso' | 'french' | 'upright');
     get locale(): string;
@@ -728,7 +760,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      *
      * @category Selection
      */
-    set selection(value: Selection);
+    set selection(value: Selection | Offset);
     /**
      * The position of the caret/insertion point, from 0 to `lastOffset`.
      *
@@ -740,6 +772,10 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
      * @category Selection
      */
     set position(offset: Offset);
+    /**
+     * The depth of an offset represent the depth in the expression tree.
+     */
+    getOffsetDepth(offset: Offset): number;
     /**
      * The last valid offset.
      * @category Selection

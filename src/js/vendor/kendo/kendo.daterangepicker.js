@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -59,7 +59,8 @@
                 that.calendar = calendar = new ui.MultiViewCalendar(div);
                 that._setOptions(options);
                 calendar.navigate(that._value || that._current, options.start);
-                that.calendar.selectRange(that._range || options.range || {});
+                that._range = that._range || options.range || {};
+                that.calendar.selectRange(that._range);
             }
         };
         DateRangeView.prototype._setOptions = function (options) {

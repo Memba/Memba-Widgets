@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -51,7 +51,6 @@
             },
             ITEM_TEMPLATE: '<li class="k-checkbox-item">' + '<input type="checkbox" class="k-checkbox" >' + '<label class="k-checkbox-label"></label>' + '</li>',
             NS: '.kendoCheckBoxGroup',
-            GROUP_ROLE: 'group',
             groupStyles: {
                 item: 'k-checkbox-item',
                 input: 'k-checkbox',

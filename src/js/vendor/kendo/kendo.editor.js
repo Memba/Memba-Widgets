@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -5634,9 +5634,10 @@
             }
         });
         var GreedyInlineFormatFinder = InlineFormatFinder.extend({
-            init: function (format, greedyProperty) {
+            init: function (format, greedyProperty, fontAttr) {
                 this.format = format;
                 this.greedyProperty = greedyProperty;
+                this.fontAttr = fontAttr;
                 InlineFormatFinder.fn.init.call(this, format);
             },
             getInlineCssValue: function (node) {
@@ -5665,6 +5666,11 @@
                                 return property.indexOf('color') >= 0 ? dom.toHex(value) : value;
                             }
                         }
+                    }
+                    if (this.fontAttr && attribute.specified && name == this.fontAttr) {
+                        property = attribute.nodeValue;
+                        value = attribute.nodeValue;
+                        return property.indexOf('color') >= 0 ? dom.toHex(value) : value;
                     }
                 }
             },
@@ -5739,7 +5745,7 @@
                             'font'
                         ]
                     }];
-                this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
+                this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr, options.fontAttr);
             },
             command: function (commandArguments) {
                 var options = this.options, format = this.format, style = {};
@@ -5971,6 +5977,7 @@
         }));
         registerTool('foreColor', new ColorTool({
             cssAttr: 'color',
+            fontAttr: 'color',
             domAttr: 'color',
             name: 'foreColor',
             template: new ToolTemplate({
@@ -5989,6 +5996,7 @@
         }));
         registerTool('fontName', new FontTool({
             cssAttr: 'font-family',
+            fontAttr: 'face',
             domAttr: 'fontFamily',
             name: 'fontName',
             defaultValue: [{
@@ -6002,6 +6010,7 @@
         }));
         registerTool('fontSize', new FontTool({
             cssAttr: 'font-size',
+            fontAttr: 'size',
             domAttr: 'fontSize',
             name: 'fontSize',
             defaultValue: [{
@@ -8486,7 +8495,7 @@
                         siblings = siblings || dom.significantNodes(node.childNodes).length > 1;
                         node = node.firstChild;
                     }
-                    if (!dom.isEmpty(node) && /^\s*$/.test(node.innerHTML) && !siblings) {
+                    if (!dom.isEmpty(node) && node.className != 'k-br' && /^\s*$/.test(node.innerHTML) && !siblings) {
                         $(root).find('.k-br').remove();
                         node.innerHTML = editorNS.emptyElementContent;
                     }
@@ -8516,16 +8525,21 @@
                 var browser = kendo.support.browser;
                 var oldIE = browser.msie && browser.version < 11;
                 var tableNode = dom.is(node, 'table') && node;
+                var kbrParent;
                 range.deleteContents();
                 if (tableNode) {
                     dom.insertAfter(br, tableNode);
                 } else {
+                    kbrParent = $(node).closest('.k-br');
                     range.insertNode(br);
+                    if (kbrParent.length) {
+                        dom.unwrap(kbrParent[0]);
+                    }
                 }
                 normalize(br.parentNode);
                 if (!oldIE && (!br.nextSibling || dom.isWhitespace(br.nextSibling))) {
                     if (!!br.nextSibling && dom.isWhitespace(br.nextSibling)) {
-                        br.nextSibling.remove();
+                        $(br.nextSibling).remove();
                     }
                     filler = br.cloneNode(true);
                     filler.className = 'k-br';
@@ -10869,6 +10883,7 @@
                         backspaceHandler.deleteSelection(range);
                     }
                     keyboard.startTyping(function () {
+                        that._removeBomSpan();
                         that.endRestorePoint = editorNS._finishUpdate(editor, that.startRestorePoint);
                     });
                     return true;
@@ -10883,6 +10898,18 @@
                     return true;
                 }
                 return false;
+            },
+            _removeBomSpan: function () {
+                var node = this.editor.getRange().commonAncestorContainer;
+                if (!dom.emptyNode(node)) {
+                    if (node.nodeType === 3) {
+                        node = node.parentNode;
+                    }
+                    if (dom.insignificant(node)) {
+                        node.textContent = dom.stripBom(node.textContent);
+                        dom.unwrap(node);
+                    }
+                }
             }
         });
         var BackspaceHandler = Class.extend({
@@ -10918,7 +10945,9 @@
                     if (!next || dom.name(next) != 'p') {
                         return false;
                     }
-                    var caret = this._addCaret(next);
+                    var caretPlaceholder = dom.significantChildNodes(next)[0];
+                    caretPlaceholder = caretPlaceholder && dom.isInline(caretPlaceholder) ? caretPlaceholder : next;
+                    var caret = this._addCaret(caretPlaceholder);
                     this._merge(block, next);
                     this._restoreCaret(caret);
                     return true;
@@ -10981,7 +11010,9 @@
                     return true;
                 }
                 if (block && previousSibling && editorNS.RangeUtils.isStartOf(range, block) || startAtNonFirstLi) {
-                    var caret = this._addCaret(block);
+                    var caretPlaceholder = dom.significantChildNodes(block)[0];
+                    caretPlaceholder = caretPlaceholder && dom.isInline(caretPlaceholder) ? caretPlaceholder : block;
+                    var caret = this._addCaret(caretPlaceholder);
                     this._merge(previousSibling, block);
                     this._restoreCaret(caret);
                     return true;

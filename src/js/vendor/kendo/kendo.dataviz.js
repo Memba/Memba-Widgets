@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.2.511'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.2.616'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -14590,9 +14590,13 @@
                 var xInBounds = xIsScrollable && xDelta > 0 && xDelta < parent.scrollWidth;
                 if (yInBounds) {
                     parent.scrollTop += velocity.y;
+                } else if (yIsScrollable && yDelta < 0) {
+                    parent.scrollTop = 0;
                 }
                 if (xInBounds) {
                     parent.scrollLeft += velocity.x;
+                } else if (xIsScrollable && xDelta < 0) {
+                    parent.scrollLeft = 0;
                 }
                 if (this.hint && isRootNode && (xInBounds || yInBounds)) {
                     if (yInBounds) {
@@ -14611,6 +14615,8 @@
                         lastDropTarget = null;
                     }
                 });
+                clearInterval(this._scrollInterval);
+                this._scrollInterval = null;
                 this._cancel(this._trigger(DRAGEND, e));
             },
             _cancel: function (isDefaultPrevented) {
@@ -69754,7 +69760,7 @@
                         that._shrink(that.element.innerWidth());
                     }
                 }
-                that.userEvents = new kendo.UserEvents(document, {
+                that.userEvents = new kendo.UserEvents(document.documentElement, {
                     threshold: 5,
                     allowSelection: true,
                     filter: '[' + KENDO_UID_ATTR + '=' + this.uid + '] a.' + BUTTON + ', ' + '[' + KENDO_UID_ATTR + '=' + this.uid + '] .' + OVERFLOW_BUTTON,
@@ -72937,12 +72943,20 @@
                 that._fetching = false;
             },
             removeAt: function (position) {
-                this._selectedIndexes.splice(position, 1);
-                this._values.splice(position, 1);
+                var value = this._values.splice(position, 1)[0];
                 return {
                     position: position,
-                    dataItem: this._selectedDataItems.splice(position, 1)[0]
+                    dataItem: this._removeSelectedDataItem(value)
                 };
+            },
+            _removeSelectedDataItem: function (value) {
+                var that = this, valueGetter = that._valueGetter;
+                for (var idx in that._selectedDataItems) {
+                    if (valueGetter(that._selectedDataItems[idx]) === value) {
+                        that._selectedIndexes.splice(idx, 1);
+                        return that._selectedDataItems.splice(idx, 1)[0];
+                    }
+                }
             },
             setValue: function (value) {
                 this._values = toArray(value);
@@ -74850,7 +74864,7 @@
                 var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', id = kendo.guid(), span;
                 span = wrapper.find(SELECTOR);
                 if (!span[0]) {
-                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span id="' + id + '" unselectable="on" role="option" aria-selected="true" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>').append(that.element);
+                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span id="' + id + '" unselectable="on" role="option" aria-selected="true" class="k-input">&nbsp;</span><span role="button" unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>').append(that.element);
                     span = wrapper.find(SELECTOR);
                 }
                 that.span = span;
@@ -75415,15 +75429,12 @@
                 }).on('mouseup' + ns, 'table.k-content, .k-footer', function () {
                     that._focusView(that.options.focusOnNav !== false);
                 }).attr(ID);
-                if (id) {
-                    that._cellID = id + '_cell_selected';
-                }
                 if (that._isMultipleSelection() && that.options.weekNumber) {
                     element.on(CLICK, WEEKCOLUMNSELECTOR, function (e) {
                         var first = $(e.currentTarget).closest('tr').find(CELLSELECTORVALID).first(), last = that.selectable._lastActive = $(e.currentTarget).closest('tr').find(CELLSELECTORVALID).last();
                         that.selectable.selectRange(first, last, { event: e });
                         that._current = that._value = toDateObject(last.find('a'));
-                        that._class(FOCUSED, that._current);
+                        that._setCurrent(that._current);
                     });
                 }
                 normalize(options);
@@ -75441,7 +75452,9 @@
                 };
                 that._removeClassProxy = function () {
                     that._active = false;
-                    that._cell.removeClass(FOCUSED);
+                    if (that._cell) {
+                        that._cell.removeClass(FOCUSED);
+                    }
                 };
                 that.value(value);
                 if (that._isMultipleSelection() && options.selectDates.length > 0) {
@@ -75648,10 +75661,10 @@
                 }
                 if (that.options.selectable === 'single') {
                     if (view === views[options.depth] && that._value && !that.options.disableDates(that._value)) {
-                        that._class('k-state-selected', that._value);
+                        that._selectCell(that._value);
                     }
                 }
-                that._class(FOCUSED, value);
+                that._setCurrent(value);
                 if (!from && that._cell) {
                     that._cell.removeClass(FOCUSED);
                 }
@@ -75755,7 +75768,7 @@
                 var that = this;
                 if (that.selectable.options.multiple && target.is(CELLSELECTORVALID)) {
                     that._current = toDateObject(target.find('a'));
-                    that._class(FOCUSED, toDateObject(target.find('a')));
+                    that._setCurrent(that._current);
                 }
             },
             _onSelect: function (e) {
@@ -75895,7 +75908,7 @@
                     } else if ((key == keys.ENTER || key == keys.SPACEBAR) && that._isMultipleSelection()) {
                         that._keyboardToggleSelection(e);
                         var focusedDate = toDateObject($(that._cell[0]).find('a'));
-                        that._class(FOCUSED, focusedDate);
+                        that._setCurrent(focusedDate);
                     }
                 } else if (e.shiftKey) {
                     if (value !== undefined || method) {
@@ -75948,7 +75961,7 @@
                                 that.navigate(currentValue);
                             } else {
                                 that._current = currentValue;
-                                that._class(FOCUSED, currentValue);
+                                that._setCurrent(currentValue);
                             }
                         } else {
                             that._focus(currentValue);
@@ -75974,7 +75987,7 @@
                     return;
                 }
                 that.selectable.options.filter = that.wrapper.find('table').length > 1 && +currentValue > +that._current ? 'table.k-month:eq(1) ' + CELLSELECTORVALID : 'table.k-month:eq(0) ' + CELLSELECTORVALID;
-                that._class(FOCUSED, currentValue);
+                that._setCurrent(currentValue);
                 that._current = currentValue;
                 that._rangeSelection(that._cellByDate(that._view.toDateString(currentValue), CELLSELECTORVALID), currentValue);
                 that.trigger(CHANGE);
@@ -76083,27 +76096,27 @@
                     return $(this.firstChild).attr(kendo.attr(VALUE)) === value;
                 });
             },
-            _class: function (className, date) {
-                var that = this, id = that._cellID, cell = that._cell, value = that._view.toDateString(date), disabledDate;
-                if (cell && cell.length) {
+            _selectCell: function (date) {
+                var that = this, cell = that._selectedCell, value = that._view.toDateString(date);
+                if (cell && cell[0]) {
                     cell[0].removeAttribute(ARIA_SELECTED);
+                    cell.removeClass(SELECTED);
+                }
+                cell = that._cellByDate(value, that.options.selectable == 'multiple' ? CELLSELECTOR : 'td:not(.' + OTHERMONTH + ')');
+                that._selectedCell = cell;
+                cell.addClass(SELECTED).attr(ARIA_SELECTED, true);
+            },
+            _setCurrent: function (date) {
+                var that = this, id = kendo.guid(), cell = that._cell, value = that._view.toDateString(date);
+                if (cell && cell[0]) {
+                    cell.removeClass(FOCUSED);
                     cell[0].removeAttribute(ARIA_LABEL);
                     cell[0].removeAttribute(ID);
                 }
-                if (date && that._view.name == 'month') {
-                    disabledDate = that.options.disableDates(date);
-                }
-                that._cellsBySelector(that._isMultipleSelection() ? CELLSELECTOR : 'td:not(.' + OTHERMONTH + ')').removeClass(className);
-                cell = that._cellByDate(value, that.options.selectable == 'multiple' ? CELLSELECTOR : 'td:not(.' + OTHERMONTH + ')').attr(ARIA_SELECTED, true);
-                if (className === FOCUSED && !that._active && that.options.focusOnNav !== false || disabledDate) {
-                    className = '';
-                }
-                cell.addClass(className);
-                if (cell[0]) {
-                    that._cell = cell;
-                }
-                if (id) {
-                    cell.attr(ID, id);
+                cell = that._cellByDate(value, that.options.selectable == 'multiple' ? CELLSELECTOR : 'td:not(.' + OTHERMONTH + ')');
+                that._cell = cell;
+                cell.attr(ID, id).addClass(FOCUSED);
+                if (that._table[0]) {
                     that._table[0].removeAttribute('aria-activedescendant');
                     that._table.attr('aria-activedescendant', id);
                 }
@@ -76126,7 +76139,7 @@
                     that.navigate(value);
                 } else {
                     that._current = value;
-                    that._class(FOCUSED, value);
+                    that._setCurrent(value);
                 }
             },
             _focusView: function (active, table) {
@@ -77936,7 +77949,7 @@
                         element[0].removeAttribute(DISABLED);
                         element[0].removeAttribute(READONLY);
                     }
-                    element.attr(ARIA_DISABLED, false).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusout' + ns, proxy(that._blur, that)).on('focus' + ns, function () {
+                    element.attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusout' + ns, proxy(that._blur, that)).on('focus' + ns, function () {
                         that._inputWrapper.addClass(FOCUSED);
                     });
                     icon.on(UP, proxy(that._click, that)).on(MOUSEDOWN, preventDefault);
@@ -78275,7 +78288,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, caret = kendo.caret, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, parse = kendo.parseFloat, placeholderSupported = kendo.support.placeholder, getCulture = kendo.getCulture, CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', INPUT = 'k-input', SPIN = 'spin', ns = '.kendoNumericTextBox', TOUCHEND = 'touchend', MOUSELEAVE = 'mouseleave' + ns, HOVEREVENTS = 'mouseenter' + ns + ' ' + MOUSELEAVE, DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', FOCUS = 'focus', POINT = '.', CLASS_ICON = 'k-icon', LABELCLASSES = 'k-label k-input-label', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', STATE_INVALID = 'k-state-invalid', ARIA_DISABLED = 'aria-disabled', INTEGER_REGEXP = /^(-)?(\d*)$/, NULL = null, proxy = $.proxy, isPlainObject = $.isPlainObject, extend = $.extend;
+        var kendo = window.kendo, caret = kendo.caret, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, parse = kendo.parseFloat, placeholderSupported = kendo.support.placeholder, getCulture = kendo.getCulture, CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', INPUT = 'k-input', SPIN = 'spin', ns = '.kendoNumericTextBox', TOUCHEND = 'touchend', MOUSELEAVE = 'mouseleave' + ns, HOVEREVENTS = 'mouseenter' + ns + ' ' + MOUSELEAVE, DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', FOCUS = 'focus', POINT = '.', SYMBOL = 'symbol', CLASS_ICON = 'k-icon', LABELCLASSES = 'k-label k-input-label', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', STATE_INVALID = 'k-state-invalid', ARIA_DISABLED = 'aria-disabled', INTEGER_REGEXP = /^(-)?(\d*)$/, NULL = null, proxy = $.proxy, isPlainObject = $.isPlainObject, extend = $.extend;
         var NumericTextBox = Widget.extend({
             init: function (element, options) {
                 var that = this, isStep = options && options.step !== undefined, min, max, step, value, disabled;
@@ -78309,12 +78322,10 @@
                     that._text.on(TOUCHEND + ns + ' ' + FOCUS + ns, function () {
                         if (kendo.support.browser.edge) {
                             that._text.one(FOCUS + ns, function () {
-                                that._toggleText(false);
-                                element.focus();
+                                that._focusin();
                             });
                         } else {
-                            that._toggleText(false);
-                            element.focus();
+                            that._focusin();
                         }
                         that.selectValue();
                     });
@@ -78523,7 +78534,7 @@
                     var input = e.target, idx = caret(input)[0], value = input.value.substring(0, idx), format = that._format(that.options.format), group = format[','], result, groupRegExp, extractRegExp, caretPosition = 0;
                     if (group) {
                         groupRegExp = new RegExp('\\' + group, 'g');
-                        extractRegExp = new RegExp('(^(-)$)|(^(-)?([\\d\\' + group + ']+)(\\' + format[POINT] + ')?(\\d+)?)');
+                        extractRegExp = new RegExp('(-)?(' + format[SYMBOL] + ')?([\\d\\' + group + ']+)(\\' + format[POINT] + ')?(\\d+)?');
                     }
                     if (extractRegExp) {
                         result = extractRegExp.exec(value);
@@ -78544,7 +78555,7 @@
                     this.element[0].select();
                 }
             },
-            _change: function (value) {
+            _getFactorValue: function (value) {
                 var that = this, factor = that.options.factor;
                 if (factor && factor !== 1) {
                     value = kendo.parseFloat(value);
@@ -78552,6 +78563,11 @@
                         value = value / factor;
                     }
                 }
+                return value;
+            },
+            _change: function (value) {
+                var that = this;
+                value = that._getFactorValue(value);
                 that._update(value);
                 value = that._value;
                 if (that._old != value) {
@@ -78650,6 +78666,9 @@
                     this.element.val(value);
                     this._numPadDot = false;
                 }
+                if (this._isPasted) {
+                    value = this._parse(value).toString().replace(POINT, numberFormat[POINT]);
+                }
                 if (this._numericRegex(numberFormat).test(value) && !minInvalid) {
                     this._oldText = value;
                 } else {
@@ -78660,6 +78679,7 @@
                         this._cachedCaret = null;
                     }
                 }
+                this._isPasted = false;
             },
             _blinkInvalidState: function () {
                 var that = this;
@@ -78706,6 +78726,7 @@
                 var element = e.target;
                 var value = element.value;
                 var numberFormat = that._format(that.options.format);
+                that._isPasted = true;
                 setTimeout(function () {
                     var result = that._parse(element.value);
                     if (result === NULL) {
@@ -78713,6 +78734,7 @@
                     } else {
                         element.value = result.toString().replace(POINT, numberFormat[POINT]);
                         if (that._adjust(result) !== result || !that._numericRegex(numberFormat).test(element.value)) {
+                            value = that._getFactorValue(element.value);
                             that._update(value);
                         }
                     }
@@ -78894,7 +78916,7 @@
         });
         function buttonHtml(direction, text) {
             var className = 'k-i-arrow-' + (direction === 'increase' ? '60-up' : '60-down');
-            return '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '" title="' + text + '">' + '<span unselectable="on" class="' + CLASS_ICON + ' ' + className + '"></span>' + '</span>';
+            return '<span role="button" unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '" title="' + text + '">' + '<span unselectable="on" class="' + CLASS_ICON + ' ' + className + '"></span>' + '</span>';
         }
         function truncate(value, precision) {
             var parts = parseFloat(value, 10).toString().split(POINT);
@@ -81215,7 +81237,8 @@
                     wnd.minLeft -= containerOffset.left;
                     wnd.minTop = -containerOffset.top;
                 }
-                wnd.wrapper.append(templates.overlay).children(KWINDOWRESIZEHANDLES).hide();
+                $(templates.overlay).appendTo(wnd.wrapper).css({ opacity: 0 });
+                wnd.wrapper.children(KWINDOWRESIZEHANDLES).hide();
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
             drag: function (e) {

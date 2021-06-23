@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1080,7 +1080,7 @@
                 this.timeline.bind('navigate', function (e) {
                     var viewName = e.view.replace(/\./g, '\\.').toLowerCase();
                     that.toolbar.find(DOT + ganttStyles.toolbar.views + ' > button').removeClass(ganttStyles.selected).end().find(DOT + ganttStyles.toolbar.viewButton + '-' + viewName).addClass(ganttStyles.selected);
-                    that.toolbar.find(DOT + ganttStyles.toolbar.viewsDropdown).val(viewName);
+                    that.toolbar.find(DOT + ganttStyles.toolbar.viewsDropdown).val(e.view);
                     that.refresh();
                 }).bind('moveStart', function (e) {
                     var editable = that.list.editor;

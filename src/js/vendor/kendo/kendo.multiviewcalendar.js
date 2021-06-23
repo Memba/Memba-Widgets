@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -51,6 +51,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
+                that.calendar = options.calendar;
                 that.userEvents = new kendo.UserEvents(that.element, {
                     global: true,
                     allowSelection: true,
@@ -72,6 +73,7 @@
                 var that = this;
                 Widget.fn.destroy.call(that);
                 that.userEvents.destroy();
+                that.calendar = null;
                 that._lastActive = that.element = that.userEvents = that._start = that._end = null;
             },
             _allowSelection: function (target) {
@@ -157,6 +159,9 @@
                 items = that.element.find(CELLSELECTOR);
                 startIdx = $.inArray($(start)[0], items);
                 endIdx = $.inArray($(end)[0], items);
+                if (endIdx == -1) {
+                    endIdx = items.length;
+                }
                 if (startIdx > endIdx) {
                     temp = end;
                     end = start;
@@ -172,28 +177,34 @@
                     return index > startIdx && index < endIdx;
                 });
                 that.mid(items);
-                that.end($(end));
+                if (end) {
+                    that.end($(end));
+                } else {
+                    that._useEnd = true;
+                }
             },
             change: function () {
                 this.trigger(CHANGE);
             },
+            _clearFlags: function () {
+                this._useStart = this._useEnd = false;
+            },
             _tap: function (e) {
-                var target = $(e.target), that = this, items, startIdx, endIdx;
+                var target = $(e.target), range = this.calendar.selectRange() || {}, start = range.start, end = range.end, that = this, currentDate = toDateObject($(target).find('a')), items, startIdx, endIdx;
                 that._lastActive = target;
-                if (!that._start) {
+                if (!start || +start > +currentDate) {
+                    that.clear(true);
                     that.start(target);
+                    that._clearFlags();
                     that.trigger(CHANGE);
                     return;
                 }
-                if (that._start && !that._end) {
+                if (start && !end) {
                     items = that.element.find(CELLSELECTOR);
                     startIdx = $.inArray($(that._start)[0], items);
                     endIdx = $.inArray($(target)[0], items);
-                    if (+toDateObject($(that._start).find('a')) > +toDateObject($(target).find('a'))) {
-                        that.clear();
-                        that.start(target);
-                        that.trigger(CHANGE);
-                        return;
+                    if (start) {
+                        that._useStart = true;
                     }
                     items = items.filter(function (index) {
                         return index > startIdx && index < endIdx;
@@ -201,9 +212,10 @@
                     that.mid(items);
                     that.end($(target));
                     that.trigger(CHANGE);
+                    that._clearFlags();
                     return;
                 }
-                if (that._start && that._end) {
+                if (start && end) {
                     if (target.hasClass(MID)) {
                         if (!that._toggling) {
                             that.range(target, that._end);
@@ -212,6 +224,7 @@
                         }
                         that._toggling = !that._toggling;
                         that.trigger(CHANGE);
+                        that._clearFlags();
                         return;
                     }
                     that._toggling = false;
@@ -219,6 +232,7 @@
                     that.clear();
                     that.start(target);
                     that.trigger(CHANGE);
+                    that._clearFlags();
                 }
             }
         });
@@ -795,6 +809,7 @@
                 }
                 if (selectable.toLowerCase() === 'range') {
                     that.rangeSelectable = new RangeSelectable(that.wrapper, {
+                        calendar: that,
                         filter: 'table.k-month ' + CELLSELECTORVALID,
                         change: proxy(that._rangeSelection, that)
                     });
@@ -937,6 +952,9 @@
             _rangeSelection: function (e) {
                 var that = this;
                 var range = e.sender.range();
+                var useEnd = e.sender._useEnd;
+                var useStart = e.sender._useStart;
+                var initialRange = that.selectRange() || {};
                 var start;
                 var end;
                 if (range.start) {
@@ -946,8 +964,8 @@
                     end = toDateObject(range.end.find('a'));
                 }
                 that._range = {
-                    start: start,
-                    end: end
+                    start: useStart ? initialRange.start : start,
+                    end: useEnd ? initialRange.end : end
                 };
                 if (!that._preventChange) {
                     that.trigger(CHANGE);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -128,8 +128,8 @@
                 that.container = that.wrapper.find(DOT + ratingStyles.container);
             },
             _aria: function () {
-                var that = this, wrapper = that.wrapper, element = that.element, id = element.attr('id'), labelFor = $('label[for="' + id + '"]'), ariaLabel = element.attr(ARIA_LABEL), ariaLabelledBy = element.attr(ARIA_LABELLEDBY);
-                that.wrapper.attr(TABINDEX, 0).attr(ROLE, 'slider').attr(ARIA_VALUEMIN, parseFloat(that.element.attr(MIN)) || that.options.min).attr(ARIA_VALUEMAX, parseFloat(that.element.attr(MAX)) || that.options.max).attr(ARIA_VALUENOW, that.options.value);
+                var that = this, wrapper = that.wrapper, element = that.element, id = element.attr('id'), labelFor = $('label[for="' + id + '"]'), ariaLabel = element.attr(ARIA_LABEL), ariaLabelledBy = element.attr(ARIA_LABELLEDBY), min = parseFloat(that.element.attr(MIN)) || that.options.min, max = parseFloat(that.element.attr(MAX)) || that.options.max;
+                that.wrapper.attr(TABINDEX, 0).attr(ROLE, 'slider').attr(ARIA_VALUEMIN, min).attr(ARIA_VALUEMAX, max).attr(ARIA_VALUENOW, that.options.value || (min + max) / 2);
                 if (ariaLabel) {
                     wrapper.attr(ARIA_LABEL, ariaLabel);
                 } else if (ariaLabelledBy) {
@@ -425,13 +425,9 @@
                 }
             },
             _updateElement: function (value) {
-                var that = this, elementValue = value === null ? '' : value;
+                var that = this, elementValue = value === null ? '' : value, min = parseFloat(that.element.attr(MIN)) || that.options.min, max = parseFloat(that.element.attr(MAX)) || that.options.max;
                 that.element.val(that._format(elementValue));
-                if (that.value === null) {
-                    that.wrapper.removeAttr(ARIA_VALUENOW);
-                } else {
-                    that.wrapper.attr(ARIA_VALUENOW, that._format(value));
-                }
+                that.wrapper.attr(ARIA_VALUENOW, that._format(value) || (min + max) / 2);
             },
             _updateItemsRendering: function (value) {
                 var that = this, isHalfPrecision = that.options.precision == ratingPrecision.half, updateTemplate = value === null ? 'item' : SELECTED, valueItem = value === null ? that.container.find(DOT + ratingItemStates.selected).last() : that.container.find(DOT + KITEM + '[data-value=\'' + Math.ceil(value) + '\']');

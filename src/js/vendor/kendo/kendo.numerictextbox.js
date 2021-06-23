@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -41,7 +41,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, caret = kendo.caret, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, parse = kendo.parseFloat, placeholderSupported = kendo.support.placeholder, getCulture = kendo.getCulture, CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', INPUT = 'k-input', SPIN = 'spin', ns = '.kendoNumericTextBox', TOUCHEND = 'touchend', MOUSELEAVE = 'mouseleave' + ns, HOVEREVENTS = 'mouseenter' + ns + ' ' + MOUSELEAVE, DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', FOCUS = 'focus', POINT = '.', CLASS_ICON = 'k-icon', LABELCLASSES = 'k-label k-input-label', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', STATE_INVALID = 'k-state-invalid', ARIA_DISABLED = 'aria-disabled', INTEGER_REGEXP = /^(-)?(\d*)$/, NULL = null, proxy = $.proxy, isPlainObject = $.isPlainObject, extend = $.extend;
+        var kendo = window.kendo, caret = kendo.caret, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, parse = kendo.parseFloat, placeholderSupported = kendo.support.placeholder, getCulture = kendo.getCulture, CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', INPUT = 'k-input', SPIN = 'spin', ns = '.kendoNumericTextBox', TOUCHEND = 'touchend', MOUSELEAVE = 'mouseleave' + ns, HOVEREVENTS = 'mouseenter' + ns + ' ' + MOUSELEAVE, DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', FOCUS = 'focus', POINT = '.', SYMBOL = 'symbol', CLASS_ICON = 'k-icon', LABELCLASSES = 'k-label k-input-label', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', STATE_INVALID = 'k-state-invalid', ARIA_DISABLED = 'aria-disabled', INTEGER_REGEXP = /^(-)?(\d*)$/, NULL = null, proxy = $.proxy, isPlainObject = $.isPlainObject, extend = $.extend;
         var NumericTextBox = Widget.extend({
             init: function (element, options) {
                 var that = this, isStep = options && options.step !== undefined, min, max, step, value, disabled;
@@ -75,12 +75,10 @@
                     that._text.on(TOUCHEND + ns + ' ' + FOCUS + ns, function () {
                         if (kendo.support.browser.edge) {
                             that._text.one(FOCUS + ns, function () {
-                                that._toggleText(false);
-                                element.focus();
+                                that._focusin();
                             });
                         } else {
-                            that._toggleText(false);
-                            element.focus();
+                            that._focusin();
                         }
                         that.selectValue();
                     });
@@ -289,7 +287,7 @@
                     var input = e.target, idx = caret(input)[0], value = input.value.substring(0, idx), format = that._format(that.options.format), group = format[','], result, groupRegExp, extractRegExp, caretPosition = 0;
                     if (group) {
                         groupRegExp = new RegExp('\\' + group, 'g');
-                        extractRegExp = new RegExp('(^(-)$)|(^(-)?([\\d\\' + group + ']+)(\\' + format[POINT] + ')?(\\d+)?)');
+                        extractRegExp = new RegExp('(-)?(' + format[SYMBOL] + ')?([\\d\\' + group + ']+)(\\' + format[POINT] + ')?(\\d+)?');
                     }
                     if (extractRegExp) {
                         result = extractRegExp.exec(value);
@@ -310,7 +308,7 @@
                     this.element[0].select();
                 }
             },
-            _change: function (value) {
+            _getFactorValue: function (value) {
                 var that = this, factor = that.options.factor;
                 if (factor && factor !== 1) {
                     value = kendo.parseFloat(value);
@@ -318,6 +316,11 @@
                         value = value / factor;
                     }
                 }
+                return value;
+            },
+            _change: function (value) {
+                var that = this;
+                value = that._getFactorValue(value);
                 that._update(value);
                 value = that._value;
                 if (that._old != value) {
@@ -416,6 +419,9 @@
                     this.element.val(value);
                     this._numPadDot = false;
                 }
+                if (this._isPasted) {
+                    value = this._parse(value).toString().replace(POINT, numberFormat[POINT]);
+                }
                 if (this._numericRegex(numberFormat).test(value) && !minInvalid) {
                     this._oldText = value;
                 } else {
@@ -426,6 +432,7 @@
                         this._cachedCaret = null;
                     }
                 }
+                this._isPasted = false;
             },
             _blinkInvalidState: function () {
                 var that = this;
@@ -472,6 +479,7 @@
                 var element = e.target;
                 var value = element.value;
                 var numberFormat = that._format(that.options.format);
+                that._isPasted = true;
                 setTimeout(function () {
                     var result = that._parse(element.value);
                     if (result === NULL) {
@@ -479,6 +487,7 @@
                     } else {
                         element.value = result.toString().replace(POINT, numberFormat[POINT]);
                         if (that._adjust(result) !== result || !that._numericRegex(numberFormat).test(element.value)) {
+                            value = that._getFactorValue(element.value);
                             that._update(value);
                         }
                     }
@@ -660,7 +669,7 @@
         });
         function buttonHtml(direction, text) {
             var className = 'k-i-arrow-' + (direction === 'increase' ? '60-up' : '60-down');
-            return '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '" title="' + text + '">' + '<span unselectable="on" class="' + CLASS_ICON + ' ' + className + '"></span>' + '</span>';
+            return '<span role="button" unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '" title="' + text + '">' + '<span unselectable="on" class="' + CLASS_ICON + ' ' + className + '"></span>' + '</span>';
         }
         function truncate(value, precision) {
             var parts = parseFloat(value, 10).toString().split(POINT);

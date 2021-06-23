@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -344,6 +344,9 @@
                         option.selected = false;
                     }
                     listView.removeAt(position);
+                    if (listView._removedAddedIndexes) {
+                        listView._removedAddedIndexes.splice(position, 1);
+                    }
                     listViewChild = listViewChildren[customIndex];
                     if (listViewChild) {
                         listViewChildren[customIndex].classList.remove('k-state-selected');
@@ -450,7 +453,7 @@
             open: function () {
                 var that = this, filterValue = that.input.val().toLowerCase(), listViewFilter = that.listView.dataSource.filter(), listViewFilterValue;
                 if (listViewFilter && listViewFilter.filters.length > 0) {
-                    listViewFilterValue = listViewFilter.filters[0].value.toLowerCase();
+                    listViewFilterValue = listViewFilter.filters[0].value.toString().toLowerCase();
                 }
                 if (that._request) {
                     that._retrieveData = false;
@@ -487,12 +490,12 @@
                 that._renderNoData();
                 that._toggleNoData(!data.length);
                 that._resizePopup();
-                that._updateItemFocus();
                 if (that._open) {
                     that._open = false;
                     that.toggle(that._allowOpening());
                 }
                 that.popup.position();
+                that._updateItemFocus();
                 if (that._touchScroller) {
                     that._touchScroller.reset();
                 }

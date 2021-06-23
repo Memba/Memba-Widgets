@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, proxy = $.proxy, CHANGE = 'change', FOCUS = 'focus', CLICK = 'click', SELECT = 'select', DOT = '.', DISABLED = 'disabled', ROLE = 'role', VERTICAL = 'vertical', AFTER = 'after';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, proxy = $.proxy, CHANGE = 'change', FOCUS = 'focus', CLICK = 'click', SELECT = 'select', DOT = '.', DISABLED = 'disabled', VERTICAL = 'vertical', AFTER = 'after';
         var InputGroupBase = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -53,7 +53,6 @@
             ],
             ITEM_TEMPLATE: '',
             NS: '.kendoInputGroupBase',
-            GROUP_ROLE: '',
             groupStyles: {},
             destroy: function () {
                 var that = this;
@@ -201,7 +200,7 @@
                 if (!item.id) {
                     item.id = kendo.guid();
                 }
-                item.name = options.inputName || this.element.attr('id');
+                item.name = options.inputName || this.element.attr('name') || this.element.attr('id');
                 if (items.length > index) {
                     items[index] = extend({}, items[index], item);
                 } else {
@@ -244,7 +243,7 @@
             },
             _wrapper: function () {
                 var wrapper = this.wrapper = this.element, items = this._items, itemElements = wrapper.find('li'), inputs = wrapper.find('input');
-                wrapper.attr(ROLE, this.GROUP_ROLE).addClass(this.groupStyles.list);
+                wrapper.addClass(this.groupStyles.list);
                 if (this.options.layout === VERTICAL) {
                     wrapper.addClass(this.groupStyles.vertical);
                 } else {

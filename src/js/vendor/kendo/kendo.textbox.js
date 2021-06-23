@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -106,7 +106,21 @@
                     that.floatingLabel.destroy();
                 }
                 that.element.off(NS);
+                that.element[0].style.width = '';
+                that.element.removeClass(INPUT);
                 Widget.fn.destroy.call(that);
+            },
+            setOptions: function (options) {
+                this.destroy();
+                this.element.unwrap();
+                if (this._floatingLabelContainer) {
+                    this._inputLabel.remove();
+                    this._inputLabel = null;
+                    this.element.unwrap();
+                    this._floatingLabelContainer = null;
+                }
+                kendo.deepExtend(this.options, options);
+                this.init(this.element, this.options);
             },
             _editable: function (options) {
                 var that = this;
@@ -161,6 +175,9 @@
                 var value = that._value;
                 var newValue = that.element.val();
                 that.wrapper.removeClass(FOCUSED);
+                if (value === null) {
+                    value = '';
+                }
                 if (value !== newValue) {
                     that._value = newValue;
                     that.trigger(CHANGE);

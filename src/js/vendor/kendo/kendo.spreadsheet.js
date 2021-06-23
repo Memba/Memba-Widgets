@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1287,7 +1287,6 @@
                 this._clipboard.parse();
                 this._event = options.event;
                 this._clipboardContent = this._clipboard._content;
-                this._clipboardPasteRef = this._clipboard.pasteRef();
                 this._sheet = this._workbook.activeSheet();
                 this._range = this._sheet.selection ? this._sheet.selection() : this._sheet.range(this._clipboard.pasteRef());
                 this._state = this._range.getState();
@@ -1416,7 +1415,7 @@
                     }
                 }, {
                     recalc: true,
-                    ref: range._ref
+                    ref: that._range._ref
                 });
                 range._adjustRowHeight();
             },
@@ -29398,27 +29397,14 @@
                     return;
                 }
                 if (e.recalc && e.ref) {
+                    var UnionRef = kendo.spreadsheet.UnionRef;
                     var dataSource = this.dataSource;
                     var data = dataSource.view();
                     var columns = this.columns;
-                    var fields;
-                    if (dataSource.reader.model) {
-                        fields = dataSource.reader.model.fields;
-                    }
-                    if (!columns.length && data.length) {
-                        columns = Object.keys(data[0].toJSON());
-                    }
-                    var getters = columns.map(function (column) {
-                        var field = column.field;
-                        if (field && fields && fields[field] && fields[field].type == 'date') {
-                            return kendo.spreadsheet.numberToDate;
-                        }
-                        return identity;
-                    });
-                    this._skipRebind = true;
-                    var normalizedRef = this.sheet._grid.normalize(e.ref);
-                    var values = this.sheet.range(normalizedRef).values();
-                    normalizedRef.forEach(function (ref) {
+                    var values = [];
+                    var sheet = this.sheet;
+                    var fields, getters, normalizedRef, i, rangeRef, normalizedRefs;
+                    var setValues = function (ref) {
                         ref = ref.toRangeRef();
                         var record;
                         var valueIndex = 0;
@@ -29430,11 +29416,38 @@
                             }
                             var colValueIndex = 0;
                             for (var ci = ref.topLeft.col; ci <= ref.bottomRight.col && ci < columns.length; ci++) {
-                                record.set(columns[ci].field, getters[ci](values[valueIndex][colValueIndex++]));
+                                var currentValue = values[i][valueIndex][colValueIndex++];
+                                record.set(columns[ci].field, getters[ci](currentValue));
                             }
                             valueIndex++;
                         }
+                    };
+                    if (dataSource.reader.model) {
+                        fields = dataSource.reader.model.fields;
+                    }
+                    if (!columns.length && data.length) {
+                        columns = Object.keys(data[0].toJSON());
+                    }
+                    getters = columns.map(function (column) {
+                        var field = column.field;
+                        if (field && fields && fields[field] && fields[field].type == 'date') {
+                            return kendo.spreadsheet.numberToDate;
+                        }
+                        return identity;
                     });
+                    this._skipRebind = true;
+                    normalizedRef = sheet._grid.normalize(e.ref);
+                    if (!(normalizedRef instanceof UnionRef)) {
+                        normalizedRef = new UnionRef([normalizedRef]);
+                    }
+                    normalizedRefs = normalizedRef.refs;
+                    normalizedRefs.forEach(function (ref) {
+                        values.push(sheet.range(ref).values());
+                    });
+                    for (i = 0; i < normalizedRefs.length; i++) {
+                        rangeRef = normalizedRefs[i];
+                        rangeRef.forEach(setValues);
+                    }
                     this._boundRowsCount = dataSource.view().length;
                     this._skipRebind = false;
                 }

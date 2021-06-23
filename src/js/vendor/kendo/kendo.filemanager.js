@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1984,7 +1984,10 @@
                 return that.breadcrumb;
             },
             _breadcrumbChange: function (ev) {
-                this._navigate({ path: ev.value });
+                var entry = ev.sender.items().filter(function (item) {
+                    return item.path === ev.value.substring(1);
+                }).shift();
+                this._navigate({ path: entry ? entry.id : '' });
             },
             _initUploadDialog: function () {
                 var that = this, options = that.options, dialogMessages = options.messages.dialogs.upload, dialogElement = $('<div />'), dialogOptions = extend({}, {
@@ -2253,13 +2256,21 @@
                 that._navigate({ path: parentNodePath });
             },
             _buildBreadcrumbPath: function (entry) {
-                var that = this, breadcrumb = that.breadcrumb, values = [];
+                var that = this, breadcrumb = that.breadcrumb, items = [];
                 while (entry) {
-                    values.push(entry.name);
+                    items.push({
+                        id: entry.id,
+                        text: entry.name,
+                        path: entry.path
+                    });
                     entry = entry.parentNode && entry.parentNode();
                 }
-                values.push('');
-                breadcrumb.value(values.reverse().join('/'));
+                items.push({
+                    type: 'rootItem',
+                    id: '',
+                    text: ''
+                });
+                breadcrumb.items(items.reverse());
             },
             _adjustDimensions: function () {
                 var that = this, wrapper = that.wrapper, gridSelector = DOT + fileManagerStyles.grid, listViewSelector = DOT + fileManagerStyles.list, contentContainer = DOT + fileManagerStyles.contentContainer, totalHeight = wrapper.height(), toolbarHeight = 0, breadcrumbHeight = 0;

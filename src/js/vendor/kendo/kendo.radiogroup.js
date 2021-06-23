@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, InputGroupBase = ui.InputGroupBase, CHANGE = 'change', DOT = '.', CHECKED = 'checked', VERTICAL = 'vertical', AFTER = 'after';
+        var kendo = window.kendo, ui = kendo.ui, InputGroupBase = ui.InputGroupBase, CHANGE = 'change', DOT = '.', CHECKED = 'checked', VERTICAL = 'vertical', AFTER = 'after', ROLE = 'role', NONE = 'none', GROUP_ROLE = 'radiogroup';
         var RadioGroup = InputGroupBase.extend({
             options: {
                 name: 'RadioGroup',
@@ -51,7 +51,6 @@
             },
             ITEM_TEMPLATE: '<li class="k-radio-item">' + '<input type="radio" class="k-radio" >' + '<label class="k-radio-label" ></label>' + '</li>',
             NS: '.kendoRadioGroup',
-            GROUP_ROLE: 'radiogroup',
             groupStyles: {
                 item: 'k-radio-item',
                 input: 'k-radio',
@@ -98,6 +97,11 @@
             },
             _dataValRequired: function (validationAttributes) {
                 validationAttributes['data-val-required'] = this.wrapper.attr('data-val-required');
+            },
+            _wrapper: function () {
+                InputGroupBase.fn._wrapper.call(this);
+                this.wrapper.find(DOT + this.groupStyles.item).attr(ROLE, NONE);
+                this.wrapper.attr(ROLE, GROUP_ROLE);
             }
         });
         ui.plugin(RadioGroup);

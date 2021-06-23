@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.511 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -62,7 +62,13 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "neq": "są inne niż",
     "startswith": "zaczynają się od",
     "contains": "zawierają",
-    "doesnotcontain": "nie zawierają"
+    "doesnotcontain": "nie zawierają",
+    "isnull": "jest null",
+    "isnotnull": "nie jest null",
+    "isempty": "jest puste",
+    "isnotempty": "nie jest puste",
+    "isnullorempty": "nie ma wartości",
+    "isnotnullorempty": "ma wartośc"
   },
   "enums": {
     "eq": "są równe",
@@ -308,6 +314,8 @@ $.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
   "search": "Szukaj",
   "filter": "Filtr",
   "clear": "Wyczyść filtr",
+  "checkAll": "Zaznacz wszystko",
+  "clearAll": "Odznacz wszystko",
   "selectedItemsFormat":"Wybrano {0} elementy"
 });
 }

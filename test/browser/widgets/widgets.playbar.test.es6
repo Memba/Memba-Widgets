@@ -58,8 +58,7 @@ const pageCollectionData1 = [
                 width: 250,
                 rotate: 0,
                 attributes: {
-                    src:
-                        'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
+                    src: 'http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png',
                 },
             },
             {
@@ -253,7 +252,7 @@ describe('widgets.playbar', () => {
                 .with.property('length', 4);
             expect(element.find('ul>li'))
                 .to.be.an.instanceof($)
-                .with.property('length', pageCollectionData1.length);  // + 1);
+                .with.property('length', pageCollectionData1.length); // + 1);
             expect(element.find('span.k-pager-input>input'))
                 .to.be.an.instanceof($)
                 .with.property('length', 0);

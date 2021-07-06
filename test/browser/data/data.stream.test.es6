@@ -270,9 +270,8 @@ describe('data.stream', () => {
                             expect(model).to.be.an.instanceof(BaseModel);
                             stream.pages.data().forEach((page) => {
                                 page.components.data().forEach((component) => {
-                                    const name = component.get(
-                                        'properties.name'
-                                    );
+                                    const name =
+                                        component.get('properties.name');
                                     if (TOOLS.RX_TEST_FIELD_NAME.test(name)) {
                                         expect(
                                             TestModel.fields
@@ -919,7 +918,8 @@ describe('data.stream', () => {
                                             options.data.models,
                                             (index, model) => {
                                                 // eslint-disable-next-line no-param-reassign
-                                                model.id = new ObjectId().toString(); // id set on server
+                                                model.id =
+                                                    new ObjectId().toString(); // id set on server
                                             }
                                         );
                                     }
@@ -958,7 +958,8 @@ describe('data.stream', () => {
                                                         options.data.models,
                                                         (index, model) => {
                                                             // eslint-disable-next-line no-param-reassign
-                                                            model.id = new ObjectId().toString(); // id set on server
+                                                            model.id =
+                                                                new ObjectId().toString(); // id set on server
                                                         }
                                                     );
                                                 }

@@ -101,7 +101,10 @@ describe('tools.shape', () => {
             expect(rows[7]).to.have.property('field', 'attributes.text');
             expect(rows[8]).to.have.property('field', 'attributes.fillColor');
             expect(rows[9]).to.have.property('field', 'attributes.strokeColor');
-            expect(rows[10]).to.have.property('field', 'attributes.strokeWidth');
+            expect(rows[10]).to.have.property(
+                'field',
+                'attributes.strokeWidth'
+            );
         });
 
         it('getPropertyModel', () => {

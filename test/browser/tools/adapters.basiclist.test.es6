@@ -6,7 +6,7 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import CONSTANTS from '../../../src/js/common/window.constants.es6';
+// import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { randomVal } from '../../../src/js/common/window.util.es6';
 import BasicListAdapter from '../../../src/js/tools/adapters.basiclist.es6';
 
@@ -38,7 +38,7 @@ describe('adapters.basiclist', () => {
         it('getField', () => {
             const field = adapter.getField();
             expect(field).to.deep.equal({
-                defaultValue: []
+                defaultValue: [],
                 // type: CONSTANTS.OBJECT,
             });
         });

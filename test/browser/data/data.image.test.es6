@@ -32,14 +32,12 @@ const DATA = [
     },
     {
         text: 'warning',
-        url:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg',
+        url: 'https://cdn.kidoju.com/images/o_collection/svg/office/sign_warning.svg',
     },
 ];
 const IMAGE = {
     text: 'information',
-    url:
-        'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg',
+    url: 'https://cdn.kidoju.com/images/o_collection/svg/office/information.svg',
 };
 
 describe('data.image', () => {

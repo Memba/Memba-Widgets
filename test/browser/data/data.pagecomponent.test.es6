@@ -683,8 +683,8 @@ describe('data.pagecomponent', () => {
                 const update = sinon.spy();
                 const destroy = sinon.spy();
                 const data = getComponentArray();
-                const pageComponentCollectionDataSource = new PageComponentDataSource(
-                    {
+                const pageComponentCollectionDataSource =
+                    new PageComponentDataSource({
                         transport: {
                             read(options) {
                                 options.success(data);
@@ -702,8 +702,7 @@ describe('data.pagecomponent', () => {
                                 options.success(options.data);
                             },
                         },
-                    }
-                );
+                    });
                 expect(pageComponentCollectionDataSource)
                     .to.have.nested.property('options.schema.model')
                     .that.is.a('function');

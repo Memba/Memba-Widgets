@@ -40,28 +40,23 @@ chai.use(sinonChai);
 const data = [
     {
         text: 'answer 1',
-        image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_one.svg',
+        image: 'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_one.svg',
     },
     {
         text: 'answer 2',
-        image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_point_up.svg',
+        image: 'https://cdn.kidoju.com/images/o_collection/svg/office/hand_point_up.svg',
     },
     {
         text: 'answer 3',
-        image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_three.svg',
+        image: 'https://cdn.kidoju.com/images/o_collection/svg/office/hand_count_three.svg',
     },
     {
         text: 'answer 4',
-        image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_four.svg',
+        image: 'https://cdn.kidoju.com/images/o_collection/svg/office/hand_four.svg',
     },
     {
         text: 'answer 5',
-        image:
-            'https://cdn.kidoju.com/images/o_collection/svg/office/hand_spread.svg',
+        image: 'https://cdn.kidoju.com/images/o_collection/svg/office/hand_spread.svg',
     },
 ];
 

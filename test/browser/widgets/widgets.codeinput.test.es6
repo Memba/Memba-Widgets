@@ -152,8 +152,7 @@ describe('widgets.codeinput', () => {
                 default: 'floatEqual',
                 role: ROLE,
                 source: JSON.stringify(LIBRARY),
-                value:
-                    'function validate(value, solution) {\\n\\treturn true;\\n}',
+                value: 'function validate(value, solution) {\\n\\treturn true;\\n}',
             });
             const element = $(ELEMENT)
                 .attr(attributes)

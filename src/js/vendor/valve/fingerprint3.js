@@ -1,5 +1,5 @@
 /**
- * FingerprintJS v3.1.2 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
+ * FingerprintJS v3.1.3 - Copyright (c) FingerprintJS, Inc, 2021 (https://fingerprintjs.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
  *
  * This software contains code from open-source projects:
@@ -313,7 +313,7 @@ var FingerprintJS = (function (exports) {
         return r;
     }
 
-    var version = "3.1.2";
+    var version = "3.1.3";
 
     function wait(durationMs, resolveWith) {
         return new Promise(function (resolve) { return setTimeout(resolve, durationMs, resolveWith); });
@@ -610,6 +610,9 @@ var FingerprintJS = (function (exports) {
     }
     /**
      * Checks whether the device runs on Android without using user-agent.
+     *
+     * Warning for package users:
+     * This function is out of Semantic Versioning, i.e. can change unexpectedly. Usage is at your own risk.
      */
     function isAndroid() {
         var isItChromium = isChromium();
@@ -780,17 +783,26 @@ var FingerprintJS = (function (exports) {
                                 style.top = '0';
                                 style.left = '0';
                                 style.visibility = 'hidden';
-                                d.body.appendChild(iframe);
-                                // The order is important here.
-                                // The `iframe.srcdoc = ...` expression must go after the `body.appendChild(iframe)` expression,
-                                // otherwise the iframe will never load nor fail in WeChat built-in browser.
-                                // See https://github.com/fingerprintjs/fingerprintjs/issues/645#issuecomment-828189330
                                 if (initialHtml && 'srcdoc' in iframe) {
                                     iframe.srcdoc = initialHtml;
                                 }
                                 else {
                                     iframe.src = 'about:blank';
                                 }
+                                d.body.appendChild(iframe);
+                                // WebKit in WeChat doesn't fire the iframe's `onload` for some reason.
+                                // This code checks for the loading state manually.
+                                // See https://github.com/fingerprintjs/fingerprintjs/issues/645
+                                var checkReadyState = function () {
+                                    var _a;
+                                    if (((_a = iframe.contentWindow) === null || _a === void 0 ? void 0 : _a.document.readyState) === 'complete') {
+                                        resolve();
+                                    }
+                                    else {
+                                        setTimeout(checkReadyState, 10);
+                                    }
+                                };
+                                checkReadyState();
                             })];
                     case 5:
                         _c.sent();
@@ -1149,7 +1161,9 @@ var FingerprintJS = (function (exports) {
         var s = screen;
         // Some browsers return screen resolution as strings, e.g. "1200", instead of a number, e.g. 1200.
         // I suspect it's done by certain plugins that randomize browser properties to prevent fingerprinting.
-        var dimensions = [toInt(s.width), toInt(s.height)];
+        // Some browsers even return  screen resolution as not numbers.
+        var parseDimension = function (value) { return replaceNaN(toInt(value), null); };
+        var dimensions = [parseDimension(s.width), parseDimension(s.height)];
         dimensions.sort().reverse();
         return dimensions;
     }
@@ -2386,6 +2400,7 @@ var FingerprintJS = (function (exports) {
     exports.getFullscreenElement = getFullscreenElement;
     exports.getScreenFrame = getScreenFrame;
     exports.hashComponents = hashComponents;
+    exports.isAndroid = isAndroid;
     exports.isChromium = isChromium;
     exports.isDesktopSafari = isDesktopSafari;
     exports.isEdgeHTML = isEdgeHTML;

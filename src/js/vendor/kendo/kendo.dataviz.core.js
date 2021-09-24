@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -223,6 +223,7 @@
         var OBJECT = 'object';
         var OUTSIDE = 'outside';
         var RIGHT = 'right';
+        var ROUNDED_RECT = 'roundedRect';
         var START = 'start';
         var STRING = 'string';
         var TOP = 'top';
@@ -262,6 +263,7 @@
             OBJECT: OBJECT,
             OUTSIDE: OUTSIDE,
             RIGHT: RIGHT,
+            ROUNDED_RECT: ROUNDED_RECT,
             START: START,
             STRING: STRING,
             TOP: TOP,
@@ -728,6 +730,13 @@
             }
             matrix.b = matrix.c = matrix.e = matrix.f = 0;
             return matrix;
+        }
+        function autoTextColor(color) {
+            var isDark = new kendo.Color(color).isDark();
+            if (isDark) {
+                return WHITE;
+            }
+            return BLACK;
         }
         function autoMajorUnit(min, max) {
             var diff = round(max - min, DEFAULT_PRECISION - 1);
@@ -1476,6 +1485,7 @@
                 var rotation = options.rotation;
                 var center = box.center();
                 var halfWidth = box.width() / 2;
+                var halfHeight = box.height() / 2;
                 if (!options.visible || !this.hasBox()) {
                     return null;
                 }
@@ -1484,8 +1494,8 @@
                 if (type === CIRCLE) {
                     element = new drawing.Circle(new Circle([
                         round(box.x1 + halfWidth, COORD_PRECISION),
-                        round(box.y1 + box.height() / 2, COORD_PRECISION)
-                    ], halfWidth), style);
+                        round(box.y1 + halfHeight, COORD_PRECISION)
+                    ], Math.min(halfWidth, halfHeight)), style);
                 } else if (type === TRIANGLE) {
                     element = Path.fromPoints([
                         [
@@ -1506,7 +1516,12 @@
                     element.moveTo(box.x1, box.y1).lineTo(box.x2, box.y2);
                     element.moveTo(box.x1, box.y2).lineTo(box.x2, box.y1);
                 } else {
-                    element = Path.fromRect(box.toRect(), style);
+                    var rect = box.toRect();
+                    if (type === ROUNDED_RECT) {
+                        var borderRadius = valueOrDefault(options.borderRadius, rect.width() / 5);
+                        rect.setCornerRadius(borderRadius);
+                    }
+                    element = Path.fromRect(rect, style);
                 }
                 if (rotation) {
                     element.transform(geometryTransform().rotate(-rotation, [
@@ -3037,7 +3052,10 @@
                 for (var idx = 0; idx < limit; idx++) {
                     var width = Math.abs(tickPositions[idx + 1] - tickPositions[idx]);
                     var labelBox = labels[idx].box;
-                    angle = this$1.autoRotateLabelAngle(labelBox, width);
+                    var labelAngle = this$1.autoRotateLabelAngle(labelBox, width);
+                    if (labelAngle !== 0) {
+                        angle = labelAngle;
+                    }
                     if (angle === -90) {
                         break;
                     }
@@ -6607,6 +6625,7 @@
             styleValue: styleValue,
             find: find,
             elementScale: elementScale,
+            autoTextColor: autoTextColor,
             append: append,
             bindEvents: bindEvents,
             Class: Class,

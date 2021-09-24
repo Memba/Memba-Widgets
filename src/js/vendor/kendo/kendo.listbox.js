@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -70,7 +70,6 @@
         var DROP_HINT_CLASS = 'k-drop-hint';
         var LIST_CLASS = 'k-reset k-list';
         var LIST_SELECTOR = '.k-reset.k-list';
-        var RESET = 'k-reset';
         var CLICK = 'click' + NS;
         var KEYDOWN = 'keydown' + NS;
         var BLUR = 'blur' + NS;
@@ -117,7 +116,7 @@
             return typeof value === 'undefined';
         }
         function defaultHint(element) {
-            return element.clone().removeClass(DRAGGEDCLASS).removeClass(FOCUSED_CLASS).addClass(kendo.format('{0} {1} {2}', SELECTED_STATE_CLASS, RESET, DRAG_CLUE_CLASS)).width(element.width());
+            return element.clone().attr('class', '').addClass(DRAG_CLUE_CLASS);
         }
         function defaultPlaceholder() {
             return $('<li>').addClass(DROP_HINT_CLASS);

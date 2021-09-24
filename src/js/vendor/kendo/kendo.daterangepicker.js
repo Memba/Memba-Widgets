@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -55,11 +55,12 @@
             var options = that.options;
             var div;
             if (!calendar) {
-                div = $(DIV).attr(ID, kendo.guid()).appendTo(that.popup.element).on(MOUSEDOWN, preventDefault).on(CLICK, 'td:has(.k-link)', proxy(that._click, that));
+                div = $(DIV).attr(ID, kendo.guid()).appendTo(that.popup.element);
                 that.calendar = calendar = new ui.MultiViewCalendar(div);
                 that._setOptions(options);
                 calendar.navigate(that._value || that._current, options.start);
                 that._range = that._range || options.range || {};
+                div.on(MOUSEDOWN, preventDefault).on(CLICK, 'td:has(.k-link)', proxy(that._click, that));
                 that.calendar.selectRange(that._range);
             }
         };
@@ -125,7 +126,7 @@
                 if (this._range && this._range.end) {
                     this.close();
                 }
-            } else if (this._range && this._range.end === null && e.currentTarget.className.indexOf('k-state-selected') !== -1) {
+            } else if (this._range && this._range.end && e.currentTarget.className.indexOf('k-range-end') !== -1) {
                 this.close();
             }
         };
@@ -341,12 +342,15 @@
             _buildHTML: function () {
                 var that = this;
                 var element = that.element;
+                var id;
                 if (!that.wrapper) {
                     that.wrapper = element.addClass('k-widget k-daterangepicker');
                 }
                 if (that.options.labels) {
-                    $('<span class="k-textbox-container"><input/><label class="k-label">' + that.options.messages.startLabel + '</label></span>').appendTo(that.wrapper);
-                    $('<span>&nbsp;</span><span class="k-textbox-container"><input/><label class="k-label">' + that.options.messages.endLabel + '</label></span>').appendTo(that.wrapper);
+                    id = kendo.guid();
+                    $('<span class="k-textbox-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + that.options.messages.startLabel + '</label></span>').appendTo(that.wrapper);
+                    id = kendo.guid();
+                    $('<span>&nbsp;</span><span class="k-textbox-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + that.options.messages.endLabel + '</label></span>').appendTo(that.wrapper);
                 } else {
                     $('<input/><span>&nbsp;</span><input/>').appendTo(that.wrapper);
                 }

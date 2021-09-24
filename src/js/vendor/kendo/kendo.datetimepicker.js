@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -310,7 +310,11 @@
                 }
                 that._old = that._update(value);
                 if (that._old === null) {
-                    that.element.val('');
+                    if (that._dateInput) {
+                        that._dateInput.value(that._old);
+                    } else {
+                        that.element.val('');
+                    }
                 }
                 that._oldText = that.element.val();
             },
@@ -446,8 +450,10 @@
                         timeView.bind();
                     }
                 }
-                if (that._dateInput && date) {
-                    that._dateInput.value(date || value);
+                if (that._dateInput) {
+                    if (date) {
+                        that._dateInput.value(date);
+                    }
                 } else {
                     that.element.val(kendo.toString(date || value, options.format, options.culture));
                 }
@@ -777,14 +783,16 @@
                 this._dateIcon.toggle();
                 this._timeIcon.toggle();
             },
-            _cancelClickHandler: function () {
+            _cancelClickHandler: function (e) {
+                preventDefault(e);
                 if (this._value) {
                     this.value(this._value);
                     this.dateView.value(this._value);
                 }
                 this.popup.close();
             },
-            _setClickHandler: function () {
+            _setClickHandler: function (e) {
+                preventDefault(e);
                 var value = this._applyDateValue();
                 var time;
                 value = value || new Date();

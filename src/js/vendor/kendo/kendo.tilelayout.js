@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,21 @@
         id: 'tilelayout',
         name: 'TileLayout',
         category: 'web',
-        depends: ['core']
+        depends: ['core'],
+        features: [
+            {
+                id: 'tilelayout-resizable',
+                name: 'Resizable',
+                description: 'Support for resizing',
+                depends: ['resizable']
+            },
+            {
+                id: 'tilelayout-reorderable',
+                name: 'Reorderable',
+                description: 'Support for reordering',
+                depends: ['draganddrop']
+            }
+        ]
     };
     (function ($) {
         var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, Draggable = ui.Draggable, keys = kendo.keys, selector = kendo.selectorFromClasses, RESIZE = 'resize', REORDER = 'reorder', NS = '.kendoTileLayout', DOWNCURSOR = 'k-cursor-ns-resize', RIGHTCURSOR = 'k-cursor-ew-resize', DIAGONALCURSOR = 'k-cursor-nwse-resize', RTLDIAGONALCURSOR = 'k-cursor-nesw-resize', GRABCURSOR = 'k-cursor-grab', GRABBINGCURSOR = 'k-cursor-grabbing', MINIMALSPAN = 1, CURSORCLASSES = 'k-cursor-nesw-resize k-cursor-nwse-resize k-cursor-ew-resize k-cursor-ns-resize';
@@ -145,9 +159,7 @@
                             if (that.options.reorderable) {
                                 header.addClass(GRABCURSOR);
                             }
-                            if (headerSettings.text) {
-                                headerContent = '<div class=\'' + TileLayout.styles.itemHeaderTitle + '\'>' + headerSettings.text + '</div>';
-                            }
+                            headerContent = headerSettings.text ? '<div class=\'' + TileLayout.styles.itemHeaderTitle + '\'>' + headerSettings.text + '</div>' : null;
                             header.append(headerContent || kendo.template(headerSettings.template)({}));
                             header.appendTo(container);
                         }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -163,6 +163,7 @@
                 }
                 that._tabindex();
                 that.wrapper.attr('role', 'tree');
+                that.wrapper.find('>ul').attr('role', 'none');
                 that._dataSource(inferred);
                 that._attachEvents();
                 that._dragging();
@@ -949,7 +950,7 @@
                 var checkboxes = options.checkboxes;
                 var defaultTemplate;
                 if (checkboxes) {
-                    defaultTemplate = '<input type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
+                    defaultTemplate = '<input aria-hidden=\'true\' type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
                     if (checkboxes.name) {
                         defaultTemplate += ' name=\'' + checkboxes.name + '\'';
                     }
@@ -1084,6 +1085,9 @@
                         nodeWrapper = elements[i];
                         node = nodeWrapper.parent();
                         if (render) {
+                            if (kendo.unbind) {
+                                kendo.unbind(nodeWrapper);
+                            }
                             nodeWrapper.children('.k-in').html(that.templates.itemContent(context));
                         }
                         if (field == CHECKED) {
@@ -1117,9 +1121,6 @@
                             });
                         }
                         if (nodeWrapper.length) {
-                            if (item._events && item._events.change) {
-                                item._events.change.splice(1);
-                            }
                             this.trigger('itemChange', {
                                 item: nodeWrapper,
                                 data: item,
@@ -1272,6 +1273,7 @@
                         }
                     }
                 }
+                this.wrapper.find('>ul').attr('role', 'none');
                 this.trigger(DATABOUND, { node: node ? parentNode : undefined });
                 if (this.dataSource.filter() && this.options.checkboxes.checkChildren) {
                     this.updateIndeterminate(parentNode);

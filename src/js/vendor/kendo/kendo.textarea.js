@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -201,7 +201,7 @@
                 wrapper = element.wrap('<span class=\'k-widget k-textarea\'></span>').parent();
                 wrapper[0].style.cssText = DOMElement.style.cssText;
                 DOMElement.style.width = '100%';
-                that.wrapper = wrapper.addClass(DOMElement.className).removeClass('input-validation-error');
+                that._inputWrapper = that.wrapper = wrapper.addClass(DOMElement.className).removeClass('input-validation-error');
             }
         });
         ui.plugin(TextArea);

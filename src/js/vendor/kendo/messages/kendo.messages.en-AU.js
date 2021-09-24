@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -205,6 +205,81 @@ $.extend(true, kendo.ui.FileBrowser.prototype.options.messages,{
   "dropFilesHere": "drop file here to upload",
   "search": "Search"
 });
+}
+
+/* FileManager messages */
+
+if (kendo.ui.FileManager) {
+    kendo.ui.FileManager.prototype.options.messages =
+    $.extend(true, kendo.ui.FileManager.prototype.options.messages,{
+        toolbar: {
+            createFolder: "New Folder",
+            upload: "Upload",
+            sortDirection: "Sort Direction",
+            sortDirectionAsc: "Sort Direction Ascending",
+            sortDirectionDesc: "Sort Direction Descending",
+            sortField: "Sort By",
+            nameField: "Name",
+            sizeField: "File Size",
+            typeField: "Type",
+            dateModifiedField: "Date Modified",
+            dateCreatedField: "Date Created",
+            listView: "List View",
+            gridView: "Grid View",
+            search: "Search",
+            details: "View Details",
+            detailsChecked: "On",
+            detailsUnchecked: "Off",
+            "delete": "Delete",
+            rename: "Rename"
+        },
+        views: {
+            nameField: "Name",
+            sizeField: "File Size",
+            typeField: "Type",
+            dateModifiedField: "Date Modified",
+            dateCreatedField: "Date Created",
+            items: "items"
+        },
+        dialogs: {
+            upload: {
+                title: "Upload Files",
+                clear: "Clear List",
+                done: "Done"
+            },
+            moveConfirm: {
+                title: "Confirm",
+                content: "<p style='text-align: center;'>Do you want to move or copy?</p>",
+                okText: "Copy",
+                cancel: "Move",
+                close: "close"
+            },
+            deleteConfirm: {
+                title: "Confirm",
+                content: "<p style='text-align: center;'>Are you sure you want to delete the selected file(s)?</br>You cannot undo this action.</p>",
+                okText: "Delete",
+                cancel: "Cancel",
+                close: "close"
+            },
+            renamePrompt: {
+                title: "Prompt",
+                content: "<p style='text-align: center;'>Enter new name for the file.</p>",
+                okText: "Rename",
+                cancel: "Cancel",
+                close: "close"
+            }
+        },
+        previewPane: {
+            noFileSelected: "No File Selected",
+            extension: "Type",
+            size: "Size",
+            created: "Date Created",
+            createdUtc: "Date Created UTC",
+            modified: "Date Modified",
+            modifiedUtc: "Date Modified UTC",
+            items: "items"
+        }
+    });
 }
 
 /* FilterCell messages */
@@ -1191,7 +1266,8 @@ if (kendo.ui.MultiSelect) {
         "singleTag": "item(s) selected",
         "clear": "clear",
         "deleteTag": "delete",
-        "noData": "No data found."
+        "noData": "No data found.",
+        "downArrow": "select"
     });
 }
 
@@ -1285,6 +1361,42 @@ if (kendo.ui.PDFViewer) {
                 of: "of"
             }
         }
+    });
+}
+
+/* Captcha messages */
+
+if (kendo.ui.Captcha) {
+    kendo.ui.Captcha.prototype.options.messages =
+    $.extend(true, kendo.ui.Captcha.prototype.options.messages,{
+        "reset": "Reset captcha",
+        "audio": "Speak captcha",
+        "imageAlt": "Type the Captcha code from the image",
+        "success": "Verification successful"
+    });
+}
+
+/* OrgChart messages */
+
+if (kendo.ui.OrgChart) {
+    kendo.ui.OrgChart.prototype.options.messages =
+    $.extend(true, kendo.ui.OrgChart.prototype.options.messages,{
+        label: "Org Chart",
+        edit: "Edit",
+        create: "Create",
+        destroy: "Delete",
+        destroyContent: "Are you sure you want to delete this item and all its children?",
+        destroyTitle: "Delete item",
+        cancel: "Cancel",
+        save: "Save",
+        menuLabel: "Edit menu",
+        uploadAvatar: "Upload new avatar",
+        parent: "Parent",
+        name: "Name",
+        title: "Title",
+        none: "--None--",
+        expand: "expand",
+        collapse: "collapse"
     });
 }
 

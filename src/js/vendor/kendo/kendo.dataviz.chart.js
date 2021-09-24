@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -638,6 +638,7 @@
         var COLUMN = 'column';
         var DONUT = 'donut';
         var FUNNEL = 'funnel';
+        var HEATMAP = 'heatmap';
         var HORIZONTAL_WATERFALL = 'horizontalWaterfall';
         var LINE = 'line';
         var OHLC = 'ohlc';
@@ -783,7 +784,8 @@
             HIDE_TOOLTIP: HIDE_TOOLTIP,
             EQUALLY_SPACED_SERIES: EQUALLY_SPACED_SERIES,
             ABOVE: ABOVE,
-            BELOW: BELOW
+            BELOW: BELOW,
+            HEATMAP: HEATMAP
         };
         var DEFAULT_ERROR_BAR_WIDTH = 4;
         var ErrorBarBase = ChartElement.extend({
@@ -2044,6 +2046,9 @@
                     result.push((points[idx] || {}).marker);
                 }
                 return result.concat(this._segments);
+            },
+            supportsPointInactiveOpacity: function () {
+                return false;
             }
         });
         deepExtend(LineChart.prototype, LineChartMixin, ClipAnimationMixin);
@@ -4233,7 +4238,8 @@
                 options.format = tooltipOptions.format;
                 var style = this.getStyle(tooltipOptions, point);
                 options.style = style;
-                if (!defined(tooltipOptions.color) && new Color(style.backgroundColor).percBrightness() > 180) {
+                var background = new Color(style.backgroundColor);
+                if (!defined(tooltipOptions.color) && !background.isDark()) {
                     options.className = 'k-chart-tooltip-inverse';
                 }
                 this.chartService.notify(SHOW_TOOLTIP, options);
@@ -4894,6 +4900,9 @@
                 }
                 this.panes = panes;
             },
+            crosshairOptions: function (axis) {
+                return axis.options.crosshair;
+            },
             createCrosshairs: function (panes) {
                 var this$1 = this;
                 if (panes === void 0) {
@@ -4903,8 +4912,9 @@
                     var pane = panes[i];
                     for (var j = 0; j < pane.axes.length; j++) {
                         var axis = pane.axes[j];
-                        if (axis.options.crosshair && axis.options.crosshair.visible) {
-                            var currentCrosshair = new Crosshair(this$1.chartService, axis, axis.options.crosshair);
+                        var options = this$1.crosshairOptions(axis);
+                        if (options && options.visible) {
+                            var currentCrosshair = new Crosshair(this$1.chartService, axis, options);
                             this$1.crosshairs.push(currentCrosshair);
                             pane.content.append(currentCrosshair);
                         }
@@ -8702,12 +8712,7 @@
                 if (labels.visible && (labelText || labelText === 0)) {
                     if (labels.position === CENTER || labels.position === INSIDE_END) {
                         if (!labels.color) {
-                            var brightnessValue = new Color(this.options.color).percBrightness();
-                            if (brightnessValue > 180) {
-                                labels.color = BLACK;
-                            } else {
-                                labels.color = WHITE;
-                            }
+                            labels.color = dataviz.autoTextColor(this.options.color);
                         }
                         if (!labels.background) {
                             labels.background = this.options.color;
@@ -10292,12 +10297,7 @@
                         text = this.plotArea.chartService.format.auto(labels.format, text);
                     }
                     if (!labels.color) {
-                        var brightnessValue = new Color(series.color).percBrightness();
-                        if (brightnessValue > 180) {
-                            labels.color = BLACK;
-                        } else {
-                            labels.color = WHITE;
-                        }
+                        labels.color = dataviz.autoTextColor(series.color);
                         if (!labels.background) {
                             labels.background = series.color;
                         }
@@ -10445,6 +10445,652 @@
                 append(this.options.legend.items, chart.legendItems);
             }
         });
+        var colorScale = function (color, minLightnessOffset) {
+            if (minLightnessOffset === void 0) {
+                minLightnessOffset = 0.05;
+            }
+            var baseColor = kendo.parseColor(color);
+            var offset = 1 - minLightnessOffset;
+            return function (value) {
+                var hsl = baseColor.toHSL();
+                var range = 100 - hsl.l;
+                var point = offset - value;
+                hsl.l += Math.min(point * range, range);
+                return hsl.toCss();
+            };
+        };
+        var HeatmapPoint = ChartElement.extend({
+            init: function (value, options) {
+                ChartElement.fn.init.call(this);
+                this.options = options;
+                this.color = options.color || WHITE;
+                this.value = value;
+            },
+            render: function () {
+                if (this._rendered) {
+                    return;
+                }
+                this._rendered = true;
+                this.createMarker();
+                this.createLabel();
+                this.createNote();
+            },
+            createLabel: function () {
+                var options = this.options;
+                var labels = options.labels;
+                if (labels.visible) {
+                    var pointData = this.pointData();
+                    var labelTemplate = getTemplate(labels);
+                    var labelText;
+                    var labelColor = labels.color;
+                    if (labelTemplate) {
+                        labelText = labelTemplate(pointData);
+                    } else {
+                        labelText = this.formatValue(labels.format);
+                    }
+                    if (!labelColor) {
+                        labelColor = dataviz.autoTextColor(this.color);
+                    }
+                    this.label = new TextBox(labelText, deepExtend({
+                        align: CENTER,
+                        vAlign: CENTER,
+                        margin: {
+                            left: 5,
+                            right: 5
+                        },
+                        zIndex: valueOrDefault(labels.zIndex, this.series.zIndex)
+                    }, labels, { color: labelColor }), pointData);
+                    this.append(this.label);
+                }
+            },
+            formatValue: function (format) {
+                return this.owner.formatPointValue(this, format);
+            },
+            reflow: function (targetBox) {
+                this.render();
+                var label = this.label;
+                this.box = targetBox;
+                if (label) {
+                    label.reflow(this.markerBox());
+                }
+                if (this.note) {
+                    this.note.reflow(targetBox);
+                }
+                this.marker.reflow(this.markerBox());
+            },
+            markerBox: function () {
+                var options = this.options;
+                var markers = options.markers;
+                var border = markers.border;
+                var rect = this.box.toRect();
+                var type = valueOrDefault(markers.type, 'rect');
+                var isRoundRect = type === datavizConstants.ROUNDED_RECT;
+                var borderWidth = valueOrDefault(border.width, isRoundRect ? 1 : 0);
+                var halfBorderWidth = Math.round(borderWidth / 2);
+                if (markers.size) {
+                    var center = rect.center();
+                    rect.size.width = rect.size.height = markers.size;
+                    rect.origin.x = Math.round(center.x - rect.size.width / 2);
+                    rect.origin.y = Math.round(center.y - rect.size.height / 2);
+                }
+                rect.size.width -= borderWidth;
+                rect.size.height -= borderWidth;
+                rect.origin.y += halfBorderWidth + 0.5;
+                rect.origin.x += halfBorderWidth + 0.5;
+                return dataviz.rectToBox(rect);
+            },
+            markerBorder: function () {
+                var options = this.options;
+                var markers = options.markers;
+                var border = markers.border;
+                var opacity = valueOrDefault(border.opacity, options.opacity);
+                return {
+                    color: border.color || this.color,
+                    width: border.width,
+                    opacity: opacity,
+                    dashType: border.dashType
+                };
+            },
+            createMarker: function () {
+                var options = this.options;
+                var markerOptions = options.markers;
+                var marker = new ShapeElement({
+                    type: valueOrDefault(markerOptions.type, 'rect'),
+                    width: markerOptions.size,
+                    height: markerOptions.size,
+                    rotation: markerOptions.rotation,
+                    background: this.color,
+                    border: this.markerBorder(),
+                    borderRadius: markerOptions.borderRadius,
+                    opacity: this.series.opacity || options.opacity,
+                    zIndex: valueOrDefault(options.zIndex, this.series.zIndex),
+                    animation: options.animation,
+                    visual: options.visual
+                }, {
+                    dataItem: this.dataItem,
+                    value: this.value,
+                    series: this.series,
+                    category: this.category
+                });
+                this.marker = marker;
+                this.append(marker);
+            },
+            createHighlight: function (style) {
+                var options = this.options;
+                var markerOptions = this.options.highlight.markers || this.options.markers;
+                var highlight = new ShapeElement({
+                    type: valueOrDefault(markerOptions.type, 'rect'),
+                    width: markerOptions.size,
+                    height: markerOptions.size,
+                    rotation: markerOptions.rotation,
+                    background: markerOptions.color || this.color,
+                    border: this.markerBorder(),
+                    borderRadius: markerOptions.borderRadius,
+                    opacity: this.series.opacity || options.opacity,
+                    zIndex: valueOrDefault(options.zIndex, this.series.zIndex)
+                });
+                highlight.reflow(this.markerBox());
+                var visual = highlight.getElement();
+                visual.options.fill = style.fill;
+                visual.options.stroke = style.stroke;
+                return visual;
+            },
+            highlightVisual: function () {
+                return this.rectVisual;
+            },
+            highlightVisualArgs: function () {
+                return {
+                    options: this.options,
+                    rect: this.box.toRect(),
+                    visual: this.rectVisual
+                };
+            },
+            tooltipAnchor: function () {
+                var left = this.box.center().x;
+                var top = this.box.y1 - TOOLTIP_OFFSET;
+                return {
+                    point: new Point(left, top),
+                    align: {
+                        horizontal: CENTER,
+                        vertical: BOTTOM
+                    }
+                };
+            },
+            overlapsBox: function (box) {
+                return this.box.overlaps(box);
+            },
+            unclipElements: function () {
+            },
+            pointData: function () {
+                return {
+                    x: this.value.x,
+                    y: this.value.y,
+                    value: this.value.value,
+                    dataItem: this.dataItem,
+                    series: this.series
+                };
+            }
+        });
+        deepExtend(HeatmapPoint.prototype, PointEventsMixin);
+        deepExtend(HeatmapPoint.prototype, NoteMixin);
+        HeatmapPoint.prototype.defaults = {
+            markers: {
+                type: 'rect',
+                borderRadius: 4,
+                border: { color: 'transparent' }
+            },
+            padding: { top: 1 },
+            labels: {
+                visible: false,
+                padding: 3
+            },
+            opacity: 1,
+            notes: { label: {} }
+        };
+        var HeatmapChart = ChartElement.extend({
+            init: function (plotArea, options) {
+                ChartElement.fn.init.call(this, options);
+                this.plotArea = plotArea;
+                this.chartService = plotArea.chartService;
+                this._initFields();
+                this.render();
+            },
+            _initFields: function () {
+                this.points = [];
+                this.seriesOptions = [];
+                this.valueRange = {
+                    min: MAX_VALUE,
+                    max: MIN_VALUE
+                };
+                this._evalSeries = [];
+            },
+            render: function () {
+                this.setRange();
+                this.traverseDataPoints(this.addValue.bind(this));
+            },
+            setRange: function () {
+                var this$1 = this;
+                var ref = this;
+                var series = ref.options.series;
+                for (var seriesIx = 0; seriesIx < series.length; seriesIx++) {
+                    var currentSeries = series[seriesIx];
+                    for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
+                        var ref$1 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
+                        var valueFields = ref$1.valueFields;
+                        this$1.valueRange.min = Math.min(this$1.valueRange.min, valueFields.value);
+                        this$1.valueRange.max = Math.max(this$1.valueRange.max, valueFields.value);
+                    }
+                }
+            },
+            addValue: function (value, fields) {
+                var point;
+                if (value) {
+                    point = this.createPoint(value, fields);
+                    if (point) {
+                        $.extend(point, fields);
+                    }
+                }
+                this.points.push(point);
+            },
+            evalPointOptions: function (options, value, fields) {
+                var series = fields.series;
+                var seriesIx = fields.seriesIx;
+                var state = {
+                    defaults: series._defaults,
+                    excluded: [
+                        'data',
+                        'tooltip',
+                        'content',
+                        'template',
+                        'visual',
+                        'toggle'
+                    ]
+                };
+                var doEval = this._evalSeries[seriesIx];
+                if (!defined(doEval)) {
+                    this._evalSeries[seriesIx] = doEval = evalOptions(options, {}, state, true);
+                }
+                var pointOptions = options;
+                if (doEval) {
+                    pointOptions = deepExtend({}, options);
+                    evalOptions(pointOptions, {
+                        value: value,
+                        series: series,
+                        dataItem: fields.dataItem,
+                        min: this.valueRange.min,
+                        max: this.valueRange.max
+                    }, state);
+                }
+                return pointOptions;
+            },
+            pointType: function () {
+                return HeatmapPoint;
+            },
+            pointOptions: function (series, seriesIx) {
+                var options = this.seriesOptions[seriesIx];
+                if (!options) {
+                    var defaults = this.pointType().prototype.defaults;
+                    this.seriesOptions[seriesIx] = options = deepExtend({}, defaults, {
+                        markers: { opacity: series.opacity },
+                        tooltip: { format: this.options.tooltip.format },
+                        labels: { format: this.options.labels.format }
+                    }, series);
+                }
+                return options;
+            },
+            createPoint: function (value, fields) {
+                var series = fields.series;
+                var pointOptions = this.pointOptions(series, fields.seriesIx);
+                var color = fields.color || series.color;
+                pointOptions = this.evalPointOptions(pointOptions, value, fields);
+                if (isFunction(series.color)) {
+                    color = pointOptions.color;
+                } else {
+                    var scale = colorScale(color);
+                    color = scale(value.value / this.valueRange.max);
+                }
+                var point = new HeatmapPoint(value, pointOptions);
+                point.color = color;
+                this.append(point);
+                return point;
+            },
+            seriesAxes: function (series) {
+                var xAxisName = series.xAxis;
+                var yAxisName = series.yAxis;
+                var plotArea = this.plotArea;
+                var xAxis = xAxisName ? plotArea.namedXAxes[xAxisName] : plotArea.axisX;
+                var yAxis = yAxisName ? plotArea.namedYAxes[yAxisName] : plotArea.axisY;
+                if (!xAxis) {
+                    throw new Error('Unable to locate X axis with name ' + xAxisName);
+                }
+                if (!yAxis) {
+                    throw new Error('Unable to locate Y axis with name ' + yAxisName);
+                }
+                return {
+                    xAxis: xAxis,
+                    yAxis: yAxis
+                };
+            },
+            reflow: function (targetBox) {
+                var this$1 = this;
+                var chartPoints = this.points;
+                var limit = !this.options.clip;
+                var pointIx = 0;
+                this.traverseDataPoints(function (value, fields) {
+                    var point = chartPoints[pointIx++];
+                    var ref = this$1.seriesAxes(fields.series);
+                    var xAxis = ref.xAxis;
+                    var yAxis = ref.yAxis;
+                    var indexX = xAxis.categoryIndex(value.x);
+                    var indexY = yAxis.categoryIndex(value.y);
+                    var slotX = xAxis.getSlot(indexX, indexX, limit);
+                    var slotY = yAxis.getSlot(indexY, indexY, limit);
+                    if (point) {
+                        if (slotX && slotY) {
+                            var pointSlot = this$1.pointSlot(slotX, slotY);
+                            point.reflow(pointSlot);
+                        } else {
+                            point.visible = false;
+                        }
+                    }
+                });
+                this.box = targetBox;
+            },
+            pointSlot: function (slotX, slotY) {
+                return new Box(slotX.x1, slotY.y1, slotX.x2, slotY.y2);
+            },
+            traverseDataPoints: function (callback) {
+                var this$1 = this;
+                var ref = this;
+                var series = ref.options.series;
+                for (var seriesIx = 0; seriesIx < series.length; seriesIx++) {
+                    var currentSeries = series[seriesIx];
+                    var ref$1 = this$1.seriesAxes(currentSeries);
+                    var xAxis = ref$1.xAxis;
+                    var yAxis = ref$1.yAxis;
+                    var xRange = xAxis.currentRangeIndices();
+                    var yRange = yAxis.currentRangeIndices();
+                    for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
+                        var ref$2 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
+                        var value = ref$2.valueFields;
+                        var fields = ref$2.fields;
+                        var xIndex = xAxis.totalIndex(value.x);
+                        var yIndex = yAxis.totalIndex(value.y);
+                        var xIn = xRange.min <= xIndex && xIndex <= xRange.max;
+                        var yIn = yRange.min <= yIndex && yIndex <= yRange.max;
+                        if (xIn && yIn) {
+                            callback(value, deepExtend({
+                                pointIx: pointIx,
+                                series: currentSeries,
+                                seriesIx: seriesIx,
+                                dataItem: currentSeries.data[pointIx],
+                                owner: this$1
+                            }, fields));
+                        }
+                    }
+                }
+            },
+            formatPointValue: function (point, format) {
+                var value = point.value;
+                return this.chartService.format.auto(format, value.x, value.y, value.value);
+            },
+            animationPoints: function () {
+                var points = this.points;
+                var result = [];
+                for (var idx = 0; idx < points.length; idx++) {
+                    result.push((points[idx] || {}).marker);
+                }
+                return result;
+            }
+        });
+        setDefaultOptions(HeatmapChart, {
+            series: [],
+            tooltip: { format: '{0}, {1}: {2}' },
+            labels: { format: '{2}' },
+            clip: true
+        });
+        deepExtend(HeatmapChart.prototype, { _bindPoint: CategoricalChart.prototype._bindPoint });
+        var HeatmapPlotArea = PlotAreaBase.extend({
+            initFields: function () {
+                this.namedXAxes = {};
+                this.namedYAxes = {};
+            },
+            render: function (panes) {
+                if (panes === void 0) {
+                    panes = this.panes;
+                }
+                this.bindCategories();
+                this.createAxes(panes);
+                this.createCharts(panes);
+                this.createAxisLabels();
+            },
+            bindCategories: function () {
+                var this$1 = this;
+                var series = this.srcSeries || this.series;
+                for (var i = 0; i < series.length; i++) {
+                    var currentSeries = series[i];
+                    var data = currentSeries.data || [];
+                    var ref = this$1.seriesAxes(currentSeries);
+                    var xAxis = ref.xAxis;
+                    var yAxis = ref.yAxis;
+                    var xCategories = [].concat(xAxis.categories || []);
+                    var yCategories = [].concat(yAxis.categories || []);
+                    for (var pointIndex = 0; pointIndex < data.length; pointIndex++) {
+                        var ref$1 = SeriesBinder.current.bindPoint(currentSeries, pointIndex).valueFields;
+                        var x = ref$1.x;
+                        var y = ref$1.y;
+                        if (xCategories.indexOf(x) === -1) {
+                            xCategories.push(x);
+                        }
+                        if (yCategories.indexOf(y) === -1) {
+                            yCategories.push(y);
+                        }
+                    }
+                    xAxis.categories = xCategories;
+                    yAxis.categories = yCategories;
+                }
+            },
+            createCharts: function (panes) {
+                var this$1 = this;
+                var seriesByPane = this.groupSeriesByPane();
+                for (var i = 0; i < panes.length; i++) {
+                    var pane = panes[i];
+                    var paneSeries = seriesByPane[pane.options.name || 'default'] || [];
+                    this$1.addToLegend(paneSeries);
+                    var filteredSeries = this$1.filterVisibleSeries(paneSeries);
+                    if (!filteredSeries) {
+                        continue;
+                    }
+                    this$1.createHeatmapChart(filterSeriesByType(filteredSeries, [HEATMAP]), pane);
+                }
+            },
+            createHeatmapChart: function (series, pane) {
+                var chart = new HeatmapChart(this, { series: series });
+                this.appendChart(chart, pane);
+            },
+            seriesPaneName: function (series) {
+                var options = this.options;
+                var xAxisName = series.xAxis;
+                var xAxisOptions = [].concat(options.xAxis);
+                var xAxis = grep(xAxisOptions, function (a) {
+                    return a.name === xAxisName;
+                })[0];
+                var yAxisName = series.yAxis;
+                var yAxisOptions = [].concat(options.yAxis);
+                var yAxis = grep(yAxisOptions, function (a) {
+                    return a.name === yAxisName;
+                })[0];
+                var panes = options.panes || [{}];
+                var defaultPaneName = panes[0].name || 'default';
+                var paneName = (xAxis || {}).pane || (yAxis || {}).pane || defaultPaneName;
+                return paneName;
+            },
+            seriesAxes: function (series) {
+                var xAxis;
+                var yAxis;
+                var options = this.options;
+                var xAxisOptions = [].concat(options.xAxis);
+                var xAxisName = series.xAxis;
+                if (xAxisName) {
+                    xAxis = xAxisOptions.find(function (axis) {
+                        return axis.name === xAxisName;
+                    });
+                } else {
+                    xAxis = xAxisOptions[0];
+                }
+                var yAxisOptions = [].concat(options.yAxis);
+                var yAxisName = series.yAxis;
+                if (yAxisName) {
+                    yAxis = yAxisOptions.find(function (axis) {
+                        return axis.name === yAxisName;
+                    });
+                } else {
+                    yAxis = yAxisOptions[0];
+                }
+                if (!xAxis) {
+                    throw new Error('Unable to locate X axis with name ' + xAxisName);
+                }
+                if (!yAxis) {
+                    throw new Error('Unable to locate Y axis with name ' + yAxisName);
+                }
+                return {
+                    xAxis: xAxis,
+                    yAxis: yAxis
+                };
+            },
+            createAxisLabels: function () {
+                var axes = this.axes;
+                for (var i = 0; i < axes.length; i++) {
+                    axes[i].createLabels();
+                }
+            },
+            createXYAxis: function (options, vertical, axisIndex) {
+                var axisName = options.name;
+                var namedAxes = vertical ? this.namedYAxes : this.namedXAxes;
+                var axisOptions = $.extend({ axisCrossingValue: 0 }, options, {
+                    vertical: vertical,
+                    reverse: vertical || this.chartService.rtl ? !options.reverse : options.reverse,
+                    justified: false
+                });
+                var firstCategory = axisOptions.categories ? axisOptions.categories[0] : null;
+                var typeSamples = [
+                    axisOptions.min,
+                    axisOptions.max,
+                    firstCategory
+                ];
+                var series = this.series;
+                for (var seriesIx = 0; seriesIx < series.length; seriesIx++) {
+                    var currentSeries = series[seriesIx];
+                    var seriesAxisName = currentSeries[vertical ? 'yAxis' : 'xAxis'];
+                    if (seriesAxisName === axisOptions.name || axisIndex === 0 && !seriesAxisName) {
+                        var firstPointValue = SeriesBinder.current.bindPoint(currentSeries, 0).valueFields;
+                        typeSamples.push(firstPointValue[vertical ? 'y' : 'x']);
+                        break;
+                    }
+                }
+                var inferredDate;
+                for (var i = 0; i < typeSamples.length; i++) {
+                    if (typeSamples[i] instanceof Date) {
+                        inferredDate = true;
+                        break;
+                    }
+                }
+                var axisType;
+                if (equalsIgnoreCase(axisOptions.type, DATE) || !axisOptions.type && inferredDate) {
+                    axisType = dataviz.DateCategoryAxis;
+                } else {
+                    axisType = CategoryAxis;
+                }
+                var axis = new axisType(axisOptions, this.chartService);
+                axis.axisIndex = axisIndex;
+                if (axisName) {
+                    if (namedAxes[axisName]) {
+                        throw new Error((vertical ? 'Y' : 'X') + ' axis with name ' + axisName + ' is already defined');
+                    }
+                    namedAxes[axisName] = axis;
+                }
+                this.appendAxis(axis);
+                axis.mapCategories();
+                return axis;
+            },
+            createAxes: function (panes) {
+                var this$1 = this;
+                var options = this.options;
+                var xAxesOptions = [].concat(options.xAxis);
+                var xAxes = [];
+                var yAxesOptions = [].concat(options.yAxis);
+                var yAxes = [];
+                for (var idx = 0; idx < xAxesOptions.length; idx++) {
+                    var axisPane = this$1.findPane(xAxesOptions[idx].pane);
+                    if (inArray(axisPane, panes)) {
+                        xAxes.push(this$1.createXYAxis(xAxesOptions[idx], false, idx));
+                    }
+                }
+                for (var idx$1 = 0; idx$1 < yAxesOptions.length; idx$1++) {
+                    var axisPane$1 = this$1.findPane(yAxesOptions[idx$1].pane);
+                    if (inArray(axisPane$1, panes)) {
+                        yAxes.push(this$1.createXYAxis(yAxesOptions[idx$1], true, idx$1));
+                    }
+                }
+                this.axisX = this.axisX || xAxes[0];
+                this.axisY = this.axisY || yAxes[0];
+            },
+            removeAxis: function (axis) {
+                var axisName = axis.options.name;
+                PlotAreaBase.fn.removeAxis.call(this, axis);
+                if (axis.options.vertical) {
+                    delete this.namedYAxes[axisName];
+                } else {
+                    delete this.namedXAxes[axisName];
+                }
+                if (axis === this.axisX) {
+                    delete this.axisX;
+                }
+                if (axis === this.axisY) {
+                    delete this.axisY;
+                }
+            },
+            _dispatchEvent: function (chart, e, eventType) {
+                var coords = chart._eventCoordinates(e);
+                var point = new Point(coords.x, coords.y);
+                var allAxes = this.axes;
+                var length = allAxes.length;
+                var xValues = [];
+                var yValues = [];
+                for (var i = 0; i < length; i++) {
+                    var axis = allAxes[i];
+                    var values = axis.options.vertical ? yValues : xValues;
+                    appendIfNotNull(values, axis.getCategory(point));
+                }
+                if (xValues.length > 0 && yValues.length > 0) {
+                    chart.trigger(eventType, {
+                        element: eventElement(e),
+                        originalEvent: e,
+                        x: singleItemOrArray(xValues),
+                        y: singleItemOrArray(yValues)
+                    });
+                }
+            },
+            updateAxisOptions: function (axis, options) {
+                var vertical = axis.options.vertical;
+                var axes = this.groupAxes(this.panes);
+                var index = (vertical ? axes.y : axes.x).indexOf(axis);
+                updateAxisOptions$2(this.options, index, vertical, options);
+                updateAxisOptions$2(this.originalOptions, index, vertical, options);
+            },
+            crosshairOptions: function (axis) {
+                return $.extend({}, axis.options.crosshair, { zIndex: 0 });
+            }
+        });
+        function updateAxisOptions$2(targetOptions, axisIndex, vertical, options) {
+            var axisOptions = [].concat(vertical ? targetOptions.yAxis : targetOptions.xAxis)[axisIndex];
+            deepExtend(axisOptions, options);
+        }
+        setDefaultOptions(HeatmapPlotArea, {
+            xAxis: {},
+            yAxis: {}
+        });
+        deepExtend(HeatmapPlotArea.prototype, PlotAreaEventsMixin);
         var COLOR = 'color';
         var FIRST = 'first';
         var FROM = 'from';
@@ -10491,6 +11137,7 @@
             RADAR_COLUMN,
             RADAR_LINE
         ]);
+        PlotAreaFactory.current.register(HeatmapPlotArea, [HEATMAP]);
         SeriesBinder.current.register([
             BAR,
             COLUMN,
@@ -10603,6 +11250,14 @@
         ], [
             COLOR,
             CATEGORY,
+            NOTE_TEXT
+        ]);
+        SeriesBinder.current.register([HEATMAP], [
+            X,
+            Y,
+            VALUE
+        ], [
+            COLOR,
             NOTE_TEXT
         ]);
         SeriesBinder.current.register([
@@ -11582,6 +12237,9 @@
             },
             _displayInactiveOpacity: function (activePoint, multipleSeries, highlightPoints) {
                 var chartInstance = this._activeChartInstance = this._chartInstanceFromPoint(activePoint);
+                if (!chartInstance) {
+                    return;
+                }
                 if (multipleSeries) {
                     this._updateSeriesOpacity(activePoint);
                     this._applySeriesOpacity(chartInstance.children, null, true);
@@ -12752,10 +13410,10 @@
             },
             _legendItemClick: function (seriesIndex, pointIndex) {
                 var chart = this._instance, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex];
-                if (chart._hasInactiveOpacity() && chart._activеChartInstance) {
+                if (chart._hasInactiveOpacity() && chart._activeChartInstance) {
                     chart._updateSeriesOpacity(null, true);
-                    chart._applySeriesOpacity(chart._activеChartInstance.children, null, true);
-                    chart._activеChartInstance = null;
+                    chart._applySeriesOpacity(chart._activeChartInstance.children, null, true);
+                    chart._activeChartInstance = null;
                 }
                 if ($.inArray(currentSeries.type, [
                         PIE,

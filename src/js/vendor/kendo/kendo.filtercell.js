@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -191,7 +191,7 @@
                 } else if (type == STRING) {
                     input.attr(kendo.attr('role'), 'autocomplete').attr(kendo.attr('text-field'), options.dataTextField || options.field).attr(kendo.attr('filter'), options.suggestionOperator).attr(kendo.attr('delay'), options.delay).attr(kendo.attr('min-length'), options.minLength).attr(kendo.attr('value-primitive'), true);
                 } else if (type == 'date') {
-                    input.attr(kendo.attr('role'), 'datepicker');
+                    input.attr(kendo.attr('role'), 'datepicker').attr('id', kendo.guid());
                 } else if (type == BOOL) {
                     input.remove();
                     var radioInput = $('<input type=\'radio\'/>');
@@ -224,6 +224,7 @@
                     });
                 }
                 var dropdown = $('<input class="k-dropdown-operator" ' + kendo.attr('bind') + '="value: operator"/>').appendTo(this.wrapper);
+                dropdown.attr('aria-label', this._getColumnTitle());
                 this.operatorDropDown = dropdown.kendoDropDownList({
                     dataSource: items,
                     dataTextField: 'text',
@@ -237,7 +238,7 @@
                     var ariaLabel = operators[viewModel.operator];
                     dropdown.attr('aria-label', ariaLabel);
                 });
-                this.operatorDropDown.wrapper.find('.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-i-filter');
+                this.operatorDropDown.wrapper.attr('aria-label', this._getColumnTitle()).find('.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-i-filter');
             },
             initSuggestDataSource: function (options) {
                 var suggestDataSource = options.suggestDataSource;

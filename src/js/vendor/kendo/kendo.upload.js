@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, antiForgeryTokens = kendo.antiForgeryTokens, logToConsole = kendo.logToConsole, rFileExtension = /\.([^\.]+)$/, NS = '.kendoUpload', SELECT = 'select', UPLOAD = 'upload', SUCCESS = 'success', ERROR = 'error', COMPLETE = 'complete', CANCEL = 'cancel', CLEAR = 'clear', PAUSE = 'pause', RESUME = 'resume', PROGRESS = 'progress', REMOVE = 'remove', VALIDATIONERRORS = 'validationErrors', INVALIDMAXFILESIZE = 'invalidMaxFileSize', INVALIDMINFILESIZE = 'invalidMinFileSize', INVALIDFILEEXTENSION = 'invalidFileExtension', PROGRESSHIDEDELAY = 1000, PROGRESSHIDEDURATION = 2000;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, antiForgeryTokens = kendo.antiForgeryTokens, logToConsole = kendo.logToConsole, rFileExtension = /\.([^\.]+)$/, NS = '.kendoUpload', SELECT = 'select', UPLOAD = 'upload', SUCCESS = 'success', ERROR = 'error', COMPLETE = 'complete', CANCEL = 'cancel', CLEAR = 'clear', PAUSE = 'pause', RESUME = 'resume', PROGRESS = 'progress', REMOVE = 'remove', VALIDATIONERRORS = 'validationErrors', INVALIDMAXFILESIZE = 'invalidMaxFileSize', INVALIDMINFILESIZE = 'invalidMinFileSize', INVALIDFILEEXTENSION = 'invalidFileExtension', PROGRESSHIDEDELAY = 1000, PROGRESSHIDEDURATION = 2000, FOCUS_STATE = 'k-state-focused', TABINDEX = 'tabindex';
         var headerStatusIcon = {
             loading: 'k-i-upload',
             warning: 'k-i-warning',
@@ -58,7 +58,7 @@
                 activeInput.closest('form').on('submit' + ns, $.proxy(that._onParentFormSubmit, that)).on('reset' + ns, $.proxy(that._onParentFormReset, that));
                 that._initUploadModule();
                 that._toggleDropZone();
-                that.wrapper.on('click', '.k-upload-action', $.proxy(that._onFileAction, that)).on('click', '.k-clear-selected', $.proxy(that._onClearSelected, that)).on('click', '.k-upload-selected', $.proxy(that._onUploadSelected, that));
+                that.wrapper.on('click', '.k-upload-action', $.proxy(that._onFileAction, that)).on('click', '.k-clear-selected', $.proxy(that._onClearSelected, that)).on('click', '.k-upload-selected', $.proxy(that._onUploadSelected, that)).on('keydown', $.proxy(that._onKeyDown, that)).on('focusout', $.proxy(that._focusout, that));
                 if (that.element.val()) {
                     that._onInputChange({ target: that.element });
                 }
@@ -285,7 +285,7 @@
                 }
                 var that = this, input = sourceInput.clone().val('');
                 input.insertAfter(that.element).data('kendo' + that.options.prefix + that.options.name, that);
-                $(that.element).hide().attr('tabindex', '-1').removeAttr('id').off(NS);
+                $(that.element).hide().attr(TABINDEX, '-1').removeAttr('id').off(NS);
                 that._activeInput(input);
                 that.element.focus();
             },
@@ -301,17 +301,154 @@
                         e.preventDefault();
                     }
                 }).on('focus' + NS, function () {
-                    $(this).parent().addClass('k-state-focused');
+                    $(this).parent().addClass(FOCUS_STATE);
                 }).on('blur' + NS, function () {
-                    $(this).parent().removeClass('k-state-focused');
-                }).on('change' + NS, $.proxy(that._onInputChange, that)).on('keydown' + NS, $.proxy(that._onInputKeyDown, that));
+                    $(this).parent().removeClass(FOCUS_STATE);
+                }).on('change' + NS, $.proxy(that._onInputChange, that));
             },
-            _onInputKeyDown: function (e) {
-                var that = this;
-                var firstButton = that.wrapper.find('.k-upload-action:visible:first');
-                if (e.keyCode === kendo.keys.TAB && firstButton.length > 0 && !e.shiftKey) {
+            _adjustFocusState: function (focusedItem, toFocus) {
+                focusedItem.removeClass(FOCUS_STATE);
+                focusedItem.attr(TABINDEX, -1);
+                toFocus.addClass(FOCUS_STATE);
+                toFocus.attr(TABINDEX, 0);
+            },
+            _arrowKeyNavigation: function (key, focusedItem) {
+                var that = this, kendoKeys = kendo.keys, toFocus;
+                if (key === kendoKeys.DOWN) {
+                    toFocus = that.wrapper.find('.k-upload-files .k-file:first');
+                    if (focusedItem.length > 0) {
+                        if (focusedItem.hasClass('k-upload-action')) {
+                            focusedItem.removeClass(FOCUS_STATE);
+                            focusedItem = focusedItem.closest('.k-file');
+                        }
+                        toFocus = focusedItem.next();
+                    }
+                    that._adjustFocusState(focusedItem, toFocus);
+                    if (!toFocus || toFocus.length === 0) {
+                        toFocus = that.wrapper.find('.k-clear-selected');
+                    }
+                } else if (key === kendoKeys.UP) {
+                    toFocus = that.wrapper.find('.k-upload-files .k-file:last');
+                    if (focusedItem.length > 0) {
+                        if (focusedItem.hasClass('k-upload-action')) {
+                            focusedItem.removeClass(FOCUS_STATE);
+                            focusedItem = focusedItem.closest('.k-file');
+                        }
+                        toFocus = focusedItem.prev();
+                    }
+                    that._adjustFocusState(focusedItem, toFocus);
+                } else if (key === kendoKeys.RIGHT) {
+                    if (focusedItem.hasClass('k-upload-action')) {
+                        toFocus = focusedItem.next('.k-upload-action');
+                        if (!toFocus || toFocus.length === 0) {
+                            toFocus = focusedItem.parent().find('.k-upload-action:first');
+                        }
+                    } else if (focusedItem.length > 0) {
+                        toFocus = focusedItem.find('.k-upload-action:first');
+                    }
+                    if (toFocus && toFocus.length > 0) {
+                        focusedItem.removeClass(FOCUS_STATE);
+                        toFocus.addClass(FOCUS_STATE);
+                    }
+                } else if (key === kendoKeys.LEFT) {
+                    if (focusedItem.hasClass('k-upload-action')) {
+                        toFocus = focusedItem.prev('.k-upload-action');
+                        if (!toFocus || toFocus.length === 0) {
+                            toFocus = focusedItem.parent().find('.k-upload-action:last');
+                        }
+                    } else if (focusedItem.length > 0) {
+                        toFocus = focusedItem.find('.k-upload-action:last');
+                    }
+                    if (toFocus && toFocus.length > 0) {
+                        focusedItem.removeClass(FOCUS_STATE);
+                        toFocus.addClass(FOCUS_STATE);
+                    }
+                }
+                if ((!toFocus || toFocus.length === 0) && (key === kendoKeys.UP || key === kendoKeys.DOWN)) {
+                    toFocus = that.element;
+                }
+                if (toFocus && toFocus.length > 0) {
+                    that._preventFocusRemove = true;
+                    toFocus.focus();
+                }
+            },
+            _asyncCommandKeyNavigation: function (key, focusedItem, eventArgs) {
+                var that = this, kendoKeys = kendo.keys, fileEntry = $(focusedItem, that.wrapper);
+                that._retryClicked = false;
+                if (key === kendoKeys.ESC && focusedItem.find('.k-i-cancel').length > 0) {
+                    that.trigger(CANCEL, eventArgs);
+                    that._module.onCancel({ target: fileEntry });
+                    that._checkAllComplete();
+                    that._updateHeaderUploadStatus();
+                    that._preventFocusRemove = true;
+                    that.element.focus();
+                } else if (key === kendoKeys.SPACEBAR) {
+                    if (focusedItem.find('.k-i-pause-sm').length > 0) {
+                        that.trigger(PAUSE, eventArgs);
+                        that.pause(focusedItem);
+                        that._updateHeaderUploadStatus();
+                    } else if (focusedItem.find('.k-i-play-sm').length > 0) {
+                        that.trigger(RESUME, eventArgs);
+                        that.resume(focusedItem);
+                    }
+                } else if (key === kendoKeys.ENTER && !focusedItem.is('.k-file-progress, .k-file-success, .k-file-invalid')) {
+                    if (that.options.async.chunkSize && !that.options.async.concurrent && $('.k-file-progress', that.wrapper).length > 0) {
+                        return;
+                    }
+                    $('.k-i-warning', focusedItem).remove();
+                    $('.k-progressbar', focusedItem).finish().show();
+                    if (!that._module.metaData[fileEntry.data('uid')]) {
+                        that._module.prepareChunk(fileEntry);
+                    }
+                    that._module.onRetry({ target: fileEntry });
+                    that._retryClicked = true;
+                }
+            },
+            _commandKeyNavigation: function (key, focusedItem) {
+                var that = this, kendoKeys = kendo.keys, files = focusedItem.data('fileNames'), hasValidationErrors = that._filesContainValidationErrors(files), eventArgs = {
+                        files: files,
+                        headers: {}
+                    };
+                if (key === kendoKeys.DELETE) {
+                    if (!that.trigger(REMOVE, eventArgs)) {
+                        that._module.onRemove({ target: $(focusedItem, that.wrapper) }, eventArgs, !hasValidationErrors);
+                        that._preventFocusRemove = true;
+                        that.element.focus();
+                    }
+                } else if (key === kendoKeys.TAB) {
+                    focusedItem.removeClass(FOCUS_STATE);
+                    focusedItem.attr(TABINDEX, -1);
+                } else if (!!that.options.async.saveUrl) {
+                    that._asyncCommandKeyNavigation(key, focusedItem, eventArgs);
+                }
+            },
+            _focusout: function () {
+                var focusedItem = this.wrapper.find('.k-upload-files .k-file.' + FOCUS_STATE);
+                if (!this._preventFocusRemove) {
+                    focusedItem.removeClass(FOCUS_STATE);
+                    focusedItem.attr(TABINDEX, -1);
+                } else {
+                    this._preventFocusRemove = false;
+                }
+            },
+            _onKeyDown: function (e) {
+                var that = this, focusedItem = that.wrapper.find('.k-upload-files .k-file.' + FOCUS_STATE + ',' + '.k-upload-action.' + FOCUS_STATE), kendoKeys = kendo.keys, commandKeys = [
+                        kendoKeys.DELETE,
+                        kendoKeys.ESC,
+                        kendoKeys.ENTER,
+                        kendoKeys.SPACEBAR,
+                        kendoKeys.TAB
+                    ], key = e.keyCode;
+                if (key === kendoKeys.DOWN || key === kendoKeys.UP || key === kendoKeys.LEFT || key === kendoKeys.RIGHT) {
                     e.preventDefault();
-                    firstButton.focus();
+                    e.stopPropagation();
+                    that._arrowKeyNavigation(key, focusedItem);
+                } else if (focusedItem.length > 0 && focusedItem.hasClass('k-file') && commandKeys.indexOf(key) > -1 && !that.wrapper.hasClass('k-state-disabled')) {
+                    if (key === kendoKeys.SPACEBAR) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    that._commandKeyNavigation(key, focusedItem);
                 }
             },
             _onInputChange: function (e) {
@@ -630,10 +767,10 @@
             },
             _renderAction: function (actionClass, actionText, iconClass) {
                 if (actionClass !== '') {
-                    return $('<button type=\'button\' class=\'k-button k-button-icon k-flat k-upload-action\' aria-label=\'' + actionText + '\'>' + '<span class=\'k-icon ' + iconClass + ' ' + actionClass + '\' title=\'' + actionText + '\'></span>' + '</button>').on('focus', function () {
-                        $(this).addClass('k-state-focused');
+                    return $('<button type=\'button\' class=\'k-button k-button-icon k-flat k-upload-action\' aria-label=\'' + actionText + '\' tabindex=\'-1\'>' + '<span class=\'k-icon ' + iconClass + ' ' + actionClass + '\' title=\'' + actionText + '\'></span>' + '</button>').on('focus', function () {
+                        $(this).addClass(FOCUS_STATE);
                     }).on('blur', function () {
-                        $(this).removeClass('k-state-focused');
+                        $(this).removeClass(FOCUS_STATE);
                     });
                 } else {
                     return $('<button type=\'button\' class=\'k-button\'>' + actionText + '</button>');
@@ -658,12 +795,14 @@
                     if (icon.hasClass('k-i-x')) {
                         if (!that.trigger(REMOVE, eventArgs)) {
                             that._module.onRemove({ target: $(fileEntry, that.wrapper) }, eventArgs, !hasValidationErrors);
+                            that.element.focus();
                         }
                     } else if (icon.hasClass('k-i-cancel')) {
                         that.trigger(CANCEL, eventArgs);
                         that._module.onCancel({ target: $(fileEntry, that.wrapper) });
                         that._checkAllComplete();
                         that._updateHeaderUploadStatus();
+                        that.element.focus();
                     } else if (icon.hasClass('k-i-pause-sm')) {
                         that.trigger(PAUSE, eventArgs);
                         that.pause(fileEntry);
@@ -677,6 +816,7 @@
                         that._module.onRetry({ target: $(fileEntry, that.wrapper) });
                         that._retryClicked = true;
                     }
+                    fileEntry.addClass(FOCUS_STATE);
                 }
                 return false;
             },
@@ -812,7 +952,7 @@
                 this._fileAction(fileEntry, 'retry');
                 this._fileAction(fileEntry, REMOVE, true);
                 if (that._retryClicked) {
-                    fileEntry.find('.k-i-retry').parent().focus();
+                    fileEntry.focus();
                 }
             },
             _updateUploadProgress: function (fileEntry) {
@@ -1033,14 +1173,18 @@
             _wrapInput: function (input) {
                 var that = this;
                 var options = that.options;
-                input.wrap('<div class=\'k-widget k-upload\'><div class=\'k-dropzone\'><div class=\'k-button k-upload-button\' aria-label=\'' + this.localization.select + '\'></div></div></div>');
+                var hasLabel = !!input.attr('id') && $('[for=\'' + input.attr('id') + '\']').length > 0;
+                input.wrap('<div class=\'k-widget k-upload\'><div class=\'k-dropzone\'><div class=\'k-button k-upload-button\'></div></div></div>');
                 if (!options.async.saveUrl) {
                     input.closest('.k-upload').addClass('k-upload-sync');
                 } else {
                     input.closest('.k-upload').addClass('k-upload-async');
                 }
                 input.closest('.k-upload').addClass('k-upload-empty');
-                input.closest('.k-button').append('<span>' + this.localization.select + '</span>');
+                input.closest('.k-button').append('<span>' + that.localization.select + '</span>');
+                if (!hasLabel && !input.attr('aria-label')) {
+                    input.attr('aria-label', that.localization.select);
+                }
                 return input.closest('.k-upload');
             },
             _checkAllComplete: function () {
@@ -1672,7 +1816,9 @@
                 this.upload._onFileProgress({ target: $(fileEntry, this.upload.wrapper) }, percentComplete);
             },
             stopUploadRequest: function (fileEntry) {
-                fileEntry.data('request').abort();
+                if (fileEntry.data('request')) {
+                    fileEntry.data('request').abort();
+                }
             },
             prepareChunk: function (fileEntry) {
                 var file = fileEntry.data('files')[0];

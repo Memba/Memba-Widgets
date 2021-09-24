@@ -40,13 +40,6 @@
     outline: none;
 }
 
-.k-header.k-drag-clue
-{
-    padding: @grid-th-padding;
-    line-height: 1.6;
-    overflow: hidden;
-}
-
 .k-grid-header th.k-header,
 .k-filter-row th
 {
@@ -463,8 +456,8 @@ form.k-filter-menu .k-textbox
 }
 
 .k-filter-menu .k-action-buttons {
-    margin: 0;
     padding: 0;
+    border-width: 0;
     text-align: initial;
 }
 
@@ -714,7 +707,7 @@ form.k-filter-menu .k-textbox
     min-width: (@grid-button-min-width + 14); // for all except IE8
 }
 
-html body .k-grid tbody .k-button-icon
+.k-grid tbody .k-button.k-button-icon
 {
     width: auto;
     min-width: 0;
@@ -846,8 +839,10 @@ html body .k-grid tbody .k-button-icon
 .k-filter-menu {
 
     .k-filter-menu-container {
-        padding: @grid-column-menu-filter-container-padding-y @grid-column-menu-filter-container-padding-x;
         box-sizing: border-box;
+    }
+    &.k-popup .k-filter-menu-container {
+        padding: @grid-column-menu-filter-container-padding-y @grid-column-menu-filter-container-padding-x;
     }
 
     .k-searchbox {

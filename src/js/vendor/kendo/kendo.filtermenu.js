@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -98,23 +98,16 @@
         }
         var FilterMenu = Widget.extend({
             init: function (element, options) {
-                var that = this, type = 'string', operators, initial, link, field;
+                var that = this, type = 'string', operators, initial, field;
                 options = options || {};
                 options.componentType = options.componentType || 'classic';
                 Widget.fn.init.call(that, element, options);
                 operators = that.operators = options.operators || {};
                 element = that.element;
                 options = that.options;
-                if (!options.appendToElement) {
-                    link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
-                    if (!link[0]) {
-                        link = element.prepend('<a class="k-grid-filter" href="#" title="' + options.messages.filter + '" aria-label="' + options.messages.filter + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
-                    }
-                    link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
-                }
-                that.link = link || $();
                 that.dataSource = DataSource.create(options.dataSource);
                 that.field = options.field || element.attr(kendo.attr('field'));
+                that.link = that._createLink() || $();
                 that.model = that.dataSource.reader.model;
                 that._parse = function (value) {
                     return value != null ? value + '' : value;
@@ -260,6 +253,18 @@
                 that.view.bind('showStart', function () {
                     that.refresh();
                 });
+            },
+            _createLink: function () {
+                var that = this, element = that.element, options = that.options, title = kendo.format(options.messages.buttonTitle, that.options.title || that.field), link;
+                if (options.appendToElement) {
+                    return;
+                }
+                link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
+                if (!link[0]) {
+                    link = element.prepend('<a class="k-grid-filter" href="#" title="' + title + '" aria-label="' + title + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
+                }
+                link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
+                return link;
             },
             refresh: function () {
                 var that = this, expression = that.dataSource.filter() || {
@@ -605,7 +610,8 @@
                     logic: 'Filters logic',
                     cancel: 'Cancel',
                     done: 'Done',
-                    into: 'in'
+                    into: 'in',
+                    buttonTitle: '{0} filter column settings'
                 },
                 animations: {
                     left: 'slide',
@@ -711,8 +717,9 @@
             _createLink: function () {
                 var element = this.element;
                 var link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
+                var title = kendo.format(this.options.messages.buttonTitle, this.options.title || this.field);
                 if (!link[0]) {
-                    link = element.prepend('<a class="k-grid-filter" href="#" title="' + this.options.messages.filter + '" aria-label="' + this.options.messages.filter + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
+                    link = element.prepend('<a class="k-grid-filter" href="#" title="' + title + '" aria-label="' + title + '"><span class="k-icon k-i-filter"></span></a>').find('.k-grid-filter');
                 }
                 this._link = link.attr('tabindex', -1).on('click' + NS, proxy(this._click, this));
             },
@@ -1140,7 +1147,8 @@
                     cancel: 'Cancel',
                     selectedItemsFormat: '{0} items selected',
                     done: 'Done',
-                    into: 'in'
+                    into: 'in',
+                    buttonTitle: '{0} filter column settings'
                 },
                 forceUnique: true,
                 animations: {

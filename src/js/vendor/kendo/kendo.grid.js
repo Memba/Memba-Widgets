@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2277,7 +2277,7 @@
                             if (title) {
                                 title = kendo.htmlEncode(title);
                             }
-                            return $('<div class="k-header k-reorder-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
+                            return $('<div class="k-reorder-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
                         }
                     }).data('kendoDraggable');
                 }
@@ -6347,7 +6347,7 @@
                 }
             },
             _pageable: function () {
-                var that = this, pagerWrap, pageable = that.options.pageable;
+                var that = this, pagerWrap, pageable = that.options.pageable, navigatable = that.options.navigatable;
                 if (pageable) {
                     pagerWrap = that.wrapper.children('div.k-grid-pager');
                     if (!pagerWrap.length) {
@@ -6365,9 +6365,15 @@
                         that.pager = pageable;
                     } else {
                         if (that.dataSource._groupPaging) {
-                            that.pager = new GroupsPager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource }));
+                            that.pager = new GroupsPager(pagerWrap, extend({}, pageable, {
+                                dataSource: that.dataSource,
+                                navigatable: navigatable
+                            }));
                         } else {
-                            that.pager = new kendo.ui.Pager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource }));
+                            that.pager = new kendo.ui.Pager(pagerWrap, extend({}, pageable, {
+                                dataSource: that.dataSource,
+                                navigatable: navigatable
+                            }));
                         }
                     }
                     that.pager.bind('pageChange', function (e) {
@@ -9101,10 +9107,11 @@
             }
             if (isHeader || !isInput) {
                 setTimeout(function () {
-                    if ($(kendo._activeElement()).hasClass('k-widget')) {
+                    var activeEl = $(kendo._activeElement());
+                    if (activeEl.hasClass('k-widget') && !activeEl.hasClass('k-grid-pager')) {
                         return;
                     }
-                    if ($(kendo._activeElement()).is(CHECKBOXINPUT) || !isInputElement(kendo._activeElement()) || !$.contains(currentTable, kendo._activeElement())) {
+                    if (activeEl.is(CHECKBOXINPUT) || !isInputElement(kendo._activeElement()) || !$.contains(currentTable, kendo._activeElement())) {
                         focusTable(currentTable, true);
                     }
                 });

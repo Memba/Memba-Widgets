@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -661,6 +661,7 @@
                 } else if (i === index) {
                     step.options.previous = false;
                     step.options.selected = true;
+                    step.options.selectable = true;
                 } else if (forward && i > index) {
                     step.options.selectable = true;
                 } else {
@@ -676,7 +677,7 @@
             },
             _select: function (index) {
                 var options = this.options, linear = options.linear, selectedStep = this.select(), selectedIndex = selectedStep.getIndex(), stepsOptions = options.steps, targetStep = this._steps[index], forward, i, min, max;
-                if (!targetStep || !targetStep.getEnabled() || !targetStep.getSelectable()) {
+                if (!targetStep || !targetStep.getEnabled()) {
                     return;
                 }
                 if (index > selectedIndex) {

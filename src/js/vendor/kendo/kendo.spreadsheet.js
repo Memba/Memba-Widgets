@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2019,6 +2019,7 @@
             init: function (element, options) {
                 kendo.ui.Widget.call(this, element, options);
                 element = this.element.addClass(FormulaBar.classNames.wrapper);
+                $('<span class=\'k-icon k-i-formula-fx\' />').prependTo(element);
                 var formulaBarWidth = element.width();
                 this.formulaInput = new kendo.spreadsheet.FormulaInput($('<div/>').appendTo(element), { formulaBarWidth: formulaBarWidth });
             },
@@ -10048,7 +10049,7 @@
             sheetsBarScrollable: 'k-tabstrip-scrollable',
             sheetsBarNext: 'k-tabstrip-next',
             sheetsBarPrev: 'k-tabstrip-prev',
-            sheetsBarKItem: 'k-item k-state-default',
+            sheetsBarKItem: 'k-item k-tabstrip-item k-state-default',
             sheetsBarKActive: 'k-state-active k-state-tab-on-top',
             sheetsBarKTextbox: 'k-textbox',
             sheetsBarKLink: 'k-link',
@@ -10117,8 +10118,6 @@
             },
             _renderSheets: function (sheets, selectedIndex, isInEditMode) {
                 var that = this;
-                var wrapperOffsetWidth;
-                var sheetsGroupScrollWidth;
                 var classNames = SheetsBar.classNames;
                 that._isRtl = kendo.support.isRtl(that.element);
                 that._sheets = sheets;
@@ -10128,39 +10127,7 @@
                     return;
                 }
                 var sheetsWrapper = that._sheetsWrapper();
-                var scrollPrevButton = sheetsWrapper.children(DOT + classNames.sheetsBarPrev);
-                var scrollNextButton = sheetsWrapper.children(DOT + classNames.sheetsBarNext);
-                var gapWidth = 2;
-                var addButton = that.element.find(DOT + classNames.sheetsBarAdd);
-                var addButtonWidth = outerWidth(addButton) + addButton.position().left + gapWidth;
-                var scrollPrevButtonWidth = outerWidth(scrollPrevButton) + gapWidth;
-                var sheetsGroup = that._sheetsGroup();
-                scrollPrevButton.css({ left: addButtonWidth });
                 sheetsWrapper.addClass(classNames.sheetsBarScrollable + EMPTYCHAR + classNames.sheetsBarSheetsWrapper);
-                sheetsGroup.css({ marginLeft: addButtonWidth });
-                wrapperOffsetWidth = sheetsWrapper[0].offsetWidth;
-                sheetsGroupScrollWidth = sheetsGroup[0].scrollWidth;
-                if (sheetsGroupScrollWidth + addButtonWidth > wrapperOffsetWidth) {
-                    var scrollNextButtonRight = Math.ceil(kendo.parseFloat(scrollNextButton.css('right')));
-                    if (!that._scrollableModeActive) {
-                        that._nowScrollingSheets = false;
-                        that._scrollableModeActive = true;
-                    }
-                    sheetsGroup.css({
-                        marginLeft: scrollPrevButtonWidth + addButtonWidth,
-                        marginRight: outerWidth(scrollNextButton) + scrollNextButtonRight + gapWidth
-                    });
-                } else {
-                    if (that._scrollableModeActive && sheetsGroupScrollWidth <= wrapperOffsetWidth) {
-                        that._scrollableModeActive = false;
-                        sheetsGroup.css({
-                            marginLeft: addButtonWidth,
-                            marginRight: ''
-                        });
-                    } else {
-                        sheetsGroup.css({ marginLeft: addButtonWidth });
-                    }
-                }
                 that._toggleScrollButtons();
             },
             _toggleScrollButtons: function (toggle) {
@@ -10171,11 +10138,11 @@
                 var prev = wrapper.find(DOT + SheetsBar.classNames.sheetsBarPrev);
                 var next = wrapper.find(DOT + SheetsBar.classNames.sheetsBarNext);
                 if (toggle === false) {
-                    prev.toggle(false);
-                    next.toggle(false);
+                    prev.addClass('k-disabled');
+                    next.addClass('k-disabled');
                 } else {
-                    prev.toggle(that._isRtl ? scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1 : scrollLeft !== 0);
-                    next.toggle(that._isRtl ? scrollLeft !== 0 : scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1);
+                    prev.toggleClass('k-disabled', !(that._isRtl ? scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1 : scrollLeft !== 0));
+                    next.toggleClass('k-disabled', !(that._isRtl ? scrollLeft !== 0 : scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1));
                 }
             },
             _toggleScrollEvents: function (toggle) {
@@ -10185,8 +10152,8 @@
                 var scrollPrevButton;
                 var scrollNextButton;
                 var sheetsWrapper = that._sheetsWrapper();
-                scrollPrevButton = sheetsWrapper.children(DOT + classNames.sheetsBarPrev);
-                scrollNextButton = sheetsWrapper.children(DOT + classNames.sheetsBarNext);
+                scrollPrevButton = sheetsWrapper.find(DOT + classNames.sheetsBarPrev);
+                scrollNextButton = sheetsWrapper.find(DOT + classNames.sheetsBarNext);
                 if (toggle) {
                     scrollPrevButton.on('mousedown', function () {
                         that._nowScrollingSheets = true;
@@ -10236,7 +10203,10 @@
                         }, [dom.text(sheet.name())]));
                         if (sheets.length > 1) {
                             var deleteIcon = element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKFontIcon + EMPTYCHAR + classNames.sheetsBarKIconX }, []);
-                            elementContent.push(element('span', { className: classNames.sheetsBarKLink + EMPTYCHAR + classNames.sheetsBarRemove }, [deleteIcon]));
+                            elementContent.push(element('span', {
+                                className: classNames.sheetsBarKLink + EMPTYCHAR + classNames.sheetsBarRemove,
+                                'data-type': 'remove'
+                            }, [deleteIcon]));
                         }
                     }
                     sheetElements.push(element('li', attr, elementContent));
@@ -10249,14 +10219,20 @@
             _createSheetsWrapper: function (sheetElements, renderScrollButtons) {
                 var element = kendo.dom.element;
                 var classNames = SheetsBar.classNames;
-                var childrenElements = [element('ul', { className: classNames.sheetsBarKReset }, sheetElements)];
+                var itemsWrapper = element('div', { className: 'k-tabstrip-items-wrapper k-hstack' });
+                var childrenElements = [
+                    null,
+                    element('ul', { className: classNames.sheetsBarKReset }, sheetElements),
+                    null
+                ];
                 renderScrollButtons = true;
                 if (renderScrollButtons) {
                     var baseButtonClass = classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonBare + EMPTYCHAR;
-                    childrenElements.push(element('span', { className: baseButtonClass + classNames.sheetsBarPrev }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowW }, [])]));
-                    childrenElements.push(element('span', { className: baseButtonClass + classNames.sheetsBarNext }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowE }, [])]));
+                    childrenElements[0] = element('span', { className: baseButtonClass + classNames.sheetsBarPrev }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowW }, [])]);
+                    childrenElements[2] = element('span', { className: baseButtonClass + classNames.sheetsBarNext }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowE }, [])]);
                 }
-                return element('div', { className: classNames.sheetsBarItems }, childrenElements);
+                itemsWrapper.children = childrenElements;
+                return element('div', { className: classNames.sheetsBarItems }, [itemsWrapper]);
             },
             _createSortable: function () {
                 var classNames = SheetsBar.classNames;
@@ -10361,27 +10337,23 @@
             },
             _scrollSheetsToItem: function (item) {
                 var that = this;
-                if (!that._scrollableModeActive) {
-                    return;
-                }
                 var sheetsGroup = that._sheetsGroup();
                 var currentScrollOffset = kendo.scrollLeft(sheetsGroup);
                 var itemWidth = outerWidth(item);
                 var itemOffset = that._isRtl ? item.position().left : item.position().left - sheetsGroup.children().first().position().left;
                 var sheetsGroupWidth = sheetsGroup[0].offsetWidth;
-                var sheetsGroupPadding = Math.ceil(parseFloat(sheetsGroup.css('padding-left')));
                 var itemPosition;
                 if (that._isRtl) {
                     if (itemOffset < 0) {
-                        itemPosition = currentScrollOffset + itemOffset - (sheetsGroupWidth - currentScrollOffset) - sheetsGroupPadding;
+                        itemPosition = currentScrollOffset + itemOffset - (sheetsGroupWidth - currentScrollOffset);
                     } else if (itemOffset + itemWidth > sheetsGroupWidth) {
-                        itemPosition = currentScrollOffset + itemOffset - itemWidth + sheetsGroupPadding * 2;
+                        itemPosition = currentScrollOffset + itemOffset - itemWidth;
                     }
                 } else {
                     if (currentScrollOffset + sheetsGroupWidth < itemOffset + itemWidth) {
-                        itemPosition = itemOffset + itemWidth - sheetsGroupWidth + sheetsGroupPadding * 2;
+                        itemPosition = itemOffset + itemWidth - sheetsGroupWidth;
                     } else if (currentScrollOffset > itemOffset) {
-                        itemPosition = itemOffset - sheetsGroupPadding;
+                        itemPosition = itemOffset;
                     }
                 }
                 sheetsGroup.finish().animate({ 'scrollLeft': itemPosition }, 'fast', 'linear', function () {
@@ -10389,7 +10361,7 @@
                 });
             },
             _sheetsGroup: function () {
-                return this._sheetsWrapper().children('ul');
+                return this._sheetsWrapper().find('ul');
             },
             _sheetsWrapper: function () {
                 return this.element.find(DOT + SheetsBar.classNames.sheetsBarItems);
@@ -26815,6 +26787,12 @@
                     }
                     if (overflow && overflow.update) {
                         overflow.update(value);
+                    }
+                    if (tool.type == 'filter') {
+                        var selection = range.sheet().selection();
+                        var enabled = value || selection._ref.height() > 1;
+                        toolbar.enable(enabled);
+                        overflow.enable(enabled);
                     }
                 }
                 for (var i = 0; i < tools.length; i++) {

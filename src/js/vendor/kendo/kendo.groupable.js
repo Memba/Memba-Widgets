@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -44,7 +44,7 @@
                 if (title) {
                     title = kendo.htmlEncode(title);
                 }
-                return $('<div class="k-header k-group-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
+                return $('<div class="k-group-clue k-drag-clue" />').html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-i-cancel"></span>');
             }, dropCue = $('<div class="k-grouping-dropclue"/>');
         var Groupable = Widget.extend({
             init: function (element, options) {

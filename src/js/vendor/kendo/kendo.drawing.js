@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -388,16 +388,28 @@
         function encodeUTF8(input) {
             var output = '';
             for (var i = 0; i < input.length; i++) {
-                var c = input.charCodeAt(i);
-                if (c < 128) {
-                    output += fromCharCode(c);
-                } else if (c < 2048) {
-                    output += fromCharCode(192 | c >>> 6);
-                    output += fromCharCode(128 | c & 63);
-                } else if (c < 65536) {
-                    output += fromCharCode(224 | c >>> 12);
-                    output += fromCharCode(128 | c >>> 6 & 63);
-                    output += fromCharCode(128 | c & 63);
+                var code = input.charCodeAt(i);
+                if (55296 <= code && code <= 56319) {
+                    var hi = code;
+                    var low = input.charCodeAt(++i);
+                    if (!isNaN(low)) {
+                        code = (hi - 55296) * 1024 + (low - 56320) + 65536;
+                    }
+                }
+                if (code < 128) {
+                    output += fromCharCode(code);
+                } else if (code < 2048) {
+                    output += fromCharCode(192 | code >>> 6);
+                    output += fromCharCode(128 | code & 63);
+                } else if (code < 65536) {
+                    output += fromCharCode(224 | code >>> 12);
+                    output += fromCharCode(128 | code >>> 6 & 63);
+                    output += fromCharCode(128 | code & 63);
+                } else if (code < 1114111) {
+                    output += fromCharCode(240 | code >>> 18);
+                    output += fromCharCode(128 | code >>> 12 & 63);
+                    output += fromCharCode(128 | code >>> 6 & 63);
+                    output += fromCharCode(128 | code & 63);
                 }
             }
             return output;
@@ -1071,16 +1083,20 @@
             'height'
         ]));
         var Rect = function (HasObservers$$1) {
-            function Rect(origin, size) {
+            function Rect(origin, size, cornerRadius) {
                 if (origin === void 0) {
                     origin = new Point();
                 }
                 if (size === void 0) {
                     size = new Size();
                 }
+                if (cornerRadius === void 0) {
+                    cornerRadius = 0;
+                }
                 HasObservers$$1.call(this);
                 this.setOrigin(origin);
                 this.setSize(size);
+                this.setCornerRadius(cornerRadius);
             }
             extendStatic(Rect, HasObservers$$1);
             Rect.prototype = Object.create(HasObservers$$1 && HasObservers$$1.prototype);
@@ -1100,6 +1116,17 @@
             };
             Rect.prototype.getOrigin = function getOrigin() {
                 return this.origin;
+            };
+            Rect.prototype.setCornerRadius = function setCornerRadius(radius) {
+                this.cornerRadius = Array.isArray(radius) ? radius : [
+                    radius,
+                    radius
+                ];
+                this.geometryChange();
+                return this;
+            };
+            Rect.prototype.getCornerRadius = function getCornerRadius() {
+                return this.cornerRadius;
             };
             Rect.prototype.setSize = function setSize(value) {
                 this._observerField('size', Size.create(value));
@@ -2715,7 +2742,7 @@
                 if (this.segments.length > 0) {
                     var lastSegment = last(this.segments);
                     var anchor = lastSegment.anchor();
-                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe, rotation);
+                    var arc = Arc$2.fromPoints(anchor, Point.create(end), rx, ry, largeArc, swipe, rotation);
                     this._addArcSegments(arc);
                 }
                 return this;
@@ -2792,7 +2819,35 @@
                 return boundingBox;
             };
             Path.fromRect = function fromRect(rect, options) {
-                return new Path(options).moveTo(rect.topLeft()).lineTo(rect.topRight()).lineTo(rect.bottomRight()).lineTo(rect.bottomLeft()).close();
+                var path = new Path(options);
+                var ref = rect.cornerRadius;
+                var rx = ref[0];
+                var ry = ref[1];
+                if (rx === 0 && ry === 0) {
+                    path.moveTo(rect.topLeft()).lineTo(rect.topRight()).lineTo(rect.bottomRight()).lineTo(rect.bottomLeft()).close();
+                } else {
+                    var origin = rect.origin;
+                    var x = origin.x;
+                    var y = origin.y;
+                    var width = rect.width();
+                    var height = rect.height();
+                    rx = limitValue(rx, 0, width / 2);
+                    ry = limitValue(ry, 0, height / 2);
+                    path.moveTo(x + rx, y).lineTo(x + width - rx, y).arcTo([
+                        x + width,
+                        y + ry
+                    ], rx, ry, false).lineTo(x + width, y + height - ry).arcTo([
+                        x + width - rx,
+                        y + height
+                    ], rx, ry, false).lineTo(x + rx, y + height).arcTo([
+                        x,
+                        y + height - ry
+                    ], rx, ry, false).lineTo(x, y + ry).arcTo([
+                        x + rx,
+                        y
+                    ], rx, ry, false);
+                }
+                return path;
             };
             Path.fromPoints = function fromPoints(points, options) {
                 if (points) {
@@ -5141,6 +5196,8 @@
                 this.attr('y', geometry.origin.y);
                 this.attr('width', geometry.size.width);
                 this.attr('height', geometry.size.height);
+                this.attr('rx', geometry.cornerRadius[0]);
+                this.attr('ry', geometry.cornerRadius[1]);
                 this.invalidate();
             };
             RectNode.prototype.size = function size() {
@@ -5149,8 +5206,14 @@
             RectNode.prototype.origin = function origin() {
                 return this.srcElement.geometry().origin;
             };
+            RectNode.prototype.rx = function rx() {
+                return this.srcElement.geometry().cornerRadius[0];
+            };
+            RectNode.prototype.ry = function ry() {
+                return this.srcElement.geometry().cornerRadius[1];
+            };
             RectNode.prototype.template = function template() {
-                return '<rect ' + this.renderId() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.origin().x + '\' y=\'' + this.origin().y + '\' ' + 'width=\'' + this.size().width + '\' height=\'' + this.size().height + '\' ' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + ' ' + this.renderTransform() + ' />';
+                return '<rect ' + this.renderId() + ' ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.origin().x + '\' y=\'' + this.origin().y + '\' ' + 'rx=\'' + this.rx() + '\' ry=\'' + this.ry() + '\' ' + 'width=\'' + this.size().width + '\' height=\'' + this.size().height + '\' ' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + ' ' + this.renderTransform() + ' />';
             };
             return RectNode;
         }(PathNode);
@@ -6136,10 +6199,17 @@
             RectNode.fn = RectNode.prototype;
             RectNode.fn.init = RectNode.fn.constructor;
             RectNode.prototype.renderPoints = function renderPoints(ctx) {
-                var ref = this.srcElement.geometry();
-                var origin = ref.origin;
-                var size = ref.size;
-                ctx.rect(origin.x, origin.y, size.width, size.height);
+                var geometry = this.srcElement.geometry();
+                var ref = geometry.cornerRadius;
+                var rx = ref[0];
+                var ry = ref[1];
+                if (rx === 0 && ry === 0) {
+                    var origin = geometry.origin;
+                    var size = geometry.size;
+                    ctx.rect(origin.x, origin.y, size.width, size.height);
+                } else {
+                    PathNode.prototype.renderPoints.call(this, ctx, Path.fromRect(geometry));
+                }
             };
             return RectNode;
         }(PathNode$2);
@@ -6727,7 +6797,7 @@
                 removeClass(element, 'k-pdf-export');
                 return group;
             }
-            cacheImages(element, function () {
+            cacheImages([element], function () {
                 var forceBreak = options && options.forcePageBreak;
                 var hasPaperSize = options && options.paperSize && options.paperSize != 'auto';
                 var paperOptions = kendo.pdf.getPaperOptions(function (key, def) {
@@ -6857,11 +6927,11 @@
                 element.parentNode.insertBefore(container, element);
                 container.appendChild(copy);
                 if (options.beforePageBreak) {
-                    setTimeout(function () {
+                    whenImagesAreActuallyLoaded([container], function () {
                         options.beforePageBreak(container, doPageBreak);
-                    }, 15);
+                    });
                 } else {
-                    setTimeout(doPageBreak, 15);
+                    whenImagesAreActuallyLoaded([container], doPageBreak);
                 }
                 function doPageBreak() {
                     if (forceBreak != '-' || pageHeight) {
@@ -6884,14 +6954,10 @@
                             }
                         });
                     }
-                    cacheImages(pages, function () {
-                        whenImagesAreActuallyLoaded(pages, function () {
-                            callback({
-                                pages: pages,
-                                container: container
-                            });
-                        });
-                    });
+                    cacheImages(pages, callback.bind(null, {
+                        pages: pages,
+                        container: container
+                    }));
                 }
                 function keepTogether(el) {
                     if (options.keepTogether && matches(el, options.keepTogether) && el.offsetHeight <= pageHeight - adjust) {
@@ -7467,7 +7533,7 @@
                 }
             }
         }
-        function cacheImages(element, callback) {
+        function cacheImages(elements, callback) {
             var urls = [];
             function add(url) {
                 if (!IMAGE_CACHE[url]) {
@@ -7475,7 +7541,7 @@
                     urls.push(url);
                 }
             }
-            function dive(element) {
+            elements.forEach(function dive(element) {
                 if (/^img$/i.test(element.tagName)) {
                     add(element.src);
                 }
@@ -7487,16 +7553,11 @@
                 if (element.children) {
                     slice$1$1(element.children).forEach(dive);
                 }
-            }
-            if (Array.isArray(element)) {
-                element.forEach(dive);
-            } else {
-                dive(element);
-            }
+            });
             var count = urls.length;
             function next() {
                 if (--count <= 0) {
-                    callback();
+                    whenImagesAreActuallyLoaded(elements, callback);
                 }
             }
             if (count === 0) {
@@ -8174,9 +8235,6 @@
                     return;
                 }
                 if (background.type == 'url') {
-                    if (/^url\(\"data:image\/svg/i.test(background.url)) {
-                        return;
-                    }
                     var img = IMAGE_CACHE[background.url];
                     if (img && img.width > 0 && img.height > 0) {
                         drawBackgroundImage(group, box, img.width, img.height, function (group, rect) {
@@ -8757,6 +8815,11 @@
             case 'img':
                 renderImage(element, element.src, group);
                 break;
+            case 'svg':
+                var xml = new window.XMLSerializer().serializeToString(element);
+                var dataURL = 'data:image/svg+xml;base64,' + encodeBase64(xml);
+                renderImage(element, dataURL, group);
+                break;
             case 'canvas':
                 try {
                     renderImage(element, element.toDataURL('image/png'), group);
@@ -9050,7 +9113,7 @@
         function renderElement(element, container) {
             var style = getComputedStyle$1(element);
             updateCounters(style);
-            if (/^(style|script|link|meta|iframe|svg|col|colgroup)$/i.test(element.tagName)) {
+            if (/^(style|script|link|meta|iframe|col|colgroup)$/i.test(element.tagName)) {
                 return;
             }
             if (nodeInfo._clipbox == null) {

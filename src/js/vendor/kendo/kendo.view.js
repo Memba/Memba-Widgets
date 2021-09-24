@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -77,6 +77,7 @@
                 that.model = options.model;
                 that._wrap = options.wrap !== false;
                 this._evalTemplate = options.evalTemplate || false;
+                this._useWithBlock = options.useWithBlock;
                 that._fragments = {};
                 that.bind([
                     INIT,
@@ -186,7 +187,7 @@
                 if (typeof content === 'string') {
                     content = content.replace(/^\s+|\s+$/g, '');
                     if (that._evalTemplate) {
-                        content = kendo.template(content)(that.model || {});
+                        content = kendo.template(content, { useWithBlock: that._useWithBlock })(that.model || {});
                     }
                     element = $(wrapper).append(content);
                     if (!that._wrap) {
@@ -195,7 +196,7 @@
                 } else {
                     element = content;
                     if (that._evalTemplate) {
-                        var result = $(kendo.template($('<div />').append(element.clone(true)).html())(that.model || {}));
+                        var result = $(kendo.template($('<div />').append(element.clone(true)).html(), { useWithBlock: that._useWithBlock })(that.model || {}));
                         if ($.contains(document, element[0])) {
                             element.replaceWith(result);
                         }

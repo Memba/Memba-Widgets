@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3149,7 +3149,7 @@
                 }
             },
             _measureFields: function () {
-                this.measureFields = $(DIV).addClass('k-pivot-toolbar k-header k-settings-measures');
+                this.measureFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-header k-settings-measures');
                 this.measuresTarget = this._createSettingTarget(this.measureFields, {
                     setting: 'measures',
                     messages: { empty: this.options.messages.measureFields }
@@ -3210,8 +3210,8 @@
                 var rightContainer = layoutTable.find('.k-pivot-table');
                 var gridWrapper = $(DIV).addClass('k-grid k-widget');
                 that._measureFields();
-                that.columnFields = $(DIV).addClass('k-pivot-toolbar k-header k-settings-columns');
-                that.rowFields = $(DIV).addClass('k-pivot-toolbar k-header k-settings-rows');
+                that.columnFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-header k-settings-columns');
+                that.rowFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-header k-settings-rows');
                 that.columnsHeader = $('<div class="k-grid-header-wrap" />').wrap('<div class="k-grid-header" />');
                 that.columnsHeader.parent().css('padding-right', kendo.support.scrollbar());
                 that.rowsHeader = $('<div class="k-grid k-widget k-alt"/>');

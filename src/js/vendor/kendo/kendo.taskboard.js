@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1101,7 +1101,7 @@
             button: 'k-button k-button-icon k-flat',
             content: 'k-taskboard-pane-content',
             footerActions: 'k-taskboard-pane-actions',
-            footerActionButtons: 'k-action-buttons k-actions-end',
+            footerActionButtons: 'k-actions k-hstack k-justify-content-end',
             footerButton: 'k-button k-button-icontext',
             primary: 'k-primary'
         };
@@ -1809,7 +1809,7 @@
                 }
                 that.pane = pane;
                 that.content.after(that.pane.element);
-                that.content.css('margin-right', that.pane.element.width() + parseInt(that.pane.element.css('paddingLeft'), 10));
+                that.content.css('margin-right', that.pane.element.outerWidth() - parseInt(that.content.css('paddingRight'), 10));
                 that.pane.bind(ACTION, that.executeCommand.bind(that));
                 that.pane.keyboardManager = keyboardManager = new ui.taskboard.KeyboardManager(that.pane.element);
                 keyboardManager.bind(ACTION, that.executeCommand.bind(that));

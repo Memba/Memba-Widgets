@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -30,6 +30,7 @@
         'kendo.editable',
         'kendo.window',
         'kendo.filtermenu',
+        'kendo.columnmenu',
         'kendo.selectable',
         'kendo.resizable',
         'kendo.treeview.draganddrop',
@@ -59,6 +60,12 @@
                 name: 'Filtering',
                 description: 'Support for record filtering',
                 depends: ['filtermenu']
+            },
+            {
+                id: 'treelist-columnmenu',
+                name: 'Column menu',
+                description: 'Support for header column menu',
+                depends: ['columnmenu']
             },
             {
                 id: 'treelist-editing',
@@ -1824,7 +1831,7 @@
                         var text = function () {
                             return $(this).text();
                         };
-                        var separator = '<span class=\'k-header k-drag-separator\'></span>';
+                        var separator = '<span class=\'k-drag-separator\'></span>';
                         return row.children('td').map(text).toArray().join(separator);
                     },
                     contains: proxy(function (source, destination) {
@@ -5639,7 +5646,7 @@
                     group: kendo.guid(),
                     filter: selector,
                     hint: function (target) {
-                        return $('<div class="k-header k-reorder-clue k-drag-clue" />').html(target.attr(kendo.attr('title')) || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-i-cancel" />');
+                        return $('<div class="k-reorder-clue k-drag-clue" />').html(target.attr(kendo.attr('title')) || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-i-cancel" />');
                     }
                 });
                 this.reorderable = new ui.Reorderable(this.wrapper, {

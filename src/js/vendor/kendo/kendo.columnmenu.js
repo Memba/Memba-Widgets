@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -118,7 +118,7 @@
         }
         var ColumnMenu = Widget.extend({
             init: function (element, options) {
-                var that = this, link;
+                var that = this;
                 options = options || {};
                 options.componentType = options.componentType || 'classic';
                 Widget.fn.init.call(that, element, options);
@@ -128,11 +128,7 @@
                 that.dataSource = options.dataSource;
                 that.field = element.attr(kendo.attr('field'));
                 that.title = element.attr(kendo.attr('title'));
-                link = element.find('.k-header-column-menu');
-                if (!link[0]) {
-                    link = element.addClass('k-with-icon').prepend('<a class="k-header-column-menu" href="#" title="' + options.messages.settings + '" aria-label="' + options.messages.settings + '"><span class="k-icon k-i-more-vertical"></span></a>').find('.k-header-column-menu');
-                }
-                that.link = link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
+                that.link = that._createLink();
                 that.wrapper = $('<div class="k-column-menu"/>');
                 that._refreshHandler = proxy(that.refresh, that);
                 that.dataSource.bind(CHANGE, that._refreshHandler);
@@ -188,7 +184,8 @@
                     unstick: 'Unstick Column',
                     setColumnPosition: 'Set Column Position',
                     apply: 'Apply',
-                    reset: 'Reset'
+                    reset: 'Reset',
+                    buttonTitle: '{0} edit column settings'
                 },
                 filter: '',
                 columns: true,
@@ -252,6 +249,14 @@
                         }
                     }).data(MENU);
                 }
+            },
+            _createLink: function () {
+                var that = this, element = that.element, link = element.find('.k-header-column-menu'), title = kendo.format(that.options.messages.buttonTitle, that.title || that.field);
+                if (!link[0]) {
+                    link = element.addClass('k-with-icon').prepend('<a class="k-header-column-menu" href="#" title="' + title + '" aria-label="' + title + '"><span class="k-icon k-i-more-vertical"></span></a>').find('.k-header-column-menu');
+                }
+                link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
+                return link;
             },
             _createExpanders: function () {
                 var that = this;

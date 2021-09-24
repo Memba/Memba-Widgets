@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -471,7 +471,7 @@
                     }
                 } else {
                     if (!that._navContainer) {
-                        that._navContainer = $('<span class="k-calendar-nav">' + '<a href="#" role="button" class="k-button k-button-icon k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-icon k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>').appendTo(that.header);
+                        that._navContainer = $('<span class="k-calendar-nav k-hstack">' + '<a href="#" role="button" class="k-button k-button-icon k-flat k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-icon k-flat k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>').appendTo(that.header);
                         that[PREVARROW] = that._navContainer.find('.k-prev-view');
                         that[NEXTARROW] = that._navContainer.find('.k-next-view');
                     }
@@ -946,7 +946,7 @@
                     that._views.push(that._table);
                 }
                 that._currentView = currentView;
-                that.tablesWrapper.attr('class', 'k-calendar-view k-calendar-' + currentView.name + 'view');
+                that.tablesWrapper.attr('class', 'k-calendar-view k-calendar-' + currentView.name + 'view k-hstack k-align-items-start k-justify-content-center');
                 that._updateHeader();
             },
             _rangeSelection: function (e) {
@@ -1077,12 +1077,12 @@
                 var buttons;
                 var header = element.find('.k-calendar-header');
                 if (!header.length) {
-                    header = $('<div class="k-calendar-header">' + '<a href="#" role="button" class="k-button k-title" aria-live="assertive" aria-atomic="true"></a>' + '<span class="k-calendar-nav">' + '<a href="#" role="button" class="k-button k-button-icon k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-icon k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>' + '</div>').prependTo(element);
+                    header = $('<div class="k-calendar-header k-hstack">' + '<a href="#" role="button" class="k-calendar-title k-title k-button k-flat" aria-live="assertive" aria-atomic="true"></a>' + '<span class="k-spacer"></span>' + '<span class="k-calendar-nav k-hstack">' + '<a href="#" role="button" class="k-button k-flat k-button-icon k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-flat k-button-icon k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>' + '</div>').prependTo(element);
                 }
                 that.header = header;
                 header.on(MOUSEENTER + ns + ' ' + MOUSELEAVE_NS + ' ' + FOCUS + ns + ' ' + BLUR + ns, '.k-button', mousetoggle).on('click', function () {
                     return false;
-                }).on(CLICK + ns, '.k-button.k-title', function () {
+                }).on(CLICK + ns, '.k-button.k-calendar-title', function () {
                     that.navigateUp();
                     that._focusCell(that._cellByDate(that._current), true);
                     that.trigger(NAVIGATE);
@@ -1096,7 +1096,7 @@
                     that.trigger(NAVIGATE);
                 });
                 buttons = header.find('.k-button');
-                that._title = buttons.filter('.k-title');
+                that._title = buttons.filter('.k-calendar-title');
                 that._navContainer = header.find('.k-calendar-nav');
                 that[PREVARROW] = buttons.filter('.k-prev-view');
                 that[NEXTARROW] = buttons.filter('.k-next-view');
@@ -1112,9 +1112,9 @@
                 var weekNumber = month.weekNumber;
                 var empty = month.empty;
                 that.month = {
-                    content: template('<td#=data.cssClass# role="gridcell"><a tabindex="-1" class="k-link#=data.linkClass#" href="#=data.url#" ' + kendo.attr(VALUE) + '="#=data.dateString#" title="#=data.title#">' + (content || '#=data.value#') + '</a></td>', { useWithBlock: !!content }),
-                    empty: template('<td role="gridcell"' + (empty ? '>' : ' class="k-out-of-range">') + (empty || '<a class=\'k-link\'></a>') + '</td>', { useWithBlock: !!empty }),
-                    weekNumber: template('<td class="k-alt">' + (weekNumber || '#= data.weekNumber #') + '</td>', { useWithBlock: !!weekNumber })
+                    content: template('<td class="#=data.cssClass#" role="gridcell"><a tabindex="-1" class="k-link#=data.linkClass#" href="#=data.url#" ' + kendo.attr(VALUE) + '="#=data.dateString#" title="#=data.title#">' + (content || '#=data.value#') + '</a></td>', { useWithBlock: !!content }),
+                    empty: template('<td role="gridcell"' + (empty ? '>' : ' class="k-calendar-td k-out-of-range">') + (empty || '<a class=\'k-link\'></a>') + '</td>', { useWithBlock: !!empty }),
+                    weekNumber: template('<td class="k-calenar-td k-alt">' + (weekNumber || '#= data.weekNumber #') + '</td>', { useWithBlock: !!weekNumber })
                 };
             },
             _footer: function () {

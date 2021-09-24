@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.2.616'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.3.914'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -3923,6 +3923,18 @@
                 });
             });
             return observable;
+        };
+        kendo.getSeriesColors = function () {
+            var seriesColorsTemplate = '<div class="k-var--series-a"></div>' + '<div class="k-var--series-b"></div>' + '<div class="k-var--series-c"></div>' + '<div class="k-var--series-d"></div>' + '<div class="k-var--series-e"></div>' + '<div class="k-var--series-f"></div>', series = $(seriesColorsTemplate), colors = [];
+            series.appendTo($('body'));
+            series.each(function (i, item) {
+                colors.push($(item).css('background-color'));
+            });
+            series.remove();
+            return colors;
+        };
+        kendo.isElement = function (element) {
+            return element instanceof Element || element instanceof HTMLDocument;
         };
         (function () {
             kendo.defaults = kendo.defaults || {};
@@ -11767,6 +11779,15 @@
                     this.widget.wrapper[0].style.display = invisible ? 'none' : '';
                 }
             }),
+            floatingLabel: Binder.extend({
+                init: function (widget, bindings, options) {
+                    Binder.fn.init.call(this, widget.element[0], bindings, options);
+                    if (!widget.floatingLabel) {
+                        return;
+                    }
+                    widget.floatingLabel.refresh();
+                }
+            }),
             enabled: Binder.extend({
                 init: function (widget, bindings, options) {
                     Binder.fn.init.call(this, widget.element[0], bindings, options);
@@ -12219,6 +12240,9 @@
                 if (hasCss && !widgetBinding) {
                     this.applyBinding(CSS, bindings, specificBinders);
                 }
+                if (widgetBinding && this.target && this.target.floatingLabel) {
+                    this.applyBinding('floatingLabel', bindings, specificBinders);
+                }
             },
             binders: function () {
                 return binders[this.target.nodeName.toLowerCase()] || {};
@@ -12600,11 +12624,12 @@
                     email: '{0} is not valid email',
                     url: '{0} is not valid URL',
                     date: '{0} is not valid date',
-                    dateCompare: 'End date should be greater than or equal to the start date'
+                    dateCompare: 'End date should be greater than or equal to the start date',
+                    captcha: 'The text you entered doesn\'t match the image.'
                 },
                 rules: {
                     required: function (input) {
-                        var noNameCheckbox = !input.attr('name') && !input.is(':checked'), namedCheckbox = input.attr('name') && !this.element.find('input[name=\'' + input.attr('name') + '\']:checked').length, checkbox = input.filter('[type=checkbox]').length && (noNameCheckbox || namedCheckbox), radio = input.filter('[type=radio]').length && !this.element.find('input[name=\'' + input.attr('name') + '\']:checked').length, value = input.val();
+                        var noNameCheckbox = !input.attr('name') && !input.is(':checked'), namedCheckbox = input.attr('name') && !this.element.find('input[name="' + input.attr('name') + '"]:checked').length, checkbox = input.filter('[type=checkbox]').length && (noNameCheckbox || namedCheckbox), radio = input.filter('[type=radio]').length && !this.element.find('input[name="' + input.attr('name') + '"]:checked').length, value = input.val();
                         return !(hasAttribute(input, 'required') && (!value || value === '' || value.length === 0 || checkbox || radio));
                     },
                     pattern: function (input) {
@@ -12649,6 +12674,31 @@
                             return kendo.parseDate(input.val(), input.attr(kendo.attr('format'))) !== null;
                         }
                         return true;
+                    },
+                    captcha: function (input) {
+                        if (input.filter('[' + kendo.attr('role') + '=captcha]').length) {
+                            var that = this, captcha = kendo.widgetInstance(input), isValidated = function (isValid) {
+                                    return typeof isValid !== 'undefined' && isValid !== null;
+                                };
+                            if (!input.data('captcha_validating') && !isValidated(captcha.isValid()) && !!captcha.getCaptchaId()) {
+                                input.data('captcha_validating', true);
+                                that._validating = true;
+                                captcha.validate().done(function () {
+                                    that._validating = false;
+                                    that._checkElement(input);
+                                }).fail(function (data) {
+                                    that._validating = false;
+                                    if (data.error && data.error === 'handler_not_defined') {
+                                        window.console.warn('Captcha\'s validationHandler is not defined! You should either define a proper validation endpoint or declare a callback function to ensure the required behavior.');
+                                    }
+                                });
+                            }
+                            if (isValidated(captcha.isValid())) {
+                                input.removeData('captcha_validating');
+                                return captcha.isValid();
+                            }
+                        }
+                        return true;
                     }
                 },
                 validateOnBlur: true,
@@ -12675,7 +12725,7 @@
                 return this.errors().length === 0;
             },
             _submit: function (e) {
-                if (!this.validate() && !this._allowSubmit()) {
+                if (!this.validate() && !this._allowSubmit() || this._validating) {
                     e.stopPropagation();
                     e.stopImmediatePropagation();
                     e.preventDefault();
@@ -12760,7 +12810,7 @@
                         field: fieldName
                     })) : '', wasValid = !input.attr(ARIAINVALID);
                 input.removeAttr(ARIAINVALID);
-                if (!valid) {
+                if (!valid && !input.data('captcha_validating')) {
                     that._errors[fieldName] = messageText;
                     var lblId = lbl.attr('id');
                     that._decorateMessageContainer(messageLabel, fieldName);
@@ -13477,6 +13527,7 @@
                 that.model = options.model;
                 that._wrap = options.wrap !== false;
                 this._evalTemplate = options.evalTemplate || false;
+                this._useWithBlock = options.useWithBlock;
                 that._fragments = {};
                 that.bind([
                     INIT,
@@ -13586,7 +13637,7 @@
                 if (typeof content === 'string') {
                     content = content.replace(/^\s+|\s+$/g, '');
                     if (that._evalTemplate) {
-                        content = kendo.template(content)(that.model || {});
+                        content = kendo.template(content, { useWithBlock: that._useWithBlock })(that.model || {});
                     }
                     element = $(wrapper).append(content);
                     if (!that._wrap) {
@@ -13595,7 +13646,7 @@
                 } else {
                     element = content;
                     if (that._evalTemplate) {
-                        var result = $(kendo.template($('<div />').append(element.clone(true)).html())(that.model || {}));
+                        var result = $(kendo.template($('<div />').append(element.clone(true)).html(), { useWithBlock: that._useWithBlock })(that.model || {}));
                         if ($.contains(document, element[0])) {
                             element.replaceWith(result);
                         }

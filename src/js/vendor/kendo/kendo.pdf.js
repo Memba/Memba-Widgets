@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1931,7 +1931,7 @@
             function _load(url) {
                 img.src = url;
                 if (img.complete && !browser.msie) {
-                    _onload();
+                    _onload.call(img);
                 } else {
                     img.onload = _onload;
                     img.onerror = _onerror;
@@ -1989,7 +1989,7 @@
             }
             function _onload() {
                 if (size) {
-                    var svg = blob && blob.type === 'image/svg+xml';
+                    var svg = blob && blob.type === 'image/svg+xml' || /^data:image\/svg\+xml;/i.test(this.src.substring(0, 19));
                     var upscale = size.width >= img.width || size.height >= img.height;
                     if (!svg && upscale) {
                         size = null;
@@ -3542,9 +3542,7 @@
             }
             var multiPage = getOption('multiPage');
             var imgDPI = getOption('imgDPI');
-            if (imgDPI) {
-                clearImageCache();
-            }
+            clearImageCache();
             group.traverse(function (element) {
                 dispatch({
                     Image: function (element) {
@@ -3970,8 +3968,15 @@
         }
         function drawRect(element, page, pdf) {
             var geometry = element.geometry();
-            page.rect(geometry.origin.x, geometry.origin.y, geometry.size.width, geometry.size.height);
-            maybeFillStroke(element, page, pdf);
+            var ref = geometry.cornerRadius;
+            var rx = ref[0];
+            var ry = ref[1];
+            if (rx === 0 && ry === 0) {
+                page.rect(geometry.origin.x, geometry.origin.y, geometry.size.width, geometry.size.height);
+                maybeFillStroke(element, page, pdf);
+            } else {
+                drawPath(drawing.Path.fromRect(geometry, element.options), page, pdf);
+            }
         }
         function parseColor$1(value) {
             var color = kendo.parseColor(value, true);

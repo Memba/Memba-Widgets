@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -430,6 +430,8 @@
                     }
                 }
                 this._insertStepElementAtIndex(index, step.element);
+                this._stepperAriaAttributes();
+                this._steps.forEach(this._iterateAriaStep);
             },
             next: function () {
                 var that = this, stepsLength = that._steps.length, currentStepIndex = that.currentStep.options.index;
@@ -482,9 +484,11 @@
                         alteredStep.resetButtons();
                     }
                 }
+                this._stepperAriaAttributes();
+                this._steps.forEach(this._iterateAriaStep);
             },
             select: function (stepIndex) {
-                var that = this, stepper = that.stepper, targetStep;
+                var that = this, targetStep;
                 if (stepIndex === undefined || stepIndex === null || isNaN(stepIndex) || stepIndex >= that._steps.length || stepIndex < 0) {
                     return;
                 }
@@ -494,13 +498,7 @@
                     return;
                 }
                 that._select(stepIndex);
-                if (stepper.options.linear) {
-                    stepper.setOptions({ linear: false });
-                    that._selectStepper(stepIndex);
-                    stepper.setOptions({ linear: true });
-                } else {
-                    that._selectStepper(stepIndex);
-                }
+                that._selectStepper(stepIndex);
             },
             steps: function () {
                 return this._steps;
@@ -627,6 +625,9 @@
             _isEmpty: function (element) {
                 return !$.trim(element.html());
             },
+            _iterateAriaStep: function (step) {
+                step._ariaAttributes();
+            },
             _mapStepForStepper: function (step) {
                 var stepperStep = extend(true, {}, step);
                 stepperStep.label = stepperStep.title;
@@ -744,17 +745,18 @@
                 this._stepperAriaAttributes();
             },
             _stepperAriaAttributes: function () {
-                var stepper = this.stepper, wrapperId = this.wrapper.attr(ID) || 'wizard', stepperSteps = stepper.steps(), selected = false, step, i;
+                var stepper = this.stepper, wrapperId = this.wrapper.attr(ID) || 'wizard', stepperSteps = stepper.steps(), selected, step, i;
                 if (!stepperSteps) {
                     return;
                 }
                 stepper.element.find(DOT + STEPPER_LIST).attr(ROLE, 'tablist');
                 for (i = 0; i < stepperSteps.length; i += 1) {
+                    selected = false;
                     if (i === 0) {
                         selected = true;
                     }
                     step = stepperSteps[i];
-                    step.element.attr(ROLE, 'tab').attr(ARIA_CONTROLS, wrapperId + DASH + i).attr(ARIA_SELECTED, selected);
+                    step.element.attr(ROLE, 'none').find('a').attr(ROLE, 'tab').attr(ARIA_CONTROLS, wrapperId + DASH + i).attr(ARIA_SELECTED, selected);
                 }
             },
             _stepperSelectHandler: function (e) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -67,7 +67,9 @@
                     'slider',
                     'colorpicker',
                     'radiogroup',
-                    'checkboxgroup'
+                    'checkboxgroup',
+                    'textbox',
+                    'textarea'
                 ]
             },
             {
@@ -79,7 +81,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, NS = '.kendoForm', Widget = ui.Widget, extend = $.extend, proxy = $.proxy, VALIDATE = 'validate', VALIDATEFIELD = 'validateField', VALIDATEINPUT = 'validateInput', CHANGE = 'change', CLICK = 'click' + NS, SUBMIT = 'submit', CLEAR = 'clear', MAX_WIDTH = 'max-width', SET = 'set', EQUAL_SET = 'equalSet', GROUP = 'group', ARIA_DESCRIBEDBY = 'aria-describedby', DATA_STOP = 'data-stop', DATA_ROLE = 'data-role', EDITABLE = 'editable', FORM = 'form', DOT = '.';
+        var kendo = window.kendo, ui = kendo.ui, NS = '.kendoForm', Widget = ui.Widget, extend = $.extend, proxy = $.proxy, VALIDATE = 'validate', VALIDATEFIELD = 'validateField', VALIDATEINPUT = 'validateInput', CHANGE = 'change', CLICK = 'click' + NS, SUBMIT = 'submit', CLEAR = 'clear', MAX_WIDTH = 'max-width', SET = 'set', EQUAL_SET = 'equalSet', GROUP = 'group', ARIA_DESCRIBEDBY = 'aria-describedby', DATA_STOP = 'data-stop', DATA_ROLE = 'data-role', EDITABLE = 'editable', FORM = 'form', DOT = '.', DATA_ROLE_RADIO_GROUP = '[data-role=\'radiogroup\']', DATA_ROLE_CHECKBOX_GROUP = '[data-role=\'checkboxgroup\']';
         var formStyles = {
             form: 'k-widget k-form',
             horizontal: 'k-form-horizontal',
@@ -150,7 +152,7 @@
                 formatLabel: null,
                 focusFirst: false
             },
-            _fieldTemplate: '<div class=\'#:styles.field#  #if (colSpan) { #  k-colspan-#:colSpan# # } #\'>' + '# if (label) { # ' + '<label class=\'#:styles.label#\' for=\'#:id#\' id=\'#:id#-form-label\'>' + '# if (typeof label.encoded != \'undefined\' && label.encoded === false) {#' + '#= label.text || label #' + '# } else { #' + '#: label.text || label #' + '# } #' + '# if (label.optional) { # <span class=\'#:styles.optional#\'>#:optional#</span>  #}#' + '</label>' + '# } #' + '<div class=\'k-form-field-wrap\' data-container-for=\'#:field#\'></div>' + '</div>',
+            _fieldTemplate: '<div class=\'#:styles.field# #if (colSpan) { # k-colspan-#:colSpan# # } # #if (hidden) { ##:styles.hidden## } #\'>' + '# if (label && !hidden) { # ' + '<label class=\'#:styles.label#\' for=\'#:id#\' id=\'#:id#-form-label\'>' + '# if (typeof label.encoded != \'undefined\' && label.encoded === false) {#' + '#= label.text || label #' + '# } else { #' + '#: label.text || label #' + '# } #' + '# if (label.optional) { # <span class=\'#:styles.optional#\'>#:optional#</span>  #}#' + '</label>' + '# } #' + '<div class=\'k-form-field-wrap\' data-container-for=\'#:field#\'></div>' + '</div>',
             _groupTemplate: '<fieldset class=\'#:styles.fieldset# #if (colSpan) { #  k-colspan-#:colSpan# # }#\'>' + '<legend class=\'#:styles.legend#\'>#:label.text || label #</legend>' + '</fieldset>',
             _buttonsTemplate: '<button class=\'k-button k-primary #:styles.submit#\' type=\'submit\'>#:messages.submit#</button>' + '<button class=\'k-button #:styles.clear#\'>#:messages.clear#</button>',
             _errorTemplate: '<span class=\'k-form-error\' id=\'#=field#-form-error\'><div>#=message#</div></span>',
@@ -220,13 +222,16 @@
                     fieldValue = formData[fieldInfo.field];
                     type = typeof fieldInfo.editor === 'string' ? fieldInfo.editor : $.type(fieldValue ? kendo.parseDate(fieldValue.toString()) || fieldValue : fieldValue);
                     editor = kendo.isFunction(fieldInfo.editor) ? fieldInfo.editor : ui.Editable.fn.options.editors[type] ? '' : fieldInfo.editor;
-                    attributes = { 'aria-labelledby': fieldInfo.id || fieldInfo.field + '-form-label' };
+                    if (!that._isHidden(fieldInfo.editor)) {
+                        attributes = { 'aria-labelledby': fieldInfo.id || fieldInfo.field + '-form-label' };
+                    }
                     fieldInfo = extend(true, {}, fieldInfo, {
                         id: fieldInfo.id || fieldInfo.field,
                         name: fieldInfo.name || fieldInfo.field,
                         type: type,
                         editor: editor,
-                        attributes: attributes
+                        attributes: attributes,
+                        isHidden: that._isHidden(fieldInfo.editor) || that._isAntiForgeryToken(fieldInfo.name || fieldInfo.field)
                     });
                     that._fields[field] = fieldInfo;
                 }
@@ -271,6 +276,12 @@
                 }
                 return template;
             },
+            _isHidden: function (editor) {
+                return typeof editor === 'string' && editor === 'hidden';
+            },
+            _isAntiForgeryToken: function (field) {
+                return field === ui.Editable.antiForgeryTokenName;
+            },
             _renderField: function (item) {
                 var that = this, formStyles = Form.styles, renderedField;
                 renderedField = kendo.template(that._fieldTemplate)({
@@ -279,7 +290,8 @@
                     field: item.field || '',
                     label: that._formatLabel(item.field, item.label),
                     colSpan: item.colSpan || '',
-                    optional: that.options.messages.optional
+                    optional: that.options.messages.optional,
+                    hidden: that._isHidden(item.editor) || that._isAntiForgeryToken(item.field)
                 });
                 return renderedField;
             },
@@ -294,7 +306,7 @@
                 for (var i = 0; i < fields.length; i += 1) {
                     field = fields[i];
                     fieldElement = that.wrapper.find('[name=\'' + field.name + '\']');
-                    if (!fieldElement || !field.hint) {
+                    if (!fieldElement || !field.hint || field.isHidden) {
                         continue;
                     }
                     hint = $(kendo.template(that._hintTemplate)({
@@ -457,7 +469,10 @@
                     var field = fields[i].field;
                     var element = that.wrapper.find('[name=\'' + field + '\']');
                     var widgetInstance = kendo.widgetInstance(element);
-                    element.val('');
+                    var isHiddenInput = element.is('input[type=hidden]');
+                    if (!element.is(DATA_ROLE_CHECKBOX_GROUP) && !element.is(DATA_ROLE_RADIO_GROUP) && !isHiddenInput) {
+                        element.val('');
+                    }
                     if (widgetInstance) {
                         widgetInstance.value(null);
                     }
@@ -465,7 +480,7 @@
                     if (typeof model[field] === 'boolean') {
                         element.val('false');
                         model.set(field, false);
-                    } else {
+                    } else if (!isHiddenInput) {
                         model.set(field, null);
                     }
                 }

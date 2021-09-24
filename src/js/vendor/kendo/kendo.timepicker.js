@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -99,6 +99,7 @@
                 that.ul.attr(ID, that._timeViewID);
             }
             that._heightHandler = proxy(that._height, that);
+            that._ariaLabel();
             that._popup();
         };
         TimeView.prototype = {
@@ -120,6 +121,30 @@
                 this.list.on('click' + ns, '.k-time-footer button.k-time-accept', proxy(this._setClickHandler, this));
                 this.list.on('mouseover' + ns, '.k-time-list-wrapper', proxy(this._mouseOverHandler, this));
                 this.list.on('keydown' + ns, proxy(this._scrollerKeyDownHandler, this));
+            },
+            _ariaLabel: function () {
+                var that = this;
+                var inputElm = $('#' + that.options.id);
+                var ul = that.ul;
+                var id = inputElm.attr('id');
+                var labelElm = $('label[for=\'' + id + '\']');
+                var ariaLabel = inputElm.attr('aria-label');
+                var ariaLabelledBy = inputElm.attr('aria-labelledby');
+                var labelId;
+                if (ariaLabel) {
+                    ul.attr('aria-label', ariaLabel);
+                } else if (ariaLabelledBy) {
+                    ul.attr('aria-labelledby', ariaLabelledBy);
+                } else if (labelElm.length) {
+                    labelId = labelElm.attr('id');
+                    if (labelId) {
+                        ul.attr('aria-labelledby', labelId);
+                    } else {
+                        labelId = kendo.guid();
+                        labelElm.attr('id', labelId);
+                        ul.attr('aria-labelledby', labelId);
+                    }
+                }
             },
             _scrollerKeyDownHandler: function (e) {
                 var that = this, key = e.keyCode, list = $(e.currentTarget).find('.k-time-list-wrapper.k-state-focused'), lists = that.list.find('.k-time-list-wrapper'), length = lists.length, index = lists.index(list), isRtl = kendo.support.isRtl(that.wrapper), itemHeight = getItemHeight(list.find('.k-item:visible:eq(0)')), container = list.find('.k-time-container.k-content.k-scrollable');
@@ -498,16 +523,19 @@
                     list.off(ns).on('click' + ns, '.k-item', proxy(this._itemClickHandler, this)).on('scroll' + ns, proxy(this._listScrollHandler, this));
                 }
             },
-            _nowClickHandler: function () {
+            _nowClickHandler: function (e) {
+                e.preventDefault();
                 var now = new Date();
                 this.value(now);
                 this.options.change(kendo.toString(now, this.options.format, this.options.culture));
             },
-            _cancelClickHandler: function () {
+            _cancelClickHandler: function (e) {
+                e.preventDefault();
                 this.value(this._value);
                 this.popup.close();
             },
-            _setClickHandler: function () {
+            _setClickHandler: function (e) {
+                e.preventDefault();
                 this._value = new Date(this._currentlySelected);
                 this.options.change(kendo.toString(this._currentlySelected, this.options.format, this.options.culture), true);
                 this.popup.close();

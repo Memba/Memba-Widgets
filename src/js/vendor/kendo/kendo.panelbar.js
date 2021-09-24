@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -143,7 +143,7 @@
                 }
                 hasDataSource = options && !!options.dataSource;
                 Widget.fn.init.call(that, element, options);
-                element = that.wrapper = that.element.addClass('k-widget k-reset k-header k-panelbar');
+                element = that.wrapper = that.element.addClass('k-widget k-reset k-panelbar');
                 options = that.options;
                 if (element[0].id) {
                     that._itemId = element[0].id + '_pb_active';

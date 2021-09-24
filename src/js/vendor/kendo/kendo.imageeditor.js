@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.2.616 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -444,7 +444,7 @@
             },
             _orientationEditor: function (container, options) {
                 var that = this, cropMessages = that.imageeditor.options.messages.panes.crop, value = options.model[options.field];
-                $('<div name=\'' + options.field + '\'></div>').appendTo(container).kendoButtonGroup({
+                that._orientationWidget = $('<div name=\'' + options.field + '\'></div>').appendTo(container).kendoButtonGroup({
                     items: [
                         {
                             text: cropMessages.portrait || 'Portrait',
@@ -461,7 +461,7 @@
                         var value = ev.sender.wrapper.find('.k-state-active').data('value');
                         options.model.set(options.field, value);
                     }
-                });
+                }).data('kendoButtonGroup');
             },
             buildCropModel: function () {
                 var that = this, imageeditor = that.imageeditor, canvas = imageeditor.getCanvasElement(), width = canvas.width, height = canvas.height;
@@ -566,9 +566,9 @@
                 if (ev.field === 'aspectRatio' && ev.value === 'originalRatio') {
                     newModel.set('top', 0);
                     newModel.set('left', 0);
+                    newModel.set('orientation', oldModel.orientation);
                     newModel.set('width', oldModel.width);
                     newModel.set('height', oldModel.height);
-                    newModel.set('orientation', oldModel.orientation);
                 } else if (ev.field === 'orientation') {
                     var tempModel = extend({}, newModel, {
                         width: newModel.height,
@@ -577,6 +577,7 @@
                     var newSize = that._calcSize(tempModel, originalRatio, maxWidth, maxHeight);
                     newModel.set('width', newSize.width);
                     newModel.set('height', newSize.height);
+                    that._orientationWidget.select(ev.value === 'portrait' ? 0 : 1);
                 } else if (newModel.lockAspectRatio) {
                     var force = ev.field;
                     var size = that._calcSize(newModel, originalRatio, maxWidth, maxHeight, force);

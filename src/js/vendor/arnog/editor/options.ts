@@ -13,12 +13,13 @@ import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
-import { isTouchCapable } from '../common/capabilities';
+import { isBrowser, isTouchCapable } from '../common/capabilities';
 import { getDefaultRegisters } from '../core/registers';
 import { defaultSpeakHook } from './speech';
 import { defaultReadAloudHook } from './speech-read-aloud';
 import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
 import { defaultExportHook } from '../editor-mathfield/mode-editor';
+import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -108,7 +109,7 @@ export function update(
       case 'locale':
         result.locale =
           updates.locale === 'auto'
-            ? navigator?.language.slice(0, 5) ?? 'en'
+            ? (isBrowser() ? navigator.language.slice(0, 5) : null) ?? 'en'
             : updates.locale!;
         l10n.locale = result.locale;
         break;
@@ -326,7 +327,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
 
     keybindings: DEFAULT_KEYBINDINGS,
 
-    inlineShortcuts: {}, // @revisit: return the actual shortcuts
+    inlineShortcuts: INLINE_SHORTCUTS,
     inlineShortcutTimeout: 0,
 
     virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
@@ -335,9 +336,10 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     virtualKeyboardLayout: 'auto',
     customVirtualKeyboardLayers: {},
     customVirtualKeyboards: {},
-    virtualKeyboardTheme: /android|cros/i.test(navigator?.userAgent)
-      ? 'material'
-      : 'apple',
+    virtualKeyboardTheme:
+      isBrowser() && /android|cros/i.test(navigator.userAgent)
+        ? 'material'
+        : 'apple',
     keypressVibration: true,
     keypressSound: null,
     plonkSound: null,
@@ -361,7 +363,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onKeystroke: (): boolean => true,
     onMoveOutOf: (): boolean => true,
     onTabOutOf: (): boolean => true,
-
+    onPlaceholderDidChange: () => {},
     onBlur: NO_OP_LISTENER,
     onFocus: NO_OP_LISTENER,
     onContentWillChange: NO_OP_LISTENER,

@@ -1,4 +1,4 @@
-/* 0.69.3 */import { MathfieldOptions } from './options';
+/* 0.69.7 */import { MathfieldOptions } from './options';
 import { Selector } from './commands';
 import { Mathfield, InsertOptions, OutputFormat, Offset, Range, Selection, FindOptions, ReplacementFunction } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
@@ -495,6 +495,7 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
       * ```
       */
     constructor(options?: Partial<MathfieldOptions>);
+    getPlaceholderField(placeholderId: string): Mathfield | undefined;
     addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: MathfieldElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
     get mode(): ParseMode;
@@ -740,8 +741,8 @@ export declare class MathfieldElement extends HTMLElement implements Mathfield {
     set virtualKeyboardMode(value: 'auto' | 'manual' | 'onfocus' | 'off');
     get virtualKeyboardTheme(): 'material' | 'apple' | '';
     set virtualKeyboardTheme(value: 'material' | 'apple' | '');
-    get virtualKeyboars(): string;
-    set virtualKeyboars(value: string);
+    get virtualKeyboards(): string;
+    set virtualKeyboards(value: string);
     get useSharedVirtualKeyboard(): boolean;
     set useSharedVirtualKeyboard(value: boolean);
     get sharedVirtualKeyboardTargetOrigin(): string;

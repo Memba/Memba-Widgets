@@ -11,21 +11,21 @@ import {
 } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import type { ParseMode } from '../public/core';
-import { osPlatform } from '../common/capabilities';
+import { isBrowser, osPlatform } from '../common/capabilities';
 
 /**
  * @param p The platform to test against.
  */
 function matchPlatform(p: string): boolean {
-  if (navigator?.platform && navigator?.userAgent) {
+  if (isBrowser() && navigator.platform && navigator.userAgent) {
     const plat = osPlatform();
     const isNeg = p.startsWith('!');
     const isMatch = p.endsWith(plat);
     if (isNeg && !isMatch) return true;
     if (!isNeg && isMatch) return true;
   }
-
-  return false;
+  if (p === '!other') return false;
+  return p === 'other';
 }
 
 /**

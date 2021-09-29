@@ -1,4 +1,4 @@
-/* 0.69.3 */import type { Keys } from './types-utils';
+/* 0.69.7 */import type { Keys } from './types-utils';
 import type { ParseMode, Style } from './core';
 import type { InsertOptions, Mathfield, Model, VirtualKeyboardInterface } from './mathfield';
 /**

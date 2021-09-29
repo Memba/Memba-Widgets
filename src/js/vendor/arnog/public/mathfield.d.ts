@@ -1,4 +1,4 @@
-/* 0.69.3 */import { Selector } from './commands';
+/* 0.69.7 */import { Selector } from './commands';
 import { CoreOptions, MathfieldOptions, VirtualKeyboardOptions } from './options';
 import { ParseMode, MacroDictionary, Style, Registers } from './core';
 /**
@@ -258,6 +258,11 @@ export interface Mathfield {
      * used as the replacement.
      */
     replace(pattern: string | RegExp, replacement: string | ReplacementFunction, options?: FindOptions): void;
+    /**
+     * Returns a nested mathfield element that match the provided `placeholderId`
+     * @param placeholderId
+     */
+    getPlaceholderField(placeholderId: string): Mathfield | undefined;
     virtualKeyboardState: 'visible' | 'hidden';
 }
 export interface Model {

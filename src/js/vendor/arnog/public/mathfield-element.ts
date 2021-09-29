@@ -19,7 +19,7 @@ import {
 } from '../editor/options';
 import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { isOffset, isRange, isSelection } from '../editor/model';
-import { throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
 //
 // Custom Events
@@ -643,16 +643,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     // When the elements get focused (through tabbing for example)
     // focus the mathfield
-    this.shadowRoot!.host.addEventListener(
-      'focus',
-      (_event) => this._mathfield?.focus(),
-      true
-    );
-    this.shadowRoot!.host.addEventListener(
-      'blur',
-      (_event) => this._mathfield?.blur(),
-      true
-    );
 
     const slot =
       this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
@@ -661,38 +651,32 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       .map((x) => (x.nodeType === 3 ? x.textContent : ''))
       .join('')
       .trim();
-    // Inline options (as a JSON structure in the markup)
-    try {
-      const json = slot!
-        .assignedElements()
-        .filter(
-          (x) =>
-            x.tagName.toLowerCase() === 'script' &&
-            (x as HTMLScriptElement).type === 'application/json'
-        )
-        .map((x) => x.textContent)
-        .join('');
-      if (json) {
-        this.setOptions(JSON.parse(json));
-      }
-    } catch (error: unknown) {
-      console.log(error);
-    }
-
-    try {
-      this._style = slot!
-        .assignedElements()
-        .filter((x) => x.tagName.toLowerCase() === 'style')
-        .map((x) => x.textContent)
-        .join('');
-    } catch (error: unknown) {
-      console.log(error);
-    }
 
     // Record the (optional) configuration options, as a deferred state
     if (options) {
       this.setOptions(options);
     }
+    this.shadowRoot!.host.addEventListener(
+      'focus',
+      (_event) => {
+        if (!this.readOnly) {
+          this._mathfield?.focus();
+        }
+      },
+      true
+    );
+    this.shadowRoot!.host.addEventListener(
+      'blur',
+      (_event) => {
+        if (!this.readOnly) {
+          this._mathfield?.blur();
+        }
+      },
+      true
+    );
+  }
+  getPlaceholderField(placeholderId: string): Mathfield | undefined {
+    return this._mathfield?.getPlaceholderField(placeholderId);
   }
 
   addEventListener<K extends keyof HTMLElementEventMap>(
@@ -753,6 +737,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   setOptions(options: Partial<MathfieldOptions>): void {
     if (this._mathfield) {
       this._mathfield.setOptions(options);
+      this._mathfield._placeholders.forEach((placeholder) => {
+        placeholder.field.setOptions({
+          ...options,
+          virtualKeyboardMode: 'onfocus',
+          readOnly: false,
+        });
+      });
     } else if (gDeferredState.has(this)) {
       const mergedOptions = {
         ...gDeferredState.get(this)!.options,
@@ -1036,15 +1027,41 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     // This.setAttribute('aria-multiline', 'false');
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
 
+    const slot =
+      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
+
+    try {
+      this._style = slot!
+        .assignedElements()
+        .filter((x) => x.tagName.toLowerCase() === 'style')
+        .map((x) => x.textContent)
+        .join('');
+    } catch (error: unknown) {
+      console.log(error);
+    }
     // Add shadowed stylesheet if one was provided
     if (this._style) {
       const styleElement = document.createElement('style');
       styleElement.textContent = this._style;
       this.shadowRoot!.appendChild(styleElement);
     }
-
-    const slot =
-      this.shadowRoot!.querySelector<HTMLSlotElement>('slot:not([name])');
+    // Inline options (as a JSON structure in the markup)
+    try {
+      const json = slot!
+        .assignedElements()
+        .filter(
+          (x) =>
+            x.tagName.toLowerCase() === 'script' &&
+            (x as HTMLScriptElement).type === 'application/json'
+        )
+        .map((x) => x.textContent)
+        .join('');
+      if (json) {
+        this.setOptions(JSON.parse(json));
+      }
+    } catch (error: unknown) {
+      console.log(error);
+    }
 
     let value = '';
     // Check if there is a `value` attribute and set the initial value
@@ -1530,10 +1547,10 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   set virtualKeyboardTheme(value: 'material' | 'apple' | '') {
     this.setOptions({ virtualKeyboardTheme: value });
   }
-  get virtualKeyboars(): string {
+  get virtualKeyboards(): string {
     return this.getOption('virtualKeyboards');
   }
-  set virtualKeyboars(value: string) {
+  set virtualKeyboards(value: string) {
     this.setOptions({ virtualKeyboards: value });
   }
   get useSharedVirtualKeyboard(): boolean {
@@ -1729,7 +1746,7 @@ declare global {
   }
 }
 
-if (!window.customElements?.get('math-field')) {
+if (isBrowser() && !window.customElements?.get('math-field')) {
   window.MathfieldElement = MathfieldElement;
   window.customElements?.define('math-field', MathfieldElement);
 }

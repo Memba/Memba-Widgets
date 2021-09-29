@@ -91,6 +91,7 @@ import { validateStyle } from './styling';
 import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
+import MathfieldElement from '../public/mathfield-element';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
@@ -101,7 +102,10 @@ export class MathfieldPrivate implements Mathfield {
 
   dirty: boolean; // If true, need to be redrawn
   smartModeSuppressed: boolean;
-
+  _placeholders: Map<
+    string,
+    { atom: PlaceholderAtom; field: MathfieldElement }
+  >;
   element?: HTMLElement & {
     mathfield?: MathfieldPrivate;
   };
@@ -181,7 +185,7 @@ export class MathfieldPrivate implements Mathfield {
           }
     );
     this.macros = this.options.macros as NormalizedMacroDictionary;
-
+    this._placeholders = new Map();
     this.colorMap = (name: string): string | undefined => {
       let result: string | undefined = undefined;
       if (typeof this.options.colorMap === 'function') {
@@ -297,6 +301,9 @@ export class MathfieldPrivate implements Mathfield {
       this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH;
     markup += '</div>';
 
+    if (this.options.readOnly) {
+      markup += "<div class='ML__placeholdercontainer'></div>";
+    }
     markup += '</span>';
 
     // 3.1/ The aria-live region for announcements
@@ -351,7 +358,10 @@ export class MathfieldPrivate implements Mathfield {
     this.virtualKeyboardToggle = this.element.querySelector<HTMLElement>(
       '.ML__virtual-keyboard-toggle'
     )!;
-    if (this.options.virtualKeyboardMode === 'manual') {
+    if (
+      !this.options.readOnly &&
+      this.options.virtualKeyboardMode === 'manual'
+    ) {
       this.virtualKeyboardToggle.classList.add('is-visible');
     } else {
       this.virtualKeyboardToggle.classList.remove('is-visible');
@@ -488,6 +498,10 @@ export class MathfieldPrivate implements Mathfield {
         onSelectionWillChange: (): void =>
           this.options.onSelectionWillChange(this),
         onError: this.options.onError,
+        onPlaceholderDidChange: (
+          _sender: ModelPrivate,
+          placeholderId: string
+        ): void => this.options.onPlaceholderDidChange(this, placeholderId),
       },
       {
         announce: (
@@ -531,6 +545,8 @@ export class MathfieldPrivate implements Mathfield {
       onContentWillChange: () => this.options.onContentWillChange(this),
       onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onError: this.options.onError,
+      onPlaceholderDidChange: (_sender, placeholderId) =>
+        this.options.onPlaceholderDidChange(this, placeholderId),
     });
     this.model.setHooks({
       announce: (
@@ -601,6 +617,8 @@ export class MathfieldPrivate implements Mathfield {
       onContentWillChange: () => this.options.onContentWillChange(this),
       onSelectionWillChange: () => this.options.onSelectionWillChange(this),
       onError: this.options.onError,
+      onPlaceholderDidChange: (_sender, placeholderId) =>
+        this.options.onPlaceholderDidChange(this, placeholderId),
     });
     this.model.setHooks({
       announce: (_sender: Mathfield, command, previousPosition, atoms) =>
@@ -647,7 +665,10 @@ export class MathfieldPrivate implements Mathfield {
 
     this.virtualKeyboard?.setOptions(this.options);
 
-    if (this.options.virtualKeyboardMode === 'manual') {
+    if (
+      !this.options.readOnly &&
+      this.options.virtualKeyboardMode === 'manual'
+    ) {
       this.virtualKeyboardToggle?.classList.add('is-visible');
     } else {
       this.virtualKeyboardToggle?.classList.remove('is-visible');
@@ -899,6 +920,9 @@ export class MathfieldPrivate implements Mathfield {
     replace(this.model, searchValue, newValue, options);
   }
 
+  getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
+    return this._placeholders.get(placeholderId)?.field;
+  }
   scrollIntoView(): void {
     // If a render is pending, do it now to make sure we have correct layout
     // and caret position
@@ -979,7 +1003,7 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   switchMode(mode: ParseMode, prefix = '', suffix = ''): void {
-    if (this.mode === mode) return;
+    if (this.mode === mode || this.options.readOnly) return;
     const { model } = this;
     model.deferNotifications(
       { content: Boolean(suffix) || Boolean(prefix), selection: true },
@@ -1143,6 +1167,40 @@ export class MathfieldPrivate implements Mathfield {
     return true;
   }
 
+  attachNestedMathfield(): void {
+    let fontSizeChanged = false;
+    this._placeholders.forEach((v) => {
+      const container = this.field?.querySelector(
+        `[data-placeholder-id=${v.atom.placeholderId}]`
+      ) as HTMLElement;
+      if (container) {
+        const placeholderPosition = container.getBoundingClientRect();
+        const parentPosition = this.field?.getBoundingClientRect();
+
+        const scaleDownFontsize =
+          parseInt(window.getComputedStyle(container).fontSize) * 0.6;
+        if (v.field.style.fontSize !== `${scaleDownFontsize}px`) {
+          fontSizeChanged = true;
+        }
+        v.field.style.fontSize = `${scaleDownFontsize}px`;
+        v.field.style.top = `${
+          (placeholderPosition?.top ?? 0) -
+          (parentPosition?.top ?? 0) +
+          (this.element?.offsetTop ?? 0)
+        }px`;
+        v.field.style.left = `${
+          (placeholderPosition?.left ?? 0) -
+          (parentPosition?.left ?? 0) +
+          (this.element?.offsetLeft ?? 0)
+        }px`;
+      }
+    });
+
+    if (fontSizeChanged) {
+      requestUpdate(this);
+    }
+  }
+
   canUndo(): boolean {
     return this.undoManager.canUndo();
   }
@@ -1228,7 +1286,15 @@ export class MathfieldPrivate implements Mathfield {
     this.keyboardDelegate!.setValue(
       this.getValue(this.model.selection, 'latex-expanded')
     );
-
+    const selectedAtoms = this.model.getAtoms(this.model.selection);
+    if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
+      const placeholder = selectedAtoms[0] as PlaceholderAtom;
+      if (this.model.mathfield._placeholders.has(placeholder.placeholderId!)) {
+        this.model.mathfield._placeholders
+          .get(placeholder.placeholderId!)
+          ?.field.focus();
+      }
+    }
     // Adjust mode
     {
       const cursor = this.model.at(this.model.position);

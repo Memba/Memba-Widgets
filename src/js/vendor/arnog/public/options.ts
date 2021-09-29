@@ -8,7 +8,7 @@ import {
 } from './core';
 import type { Mathfield, Range } from './mathfield';
 import type { Selector } from './commands';
-import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/math-json';
+import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
 /**
  * Specify behaviour for origin validation.
@@ -646,6 +646,7 @@ export interface MathfieldListeners {
   onCommit: (sender: Mathfield) => void;
   onModeChange: (sender: Mathfield, mode: ParseMode) => void;
   onReadAloudStatus: (sender: Mathfield) => void;
+  onPlaceholderDidChange: (sender: Mathfield, placeholderId: string) => void;
 }
 
 export type KeyboardOptions = {

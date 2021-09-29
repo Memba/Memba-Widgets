@@ -3873,6 +3873,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       'placeholder',
       'supsub',
       'none',
+      'mathfield',
   ]; // The const assertion prevents widening to string[]
   function isBoxType(type) {
       return BOX_TYPE.includes(type);
@@ -5331,6 +5332,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return isBrowser() && typeof navigator.vibrate === 'function';
   }
   function osPlatform() {
+      if (!isBrowser()) {
+          return 'other';
+      }
       const platform = navigator.platform;
       if (/^(mac)/i.test(platform)) {
           // WebKit on iPad OS 14 looks like macOS.
@@ -6308,6 +6312,62 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return result;
   }
 
+  class MathfieldBox extends Box {
+      constructor(placeholderId, element, options) {
+          super(null, options);
+          this.placeholderId = placeholderId;
+          this.element = element;
+          this.htmlData = `placeholder-id=${placeholderId}`;
+          this.height =
+              element.style.fontSize === ''
+                  ? 1
+                  : (element.clientHeight / parseInt(element.style.fontSize)) * 0.6;
+      }
+      toMarkup() {
+          let props = '';
+          const classes = this.classes.split(' ');
+          const classList = classes.length === 1
+              ? classes[0]
+              : classes
+                  .filter((x, e, a) => x.length > 0 && a.indexOf(x) === e)
+                  .join(' ');
+          if (this.cssId) {
+              // A (HTML5) CSS id may not contain a space
+              props += ` id=${this.cssId.replace(/ /g, '-')} `;
+          }
+          if (this.htmlData) {
+              const entries = this.htmlData.split(',');
+              for (const entry of entries) {
+                  const matched = entry.match(/([^=]+)=(.+$)/);
+                  if (matched) {
+                      const key = matched[1].trim().replace(/ /g, '-');
+                      if (key) {
+                          props += ` data-${key}=${matched[2]} `;
+                      }
+                  }
+                  else {
+                      const key = entry.trim().replace(/ /g, '-');
+                      if (key) {
+                          props += ` data-${key} `;
+                      }
+                  }
+              }
+          }
+          if (this.attributes) {
+              props +=
+                  ' ' +
+                      Object.keys(this.attributes)
+                          .map((x) => `${x}="${this.attributes[x]}"`)
+                          .join(' ');
+          }
+          if (classList.length > 0) {
+              props += ` class="${classList}"`;
+          }
+          props += ` style="display: inline-block; width:${this.element.clientWidth}px; height:${this.element.clientHeight}px; "`;
+          return `<span ${props}></span>`;
+      }
+  }
+
   /**
    * The order of these branches specify the keyboard navigation order
    */
@@ -7108,6 +7168,48 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               this.id = context.makeID();
           box.atomID = this.id;
           return box;
+      }
+      /**
+       * Create a box with the specified body.
+       */
+      createMathfieldBox(context, options) {
+          var _a;
+          // Ensure that the atom type is a valid Box type
+          const type = 'mathfield';
+          // The font family is determined by:
+          // - the base font family associated with this atom (optional). For example,
+          // some atoms such as some functions ('\sin', '\cos', etc...) or some
+          // symbols ('\Z') have an explicit font family. This overrides any
+          // other font family
+          // - the user-specified font family that has been explicitly applied to
+          // this atom
+          // - the font family determined automatically in math mode, for example
+          // which italicizes some characters, but which can be overridden
+          const classes = (_a = options === null || options === void 0 ? void 0 : options.classes) !== null && _a !== void 0 ? _a : '';
+          const result = new MathfieldBox(options.placeholderId, options.element, {
+              type,
+              mode: this.mode,
+              maxFontSize: context.scalingFactor,
+              style: {
+                  variant: 'normal',
+                  ...this.style,
+                  letterShapeStyle: context.letterShapeStyle,
+                  fontSize: Math.max(1, context.size + context.mathstyle.sizeDelta),
+              },
+              classes,
+              newList: options === null || options === void 0 ? void 0 : options.newList,
+          });
+          // Set other attributes
+          if (context.isTight)
+              result.isTight = true;
+          // The italic correction applies only in math mode
+          if (this.mode !== 'math')
+              result.italic = 0;
+          result.right = result.italic; // Italic correction
+          // To retrieve the atom from a box, for example when the box is clicked
+          // on, attach a unique ID to the box and associate it with the atom.
+          this.bind(context, result);
+          return result;
       }
       /**
        * Create a box with the specified body.
@@ -8252,10 +8354,12 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           });
           this.captureSelection = true;
           this.value = '⬚';
+          this.placeholderId = options === null || options === void 0 ? void 0 : options.placeholderId;
+          this.defaultValue = options === null || options === void 0 ? void 0 : options.default;
       }
       render(context) {
           if (typeof context.renderPlaceholder === 'function') {
-              return context.renderPlaceholder(context);
+              return context.renderPlaceholder(context, this);
           }
           return this.createBox(context, {
               classes: this.caret ? 'ML__placeholder-selected' : '',
@@ -8263,7 +8367,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       serialize(_options) {
           var _a;
-          return `\\placeholder{${(_a = this.value) !== null && _a !== void 0 ? _a : ''}}`;
+          const id = this.placeholderId ? `[${this.placeholderId}]` : '';
+          const defaultValue = this.defaultValue
+              ? `[${Atom.serialize(this.defaultValue, _options)}]`
+              : '';
+          return `\\placeholder${id}${defaultValue}{${(_a = this.value) !== null && _a !== void 0 ? _a : ''}}`;
       }
   }
 
@@ -9602,13 +9710,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           var _a, _b, _c, _d, _e, _f;
           let result = null;
           if (command === '\\placeholder') {
-              return [
-                  new PlaceholderAtom({
-                      mode: this.parseMode,
-                      value: (_a = this.parseArgument('string')) !== null && _a !== void 0 ? _a : undefined,
-                      style: this.style,
-                  }),
-              ];
+              const placeholder = new PlaceholderAtom({
+                  mode: this.parseMode,
+                  placeholderId: this.parseOptionalArgument('string'),
+                  default: this.parseOptionalArgument('math'),
+                  value: (_a = this.parseArgument('string')) !== null && _a !== void 0 ? _a : undefined,
+                  style: this.style,
+              });
+              return [placeholder];
           }
           if (command === '\\char') {
               // \char has a special syntax and requires a non-braced integer
@@ -9949,8 +10058,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // 1. Build the base atom
           //
           const base = (_a = Atom.createBox(context, this.body)) !== null && _a !== void 0 ? _a : new Box(null);
-          if (!this.accent)
-              return base;
           //
           // 2. Skew
           //
@@ -9978,7 +10085,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               accentBox = makeSVGBox(this.svgAccent);
               clearance = context.metrics.bigOpSpacing1 - clearance;
           }
-          else {
+          else if (this.accent) {
               // Build the accent
               const accent = new Box(this.accent, { fontFamily: 'Main-Regular' });
               // Remove the italic correction of the accent, because it only serves to
@@ -16548,7 +16655,113 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       };
   }
 
-  var css_248z$4 = ".ML__sr-only{clip:rect(0,0,0,0);border:0;height:1px;overflow:hidden;padding:0;position:absolute;white-space:nowrap;width:1px}.ML__base,.ML__isInline{display:inline-block}.ML__base{border:0;box-sizing:content-box;cursor:text;font-family:inherit;font-style:inherit;font-weight:inherit;margin:0;outline:0;padding:0;position:relative;text-decoration:none;vertical-align:baseline;visibility:inherit;width:-webkit-min-content;width:-moz-min-content;width:min-content}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-style:italic;font-weight:700}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{background:#edd1b0;color:#007cb2}.ML__center{text-align:center}.ML__frac-line{min-height:1px;width:100%}.ML__frac-line:after{background:currentColor;box-sizing:content-box;content:\"\";display:block;margin-top:-.04em;min-height:.04em;transform:translate(0)}.ML__sqrt,.ML__sqrt-sign{display:inline-block}.ML__sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__sqrt-line{display:inline-block;height:.04em;width:100%}.ML__sqrt-line:before{background:currentColor;content:\"\";display:block;margin-top:-.04em;min-height:.04em}.ML__sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__sqrt-index{margin-left:.27777778em;margin-right:-.55555556em}.ML__delim-size1{font-family:KaTeX_Size1}.ML__delim-size2{font-family:KaTeX_Size2}.ML__delim-size3{font-family:KaTeX_Size3}.ML__delim-size4{font-family:KaTeX_Size4}.ML__delim-mult .delim-size1>span{font-family:KaTeX_Size1}.ML__delim-mult .delim-size4>span{font-family:KaTeX_Size4}.ML__accent-body>span{font-family:KaTeX_Main;width:0}.ML__accent-vec>span{left:.38em;position:relative}.ML__mathlive{text-rendering:auto;word-wrap:normal;direction:ltr;display:inline-block;font-family:KaTeX_Main;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-caps:normal;letter-spacing:normal;text-align:left;text-indent:0;text-shadow:none;transform:translateZ(0);-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;width:-webkit-min-content;width:-moz-min-content;width:min-content;word-spacing:normal}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .left-right,.ML__mathlive .mfrac{display:inline-block}.ML__mathlive .vlist-t{border-collapse:collapse;display:inline-table;table-layout:fixed}.ML__mathlive .vlist-r{display:table-row}.ML__mathlive .vlist{display:table-cell;position:relative;vertical-align:bottom}.ML__mathlive .vlist>span{display:block;height:0;position:relative}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .vlist>span>.pstrut{overflow:hidden;width:0}.ML__mathlive .vlist-t2{margin-right:-2px}.ML__mathlive .vlist-s{display:table-cell;font-size:1px;min-width:2px;vertical-align:bottom;width:2px}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .negativethinspace{display:inline-block;margin-left:-.16667em}.ML__mathlive .thinspace{display:inline-block;width:.16667em}.ML__mathlive .mediumspace{display:inline-block;width:.22222em}.ML__mathlive .thickspace{display:inline-block;width:.27778em}.ML__mathlive .enspace{display:inline-block;width:.5em}.ML__mathlive .quad{display:inline-block;width:1em}.ML__mathlive .qquad{display:inline-block;width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{display:inline-block;position:relative;width:0}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{border:0 solid;box-sizing:border-box;display:inline-block;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block;margin-top:-1px;min-height:thin}.ML__mathlive .stretchy{display:block;left:0;overflow:hidden;position:absolute;width:100%}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:block;height:inherit;position:absolute;width:100%}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;overflow:hidden;position:absolute;width:50.2%}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;left:0;overflow:hidden;position:absolute;width:25.1%}.ML__mathlive .slice-2-of-3{display:inline-flex;left:25%;overflow:hidden;position:absolute;width:50%}.ML__mathlive .slice-3-of-3{display:inline-flex;overflow:hidden;position:absolute;right:0;width:25.1%}.ML__mathlive .slice-1-of-1{display:inline-flex;left:0;overflow:hidden;position:absolute;width:100%}.ML__mathlive .nulldelimiter{display:inline-block;width:.12em}.ML__mathlive .op-group{display:inline-block}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .mtable .vertical-separator{box-sizing:border-box;display:inline-block;min-width:1px}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist-t{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist-t{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-position:0 98%;background-repeat:repeat-x;background-size:3px 3px}.ML__composition{background:#fff1c2;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}@media (prefers-color-scheme:dark){.ML__composition{background:#69571c;color:#fff}}.ML__placeholder{color:var(--caret,hsl(var(--hue,212),40%,49%));font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;padding-left:.4ex;padding-right:.4ex}";
+  var css_248z$4 = ".ML__sr-only{clip:rect(0,0,0,0);border:0;height:1px;overflow:hidden;padding:0;position:absolute;white-space:nowrap;width:1px}.ML__base,.ML__isInline{display:inline-block}.ML__base{border:0;box-sizing:content-box;cursor:text;font-family:inherit;font-style:inherit;font-weight:inherit;margin:0;outline:0;padding:0;position:relative;text-decoration:none;vertical-align:baseline;visibility:inherit;width:min-content}body.ML__fonts-loading .ML__base{visibility:hidden}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Roboto\",\"Oxygen\",\"Ubuntu\",\"Cantarell\",\"Fira Sans\",\"Droid Sans\",\"Helvetica Neue\",sans-serif);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.lcGreek.ML__mathbf{font-family:KaTeX_Math;font-weight:400}.ML__mathbfit{font-family:KaTeX_Math;font-style:italic;font-weight:700}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold,.ML__boldsymbol{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{background:#edd1b0;color:#007cb2}.ML__center{text-align:center}.ML__frac-line{min-height:1px;width:100%}.ML__frac-line:after{background:currentColor;box-sizing:content-box;content:\"\";display:block;margin-top:-.04em;min-height:.04em;transform:translate(0)}.ML__sqrt,.ML__sqrt-sign{display:inline-block}.ML__sqrt-sign{font-family:KaTeX_Main;position:relative}.ML__sqrt-line{display:inline-block;height:.04em;width:100%}.ML__sqrt-line:before{background:currentColor;content:\"\";display:block;margin-top:-.04em;min-height:.04em}.ML__sqrt-line:after{border-bottom-width:1px;content:\" \";display:block;margin-top:-.1em;transform:translate(0)}.ML__sqrt-index{margin-left:.27777778em;margin-right:-.55555556em}.ML__delim-size1{font-family:KaTeX_Size1}.ML__delim-size2{font-family:KaTeX_Size2}.ML__delim-size3{font-family:KaTeX_Size3}.ML__delim-size4{font-family:KaTeX_Size4}.ML__delim-mult .delim-size1>span{font-family:KaTeX_Size1}.ML__delim-mult .delim-size4>span{font-family:KaTeX_Size4}.ML__accent-body>span{font-family:KaTeX_Main;width:0}.ML__accent-vec>span{left:.38em;position:relative}.ML__mathlive{text-rendering:auto;word-wrap:normal;direction:ltr;display:inline-block;font-family:KaTeX_Main;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-caps:normal;letter-spacing:normal;text-align:left;text-indent:0;text-shadow:none;transform:translateZ(0);-webkit-user-select:none;user-select:none;white-space:nowrap;width:min-content;word-spacing:normal}.ML__mathlive .style-wrap{position:relative}.ML__mathlive .left-right,.ML__mathlive .mfrac{display:inline-block}.ML__mathlive .vlist-t{border-collapse:collapse;display:inline-table;table-layout:fixed}.ML__mathlive .vlist-r{display:table-row}.ML__mathlive .vlist{display:table-cell;position:relative;vertical-align:bottom}.ML__mathlive .vlist>span{display:block;height:0;position:relative}.ML__mathlive .vlist>span>span{display:inline-block}.ML__mathlive .vlist>span>.pstrut{overflow:hidden;width:0}.ML__mathlive .vlist-t2{margin-right:-2px}.ML__mathlive .vlist-s{display:table-cell;font-size:1px;min-width:2px;vertical-align:bottom;width:2px}.ML__mathlive .msubsup{text-align:left}.ML__mathlive .negativethinspace{display:inline-block;margin-left:-.16667em}.ML__mathlive .thinspace{display:inline-block;width:.16667em}.ML__mathlive .mediumspace{display:inline-block;width:.22222em}.ML__mathlive .thickspace{display:inline-block;width:.27778em}.ML__mathlive .enspace{display:inline-block;width:.5em}.ML__mathlive .quad{display:inline-block;width:1em}.ML__mathlive .qquad{display:inline-block;width:2em}.ML__mathlive .llap,.ML__mathlive .rlap{display:inline-block;position:relative;width:0}.ML__mathlive .llap>.inner,.ML__mathlive .rlap>.inner{position:absolute}.ML__mathlive .llap>.fix,.ML__mathlive .rlap>.fix{display:inline-block}.ML__mathlive .llap>.inner{right:0}.ML__mathlive .rlap>.inner{left:0}.ML__mathlive .rule{border:0 solid;box-sizing:border-box;display:inline-block;position:relative}.ML__mathlive .overline .overline-line,.ML__mathlive .underline .underline-line{width:100%}.ML__mathlive .overline .overline-line:before,.ML__mathlive .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block}.ML__mathlive .overline .overline-line:after,.ML__mathlive .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:.04em;content:\"\";display:block;margin-top:-1px;min-height:thin}.ML__mathlive .stretchy{display:block;left:0;overflow:hidden;position:absolute;width:100%}.ML__mathlive .stretchy:after,.ML__mathlive .stretchy:before{content:\"\"}.ML__mathlive .stretchy svg{fill:currentColor;stroke:currentColor;fill-rule:nonzero;fill-opacity:1;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;display:block;height:inherit;position:absolute;width:100%}.ML__mathlive .slice-1-of-2{left:0}.ML__mathlive .slice-1-of-2,.ML__mathlive .slice-2-of-2{display:inline-flex;overflow:hidden;position:absolute;width:50.2%}.ML__mathlive .slice-2-of-2{right:0}.ML__mathlive .slice-1-of-3{display:inline-flex;left:0;overflow:hidden;position:absolute;width:25.1%}.ML__mathlive .slice-2-of-3{display:inline-flex;left:25%;overflow:hidden;position:absolute;width:50%}.ML__mathlive .slice-3-of-3{display:inline-flex;overflow:hidden;position:absolute;right:0;width:25.1%}.ML__mathlive .slice-1-of-1{display:inline-flex;left:0;overflow:hidden;position:absolute;width:100%}.ML__mathlive .nulldelimiter{display:inline-block;width:.12em}.ML__mathlive .op-group{display:inline-block}.ML__mathlive .op-symbol{position:relative}.ML__mathlive .op-symbol.small-op{font-family:KaTeX_Size1}.ML__mathlive .op-symbol.large-op{font-family:KaTeX_Size2}.ML__mathlive .accent>.vlist>span{text-align:center}.ML__mathlive .mtable .vertical-separator{box-sizing:border-box;display:inline-block;min-width:1px}.ML__mathlive .mtable .arraycolsep{display:inline-block}.ML__mathlive .mtable .col-align-m>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-c>.vlist-t{text-align:center}.ML__mathlive .mtable .col-align-l>.vlist-t{text-align:left}.ML__mathlive .mtable .col-align-r>.vlist-t{text-align:right}.ML__error{background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-position:0 98%;background-repeat:repeat-x;background-size:3px 3px}.ML__composition{background:#fff1c2;color:#000;-webkit-text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%));text-decoration:underline var(--caret,hsl(var(--hue,212),40%,49%))}@media (prefers-color-scheme:dark){.ML__composition{background:#69571c;color:#fff}}.ML__placeholder{color:var(--caret,hsl(var(--hue,212),40%,49%));font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;padding-left:.4ex;padding-right:.4ex}.ML__placeholdercontainer{display:none}.ML__isReadOnly .ML__placeholdercontainer{display:block}";
+
+  /**
+   * Return an array of potential shortcuts
+   */
+  function getInlineShortcutsStartingWith(s, config) {
+      const result = [];
+      for (let i = 0; i <= s.length - 1; i++) {
+          const s2 = s.slice(Math.max(0, i));
+          for (const key of Object.keys(config.inlineShortcuts)) {
+              if (key.startsWith(s2) && !result.includes(key)) {
+                  result.push(key);
+              }
+          }
+      }
+      return result;
+  }
+  /**
+   *
+   * @param siblings atoms preceding this potential shortcut
+   */
+  function validateShortcut(siblings, shortcut) {
+      if (!shortcut)
+          return '';
+      // If it's a simple shortcut (no conditional), it's always valid
+      if (typeof shortcut === 'string')
+          return shortcut;
+      // If we have no context, we assume all the shortcuts are valid
+      if (!siblings)
+          return shortcut.value;
+      let nothing = false;
+      let letter = false;
+      let digit = false;
+      let isFunction = false;
+      let frac = false;
+      let surd = false;
+      let binop = false;
+      let relop = false;
+      let operator = false;
+      let punct = false;
+      let array = false;
+      let openfence = false;
+      let closefence = false;
+      let text = false;
+      let space = false;
+      let sibling = siblings[siblings.length - 1];
+      let index = siblings.length - 1;
+      while (sibling && /msubsup|placeholder/.test(sibling.type)) {
+          index -= 1;
+          sibling = siblings[index];
+      }
+      nothing = !sibling || sibling.type === 'first'; // Start of a group
+      if (sibling) {
+          if (shortcut.mode !== undefined && sibling.mode !== shortcut.mode) {
+              return '';
+          }
+          text = sibling.mode === 'text';
+          letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
+          digit = !text && sibling.type === 'mord' && /\d+$/.test(sibling.value);
+          isFunction = !text && sibling.isFunction;
+          frac = sibling.type === 'genfrac';
+          surd = sibling.type === 'surd';
+          binop = sibling.type === 'mbin';
+          relop = sibling.type === 'mrel';
+          operator = sibling.type === 'mop';
+          punct = sibling.type === 'mpunct' || sibling.type === 'minner';
+          array = sibling.type === 'array';
+          openfence = sibling.type === 'mopen';
+          closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
+          space = sibling.type === 'space';
+      }
+      if (shortcut.after !== undefined) {
+          // If this is a conditional shortcut, consider the conditions now
+          if ((shortcut.after.includes('nothing') && nothing) ||
+              (shortcut.after.includes('letter') && letter) ||
+              (shortcut.after.includes('digit') && digit) ||
+              (shortcut.after.includes('function') && isFunction) ||
+              (shortcut.after.includes('frac') && frac) ||
+              (shortcut.after.includes('surd') && surd) ||
+              (shortcut.after.includes('binop') && binop) ||
+              (shortcut.after.includes('relop') && relop) ||
+              (shortcut.after.includes('operator') && operator) ||
+              (shortcut.after.includes('punct') && punct) ||
+              (shortcut.after.includes('array') && array) ||
+              (shortcut.after.includes('openfence') && openfence) ||
+              (shortcut.after.includes('closefence') && closefence) ||
+              (shortcut.after.includes('text') && text) ||
+              (shortcut.after.includes('space') && space)) {
+              return shortcut.value;
+          }
+          return '';
+      }
+      return shortcut.value;
+  }
+  /**
+   *
+   * @param context - atoms preceding the candidate, potentially used
+   * to reduce which shortcuts are applicable. If 'null', no restrictions are
+   * applied.
+   * @param s - candidate inline shortcuts (e.g. `'pi'`)
+   * @return A replacement string matching the shortcut (e.g. `'\pi'`)
+   */
+  function getInlineShortcut(context, s, shortcuts) {
+      if (!shortcuts)
+          return '';
+      return validateShortcut(context, shortcuts[s]);
+  }
 
   /**
    * These shortcut strings are replaced with the corresponding LaTeX expression
@@ -16961,121 +17174,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   };
 
   /**
-   * Return an array of potential shortcuts
-   */
-  function getInlineShortcutsStartingWith(s, config) {
-      const result = [];
-      for (let i = 0; i <= s.length - 1; i++) {
-          const s2 = s.slice(Math.max(0, i));
-          for (const key of Object.keys(INLINE_SHORTCUTS)) {
-              if (key.startsWith(s2) && !result.includes(key)) {
-                  result.push(key);
-              }
-          }
-          const customInlineShortcuts = (config === null || config === void 0 ? void 0 : config.inlineShortcuts)
-              ? config.inlineShortcuts
-              : null;
-          if (customInlineShortcuts) {
-              for (const key of Object.keys(customInlineShortcuts)) {
-                  if (key.startsWith(s2)) {
-                      result.push(key);
-                  }
-              }
-          }
-      }
-      return result;
-  }
-  /**
-   *
-   * @param siblings atoms preceding this potential shortcut
-   */
-  function validateShortcut(siblings, shortcut) {
-      if (!shortcut)
-          return '';
-      // If it's a simple shortcut (no conditional), it's always valid
-      if (typeof shortcut === 'string')
-          return shortcut;
-      // If we have no context, we assume all the shortcuts are valid
-      if (!siblings)
-          return shortcut.value;
-      let nothing = false;
-      let letter = false;
-      let digit = false;
-      let isFunction = false;
-      let frac = false;
-      let surd = false;
-      let binop = false;
-      let relop = false;
-      let operator = false;
-      let punct = false;
-      let array = false;
-      let openfence = false;
-      let closefence = false;
-      let text = false;
-      let space = false;
-      let sibling = siblings[siblings.length - 1];
-      let index = siblings.length - 1;
-      while (sibling && /msubsup|placeholder/.test(sibling.type)) {
-          index -= 1;
-          sibling = siblings[index];
-      }
-      nothing = !sibling || sibling.type === 'first'; // Start of a group
-      if (sibling) {
-          if (shortcut.mode !== undefined && sibling.mode !== shortcut.mode) {
-              return '';
-          }
-          text = sibling.mode === 'text';
-          letter = !text && sibling.type === 'mord' && LETTER.test(sibling.value);
-          digit = !text && sibling.type === 'mord' && /\d+$/.test(sibling.value);
-          isFunction = !text && sibling.isFunction;
-          frac = sibling.type === 'genfrac';
-          surd = sibling.type === 'surd';
-          binop = sibling.type === 'mbin';
-          relop = sibling.type === 'mrel';
-          operator = sibling.type === 'mop';
-          punct = sibling.type === 'mpunct' || sibling.type === 'minner';
-          array = sibling.type === 'array';
-          openfence = sibling.type === 'mopen';
-          closefence = sibling.type === 'mclose' || sibling.type === 'leftright';
-          space = sibling.type === 'space';
-      }
-      if (shortcut.after !== undefined) {
-          // If this is a conditional shortcut, consider the conditions now
-          if ((shortcut.after.includes('nothing') && nothing) ||
-              (shortcut.after.includes('letter') && letter) ||
-              (shortcut.after.includes('digit') && digit) ||
-              (shortcut.after.includes('function') && isFunction) ||
-              (shortcut.after.includes('frac') && frac) ||
-              (shortcut.after.includes('surd') && surd) ||
-              (shortcut.after.includes('binop') && binop) ||
-              (shortcut.after.includes('relop') && relop) ||
-              (shortcut.after.includes('operator') && operator) ||
-              (shortcut.after.includes('punct') && punct) ||
-              (shortcut.after.includes('array') && array) ||
-              (shortcut.after.includes('openfence') && openfence) ||
-              (shortcut.after.includes('closefence') && closefence) ||
-              (shortcut.after.includes('text') && text) ||
-              (shortcut.after.includes('space') && space)) {
-              return shortcut.value;
-          }
-          return '';
-      }
-      return shortcut.value;
-  }
-  /**
-   *
-   * @param context - atoms preceding the candidate, potentially used
-   * to reduce which shortcuts are applicable. If 'null', no restrictions are
-   * applied.
-   * @param s - candidate inline shortcuts (e.g. `'pi'`)
-   * @return A replacement string matching the shortcut (e.g. `'\pi'`)
-   */
-  function getInlineShortcut(context, s, shortcuts) {
-      var _a;
-      return validateShortcut(context, (_a = shortcuts === null || shortcuts === void 0 ? void 0 : shortcuts[s]) !== null && _a !== void 0 ? _a : INLINE_SHORTCUTS[s]);
-  }
-
-  /**
    * Attempts to parse and interpret a string in an unknown format, possibly
    * ASCIIMath and return a canonical LaTeX string.
    *
@@ -17120,20 +17218,21 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       s = s.replace(/([^\\])sinx/g, '$1\\sin x'); // Common typo
       s = s.replace(/([^\\])cosx/g, '$1\\cos x '); // Common typo
       s = s.replace(/\u2013/g, '-'); // EN-DASH, sometimes used as a minus sign
-      return [format, parseMathExpression(s, { ...(options !== null && options !== void 0 ? options : {}), format })];
+      return [
+          format,
+          parseMathExpression(s, { inlineShortcuts: options === null || options === void 0 ? void 0 : options.inlineShortcuts }),
+      ];
   }
   function parseMathExpression(s, options) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+      var _a, _b, _c;
       if (!s)
           return '';
       let done = false;
       let m;
+      const inlineShortcuts = (_a = options.inlineShortcuts) !== null && _a !== void 0 ? _a : INLINE_SHORTCUTS;
       if (!done && (s.startsWith('^') || s.startsWith('_'))) {
           // Superscript and subscript
-          m = parseMathArgument(s.slice(1), {
-              inlineShortcuts: (_a = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _a !== void 0 ? _a : {},
-              noWrap: true,
-          });
+          m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
           s = s[0] + '{' + m.match + '}';
           s += parseMathExpression(m.rest, options);
           done = true;
@@ -17142,11 +17241,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           m = s.match(/^(sqrt|\u221A)(.*)/);
           if (m) {
               // Square root
-              m = parseMathArgument(m[2], {
-                  inlineShortcuts: (_b = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _b !== void 0 ? _b : {},
-                  noWrap: true,
-              });
-              const sqrtArgument = (_c = m.match) !== null && _c !== void 0 ? _c : '\\placeholder{}';
+              m = parseMathArgument(m[2], { inlineShortcuts, noWrap: true });
+              const sqrtArgument = (_b = m.match) !== null && _b !== void 0 ? _b : '\\placeholder{}';
               s = '\\sqrt{' + sqrtArgument + '}';
               s += parseMathExpression(m.rest, options);
               done = true;
@@ -17156,11 +17252,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           m = s.match(/^(\\cbrt|\u221B)(.*)/);
           if (m) {
               // Cube root
-              m = parseMathArgument(m[2], {
-                  inlineShortcuts: (_d = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _d !== void 0 ? _d : {},
-                  noWrap: true,
-              });
-              const sqrtArgument = (_e = m.match) !== null && _e !== void 0 ? _e : '\\placeholder{}';
+              m = parseMathArgument(m[2], { inlineShortcuts, noWrap: true });
+              const sqrtArgument = (_c = m.match) !== null && _c !== void 0 ? _c : '\\placeholder{}';
               s = '\\sqrt[3]{' + sqrtArgument + '}';
               s += parseMathExpression(m.rest, options);
               done = true;
@@ -17170,10 +17263,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           m = s.match(/^abs(.*)/);
           if (m) {
               // Absolute value
-              m = parseMathArgument(m[1], {
-                  inlineShortcuts: (_f = options === null || options === void 0 ? void 0 : options.inlineShortcuts) !== null && _f !== void 0 ? _f : {},
-                  noWrap: true,
-              });
+              m = parseMathArgument(m[1], { inlineShortcuts, noWrap: true });
               s = '\\left|' + m.match + '\\right|';
               s += parseMathExpression(m.rest, options);
               done = true;
@@ -17193,17 +17283,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // A string of symbols...
           // Could be a binary or relational operator, etc...
           if (m) {
-              s = paddedShortcut(m[1], options);
+              s = paddedShortcut(m[1], inlineShortcuts);
               s += parseMathExpression(m[2], options);
               done = true;
           }
       }
       if (!done && /^([fgh])[^a-zA-Z]/.test(s)) {
           // This could be a function...
-          m = parseMathArgument(s.slice(1), {
-              inlineShortcuts: (_g = options.inlineShortcuts) !== null && _g !== void 0 ? _g : {},
-              noWrap: true,
-          });
+          m = parseMathArgument(s.slice(1), { inlineShortcuts, noWrap: true });
           s =
               s[1] === '(' ? s[0] + '\\mleft(' + m.match + '\\mright)' : s[0] + m.match;
           s += parseMathExpression(m.rest, options);
@@ -17214,20 +17301,17 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           if (m) {
               // Some alphabetical string...
               // Could be a function name (sin) or symbol name (alpha)
-              s = paddedShortcut(m[1], options);
+              s = paddedShortcut(m[1], inlineShortcuts);
               s += parseMathExpression(m[2], options);
               done = true;
           }
       }
       if (!done) {
-          m = parseMathArgument(s, {
-              inlineShortcuts: (_h = options.inlineShortcuts) !== null && _h !== void 0 ? _h : {},
-              noWrap: true,
-          });
+          m = parseMathArgument(s, { inlineShortcuts, noWrap: true });
           if (m.match && m.rest[0] === '/') {
               // Fraction
               const m2 = parseMathArgument(m.rest.slice(1), {
-                  inlineShortcuts: (_j = options.inlineShortcuts) !== null && _j !== void 0 ? _j : {},
+                  inlineShortcuts,
                   noWrap: true,
               });
               if (m2.match) {
@@ -17346,8 +17430,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       return { match, rest };
   }
-  function paddedShortcut(s, options) {
-      let result = getInlineShortcut(null, s, options);
+  function paddedShortcut(s, shortcuts) {
+      let result = getInlineShortcut(null, s, shortcuts);
       if (result) {
           result = result.replace('_{#?}', '');
           result = result.replace('^{#?}', '');
@@ -17966,7 +18050,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       {
           key: 'ctrl+[Digit2]',
           ifMode: 'math',
-          command: ['insert', '$$\\sqrt{#0}$$'],
+          command: ['insert', '\\sqrt{#0}'],
       },
       { key: 'ctrl+[Digit5]', ifMode: 'math', command: 'moveToOpposite' },
       { key: 'ctrl+[Digit6]', ifMode: 'math', command: 'moveToSuperscript' },
@@ -17979,51 +18063,51 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // shift+ctrl++ or ctrl+numpad+
       // ctrl+- to delete a row or columns
       // MATHLIVE BINDINGS
-      // { key: 'alt+a', command: ['insert', '$$\\theta$$'] },
-      { key: 'alt+p', ifMode: 'math', command: ['insert', '$$\\pi$$'] },
-      { key: 'alt+v', ifMode: 'math', command: ['insert', '$$\\sqrt{#0}$$'] },
+      // { key: 'alt+a', command: ['insert', '\\theta'] },
+      { key: 'alt+p', ifMode: 'math', command: ['insert', '\\pi'] },
+      { key: 'alt+v', ifMode: 'math', command: ['insert', '\\sqrt{#0}'] },
       {
           key: 'alt+w',
           ifMode: 'math',
-          command: ['insert', '$$\\sum_{i=#?}^{#?}$$'],
+          command: ['insert', '\\sum_{i=#?}^{#?}'],
       },
-      { key: 'alt+b', command: ['insert', '$$\\int_{#?}^{#?}$$'] },
-      { key: 'alt+u', ifMode: 'math', command: ['insert', '$$\\cup$$'] },
-      { key: 'alt+n', ifMode: 'math', command: ['insert', '$$\\cap$$'] },
-      { key: 'alt+o', ifMode: 'math', command: ['insert', '$$\\emptyset$$'] },
+      { key: 'alt+b', command: ['insert', '\\int_{#?}^{#?}'] },
+      { key: 'alt+u', ifMode: 'math', command: ['insert', '\\cup'] },
+      { key: 'alt+n', ifMode: 'math', command: ['insert', '\\cap'] },
+      { key: 'alt+o', ifMode: 'math', command: ['insert', '\\emptyset'] },
       {
           key: 'alt+d',
           ifMode: 'math',
-          command: ['insert', '$$\\differentialD$$'],
+          command: ['insert', '\\differentialD'],
       },
       {
           key: 'shift+alt+o',
           ifMode: 'math',
-          command: ['insert', '$$\\varnothing$$'],
+          command: ['insert', '\\varnothing'],
       },
       {
           key: 'shift+alt+d',
           ifMode: 'math',
-          command: ['insert', '$$\\partial$$'],
+          command: ['insert', '\\partial'],
       },
       {
           key: 'shift+alt+p',
           ifMode: 'math',
-          command: ['insert', '$$\\prod_{i=#?}^{#?}$$'],
+          command: ['insert', '\\prod_{i=#?}^{#?}'],
       },
-      { key: 'shift+alt+u', ifMode: 'math', command: ['insert', '$$\\bigcup$$'] },
-      { key: 'shift+alt+n', ifMode: 'math', command: ['insert', '$$\\bigcap$$'] },
-      { key: 'shift+alt+a', ifMode: 'math', command: ['insert', '$$\\forall$$'] },
-      { key: 'shift+alt+e', ifMode: 'math', command: ['insert', '$$\\exists$$'] },
+      { key: 'shift+alt+u', ifMode: 'math', command: ['insert', '\\bigcup'] },
+      { key: 'shift+alt+n', ifMode: 'math', command: ['insert', '\\bigcap'] },
+      { key: 'shift+alt+a', ifMode: 'math', command: ['insert', '\\forall'] },
+      { key: 'shift+alt+e', ifMode: 'math', command: ['insert', '\\exists'] },
       {
           key: 'alt+[Backslash]',
           ifMode: 'math',
-          command: ['insert', '$$\\backslash$$'],
+          command: ['insert', '\\backslash'],
       },
       {
           key: '[NumpadDivide]',
           ifMode: 'math',
-          command: ['insert', '$$\\frac{#@}{#?}$$'],
+          command: ['insert', '\\frac{#@}{#?}'],
       },
       {
           key: 'alt+[NumpadDivide]',
@@ -18082,19 +18166,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       {
           key: '/',
           ifMode: 'math',
-          command: ['insert', '$$\\frac{#@}{#?}$$'],
+          command: ['insert', '\\frac{#@}{#?}'],
       },
       {
           key: 'alt+/',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$$\\/$$'],
+          command: ['insert', '\\/'],
       },
       {
           key: 'alt+[BracketLeft]',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$$\\left\\lbrack #0 \\right\\rbrack$$'],
+          command: ['insert', '\\left\\lbrack #0 \\right\\rbrack'],
       },
       {
           key: 'ctrl+[Minus]',
@@ -18106,7 +18190,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           key: 'shift+alt+[BracketLeft]',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$$\\left\\lbrace #0 \\right\\rbrace$$'],
+          command: ['insert', '\\left\\lbrace #0 \\right\\rbrace'],
       },
       {
           key: 'ctrl+;',
@@ -18160,19 +18244,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           key: 'alt+[Digit5]',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$\\infty$$'],
+          command: ['insert', '$\\infty'],
       },
       {
           key: 'alt+[Digit6]',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$$\\wedge$$'],
+          command: ['insert', '\\wedge'],
       },
       {
           key: 'shift+alt+[Digit6]',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$$\\vee$$'],
+          command: ['insert', '\\vee'],
       },
       {
           key: 'alt+[Digit9]',
@@ -18196,7 +18280,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           key: 'shift+[Backquote]',
           ifLayout: ['apple.en-intl', 'windows.en-intl', 'linux.en'],
           ifMode: 'math',
-          command: ['insert', '$$\\~$$'],
+          command: ['insert', '\\~'],
       }, // ??
   ];
   /**
@@ -19327,7 +19411,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    * @param p The platform to test against.
    */
   function matchPlatform(p) {
-      if ((navigator === null || navigator === void 0 ? void 0 : navigator.platform) && (navigator === null || navigator === void 0 ? void 0 : navigator.userAgent)) {
+      if (isBrowser() && navigator.platform && navigator.userAgent) {
           const plat = osPlatform();
           const isNeg = p.startsWith('!');
           const isMatch = p.endsWith(plat);
@@ -19336,7 +19420,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           if (!isNeg && isMatch)
               return true;
       }
-      return false;
+      if (p === '!other')
+          return false;
+      return p === 'other';
   }
   /**
    * Return the selector matching the keystroke.
@@ -19896,7 +19982,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       MATH_SYMBOLS,
       TEXT_SYMBOLS,
       ENVIRONMENTS,
-      INLINE_SHORTCUTS,
       DEFAULT_KEYBINDINGS,
       getKeybindingMarkup,
   };
@@ -22256,6 +22341,47 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'الإعادة',
           'tooltip.toggle virtual keyboard': 'تبديل لوحة المفاتيح الإفتراضية',
           'tooltip.undo': 'إلغاء',
+          'menu.insert matrix': 'أدخل المصفوفة',
+          'menu.insert vector': 'أدخل متجه',
+          'submenu.array.matrix delimiters': 'محددات المصفوفة',
+          'menu.array.add row above': 'أضف صفًا بعد ذلك',
+          'menu.array.add row below': 'أضف الصف قبل',
+          'menu.array.add column after': 'أضف العمود بعد ذلك',
+          'menu.array.add column before': 'أضف العمود قبل',
+          'menu.array.delete row': 'احذف صف',
+          'menu.array.delete rows': 'حذف الصفوف المحددة',
+          'menu.array.delete column': 'حذف العمود',
+          'menu.array.delete columns': 'حذف الأعمدة المحددة',
+          'submenu.array.insert separator': 'أدخل فاصل',
+          'menu.insert table': 'إدراج جدول',
+          'submenu.table style': 'نمط الجدول',
+      },
+      //Bulgarian
+      bg: {
+          'keyboard.tooltip.functions': 'Функции',
+          'keyboard.tooltip.symbols': 'Символи',
+          'keyboard.tooltip.greek': 'Гръцки букви',
+          'keyboard.tooltip.command': 'Команден режим на латекс',
+          'keyboard.tooltip.numeric': 'Числови',
+          'keyboard.tooltip.roman': 'Римски букви',
+          'tooltip.copy to clipboard': 'Копиране в клипборда',
+          'tooltip.redo': 'Повторно',
+          'tooltip.toggle virtual keyboard': 'Превключване на виртуална клавиатура',
+          'tooltip.undo': 'Отмяна',
+          'menu.insert matrix': 'Вмъкване на матрица',
+          'menu.insert vector': 'Вмъкване на вектор',
+          'submenu.array.matrix delimiters': 'Матрични разделители',
+          'menu.array.add row above': 'Добавяне на ред след',
+          'menu.array.add row below': 'Добавяне на ред преди',
+          'menu.array.add column after': 'Добавяне на колона след',
+          'menu.array.add column before': 'Добавяне на колона преди',
+          'menu.array.delete row': 'Изтриване на реда',
+          'menu.array.delete rows': 'Изтриване на избраните редове',
+          'menu.array.delete column': 'Изтриване на колона',
+          'menu.array.delete columns': 'Изтриване на избраните колони',
+          'submenu.array.insert separator': 'Поставете разделител',
+          'menu.insert table': 'Вмъкване на таблица',
+          'submenu.table style': 'Табличен стил',
       },
       // Bosnian
       bs: {
@@ -22269,6 +22395,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Ponovi',
           'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
           'tooltip.undo': 'Poništi',
+          'menu.insert matrix': 'Umetni matricu',
+          'menu.insert vector': 'Umetni vektor',
+          'submenu.array.matrix delimiters': 'Matrični razdjelnici',
+          'menu.array.add row above': 'Dodaj redak nakon',
+          'menu.array.add row below': 'Dodaj red prije',
+          'menu.array.add column after': 'Dodaj stupac nakon',
+          'menu.array.add column before': 'Dodaj stupac prije',
+          'menu.array.delete row': 'Izbriši red',
+          'menu.array.delete rows': 'Izbriši odabrane redove',
+          'menu.array.delete column': 'Izbriši stupac',
+          'menu.array.delete columns': 'Izbriši odabrane stupce',
+          'submenu.array.insert separator': 'Umetni separator',
+          'menu.insert table': 'Ubaci tabelu',
+          'submenu.table style': 'Stil tabele',
       },
       // Czech
       cs: {
@@ -22282,6 +22422,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Předělat',
           'tooltip.toggle virtual keyboard': 'Přepnout virtuální klávesnici',
           'tooltip.undo': 'Vrátit',
+          'menu.insert matrix': 'Vložte matici',
+          'menu.insert vector': 'Vložit vektor',
+          'submenu.array.matrix delimiters': 'Oddělovače matic',
+          'menu.array.add row above': 'Přidat řádek za',
+          'menu.array.add row below': 'Přidat řádek před',
+          'menu.array.add column after': 'Přidat sloupec za',
+          'menu.array.add column before': 'Přidat sloupec dříve',
+          'menu.array.delete row': 'Odstranit řádek',
+          'menu.array.delete rows': 'Odstranit vybrané řádky',
+          'menu.array.delete column': 'Odstranit sloupec',
+          'menu.array.delete columns': 'Odstranit vybrané sloupce',
+          'submenu.array.insert separator': 'Vložte oddělovač',
+          'menu.insert table': 'Vložit tabulku',
+          'submenu.table style': 'Styl tabulky',
       },
       // Dannish
       da: {
@@ -22295,6 +22449,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Gentag igen',
           'tooltip.toggle virtual keyboard': 'Skift virtuelt tastatur',
           'tooltip.undo': 'Fortryd',
+          'menu.insert matrix': 'Indsæt matrix',
+          'menu.insert vector': 'Indsæt vektor',
+          'submenu.array.matrix delimiters': 'Matrixafgrænsere',
+          'menu.array.add row above': 'Tilføj række efter',
+          'menu.array.add row below': 'Tilføj række før',
+          'menu.array.add column after': 'Tilføj kolonne efter',
+          'menu.array.add column before': 'Tilføj kolonne før',
+          'menu.array.delete row': 'Slet række',
+          'menu.array.delete rows': 'Slet valgte rækker',
+          'menu.array.delete column': 'Slet kolonne',
+          'menu.array.delete columns': 'Slet valgte kolonner',
+          'submenu.array.insert separator': 'Indsæt separator',
+          'menu.insert table': 'Indsæt tabel',
+          'submenu.table style': 'Tabelstil',
       },
       // German
       de: {
@@ -22308,6 +22476,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Wiederholen',
           'tooltip.toggle virtual keyboard': 'Virtuelle Tastatur umschalten',
           'tooltip.undo': 'Widerrufen',
+          'menu.insert matrix': 'Matrix einfügen',
+          'menu.insert vector': 'Vektor einfügen',
+          'submenu.array.matrix delimiters': 'Matrixtrennzeichen',
+          'menu.array.add row above': 'Zeile hinzufügen nach',
+          'menu.array.add row below': 'Zeile hinzufügen vor',
+          'menu.array.add column after': 'Spalte hinzufügen nach',
+          'menu.array.add column before': 'Spalte hinzufügen vor',
+          'menu.array.delete row': 'Zeile löschen',
+          'menu.array.delete rows': 'Ausgewählte Zeilen löschen',
+          'menu.array.delete column': 'Spalte löschen',
+          'menu.array.delete columns': 'Ausgewählte Spalten löschen',
+          'submenu.array.insert separator': 'Trennzeichen einfügen',
+          'menu.insert table': 'Tabelle einfügen',
+          'submenu.table style': 'Tabellenstil',
       },
       // Greek
       el: {
@@ -22321,8 +22503,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Ξανακάνω',
           'tooltip.toggle virtual keyboard': 'Εναλλαγή εικονικού πληκτρολογίου',
           'tooltip.undo': 'Ξεκάνω',
+          'menu.insert matrix': 'Εισαγωγή Matrix',
+          'menu.insert vector': 'Εισαγωγή διανύσματος',
+          'submenu.array.matrix delimiters': 'Οριοθέτες Matrix',
+          'menu.array.add row above': 'Προσθήκη σειράς μετά',
+          'menu.array.add row below': 'Προσθήκη σειράς πριν',
+          'menu.array.add column after': 'Προσθήκη στήλης μετά',
+          'menu.array.add column before': 'Προσθήκη στήλης πριν',
+          'menu.array.delete row': 'Διαγραφή σειράς',
+          'menu.array.delete rows': 'Διαγραφή επιλεγμένων σειρών',
+          'menu.array.delete column': 'Διαγραφή στήλης',
+          'menu.array.delete columns': 'Διαγραφή επιλεγμένων στηλών',
+          'submenu.array.insert separator': 'Εισαγωγή διαχωριστικού',
+          'menu.insert table': 'Εισαγωγή πίνακα',
+          'submenu.table style': 'Στυλ πίνακα',
       },
-      //Spanish
+      // Spanish
       es: {
           'keyboard.tooltip.functions': 'Funciones',
           'keyboard.tooltip.symbols': 'Símbolos',
@@ -22361,6 +22557,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Tee uuesti',
           'tooltip.toggle virtual keyboard': 'Lülitage sisse virtuaalne klaviatuur',
           'tooltip.undo': 'Võta tagasi',
+          'menu.insert matrix': 'Sisesta maatriks',
+          'menu.insert vector': 'Sisesta vektor',
+          'submenu.array.matrix delimiters': 'Maatriksi eraldajad',
+          'menu.array.add row above': 'Lisa rida pärast',
+          'menu.array.add row below': 'Lisa rida enne',
+          'menu.array.add column after': 'Lisa veerg pärast',
+          'menu.array.add column before': 'Lisa veerg enne',
+          'menu.array.delete row': 'Kustuta rida',
+          'menu.array.delete rows': 'Kustuta valitud read',
+          'menu.array.delete column': 'Kustuta veerg',
+          'menu.array.delete columns': 'Kustuta valitud veerud',
+          'submenu.array.insert separator': 'Sisestage eraldaja',
+          'menu.insert table': 'Sisesta tabeli',
+          'submenu.table style': 'Tabeli stiilis',
       },
       // Farsi
       fa: {
@@ -22374,6 +22584,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'بازگشت به بعد',
           'tooltip.toggle virtual keyboard': 'نمایش/نهفتن کیبورد مجازی',
           'tooltip.undo': 'بازگشت به قبل',
+          'menu.insert matrix': 'ماتریس را وارد کنید',
+          'menu.insert vector': 'درج بردار',
+          'submenu.array.matrix delimiters': 'مرزهای ماتریس',
+          'menu.array.add row above': 'بعد از آن ردیف اضافه کنید',
+          'menu.array.add row below': 'ردیف را قبل اضافه کنید',
+          'menu.array.add column after': 'اضافه کردن ستون بعد',
+          'menu.array.add column before': 'ستون قبل را اضافه کنید',
+          'menu.array.delete row': 'ردیف را حذف کنید',
+          'menu.array.delete rows': 'ردیف های انتخاب شده را حذف کنید',
+          'menu.array.delete column': 'حذف ستون',
+          'menu.array.delete columns': 'ستون های انتخاب شده را حذف کنید',
+          'submenu.array.insert separator': 'درج جدا کننده',
+          'menu.insert table': 'قرار دادن جدول',
+          'submenu.table style': 'سبک میز',
       },
       // Finnish
       fi: {
@@ -22387,6 +22611,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Tee uudelleen',
           'tooltip.toggle virtual keyboard': 'Vaihda virtuaalinäppäimistö',
           'tooltip.undo': 'Kumoa',
+          'menu.insert matrix': 'Lisää matriisi',
+          'menu.insert vector': 'Lisää vektori',
+          'submenu.array.matrix delimiters': 'Matriisin erottimet',
+          'menu.array.add row above': 'Lisää rivi jälkeen',
+          'menu.array.add row below': 'Lisää rivi ennen',
+          'menu.array.add column after': 'Lisää sarake jälkeen',
+          'menu.array.add column before': 'Lisää sarake ennen',
+          'menu.array.delete row': 'Poista rivi',
+          'menu.array.delete rows': 'Poista valitut rivit',
+          'menu.array.delete column': 'Poista sarake',
+          'menu.array.delete columns': 'Poista valitut sarakkeet',
+          'submenu.array.insert separator': 'Aseta erotin',
+          'menu.insert table': 'Lisää taulukko',
+          'submenu.table style': 'Taulukon tyyli',
       },
       // French
       fr: {
@@ -22426,7 +22664,48 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.copy to clipboard': 'Cóipeáil chuig an Ghearrthaisce',
           'tooltip.redo': 'Athdhéan',
           'tooltip.toggle virtual keyboard': 'Méarchláir Fíorúil a Fháil',
-          'tooltip.undo': 'Undo',
+          'tooltip.undo': 'Cealaigh',
+          'menu.insert matrix': 'Cuir isteach Maitrís',
+          'menu.insert vector': 'Cuir isteach Veicteoir',
+          'submenu.array.matrix delimiters': 'Delimiters Maitrís',
+          'menu.array.add row above': 'Cuir Rae Tar éis',
+          'menu.array.add row below': 'Cuir Rae Roimh',
+          'menu.array.add column after': 'Cuir Colún Tar éis',
+          'menu.array.add column before': 'Cuir Colún Roimh',
+          'menu.array.delete row': 'Scrios Rae',
+          'menu.array.delete rows': 'Scrios Sraitheanna Roghnaithe',
+          'menu.array.delete column': 'Scrios Colún',
+          'menu.array.delete columns': 'Scrios Colúin Roghnaithe',
+          'submenu.array.insert separator': 'Cuir Deighilteoir isteach',
+          'menu.insert table': 'Ionsáigh Tábla',
+          'submenu.table style': 'Stíl Tábla',
+      },
+      // Hebrew (Israel)
+      he: {
+          'keyboard.tooltip.functions': 'פונקציות',
+          'keyboard.tooltip.symbols': 'סמלים',
+          'keyboard.tooltip.greek': 'אותיות יווניות',
+          'keyboard.tooltip.command': 'מצב פקודה לטקס',
+          'keyboard.tooltip.numeric': 'מספרי',
+          'keyboard.tooltip.roman': 'מכתבים רומיים',
+          'tooltip.copy to clipboard': 'העתק ללוח',
+          'tooltip.redo': 'לַעֲשׂוֹת שׁוּב',
+          'tooltip.toggle virtual keyboard': 'החלף את המקלדת הווירטואלית',
+          'tooltip.undo': 'לבטל',
+          'menu.insert matrix': 'הכנס מטריקס',
+          'menu.insert vector': 'הכנס וקטור',
+          'submenu.array.matrix delimiters': 'מפרידי מטריקס',
+          'menu.array.add row above': 'הוסף שורה אחרי',
+          'menu.array.add row below': 'הוסף שורה לפני',
+          'menu.array.add column after': 'הוסף עמודה אחרי',
+          'menu.array.add column before': 'הוסף עמודה לפני',
+          'menu.array.delete row': 'מחק שורה',
+          'menu.array.delete rows': 'מחק שורות שנבחרו',
+          'menu.array.delete column': 'מחק עמודה',
+          'menu.array.delete columns': 'מחק עמודות שנבחרו',
+          'submenu.array.insert separator': 'הכנס מפריד',
+          'menu.insert table': 'הכנס טבלה',
+          'submenu.table style': 'טבלה סִגְנוֹן',
       },
       // Croatian
       hr: {
@@ -22440,6 +22719,101 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Ponovi',
           'tooltip.toggle virtual keyboard': 'Uključi / isključi virtualnu tipkovnicu',
           'tooltip.undo': 'Poništi',
+          'menu.insert matrix': 'Umetni matricu',
+          'menu.insert vector': 'Umetni vektor',
+          'submenu.array.matrix delimiters': 'Matrični razdjelnici',
+          'menu.array.add row above': 'Dodaj redak nakon',
+          'menu.array.add row below': 'Dodaj redak prije',
+          'menu.array.add column after': 'Dodaj stupac nakon',
+          'menu.array.add column before': 'Dodaj stupac prije',
+          'menu.array.delete row': 'Izbriši redak',
+          'menu.array.delete rows': 'Izbriši odabrane retke',
+          'menu.array.delete column': 'Izbriši stupac',
+          'menu.array.delete columns': 'Izbriši odabrane stupce',
+          'submenu.array.insert separator': 'Umetni separator',
+          'menu.insert table': 'Umetni tablicu',
+          'submenu.table style': 'Stil tabele',
+      },
+      /// Indonesian
+      id: {
+          'keyboard.tooltip.functions': 'Fungsi',
+          'keyboard.tooltip.symbols': 'Simbol',
+          'keyboard.tooltip.greek': 'Huruf Yunani',
+          'keyboard.tooltip.command': 'Mode Perintah LaTeX',
+          'keyboard.tooltip.numeric': 'Numerik',
+          'keyboard.tooltip.roman': 'Surat Romawi',
+          'tooltip.copy to clipboard': 'Menyalin ke clipboard',
+          'tooltip.redo': 'Mengulangi',
+          'tooltip.toggle virtual keyboard': 'Alihkan Keyboard Virtual',
+          'tooltip.undo': 'Membuka',
+          'menu.insert matrix': 'Sisipkan Matriks',
+          'menu.insert vector': 'Sisipkan Vektor',
+          'submenu.array.matrix delimiters': 'Pembatas Matriks',
+          'menu.array.add row above': 'Tambahkan Baris Setelah',
+          'menu.array.add row below': 'Tambahkan Baris Sebelumnya',
+          'menu.array.add column after': 'Tambahkan Kolom Setelah',
+          'menu.array.add column before': 'Tambahkan Kolom Sebelumnya',
+          'menu.array.delete row': 'Hapus Baris',
+          'menu.array.delete rows': 'Hapus Baris yang Dipilih',
+          'menu.array.delete column': 'Hapus Kolom',
+          'menu.array.delete columns': 'Hapus Kolom yang Dipilih',
+          'submenu.array.insert separator': 'Sisipkan Pemisah',
+          'menu.insert table': 'Sisipkan Tabel',
+          'submenu.table style': 'Gaya Tabel',
+      },
+      // Hindi (India)
+      hi: {
+          'keyboard.tooltip.functions': 'कार्यों',
+          'keyboard.tooltip.symbols': 'प्रतीक',
+          'keyboard.tooltip.greek': 'ग्रीक अक्षर',
+          'keyboard.tooltip.command': 'लाटेक्स कमांड मोड',
+          'keyboard.tooltip.numeric': 'संख्यात्मक',
+          'keyboard.tooltip.roman': 'रोमन पत्र',
+          'tooltip.copy to clipboard': 'क्लिपबोर्ड पर कॉपी करें',
+          'tooltip.redo': 'फिर से करें',
+          'tooltip.toggle virtual keyboard': 'वर्चुअल कीबोर्ड टॉगल करें',
+          'tooltip.undo': 'पूर्ववत',
+          'menu.insert matrix': 'मैट्रिक्स डालें',
+          'menu.insert vector': 'वेक्टर डालें',
+          'submenu.array.matrix delimiters': 'मैट्रिक्स सीमांकक',
+          'menu.array.add row above': 'बाद में पंक्ति जोड़ें',
+          'menu.array.add row below': 'पहले पंक्ति जोड़ें',
+          'menu.array.add column after': 'बाद में कॉलम जोड़ें',
+          'menu.array.add column before': 'पहले कॉलम जोड़ें',
+          'menu.array.delete row': 'पंक्ति को हटाएं',
+          'menu.array.delete rows': 'चयनित पंक्तियों को हटाएं',
+          'menu.array.delete column': 'कॉलम हटाएं',
+          'menu.array.delete columns': 'चयनित कॉलम हटाएं',
+          'submenu.array.insert separator': 'विभाजक डालें',
+          'menu.insert table': 'टेबल इंसर्ट करें',
+          'submenu.table style': 'टेबल स्टाइल',
+      },
+      // Hungarian
+      hu: {
+          'keyboard.tooltip.functions': 'Funkciók',
+          'keyboard.tooltip.symbols': 'Szimbólumok',
+          'keyboard.tooltip.greek': 'Görög levelek',
+          'keyboard.tooltip.command': 'LaTeX Parancs mód',
+          'keyboard.tooltip.numeric': 'Numerikus',
+          'keyboard.tooltip.roman': 'Római levelek',
+          'tooltip.copy to clipboard': 'Másolja a vágólapra',
+          'tooltip.redo': 'Újra',
+          'tooltip.toggle virtual keyboard': 'Váltás a virtuális billentyűzetre',
+          'tooltip.undo': 'Visszavonás',
+          'menu.insert matrix': 'Helyezze be a Mátrixot',
+          'menu.insert vector': 'Vektor beszúrása',
+          'submenu.array.matrix delimiters': 'Mátrixhatárolók',
+          'menu.array.add row above': 'Sor hozzáadása után',
+          'menu.array.add row below': 'Add Add Sor előtt',
+          'menu.array.add column after': 'Oszlop hozzáadása után',
+          'menu.array.add column before': 'Add oszlop előtt',
+          'menu.array.delete row': 'Sor törlése',
+          'menu.array.delete rows': 'Kijelölt sorok törlése',
+          'menu.array.delete column': 'Oszlop törlése',
+          'menu.array.delete columns': 'A kijelölt oszlopok törlése',
+          'submenu.array.insert separator': 'Helyezze be az elválasztót',
+          'menu.insert table': 'Helyezze be a táblázatot',
+          'submenu.table style': 'Táblázatos stílus',
       },
       // Italian
       it: {
@@ -22480,19 +22854,155 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Endurtaka',
           'tooltip.toggle virtual keyboard': 'Skiptu um sýndarlyklaborð',
           'tooltip.undo': 'Afturkalla',
+          'menu.insert matrix': 'Settu fylki inn',
+          'menu.insert vector': 'Settu inn Vector',
+          'submenu.array.matrix delimiters': 'Matrix afmörkun',
+          'menu.array.add row above': 'Bæta við röð á eftir',
+          'menu.array.add row below': 'Bæta við röð áður',
+          'menu.array.add column after': 'Bæta við dálki á eftir',
+          'menu.array.add column before': 'Bæta við dálki áður',
+          'menu.array.delete row': 'Eyða röð',
+          'menu.array.delete rows': 'Eyða völdum línum',
+          'menu.array.delete column': 'Eyða dálki',
+          'menu.array.delete columns': 'Eyða völdum dálkum',
+          'submenu.array.insert separator': 'Settu skiljuna í',
+          'menu.insert table': 'Settu inn töflu',
+          'submenu.table style': 'Töflu stíl',
       },
       // Japanese
       ja: {
           'keyboard.tooltip.functions': '関数',
           'keyboard.tooltip.symbols': 'シンボル',
           'keyboard.tooltip.greek': 'ギリシャ文字',
-          'keyboard.tooltip.command': 'LaTeXコマンドモード',
+          'keyboard.tooltip.command': 'ラテックスコマンドモード',
           'keyboard.tooltip.numeric': '数値',
           'keyboard.tooltip.roman': 'ローマ字',
           'tooltip.copy to clipboard': 'クリップボードにコピー',
           'tooltip.redo': 'やり直し',
           'tooltip.toggle virtual keyboard': '仮想キーボードの切り替え',
           'tooltip.undo': '元に戻す',
+          'menu.insert matrix': 'マトリックスを挿入',
+          'menu.insert vector': 'ベクトルを挿入',
+          'submenu.array.matrix delimiters': '行列区切り文字',
+          'menu.array.add row above': '後に行を追加',
+          'menu.array.add row below': '前に行を追加',
+          'menu.array.add column after': '後に列を追加',
+          'menu.array.add column before': '前に列を追加',
+          'menu.array.delete row': '行を削除',
+          'menu.array.delete rows': '選択した行を削除する',
+          'menu.array.delete column': '列を削除',
+          'menu.array.delete columns': '選択した列を削除する',
+          'submenu.array.insert separator': 'セパレーターを挿入',
+          'menu.insert table': 'テーブルを挿入',
+          'submenu.table style': 'テーブルスタイル',
+      },
+      // Korean
+      ko: {
+          'keyboard.tooltip.functions': '기능',
+          'keyboard.tooltip.symbols': '기호',
+          'keyboard.tooltip.greek': '그리스 문자',
+          'keyboard.tooltip.command': '유액 명령 모드',
+          'keyboard.tooltip.numeric': '숫자',
+          'keyboard.tooltip.roman': '로마 문자',
+          'tooltip.copy to clipboard': '클립 보드에 복사',
+          'tooltip.redo': '다시 하다',
+          'tooltip.toggle virtual keyboard': '가상 키보드 전환',
+          'tooltip.undo': '실행 취소',
+          'menu.insert matrix': '매트릭스 삽입',
+          'menu.insert vector': '벡터 삽입',
+          'submenu.array.matrix delimiters': '행렬 구분 기호',
+          'menu.array.add row above': '뒤에 행 추가',
+          'menu.array.add row below': '앞에 행 추가',
+          'menu.array.add column after': '뒤에 열 추가',
+          'menu.array.add column before': '앞에 열 추가',
+          'menu.array.delete row': '행 삭제',
+          'menu.array.delete rows': '선택한 행 삭제',
+          'menu.array.delete column': '열 삭제',
+          'menu.array.delete columns': '선택한 열 삭제',
+          'submenu.array.insert separator': '구분자 삽입',
+          'menu.insert table': '표 삽입',
+          'submenu.table style': '테이블 스타일',
+      },
+      // Lettish
+      lv: {
+          'keyboard.tooltip.functions': 'Funkcijas',
+          'keyboard.tooltip.symbols': 'Simboli',
+          'keyboard.tooltip.greek': 'Grieķu burti',
+          'keyboard.tooltip.command': 'LaTeX komandu režīms',
+          'keyboard.tooltip.numeric': 'Ciparu skaitlis',
+          'keyboard.tooltip.roman': 'Romiešu vēstules',
+          'tooltip.copy to clipboard': 'Kopēt starpliktuvē',
+          'tooltip.redo': 'Pārtaisīt',
+          'tooltip.toggle virtual keyboard': 'Pārslēgt virtuālo tastatūru',
+          'tooltip.undo': 'Atsaukt',
+          'menu.insert matrix': 'Ievietojiet matricu',
+          'menu.insert vector': 'Ievietot vektoru',
+          'submenu.array.matrix delimiters': 'Matricas norobežotāji',
+          'menu.array.add row above': 'Pievienot rindu pēc',
+          'menu.array.add row below': 'Pievienot rindu pirms',
+          'menu.array.add column after': 'Pievienot kolonnu pēc',
+          'menu.array.add column before': 'Pievienot kolonnu pirms',
+          'menu.array.delete row': 'Dzēst rindu',
+          'menu.array.delete rows': 'Dzēst atlasītās rindas',
+          'menu.array.delete column': 'Dzēst kolonnu',
+          'menu.array.delete columns': 'Dzēst atlasītās kolonnas',
+          'submenu.array.insert separator': 'Ievietojiet atdalītāju',
+          'menu.insert table': 'Ievietojiet tabulu',
+          'submenu.table style': 'Galda stils',
+      },
+      // Lithuanian
+      lt: {
+          'keyboard.tooltip.functions': 'Funkcijos',
+          'keyboard.tooltip.symbols': 'Simboliai',
+          'keyboard.tooltip.greek': 'Graikiškos raidės',
+          'keyboard.tooltip.command': 'LaTeX komandų režimas',
+          'keyboard.tooltip.numeric': 'Skaitmeninis',
+          'keyboard.tooltip.roman': 'Romos laiškai',
+          'tooltip.copy to clipboard': 'Nukopijuoti į iškarpinę',
+          'tooltip.redo': 'Perdaryti',
+          'tooltip.toggle virtual keyboard': 'Perjungti virtualiąją klaviatūrą',
+          'tooltip.undo': 'Atšaukti',
+          'menu.insert matrix': 'Ievietojiet matricu',
+          'menu.insert vector': 'Ievietot vektoru',
+          'submenu.array.matrix delimiters': 'Matricas norobežotāji',
+          'menu.array.add row above': 'Pievienot rindu pēc',
+          'menu.array.add row below': 'Pievienot rindu pirms',
+          'menu.array.add column after': 'Pievienot kolonnu pēc',
+          'menu.array.add column before': 'Pievienot kolonnu pirms',
+          'menu.array.delete row': 'Dzēst rindu',
+          'menu.array.delete rows': 'Dzēst atlasītās rindas',
+          'menu.array.delete column': 'Dzēst kolonnu',
+          'menu.array.delete columns': 'Dzēst atlasītās kolonnas',
+          'submenu.array.insert separator': 'Ievietojiet atdalītāju',
+          'menu.insert table': 'Ievietojiet tabulu',
+          'submenu.table style': 'Tabulas stili',
+      },
+      /// Luxembourgish
+      lu: {
+          'keyboard.tooltip.functions': 'Funktiounen',
+          'keyboard.tooltip.symbols': 'Symboler',
+          'keyboard.tooltip.greek': 'Griichesch Bréiwer',
+          'keyboard.tooltip.command': 'Latex Kommando Modus',
+          'keyboard.tooltip.numeric': 'Numeresch',
+          'keyboard.tooltip.roman': 'Réimesch Bréiwer',
+          'tooltip.copy to clipboard': 'Kopéiert op Clipboard',
+          'tooltip.redo': 'Nees nei maachen',
+          'tooltip.toggle virtual keyboard': 'Wiesselt Virtuell Tastatur',
+          'tooltip.undo': 'Undoen',
+          'menu.insert matrix': 'Matrix asetzen',
+          'menu.insert vector': 'Insert Vector',
+          'submenu.array.matrix delimiters': 'Matrix Ofgrenzer',
+          'menu.array.add row above': 'Dobäizemaachen Rei No',
+          'menu.array.add row below': 'Füügt Rei vir',
+          'menu.array.add column after': 'Dobäizemaachen Kolonn No',
+          'menu.array.add column before': 'Kolonn derbäi Virun',
+          'menu.array.delete row': 'Rad läschen',
+          'menu.array.delete rows': 'Läscht Ausgewielte Reien',
+          'menu.array.delete column': 'Läscht Kolonn',
+          'menu.array.delete columns': 'Läscht Ausgewielte Kolonnen',
+          'submenu.array.insert separator': 'Insert Separator',
+          'menu.insert table': 'Dësch anzeginn',
+          'submenu.table style': 'Dësch Style',
       },
       // Dutch
       nl: {
@@ -22506,6 +23016,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Opnieuw',
           'tooltip.toggle virtual keyboard': 'Schakel naar virtueel toetsenbord',
           'tooltip.undo': 'Ongedaan maken',
+          'menu.insert matrix': 'Matrix invoegen',
+          'menu.insert vector': 'Vector invoegen',
+          'submenu.array.matrix delimiters': 'Matrixscheidingstekens',
+          'menu.array.add row above': 'Rij toevoegen na',
+          'menu.array.add row below': 'Rij toevoegen eerder',
+          'menu.array.add column after': 'Kolom toevoegen na',
+          'menu.array.add column before': 'Kolom toevoegen voor',
+          'menu.array.delete row': 'Verwijder rij',
+          'menu.array.delete rows': 'Geselecteerde rijen verwijderen',
+          'menu.array.delete column': 'Kolom verwijderen',
+          'menu.array.delete columns': 'Geselecteerde kolommen verwijderen',
+          'submenu.array.insert separator': 'Scheidingsteken invoegen',
+          'menu.insert table': 'Tabel invoegen',
+          'submenu.table style': 'Tabelstijl',
       },
       // Norwegian
       no: {
@@ -22519,6 +23043,47 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Gjøre om',
           'tooltip.toggle virtual keyboard': 'Bytt virtuelt tastatur',
           'tooltip.undo': 'Angre',
+          'menu.insert matrix': 'Sett inn matrise',
+          'menu.insert vector': 'Sett inn vektor',
+          'submenu.array.matrix delimiters': 'Matrix avgrensere',
+          'menu.array.add row above': 'Legg til rad etter',
+          'menu.array.add row below': 'Legg til rad før',
+          'menu.array.add column after': 'Legg til kolonne etter',
+          'menu.array.add column before': 'Legg til kolonne før',
+          'menu.array.delete row': 'Slett rad',
+          'menu.array.delete rows': 'Slett valgte rader',
+          'menu.array.delete column': 'Slett kolonne',
+          'menu.array.delete columns': 'Slett valgte kolonner',
+          'submenu.array.insert separator': 'Sett inn skilletegn',
+          'menu.insert table': 'Sett inn tabell',
+          'submenu.table style': 'Tabellstil',
+      },
+      // Macedonian
+      mk: {
+          'keyboard.tooltip.functions': 'Функции',
+          'keyboard.tooltip.symbols': 'Симболи',
+          'keyboard.tooltip.greek': 'Грчки букви',
+          'keyboard.tooltip.command': 'Режим на команда во латекс',
+          'keyboard.tooltip.numeric': 'Нумерички',
+          'keyboard.tooltip.roman': 'Римски писма',
+          'tooltip.copy to clipboard': 'Копирајте во клипборд',
+          'tooltip.redo': 'Повторно',
+          'tooltip.toggle virtual keyboard': 'Вклучете ја виртуелната тастатура',
+          'tooltip.undo': 'Врати',
+          'menu.insert matrix': 'Вметнете матрица',
+          'menu.insert vector': 'Вметни вектор',
+          'submenu.array.matrix delimiters': 'Разграничувачи на матрица',
+          'menu.array.add row above': 'Додадете ред после',
+          'menu.array.add row below': 'Додади ред пред тоа',
+          'menu.array.add column after': 'Додадете колона после',
+          'menu.array.add column before': 'Додадете колона пред тоа',
+          'menu.array.delete row': 'Избриши го редот',
+          'menu.array.delete rows': 'Избришете ги избраните редови',
+          'menu.array.delete column': 'Избриши ја колоната',
+          'menu.array.delete columns': 'Избриши ја колоната',
+          'submenu.array.insert separator': 'Вметнете сепаратор',
+          'menu.insert table': 'Вметни табела',
+          'submenu.table style': 'Табела стил',
       },
       // Polish
       pl: {
@@ -22532,6 +23097,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Przywróć',
           'tooltip.toggle virtual keyboard': 'Przełącz wirtualną klawiaturę',
           'tooltip.undo': 'Cofnij',
+          'menu.insert matrix': 'Wstaw macierz',
+          'menu.insert vector': 'Wstaw wektor',
+          'submenu.array.matrix delimiters': 'Ograniczniki macierzy',
+          'menu.array.add row above': 'Dodaj wiersz po',
+          'menu.array.add row below': 'Dodaj wiersz przed',
+          'menu.array.add column after': 'Dodaj kolumnę po',
+          'menu.array.add column before': 'Dodaj kolumnę przed',
+          'menu.array.delete row': 'Usuń wiersz',
+          'menu.array.delete rows': 'Usuń wybrane wiersze',
+          'menu.array.delete column': 'Usuń kolumnę',
+          'menu.array.delete columns': 'Usuń wybrane kolumny',
+          'submenu.array.insert separator': 'Wstaw separator',
+          'menu.insert table': 'Wypełnij tabelę',
+          'submenu.table style': 'Styl tabelę',
       },
       // Portuguese
       pt: {
@@ -22545,6 +23124,74 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Refazer',
           'tooltip.toggle virtual keyboard': 'Alternar teclado virtual',
           'tooltip.undo': 'Desfazer',
+          'menu.insert matrix': 'Inserir Matriz',
+          'menu.insert vector': 'Inserir vetor',
+          'submenu.array.matrix delimiters': 'Delimitadores de matriz',
+          'menu.array.add row above': 'Adicionar linha depois',
+          'menu.array.add row below': 'Adicionar linha antes',
+          'menu.array.add column after': 'Adicionar coluna depois',
+          'menu.array.add column before': 'Adicionar coluna antes',
+          'menu.array.delete row': 'Excluir linha',
+          'menu.array.delete rows': 'Excluir linhas selecionadas',
+          'menu.array.delete column': 'Apagar Coluna',
+          'menu.array.delete columns': 'Excluir Colunas Selecionadas',
+          'submenu.array.insert separator': 'Inserir Separador',
+          'menu.insert table': 'Insira a tabela',
+          'submenu.table style': 'Estilo tabela',
+      },
+      //Romaninan
+      ro: {
+          'keyboard.tooltip.functions': 'Funcții',
+          'keyboard.tooltip.symbols': 'Simboluri',
+          'keyboard.tooltip.greek': 'Scrisori grecești',
+          'keyboard.tooltip.command': 'Modul de comandă latex',
+          'keyboard.tooltip.numeric': 'Numeric',
+          'keyboard.tooltip.roman': 'Scrisori romane',
+          'tooltip.copy to clipboard': 'Copiați în clipboard',
+          'tooltip.redo': 'A reface',
+          'tooltip.toggle virtual keyboard': 'Comutați tastatura virtuală',
+          'tooltip.undo': 'Anula',
+          'menu.insert matrix': 'Introduceți Matrix',
+          'menu.insert vector': 'Inserați Vector',
+          'submenu.array.matrix delimiters': 'Delimitatori de matrice',
+          'menu.array.add row above': 'Adăugați rândul după',
+          'menu.array.add row below': 'Adăugați rândul înainte',
+          'menu.array.add column after': 'Adăugați o coloană după',
+          'menu.array.add column before': 'Adăugați o coloană înainte',
+          'menu.array.delete row': 'Ștergeți rândul',
+          'menu.array.delete rows': 'Ștergeți rândurile selectate',
+          'menu.array.delete column': 'Ștergeți coloana',
+          'menu.array.delete columns': 'Ștergeți coloanele selectate',
+          'submenu.array.insert separator': 'Introduceți separatorul',
+          'menu.insert table': 'Introduceți tabelul',
+          'submenu.table style': 'Table style',
+      },
+      // Russian
+      ru: {
+          'keyboard.tooltip.functions': 'Функции',
+          'keyboard.tooltip.symbols': 'Символы',
+          'keyboard.tooltip.greek': 'Греческие буквы',
+          'keyboard.tooltip.command': 'Режим командной строки Латекс',
+          'keyboard.tooltip.numeric': 'числовой',
+          'keyboard.tooltip.roman': 'Латинские буквы',
+          'tooltip.copy to clipboard': 'Скопировать в буфер обмена',
+          'tooltip.redo': 'переделывать',
+          'tooltip.toggle virtual keyboard': 'Переключить виртуальную клавиатуру',
+          'tooltip.undo': 'расстегивать',
+          'menu.insert matrix': 'Вставить матрицу',
+          'menu.insert vector': 'Вставить вектор',
+          'submenu.array.matrix delimiters': 'Матричные разделители',
+          'menu.array.add row above': 'Добавить строку после',
+          'menu.array.add row below': 'Добавить строку перед',
+          'menu.array.add column after': 'Добавить столбец после',
+          'menu.array.add column before': 'Добавить столбец перед',
+          'menu.array.delete row': 'Удалить строку',
+          'menu.array.delete rows': 'Удалить выбранные строки',
+          'menu.array.delete column': 'Удалить столбец',
+          'menu.array.delete columns': 'Удалить выбранные столбцы',
+          'submenu.array.insert separator': 'Вставить разделитель',
+          'menu.insert table': 'Вставить таблицу',
+          'submenu.table style': 'Табличный стиль',
       },
       // Slovak
       sk: {
@@ -22558,6 +23205,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Znova',
           'tooltip.toggle virtual keyboard': 'Prepnúť virtuálnu klávesnicu',
           'tooltip.undo': 'Vrátenie späť',
+          'menu.insert matrix': 'Vložte maticu',
+          'menu.insert vector': 'Vložte vektor',
+          'submenu.array.matrix delimiters': 'Oddeľovače matíc',
+          'menu.array.add row above': 'Pridajte riadok za',
+          'menu.array.add row below': 'Pridajte riadok pred',
+          'menu.array.add column after': 'Pridať stĺpec za',
+          'menu.array.add column before': 'Pridajte stĺpec predtým',
+          'menu.array.delete row': 'Odstrániť riadok',
+          'menu.array.delete rows': 'Odstrániť vybraté riadky',
+          'menu.array.delete column': 'Odstrániť stĺpec',
+          'menu.array.delete columns': 'Odstrániť vybraté stĺpce',
+          'submenu.array.insert separator': 'Vložte oddeľovač',
+          'menu.insert table': 'Vložte tabuľku',
+          'submenu.table style': 'Štýl tabuľky',
       },
       // Slovenian
       sl: {
@@ -22571,6 +23232,47 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Ponovi',
           'tooltip.toggle virtual keyboard': 'Preklop navidezne tipkovnice',
           'tooltip.undo': 'Razveljavi',
+          'menu.insert matrix': 'Vstavi matrico',
+          'menu.insert vector': 'Vstavi vektor',
+          'submenu.array.matrix delimiters': 'Matrični ločevalniki',
+          'menu.array.add row above': 'Dodaj vrstico po',
+          'menu.array.add row below': 'Dodaj vrstico prej',
+          'menu.array.add column after': 'Dodaj stolpec po',
+          'menu.array.add column before': 'Dodaj stolpec prej',
+          'menu.array.delete row': 'Izbriši vrstico',
+          'menu.array.delete rows': 'Izbriši izbrane vrstice',
+          'menu.array.delete column': 'Izbriši stolpec',
+          'menu.array.delete columns': 'Izbriši izbrane stolpce',
+          'submenu.array.insert separator': 'Vstavi ločilo',
+          'menu.insert table': 'Vstavi tabelo',
+          'submenu.table style': 'Tabela slog',
+      },
+      /// Albanian
+      sq: {
+          'keyboard.tooltip.functions': 'Funksione',
+          'keyboard.tooltip.symbols': 'Simbolet',
+          'keyboard.tooltip.greek': 'Letrat Greke',
+          'keyboard.tooltip.command': 'Modaliteti i komandës latex',
+          'keyboard.tooltip.numeric': 'Numerike',
+          'keyboard.tooltip.roman': 'Letrat romake',
+          'tooltip.copy to clipboard': 'Kopjoni në Clipboard',
+          'tooltip.redo': 'Riparo',
+          'tooltip.toggle virtual keyboard': 'Aktivizo tastierën virtuale',
+          'tooltip.undo': 'Zhbëj',
+          'menu.insert matrix': 'Vendosni Matricën',
+          'menu.insert vector': 'Vendos vektorin',
+          'submenu.array.matrix delimiters': 'Përcaktuesit e matricës',
+          'menu.array.add row above': 'Shto Rreshtin Pas',
+          'menu.array.add row below': 'Shto Rreshtin Para',
+          'menu.array.add column after': 'Shto kolonën pas',
+          'menu.array.add column before': 'Shto kolonën para',
+          'menu.array.delete row': 'Fshi Rreshtin',
+          'menu.array.delete rows': 'Fshi rreshtat e zgjedhur',
+          'menu.array.delete column': 'Fshi kolonën',
+          'menu.array.delete columns': 'Fshi kolonat e zgjedhura',
+          'submenu.array.insert separator': 'Vendos Ndarësin',
+          'menu.insert table': 'Vendos tabelën',
+          'submenu.table style': 'Stili tabelën',
       },
       // Serbian
       sr: {
@@ -22584,6 +23286,20 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Понови',
           'tooltip.toggle virtual keyboard': 'Укључи / искључи виртуелну тастатуру',
           'tooltip.undo': 'Опозови',
+          'menu.insert matrix': 'Уметни матрицу',
+          'menu.insert vector': 'Уметни вектор',
+          'submenu.array.matrix delimiters': 'Матрик Делимитерс',
+          'menu.array.add row above': 'Додај ред после',
+          'menu.array.add row below': 'Додај ред пре',
+          'menu.array.add column after': 'Додај колону после',
+          'menu.array.add column before': 'Додај колону пре',
+          'menu.array.delete row': 'Избриши ред',
+          'menu.array.delete rows': 'Избриши изабране редове',
+          'menu.array.delete column': 'Избриши колону',
+          'menu.array.delete columns': 'Избриши изабране колоне',
+          'submenu.array.insert separator': 'Уметни сепаратор',
+          'menu.insert table': 'Убаци табелу',
+          'submenu.table style': 'Табеларни стил',
       },
       // Swedish
       sv: {
@@ -22597,19 +23313,47 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Göra om',
           'tooltip.toggle virtual keyboard': 'Växla virtuellt tangentbord',
           'tooltip.undo': 'Ångra',
+          'menu.insert matrix': 'Sätt in matris',
+          'menu.insert vector': 'Infoga vektor',
+          'submenu.array.matrix delimiters': 'Matrisavgränsare',
+          'menu.array.add row above': 'Lägg till rad efter',
+          'menu.array.add row below': 'Lägg till rad före',
+          'menu.array.add column after': 'Lägg till kolumn efter',
+          'menu.array.add column before': 'Lägg till kolumn före',
+          'menu.array.delete row': 'Radera rad',
+          'menu.array.delete rows': 'Ta bort valda rader',
+          'menu.array.delete column': 'Ta bort kolumn',
+          'menu.array.delete columns': 'Ta bort valda kolumner',
+          'submenu.array.insert separator': 'Sätt i separator',
+          'menu.insert table': 'Infoga tabell',
+          'submenu.table style': 'Tabellstil',
       },
-      // Russian
-      ru: {
-          'keyboard.tooltip.functions': 'Функции',
-          'keyboard.tooltip.symbols': 'Символы',
-          'keyboard.tooltip.greek': 'Греческие буквы',
-          'keyboard.tooltip.command': 'Режим командной строки LaTeX',
-          'keyboard.tooltip.numeric': 'числовой',
-          'keyboard.tooltip.roman': 'Латинские буквы',
-          'tooltip.copy to clipboard': 'Скопировать в буфер обмена',
-          'tooltip.redo': 'переделывать',
-          'tooltip.toggle virtual keyboard': 'Переключить виртуальную клавиатуру',
-          'tooltip.undo': 'расстегивать',
+      // Thai
+      th: {
+          'keyboard.tooltip.functions': 'ฟังก์ชั่น',
+          'keyboard.tooltip.symbols': 'สัญลักษณ์',
+          'keyboard.tooltip.greek': 'อักษรกรีก',
+          'keyboard.tooltip.command': 'โหมดคำสั่ง น้ำยาง',
+          'keyboard.tooltip.numeric': 'ตัวเลข',
+          'keyboard.tooltip.roman': 'อักษรโรมัน',
+          'tooltip.copy to clipboard': 'คัดลอกไปที่คลิปบอร์ด',
+          'tooltip.redo': 'ทำซ้ำ',
+          'tooltip.toggle virtual keyboard': 'สลับแป้นพิมพ์เสมือน',
+          'tooltip.undo': 'เลิกทำ',
+          'menu.insert matrix': 'แทรกเมทริกซ์',
+          'menu.insert vector': 'แทรกเวกเตอร์',
+          'submenu.array.matrix delimiters': 'ตัวคั่นเมทริกซ์',
+          'menu.array.add row above': 'เพิ่มแถวหลัง',
+          'menu.array.add row below': 'เพิ่มแถวก่อน',
+          'menu.array.add column after': 'เพิ่มคอลัมน์หลัง',
+          'menu.array.add column before': 'เพิ่มคอลัมน์ก่อน',
+          'menu.array.delete row': 'ลบแถว',
+          'menu.array.delete rows': 'ลบแถวที่เลือก',
+          'menu.array.delete column': 'ลบคอลัมน์',
+          'menu.array.delete columns': 'ลบคอลัมน์ที่เลือก',
+          'submenu.array.insert separator': 'ตัวคั่นแทรก',
+          'menu.insert table': 'แทรกตาราง',
+          'submenu.table style': 'สไตล์ตาราง',
       },
       // Turkish
       tr: {
@@ -22623,6 +23367,128 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           'tooltip.redo': 'Yeniden yap',
           'tooltip.toggle virtual keyboard': 'Sanal Klavyeyi Aç/Kapat',
           'tooltip.undo': 'Geri alma',
+          'menu.insert matrix': 'Matris Ekle',
+          'menu.insert vector': 'Vektör Ekle',
+          'submenu.array.matrix delimiters': 'Matris Sınırlayıcılar',
+          'menu.array.add row above': 'Satırdan Sonra Ekle',
+          'menu.array.add row below': 'Önce Satır Ekle',
+          'menu.array.add column after': 'Sonra Sütun Ekle',
+          'menu.array.add column before': 'Önce Sütun Ekle',
+          'menu.array.delete row': 'Sırayı sil',
+          'menu.array.delete rows': 'Seçili Satırları Sil',
+          'menu.array.delete column': 'Sütunu Sil',
+          'menu.array.delete columns': 'Seçili Sütunları Sil',
+          'submenu.array.insert separator': 'Ayırıcı Ekle',
+          'menu.insert table': 'Tablo Ekle',
+          'submenu.table style': 'Tablo Stili',
+      },
+      //Ukrainian
+      uk: {
+          'keyboard.tooltip.functions': 'Функції',
+          'keyboard.tooltip.symbols': 'Символи',
+          'keyboard.tooltip.greek': 'Грецькі літери',
+          'keyboard.tooltip.command': 'Командний режим латексу',
+          'keyboard.tooltip.numeric': 'Числовий',
+          'keyboard.tooltip.roman': 'Римські літери',
+          'tooltip.copy to clipboard': 'Копіювати в буфер обміну',
+          'tooltip.redo': 'Повторити',
+          'tooltip.toggle virtual keyboard': 'Переключити віртуальну клавіатуру',
+          'tooltip.undo': 'Скасувати',
+          'menu.insert matrix': 'Вставити матрицю',
+          'menu.insert vector': 'Вставити вектор',
+          'submenu.array.matrix delimiters': 'Матричні роздільники',
+          'menu.array.add row above': 'Додати рядок після',
+          'menu.array.add row below': 'Додати рядок до',
+          'menu.array.add column after': 'Додати стовпець після',
+          'menu.array.add column before': 'Додати стовпець перед',
+          'menu.array.delete row': 'Видалити рядок',
+          'menu.array.delete rows': 'Видалити вибрані рядки',
+          'menu.array.delete column': 'Видалити стовпець',
+          'menu.array.delete columns': 'Видалити вибрані стовпці',
+          'submenu.array.insert separator': 'Вставте роздільник',
+          'menu.insert table': 'Вставити таблицю',
+          'submenu.table style': 'Стиль таблиці',
+      },
+      //Vietnamese
+      vi: {
+          'keyboard.tooltip.functions': 'Chức năng',
+          'keyboard.tooltip.symbols': 'Ký hiệu',
+          'keyboard.tooltip.greek': 'Chữ Hy Lạp',
+          'keyboard.tooltip.command': 'Chế độ lệnh LaTeX',
+          'keyboard.tooltip.numeric': 'Số',
+          'keyboard.tooltip.roman': 'Chữ cái La mã',
+          'tooltip.copy to clipboard': 'Sao chép vào clipboard',
+          'tooltip.redo': 'Làm lại',
+          'tooltip.toggle virtual keyboard': 'Chuyển đổi bàn phím ảo',
+          'tooltip.undo': 'Hoàn tác',
+          'menu.insert matrix': 'Chèn ma trận',
+          'menu.insert vector': 'Insert Vector',
+          'submenu.array.matrix delimiters': 'Dấu phân cách ma trận',
+          'menu.array.add row above': 'Thêm hàng sau',
+          'menu.array.add row below': 'Thêm hàng trước',
+          'menu.array.add column after': 'Thêm cột sau',
+          'menu.array.add column before': 'Thêm cột trước',
+          'menu.array.delete row': 'Xóa hàng',
+          'menu.array.delete rows': 'Xóa hàng đã chọn',
+          'menu.array.delete column': 'Xóa cột',
+          'menu.array.delete columns': 'Xóa các cột đã chọn',
+          'submenu.array.insert separator': 'Chèn dấu phân cách',
+          'menu.insert table': 'Chèn bảng',
+          'submenu.table style': 'Kiểu bảng',
+      },
+      // Simplified Chinese
+      zh_cn: {
+          'keyboard.tooltip.functions': '职能',
+          'keyboard.tooltip.symbols': '符号',
+          'keyboard.tooltip.greek': '希腊字母',
+          'keyboard.tooltip.command': '乳胶 命令模式',
+          'keyboard.tooltip.numeric': '数字',
+          'keyboard.tooltip.roman': '罗马字母',
+          'tooltip.copy to clipboard': '复制到剪贴板',
+          'tooltip.redo': '重做',
+          'tooltip.toggle virtual keyboard': '切换虚拟键盘',
+          'tooltip.undo': '撤消',
+          'menu.insert matrix': '插入矩阵',
+          'menu.insert vector': '插入向量',
+          'submenu.array.matrix delimiters': '矩阵分隔符',
+          'menu.array.add row above': '在后面添加行',
+          'menu.array.add row below': '在前面添加行',
+          'menu.array.add column after': '在后面添加列r',
+          'menu.array.add column before': '在前面添加列',
+          'menu.array.delete row': '删除行',
+          'menu.array.delete rows': '删除选定行',
+          'menu.array.delete column': '删除列',
+          'menu.array.delete columns': '删除选定的列',
+          'submenu.array.insert separator': '插入分隔符',
+          'menu.insert table': '插入表格',
+          'submenu.table style': '表格样式',
+      },
+      // Traditional Chinese
+      zh_tw: {
+          'keyboard.tooltip.functions': '職能',
+          'keyboard.tooltip.symbols': '符號',
+          'keyboard.tooltip.greek': '希臘字母',
+          'keyboard.tooltip.command': '乳膠命令模式',
+          'keyboard.tooltip.numeric': '數字',
+          'keyboard.tooltip.roman': '羅馬字母',
+          'tooltip.copy to clipboard': '複製到剪貼板',
+          'tooltip.redo': '重做',
+          'tooltip.toggle virtual keyboard': '切換虛擬鍵盤',
+          'tooltip.undo': '撤消',
+          'menu.insert matrix': '插入矩陣',
+          'menu.insert vector': '插入向量',
+          'submenu.array.matrix delimiters': '矩陣分隔符',
+          'menu.array.add row above': '在後面添加行',
+          'menu.array.add row below': '在前面添加行',
+          'menu.array.add column after': '在後面添加列',
+          'menu.array.add column before': '在前面添加列',
+          'menu.array.delete row': '刪除行',
+          'menu.array.delete rows': '刪除選定行',
+          'menu.array.delete column': '刪除列',
+          'menu.array.delete columns': '刪除選定的列',
+          'submenu.array.insert separator': '插入分隔符',
+          'menu.insert table': '插入表格',
+          'submenu.table style': '表格樣式',
       },
   };
 
@@ -22644,7 +23510,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // "english" if not running in a browser (node.js)
           if (!l10n._locale) {
               // Use the setter, which will load the necessary .json files.
-              l10n._locale = (_a = navigator === null || navigator === void 0 ? void 0 : navigator.language.slice(0, 5)) !== null && _a !== void 0 ? _a : 'en';
+              l10n._locale =
+                  (_a = (isBrowser() ? navigator.language.slice(0, 5) : null)) !== null && _a !== void 0 ? _a : 'en';
           }
           return l10n._locale;
       },
@@ -23113,7 +23980,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       });
   }
 
-  var css_248z$3 = ".ML__keyboard{--keyboard-background:rgba(209,213,217,0.97);--keyboard-text:#000;--keyboard-text-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-background-border:#ddd;--keycap-background:#fff;--keycap-background-active:#e5e5e5;--keycap-background-border:#e5e6e9;--keycap-background-border-bottom:#8d8f92;--keycap-text:#000;--keycap-text-active:#fff;--keycap-secondary-text:#000;--keycap-modifier-background:#b9bdc7;--keycap-modifier-border:#c5c9d0;--keycap-modifier-border-bottom:#989da6;--keyboard-alternate-background:#fff;--keyboard-alternate-background-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-alternate-text:var(--keycap-text,#000);--keyboard-alternate-text-active:#fff;--keyboard-alternate-key-length:70px;--keyboard-alternate-key-font-size:30px;--keyboard-alternate-key-aside-font-size:12px;--keyboard-height:276px;--keycap-height:52px;--keycap-font-size:20px;--keycap-small-font-size:calc(var(--keycap-font-size)*0.8);--keycap-extra-small-font-size:calc(var(--keycap-font-size)/1.42);--keycap-tt-font-size:calc(var(--keycap-font-size)*1.5);height:100%;position:fixed;top:0;width:100%}.ML__keyboard.is-visible .ML__keyboard--plate{opacity:1;transform:translateY(calc(var(--keyboard-height, 276px)*-1));transition-timing-function:cubic-bezier(.4,0,1,1);visibility:visible}.ML__keyboard.alternate-keys{align-content:center;background-color:var(--keyboard-alternate-background);border-radius:6px;bottom:auto;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);box-sizing:content-box;display:flex;flex-direction:row;justify-content:center;max-width:286px;position:fixed;text-align:center;top:0;transform:none;transition:none;visibility:hidden;z-index:calc(var(--keyboard-zindex, 105) + 1)}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys{max-width:320px}}.ML__keyboard.alternate-keys.is-visible{visibility:visible}.ML__keyboard.alternate-keys.compact{--keyboard-alternate-key-length:50px;--keyboard-alternate-key-font-size:24px;--keyboard-alternate-key-aside-font-size:10px}.ML__keyboard.alternate-keys ul{display:flex;flex-flow:row wrap-reverse;justify-content:center;list-style:none;margin:3px;padding:0}.ML__keyboard.alternate-keys ul>li{fill:currentColor;align-items:center;background:transparent;border:1px solid transparent;border-radius:5px;box-sizing:border-box;color:var(--keyboard-alternate-text);display:flex;flex-flow:column;font-size:var(--keyboard-alternate-key-font-size);height:var(--keyboard-alternate-key-length);justify-content:center;margin:0;pointer-events:all;width:var(--keyboard-alternate-key-length)}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys ul>li{font-size:24px;height:50px;width:50px}}.ML__keyboard.alternate-keys ul>li.is-active,.ML__keyboard.alternate-keys ul>li.is-pressed,.ML__keyboard.alternate-keys ul>li:hover{background:var(--keyboard-alternate-background-active);color:var(--keyboard-alternate-text-active)}.ML__keyboard.alternate-keys ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard.alternate-keys ul>li.small-button{background:#fbfbfb;height:42px;margin:2px;width:42px}.ML__keyboard.alternate-keys ul>li.small-button:hover{background:var(--keyboard-alternate-background-active)}.ML__keyboard.alternate-keys ul>li.box>div,.ML__keyboard.alternate-keys ul>li.box>span{border:1px dashed rgba(0,0,0,.24)}.ML__keyboard.alternate-keys ul>li .warning{align-items:center;background:#cd0030;border-radius:5px;color:#fff;display:flex;justify-content:center;min-height:60px;min-width:60px;padding:5px}.ML__keyboard.alternate-keys ul>li .warning.is-active,.ML__keyboard.alternate-keys ul>li .warning.is-pressed,.ML__keyboard.alternate-keys ul>li .warning:hover{background:red}.ML__keyboard.alternate-keys ul>li .warning svg.svg-glyph{height:50px;width:50px}.ML__keyboard.alternate-keys ul>li aside{font-size:var(--keyboard-alternate-key-aside-font-size);line-height:12px;opacity:.78;padding-top:2px}.ML__keyboard .ML__keyboard--plate{-webkit-backdrop-filter:grayscale(50%);backdrop-filter:grayscale(50%);background-color:var(--keyboard-background);border:1px solid var(--keyboard-background-border);bottom:calc(var(--keyboard-height, 276px)*-1);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);box-sizing:border-box;cursor:pointer;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:16px;font-weight:400;left:0;margin:0;opacity:0;padding-top:5px;position:absolute;text-shadow:none;touch-action:none;transform:translate(0);transition:.28s cubic-bezier(0,0,.2,1);transition-property:transform,opacity;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;visibility:hidden;width:100%;z-index:var(--keyboard-zindex,105)}.ML__keyboard .ML__keyboard--plate .tex{font-family:KaTeX_Math,KaTeX_Main,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .ML__keyboard--plate .tex-math{font-family:KaTeX_Math,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .ML__keyboard--plate .tt{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace!important;font-size:var(--keycap-tt-font-size,30px);font-weight:400}.ML__keyboard .ML__keyboard--plate>div.keyboard-layer{display:none;outline:none}.ML__keyboard .ML__keyboard--plate>div.keyboard-layer.is-visible{display:flex;flex-flow:column}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar{align-self:center;display:flex;flex-flow:row;justify-content:space-between;width:736px}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar{width:556px}}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar{max-width:100vw;width:365px}}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar svg{height:20px;width:20px}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar svg{height:13px;width:17px}}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>.left{display:flex;flex-flow:row;justify-content:flex-start;position:relative}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>.right{display:flex;flex-flow:row;justify-content:flex-end}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div{fill:currentColor;align-items:baseline;background:0;border:none;border-bottom:2px solid transparent;box-shadow:none;color:var(--keyboard-text);cursor:pointer;display:flex;font-size:110%;justify-content:center;margin:7px 4px 6px;min-height:0;padding:4px 10px;pointer-events:all}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.disabled.is-pressed svg,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.disabled:hover svg,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.disabled svg{color:var(--keyboard-text);opacity:.2}@media only screen and (max-width:414px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div{font-size:100%;padding:0 6px 0 0}}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div{font-size:90%;padding-left:4px;padding-right:4px}}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.is-active,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.is-pressed,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div:active,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div:hover{color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.selected{border-bottom:2px solid var(--keyboard-text-active);color:var(--keyboard-text-active);margin-bottom:8px;padding-bottom:0}.ML__keyboard .ML__keyboard--plate div .rows{align-items:center;border:0;border-collapse:separate;clear:both;display:flex;flex-flow:column;margin:auto}.ML__keyboard .ML__keyboard--plate div .rows>ul{height:40px;list-style:none;margin:0 0 3px;padding:0}.ML__keyboard .ML__keyboard--plate div .rows>ul>li{fill:currentColor;-webkit-tap-highlight-color:transparent;align-items:center;background:var(--keycap-background);border:1px solid var(--keycap-background-border);border-bottom-color:var(--keycap-background-border-bottom);border-radius:5px;box-sizing:border-box;color:var(--keycap-text);display:flex;flex-flow:column;float:left;font-size:var(--keycap-font-size,20px);height:40px;justify-content:center;margin-right:2px;overflow:hidden;padding:8px 0;pointer-events:all;position:relative;text-align:center;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:top;width:34px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li:last-child{margin-right:0}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.tt{color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.bottom{justify-content:flex-end}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.left{align-items:flex-start;padding-left:4px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.right{align-items:flex-end;padding-right:4px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li svg.svg-glyph{height:20px;width:20px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning{align-items:center;background:#cd0030;border-radius:100%;color:#fff;display:flex;height:25px;justify-content:center;margin-bottom:-2px;min-height:25px;min-width:25px;padding:5px;width:25px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning svg.svg-glyph{height:16px;width:16px}@media only screen and (max-width:768px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning{height:16px;min-height:16px;min-width:16px;width:16px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning svg.svg-glyph{height:14px;width:14px}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w0{width:0}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w5{width:16px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w15{width:52px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w20{width:70px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w50{width:178px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.separator{background:transparent;border:none;pointer-events:none}@media only screen and (max-width:560px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.if-wide{display:none}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.tex-math{font-size:25px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.is-pressed,.ML__keyboard .ML__keyboard--plate div .rows>ul>li:hover{background:var(--keycap-background-active);color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action:active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.keycap.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.keycap:active{color:var(--keyboard-text-active);transform:translateY(calc(var(--keycap-height, 52px)*-.2)) scale(1.4);z-index:calc(var(--keyboard-zindex, 105) - 5)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier:active{background:var(--keyboard-text-active);color:var(--keycap-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.font-glyph,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.font-glyph{font-size:18px}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.font-glyph,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.font-glyph{font-size:16px}}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.fnbutton{font-size:12px}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.bigfnbutton{font-size:var(--keycap-extra-small-font-size,14px)}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.bigfnbutton{font-size:calc(var(--keycap-extra-small-font-size, 14px)/1.55)}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier{background-color:var(--keycap-modifier-background);border-bottom-color:var(--keycap-modifier-border);border-color:var(--keycap-modifier-border) var(--keycap-modifier-border) var(--keycap-modifier-border-bottom);font-size:65%;font-weight:100}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected{color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected.is-pressed,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected:active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected:hover,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected.is-pressed,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected:active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected:hover{color:#fff}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.keycap.w50{font-size:80%;font-weight:100;padding-top:10px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li small{color:#555}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li small{font-size:9px}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li aside{color:#666;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:10px;line-height:10px}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li aside{display:none}}@media only screen and (max-width:414px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li{margin-right:2px;width:calc(10vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:calc(5vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:calc(15vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:calc(20vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:calc(50vw - 2px)}}@media only screen and (min-width:415px) and (max-width:768px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li{margin-right:3px;width:37px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:17px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:57px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:77px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:197px}}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard .ML__keyboard--plate div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li{height:var(--keycap-height,52px);margin-right:4px;width:51px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:23.5px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:78.5px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:106px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:271px}}@media only screen and (min-width:1025px){.ML__keyboard .ML__keyboard--plate div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li{height:var(--keycap-height,52px);margin-right:6px;width:66px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.action,.ML__keyboard .ML__keyboard--plate div .rows>ul>.modifier{font-size:80%}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:30px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:102px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:138px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:354px}}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%)}}body[theme=dark] .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%)}div.ML__keyboard.material{--keyboard-background:rgba(209,213,217,0.9);--keyboard-background-border:#ddd;--keycap-background:transparent;--keycap-background-active:#cccfd1;--keycap-background-border:transparent;--keyboard-alternate-background:#efefef;--keyboard-alternate-text:#000;font-family:Roboto,sans-serif}div.ML__keyboard.material.alternate-keys{background:var(--keyboard-alternate-background);border:1px solid transparent;border-radius:5px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)}div.ML__keyboard.material.alternate-keys ul li.is-active,div.ML__keyboard.material.alternate-keys ul li.is-pressed,div.ML__keyboard.material.alternate-keys ul li:active,div.ML__keyboard.material.alternate-keys ul li:hover{fill:currentColor;background:#5f97fc;border:1px solid transparent;color:#fff}div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar>div>div{font-size:16px}div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div.div.is-active,div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div.div.is-pressed,div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div div:active,div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div div:hover{fill:currentColor;color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar>div>.selected{fill:currentColor;border-bottom:2px solid #5f97fc;color:#5f97fc;margin-bottom:8px;padding-bottom:0}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap{fill:currentColor;background:transparent;border:1px solid transparent;border-radius:5px;color:var(--keycap-text);transition:none}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap.tt{color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"]{background:#e0e0e0;height:20px;margin-bottom:10px;margin-top:10px}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"].is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"].is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"]:active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"]:hover{background:#d0d0d0;box-shadow:none;transform:none}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):hover{background:var(--keycap-background-active);border:1px solid transparent;box-shadow:none}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):active{background:var(--keyboard-alternate-background);box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);color:var(--keyboard-alternate-text)}@media only screen and (max-width:767px){div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):active{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);font-size:10px;justify-content:flex-start;margin-left:10px;margin-right:10px;padding:2px 0 0;transform:translateY(-10px) scale(2);transition:none;vertical-align:top;width:19.5px;z-index:calc(var(--ML_keyboard-zindex, 105) - 5)}}@media only screen and (max-width:414px){div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):active{width:16.5px}}@media only screen and (max-width:767px){div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:last-child.is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:last-child:active{margin-left:14px;margin-right:0}}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier{fill:currentColor;background:transparent;border:0;color:#869096;font-size:16px;transition:none}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action.selected,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier.selected{border-bottom:2px solid #5f97fc;border-radius:0;color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action:hover,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier:hover{background:var(--keycap-background-active);border:0;box-shadow:none;color:var(--keycap-text)}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton{background:transparent;border:0}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton.selected,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton.selected{fill:currentColor;border-bottom:2px solid #5f97fc;border-radius:0;color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton:hover,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton:hover{fill:currentColor;background:var(--keycap-background-active);border:0;box-shadow:none;color:#5f97fc}@media (prefers-color-scheme:dark){body:not([theme=light]) div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}";
+  var css_248z$3 = ".ML__keyboard{--keyboard-background:rgba(209,213,217,0.97);--keyboard-text:#000;--keyboard-text-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-background-border:#ddd;--keycap-background:#fff;--keycap-background-active:#e5e5e5;--keycap-background-border:#e5e6e9;--keycap-background-border-bottom:#8d8f92;--keycap-text:#000;--keycap-text-active:#fff;--keycap-secondary-text:#000;--keycap-modifier-background:#b9bdc7;--keycap-modifier-border:#c5c9d0;--keycap-modifier-border-bottom:#989da6;--keyboard-alternate-background:#fff;--keyboard-alternate-background-active:var(--primary,hsl(var(--hue,212),40%,50%));--keyboard-alternate-text:var(--keycap-text,#000);--keyboard-alternate-text-active:#fff;--keyboard-alternate-key-length:70px;--keyboard-alternate-key-font-size:30px;--keyboard-alternate-key-aside-font-size:12px;--keyboard-height:276px;--keycap-height:52px;--keycap-font-size:20px;--keycap-small-font-size:calc(var(--keycap-font-size)*0.8);--keycap-extra-small-font-size:calc(var(--keycap-font-size)/1.42);--keycap-tt-font-size:calc(var(--keycap-font-size)*1.5);height:100%;pointer-events:none;position:fixed;top:0;width:100%}.ML__keyboard.is-visible .ML__keyboard--plate{opacity:1;transform:translateY(calc(var(--keyboard-height, 276px)*-1));transition-timing-function:cubic-bezier(.4,0,1,1);visibility:visible}.ML__keyboard.alternate-keys{align-content:center;background-color:var(--keyboard-alternate-background);border-radius:6px;bottom:auto;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);box-sizing:content-box;display:flex;flex-direction:row;justify-content:center;max-width:286px;position:fixed;text-align:center;top:0;transform:none;transition:none;visibility:hidden;z-index:calc(var(--keyboard-zindex, 105) + 1)}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys{max-width:320px}}.ML__keyboard.alternate-keys.is-visible{visibility:visible}.ML__keyboard.alternate-keys.compact{--keyboard-alternate-key-length:50px;--keyboard-alternate-key-font-size:24px;--keyboard-alternate-key-aside-font-size:10px}.ML__keyboard.alternate-keys ul{display:flex;flex-flow:row wrap-reverse;justify-content:center;list-style:none;margin:3px;padding:0}.ML__keyboard.alternate-keys ul>li{fill:currentColor;align-items:center;background:transparent;border:1px solid transparent;border-radius:5px;box-sizing:border-box;color:var(--keyboard-alternate-text);display:flex;flex-flow:column;font-size:var(--keyboard-alternate-key-font-size);height:var(--keyboard-alternate-key-length);justify-content:center;margin:0;pointer-events:all;width:var(--keyboard-alternate-key-length)}@media only screen and (max-height:412px){.ML__keyboard.alternate-keys ul>li{font-size:24px;height:50px;width:50px}}.ML__keyboard.alternate-keys ul>li.is-active,.ML__keyboard.alternate-keys ul>li.is-pressed,.ML__keyboard.alternate-keys ul>li:hover{background:var(--keyboard-alternate-background-active);color:var(--keyboard-alternate-text-active)}.ML__keyboard.alternate-keys ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard.alternate-keys ul>li.small-button{background:#fbfbfb;height:42px;margin:2px;width:42px}.ML__keyboard.alternate-keys ul>li.small-button:hover{background:var(--keyboard-alternate-background-active)}.ML__keyboard.alternate-keys ul>li.box>div,.ML__keyboard.alternate-keys ul>li.box>span{border:1px dashed rgba(0,0,0,.24)}.ML__keyboard.alternate-keys ul>li .warning{align-items:center;background:#cd0030;border-radius:5px;color:#fff;display:flex;justify-content:center;min-height:60px;min-width:60px;padding:5px}.ML__keyboard.alternate-keys ul>li .warning.is-active,.ML__keyboard.alternate-keys ul>li .warning.is-pressed,.ML__keyboard.alternate-keys ul>li .warning:hover{background:red}.ML__keyboard.alternate-keys ul>li .warning svg.svg-glyph{height:50px;width:50px}.ML__keyboard.alternate-keys ul>li aside{font-size:var(--keyboard-alternate-key-aside-font-size);line-height:12px;opacity:.78;padding-top:2px}.ML__keyboard .ML__keyboard--plate{-webkit-backdrop-filter:grayscale(50%);backdrop-filter:grayscale(50%);background-color:var(--keyboard-background);border:1px solid var(--keyboard-background-border);bottom:calc(var(--keyboard-height, 276px)*-1);box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);box-sizing:border-box;cursor:pointer;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:16px;font-weight:400;left:0;margin:0;opacity:0;padding-top:5px;position:absolute;text-shadow:none;touch-action:none;transform:translate(0);transition:.28s cubic-bezier(0,0,.2,1);transition-property:transform,opacity;-webkit-user-select:none;user-select:none;visibility:hidden;width:100%;z-index:var(--keyboard-zindex,105)}.ML__keyboard .ML__keyboard--plate .tex{font-family:KaTeX_Math,KaTeX_Main,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .ML__keyboard--plate .tex-math{font-family:KaTeX_Math,Cambria Math,Asana Math,OpenSymbol,Symbola,STIX,Times,serif!important}.ML__keyboard .ML__keyboard--plate .tt{font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace!important;font-size:var(--keycap-tt-font-size,30px);font-weight:400}.ML__keyboard .ML__keyboard--plate>div.keyboard-layer{display:none;outline:none}.ML__keyboard .ML__keyboard--plate>div.keyboard-layer.is-visible{display:flex;flex-flow:column}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar{align-self:center;display:flex;flex-flow:row;justify-content:space-between;width:736px}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar{width:556px}}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar{max-width:100vw;width:365px}}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar svg{height:20px;width:20px}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar svg{height:13px;width:17px}}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>.left{display:flex;flex-flow:row;justify-content:flex-start;position:relative}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>.right{display:flex;flex-flow:row;justify-content:flex-end}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div{fill:currentColor;align-items:baseline;background:0;border:none;border-bottom:2px solid transparent;box-shadow:none;color:var(--keyboard-text);cursor:pointer;display:flex;font-size:110%;justify-content:center;margin:7px 4px 6px;min-height:0;padding:4px 10px;pointer-events:all}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.disabled.is-pressed svg,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.disabled:hover svg,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.disabled svg{color:var(--keyboard-text);opacity:.2}@media only screen and (max-width:414px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div{font-size:100%;padding:0 6px 0 0}}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div{font-size:90%;padding-left:4px;padding-right:4px}}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.is-active,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.is-pressed,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div:active,.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div:hover{color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate>div>div.keyboard-toolbar>div>div.selected{border-bottom:2px solid var(--keyboard-text-active);color:var(--keyboard-text-active);margin-bottom:8px;padding-bottom:0}.ML__keyboard .ML__keyboard--plate div .rows{align-items:center;border:0;border-collapse:separate;clear:both;display:flex;flex-flow:column;margin:auto}.ML__keyboard .ML__keyboard--plate div .rows>ul{height:40px;list-style:none;margin:0 0 3px;padding:0}.ML__keyboard .ML__keyboard--plate div .rows>ul>li{fill:currentColor;-webkit-tap-highlight-color:transparent;align-items:center;background:var(--keycap-background);border:1px solid var(--keycap-background-border);border-bottom-color:var(--keycap-background-border-bottom);border-radius:5px;box-sizing:border-box;color:var(--keycap-text);display:flex;flex-flow:column;float:left;font-size:var(--keycap-font-size,20px);height:40px;justify-content:center;margin-right:2px;overflow:hidden;padding:8px 0;pointer-events:all;position:relative;text-align:center;-webkit-user-select:none;user-select:none;vertical-align:top;width:34px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li:last-child{margin-right:0}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.small{font-size:var(--keycap-small-font-size,16px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.tt{color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.bottom{justify-content:flex-end}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.left{align-items:flex-start;padding-left:4px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.right{align-items:flex-end;padding-right:4px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li svg.svg-glyph{height:20px;width:20px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning{align-items:center;background:#cd0030;border-radius:100%;color:#fff;display:flex;height:25px;justify-content:center;margin-bottom:-2px;min-height:25px;min-width:25px;padding:5px;width:25px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning svg.svg-glyph{height:16px;width:16px}@media only screen and (max-width:768px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning{height:16px;min-height:16px;min-width:16px;width:16px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li .warning svg.svg-glyph{height:14px;width:14px}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w0{width:0}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w5{width:16px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w15{width:52px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w20{width:70px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li>.w50{width:178px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.separator{background:transparent;border:none;pointer-events:none}@media only screen and (max-width:560px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.if-wide{display:none}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.tex-math{font-size:25px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.is-pressed,.ML__keyboard .ML__keyboard--plate div .rows>ul>li:hover{background:var(--keycap-background-active);color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action:active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.keycap.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.keycap:active{color:var(--keyboard-text-active);transform:translateY(calc(var(--keycap-height, 52px)*-.2)) scale(1.4);z-index:calc(var(--keyboard-zindex, 105) - 5)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier:active{background:var(--keyboard-text-active);color:var(--keycap-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.font-glyph,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.font-glyph{font-size:18px}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.font-glyph,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.font-glyph{font-size:16px}}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.fnbutton{font-size:12px}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.bigfnbutton{font-size:var(--keycap-extra-small-font-size,14px)}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li.bigfnbutton{font-size:calc(var(--keycap-extra-small-font-size, 14px)/1.55)}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier{background-color:var(--keycap-modifier-background);border-bottom-color:var(--keycap-modifier-border);border-color:var(--keycap-modifier-border) var(--keycap-modifier-border) var(--keycap-modifier-border-bottom);font-size:65%;font-weight:100}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected{color:var(--keyboard-text-active)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected.is-pressed,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected:active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.action.selected:hover,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected.is-active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected.is-pressed,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected:active,.ML__keyboard .ML__keyboard--plate div .rows>ul>li.modifier.selected:hover{color:#fff}.ML__keyboard .ML__keyboard--plate div .rows>ul>li.keycap.w50{font-size:80%;font-weight:100;padding-top:10px}.ML__keyboard .ML__keyboard--plate div .rows>ul>li small{color:#555}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li small{font-size:9px}}.ML__keyboard .ML__keyboard--plate div .rows>ul>li aside{color:#666;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:10px;line-height:10px}@media only screen and (max-width:767px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li aside{display:none}}@media only screen and (max-width:414px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li{margin-right:2px;width:calc(10vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:calc(5vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:calc(15vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:calc(20vw - 2px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:calc(50vw - 2px)}}@media only screen and (min-width:415px) and (max-width:768px){.ML__keyboard .ML__keyboard--plate div .rows>ul>li{margin-right:3px;width:37px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:17px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:57px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:77px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:197px}}@media only screen and (min-width:768px) and (max-width:1024px){.ML__keyboard .ML__keyboard--plate div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li{height:var(--keycap-height,52px);margin-right:4px;width:51px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:23.5px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:78.5px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:106px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:271px}}@media only screen and (min-width:1025px){.ML__keyboard .ML__keyboard--plate div .rows>ul{height:var(--keycap-height,52px)}.ML__keyboard .ML__keyboard--plate div .rows>ul>li{height:var(--keycap-height,52px);margin-right:6px;width:66px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.action,.ML__keyboard .ML__keyboard--plate div .rows>ul>.modifier{font-size:80%}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w5{width:30px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w15{width:102px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w20{width:138px}.ML__keyboard .ML__keyboard--plate div .rows>ul>.w50{width:354px}}@media (prefers-color-scheme:dark){body:not([theme=light]) .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%)}}body[theme=dark] .ML__keyboard{--hue:206;--keyboard-background:hsl(var(--hue,212),19%,38%);--keyboard-text:#f0f0f0;--keyboard-text-active:hsl(var(--hue,212),100%,60%);--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:hsl(var(--hue,212),35%,42%);--keycap-background-border:hsl(var(--hue,212),25%,35%);--keycap-background-border-bottom:#426b8a;--keycap-text:#d0d0d0;--keycap-text-active:#000;--keycap-secondary-text:#fff;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),19%,38%)}div.ML__keyboard.material{--keyboard-background:rgba(209,213,217,0.9);--keyboard-background-border:#ddd;--keycap-background:transparent;--keycap-background-active:#cccfd1;--keycap-background-border:transparent;--keyboard-alternate-background:#efefef;--keyboard-alternate-text:#000;font-family:Roboto,sans-serif}div.ML__keyboard.material.alternate-keys{background:var(--keyboard-alternate-background);border:1px solid transparent;border-radius:5px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)}div.ML__keyboard.material.alternate-keys ul li.is-active,div.ML__keyboard.material.alternate-keys ul li.is-pressed,div.ML__keyboard.material.alternate-keys ul li:active,div.ML__keyboard.material.alternate-keys ul li:hover{fill:currentColor;background:#5f97fc;border:1px solid transparent;color:#fff}div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar>div>div{font-size:16px}div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div.div.is-active,div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div.div.is-pressed,div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div div:active,div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar div div:hover{fill:currentColor;color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate .keyboard-toolbar>div>.selected{fill:currentColor;border-bottom:2px solid #5f97fc;color:#5f97fc;margin-bottom:8px;padding-bottom:0}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap{fill:currentColor;background:transparent;border:1px solid transparent;border-radius:5px;color:var(--keycap-text);transition:none}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap.tt{color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"]{background:#e0e0e0;height:20px;margin-bottom:10px;margin-top:10px}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"].is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"].is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"]:active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap[data-key=\" \"]:hover{background:#d0d0d0;box-shadow:none;transform:none}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):hover{background:var(--keycap-background-active);border:1px solid transparent;box-shadow:none}div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):active{background:var(--keyboard-alternate-background);box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);color:var(--keyboard-alternate-text)}@media only screen and (max-width:767px){div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):active{box-shadow:0 10px 20px rgba(0,0,0,.19),0 6px 6px rgba(0,0,0,.23);font-size:10px;justify-content:flex-start;margin-left:10px;margin-right:10px;padding:2px 0 0;transform:translateY(-10px) scale(2);transition:none;vertical-align:top;width:19.5px;z-index:calc(var(--ML_keyboard-zindex, 105) - 5)}}@media only screen and (max-width:414px){div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]).is-pressed,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:not([data-key=\" \"]):active{width:16.5px}}@media only screen and (max-width:767px){div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:last-child.is-active,div.ML__keyboard.material .ML__keyboard__plate div>.rows>ul>.keycap:last-child:active{margin-left:14px;margin-right:0}}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier{fill:currentColor;background:transparent;border:0;color:#869096;font-size:16px;transition:none}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action.selected,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier.selected{border-bottom:2px solid #5f97fc;border-radius:0;color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.action:hover,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.modifier:hover{background:var(--keycap-background-active);border:0;box-shadow:none;color:var(--keycap-text)}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton{background:transparent;border:0}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton.selected,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton.selected{fill:currentColor;border-bottom:2px solid #5f97fc;border-radius:0;color:#5f97fc}div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.bigfnbutton:hover,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton.is-active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton.is-pressed,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton:active,div.ML__keyboard.material .ML__keyboard__plate div div.rows ul li.fnbutton:hover{fill:currentColor;background:var(--keycap-background-active);border:0;box-shadow:none;color:#5f97fc}@media (prefers-color-scheme:dark){body:not([theme=light]) div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}}body[theme=dark] div.ML__keyboard.material{--hue:198;--keyboard-background:hsl(var(--hue,212),19%,18%);--keyboard-text:#d4d6d7;--keyboard-text-active:#5f97fc;--keyboard-background-border:#333;--keycap-background:hsl(var(--hue,212),25%,39%);--keycap-background-active:#5f97fc;--keycap-background-border:transparent;--keycap-background-border-bottom:transparent;--keycap-text:#d0d0d0;--keycap-text-active:#d4d6d7;--keycap-secondary-text:#5f97fc;--keycap-modifier-background:hsl(var(--hue,212),35%,40%);--keycap-modifier-border:hsl(var(--hue,212),35%,35%);--keycap-modifier-border-bottom:hsl(var(--hue,212),35%,42%);--keyboard-alternate-background:hsl(var(--hue,212),8%,2%);--keyboard-alternate-background-active:hsl(var(--hue,212),35%,42%);--keyboard-alternate-text:#d1d1d1}";
 
   /* eslint-disable no-new */
   // Each entry indicate the font-name (to be used to calculate font metrics)
@@ -23954,7 +24821,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       });
   }
 
-  var css_248z$2 = "#mathlive-popover-panel{background-color:rgba(97,97,97,.95);border-radius:6px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:160px;position:fixed;text-align:center;transition:all .2s cubic-bezier(.64,.09,.08,1);visibility:hidden;z-index:1}#mathlive-popover-panel:after{border-bottom:5px solid rgba(97,97,97,.9);border-left:5px solid transparent;border-right:5px solid transparent;content:\"\";font-size:1rem;height:0;left:calc(50% - 3px);position:absolute;top:-5px;width:0}.ML__popover--reverse-direction:after{border-bottom:0;border-top:5px solid rgba(97,97,97,.9);bottom:-5px;top:auto}#mathlive-popover-panel.is-visible{-webkit-animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);visibility:inherit}@-webkit-keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px;min-height:100px;padding:2px}.ML__popover__content a{color:#5ea6fd;display:block;margin-top:.4em;padding-top:.3em}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.is-active,.ML__popover__content.is-pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-family:KaTeX_Main;font-size:1.6rem}.ML__popover__prev-shortcut{cursor:pointer;height:31px;margin-left:8px;margin-right:8px;opacity:.1;padding-bottom:2px;padding-top:4px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.is-active,.ML__popover__next-shortcut.is-pressed,.ML__popover__prev-shortcut.is-active,.ML__popover__prev-shortcut.is-pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{border-radius:8px;display:inline-block;height:20px;padding:5px;width:20px}.ML__popover__prev-shortcut>span>span{display:block;margin-top:-2px}.ML__popover__next-shortcut>span>span{display:block;margin-top:2px}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{cursor:pointer;height:34px;margin-left:8px;margin-right:8px;opacity:.1;padding-bottom:4px;padding-top:2px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
+  var css_248z$2 = "#mathlive-popover-panel{background-color:rgba(97,97,97,.95);border-radius:6px;box-shadow:0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22);color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:160px;position:fixed;text-align:center;transition:all .2s cubic-bezier(.64,.09,.08,1);visibility:hidden;z-index:1}#mathlive-popover-panel:after{border-bottom:5px solid rgba(97,97,97,.9);border-left:5px solid transparent;border-right:5px solid transparent;content:\"\";font-size:1rem;height:0;left:calc(50% - 3px);position:absolute;top:-5px;width:0}.ML__popover--reverse-direction:after{border-bottom:0;border-top:5px solid rgba(97,97,97,.9);bottom:-5px;top:auto}#mathlive-popover-panel.is-visible{animation:ML__fade-in .15s cubic-bezier(0,0,.2,1);visibility:inherit}@keyframes ML__fade-in{0%{opacity:0}to{opacity:1}}.ML__popover__content{border-radius:6px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;margin-left:8px;margin-right:8px;min-height:100px;padding:2px}.ML__popover__content a{color:#5ea6fd;display:block;margin-top:.4em;padding-top:.3em}.ML__popover__content a:hover{color:#5ea6fd;text-decoration:underline}.ML__popover__content.is-active,.ML__popover__content.is-pressed,.ML__popover__content:hover{background:hsla(0,0%,100%,.1)}.ML__popover__command{font-family:KaTeX_Main;font-size:1.6rem}.ML__popover__prev-shortcut{cursor:pointer;height:31px;margin-left:8px;margin-right:8px;opacity:.1;padding-bottom:2px;padding-top:4px}.ML__popover__next-shortcut:hover,.ML__popover__prev-shortcut:hover{opacity:.3}.ML__popover__next-shortcut.is-active,.ML__popover__next-shortcut.is-pressed,.ML__popover__prev-shortcut.is-active,.ML__popover__prev-shortcut.is-pressed{opacity:1}.ML__popover__next-shortcut>span,.ML__popover__prev-shortcut>span{border-radius:8px;display:inline-block;height:20px;padding:5px;width:20px}.ML__popover__prev-shortcut>span>span{display:block;margin-top:-2px}.ML__popover__next-shortcut>span>span{display:block;margin-top:2px}.ML__popover__next-shortcut:hover>span,.ML__popover__prev-shortcut:hover>span{background:hsla(0,0%,100%,.1)}.ML__popover__next-shortcut{cursor:pointer;height:34px;margin-left:8px;margin-right:8px;opacity:.1;padding-bottom:4px;padding-top:2px}.ML__popover__shortcut{font-size:.8em;margin-top:.25em}.ML__popover__note,.ML__popover__shortcut{font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:.7;padding-top:.25em}.ML__popover__note{font-size:.8rem;line-height:1em;padding-left:.5em;padding-right:.5em}.ML__shortcut-join{opacity:.5}";
 
   let POPOVER_STYLESHEET_HASH = undefined;
   let gPopoverStylesheet = null;
@@ -24451,7 +25318,18 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               groupNumbers: (_a = renderOptions.forHighlighting) !== null && _a !== void 0 ? _a : false,
           },
           smartFence: mathfield.options.smartFence,
-          renderPlaceholder: undefined,
+          renderPlaceholder: mathfield.options.readOnly
+              ? (context, p) => {
+                  if (p.placeholderId) {
+                      const field = mathfield.getPlaceholderField(p.placeholderId);
+                      return p.createMathfieldBox(context, {
+                          placeholderId: p.placeholderId,
+                          element: field,
+                      });
+                  }
+                  return p.createBox(context);
+              }
+              : undefined,
           isSelected: model.root.isSelected,
       }, {
           fontSize: DEFAULT_FONT_SIZE,
@@ -24493,6 +25371,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       // 6. Render the selection/caret
       //
       renderSelection(mathfield);
+      if (mathfield.options.readOnly) {
+          mathfield.attachNestedMathfield();
+      }
       if (!((_b = renderOptions.interactive) !== null && _b !== void 0 ? _b : false)) {
           // (re-render a bit later because the layout may not be up to date right
           //  now. This happens in particular when first loading and the fonts are
@@ -24686,8 +25567,14 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               //
               // 3. Put other flavors on the clipboard
               //
-              ev.clipboardData.setData('application/json', model.getValue(exportRange, 'math-json'));
-              ev.clipboardData.setData('application/mathml+xml', model.getValue(exportRange, 'math-ml'));
+              const mathJson = model.getValue(exportRange, 'math-json');
+              if (mathJson) {
+                  ev.clipboardData.setData('application/json', mathJson);
+              }
+              const mathMl = model.getValue(exportRange, 'math-ml');
+              if (mathMl) {
+                  ev.clipboardData.setData('application/mathml+xml', mathMl);
+              }
           }
           // Prevent the current document selection from being written to the clipboard.
           ev.preventDefault();
@@ -24720,6 +25607,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           !model.suppressChangeNotifications) {
           model.suppressChangeNotifications = true;
           model.listeners.onContentDidChange(model);
+          model.suppressChangeNotifications = false;
+      }
+  }
+  function placeholderDidChange(model, placeholderId) {
+      var _a;
+      if (typeof ((_a = model.listeners) === null || _a === void 0 ? void 0 : _a.onPlaceholderDidChange) === 'function' &&
+          !model.suppressChangeNotifications) {
+          model.suppressChangeNotifications = true;
+          model.listeners.onPlaceholderDidChange(model, placeholderId);
           model.suppressChangeNotifications = false;
       }
   }
@@ -25984,8 +26880,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 <li class='separator w5'></li>
                 <row name='numpad-1'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='$$\\exponentialE$$' data-alt-keys='ee'>e</li>
-                <li class='keycap tex' data-insert='$$\\imaginaryI$$' data-alt-keys='ii'>i</li>
+                <li class='keycap tex' data-latex='\\exponentialE' data-alt-keys='ee'>e</li>
+                <li class='keycap tex' data-latex='\\imaginaryI' data-alt-keys='ii'>i</li>
                 <li class='keycap tex' data-latex='\\pi' data-alt-keys='numeric-pi'></li>
             </ul>
             <ul>
@@ -25994,9 +26890,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 <li class='separator w5'></li>
                 <row name='numpad-2'/>
                 <li class='separator w5'></li>
-                <li class='keycap tex' data-insert='$$#@^{2}$$' data-latex='x^2'></li>
-                <li class='keycap tex' data-alt-keys='^' data-insert='$$#@^{#?}$$' data-latex='x^\\placeholder'></li>
-                <li class='keycap tex small' data-insert='$$\\sqrt{#0}$$' data-latex='\\sqrt{#0}'></li>
+                <li class='keycap tex' data-latex='#@^{2}' data-latex='x^2'></li>
+                <li class='keycap tex' data-alt-keys='^' data-insert='#@^{#?}' data-latex='x^\\placeholder'></li>
+                <li class='keycap tex small' data-insert='\\sqrt{#0}' data-latex='\\sqrt{#0}'></li>
             </ul>
             <ul>
                 <li class='keycap tex' data-alt-keys='(' >(</li>
@@ -26086,7 +26982,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 <li class='keycap tex' data-alt-keys='subset' data-insert='\\subset '>&#x2282;</li>
                 <li class='keycap tex' data-alt-keys='superset' data-insert='\\supset '>&#x2283;</li>
                 <li class='keycap tex' data-key='!' data-alt-keys='!'>!<aside>factorial</aside></li>
-                <li class='keycap' data-insert='$$^{\\prime} $$'><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
+                <li class='keycap' data-latex='^{\\prime} '><span><sup><span><span style='color:#ddd'>o</span>&#x2032</sup></span><aside>prime</aside></li>
                 <li class='keycap w15' data-insert='\\llcorner#0\\lrcorner '><span><sub>&#x2514;</sub><span style='color:#ddd'>o</span><sub>&#x2518;</sub></span><aside>floor</aside></li>
                 <li class='keycap tex' data-insert='\\partial '>&#x2202;<aside>partial<br>derivative</aside></li>
                 <li class='keycap tex' data-insert='\\emptyset '>&#x2205;<aside>empty set</aside></li>
@@ -26102,7 +26998,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 <li class='keycap tex' data-alt-keys='accents' data-insert='\\vec{#@}' data-latex='\\vec{#?}' data-aside='vector'></li>
                 <li class='keycap tex small' data-alt-keys='xleftarrows' data-latex='\\xleftarrow{}' ></li>
                 <li class='keycap tex small' data-alt-keys='xrightarrows' data-latex='\\xrightarrow{}' ></li>
-                <li class='keycap tex' data-alt-keys='absnorm' data-insert='$$\\left| #0 \\right|$$' data-latex='\\left| #? \\right|' data-aside='abs'></li>
+                <li class='keycap tex' data-alt-keys='absnorm' data-insert='\\left| #0 \\right|' data-latex='\\left| #? \\right|' data-aside='abs'></li>
 
                 <li class='action font-glyph bottom right w15'
                     data-shifted='<span class="warning"><svg class="svg-glyph"><use xlink:href="#svg-trash" /></svg></span>'
@@ -26275,38 +27171,38 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 <li class='fnbutton' data-insert='\\sin^{-1}'></li>
                 <li class='fnbutton' data-insert='\\ln'></li>
                 <li class='fnbutton' data-insert='\\exponentialE^{#?}'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{lcm}(#?)$$' data-latex='\\operatorname{lcm}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{ceil}(#?)$$' data-latex='\\operatorname{ceil}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\lim_{n\\to\\infty}$$'></li>
-                <li class='bigfnbutton' data-insert='$$\\int$$'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{abs}(#?)$$' data-latex='\\operatorname{abs}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{lcm}(#?)' data-latex='\\operatorname{lcm}()'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{ceil}(#?)' data-latex='\\operatorname{ceil}()'></li>
+                <li class='bigfnbutton' data-insert='\\lim_{n\\to\\infty}'></li>
+                <li class='bigfnbutton' data-insert='\\int'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{abs}(#?)' data-latex='\\operatorname{abs}()'></li>
             </ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-latex='\\cos'></li>
                 <li class='fnbutton' data-latex='\\cos^{-1}'></li>
                 <li class='fnbutton' data-latex='\\ln_{10}'></li>
-                <li class='fnbutton' data-insert='$$10^{#?}$$'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{gcd}(#?)$$' data-latex='\\operatorname{gcd}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{floor}(#?)$$' data-latex='\\operatorname{floor}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\sum_{n\\mathop=0}^{\\infty}$$'></li>
-                <li class='bigfnbutton' data-insert='$$\\int_{0}^{\\infty}$$'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{sign}(#?)$$' data-latex='\\operatorname{sign}()'></li>
+                <li class='fnbutton' data-latex='10^{#?}'></li>
+                <li class='bigfnbutton' data-latex='\\operatorname{gcd}(#?)' data-latex='\\operatorname{gcd}()'></li>
+                <li class='bigfnbutton' data-latex='\\operatorname{floor}(#?)' data-latex='\\operatorname{floor}()'></li>
+                <li class='bigfnbutton' data-latex='\\sum_{n\\mathop=0}^{\\infty}'></li>
+                <li class='bigfnbutton' data-latex='\\int_{0}^{\\infty}'></li>
+                <li class='bigfnbutton' data-latex='\\operatorname{sign}(#?)' data-latex='\\operatorname{sign}()'></li>
             </ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton' data-latex='\\tan'></li>
                 <li class='fnbutton' data-latex='\\tan^{-1}'></li>
-                <li class='fnbutton' data-insert='$$\\log_{#?}$$'></li>
-                <li class='fnbutton' data-insert='$$\\sqrt[#?]{#0}$$'></li>
-                <li class='bigfnbutton' data-insert='$$#0 \\mod$$' data-latex='\\mod'></li>
-                <li class='bigfnbutton' data-insert='$$\\operatorname{round}(#?) $$' data-latex='\\operatorname{round}()'></li>
-                <li class='bigfnbutton' data-insert='$$\\prod_{n\\mathop=0}^{\\infty}$$' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
-                <li class='bigfnbutton' data-insert='$$\\frac{\\differentialD #0}{\\differentialD x}$$'></li>
+                <li class='fnbutton' data-latex='\\log_{#?}'></li>
+                <li class='fnbutton' data-latex='\\sqrt[#?]{#0}'></li>
+                <li class='bigfnbutton' data-insert='#0 \\mod' data-latex='\\mod'></li>
+                <li class='bigfnbutton' data-insert='\\operatorname{round}(#?) ' data-latex='\\operatorname{round}()'></li>
+                <li class='bigfnbutton' data-insert='\\prod_{n\\mathop=0}^{\\infty}' data-latex='{\\scriptstyle \\prod_{n=0}^{\\infty}}'></li>
+                <li class='bigfnbutton' data-insert='\\frac{\\differentialD #0}{\\differentialD x}'></li>
                 <li class='action font-glyph bottom right' data-command='["performWithFeedback","deleteBackward"]'>&#x232b;</li></ul>
             <ul><li class='separator'></li>
                 <li class='fnbutton'>(</li>
                 <li class='fnbutton'>)</li>
-                <li class='fnbutton' data-insert='$$^{#?}$$' data-latex='x^{#?}'></li>
-                <li class='fnbutton' data-insert='$$_{#?}$$' data-latex='x_{#?}'></li>
+                <li class='fnbutton' data-insert='^{#?}' data-latex='x^{#?}'></li>
+                <li class='fnbutton' data-insert='_{#?}' data-latex='x_{#?}'></li>
                 <li class='keycap w20 ' data-key=' '>&nbsp;</li>
                 <arrows/>
             </ul>
@@ -26337,7 +27233,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                 <li class='keycap' data-command='["applyStyle",{"shape":"sl"}]' data-latex='\\textsl{Ab}'></li>
                 <li class='keycap' data-command='["applyStyle",{"shape":"sc"}]' data-latex='\\textsc{Ab}'></li>
                 <li class='separator w5'></li>
-                <li class='keycap' data-insert='$$\\emph{#?} $$' data-latex='\\text{\\emph{emph}}'></li>
+                <li class='keycap' data-insert='\\emph{#?} ' data-latex='\\text{\\emph{emph}}'></li>
             </ul>
             <ul>
                 <li class='keycap' data-command='["applyStyle",{"fontFamily":"cmr"}]' data-latex='\\textrm{Az}'></li>
@@ -27737,7 +28633,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
    */
   function defaultReadAloudHook(element, text, config) {
       var _a, _b, _c;
-      if (!window) {
+      if (typeof window === 'undefined') {
           return;
       }
       if (!config && window.mathlive) {
@@ -27914,7 +28810,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               case 'locale':
                   result.locale =
                       updates.locale === 'auto'
-                          ? (_c = navigator === null || navigator === void 0 ? void 0 : navigator.language.slice(0, 5)) !== null && _c !== void 0 ? _c : 'en'
+                          ? (_c = (isBrowser() ? navigator.language.slice(0, 5) : null)) !== null && _c !== void 0 ? _c : 'en'
                           : updates.locale;
                   l10n.locale = result.locale;
                   break;
@@ -28110,7 +29006,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           locale: (_a = l10n.locale) !== null && _a !== void 0 ? _a : 'en',
           strings: l10n.strings,
           keybindings: DEFAULT_KEYBINDINGS,
-          inlineShortcuts: {},
+          inlineShortcuts: INLINE_SHORTCUTS,
           inlineShortcutTimeout: 0,
           virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
           virtualKeyboardMode: 'auto',
@@ -28118,7 +29014,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           virtualKeyboardLayout: 'auto',
           customVirtualKeyboardLayers: {},
           customVirtualKeyboards: {},
-          virtualKeyboardTheme: /android|cros/i.test(navigator === null || navigator === void 0 ? void 0 : navigator.userAgent)
+          virtualKeyboardTheme: isBrowser() && /android|cros/i.test(navigator.userAgent)
               ? 'material'
               : 'apple',
           keypressVibration: true,
@@ -28141,6 +29037,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           onKeystroke: () => true,
           onMoveOutOf: () => true,
           onTabOutOf: () => true,
+          onPlaceholderDidChange: () => { },
           onBlur: NO_OP_LISTENER,
           onFocus: NO_OP_LISTENER,
           onContentWillChange: NO_OP_LISTENER,
@@ -28435,125 +29332,645 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               return "$" === this.peek() ? (this.get(), "<$$>") : "<$>";
       } return e; }
   }
-  function n(e, i) { var t, r, n, a; let l = [], o = e.next(); if (o)
-      if ("\\relax" === o)
+  function n(e, i) { var t, r, n, a; let o = [], l = e.next(); if (l)
+      if ("\\relax" === l)
           ;
-      else if ("\\noexpand" === o)
-          o = e.next(), o && l.push(o);
-      else if ("\\obeyspaces" === o)
+      else if ("\\noexpand" === l)
+          l = e.next(), l && o.push(l);
+      else if ("\\obeyspaces" === l)
           e.obeyspaces = !0;
-      else if ("\\space" === o || "~" === o)
-          l.push("<space>");
-      else if ("\\bgroup" === o)
-          l.push("<{>");
-      else if ("\\egroup" === o)
-          l.push("<}>");
-      else if ("\\string" === o)
-          o = e.next(), o && ("\\" === o[0] ? Array.from(o).forEach((e => l.push("\\" === e ? "\\backslash" : e))) : "<{>" === o ? l.push("\\{") : "<space>" === o ? l.push("~") : "<}>" === o && l.push("\\}"));
-      else if ("\\csname" === o) {
+      else if ("\\space" === l || "~" === l)
+          o.push("<space>");
+      else if ("\\bgroup" === l)
+          o.push("<{>");
+      else if ("\\egroup" === l)
+          o.push("<}>");
+      else if ("\\string" === l)
+          l = e.next(), l && ("\\" === l[0] ? Array.from(l).forEach((e => o.push("\\" === e ? "\\backslash" : e))) : "<{>" === l ? o.push("\\{") : "<space>" === l ? o.push("~") : "<}>" === l && o.push("\\}"));
+      else if ("\\csname" === l) {
           for (; "<space>" === e.peek();)
               e.next();
-          let n = "", a = !1, c = [];
+          let n = "", a = !1, u = [];
           do {
-              if (0 === c.length)
+              if (0 === u.length)
                   if (/^#[0-9?]$/.test(e.peek())) {
                       const n = e.get().slice(1);
-                      c = s(null !== (r = null !== (t = null == i ? void 0 : i[n]) && void 0 !== t ? t : null == i ? void 0 : i["?"]) && void 0 !== r ? r : "\\placeholder{}", i), o = c[0];
+                      u = s(null !== (r = null !== (t = null == i ? void 0 : i[n]) && void 0 !== t ? t : null == i ? void 0 : i["?"]) && void 0 !== r ? r : "\\placeholder{}", i), l = u[0];
                   }
                   else
-                      o = e.next(), c = o ? [o] : [];
-              a = 0 === c.length, a || "\\endcsname" !== o || (a = !0, c.shift()), a || (a = "<$>" === o || "<$$>" === o || "<{>" === o || "<}>" === o || !!o && o.length > 1 && "\\" === o[0]), a || (n += c.shift());
+                      l = e.next(), u = l ? [l] : [];
+              a = 0 === u.length, a || "\\endcsname" !== l || (a = !0, u.shift()), a || (a = "<$>" === l || "<$$>" === l || "<{>" === l || "<}>" === l || !!l && l.length > 1 && "\\" === l[0]), a || (n += u.shift());
           } while (!a);
-          n && l.push("\\" + n), l = l.concat(c);
+          n && o.push("\\" + n), o = o.concat(u);
       }
-      else if ("\\endcsname" === o)
+      else if ("\\endcsname" === l)
           ;
-      else if (o.length > 1 && "#" === o[0]) {
-          const e = o.slice(1);
-          l = l.concat(s(null !== (a = null !== (n = null == i ? void 0 : i[e]) && void 0 !== n ? n : null == i ? void 0 : i["?"]) && void 0 !== a ? a : "\\placeholder{}", i));
+      else if (l.length > 1 && "#" === l[0]) {
+          const e = l.slice(1);
+          o = o.concat(s(null !== (a = null !== (n = null == i ? void 0 : i[e]) && void 0 !== n ? n : null == i ? void 0 : i["?"]) && void 0 !== a ? a : "\\placeholder{}", i));
       }
       else
-          l.push(o); return l; }
+          o.push(l); return o; }
   function s(e, i) { const t = e.toString().split(/\r?\n/); let s = "", a = ""; for (const e of t) {
       s += a, a = " ";
       const i = e.match(/((?:\\%)|[^%])*/);
       null !== i && (s += i[0]);
-  } const l = new r(s); let o = []; do {
-      o = o.concat(n(l, i));
-  } while (!l.end()); return o; }
+  } const o = new r(s); let l = []; do {
+      l = l.concat(n(o, i));
+  } while (!o.end()); return l; }
   function a(e) { let i = "", t = ""; for (const r of e)
       r && (/[a-zA-Z*]/.test(r[0]) && (t += i), i = /\\[a-zA-Z]+\*?$/.test(r) ? " " : "", t += r); return t; }
-  function l(e) { let i = []; if (Array.isArray(e))
+  function o(e) { let i = []; if (Array.isArray(e))
       for (const t of e)
           Array.isArray(t) ? i = [...i, ...t] : i.push(t);
   else
       i = [e]; return a(i.map((e => { var i; return null !== (i = { "<space>": " ", "<$$>": "$$", "<$>": "$", "<{>": "{", "<}>": "}" }[e]) && void 0 !== i ? i : e; }))); }
-  const o = "List", c = "Missing", u = "Nothing", g = "Divide", p = "Multiply", h = "Negate", m = "Power";
-  function f(e) { return null !== e && "object" == typeof e && "num" in e; }
-  function d(e) { return null !== e && "object" == typeof e && "sym" in e; }
-  function v(e) { return null !== e && "object" == typeof e && "fn" in e; }
-  function x(e) { return "number" == typeof e ? e : null === e ? null : f(e) ? parseFloat(e.num) : null; }
-  function y(e) { return null === e ? null : "object" == typeof e && "str" in e ? e.str : "string" != typeof e || e.length < 2 || "'" !== e[0] || "'" !== e[e.length - 1] ? null : e.substring(1, e.length - 1); }
-  function b(e) { var i, t, r, n, s; let a = NaN, l = NaN; if ("number" == typeof e)
-      a = e, l = 1;
-  else if (f(e))
-      a = null !== (i = x(e)) && void 0 !== i ? i : NaN, l = 1;
-  else {
-      if (function (e) { return null === e || !Array.isArray(e) && ("object" != typeof e || !("fn" in e)); }(e))
-          return null;
-      {
-          const i = A(e);
-          if (i === m) {
-              const i = x(z(e, 2));
-              if (1 === i)
-                  a = x(z(e, 1)), l = 1;
-              else {
-                  if (-1 !== i)
-                      return null;
-                  a = 1, l = x(z(e, 1));
-              }
+  var l, u = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : {}, c = { exports: {} };
+  l = c, function (e) { var i, t, r, n, s = 9e15, a = 1e9, o = "0123456789abcdef", u = "2.3025850929940456840179914546843642076011014886287729760333279009675726096773524802359972050895982983419677840422862486334095254650828067566662873690987816894829072083255546808437998948262331985283935053089653777326288461633662222876982198867465436674744042432743651550489343149393914796194044002221051017141748003688084012647080685567743216228355220114804663715659121373450747856947683463616792101806445070648000277502684916746550586856935673420670581136429224554405758925724208241314695689016758940256776311356919292033376587141660230105703089634572075440370847469940168269282808481184289314848524948644871927809676271275775397027668605952496716674183485704422507197965004714951050492214776567636938662976979522110718264549734772662425709429322582798502585509785265383207606726317164309505995087807523710333101197857547331541421808427543863591778117054309827482385045648019095610299291824318237525357709750539565187697510374970888692180205189339507238539205144634197265287286965110862571492198849978748873771345686209167058", c = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491298336733624406566430860213949463952247371907021798609437027705392171762931767523846748184676694051320005681271452635608277857713427577896091736371787214684409012249534301465495853710507922796892589235420199561121290219608640344181598136297747713099605187072113499999983729780499510597317328160963185950244594553469083026425223082533446850352619311881710100031378387528865875332083814206171776691473035982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989380952572010654858632789", h = { precision: 20, rounding: 4, modulo: 1, toExpNeg: -7, toExpPos: 21, minE: -s, maxE: s, crypto: !1 }, g = !0, p = "[DecimalError] ", f = p + "Invalid argument: ", m = p + "Precision limit exceeded", d = p + "crypto unavailable", v = Math.floor, x = Math.pow, y = /^0b([01]+(\.[01]*)?|\.[01]+)(p[+-]?\d+)?$/i, b = /^0x([0-9a-f]+(\.[0-9a-f]*)?|\.[0-9a-f]+)(p[+-]?\d+)?$/i, w = /^0o([0-7]+(\.[0-7]*)?|\.[0-7]+)(p[+-]?\d+)?$/i, N = /^(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i, q = 1e7, E = u.length - 1, M = c.length - 1, S = { name: "[object Decimal]" }; function A(e) { var i, t, r, n = e.length - 1, s = "", a = e[0]; if (n > 0) {
+      for (s += a, i = 1; i < n; i++)
+          (t = 7 - (r = e[i] + "").length) && (s += R(t)), s += r;
+      (t = 7 - (r = (a = e[i]) + "").length) && (s += R(t));
+  }
+  else if (0 === a)
+      return "0"; for (; a % 10 == 0;)
+      a /= 10; return s + a; } function z(e, i, t) { if (e !== ~~e || e < i || e > t)
+      throw Error(f + e); } function k(e, i, t, r) { var n, s, a, o; for (s = e[0]; s >= 10; s /= 10)
+      --i; return --i < 0 ? (i += 7, n = 0) : (n = Math.ceil((i + 1) / 7), i %= 7), s = x(10, 7 - i), o = e[n] % s | 0, null == r ? i < 3 ? (0 == i ? o = o / 100 | 0 : 1 == i && (o = o / 10 | 0), a = t < 4 && 99999 == o || t > 3 && 49999 == o || 5e4 == o || 0 == o) : a = (t < 4 && o + 1 == s || t > 3 && o + 1 == s / 2) && (e[n + 1] / s / 100 | 0) == x(10, i - 2) - 1 || (o == s / 2 || 0 == o) && 0 == (e[n + 1] / s / 100 | 0) : i < 4 ? (0 == i ? o = o / 1e3 | 0 : 1 == i ? o = o / 100 | 0 : 2 == i && (o = o / 10 | 0), a = (r || t < 4) && 9999 == o || !r && t > 3 && 4999 == o) : a = ((r || t < 4) && o + 1 == s || !r && t > 3 && o + 1 == s / 2) && (e[n + 1] / s / 1e3 | 0) == x(10, i - 3) - 1, a; } function I(e, i, t) { for (var r, n, s = [0], a = 0, l = e.length; a < l;) {
+      for (n = s.length; n--;)
+          s[n] *= i;
+      for (s[0] += o.indexOf(e.charAt(a++)), r = 0; r < s.length; r++)
+          s[r] > t - 1 && (void 0 === s[r + 1] && (s[r + 1] = 0), s[r + 1] += s[r] / t | 0, s[r] %= t);
+  } return s.reverse(); } S.absoluteValue = S.abs = function () { var e = new this.constructor(this); return e.s < 0 && (e.s = 1), L(e); }, S.ceil = function () { return L(new this.constructor(this), this.e + 1, 2); }, S.comparedTo = S.cmp = function (e) { var i, t, r, n, s = this, a = s.d, o = (e = new s.constructor(e)).d, l = s.s, u = e.s; if (!a || !o)
+      return l && u ? l !== u ? l : a === o ? 0 : !a ^ l < 0 ? 1 : -1 : NaN; if (!a[0] || !o[0])
+      return a[0] ? l : o[0] ? -u : 0; if (l !== u)
+      return l; if (s.e !== e.e)
+      return s.e > e.e ^ l < 0 ? 1 : -1; for (i = 0, t = (r = a.length) < (n = o.length) ? r : n; i < t; ++i)
+      if (a[i] !== o[i])
+          return a[i] > o[i] ^ l < 0 ? 1 : -1; return r === n ? 0 : r > n ^ l < 0 ? 1 : -1; }, S.cosine = S.cos = function () { var e, i, t = this, r = t.constructor; return t.d ? t.d[0] ? (e = r.precision, i = r.rounding, r.precision = e + Math.max(t.e, t.sd()) + 7, r.rounding = 1, t = function (e, i) { var t, r, n = i.d.length; n < 32 ? r = (1 / V(4, t = Math.ceil(n / 3))).toString() : (t = 16, r = "2.3283064365386962890625e-10"), e.precision += t, i = W(e, 1, i.times(r), new e(1)); for (var s = t; s--;) {
+      var a = i.times(i);
+      i = a.times(a).minus(a).times(8).plus(1);
+  } return e.precision -= t, i; }(r, Q(r, t)), r.precision = e, r.rounding = i, L(2 == n || 3 == n ? t.neg() : t, e, i, !0)) : new r(1) : new r(NaN); }, S.cubeRoot = S.cbrt = function () { var e, i, t, r, n, s, a, o, l, u, c = this, h = c.constructor; if (!c.isFinite() || c.isZero())
+      return new h(c); for (g = !1, (s = c.s * x(c.s * c, 1 / 3)) && Math.abs(s) != 1 / 0 ? r = new h(s.toString()) : (t = A(c.d), (s = ((e = c.e) - t.length + 1) % 3) && (t += 1 == s || -2 == s ? "0" : "00"), s = x(t, 1 / 3), e = v((e + 1) / 3) - (e % 3 == (e < 0 ? -1 : 2)), (r = new h(t = s == 1 / 0 ? "5e" + e : (t = s.toExponential()).slice(0, t.indexOf("e") + 1) + e)).s = c.s), a = (e = h.precision) + 3;;)
+      if (u = (l = (o = r).times(o).times(o)).plus(c), r = O(u.plus(c).times(o), u.plus(l), a + 2, 1), A(o.d).slice(0, a) === (t = A(r.d)).slice(0, a)) {
+          if ("9999" != (t = t.slice(a - 3, a + 1)) && (n || "4999" != t)) {
+              +t && (+t.slice(1) || "5" != t.charAt(0)) || (L(r, e + 1, 1), i = !r.times(r).times(r).eq(c));
+              break;
           }
-          else
-              i === g ? (a = null !== (t = x(z(e, 1))) && void 0 !== t ? t : NaN, l = null !== (r = x(z(e, 2))) && void 0 !== r ? r : NaN) : i === p && A(z(e, 2)) === m && -1 === x(z(z(e, 2), 2)) && (a = null !== (n = x(z(e, 1))) && void 0 !== n ? n : NaN, l = null !== (s = x(z(z(e, 2), 1))) && void 0 !== s ? s : NaN);
+          if (!n && (L(o, e + 1, 0), o.times(o).times(o).eq(c))) {
+              r = o;
+              break;
+          }
+          a += 4, n = 1;
+      } return g = !0, L(r, e, h.rounding, i); }, S.decimalPlaces = S.dp = function () { var e, i = this.d, t = NaN; if (i) {
+      if (t = 7 * ((e = i.length - 1) - v(this.e / 7)), e = i[e])
+          for (; e % 10 == 0; e /= 10)
+              t--;
+      t < 0 && (t = 0);
+  } return t; }, S.dividedBy = S.div = function (e) { return O(this, new this.constructor(e)); }, S.dividedToIntegerBy = S.divToInt = function (e) { var i = this.constructor; return L(O(this, new i(e), 0, 1, 1), i.precision, i.rounding); }, S.equals = S.eq = function (e) { return 0 === this.cmp(e); }, S.floor = function () { return L(new this.constructor(this), this.e + 1, 3); }, S.greaterThan = S.gt = function (e) { return this.cmp(e) > 0; }, S.greaterThanOrEqualTo = S.gte = function (e) { var i = this.cmp(e); return 1 == i || 0 === i; }, S.hyperbolicCosine = S.cosh = function () { var e, i, t, r, n, s = this, a = s.constructor, o = new a(1); if (!s.isFinite())
+      return new a(s.s ? 1 / 0 : NaN); if (s.isZero())
+      return o; t = a.precision, r = a.rounding, a.precision = t + Math.max(s.e, s.sd()) + 4, a.rounding = 1, (n = s.d.length) < 32 ? i = (1 / V(4, e = Math.ceil(n / 3))).toString() : (e = 16, i = "2.3283064365386962890625e-10"), s = W(a, 1, s.times(i), new a(1), !0); for (var l, u = e, c = new a(8); u--;)
+      l = s.times(s), s = o.minus(l.times(c.minus(l.times(c)))); return L(s, a.precision = t, a.rounding = r, !0); }, S.hyperbolicSine = S.sinh = function () { var e, i, t, r, n = this, s = n.constructor; if (!n.isFinite() || n.isZero())
+      return new s(n); if (i = s.precision, t = s.rounding, s.precision = i + Math.max(n.e, n.sd()) + 4, s.rounding = 1, (r = n.d.length) < 3)
+      n = W(s, 2, n, n, !0);
+  else {
+      e = (e = 1.4 * Math.sqrt(r)) > 16 ? 16 : 0 | e, n = W(s, 2, n = n.times(1 / V(5, e)), n, !0);
+      for (var a, o = new s(5), l = new s(16), u = new s(20); e--;)
+          a = n.times(n), n = n.times(o.plus(a.times(l.times(a).plus(u))));
+  } return s.precision = i, s.rounding = t, L(n, i, t, !0); }, S.hyperbolicTangent = S.tanh = function () { var e, i, t = this, r = t.constructor; return t.isFinite() ? t.isZero() ? new r(t) : (e = r.precision, i = r.rounding, r.precision = e + 7, r.rounding = 1, O(t.sinh(), t.cosh(), r.precision = e, r.rounding = i)) : new r(t.s); }, S.inverseCosine = S.acos = function () { var e, i = this, t = i.constructor, r = i.abs().cmp(1), n = t.precision, s = t.rounding; return -1 !== r ? 0 === r ? i.isNeg() ? T(t, n, s) : new t(0) : new t(NaN) : i.isZero() ? T(t, n + 4, s).times(.5) : (t.precision = n + 6, t.rounding = 1, i = i.asin(), e = T(t, n + 4, s).times(.5), t.precision = n, t.rounding = s, e.minus(i)); }, S.inverseHyperbolicCosine = S.acosh = function () { var e, i, t = this, r = t.constructor; return t.lte(1) ? new r(t.eq(1) ? 0 : NaN) : t.isFinite() ? (e = r.precision, i = r.rounding, r.precision = e + Math.max(Math.abs(t.e), t.sd()) + 4, r.rounding = 1, g = !1, t = t.times(t).minus(1).sqrt().plus(t), g = !0, r.precision = e, r.rounding = i, t.ln()) : new r(t); }, S.inverseHyperbolicSine = S.asinh = function () { var e, i, t = this, r = t.constructor; return !t.isFinite() || t.isZero() ? new r(t) : (e = r.precision, i = r.rounding, r.precision = e + 2 * Math.max(Math.abs(t.e), t.sd()) + 6, r.rounding = 1, g = !1, t = t.times(t).plus(1).sqrt().plus(t), g = !0, r.precision = e, r.rounding = i, t.ln()); }, S.inverseHyperbolicTangent = S.atanh = function () { var e, i, t, r, n = this, s = n.constructor; return n.isFinite() ? n.e >= 0 ? new s(n.abs().eq(1) ? n.s / 0 : n.isZero() ? n : NaN) : (e = s.precision, i = s.rounding, r = n.sd(), Math.max(r, e) < 2 * -n.e - 1 ? L(new s(n), e, i, !0) : (s.precision = t = r - n.e, n = O(n.plus(1), new s(1).minus(n), t + e, 1), s.precision = e + 4, s.rounding = 1, n = n.ln(), s.precision = e, s.rounding = i, n.times(.5))) : new s(NaN); }, S.inverseSine = S.asin = function () { var e, i, t, r, n = this, s = n.constructor; return n.isZero() ? new s(n) : (i = n.abs().cmp(1), t = s.precision, r = s.rounding, -1 !== i ? 0 === i ? ((e = T(s, t + 4, r).times(.5)).s = n.s, e) : new s(NaN) : (s.precision = t + 6, s.rounding = 1, n = n.div(new s(1).minus(n.times(n)).sqrt().plus(1)).atan(), s.precision = t, s.rounding = r, n.times(2))); }, S.inverseTangent = S.atan = function () { var e, i, t, r, n, s, a, o, l, u = this, c = u.constructor, h = c.precision, p = c.rounding; if (u.isFinite()) {
+      if (u.isZero())
+          return new c(u);
+      if (u.abs().eq(1) && h + 4 <= M)
+          return (a = T(c, h + 4, p).times(.25)).s = u.s, a;
+  }
+  else {
+      if (!u.s)
+          return new c(NaN);
+      if (h + 4 <= M)
+          return (a = T(c, h + 4, p).times(.5)).s = u.s, a;
+  } for (c.precision = o = h + 10, c.rounding = 1, e = t = Math.min(28, o / 7 + 2 | 0); e; --e)
+      u = u.div(u.times(u).plus(1).sqrt().plus(1)); for (g = !1, i = Math.ceil(o / 7), r = 1, l = u.times(u), a = new c(u), n = u; -1 !== e;)
+      if (n = n.times(l), s = a.minus(n.div(r += 2)), n = n.times(l), void 0 !== (a = s.plus(n.div(r += 2))).d[i])
+          for (e = i; a.d[e] === s.d[e] && e--;)
+              ; return t && (a = a.times(2 << t - 1)), g = !0, L(a, c.precision = h, c.rounding = p, !0); }, S.isFinite = function () { return !!this.d; }, S.isInteger = S.isInt = function () { return !!this.d && v(this.e / 7) > this.d.length - 2; }, S.isNaN = function () { return !this.s; }, S.isNegative = S.isNeg = function () { return this.s < 0; }, S.isPositive = S.isPos = function () { return this.s > 0; }, S.isZero = function () { return !!this.d && 0 === this.d[0]; }, S.lessThan = S.lt = function (e) { return this.cmp(e) < 0; }, S.lessThanOrEqualTo = S.lte = function (e) { return this.cmp(e) < 1; }, S.logarithm = S.log = function (e) { var i, t, r, n, s, a, o, l, u = this, c = u.constructor, h = c.precision, p = c.rounding; if (null == e)
+      e = new c(10), i = !0;
+  else {
+      if (t = (e = new c(e)).d, e.s < 0 || !t || !t[0] || e.eq(1))
+          return new c(NaN);
+      i = e.eq(10);
+  } if (t = u.d, u.s < 0 || !t || !t[0] || u.eq(1))
+      return new c(t && !t[0] ? -1 / 0 : 1 != u.s ? NaN : t ? 0 : 1 / 0); if (i)
+      if (t.length > 1)
+          s = !0;
+      else {
+          for (n = t[0]; n % 10 == 0;)
+              n /= 10;
+          s = 1 !== n;
+      } if (g = !1, a = U(u, o = h + 5), r = i ? F(c, o + 10) : U(e, o), k((l = O(a, r, o, 1)).d, n = h, p))
+      do {
+          if (a = U(u, o += 10), r = i ? F(c, o + 10) : U(e, o), l = O(a, r, o, 1), !s) {
+              +A(l.d).slice(n + 1, n + 15) + 1 == 1e14 && (l = L(l, h + 1, 0));
+              break;
+          }
+      } while (k(l.d, n += 10, p)); return g = !0, L(l, h, p); }, S.minus = S.sub = function (e) { var i, t, r, n, s, a, o, l, u, c, h, p, f = this, m = f.constructor; if (e = new m(e), !f.d || !e.d)
+      return f.s && e.s ? f.d ? e.s = -e.s : e = new m(e.d || f.s !== e.s ? f : NaN) : e = new m(NaN), e; if (f.s != e.s)
+      return e.s = -e.s, f.plus(e); if (u = f.d, p = e.d, o = m.precision, l = m.rounding, !u[0] || !p[0]) {
+      if (p[0])
+          e.s = -e.s;
+      else {
+          if (!u[0])
+              return new m(3 === l ? -0 : 0);
+          e = new m(f);
       }
-  } return Number.isInteger(a) && Number.isInteger(l) ? (l < 0 && (l = -l, a = -a), [a, l]) : null; }
-  function q(e) { return null === e ? null : Array.isArray(e) ? e[0] : v(e) ? e.fn[0] : null; }
+      return g ? L(e, o, l) : e;
+  } if (t = v(e.e / 7), c = v(f.e / 7), u = u.slice(), s = c - t) {
+      for ((h = s < 0) ? (i = u, s = -s, a = p.length) : (i = p, t = c, a = u.length), s > (r = Math.max(Math.ceil(o / 7), a) + 2) && (s = r, i.length = 1), i.reverse(), r = s; r--;)
+          i.push(0);
+      i.reverse();
+  }
+  else {
+      for ((h = (r = u.length) < (a = p.length)) && (a = r), r = 0; r < a; r++)
+          if (u[r] != p[r]) {
+              h = u[r] < p[r];
+              break;
+          }
+      s = 0;
+  } for (h && (i = u, u = p, p = i, e.s = -e.s), a = u.length, r = p.length - a; r > 0; --r)
+      u[a++] = 0; for (r = p.length; r > s;) {
+      if (u[--r] < p[r]) {
+          for (n = r; n && 0 === u[--n];)
+              u[n] = q - 1;
+          --u[n], u[r] += q;
+      }
+      u[r] -= p[r];
+  } for (; 0 === u[--a];)
+      u.pop(); for (; 0 === u[0]; u.shift())
+      --t; return u[0] ? (e.d = u, e.e = D(u, t), g ? L(e, o, l) : e) : new m(3 === l ? -0 : 0); }, S.modulo = S.mod = function (e) { var i, t = this, r = t.constructor; return e = new r(e), !t.d || !e.s || e.d && !e.d[0] ? new r(NaN) : !e.d || t.d && !t.d[0] ? L(new r(t), r.precision, r.rounding) : (g = !1, 9 == r.modulo ? (i = O(t, e.abs(), 0, 3, 1)).s *= e.s : i = O(t, e, 0, r.modulo, 1), i = i.times(e), g = !0, t.minus(i)); }, S.naturalExponential = S.exp = function () { return _(this); }, S.naturalLogarithm = S.ln = function () { return U(this); }, S.negated = S.neg = function () { var e = new this.constructor(this); return e.s = -e.s, L(e); }, S.plus = S.add = function (e) { var i, t, r, n, s, a, o, l, u, c, h = this, p = h.constructor; if (e = new p(e), !h.d || !e.d)
+      return h.s && e.s ? h.d || (e = new p(e.d || h.s === e.s ? h : NaN)) : e = new p(NaN), e; if (h.s != e.s)
+      return e.s = -e.s, h.minus(e); if (u = h.d, c = e.d, o = p.precision, l = p.rounding, !u[0] || !c[0])
+      return c[0] || (e = new p(h)), g ? L(e, o, l) : e; if (s = v(h.e / 7), r = v(e.e / 7), u = u.slice(), n = s - r) {
+      for (n < 0 ? (t = u, n = -n, a = c.length) : (t = c, r = s, a = u.length), n > (a = (s = Math.ceil(o / 7)) > a ? s + 1 : a + 1) && (n = a, t.length = 1), t.reverse(); n--;)
+          t.push(0);
+      t.reverse();
+  } for ((a = u.length) - (n = c.length) < 0 && (n = a, t = c, c = u, u = t), i = 0; n;)
+      i = (u[--n] = u[n] + c[n] + i) / q | 0, u[n] %= q; for (i && (u.unshift(i), ++r), a = u.length; 0 == u[--a];)
+      u.pop(); return e.d = u, e.e = D(u, r), g ? L(e, o, l) : e; }, S.precision = S.sd = function (e) { var i, t = this; if (void 0 !== e && e !== !!e && 1 !== e && 0 !== e)
+      throw Error(f + e); return t.d ? (i = C(t.d), e && t.e + 1 > i && (i = t.e + 1)) : i = NaN, i; }, S.round = function () { var e = this, i = e.constructor; return L(new i(e), e.e + 1, i.rounding); }, S.sine = S.sin = function () { var e, i, t = this, r = t.constructor; return t.isFinite() ? t.isZero() ? new r(t) : (e = r.precision, i = r.rounding, r.precision = e + Math.max(t.e, t.sd()) + 7, r.rounding = 1, t = function (e, i) { var t, r = i.d.length; if (r < 3)
+      return W(e, 2, i, i); t = (t = 1.4 * Math.sqrt(r)) > 16 ? 16 : 0 | t, i = W(e, 2, i = i.times(1 / V(5, t)), i); for (var n, s = new e(5), a = new e(16), o = new e(20); t--;)
+      n = i.times(i), i = i.times(s.plus(n.times(a.times(n).minus(o)))); return i; }(r, Q(r, t)), r.precision = e, r.rounding = i, L(n > 2 ? t.neg() : t, e, i, !0)) : new r(NaN); }, S.squareRoot = S.sqrt = function () { var e, i, t, r, n, s, a = this, o = a.d, l = a.e, u = a.s, c = a.constructor; if (1 !== u || !o || !o[0])
+      return new c(!u || u < 0 && (!o || o[0]) ? NaN : o ? a : 1 / 0); for (g = !1, 0 == (u = Math.sqrt(+a)) || u == 1 / 0 ? (((i = A(o)).length + l) % 2 == 0 && (i += "0"), u = Math.sqrt(i), l = v((l + 1) / 2) - (l < 0 || l % 2), r = new c(i = u == 1 / 0 ? "5e" + l : (i = u.toExponential()).slice(0, i.indexOf("e") + 1) + l)) : r = new c(u.toString()), t = (l = c.precision) + 3;;)
+      if (r = (s = r).plus(O(a, s, t + 2, 1)).times(.5), A(s.d).slice(0, t) === (i = A(r.d)).slice(0, t)) {
+          if ("9999" != (i = i.slice(t - 3, t + 1)) && (n || "4999" != i)) {
+              +i && (+i.slice(1) || "5" != i.charAt(0)) || (L(r, l + 1, 1), e = !r.times(r).eq(a));
+              break;
+          }
+          if (!n && (L(s, l + 1, 0), s.times(s).eq(a))) {
+              r = s;
+              break;
+          }
+          t += 4, n = 1;
+      } return g = !0, L(r, l, c.rounding, e); }, S.tangent = S.tan = function () { var e, i, t = this, r = t.constructor; return t.isFinite() ? t.isZero() ? new r(t) : (e = r.precision, i = r.rounding, r.precision = e + 10, r.rounding = 1, (t = t.sin()).s = 1, t = O(t, new r(1).minus(t.times(t)).sqrt(), e + 10, 0), r.precision = e, r.rounding = i, L(2 == n || 4 == n ? t.neg() : t, e, i, !0)) : new r(NaN); }, S.times = S.mul = function (e) { var i, t, r, n, s, a, o, l, u, c = this, h = c.constructor, p = c.d, f = (e = new h(e)).d; if (e.s *= c.s, !(p && p[0] && f && f[0]))
+      return new h(!e.s || p && !p[0] && !f || f && !f[0] && !p ? NaN : p && f ? 0 * e.s : e.s / 0); for (t = v(c.e / 7) + v(e.e / 7), (l = p.length) < (u = f.length) && (s = p, p = f, f = s, a = l, l = u, u = a), s = [], r = a = l + u; r--;)
+      s.push(0); for (r = u; --r >= 0;) {
+      for (i = 0, n = l + r; n > r;)
+          o = s[n] + f[r] * p[n - r - 1] + i, s[n--] = o % q | 0, i = o / q | 0;
+      s[n] = (s[n] + i) % q | 0;
+  } for (; !s[--a];)
+      s.pop(); return i ? ++t : s.shift(), e.d = s, e.e = D(s, t), g ? L(e, h.precision, h.rounding) : e; }, S.toBinary = function (e, i) { return Y(this, 2, e, i); }, S.toDecimalPlaces = S.toDP = function (e, i) { var t = this, r = t.constructor; return t = new r(t), void 0 === e ? t : (z(e, 0, a), void 0 === i ? i = r.rounding : z(i, 0, 8), L(t, e + t.e + 1, i)); }, S.toExponential = function (e, i) { var t, r = this, n = r.constructor; return void 0 === e ? t = P(r, !0) : (z(e, 0, a), void 0 === i ? i = n.rounding : z(i, 0, 8), t = P(r = L(new n(r), e + 1, i), !0, e + 1)), r.isNeg() && !r.isZero() ? "-" + t : t; }, S.toFixed = function (e, i) { var t, r, n = this, s = n.constructor; return void 0 === e ? t = P(n) : (z(e, 0, a), void 0 === i ? i = s.rounding : z(i, 0, 8), t = P(r = L(new s(n), e + n.e + 1, i), !1, e + r.e + 1)), n.isNeg() && !n.isZero() ? "-" + t : t; }, S.toFraction = function (e) { var i, t, r, n, s, a, o, l, u, c, h, p, m = this, d = m.d, v = m.constructor; if (!d)
+      return new v(m); if (u = t = new v(1), r = l = new v(0), a = (s = (i = new v(r)).e = C(d) - m.e - 1) % 7, i.d[0] = x(10, a < 0 ? 7 + a : a), null == e)
+      e = s > 0 ? i : u;
+  else {
+      if (!(o = new v(e)).isInt() || o.lt(u))
+          throw Error(f + o);
+      e = o.gt(i) ? s > 0 ? i : u : o;
+  } for (g = !1, o = new v(A(d)), c = v.precision, v.precision = s = 7 * d.length * 2; h = O(o, i, 0, 1, 1), 1 != (n = t.plus(h.times(r))).cmp(e);)
+      t = r, r = n, n = u, u = l.plus(h.times(n)), l = n, n = i, i = o.minus(h.times(n)), o = n; return n = O(e.minus(t), r, 0, 1, 1), l = l.plus(n.times(u)), t = t.plus(n.times(r)), l.s = u.s = m.s, p = O(u, r, s, 1).minus(m).abs().cmp(O(l, t, s, 1).minus(m).abs()) < 1 ? [u, r] : [l, t], v.precision = c, g = !0, p; }, S.toHexadecimal = S.toHex = function (e, i) { return Y(this, 16, e, i); }, S.toNearest = function (e, i) { var t = this, r = t.constructor; if (t = new r(t), null == e) {
+      if (!t.d)
+          return t;
+      e = new r(1), i = r.rounding;
+  }
+  else {
+      if (e = new r(e), void 0 === i ? i = r.rounding : z(i, 0, 8), !t.d)
+          return e.s ? t : e;
+      if (!e.d)
+          return e.s && (e.s = t.s), e;
+  } return e.d[0] ? (g = !1, t = O(t, e, 0, i, 1).times(e), g = !0, L(t)) : (e.s = t.s, t = e), t; }, S.toNumber = function () { return +this; }, S.toOctal = function (e, i) { return Y(this, 8, e, i); }, S.toPower = S.pow = function (e) { var i, t, r, n, s, a, o = this, l = o.constructor, u = +(e = new l(e)); if (!(o.d && e.d && o.d[0] && e.d[0]))
+      return new l(x(+o, u)); if ((o = new l(o)).eq(1))
+      return o; if (r = l.precision, s = l.rounding, e.eq(1))
+      return L(o, r, s); if ((i = v(e.e / 7)) >= e.d.length - 1 && (t = u < 0 ? -u : u) <= 9007199254740991)
+      return n = $(l, o, t, r), e.s < 0 ? new l(1).div(n) : L(n, r, s); if ((a = o.s) < 0) {
+      if (i < e.d.length - 1)
+          return new l(NaN);
+      if (0 == (1 & e.d[i]) && (a = 1), 0 == o.e && 1 == o.d[0] && 1 == o.d.length)
+          return o.s = a, o;
+  } return (i = 0 != (t = x(+o, u)) && isFinite(t) ? new l(t + "").e : v(u * (Math.log("0." + A(o.d)) / Math.LN10 + o.e + 1))) > l.maxE + 1 || i < l.minE - 1 ? new l(i > 0 ? a / 0 : 0) : (g = !1, l.rounding = o.s = 1, t = Math.min(12, (i + "").length), (n = _(e.times(U(o, r + t)), r)).d && k((n = L(n, r + 5, 1)).d, r, s) && (i = r + 10, +A((n = L(_(e.times(U(o, i + t)), i), i + 5, 1)).d).slice(r + 1, r + 15) + 1 == 1e14 && (n = L(n, r + 1, 0))), n.s = a, g = !0, l.rounding = s, L(n, r, s)); }, S.toPrecision = function (e, i) { var t, r = this, n = r.constructor; return void 0 === e ? t = P(r, r.e <= n.toExpNeg || r.e >= n.toExpPos) : (z(e, 1, a), void 0 === i ? i = n.rounding : z(i, 0, 8), t = P(r = L(new n(r), e, i), e <= r.e || r.e <= n.toExpNeg, e)), r.isNeg() && !r.isZero() ? "-" + t : t; }, S.toSignificantDigits = S.toSD = function (e, i) { var t = this.constructor; return void 0 === e ? (e = t.precision, i = t.rounding) : (z(e, 1, a), void 0 === i ? i = t.rounding : z(i, 0, 8)), L(new t(this), e, i); }, S.toString = function () { var e = this, i = e.constructor, t = P(e, e.e <= i.toExpNeg || e.e >= i.toExpPos); return e.isNeg() && !e.isZero() ? "-" + t : t; }, S.truncated = S.trunc = function () { return L(new this.constructor(this), this.e + 1, 1); }, S.valueOf = S.toJSON = function () { var e = this, i = e.constructor, t = P(e, e.e <= i.toExpNeg || e.e >= i.toExpPos); return e.isNeg() ? "-" + t : t; }; var O = function () { function e(e, i, t) { var r, n = 0, s = e.length; for (e = e.slice(); s--;)
+      r = e[s] * i + n, e[s] = r % t | 0, n = r / t | 0; return n && e.unshift(n), e; } function i(e, i, t, r) { var n, s; if (t != r)
+      s = t > r ? 1 : -1;
+  else
+      for (n = s = 0; n < t; n++)
+          if (e[n] != i[n]) {
+              s = e[n] > i[n] ? 1 : -1;
+              break;
+          } return s; } function r(e, i, t, r) { for (var n = 0; t--;)
+      e[t] -= n, n = e[t] < i[t] ? 1 : 0, e[t] = n * r + e[t] - i[t]; for (; !e[0] && e.length > 1;)
+      e.shift(); } return function (n, s, a, o, l, u) { var c, h, g, p, f, m, d, x, y, b, w, N, E, M, S, A, z, k, I, O, P = n.constructor, D = n.s == s.s ? 1 : -1, F = n.d, T = s.d; if (!(F && F[0] && T && T[0]))
+      return new P(n.s && s.s && (F ? !T || F[0] != T[0] : T) ? F && 0 == F[0] || !T ? 0 * D : D / 0 : NaN); for (u ? (f = 1, h = n.e - s.e) : (u = q, f = 7, h = v(n.e / f) - v(s.e / f)), I = T.length, z = F.length, b = (y = new P(D)).d = [], g = 0; T[g] == (F[g] || 0); g++)
+      ; if (T[g] > (F[g] || 0) && h--, null == a ? (M = a = P.precision, o = P.rounding) : M = l ? a + (n.e - s.e) + 1 : a, M < 0)
+      b.push(1), m = !0;
+  else {
+      if (M = M / f + 2 | 0, g = 0, 1 == I) {
+          for (p = 0, T = T[0], M++; (g < z || p) && M--; g++)
+              S = p * u + (F[g] || 0), b[g] = S / T | 0, p = S % T | 0;
+          m = p || g < z;
+      }
+      else {
+          for ((p = u / (T[0] + 1) | 0) > 1 && (T = e(T, p, u), F = e(F, p, u), I = T.length, z = F.length), A = I, N = (w = F.slice(0, I)).length; N < I;)
+              w[N++] = 0;
+          (O = T.slice()).unshift(0), k = T[0], T[1] >= u / 2 && ++k;
+          do {
+              p = 0, (c = i(T, w, I, N)) < 0 ? (E = w[0], I != N && (E = E * u + (w[1] || 0)), (p = E / k | 0) > 1 ? (p >= u && (p = u - 1), 1 == (c = i(d = e(T, p, u), w, x = d.length, N = w.length)) && (p--, r(d, I < x ? O : T, x, u))) : (0 == p && (c = p = 1), d = T.slice()), (x = d.length) < N && d.unshift(0), r(w, d, N, u), -1 == c && (c = i(T, w, I, N = w.length)) < 1 && (p++, r(w, I < N ? O : T, N, u)), N = w.length) : 0 === c && (p++, w = [0]), b[g++] = p, c && w[0] ? w[N++] = F[A] || 0 : (w = [F[A]], N = 1);
+          } while ((A++ < z || void 0 !== w[0]) && M--);
+          m = void 0 !== w[0];
+      }
+      b[0] || b.shift();
+  } if (1 == f)
+      y.e = h, t = m;
+  else {
+      for (g = 1, p = b[0]; p >= 10; p /= 10)
+          g++;
+      y.e = g + h * f - 1, L(y, l ? a + y.e + 1 : a, o, m);
+  } return y; }; }(); function L(e, i, t, r) { var n, s, a, o, l, u, c, h, p, f = e.constructor; e: if (null != i) {
+      if (!(h = e.d))
+          return e;
+      for (n = 1, o = h[0]; o >= 10; o /= 10)
+          n++;
+      if ((s = i - n) < 0)
+          s += 7, a = i, l = (c = h[p = 0]) / x(10, n - a - 1) % 10 | 0;
+      else if ((p = Math.ceil((s + 1) / 7)) >= (o = h.length)) {
+          if (!r)
+              break e;
+          for (; o++ <= p;)
+              h.push(0);
+          c = l = 0, n = 1, a = (s %= 7) - 7 + 1;
+      }
+      else {
+          for (c = o = h[p], n = 1; o >= 10; o /= 10)
+              n++;
+          l = (a = (s %= 7) - 7 + n) < 0 ? 0 : c / x(10, n - a - 1) % 10 | 0;
+      }
+      if (r = r || i < 0 || void 0 !== h[p + 1] || (a < 0 ? c : c % x(10, n - a - 1)), u = t < 4 ? (l || r) && (0 == t || t == (e.s < 0 ? 3 : 2)) : l > 5 || 5 == l && (4 == t || r || 6 == t && (s > 0 ? a > 0 ? c / x(10, n - a) : 0 : h[p - 1]) % 10 & 1 || t == (e.s < 0 ? 8 : 7)), i < 1 || !h[0])
+          return h.length = 0, u ? (i -= e.e + 1, h[0] = x(10, (7 - i % 7) % 7), e.e = -i || 0) : h[0] = e.e = 0, e;
+      if (0 == s ? (h.length = p, o = 1, p--) : (h.length = p + 1, o = x(10, 7 - s), h[p] = a > 0 ? (c / x(10, n - a) % x(10, a) | 0) * o : 0), u)
+          for (;;) {
+              if (0 == p) {
+                  for (s = 1, a = h[0]; a >= 10; a /= 10)
+                      s++;
+                  for (a = h[0] += o, o = 1; a >= 10; a /= 10)
+                      o++;
+                  s != o && (e.e++, h[0] == q && (h[0] = 1));
+                  break;
+              }
+              if (h[p] += o, h[p] != q)
+                  break;
+              h[p--] = 0, o = 1;
+          }
+      for (s = h.length; 0 === h[--s];)
+          h.pop();
+  } return g && (e.e > f.maxE ? (e.d = null, e.e = NaN) : e.e < f.minE && (e.e = 0, e.d = [0])), e; } function P(e, i, t) { if (!e.isFinite())
+      return j(e); var r, n = e.e, s = A(e.d), a = s.length; return i ? (t && (r = t - a) > 0 ? s = s.charAt(0) + "." + s.slice(1) + R(r) : a > 1 && (s = s.charAt(0) + "." + s.slice(1)), s = s + (e.e < 0 ? "e" : "e+") + e.e) : n < 0 ? (s = "0." + R(-n - 1) + s, t && (r = t - a) > 0 && (s += R(r))) : n >= a ? (s += R(n + 1 - a), t && (r = t - n - 1) > 0 && (s = s + "." + R(r))) : ((r = n + 1) < a && (s = s.slice(0, r) + "." + s.slice(r)), t && (r = t - a) > 0 && (n + 1 === a && (s += "."), s += R(r))), s; } function D(e, i) { var t = e[0]; for (i *= 7; t >= 10; t /= 10)
+      i++; return i; } function F(e, i, t) { if (i > E)
+      throw g = !0, t && (e.precision = t), Error(m); return L(new e(u), i, 1, !0); } function T(e, i, t) { if (i > M)
+      throw Error(m); return L(new e(c), i, t, !0); } function C(e) { var i = e.length - 1, t = 7 * i + 1; if (i = e[i]) {
+      for (; i % 10 == 0; i /= 10)
+          t--;
+      for (i = e[0]; i >= 10; i /= 10)
+          t++;
+  } return t; } function R(e) { for (var i = ""; e--;)
+      i += "0"; return i; } function $(e, i, t, r) { var n, s = new e(1), a = Math.ceil(r / 7 + 4); for (g = !1;;) {
+      if (t % 2 && J((s = s.times(i)).d, a) && (n = !0), 0 === (t = v(t / 2))) {
+          t = s.d.length - 1, n && 0 === s.d[t] && ++s.d[t];
+          break;
+      }
+      J((i = i.times(i)).d, a);
+  } return g = !0, s; } function Z(e) { return 1 & e.d[e.d.length - 1]; } function B(e, i, t) { for (var r, n = new e(i[0]), s = 0; ++s < i.length;) {
+      if (!(r = new e(i[s])).s) {
+          n = r;
+          break;
+      }
+      n[t](r) && (n = r);
+  } return n; } function _(e, i) { var t, r, n, s, a, o, l, u = 0, c = 0, h = 0, p = e.constructor, f = p.rounding, m = p.precision; if (!e.d || !e.d[0] || e.e > 17)
+      return new p(e.d ? e.d[0] ? e.s < 0 ? 0 : 1 / 0 : 1 : e.s ? e.s < 0 ? 0 : e : NaN); for (null == i ? (g = !1, l = m) : l = i, o = new p(.03125); e.e > -2;)
+      e = e.times(o), h += 5; for (l += r = Math.log(x(2, h)) / Math.LN10 * 2 + 5 | 0, t = s = a = new p(1), p.precision = l;;) {
+      if (s = L(s.times(e), l, 1), t = t.times(++c), A((o = a.plus(O(s, t, l, 1))).d).slice(0, l) === A(a.d).slice(0, l)) {
+          for (n = h; n--;)
+              a = L(a.times(a), l, 1);
+          if (null != i)
+              return p.precision = m, a;
+          if (!(u < 3 && k(a.d, l - r, f, u)))
+              return L(a, p.precision = m, f, g = !0);
+          p.precision = l += 10, t = s = o = new p(1), c = 0, u++;
+      }
+      a = o;
+  } } function U(e, i) { var t, r, n, s, a, o, l, u, c, h, p, f = 1, m = e, d = m.d, v = m.constructor, x = v.rounding, y = v.precision; if (m.s < 0 || !d || !d[0] || !m.e && 1 == d[0] && 1 == d.length)
+      return new v(d && !d[0] ? -1 / 0 : 1 != m.s ? NaN : d ? 0 : m); if (null == i ? (g = !1, c = y) : c = i, v.precision = c += 10, r = (t = A(d)).charAt(0), !(Math.abs(s = m.e) < 15e14))
+      return u = F(v, c + 2, y).times(s + ""), m = U(new v(r + "." + t.slice(1)), c - 10).plus(u), v.precision = y, null == i ? L(m, y, x, g = !0) : m; for (; r < 7 && 1 != r || 1 == r && t.charAt(1) > 3;)
+      r = (t = A((m = m.times(e)).d)).charAt(0), f++; for (s = m.e, r > 1 ? (m = new v("0." + t), s++) : m = new v(r + "." + t.slice(1)), h = m, l = a = m = O(m.minus(1), m.plus(1), c, 1), p = L(m.times(m), c, 1), n = 3;;) {
+      if (a = L(a.times(p), c, 1), A((u = l.plus(O(a, new v(n), c, 1))).d).slice(0, c) === A(l.d).slice(0, c)) {
+          if (l = l.times(2), 0 !== s && (l = l.plus(F(v, c + 2, y).times(s + ""))), l = O(l, new v(f), c, 1), null != i)
+              return v.precision = y, l;
+          if (!k(l.d, c - 10, x, o))
+              return L(l, v.precision = y, x, g = !0);
+          v.precision = c += 10, u = a = m = O(h.minus(1), h.plus(1), c, 1), p = L(m.times(m), c, 1), n = o = 1;
+      }
+      l = u, n += 2;
+  } } function j(e) { return String(e.s * e.s / 0); } function H(e, i) { var t, r, n; for ((t = i.indexOf(".")) > -1 && (i = i.replace(".", "")), (r = i.search(/e/i)) > 0 ? (t < 0 && (t = r), t += +i.slice(r + 1), i = i.substring(0, r)) : t < 0 && (t = i.length), r = 0; 48 === i.charCodeAt(r); r++)
+      ; for (n = i.length; 48 === i.charCodeAt(n - 1); --n)
+      ; if (i = i.slice(r, n)) {
+      if (n -= r, e.e = t = t - r - 1, e.d = [], r = (t + 1) % 7, t < 0 && (r += 7), r < n) {
+          for (r && e.d.push(+i.slice(0, r)), n -= 7; r < n;)
+              e.d.push(+i.slice(r, r += 7));
+          r = 7 - (i = i.slice(r)).length;
+      }
+      else
+          r -= n;
+      for (; r--;)
+          i += "0";
+      e.d.push(+i), g && (e.e > e.constructor.maxE ? (e.d = null, e.e = NaN) : e.e < e.constructor.minE && (e.e = 0, e.d = [0]));
+  }
+  else
+      e.e = 0, e.d = [0]; return e; } function G(e, t) { var r, n, s, a, o, l, u, c, h; if ("Infinity" === t || "NaN" === t)
+      return +t || (e.s = NaN), e.e = NaN, e.d = null, e; if (b.test(t))
+      r = 16, t = t.toLowerCase();
+  else if (y.test(t))
+      r = 2;
+  else {
+      if (!w.test(t))
+          throw Error(f + t);
+      r = 8;
+  } for ((a = t.search(/p/i)) > 0 ? (u = +t.slice(a + 1), t = t.substring(2, a)) : t = t.slice(2), o = (a = t.indexOf(".")) >= 0, n = e.constructor, o && (a = (l = (t = t.replace(".", "")).length) - a, s = $(n, new n(r), a, 2 * a)), a = h = (c = I(t, r, q)).length - 1; 0 === c[a]; --a)
+      c.pop(); return a < 0 ? new n(0 * e.s) : (e.e = D(c, h), e.d = c, g = !1, o && (e = O(e, s, 4 * l)), u && (e = e.times(Math.abs(u) < 54 ? x(2, u) : i.pow(2, u))), g = !0, e); } function W(e, i, t, r, n) { var s, a, o, l, u = e.precision, c = Math.ceil(u / 7); for (g = !1, l = t.times(t), o = new e(r);;) {
+      if (a = O(o.times(l), new e(i++ * i++), u, 1), o = n ? r.plus(a) : r.minus(a), r = O(a.times(l), new e(i++ * i++), u, 1), void 0 !== (a = o.plus(r)).d[c]) {
+          for (s = c; a.d[s] === o.d[s] && s--;)
+              ;
+          if (-1 == s)
+              break;
+      }
+      s = o, o = r, r = a, a = s;
+  } return g = !0, a.d.length = c + 1, a; } function V(e, i) { for (var t = e; --i;)
+      t *= e; return t; } function Q(e, i) { var t, r = i.s < 0, s = T(e, e.precision, 1), a = s.times(.5); if ((i = i.abs()).lte(a))
+      return n = r ? 4 : 1, i; if ((t = i.divToInt(s)).isZero())
+      n = r ? 3 : 2;
+  else {
+      if ((i = i.minus(t.times(s))).lte(a))
+          return n = Z(t) ? r ? 2 : 3 : r ? 4 : 1, i;
+      n = Z(t) ? r ? 1 : 4 : r ? 3 : 2;
+  } return i.minus(s).abs(); } function Y(e, i, r, n) { var s, l, u, c, h, g, p, f, m, d = e.constructor, v = void 0 !== r; if (v ? (z(r, 1, a), void 0 === n ? n = d.rounding : z(n, 0, 8)) : (r = d.precision, n = d.rounding), e.isFinite()) {
+      for (v ? (s = 2, 16 == i ? r = 4 * r - 3 : 8 == i && (r = 3 * r - 2)) : s = i, (u = (p = P(e)).indexOf(".")) >= 0 && (p = p.replace(".", ""), (m = new d(1)).e = p.length - u, m.d = I(P(m), 10, s), m.e = m.d.length), l = h = (f = I(p, 10, s)).length; 0 == f[--h];)
+          f.pop();
+      if (f[0]) {
+          if (u < 0 ? l-- : ((e = new d(e)).d = f, e.e = l, f = (e = O(e, m, r, n, 0, s)).d, l = e.e, g = t), u = f[r], c = s / 2, g = g || void 0 !== f[r + 1], g = n < 4 ? (void 0 !== u || g) && (0 === n || n === (e.s < 0 ? 3 : 2)) : u > c || u === c && (4 === n || g || 6 === n && 1 & f[r - 1] || n === (e.s < 0 ? 8 : 7)), f.length = r, g)
+              for (; ++f[--r] > s - 1;)
+                  f[r] = 0, r || (++l, f.unshift(1));
+          for (h = f.length; !f[h - 1]; --h)
+              ;
+          for (u = 0, p = ""; u < h; u++)
+              p += o.charAt(f[u]);
+          if (v) {
+              if (h > 1)
+                  if (16 == i || 8 == i) {
+                      for (u = 16 == i ? 4 : 3, --h; h % u; h++)
+                          p += "0";
+                      for (h = (f = I(p, s, i)).length; !f[h - 1]; --h)
+                          ;
+                      for (u = 1, p = "1."; u < h; u++)
+                          p += o.charAt(f[u]);
+                  }
+                  else
+                      p = p.charAt(0) + "." + p.slice(1);
+              p = p + (l < 0 ? "p" : "p+") + l;
+          }
+          else if (l < 0) {
+              for (; ++l;)
+                  p = "0" + p;
+              p = "0." + p;
+          }
+          else if (++l > h)
+              for (l -= h; l--;)
+                  p += "0";
+          else
+              l < h && (p = p.slice(0, l) + "." + p.slice(l));
+      }
+      else
+          p = v ? "0p+0" : "0";
+      p = (16 == i ? "0x" : 2 == i ? "0b" : 8 == i ? "0o" : "") + p;
+  }
+  else
+      p = j(e); return e.s < 0 ? "-" + p : p; } function J(e, i) { if (e.length > i)
+      return e.length = i, !0; } function K(e) { return new this(e).abs(); } function X(e) { return new this(e).acos(); } function ee(e) { return new this(e).acosh(); } function ie(e, i) { return new this(e).plus(i); } function te(e) { return new this(e).asin(); } function re(e) { return new this(e).asinh(); } function ne(e) { return new this(e).atan(); } function se(e) { return new this(e).atanh(); } function ae(e, i) { e = new this(e), i = new this(i); var t, r = this.precision, n = this.rounding, s = r + 4; return e.s && i.s ? e.d || i.d ? !i.d || e.isZero() ? (t = i.s < 0 ? T(this, r, n) : new this(0)).s = e.s : !e.d || i.isZero() ? (t = T(this, s, 1).times(.5)).s = e.s : i.s < 0 ? (this.precision = s, this.rounding = 1, t = this.atan(O(e, i, s, 1)), i = T(this, s, 1), this.precision = r, this.rounding = n, t = e.s < 0 ? t.minus(i) : t.plus(i)) : t = this.atan(O(e, i, s, 1)) : (t = T(this, s, 1).times(i.s > 0 ? .25 : .75)).s = e.s : t = new this(NaN), t; } function oe(e) { return new this(e).cbrt(); } function le(e) { return L(e = new this(e), e.e + 1, 2); } function ue(e) { if (!e || "object" != typeof e)
+      throw Error(p + "Object expected"); var i, t, r, n = !0 === e.defaults, o = ["precision", 1, a, "rounding", 0, 8, "toExpNeg", -s, 0, "toExpPos", 0, s, "maxE", 0, s, "minE", -s, 0, "modulo", 0, 9]; for (i = 0; i < o.length; i += 3)
+      if (t = o[i], n && (this[t] = h[t]), void 0 !== (r = e[t])) {
+          if (!(v(r) === r && r >= o[i + 1] && r <= o[i + 2]))
+              throw Error(f + t + ": " + r);
+          this[t] = r;
+      } if (t = "crypto", n && (this[t] = h[t]), void 0 !== (r = e[t])) {
+      if (!0 !== r && !1 !== r && 0 !== r && 1 !== r)
+          throw Error(f + t + ": " + r);
+      if (r) {
+          if ("undefined" == typeof crypto || !crypto || !crypto.getRandomValues && !crypto.randomBytes)
+              throw Error(d);
+          this[t] = !0;
+      }
+      else
+          this[t] = !1;
+  } return this; } function ce(e) { return new this(e).cos(); } function he(e) { return new this(e).cosh(); } function ge(e, i) { return new this(e).div(i); } function pe(e) { return new this(e).exp(); } function fe(e) { return L(e = new this(e), e.e + 1, 3); } function me() { var e, i, t = new this(0); for (g = !1, e = 0; e < arguments.length;)
+      if ((i = new this(arguments[e++])).d)
+          t.d && (t = t.plus(i.times(i)));
+      else {
+          if (i.s)
+              return g = !0, new this(1 / 0);
+          t = i;
+      } return g = !0, t.sqrt(); } function de(e) { return e instanceof i || e && "[object Decimal]" === e.name || !1; } function ve(e) { return new this(e).ln(); } function xe(e, i) { return new this(e).log(i); } function ye(e) { return new this(e).log(2); } function be(e) { return new this(e).log(10); } function we() { return B(this, arguments, "lt"); } function Ne() { return B(this, arguments, "gt"); } function qe(e, i) { return new this(e).mod(i); } function Ee(e, i) { return new this(e).mul(i); } function Me(e, i) { return new this(e).pow(i); } function Se(e) { var i, t, r, n, s = 0, o = new this(1), l = []; if (void 0 === e ? e = this.precision : z(e, 1, a), r = Math.ceil(e / 7), this.crypto)
+      if (crypto.getRandomValues)
+          for (i = crypto.getRandomValues(new Uint32Array(r)); s < r;)
+              (n = i[s]) >= 429e7 ? i[s] = crypto.getRandomValues(new Uint32Array(1))[0] : l[s++] = n % 1e7;
+      else {
+          if (!crypto.randomBytes)
+              throw Error(d);
+          for (i = crypto.randomBytes(r *= 4); s < r;)
+              (n = i[s] + (i[s + 1] << 8) + (i[s + 2] << 16) + ((127 & i[s + 3]) << 24)) >= 214e7 ? crypto.randomBytes(4).copy(i, s) : (l.push(n % 1e7), s += 4);
+          s = r / 4;
+      }
+  else
+      for (; s < r;)
+          l[s++] = 1e7 * Math.random() | 0; for (e %= 7, (r = l[--s]) && e && (n = x(10, 7 - e), l[s] = (r / n | 0) * n); 0 === l[s]; s--)
+      l.pop(); if (s < 0)
+      t = 0, l = [0];
+  else {
+      for (t = -1; 0 === l[0]; t -= 7)
+          l.shift();
+      for (r = 1, n = l[0]; n >= 10; n /= 10)
+          r++;
+      r < 7 && (t -= 7 - r);
+  } return o.e = t, o.d = l, o; } function Ae(e) { return L(e = new this(e), e.e + 1, this.rounding); } function ze(e) { return (e = new this(e)).d ? e.d[0] ? e.s : 0 * e.s : e.s || NaN; } function ke(e) { return new this(e).sin(); } function Ie(e) { return new this(e).sinh(); } function Oe(e) { return new this(e).sqrt(); } function Le(e, i) { return new this(e).sub(i); } function Pe(e) { return new this(e).tan(); } function De(e) { return new this(e).tanh(); } function Fe(e) { return L(e = new this(e), e.e + 1, 1); } (i = function e(i) { var t, r, n; function s(e) { var i, t, r, n = this; if (!(n instanceof s))
+      return new s(e); if (n.constructor = s, e instanceof s)
+      return n.s = e.s, void (g ? !e.d || e.e > s.maxE ? (n.e = NaN, n.d = null) : e.e < s.minE ? (n.e = 0, n.d = [0]) : (n.e = e.e, n.d = e.d.slice()) : (n.e = e.e, n.d = e.d ? e.d.slice() : e.d)); if ("number" == (r = typeof e)) {
+      if (0 === e)
+          return n.s = 1 / e < 0 ? -1 : 1, n.e = 0, void (n.d = [0]);
+      if (e < 0 ? (e = -e, n.s = -1) : n.s = 1, e === ~~e && e < 1e7) {
+          for (i = 0, t = e; t >= 10; t /= 10)
+              i++;
+          return void (g ? i > s.maxE ? (n.e = NaN, n.d = null) : i < s.minE ? (n.e = 0, n.d = [0]) : (n.e = i, n.d = [e]) : (n.e = i, n.d = [e]));
+      }
+      return 0 * e != 0 ? (e || (n.s = NaN), n.e = NaN, void (n.d = null)) : H(n, e.toString());
+  } if ("string" !== r)
+      throw Error(f + e); return 45 === (t = e.charCodeAt(0)) ? (e = e.slice(1), n.s = -1) : (43 === t && (e = e.slice(1)), n.s = 1), N.test(e) ? H(n, e) : G(n, e); } if (s.prototype = S, s.ROUND_UP = 0, s.ROUND_DOWN = 1, s.ROUND_CEIL = 2, s.ROUND_FLOOR = 3, s.ROUND_HALF_UP = 4, s.ROUND_HALF_DOWN = 5, s.ROUND_HALF_EVEN = 6, s.ROUND_HALF_CEIL = 7, s.ROUND_HALF_FLOOR = 8, s.EUCLID = 9, s.config = s.set = ue, s.clone = e, s.isDecimal = de, s.abs = K, s.acos = X, s.acosh = ee, s.add = ie, s.asin = te, s.asinh = re, s.atan = ne, s.atanh = se, s.atan2 = ae, s.cbrt = oe, s.ceil = le, s.cos = ce, s.cosh = he, s.div = ge, s.exp = pe, s.floor = fe, s.hypot = me, s.ln = ve, s.log = xe, s.log10 = be, s.log2 = ye, s.max = we, s.min = Ne, s.mod = qe, s.mul = Ee, s.pow = Me, s.random = Se, s.round = Ae, s.sign = ze, s.sin = ke, s.sinh = Ie, s.sqrt = Oe, s.sub = Le, s.tan = Pe, s.tanh = De, s.trunc = Fe, void 0 === i && (i = {}), i && !0 !== i.defaults)
+      for (n = ["precision", "rounding", "toExpNeg", "toExpPos", "maxE", "minE", "modulo", "crypto"], t = 0; t < n.length;)
+          i.hasOwnProperty(r = n[t++]) || (i[r] = this[r]); return s.config(i), s; }(h)).default = i.Decimal = i, u = new i(u), c = new i(c), l.exports ? ("function" == typeof Symbol && "symbol" == typeof Symbol.iterator && (S[Symbol.for("nodejs.util.inspect.custom")] = S.toString, S[Symbol.toStringTag] = "Decimal"), l.exports = i) : (e || (e = "undefined" != typeof self && self && self.self == self ? self : window), r = e.Decimal, i.noConflict = function () { return e.Decimal = r, i; }, e.Decimal = i); }(u);
+  var h = { exports: {} };
+  /**
+   * @license Complex.js v2.0.13 12/05/2020
+   *
+   * Copyright (c) 2020, Robert Eisele (robert@xarg.org)
+   * Dual licensed under the MIT or GPL Version 2 licenses.
+   **/ !function (e, i) { !function (i) { var t = function (e) { return .5 * (Math.exp(e) + Math.exp(-e)); }, r = function (e) { return .5 * (Math.exp(e) - Math.exp(-e)); }, n = function () { throw SyntaxError("Invalid Param"); }; function s(e, i) { var t = Math.abs(e), r = Math.abs(i); return 0 === e ? Math.log(r) : 0 === i ? Math.log(t) : t < 3e3 && r < 3e3 ? .5 * Math.log(e * e + i * i) : Math.log(e / Math.cos(Math.atan2(i, e))); } function a(e, i) { if (!(this instanceof a))
+      return new a(e, i); var t = function (e, i) { var t = { re: 0, im: 0 }; if (null == e)
+      t.re = t.im = 0;
+  else if (void 0 !== i)
+      t.re = e, t.im = i;
+  else
+      switch (typeof e) {
+          case "object":
+              if ("im" in e && "re" in e)
+                  t.re = e.re, t.im = e.im;
+              else if ("abs" in e && "arg" in e) {
+                  if (!Number.isFinite(e.abs) && Number.isFinite(e.arg))
+                      return a.INFINITY;
+                  t.re = e.abs * Math.cos(e.arg), t.im = e.abs * Math.sin(e.arg);
+              }
+              else if ("r" in e && "phi" in e) {
+                  if (!Number.isFinite(e.r) && Number.isFinite(e.phi))
+                      return a.INFINITY;
+                  t.re = e.r * Math.cos(e.phi), t.im = e.r * Math.sin(e.phi);
+              }
+              else
+                  2 === e.length ? (t.re = e[0], t.im = e[1]) : n();
+              break;
+          case "string":
+              t.im = t.re = 0;
+              var r = e.match(/\d+\.?\d*e[+-]?\d+|\d+\.?\d*|\.\d+|./g), s = 1, o = 0;
+              null === r && n();
+              for (var l = 0; l < r.length; l++) {
+                  var u = r[l];
+                  " " === u || "\t" === u || "\n" === u || ("+" === u ? s++ : "-" === u ? o++ : "i" === u || "I" === u ? (s + o === 0 && n(), " " === r[l + 1] || isNaN(r[l + 1]) ? t.im += parseFloat((o % 2 ? "-" : "") + "1") : (t.im += parseFloat((o % 2 ? "-" : "") + r[l + 1]), l++), s = o = 0) : ((s + o === 0 || isNaN(u)) && n(), "i" === r[l + 1] || "I" === r[l + 1] ? (t.im += parseFloat((o % 2 ? "-" : "") + u), l++) : t.re += parseFloat((o % 2 ? "-" : "") + u), s = o = 0));
+              }
+              s + o > 0 && n();
+              break;
+          case "number":
+              t.im = 0, t.re = e;
+              break;
+          default: n();
+      } return isNaN(t.re) || isNaN(t.im), t; }(e, i); this.re = t.re, this.im = t.im; } a.prototype = { re: 0, im: 0, sign: function () { var e = this.abs(); return new a(this.re / e, this.im / e); }, add: function (e, i) { var t = new a(e, i); return this.isInfinite() && t.isInfinite() ? a.NAN : this.isInfinite() || t.isInfinite() ? a.INFINITY : new a(this.re + t.re, this.im + t.im); }, sub: function (e, i) { var t = new a(e, i); return this.isInfinite() && t.isInfinite() ? a.NAN : this.isInfinite() || t.isInfinite() ? a.INFINITY : new a(this.re - t.re, this.im - t.im); }, mul: function (e, i) { var t = new a(e, i); return this.isInfinite() && t.isZero() || this.isZero() && t.isInfinite() ? a.NAN : this.isInfinite() || t.isInfinite() ? a.INFINITY : 0 === t.im && 0 === this.im ? new a(this.re * t.re, 0) : new a(this.re * t.re - this.im * t.im, this.re * t.im + this.im * t.re); }, div: function (e, i) { var t = new a(e, i); if (this.isZero() && t.isZero() || this.isInfinite() && t.isInfinite())
+          return a.NAN; if (this.isInfinite() || t.isZero())
+          return a.INFINITY; if (this.isZero() || t.isInfinite())
+          return a.ZERO; e = this.re, i = this.im; var r, n, s = t.re, o = t.im; return 0 === o ? new a(e / s, i / s) : Math.abs(s) < Math.abs(o) ? new a((e * (n = s / o) + i) / (r = s * n + o), (i * n - e) / r) : new a((e + i * (n = o / s)) / (r = o * n + s), (i - e * n) / r); }, pow: function (e, i) { var t = new a(e, i); if (e = this.re, i = this.im, t.isZero())
+          return a.ONE; if (0 === t.im) {
+          if (0 === i && e > 0)
+              return new a(Math.pow(e, t.re), 0);
+          if (0 === e)
+              switch ((t.re % 4 + 4) % 4) {
+                  case 0: return new a(Math.pow(i, t.re), 0);
+                  case 1: return new a(0, Math.pow(i, t.re));
+                  case 2: return new a(-Math.pow(i, t.re), 0);
+                  case 3: return new a(0, -Math.pow(i, t.re));
+              }
+      } if (0 === e && 0 === i && t.re > 0 && t.im >= 0)
+          return a.ZERO; var r = Math.atan2(i, e), n = s(e, i); return e = Math.exp(t.re * n - t.im * r), i = t.im * n + t.re * r, new a(e * Math.cos(i), e * Math.sin(i)); }, sqrt: function () { var e, i, t = this.re, r = this.im, n = this.abs(); if (t >= 0) {
+          if (0 === r)
+              return new a(Math.sqrt(t), 0);
+          e = .5 * Math.sqrt(2 * (n + t));
+      }
+      else
+          e = Math.abs(r) / Math.sqrt(2 * (n - t)); return i = t <= 0 ? .5 * Math.sqrt(2 * (n - t)) : Math.abs(r) / Math.sqrt(2 * (n + t)), new a(e, r < 0 ? -i : i); }, exp: function () { var e = Math.exp(this.re); return this.im, new a(e * Math.cos(this.im), e * Math.sin(this.im)); }, expm1: function () { var e = this.re, i = this.im; return new a(Math.expm1(e) * Math.cos(i) + function (e) { var i = Math.PI / 4; if (e < -i || e > i)
+          return Math.cos(e) - 1; var t = e * e; return t * (t * (1 / 24 + t * (-1 / 720 + t * (1 / 40320 + t * (-1 / 3628800 + t * (1 / 4790014600 + t * (-1 / 87178291200 + t * (1 / 20922789888e3))))))) - .5); }(i), Math.exp(e) * Math.sin(i)); }, log: function () { var e = this.re, i = this.im; return new a(s(e, i), Math.atan2(i, e)); }, abs: function () { return e = this.re, i = this.im, t = Math.abs(e), r = Math.abs(i), t < 3e3 && r < 3e3 ? Math.sqrt(t * t + r * r) : (t < r ? (t = r, r = e / i) : r = i / e, t * Math.sqrt(1 + r * r)); var e, i, t, r; }, arg: function () { return Math.atan2(this.im, this.re); }, sin: function () { var e = this.re, i = this.im; return new a(Math.sin(e) * t(i), Math.cos(e) * r(i)); }, cos: function () { var e = this.re, i = this.im; return new a(Math.cos(e) * t(i), -Math.sin(e) * r(i)); }, tan: function () { var e = 2 * this.re, i = 2 * this.im, n = Math.cos(e) + t(i); return new a(Math.sin(e) / n, r(i) / n); }, cot: function () { var e = 2 * this.re, i = 2 * this.im, n = Math.cos(e) - t(i); return new a(-Math.sin(e) / n, r(i) / n); }, sec: function () { var e = this.re, i = this.im, n = .5 * t(2 * i) + .5 * Math.cos(2 * e); return new a(Math.cos(e) * t(i) / n, Math.sin(e) * r(i) / n); }, csc: function () { var e = this.re, i = this.im, n = .5 * t(2 * i) - .5 * Math.cos(2 * e); return new a(Math.sin(e) * t(i) / n, -Math.cos(e) * r(i) / n); }, asin: function () { var e = this.re, i = this.im, t = new a(i * i - e * e + 1, -2 * e * i).sqrt(), r = new a(t.re - i, t.im + e).log(); return new a(r.im, -r.re); }, acos: function () { var e = this.re, i = this.im, t = new a(i * i - e * e + 1, -2 * e * i).sqrt(), r = new a(t.re - i, t.im + e).log(); return new a(Math.PI / 2 - r.im, r.re); }, atan: function () { var e = this.re, i = this.im; if (0 === e) {
+          if (1 === i)
+              return new a(0, 1 / 0);
+          if (-1 === i)
+              return new a(0, -1 / 0);
+      } var t = e * e + (1 - i) * (1 - i), r = new a((1 - i * i - e * e) / t, -2 * e / t).log(); return new a(-.5 * r.im, .5 * r.re); }, acot: function () { var e = this.re, i = this.im; if (0 === i)
+          return new a(Math.atan2(1, e), 0); var t = e * e + i * i; return 0 !== t ? new a(e / t, -i / t).atan() : new a(0 !== e ? e / 0 : 0, 0 !== i ? -i / 0 : 0).atan(); }, asec: function () { var e = this.re, i = this.im; if (0 === e && 0 === i)
+          return new a(0, 1 / 0); var t = e * e + i * i; return 0 !== t ? new a(e / t, -i / t).acos() : new a(0 !== e ? e / 0 : 0, 0 !== i ? -i / 0 : 0).acos(); }, acsc: function () { var e = this.re, i = this.im; if (0 === e && 0 === i)
+          return new a(Math.PI / 2, 1 / 0); var t = e * e + i * i; return 0 !== t ? new a(e / t, -i / t).asin() : new a(0 !== e ? e / 0 : 0, 0 !== i ? -i / 0 : 0).asin(); }, sinh: function () { var e = this.re, i = this.im; return new a(r(e) * Math.cos(i), t(e) * Math.sin(i)); }, cosh: function () { var e = this.re, i = this.im; return new a(t(e) * Math.cos(i), r(e) * Math.sin(i)); }, tanh: function () { var e = 2 * this.re, i = 2 * this.im, n = t(e) + Math.cos(i); return new a(r(e) / n, Math.sin(i) / n); }, coth: function () { var e = 2 * this.re, i = 2 * this.im, n = t(e) - Math.cos(i); return new a(r(e) / n, -Math.sin(i) / n); }, csch: function () { var e = this.re, i = this.im, n = Math.cos(2 * i) - t(2 * e); return new a(-2 * r(e) * Math.cos(i) / n, 2 * t(e) * Math.sin(i) / n); }, sech: function () { var e = this.re, i = this.im, n = Math.cos(2 * i) + t(2 * e); return new a(2 * t(e) * Math.cos(i) / n, -2 * r(e) * Math.sin(i) / n); }, asinh: function () { var e = this.im; this.im = -this.re, this.re = e; var i = this.asin(); return this.re = -this.im, this.im = e, e = i.re, i.re = -i.im, i.im = e, i; }, acosh: function () { var e = this.acos(); if (e.im <= 0) {
+          var i = e.re;
+          e.re = -e.im, e.im = i;
+      }
+      else
+          i = e.im, e.im = -e.re, e.re = i; return e; }, atanh: function () { var e = this.re, i = this.im, t = e > 1 && 0 === i, r = 1 - e, n = 1 + e, o = r * r + i * i, l = 0 !== o ? new a((n * r - i * i) / o, (i * r + n * i) / o) : new a(-1 !== e ? e / 0 : 0, 0 !== i ? i / 0 : 0), u = l.re; return l.re = s(l.re, l.im) / 2, l.im = Math.atan2(l.im, u) / 2, t && (l.im = -l.im), l; }, acoth: function () { var e = this.re, i = this.im; if (0 === e && 0 === i)
+          return new a(0, Math.PI / 2); var t = e * e + i * i; return 0 !== t ? new a(e / t, -i / t).atanh() : new a(0 !== e ? e / 0 : 0, 0 !== i ? -i / 0 : 0).atanh(); }, acsch: function () { var e = this.re, i = this.im; if (0 === i)
+          return new a(0 !== e ? Math.log(e + Math.sqrt(e * e + 1)) : 1 / 0, 0); var t = e * e + i * i; return 0 !== t ? new a(e / t, -i / t).asinh() : new a(0 !== e ? e / 0 : 0, 0 !== i ? -i / 0 : 0).asinh(); }, asech: function () { var e = this.re, i = this.im; if (this.isZero())
+          return a.INFINITY; var t = e * e + i * i; return 0 !== t ? new a(e / t, -i / t).acosh() : new a(0 !== e ? e / 0 : 0, 0 !== i ? -i / 0 : 0).acosh(); }, inverse: function () { if (this.isZero())
+          return a.INFINITY; if (this.isInfinite())
+          return a.ZERO; var e = this.re, i = this.im, t = e * e + i * i; return new a(e / t, -i / t); }, conjugate: function () { return new a(this.re, -this.im); }, neg: function () { return new a(-this.re, -this.im); }, ceil: function (e) { return e = Math.pow(10, e || 0), new a(Math.ceil(this.re * e) / e, Math.ceil(this.im * e) / e); }, floor: function (e) { return e = Math.pow(10, e || 0), new a(Math.floor(this.re * e) / e, Math.floor(this.im * e) / e); }, round: function (e) { return e = Math.pow(10, e || 0), new a(Math.round(this.re * e) / e, Math.round(this.im * e) / e); }, equals: function (e, i) { var t = new a(e, i); return Math.abs(t.re - this.re) <= a.EPSILON && Math.abs(t.im - this.im) <= a.EPSILON; }, clone: function () { return new a(this.re, this.im); }, toString: function () { var e = this.re, i = this.im, t = ""; return this.isNaN() ? "NaN" : this.isInfinite() ? "Infinity" : (Math.abs(e) < a.EPSILON && (e = 0), Math.abs(i) < a.EPSILON && (i = 0), 0 === i ? t + e : (0 !== e ? (t += e, t += " ", i < 0 ? (i = -i, t += "-") : t += "+", t += " ") : i < 0 && (i = -i, t += "-"), 1 !== i && (t += i), t + "i")); }, toVector: function () { return [this.re, this.im]; }, valueOf: function () { return 0 === this.im ? this.re : null; }, isNaN: function () { return isNaN(this.re) || isNaN(this.im); }, isZero: function () { return 0 === this.im && 0 === this.re; }, isFinite: function () { return isFinite(this.re) && isFinite(this.im); }, isInfinite: function () { return !(this.isNaN() || this.isFinite()); } }, a.ZERO = new a(0, 0), a.ONE = new a(1, 0), a.I = new a(0, 1), a.PI = new a(Math.PI, 0), a.E = new a(Math.E, 0), a.INFINITY = new a(1 / 0, 1 / 0), a.NAN = new a(NaN, NaN), a.EPSILON = 1e-15, Object.defineProperty(a, "__esModule", { value: !0 }), a.default = a, a.Complex = a, e.exports = a; }(); }(h), new c.exports.Decimal(0), new c.exports.Decimal(1), new c.exports.Decimal(-1), new c.exports.Decimal(NaN), new c.exports.Decimal(1 / 0), new c.exports.Decimal(-1 / 0), [.9999999999998099, 676.5203681218851, -1259.1392167224028, 771.3234287776531, -176.6150291621406, 12.507343278686905, -.13857109526572012, 9984369578019572e-21, 1.5056327351493116e-7].map((e => new c.exports.Decimal(e))), new c.exports.Decimal(607).div(128), [.9999999999999971, 57.15623566586292, -59.59796035547549, 14.136097974741746, -.4919138160976202, 3399464998481189e-20, 4652362892704858e-20, -9837447530487956e-20, .0001580887032249125, -.00021026444172410488, .00021743961811521265, -.0001643181065367639, 8441822398385275e-20, -26190838401581408e-21, 36899182659531625e-22].map((e => new c.exports.Decimal(e)));
+  const g = "List", p = "Missing", f = "Nothing", m = "Add", d = "Divide", v = "Multiply", x = "Power";
+  function y(e) { return null !== e && "object" == typeof e && "num" in e; }
+  function b(e) { return null !== e && "object" == typeof e && "sym" in e; }
+  function w(e) { return null !== e && "object" == typeof e && "fn" in e; }
+  function N(e) { if ("number" == typeof e)
+      return e; if (null === e)
+      return null; if (y(e))
+      return e.num.endsWith("d") || e.num.endsWith("n") ? null : parseFloat(e.num); const i = z(e); return null === i ? null : "NaN" === i ? NaN : "+Infinity" === i ? 1 / 0 : "-Infinity" === i ? -1 / 0 : "Complex" === A(e) && 0 === N(O(e, 2)) ? N(O(e, 1)) : null; }
+  function q(e) { return null === e ? null : "object" == typeof e && "str" in e ? e.str : "string" != typeof e || e.length < 2 || "'" !== e[0] || "'" !== e[e.length - 1] ? null : e.substring(1, e.length - 1); }
+  function E(e) { var i, t, r, n, s, a; const o = z(e); if ("ThreeQuarter" === o)
+      return [3, 4]; if ("TwoThird" === o)
+      return [2, 3]; if ("Half" === o)
+      return [1, 2]; if ("Third" === o)
+      return [1, 3]; if ("Quarter" === o)
+      return [1, 4]; if (S(e))
+      return [null, null]; const l = A(e); if (!l)
+      return [null, null]; let u = null, c = null; if (l === x) {
+      const r = N(O(e, 2));
+      1 === r ? (u = null !== (i = N(O(e, 1))) && void 0 !== i ? i : null, c = 1) : -1 === r && (u = 1, c = null !== (t = N(O(e, 1))) && void 0 !== t ? t : null);
+  } return l === d && (u = null !== (r = N(O(e, 1))) && void 0 !== r ? r : null, c = null !== (n = N(O(e, 2))) && void 0 !== n ? n : null), l === v && A(O(e, 2)) === x && -1 === N(O(O(e, 2), 2)) && (u = null !== (s = N(O(e, 1))) && void 0 !== s ? s : null, c = null !== (a = N(O(O(e, 2), 1))) && void 0 !== a ? a : null), null === u || null === c ? [null, null] : Number.isInteger(u) && Number.isInteger(c) ? [u, c] : [null, null]; }
+  function M(e) { return null === e ? null : Array.isArray(e) ? e[0] : w(e) ? e.fn[0] : null; }
+  function S(e) { return null === e || !Array.isArray(e) && ("object" != typeof e || !("fn" in e || "dic" in e)); }
   function A(e) { if (null === e)
-      return ""; const i = q(e); return "string" == typeof i ? i : ""; }
-  function S(e) { return null === e ? null : "string" == typeof e ? e.length >= 2 && "'" === e[0] && "'" === e[e.length - 1] ? null : e : d(e) ? e.sym : null; }
-  function E(e) { return Array.isArray(e) ? e.slice(1) : v(e) ? e.fn.slice(1) : []; }
-  function z(e, i) { return null === e ? null : Array.isArray(e) ? e[i] : v(e) ? e.fn[i] : null; }
-  function k(e) { return Array.isArray(e) ? Math.max(0, e.length - 1) : v(e) ? Math.max(0, e.fn.length - 1) : 0; }
-  const N = [{ name: "Overscript", trigger: { infix: "\\overset" }, precedence: 700 }, { name: "Underscript", trigger: { infix: "\\underset" }, precedence: 700 }, { name: "Increment", trigger: { postfix: ["+", "+"] }, precedence: 880 }, { name: "Decrement", trigger: { postfix: ["-", "-"] }, precedence: 880 }, { name: "PreIncrement", trigger: { prefix: ["+", "+"] }, precedence: 880 }, { name: "PreDecrement", trigger: { prefix: ["-", "-"] }, precedence: 880 }, { name: "Ring", trigger: { infix: "\\circ" }, precedence: 265 }, { name: "Transpose", trigger: { superfix: "T" } }, { name: "ConjugateTranspose", trigger: { superfix: "H" } }, { name: "StringJoin", trigger: { infix: ["\\lt", "\\gt"] }, precedence: 780 }, { name: "Starstar", trigger: { infix: ["\\star", "\\star"] }, precedence: 780 }, { name: "PartialDerivative", trigger: { prefix: "\\partial" }, parse: (e, i, t) => { var r, n; let s = !1, a = u, l = u; for (; !s;)
-              i.skipSpace(), i.match("_") ? l = i.matchRequiredLatexArgument() : i.match("^") ? a = i.matchRequiredLatexArgument() : s = !0; if ("Sequence" === A(l) && (l = [o, ...E(l)]), !l || !a)
-              return [e, null]; let c = null !== (r = i.matchRequiredLatexArgument()) && void 0 !== r ? r : u; return c !== u && (c = [c, ...null !== (n = i.matchArguments("group")) && void 0 !== n ? n : u]), [null, ["PartialDerivative", c, l, a]]; }, serialize: (e, i) => { let t = "\\partial"; const r = z(i, 1), n = z(i, 2), s = z(i, 3); return null !== n && n !== u && (q(n) === o ? t += "_{" + e.serialize(["Sequence", ...E(n)]) + "}" : t += "_{" + e.serialize(n) + "}"), null !== s && s !== u && (t += "^{" + e.serialize(s) + "}"), null !== r && r !== u && (t += e.serialize(r)), t; }, precedence: 740 }, { name: "OverBar", trigger: { symbol: "\\overline" }, requiredLatexArg: 1 }, { name: "UnderBar", trigger: { symbol: "\\underline" }, requiredLatexArg: 1 }, { name: "OverVector", trigger: { symbol: "\\vec" }, requiredLatexArg: 1 }, { name: "OverTile", trigger: { symbol: "\\tilde" }, requiredLatexArg: 1 }, { name: "OverHat", trigger: { symbol: "\\hat" }, requiredLatexArg: 1 }, { name: "OverHat", trigger: { symbol: "\\hat" }, requiredLatexArg: 1 }, { name: "OverRightArrow", trigger: { symbol: "\\overrightarrow" }, requiredLatexArg: 1 }, { name: "OverLeftArrow", trigger: { symbol: "\\overleftarrow" }, requiredLatexArg: 1 }, { name: "OverRightDoubleArrow", trigger: { symbol: "\\Overrightarrow" }, requiredLatexArg: 1 }, { name: "OverLeftHarpoon", trigger: { symbol: "\\overleftharpoon" }, requiredLatexArg: 1 }, { name: "OverRightHarpoon", trigger: { symbol: "\\overrightharpoon" }, requiredLatexArg: 1 }, { name: "OverLeftRightArrow", trigger: { symbol: "\\overleftrightarrow" }, requiredLatexArg: 1 }, { name: "OverBrace", trigger: { symbol: "\\overbrace" }, requiredLatexArg: 1 }, { name: "OverLineSegment", trigger: { symbol: "\\overlinesegment" }, requiredLatexArg: 1 }, { name: "OverGroup", trigger: { symbol: "\\overgroup" }, requiredLatexArg: 1 }];
-  function L(e, i) { return i > 1 ? "solidus" : "radical"; }
-  function w(e) { return "<space>" === e || "\\qquad" === e || "\\quad" === e || "\\enskip" === e || "\\;" === e || "\\," === e || "\\ " === e || "~" === e; }
-  function O(e, i, t) { return (r, n, s) => { if (s >= i)
-      return [r, null]; n.skipSpace(), n.match(t), "Missing" === r && (r = u); const a = [e, null != r ? r : u]; let l = !1; for (; !l;) {
-      for (l = !0, n.skipSpace(); n.match(t);)
-          a.push(u), n.skipSpace();
+      return ""; const i = M(e); return "string" == typeof i ? i : ""; }
+  function z(e) { return null === e ? null : "string" == typeof e ? e.length >= 2 && "'" === e[0] && "'" === e[e.length - 1] ? null : e : b(e) ? e.sym : null; }
+  function k(e) { return Array.isArray(e) ? e.slice(1) : w(e) ? e.fn.slice(1) : []; }
+  function I(e, i) { let t = null; if (Array.isArray(e) && (t = e), w(e) && (t = e.fn), null === t)
+      return []; let r = 1; const n = []; for (; r < t.length;)
+      n.push(i(t[r])), r += 1; return n; }
+  function O(e, i) { var t, r; return null === e ? null : Array.isArray(e) ? null !== (t = e[i]) && void 0 !== t ? t : null : w(e) && null !== (r = e.fn[i]) && void 0 !== r ? r : null; }
+  function L(e) { return Array.isArray(e) ? Math.max(0, e.length - 1) : w(e) ? Math.max(0, e.fn.length - 1) : 0; }
+  function P(e) { return "object" == typeof e && "dict" in e ? e.dict : null; }
+  const D = [{ name: "Overscript", trigger: { infix: "\\overset" }, precedence: 700 }, { name: "Underscript", trigger: { infix: "\\underset" }, precedence: 700 }, { name: "Increment", trigger: { postfix: ["+", "+"] }, precedence: 880 }, { name: "Decrement", trigger: { postfix: ["-", "-"] }, precedence: 880 }, { name: "PreIncrement", trigger: { prefix: ["+", "+"] }, precedence: 880 }, { name: "PreDecrement", trigger: { prefix: ["-", "-"] }, precedence: 880 }, { name: "Ring", trigger: { infix: "\\circ" }, precedence: 265 }, { name: "Transpose", trigger: { superfix: "T" } }, { name: "ConjugateTranspose", trigger: { superfix: "H" } }, { name: "StringJoin", trigger: { infix: ["\\lt", "\\gt"] }, precedence: 780 }, { name: "Starstar", trigger: { infix: ["\\star", "\\star"] }, precedence: 780 }, { name: "PartialDerivative", trigger: { prefix: "\\partial" }, parse: (e, i, t) => { var r, n; let s = !1, a = f, o = f; for (; !s;)
+              i.skipSpace(), i.match("_") ? o = i.matchRequiredLatexArgument() : i.match("^") ? a = i.matchRequiredLatexArgument() : s = !0; if ("Sequence" === A(o) && (o = [g, ...k(o)]), !o || !a)
+              return [e, null]; let l = null !== (r = i.matchRequiredLatexArgument()) && void 0 !== r ? r : f; return l !== f && (l = [l, ...null !== (n = i.matchArguments("group")) && void 0 !== n ? n : f]), [null, ["PartialDerivative", l, o, a]]; }, serialize: (e, i) => { let t = "\\partial"; const r = O(i, 1), n = O(i, 2), s = O(i, 3); return null !== n && n !== f && (M(n) === g ? t += "_{" + e.serialize(["Sequence", ...k(n)]) + "}" : t += "_{" + e.serialize(n) + "}"), null !== s && s !== f && (t += "^{" + e.serialize(s) + "}"), null !== r && r !== f && (t += e.serialize(r)), t; }, precedence: 740 }, { name: "OverBar", trigger: { symbol: "\\overline" }, requiredLatexArg: 1 }, { name: "UnderBar", trigger: { symbol: "\\underline" }, requiredLatexArg: 1 }, { name: "OverVector", trigger: { symbol: "\\vec" }, requiredLatexArg: 1 }, { name: "OverTile", trigger: { symbol: "\\tilde" }, requiredLatexArg: 1 }, { name: "OverHat", trigger: { symbol: "\\hat" }, requiredLatexArg: 1 }, { name: "OverHat", trigger: { symbol: "\\hat" }, requiredLatexArg: 1 }, { name: "OverRightArrow", trigger: { symbol: "\\overrightarrow" }, requiredLatexArg: 1 }, { name: "OverLeftArrow", trigger: { symbol: "\\overleftarrow" }, requiredLatexArg: 1 }, { name: "OverRightDoubleArrow", trigger: { symbol: "\\Overrightarrow" }, requiredLatexArg: 1 }, { name: "OverLeftHarpoon", trigger: { symbol: "\\overleftharpoon" }, requiredLatexArg: 1 }, { name: "OverRightHarpoon", trigger: { symbol: "\\overrightharpoon" }, requiredLatexArg: 1 }, { name: "OverLeftRightArrow", trigger: { symbol: "\\overleftrightarrow" }, requiredLatexArg: 1 }, { name: "OverBrace", trigger: { symbol: "\\overbrace" }, requiredLatexArg: 1 }, { name: "OverLineSegment", trigger: { symbol: "\\overlinesegment" }, requiredLatexArg: 1 }, { name: "OverGroup", trigger: { symbol: "\\overgroup" }, requiredLatexArg: 1 }];
+  function F(e, i) { return i > 2 ? "solidus" : "radical"; }
+  function T(e) { return "<space>" === e || "\\qquad" === e || "\\quad" === e || "\\enskip" === e || "\\;" === e || "\\," === e || "\\ " === e || "~" === e; }
+  function C(e, i, t) { return (r, n, s) => { if (s >= i)
+      return [r, null]; n.skipSpace(), n.match(t), "Missing" === r && (r = f); const a = [e, null != r ? r : f]; let o = !1; for (; !o;) {
+      for (o = !0, n.skipSpace(); n.match(t);)
+          a.push(f), n.skipSpace();
       if (n.atEnd)
-          a.push(u);
+          a.push(f);
       else {
           const e = n.matchExpression(i);
-          a.push(null != e ? e : u), l = null === e;
+          a.push(null != e ? e : f), o = null === e;
       }
-      l || (n.skipSpace(), l = !n.match(t));
+      o || (n.skipSpace(), o = !n.match(t));
   } return [null, a]; }; }
-  function P(e) { return (i, t) => E(t).map((e => i.serialize(e))).join(e); }
-  const M = [{ name: "LatexTokens", serialize: function (e, i) { return E(i).map((i => { const t = y(i); return null === t ? e.serialize(i) : "<{>" === t ? "{" : "<}>" === t ? "}" : "<$>" === t ? "$" : "<$$>" === t ? "$$" : "<space>'" === t ? " " : t; })).join(""); } }, { name: "Parentheses", trigger: { matchfix: "(" }, parse: (e, i, t) => { var r; const n = i.index; if (!i.match("("))
-              return [e, null]; let s = !1, a = !0, l = !1, o = 0, c = ""; for (; !s && a;) {
+  function R(e) { return (i, t) => k(t).map((e => i.serialize(e))).join(e); }
+  const $ = [{ name: "LatexTokens", serialize: function (e, i) { return k(i).map((i => { const t = q(i); return null === t ? e.serialize(i) : "<{>" === t ? "{" : "<}>" === t ? "}" : "<$>" === t ? "$" : "<$$>" === t ? "$$" : "<space>'" === t ? " " : t; })).join(""); } }, { name: "Parentheses", trigger: { matchfix: "(" }, parse: (e, i, t) => { var r; const n = i.index; if (!i.match("("))
+              return [e, null]; let s = !1, a = !0, o = !1, l = 0, u = ""; for (; !s && a;) {
               const e = i.next();
-              i.atEnd || ")" === e ? s = !0 : "\\mathtt" === e ? (i.match("<{>"), l = !0) : w(e) || (/^[0-9a-zA-Z]$/.test(e) ? (o = Math.max(o, parseInt(e, 36)), c += e) : a = !1), l && i.match("<}>");
+              i.atEnd || ")" === e ? s = !0 : "\\mathtt" === e ? (i.match("<{>"), o = !0) : T(e) || (/^[0-9a-zA-Z]$/.test(e) ? (l = Math.max(l, parseInt(e, 36)), u += e) : a = !1), o && i.match("<}>");
           } if (i.skipSpace(), a && i.match("_")) {
-              const t = null !== (r = x(i.matchRequiredLatexArgument())) && void 0 !== r ? r : NaN;
-              return !isFinite(t) || t < 2 || t > 36 || o >= t ? (i.onError({ code: "base-out-of-range" }), [e, u]) : [e, ["BaseForm", parseInt(c, t), t]];
-          } i.index = n; const g = i.matchBalancedExpression("(", ")", i.onError); return g ? "Sequence" === A(g) ? [e, ["Parentheses", ...E(g)]] : [e, ["Parentheses", g]] : [e, ["Parentheses"]]; }, serialize: (e, i) => e.wrapString(P(",")(e, i), (e.level, "paren")), separator: ",", closeFence: ")", precedence: 20 }, { name: o, trigger: { matchfix: "\\lbrack" }, separator: ",", closeFence: "\\rbrack", precedence: 20, parse: (e, i, t) => { if (null === e) {
+              const t = null !== (r = N(i.matchRequiredLatexArgument())) && void 0 !== r ? r : NaN;
+              return !isFinite(t) || t < 2 || t > 36 || l >= t ? (i.onError({ code: "base-out-of-range" }), [e, f]) : [e, ["BaseForm", parseInt(u, t), t]];
+          } i.index = n; const c = i.matchBalancedExpression("(", ")", i.onError); return c ? "Sequence" === A(c) ? [e, ["Parentheses", ...k(c)]] : [e, ["Parentheses", c]] : [e, ["Parentheses"]]; }, serialize: (e, i) => e.wrapString(R(",")(e, i), (e.level, "paren")), separator: ",", closeFence: ")", precedence: 20 }, { name: g, trigger: { matchfix: "\\lbrack" }, separator: ",", closeFence: "\\rbrack", precedence: 20, parse: (e, i, t) => { if (null === e) {
               const t = i.matchBalancedExpression("\\lbrack", "\\rbrack", i.onError);
-              return t ? "Sequence" === A(t) ? [e, [o, ...E(t)]] : [e, [o, t]] : [null, [o]];
-          } return [e, null]; } }, { name: "BaseForm", serialize: (e, i) => { var t, r; const n = null !== (t = x(z(i, 2))) && void 0 !== t ? t : NaN; if (isFinite(n) && n >= 2 && n <= 36) {
-              const e = null !== (r = x(z(i, 1))) && void 0 !== r ? r : NaN;
+              return t ? "Sequence" === A(t) ? [e, [g, ...k(t)]] : [e, [g, t]] : [null, [g]];
+          } return [e, null]; } }, { name: "BaseForm", serialize: (e, i) => { var t, r; const n = null !== (t = N(O(i, 2))) && void 0 !== t ? t : NaN; if (isFinite(n) && n >= 2 && n <= 36) {
+              const e = null !== (r = N(O(i, 1))) && void 0 !== r ? r : NaN;
               if (isFinite(e)) {
                   let i = Number(e).toString(n), t = 0;
                   if (2 === n || 10 === n ? t = 4 : 16 === n ? t = 2 : n > 16 && (t = 4), t > 0) {
@@ -28564,81 +29981,78 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   }
                   return `(\\mathtt{${i}})_{${n}}`;
               }
-          } return "\\operatorname{BaseForm}(" + e.serialize(z(i, 1)) + ", " + e.serialize(z(i, 2)) + ")"; } }, { name: "Set", trigger: { matchfix: "\\lbrace" }, separator: ",", closeFence: "\\rbrace", precedence: 20 }, { name: "Sequence", trigger: { infix: "," }, parse: O("Sequence", 20, ","), serialize: P(", "), precedence: 20 }, { name: "Sequence2", trigger: { infix: ";" }, parse: O("Sequence2", 19, ";"), serialize: P("; "), precedence: 19 }, { name: c, trigger: "\\placeholder", serialize: "\\placeholder", requiredLatexArg: 1 }, { name: "Subscript", trigger: { infix: "_" }, precedence: 720, serialize: (e, i) => 2 === k(i) ? e.serialize(z(i, 1)) + "_{" + e.serialize(z(i, 2)) + "}" : "_{" + e.serialize(z(i, 1)) + "}", parse: (e, i, t) => { var r; if (!i.match("_"))
-              return [e, null]; const n = null !== (r = i.matchRequiredLatexArgument()) && void 0 !== r ? r : c; return e ? [null, ["Subscript", e, n]] : [null, ["Subscript", n]]; } }, { name: "Superplus", trigger: { superfix: "+" } }, { name: "Subplus", trigger: { subfix: "+" } }, { name: "Superminus", trigger: { superfix: "-" } }, { name: "Subminus", trigger: { subfix: "-" } }, { name: "Superstar", trigger: { superfix: "*" } }, { name: "Superstar", trigger: { superfix: "\\star" } }, { name: "Substar", trigger: { subfix: "*" } }, { name: "Substar", trigger: { subfix: "\\star" } }, { name: "Superdagger", trigger: { superfix: "\\dagger" } }, { name: "Superdagger", trigger: { superfix: "\\dag" } }, { name: "Prime", trigger: { superfix: "\\prime" }, arguments: "group" }, { trigger: { superfix: "\\doubleprime" }, parse: (e, i) => [null, ["Prime", null != e ? e : u, 2]], arguments: "group" }, { name: "InverseFunction", serialize: (e, i) => e.serialize(z(i, 1)) + "^{-1}" }, { name: "Derivative", trigger: "D", parse: (e, i) => [e, ["Derivative", 1]], serialize: (e, i) => { var t; const r = null !== (t = x(z(i, 1))) && void 0 !== t ? t : NaN; if (!isFinite(r))
-              return ""; const n = e.serialize(z(i, 2)); return 1 === r ? n + "^{\\prime}" : 2 === r ? n + "^{\\doubleprime}" : n + "^{(" + Number(r).toString() + ")}"; } }, { name: "Piecewise", trigger: { environment: "cases" }, parse: (e, i) => { var t; return [e, ["Piecewise", null !== (t = i.matchTabular()) && void 0 !== t ? t : u]]; }, serialize: (e, i) => { if (A(z(i, 1)) !== o)
-              return ""; const t = E(z(i, 1)); let r = "", n = ""; for (const i of t) {
+          } return "\\operatorname{BaseForm}(" + e.serialize(O(i, 1)) + ", " + e.serialize(O(i, 2)) + ")"; } }, { name: "Set", trigger: { matchfix: "\\lbrace" }, separator: ",", closeFence: "\\rbrace", precedence: 20 }, { name: "Sequence", trigger: { infix: "," }, parse: C("Sequence", 20, ","), serialize: R(", "), precedence: 20 }, { name: "Sequence2", trigger: { infix: ";" }, parse: C("Sequence2", 19, ";"), serialize: R("; "), precedence: 19 }, { name: p, trigger: "\\placeholder", serialize: "\\placeholder", requiredLatexArg: 1 }, { name: "Subscript", trigger: { infix: "_" }, precedence: 720, serialize: (e, i) => 2 === L(i) ? e.serialize(O(i, 1)) + "_{" + e.serialize(O(i, 2)) + "}" : "_{" + e.serialize(O(i, 1)) + "}", parse: (e, i, t) => { var r; if (!i.match("_"))
+              return [e, null]; const n = null !== (r = i.matchRequiredLatexArgument()) && void 0 !== r ? r : p; return e ? [null, ["Subscript", e, n]] : [null, ["Subscript", n]]; } }, { name: "Superplus", trigger: { superfix: "+" } }, { name: "Subplus", trigger: { subfix: "+" } }, { name: "Superminus", trigger: { superfix: "-" } }, { name: "Subminus", trigger: { subfix: "-" } }, { name: "Superstar", trigger: { superfix: "*" } }, { name: "Superstar", trigger: { superfix: "\\star" } }, { name: "Substar", trigger: { subfix: "*" } }, { name: "Substar", trigger: { subfix: "\\star" } }, { name: "Superdagger", trigger: { superfix: "\\dagger" } }, { name: "Superdagger", trigger: { superfix: "\\dag" } }, { name: "Prime", trigger: { superfix: "\\prime" }, arguments: "group" }, { trigger: { superfix: "\\doubleprime" }, parse: (e, i) => [null, ["Prime", null != e ? e : f, 2]], arguments: "group" }, { name: "InverseFunction", serialize: (e, i) => e.serialize(O(i, 1)) + "^{-1}" }, { name: "Derivative", trigger: "D", parse: (e, i) => [e, ["Derivative", 1]], serialize: (e, i) => { var t; const r = null !== (t = N(O(i, 1))) && void 0 !== t ? t : NaN; if (!isFinite(r))
+              return ""; const n = e.serialize(O(i, 2)); return 1 === r ? n + "^{\\prime}" : 2 === r ? n + "^{\\doubleprime}" : n + "^{(" + Number(r).toString() + ")}"; } }, { name: "Piecewise", trigger: { environment: "cases" }, parse: (e, i) => { var t; return [e, ["Piecewise", null !== (t = i.matchTabular()) && void 0 !== t ? t : f]]; }, serialize: (e, i) => { if (A(O(i, 1)) !== g)
+              return ""; const t = k(O(i, 1)); let r = "", n = ""; for (const i of t) {
               r += n;
-              const t = z(i, 1);
+              const t = O(i, 1);
               if (null !== t) {
                   r += e.serialize(t);
-                  const n = z(i, 2);
+                  const n = O(i, 2);
                   null !== n && (r += "&" + e.serialize(n));
               }
               n = "\\\\";
           } return "\\begin{cases}" + r + "\\end{cases}"; } }];
-  function D(e) { if (null === e)
-      return null; const i = q(e); return i ? "Parentheses" === i && 1 === k(e) ? D(z(e, 1)) : function (e, i) { return null === e ? null : Array.isArray(e) ? e.map(((e, t) => { var r; return 0 === t ? e : null !== (r = i(e)) && void 0 !== r ? r : u; })) : v(e) ? e.fn.map(((e, t) => { var r; return 0 === t ? e : null !== (r = i(e)) && void 0 !== r ? r : u; })) : e; }(e, D) : e; }
-  function $(e) { var i; if (null === e)
-      return e; if ("number" == typeof (e = D(e)))
-      e = -e;
-  else if (e && f(e))
-      e = "-" === e.num[0] ? { num: e.num.slice(1) } : { num: "-" + e.num };
-  else {
-      const t = A(e), r = k(e);
-      if (t === h && 1 === r)
-          return z(e, 1);
-      if (t === p) {
-          let t = null !== (i = z(e, 1)) && void 0 !== i ? i : c;
-          return t = "number" == typeof t ? -t : f(t) ? "-" === t.num[0] ? { num: t.num.slice(1) } : { num: "-" + t.num } : [h, t], [p, t, ...E(e).slice(1)];
-      }
-      if ("Parentheses" === t && 1 === r)
-          return $(z(z(e, 1), 1));
-      e = [h, null != e ? e : c];
-  } return e; }
-  function I(e, i, t, r) { return null === t ? "\\sqrt{}" : (r = null != r ? r : 2, "solidus" === i ? e.wrapShort(t) + "^{1\\/" + e.serialize(r) + "}" : "quotient" === i ? e.wrapShort(t) + "^{\\frac{1}{" + e.serialize(r) + "}}" : 2 === x(r) ? "\\sqrt{" + e.serialize(t) + "}" : "\\sqrt[" + e.serialize(r) + "]{" + e.serialize(t) + "}"); }
-  function C(e, i, t) { if (!i.match("\\sqrt"))
-      return [e, null]; const r = i.matchOptionalLatexArgument(), n = i.matchRequiredLatexArgument(); return null === n ? null !== r ? [e, ["Root", u, r]] : [e, ["Sqrt"]] : null !== r ? [e, ["Root", n, r]] : [e, ["Sqrt", n]]; }
-  function F(e, i, t) { if (276 < t)
+  function Z(e) { var i, t, r, n; if ("number" == typeof (e = B(e)))
+      return -e; if (e && y(e))
+      return "-" === e.num[0] ? { num: e.num.slice(1) } : "+" === e.num[0] ? { num: "-" + e.num.slice(1) } : { num: "-" + e.num }; if (e instanceof c.exports.Decimal)
+      return e.mul(-1); if (e instanceof h.exports.Complex)
+      return e.mul(-1); const s = A(e), a = L(e); if ("Negate" === s && 1 === a)
+      return null !== (i = O(e, 1)) && void 0 !== i ? i : p; if (s === v) {
+      const i = Z(null !== (t = O(e, 1)) && void 0 !== t ? t : p);
+      return [v, i, ...k(e).slice(1)];
+  } return s === m ? [m, ...I(e, Z)] : "Subtract" === s ? ["Subtract", null !== (r = O(e, 2)) && void 0 !== r ? r : p, null !== (n = O(e, 1)) && void 0 !== n ? n : p] : "Parentheses" === s && 1 === a ? Z(O(O(e, 1), 1)) : ["Negate", null != e ? e : p]; }
+  function B(e) { return null === e ? f : S(e) ? e : "Parentheses" === M(e) && 1 === L(e) ? B(O(e, 1)) : function (e, i) { const t = M(e); if (null !== t)
+      return [i(t), ...k(e).map(i)]; const r = P(e); if (null !== r) {
+      const e = Object.keys(r), t = {};
+      for (const n of e)
+          t[n] = i(r[n]);
+      return { dict: t };
+  } return i(e); }(e, B); }
+  function _(e, i, t, r) { return null === t ? "\\sqrt{}" : (r = null != r ? r : 2, "solidus" === i ? e.wrapShort(t) + "^{1\\/" + e.serialize(r) + "}" : "quotient" === i ? e.wrapShort(t) + "^{\\frac{1}{" + e.serialize(r) + "}}" : 2 === N(r) ? "\\sqrt{" + e.serialize(t) + "}" : "\\sqrt[" + e.serialize(r) + "]{" + e.serialize(t) + "}"); }
+  function U(e, i, t) { if (!i.match("\\sqrt"))
+      return [e, null]; const r = i.matchOptionalLatexArgument(), n = i.matchRequiredLatexArgument(); return null === n ? null !== r ? [e, ["Root", f, r]] : [e, ["Sqrt"]] : null !== r ? [e, ["Root", n, r]] : [e, ["Sqrt", n]]; }
+  function j(e, i, t) { if (276 < t)
       return [e, null]; const r = i.index; if (!i.match("-"))
-      return [e, null]; const n = i.matchExpression(null === e ? 400 : 277); return null === n ? (i.index = r, [e, null]) : null === e ? [null, [h, n]] : [null, ["Subtract", e, n]]; }
-  function R(e, i) { var t; if (null === i)
-      return ""; e.level -= 1; let r = ""; const [n, s] = function (e) { var i, t, r, n, s, a; if (A(e) !== p)
-      return [null, null]; const l = [], o = [], c = E(e); for (const e of c)
-      if (A(e) === m)
-          if (A(z(e, 2)) === h) {
-              const r = null !== (i = z(e, 1)) && void 0 !== i ? i : u, n = null !== (t = z(z(e, 2), 1)) && void 0 !== t ? t : u;
-              o.push([m, r, n]);
+      return [e, null]; const n = i.matchExpression(null === e ? 400 : 277); return null === n ? (i.index = r, [e, null]) : null === e ? [null, ["Negate", n]] : [null, ["Subtract", e, n]]; }
+  function H(e, i) { var t; if (null === i)
+      return ""; e.level -= 1; let r = ""; const [n, s] = function (e) { var i, t, r, n, s, a; if (A(e) !== v)
+      return [[], []]; const o = [], l = [], u = k(e); for (const e of u)
+      if (A(e) === x)
+          if ("Negate" === A(O(e, 2))) {
+              const r = null !== (i = O(e, 1)) && void 0 !== i ? i : f, n = null !== (t = O(O(e, 2), 1)) && void 0 !== t ? t : f;
+              l.push([x, r, n]);
           }
           else {
-              const i = null !== (r = x(z(e, 2))) && void 0 !== r ? r : NaN;
-              -1 === i ? o.push(null !== (n = z(e, 1)) && void 0 !== n ? n : u) : i < 0 ? o.push([m, null !== (s = z(e, 1)) && void 0 !== s ? s : u, null !== (a = $(z(e, 2))) && void 0 !== a ? a : u]) : l.push(e);
+              const i = null !== (r = N(O(e, 2))) && void 0 !== r ? r : NaN;
+              -1 === i ? l.push(null !== (n = O(e, 1)) && void 0 !== n ? n : f) : i < 0 ? l.push([x, null !== (s = O(e, 1)) && void 0 !== s ? s : f, null !== (a = Z(O(e, 2))) && void 0 !== a ? a : f]) : o.push(e);
           }
       else
-          l.push(e); return [l, o]; }(i); if (null !== n && null !== s && s.length > 0 && (r = 1 === s.length && 1 === s[0] ? 0 === n.length ? "1" : 1 === n.length ? e.serialize(n[0]) : R(e, [p, ...n]) : e.serialize([g, 1 === n.length ? n[0] : [p, ...n], 1 === s.length ? s[0] : [p, ...s]])), r)
-      return e.level += 1, r; let l = !1, o = null; const c = k(i) + 1; for (let n = 1; n < c; n++)
-      if (o = z(i, n), null !== o) {
+          o.push(e); return [o, l]; }(i); if (s.length > 0 && (r = 1 === s.length && 1 === s[0] ? 0 === n.length ? "1" : 1 === n.length ? e.serialize(n[0]) : H(e, [v, ...n]) : e.serialize([d, 1 === n.length ? n[0] : [v, ...n], 1 === s.length ? s[0] : [v, ...s]])), r)
+      return e.level += 1, r; let o = !1, l = null; const u = L(i) + 1; let c = !1; for (let n = 1; n < u; n++)
+      if (l = O(i, n), null !== l) {
           let i;
-          "number" == typeof o || f(o) ? (i = e.serialize(o), "-1" !== i || r ? ("-" === i[0] && (i = i.slice(1), l = !l), r = r ? a([r, e.options.multiply, i]) : i) : r = "-") : A(o) !== m || isNaN(null !== (t = x(z(o, 1))) && void 0 !== t ? t : NaN) ? (A(o) === h && (o = z(o, 1), l = !l), i = e.wrap(o, 390), r = r ? e.options.invisibleMultiply ? a([r, e.options.invisibleMultiply, i]) : a([r, i]) : i) : r = r ? a([r, e.options.multiply, e.serialize(o)]) : e.serialize(o);
-      } return e.level += 1, l ? "-" + r : r; }
-  function T(e, i) { if (null === i)
-      return ""; if (1 === k(i))
-      return e.serialize(z(i, 1)); const t = e.level > 3 ? "inline-solidus" : "quotient"; if ("inline-solidus" === t || "nice-solidus" === t) {
-      const r = e.wrapShort(z(i, 1)), n = e.wrapShort(z(i, 2));
+          "number" == typeof l || y(l) ? (i = e.serialize(l), "-1" !== i || r ? ("-" === i[0] && (i = i.slice(1), o = !o), r = r ? a([r, e.options.multiply, i]) : i) : r = "-", c = !0) : A(l) !== x || isNaN(null !== (t = N(O(l, 1))) && void 0 !== t ? t : NaN) ? ("Negate" === A(l) && (l = O(l, 1), o = !o), i = e.wrap(l, 390), r = r ? c && A(l) === d ? a([r, "\\times", i]) : e.options.invisibleMultiply ? a([r, e.options.invisibleMultiply, i]) : a([r, i]) : i, c = !1) : (r = r ? a([r, e.options.multiply, e.serialize(l)]) : e.serialize(l), c = !0);
+      } return e.level += 1, o ? "-" + r : r; }
+  function G(e, i) { if (null === i)
+      return ""; if (1 === L(i))
+      return e.serialize(O(i, 1)); const t = e.level > 3 ? "inline-solidus" : "quotient"; if ("inline-solidus" === t || "nice-solidus" === t) {
+      const r = e.wrapShort(O(i, 1)), n = e.wrapShort(O(i, 2));
       return "nice-solidus" === t ? `^{${r}}\\!\\!/\\!_{${n}}` : `${r}\\/${n}`;
-  } return "reciprocal" === t ? e.wrap(z(i, 1)) + e.wrap(z(i, 2)) + "^{-1}" : "factor" === t ? "\\frac{1}{" + e.serialize(z(i, 2)) + "}" + e.wrap(z(i, 1)) : "\\frac{" + e.serialize(z(i, 1)) + "}{" + e.serialize(z(i, 2)) + "}"; }
-  function B(e, i) { var t; const r = z(i, 1), n = z(i, 2); if (null === n)
+  } return "reciprocal" === t ? e.wrap(O(i, 1)) + e.wrap(O(i, 2)) + "^{-1}" : "factor" === t ? "\\frac{1}{" + e.serialize(O(i, 2)) + "}" + e.wrap(O(i, 1)) : "\\frac{" + e.serialize(O(i, 1)) + "}{" + e.serialize(O(i, 2)) + "}"; }
+  function W(e, i) { var t; const r = O(i, 1), n = O(i, 2); if (null === n)
       return e.serialize(r); if (null === r)
       return ""; const s = A(i); if ("Sqrt" === s || "Root" === s)
-      return I(e, L(0, e.level), z(i, 1), z(i, 2)); const a = null !== (t = x(n)) && void 0 !== t ? t : 1; if (-1 === a)
-      return e.serialize([g, "1", r]); if (a < 0)
-      return e.serialize([g, "1", [m, r, -a]]); if (A(n) === g) {
-      if (1 === x(z(n, 1)))
-          return I(e, L(0, e.level), r, z(n, 2));
+      return _(e, F(0, e.level), O(i, 1), O(i, 2)); const a = null !== (t = N(n)) && void 0 !== t ? t : 1; if (-1 === a)
+      return e.serialize([d, "1", r]); if (a < 0)
+      return e.serialize([d, "1", [x, r, -a]]); if (A(n) === d) {
+      if (1 === N(O(n, 1)))
+          return _(e, F(0, e.level), r, O(n, 2));
   }
-  else if (A(n) === m && -1 === x(z(n, 2)))
-      return I(e, L(0, e.level), r, z(n, 1)); return e.wrapShort(r) + "^{" + e.serialize(n) + "}"; }
-  function j(e, i, t) { var r; const n = i.next(); let s = !1, a = 0; if (i.skipSpace(), i.match("^")) {
+  else if (A(n) === x && -1 === N(O(n, 2)))
+      return _(e, F(0, e.level), r, O(n, 1)); return e.wrapShort(r) + "^{" + e.serialize(n) + "}"; }
+  function V(e, i, t) { var r; const n = i.next(); let s = !1, a = 0; if (i.skipSpace(), i.match("^")) {
       if (i.skipSpace(), i.match("<{>")) {
           i.skipSpace(), i.match("-") && i.match("1") && (s = !0);
           do {
@@ -28648,63 +30062,62 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       let e = !1;
       for (; !e;)
           i.skipSpace(), i.match("\\doubleprime") ? a += 2 : i.match("\\prime") || i.match("'") ? a += 1 : e = !0;
-  } let l = null !== (r = { "\\arcsin": "Arcsin", "\\arccos": "Arccos", "\\arctan": "Arctan", "\\arctg": "Arctan", "\\arcctg": "Arctan", "\\arcsec": "Arcsec", "\\arccsc": " Arccsc", "\\arsinh": "Arsinh", "\\arcosh": "Arcosh", "\\artanh": "Artanh", "\\arcsech": "Arcsech", "\\arccsch": "Arcsch", "\\ch": "Cosh", "\\cos": "Cos", "\\cosec": "Csc", "\\cosh": "Csch", "\\cot": "Cot", "\\cotg": "Cot", "\\coth": "Coth", "\\csc": "Csc", "\\ctg": "Cot", "\\cth": "Coth", "\\sec": "Sec", "\\sin": "Sin", "\\sinh": "Sinh", "\\sh": "Sinh", "\\tan": "Tan", "\\tanh": "Tanh", "\\tg": "Tan", "\\th": "Tanh" }[n]) && void 0 !== r ? r : n; s && (l = ["InverseFunction", l]), a >= 1 && (l = ["Derivative", a, l]); const o = i.matchArguments("implicit"); return null === o ? [null, l] : [null, [l, ...o]]; }
-  function G(e) { return l(e); }
-  const _ = { algebra: [{ name: "To", trigger: { infix: "\\to" }, precedence: 270 }], arithmetic: [{ trigger: { symbol: "\\infty" }, parse: { num: "Infinity" } }, { name: "ComplexInfinity", trigger: { symbol: ["\\tilde", "\\infty"] }, serialize: "\\tilde\\infty" }, { name: "ComplexInfinity", trigger: { symbol: ["\\tilde", "<{>", "\\infty", "<}>"] }, serialize: "\\tilde\\infty" }, { name: "Pi", trigger: { symbol: "\\pi" } }, { name: "Pi", trigger: { symbol: "π" }, serialize: "\\pi" }, { name: "ExponentialE", trigger: { symbol: "e" }, serialize: "e" }, { name: "ImaginaryI", trigger: { symbol: "i" }, serialize: "\\imaginaryI" }, { name: "ImaginaryI", trigger: { symbol: "\\imaginaryI" } }, { name: "Add", trigger: { prefix: "+", infix: "+" }, parse: function (e, i, t) { if (275 < t)
+  } let o = null !== (r = { "\\arcsin": "Arcsin", "\\arccos": "Arccos", "\\arctan": "Arctan", "\\arctg": "Arctan", "\\arcctg": "Arctan", "\\arcsec": "Arcsec", "\\arccsc": " Arccsc", "\\arsinh": "Arsinh", "\\arcosh": "Arcosh", "\\artanh": "Artanh", "\\arcsech": "Arcsech", "\\arccsch": "Arcsch", "\\ch": "Cosh", "\\cos": "Cos", "\\cosec": "Csc", "\\cosh": "Csch", "\\cot": "Cot", "\\cotg": "Cot", "\\coth": "Coth", "\\csc": "Csc", "\\ctg": "Cot", "\\cth": "Coth", "\\sec": "Sec", "\\sin": "Sin", "\\sinh": "Sinh", "\\sh": "Sinh", "\\tan": "Tan", "\\tanh": "Tanh", "\\tg": "Tan", "\\th": "Tanh" }[n]) && void 0 !== r ? r : n; s && (o = ["InverseFunction", o]), a >= 1 && (o = ["Derivative", a, o]); const l = i.matchArguments("implicit"); return null === l ? [null, o] : [null, [o, ...l]]; }
+  function Q(e) { return o(e); }
+  Number.EPSILON.toString();
+  const Y = { algebra: [{ name: "To", trigger: { infix: "\\to" }, precedence: 270 }], arithmetic: [{ name: "ThreeQuarter", serialize: "\\frac{3}{4}" }, { name: "TwoThird", serialize: "\\frac{2}{3}" }, { name: "Half", serialize: "\\frac{1}{2}" }, { name: "Third", serialize: "\\frac{1}{3}" }, { name: "Quarter", serialize: "\\frac{1}{4}" }, { name: "CatalanConstant", serialize: "G" }, { name: "GoldenRatio", serialize: "\\varphi" }, { name: "EulerGamma", serialize: "\\gamma" }, { name: "Degrees", serialize: "\\frac{\\pi}{180}" }, { name: "MinusDoublePi", serialize: "-2\\pi" }, { name: "MinusPi", serialize: "-\\pi" }, { name: "MinusHalfPi", serialize: "-\\frac{\\pi}{2}" }, { name: "QuarterPi", serialize: "\\frac{\\pi}{4}" }, { name: "ThirdPi", serialize: "\\frac{\\pi}{3}" }, { name: "HalfPi", serialize: "\\frac{\\pi}{2}" }, { name: "TwoThirdPi", serialize: "\\frac{2\\pi}{3}" }, { name: "ThreeQuarterPi", serialize: "\\frac{3\\pi}{4}" }, { name: "DoublePi", serialize: "2\\pi" }, { name: "Complex", precedence: 275, serialize: (e, i) => { const t = N(O(i, 1)), r = N(O(i, 2)); if (0 === r)
+                  return e.serialize(O(i, 1)); const n = 1 === r ? "\\imaginaryI" : -1 === r ? "-\\imaginaryI" : a([e.serialize(O(i, 2)), "\\imaginaryI"]); return 0 === t ? n : a([e.serialize(O(i, 1)), "+", n]); } }, { name: "Exp", serialize: (e, i) => { var t; return a(["\\exponentialE^{", e.serialize(null !== (t = O(i, 1)) && void 0 !== t ? t : f), "}"]); } }, { name: "Square", serialize: (e, i) => e.wrapShort(O(i, 1)) + "^2" }, { trigger: { symbol: "\\infty" }, parse: { num: "+Infinity" } }, { name: "ComplexInfinity", trigger: { symbol: ["\\tilde", "\\infty"] }, serialize: "\\tilde\\infty" }, { name: "ComplexInfinity", trigger: { symbol: ["\\tilde", "<{>", "\\infty", "<}>"] }, serialize: "\\tilde\\infty" }, { name: "Pi", trigger: { symbol: "\\pi" } }, { name: "Pi", trigger: { symbol: "π" }, serialize: "\\pi" }, { name: "ExponentialE", trigger: { symbol: "e" }, serialize: "e" }, { name: "ImaginaryUnit", trigger: { symbol: "i" }, serialize: "\\imaginaryI" }, { name: "ImaginaryUnit", trigger: { symbol: "\\imaginaryI" } }, { name: m, trigger: { prefix: "+", infix: "+" }, parse: function (e, i, t) { if (275 < t)
                   return [e, null]; const r = i.index; if (!i.match("+"))
-                  return [e, null]; const n = i.matchExpression(null === e ? 400 : 275); return null === n ? (i.index = r, [e, null]) : null === e ? [null, n] : i.applyOperator("Add", e, n); }, serialize: function (e, i) { var t, r; e.level -= 1; const n = A(i); let s = "", a = z(i, 1), l = !Number.isNaN(null !== (t = x(a)) && void 0 !== t ? t : NaN); if (n === h)
+                  return [e, null]; const n = i.matchExpression(null === e ? 400 : 275); return null === n ? (i.index = r, [e, null]) : null === e ? [null, n] : i.applyOperator(m, e, n); }, serialize: function (e, i) { var t, r; e.level -= 1; const n = A(i); let s = "", a = O(i, 1), o = !Number.isNaN(null !== (t = N(a)) && void 0 !== t ? t : NaN); if ("Negate" === n)
                   s = "-" + e.wrap(a, 276);
-              else if ("Add" === n) {
+              else if (n === m) {
                   s = e.serialize(a);
-                  const t = k(i) + 1;
+                  const t = L(i) + 1;
                   for (let n = 2; n < t; n++) {
-                      a = z(i, n);
-                      const t = null !== (r = x(a)) && void 0 !== r ? r : NaN, o = !Number.isNaN(t);
-                      let c = !1;
-                      if (null !== a && l) {
-                          const i = b(a);
-                          if (i) {
-                              const [t, r] = i;
-                              isFinite(t) && isFinite(r) && 1 !== r && (s += e.options.invisiblePlus + e.serialize(a), c = !0);
-                          }
+                      a = O(i, n);
+                      const t = null !== (r = N(a)) && void 0 !== r ? r : NaN, l = !Number.isNaN(t);
+                      let u = !1;
+                      if (null !== a && o) {
+                          const [i, t] = E(a);
+                          null !== i && null !== t && isFinite(i) && isFinite(t) && 1 !== t && (s += e.options.invisiblePlus + e.serialize(a), u = !0);
                       }
-                      if (!c)
+                      if (!u)
                           if (t < 0)
                               s += e.serialize(a);
-                          else if (A(a) === h)
+                          else if ("Negate" === A(a))
                               s += e.wrap(a, 275);
                           else {
                               const i = e.wrap(a, 275);
                               "-" === i[0] || "+" === i[0] ? s += i : s = s + "+" + i;
                           }
-                      l = o;
+                      o = l;
                   }
               }
               else if ("Subtract" === n) {
-                  const t = z(i, 2);
+                  const t = O(i, 2);
                   s = null !== t ? e.wrap(a, 275) + "-" + e.wrap(t, 275) : e.wrap(a, 275);
-              } return e.level += 1, s; }, associativity: "both", precedence: 275 }, { name: h, trigger: { prefix: "-" }, parse: F, associativity: "left", precedence: 665 }, { name: "Subtract", trigger: { infix: "-" }, parse: F, associativity: "both", precedence: 275 }, { name: "PlusMinus", trigger: { infix: "\\pm" }, associativity: "both", precedence: 270 }, { name: "MinusPlus", trigger: { infix: "\\mp" }, associativity: "both", precedence: 270 }, { name: p, trigger: { infix: "\\times" }, serialize: R, associativity: "both", precedence: 390 }, { name: p, trigger: { infix: "\\cdot" }, serialize: R, associativity: "both", precedence: 390 }, { name: p, trigger: { infix: "*" }, serialize: R, associativity: "both", precedence: 390 }, { name: g, trigger: "\\frac", parse: function (e, i, t) { var r, n, s, a; if (!i.match("\\frac"))
-                  return [e, null]; const l = null !== (r = i.matchRequiredLatexArgument()) && void 0 !== r ? r : c, h = null !== (n = i.matchRequiredLatexArgument()) && void 0 !== n ? n : c; if ("PartialDerivative" === A(l) && ("PartialDerivative" === A(h) || A(h) === p && "PartialDerivative" === A(z(h, 1)))) {
-                  const t = null !== (s = z(l, 3)) && void 0 !== s ? s : u;
-                  let r = z(l, 1);
-                  null !== r && r !== u || (r = null !== (a = i.matchExpression()) && void 0 !== a ? a : u);
+              } return e.level += 1, s; }, associativity: "both", precedence: 275 }, { name: "Negate", trigger: { prefix: "-" }, parse: j, associativity: "left", precedence: 275 }, { name: "Subtract", trigger: { infix: "-" }, parse: j, associativity: "both", precedence: 275 }, { name: "PlusMinus", trigger: { infix: "\\pm" }, associativity: "both", precedence: 270 }, { name: "MinusPlus", trigger: { infix: "\\mp" }, associativity: "both", precedence: 270 }, { name: v, trigger: { infix: "\\times" }, serialize: H, associativity: "both", precedence: 390 }, { name: v, trigger: { infix: "\\cdot" }, serialize: H, associativity: "both", precedence: 390 }, { name: v, trigger: { infix: "*" }, serialize: H, associativity: "both", precedence: 390 }, { name: d, trigger: "\\frac", parse: function (e, i, t) { var r, n, s, a; if (!i.match("\\frac"))
+                  return [e, null]; const o = null !== (r = i.matchRequiredLatexArgument()) && void 0 !== r ? r : p, l = null !== (n = i.matchRequiredLatexArgument()) && void 0 !== n ? n : p; if ("PartialDerivative" === A(o) && ("PartialDerivative" === A(l) || A(l) === v && "PartialDerivative" === A(O(l, 1)))) {
+                  const t = null !== (s = O(o, 3)) && void 0 !== s ? s : f;
+                  let r = O(o, 1);
+                  null !== r && r !== f || (r = null !== (a = i.matchExpression()) && void 0 !== a ? a : f);
                   let n = [];
-                  if (A(h) === p) {
-                      for (const e of E(h))
-                          if ("PartialDerivative" === q(e)) {
-                              const i = z(e, 2);
+                  if (A(l) === v) {
+                      for (const e of k(l))
+                          if ("PartialDerivative" === M(e)) {
+                              const i = O(e, 2);
                               i && n.push(i);
                           }
                   }
                   else {
-                      const e = z(h, 2);
+                      const e = O(l, 2);
                       e && n.push(e);
                   }
-                  return n.length > 1 && (n = [o, ...n]), [e, ["PartialDerivative", r, n, t === u ? 1 : t]];
-              } return [e, [g, l, h]]; }, serialize: T, requiredLatexArg: 2 }, { name: g, trigger: { infix: "\\/" }, serialize: T, associativity: "non", precedence: 660 }, { name: g, trigger: { infix: "/" }, serialize: T, associativity: "non", precedence: 660 }, { name: g, trigger: { infix: "\\div" }, serialize: T, associativity: "non", precedence: 660 }, { name: m, trigger: { infix: "^" }, associativity: "non", precedence: 720, serialize: B }, { name: m, trigger: { infix: ["*", "*"] }, associativity: "non", precedence: 720, serialize: B }, { name: "Sqrt", trigger: "\\sqrt", optionalLatexArg: 1, requiredLatexArg: 1, parse: C, serialize: B }, { name: "Root", trigger: "\\sqrt", optionalLatexArg: 1, requiredLatexArg: 1, parse: C }, { name: "Norm", trigger: { matchfix: "\\lVert" }, closeFence: "\\rVert" }, { name: "Norm", trigger: { matchfix: "\\|" }, closeFence: "\\|" }, { name: "Norm", trigger: { matchfix: ["|", "|"] }, closeFence: ["|", "|"] }, { name: "Abs", trigger: { matchfix: "|" }, closeFence: "|" }, { name: "Abs", trigger: { matchfix: "\\lvert" }, closeFence: "\\rvert" }, { name: "Factorial", trigger: { postfix: "!" }, precedence: 810 }, { name: "Factorial2", trigger: { postfix: ["!", "!"] }, precedence: 810 }], calculus: [{ trigger: { symbol: "\\int" }, parse: function (e, i, t) { if (!i.match("\\int"))
-                  return [e, null]; let r = u, n = u, s = !1; for (; !s;)
-                  i.skipSpace(), i.match("_") ? n = i.matchRequiredLatexArgument() : i.match("^") ? r = i.matchRequiredLatexArgument() : s = !0; const a = i.matchBalancedExpression("<{>", "<}>"); return [e, ["Integral", null != a ? a : "", null != r ? r : u, null != n ? n : u]]; }, serialize: function (e, i) { return ""; } }], core: M, inequalities: [{ name: "NotLess", trigger: { infix: ["!", "<"] }, associativity: "right", precedence: 246 }, { name: "NotLess", trigger: { infix: "\\nless" }, associativity: "right", precedence: 246 }, { name: "Less", trigger: { infix: "<" }, associativity: "right", precedence: 245 }, { name: "Less", trigger: { infix: "\\lt" }, associativity: "right", precedence: 245 }, { name: "LessEqual", trigger: { infix: ["<", "="] }, associativity: "right", precedence: 241 }, { name: "LessEqual", trigger: { infix: "\\le" }, associativity: "right", precedence: 241 }, { name: "LessEqual", trigger: { infix: "\\leq" }, associativity: "right", precedence: 241 }, { name: "LessEqual", trigger: { infix: "\\leqslant" }, associativity: "right", precedence: 265 }, { name: "LessNotEqual", trigger: { infix: "\\lneqq" }, associativity: "right", precedence: 260 }, { name: "NotLessNotEqual", trigger: { infix: "\\nleqq" }, associativity: "right", precedence: 260 }, { name: "LessOverEqual", trigger: { infix: "\\leqq" }, associativity: "right", precedence: 265 }, { name: "GreaterOverEqual", trigger: { infix: "\\geqq" }, associativity: "right", precedence: 265 }, { name: "Equal", trigger: { infix: "=" }, associativity: "right", precedence: 260 }, { name: "StarEqual", trigger: { infix: ["*", "="] }, associativity: "right", precedence: 260 }, { name: "StarEqual", trigger: { infix: ["\\star", "="] }, associativity: "right", precedence: 260 }, { name: "PlusEqual", trigger: { infix: ["+", "="] }, associativity: "right", precedence: 260 }, { name: "MinusEqual", trigger: { infix: ["-", "="] }, associativity: "right", precedence: 260 }, { name: "SlashEqual", trigger: { infix: ["/", "="] }, associativity: "right", precedence: 260 }, { name: "EqualEqual", trigger: { infix: ["=", "="] }, associativity: "right", precedence: 260 }, { name: "EqualEqualEqual", trigger: { infix: ["=", "=", "="] }, associativity: "right", precedence: 265 }, { name: "TildeFullEqual", trigger: { infix: "\\cong" }, associativity: "right", precedence: 260 }, { name: "NotTildeFullEqual", trigger: { infix: "\\ncong" }, associativity: "right", precedence: 260 }, { name: "Assign", trigger: { infix: [":", "="] }, associativity: "right", precedence: 260 }, { name: "Assign", trigger: { infix: "\\coloneq" }, associativity: "right", precedence: 260 }, { name: "Approx", trigger: { infix: "\\approx" }, associativity: "right", precedence: 247 }, { name: "NotApprox", trigger: { infix: "\\approx" }, associativity: "right", precedence: 247 }, { name: "ApproxEqual", trigger: { infix: "\\approxeq" }, associativity: "right", precedence: 260 }, { name: "NotApproxEqual", trigger: { infix: ["!", "\\approxeq"] }, associativity: "right", precedence: 250 }, { name: "NotEqual", trigger: { infix: "\\ne" }, associativity: "right", precedence: 255 }, { name: "Unequal", trigger: { infix: ["!", "="] }, associativity: "right", precedence: 260 }, { name: "GreaterEqual", trigger: { infix: "\\ge" }, associativity: "right", precedence: 242 }, { name: "GreaterEqual", trigger: { infix: "\\geq" }, associativity: "right", precedence: 242 }, { name: "GreaterEqual", trigger: { infix: [">", "="] }, associativity: "right", precedence: 243 }, { name: "GreaterEqual", trigger: { infix: "\\geqslant" }, associativity: "right", precedence: 265 }, { name: "GreaterNotEqual", trigger: { infix: "\\gneqq" }, associativity: "right", precedence: 260 }, { name: "NotGreaterNotEqual", trigger: { infix: "\\ngeqq" }, associativity: "right", precedence: 260 }, { name: "Greater", trigger: { infix: ">" }, associativity: "right", precedence: 245 }, { name: "Greater", trigger: { infix: "\\gt" }, associativity: "right", precedence: 245 }, { name: "NotGreater", trigger: { infix: "\\ngtr" }, associativity: "right", precedence: 244 }, { name: "NotGreater", trigger: { infix: ["!", ">"] }, associativity: "right", precedence: 244 }, { name: "RingEqual", trigger: { infix: "\\circeq" }, associativity: "right", precedence: 260 }, { name: "TriangleEqual", trigger: { infix: "\\triangleq" }, associativity: "right", precedence: 260 }, { name: "DotEqual", trigger: { infix: "\\doteq" }, associativity: "right", precedence: 265 }, { name: "DotEqualDot", trigger: { infix: "\\doteqdot" }, associativity: "right", precedence: 265 }, { name: "FallingDotEqual", trigger: { infix: "\\fallingdotseq" }, associativity: "right", precedence: 265 }, { name: "RisingDotEqual", trigger: { infix: "\\fallingdotseq" }, associativity: "right", precedence: 265 }, { name: "QuestionEqual", trigger: { infix: "\\questeq" }, associativity: "right", precedence: 260 }, { name: "Equivalent", trigger: { infix: "\\equiv" }, associativity: "right", precedence: 260 }, { name: "MuchLess", trigger: { infix: "\\ll" }, associativity: "right", precedence: 260 }, { name: "MuchGreater", trigger: { infix: "\\gg" }, associativity: "right", precedence: 260 }, { name: "Precedes", trigger: { infix: "\\prec" }, associativity: "right", precedence: 260 }, { name: "Succeeds", trigger: { infix: "\\succ" }, associativity: "right", precedence: 260 }, { name: "PrecedesEqual", trigger: { infix: "\\preccurlyeq" }, associativity: "right", precedence: 260 }, { name: "SucceedsEqual", trigger: { infix: "\\curlyeqprec" }, associativity: "right", precedence: 260 }, { name: "NotPrecedes", trigger: { infix: "\\nprec" }, associativity: "right", precedence: 260 }, { name: "NotSucceeds", trigger: { infix: "\\nsucc" }, associativity: "right", precedence: 260 }, { name: "ElementOf", trigger: { infix: "\\in" }, associativity: "right", precedence: 240 }, { name: "NotElementOf", trigger: { infix: "\\notin" }, associativity: "right", precedence: 240 }, { name: "Contains", trigger: { infix: "\\ni" }, associativity: "right", precedence: 160 }, { name: "Subset", trigger: { infix: "\\subset" }, associativity: "right", precedence: 240 }, { name: "SquareSubset", trigger: { infix: "\\sqsubset" }, associativity: "right", precedence: 265 }, { name: "SquareSubsetEqal", trigger: { infix: "\\sqsubseteq" }, associativity: "right", precedence: 265 }, { name: "Superset", trigger: { infix: "\\supset" }, associativity: "right", precedence: 240 }, { name: "SquareSuperset", trigger: { infix: "\\sqsupset" }, associativity: "right", precedence: 265 }, { name: "SquareSupersetEuqal", trigger: { infix: "\\sqsupseteq" }, associativity: "right", precedence: 265 }, { name: "NotSubset", trigger: { infix: "\\nsubset" }, associativity: "right", precedence: 240 }, { name: "NotSuperset", trigger: { infix: "\\nsupset" }, associativity: "right", precedence: 240 }, { name: "SubsetEqual", trigger: { infix: "\\subseteq" }, associativity: "right", precedence: 240 }, { name: "SupersetEqual", trigger: { infix: "\\supseteq" }, associativity: "right", precedence: 240 }, { name: "NotSubsetNotEqual", trigger: { infix: "\\nsubseteq" }, associativity: "right", precedence: 240 }, { name: "NotSupersetNotEqual", trigger: { infix: "\\nsupseteq" }, associativity: "right", precedence: 240 }, { name: "SubsetNotEqual", trigger: { infix: "\\subsetneq" }, associativity: "right", precedence: 240 }, { name: "SupersetNotEqual", trigger: { infix: "\\supsetneq" }, associativity: "right", precedence: 240 }, { name: "SubsetNotEqual", trigger: { infix: "\\varsupsetneqq" }, associativity: "right", precedence: 240 }, { name: "SupersetNotEqual", trigger: { infix: "\\varsupsetneq" }, associativity: "right", precedence: 240 }, { name: "Between", trigger: { infix: "\\between" }, associativity: "right", precedence: 265 }], other: N, physics: [{ name: "mu-0", trigger: { symbol: ["\\mu", "_", "0"] } }], symbols: [{ trigger: { symbol: "\\alpha" }, parse: "α" }, { trigger: { symbol: "\\beta" }, parse: "β" }, { trigger: { symbol: "\\gamma" }, parse: "γ" }, { trigger: { symbol: "\\delta" }, parse: "δ" }, { trigger: { symbol: "\\epsilon" }, parse: "ϵ" }, { trigger: { symbol: "\\varepsilon" }, parse: "ε" }, { trigger: { symbol: "\\zeta" }, parse: "ζ" }, { trigger: { symbol: "\\eta" }, parse: "η" }, { trigger: { symbol: "\\theta" }, parse: "θ" }, { trigger: { symbol: "\\vartheta" }, parse: "ϑ" }, { trigger: { symbol: "\\iota" }, parse: "ι" }, { trigger: { symbol: "\\kappa" }, parse: "κ" }, { trigger: { symbol: "\\varkappa" }, parse: "ϰ" }, { trigger: { symbol: "\\lambda" }, parse: "λ" }, { trigger: { symbol: "\\mu" }, parse: "μ" }, { trigger: { symbol: "\\nu" }, parse: "ν" }, { trigger: { symbol: "\\xi" }, parse: "ξ" }, { trigger: { symbol: "\\omicron" }, parse: "ο" }, { trigger: { symbol: "\\varpi" }, parse: "ϖ" }, { trigger: { symbol: "\\rho" }, parse: "ρ" }, { trigger: { symbol: "\\varrho" }, parse: "ϱ" }, { trigger: { symbol: "\\sigma" }, parse: "σ" }, { trigger: { symbol: "\\varsigma" }, parse: "ς" }, { trigger: { symbol: "\\tau" }, parse: "τ" }, { trigger: { symbol: "\\phi" }, parse: "ϕ" }, { trigger: { symbol: "\\varphi" }, parse: "φ" }, { trigger: { symbol: "\\upsilon" }, parse: "υ" }, { trigger: { symbol: "\\chi" }, parse: "χ" }, { trigger: { symbol: "\\psi" }, parse: "ψ" }, { trigger: { symbol: "\\omega" }, parse: "ω" }, { trigger: { symbol: "\\Gamma" }, parse: "Γ" }, { trigger: { symbol: "\\Delta" }, parse: "Δ" }, { trigger: { symbol: "\\Theta" }, parse: "Θ" }, { trigger: { symbol: "\\Lambda" }, parse: "Λ" }, { trigger: { symbol: "\\Xi" }, parse: "Ξ" }, { trigger: { symbol: "\\Pi" }, parse: "Π" }, { trigger: { symbol: "\\Sigma" }, parse: "Σ" }, { trigger: { symbol: "\\Upsilon" }, parse: "Υ" }, { trigger: { symbol: "\\Phi" }, parse: "Φ" }, { trigger: { symbol: "\\Psi" }, parse: "Ψ" }, { trigger: { symbol: "\\Omega" }, parse: "Ω" }, { trigger: { symbol: "\\digamma" }, parse: "ϝ" }, { trigger: { symbol: "\\aleph" }, parse: "ℵ" }, { trigger: { symbol: "\\beth" }, parse: "ℶ" }, { trigger: { symbol: "\\daleth" }, parse: "ℸ" }, { trigger: { symbol: "\\gimel" }, parse: "ℷ" }, { trigger: { symbol: "\\Finv" }, parse: "Ⅎ" }, { trigger: { symbol: "\\Game" }, parse: "⅁" }, { trigger: { symbol: "\\wp" }, parse: "℘" }, { trigger: { symbol: "\\eth" }, parse: "ð" }, { trigger: { symbol: "\\mho" }, parse: "℧" }, { trigger: { symbol: "\\clubsuit" }, parse: "♣" }, { trigger: { symbol: "\\heartsuit" }, parse: "♡" }, { trigger: { symbol: "\\spadesuit" }, parse: "♠" }, { trigger: { symbol: "\\diamondsuit" }, parse: "♢" }, { trigger: { symbol: "\\sharp" }, parse: "♯" }, { trigger: { symbol: "\\flat" }, parse: "♭" }, { trigger: { symbol: "\\natural" }, parse: "♮" }], trigonometry: [{ name: "Arcsin", trigger: "\\arcsin", arguments: "implicit", parse: j }, { name: "Arccos", trigger: "\\arccos", arguments: "implicit", parse: j }, { name: "Arctan", trigger: "\\arctan", arguments: "implicit", parse: j }, { name: "Arctan", trigger: "\\arctg", arguments: "implicit", parse: j }, { name: "Arccot", trigger: "\\arcctg", arguments: "implicit", parse: j }, { name: "Arcsec", trigger: "\\arcsec", arguments: "implicit", parse: j }, { name: "Arccsc", trigger: "\\arccsc", arguments: "implicit", parse: j }, { name: "Arsinh", trigger: "\\arsinh", arguments: "implicit", parse: j }, { name: "Arcosh", trigger: "\\arcosh", arguments: "implicit", parse: j }, { name: "Artanh", trigger: "\\artanh", arguments: "implicit", parse: j }, { name: "Arsech", trigger: "\\arsech", arguments: "implicit", parse: j }, { name: "Arcsch", trigger: "\\arcsch", arguments: "implicit", parse: j }, { name: "Cosh", trigger: "\\ch", arguments: "implicit", parse: j }, { name: "Cosec", trigger: "\\cosec", arguments: "implicit", parse: j }, { name: "Cosh", trigger: "\\cosh", arguments: "implicit", parse: j }, { name: "Cot", trigger: "\\cot", arguments: "implicit", parse: j }, { name: "Cot", trigger: "\\cotg", arguments: "implicit", parse: j }, { name: "Coth", trigger: "\\coth", arguments: "implicit", parse: j }, { name: "Csc", trigger: "\\csc", arguments: "implicit", parse: j }, { name: "Cot", trigger: "\\ctg", arguments: "implicit", parse: j }, { name: "Coth", trigger: "\\cth", arguments: "implicit", parse: j }, { name: "Sec", trigger: "\\sec", arguments: "implicit", parse: j }, { name: "Sinh", trigger: "\\sinh", arguments: "implicit", parse: j }, { name: "Sinh", trigger: "\\sh", arguments: "implicit", parse: j }, { name: "Tan", trigger: "\\tan", arguments: "implicit", parse: j }, { name: "Tanh", trigger: "\\tanh", arguments: "implicit", parse: j }, { name: "Tan", trigger: "\\tg", arguments: "implicit", parse: j }, { name: "Tanh", trigger: "\\th", arguments: "implicit", parse: j }, { name: "Cos", trigger: "\\cos", arguments: "implicit", parse: j }, { name: "Sin", trigger: "\\sin", arguments: "implicit", parse: j }, { name: "Tan", trigger: "\\tan", arguments: "implicit", parse: j }] }, U = { precision: 15, positiveInfinity: "\\infty", negativeInfinity: "-\\infty", notANumber: "\\operatorname{NaN}", decimalMarker: ".", groupSeparator: ",", exponentProduct: "\\cdot", beginExponentMarker: "10^{", endExponentMarker: "}", notation: "auto", truncationMarker: "\\ldots", beginRepeatingDigits: "\\overline{", endRepeatingDigits: "}", imaginaryNumber: "\\imaginaryI" }, Z = { ...U, invisibleOperator: p, skipSpace: !0, parseArgumentsOfUnknownLatexCommands: !0, parseNumbers: !0, promoteUnknownSymbols: /^[a-zA-Z]$/, promoteUnknownFunctions: /^[fg]$/, invisiblePlusOperator: "Add", preserveLatex: !1 }, W = { ...U, invisibleMultiply: "", invisiblePlus: "", multiply: "\\times" };
-  function H(e, i) { var t; let r = e; for (let e = 0; e < i.length; e++) {
+                  return n.length > 1 && (n = [g, ...n]), [e, ["PartialDerivative", r, n, t === f ? 1 : t]];
+              } return [e, [d, o, l]]; }, serialize: G, requiredLatexArg: 2 }, { name: d, trigger: { infix: "\\/" }, serialize: G, associativity: "non", precedence: 660 }, { name: d, trigger: { infix: "/" }, serialize: G, associativity: "non", precedence: 660 }, { name: d, trigger: { infix: "\\div" }, serialize: G, associativity: "non", precedence: 660 }, { name: x, trigger: { infix: "^" }, associativity: "non", precedence: 720, serialize: W }, { name: x, trigger: { infix: ["*", "*"] }, associativity: "non", precedence: 720, serialize: W }, { name: "Sqrt", trigger: "\\sqrt", optionalLatexArg: 1, requiredLatexArg: 1, parse: U, serialize: W }, { name: "Root", trigger: "\\sqrt", optionalLatexArg: 1, requiredLatexArg: 1, parse: U }, { name: "Norm", trigger: { matchfix: "\\lVert" }, closeFence: "\\rVert" }, { name: "Norm", trigger: { matchfix: "\\|" }, closeFence: "\\|" }, { name: "Norm", trigger: { matchfix: ["|", "|"] }, closeFence: ["|", "|"] }, { name: "Abs", trigger: { matchfix: "|" }, closeFence: "|" }, { name: "Abs", trigger: { matchfix: "\\lvert" }, closeFence: "\\rvert" }, { name: "Factorial", trigger: { postfix: "!" }, precedence: 810 }, { name: "Factorial2", trigger: { postfix: ["!", "!"] }, precedence: 810 }, { name: "Lcm", trigger: { symbol: ["\\operatorname", "<{>", "l", "c", "m", "<}>"] } }, { name: "Gcd", trigger: { symbol: ["\\operatorname", "<{>", "g", "c", "d", "<}>"] } }, { name: "Ceil", trigger: { symbol: ["\\operatorname", "<{>", "c", "e", "i", "l", "<}>"] } }, { name: "Floor", trigger: { symbol: ["\\operatorname", "<{>", "f", "l", "o", "o", "r", "<}>"] } }, { name: "Round", trigger: { symbol: ["\\operatorname", "<{>", "r", "o", "u", "n", "d", "<}>"] } }, { name: "Sign", trigger: { symbol: ["\\operatorname", "<{>", "s", "g", "n", "<}>"] } }], calculus: [{ trigger: { symbol: "\\int" }, parse: function (e, i, t) { if (!i.match("\\int"))
+                  return [e, null]; let r = f, n = f, s = !1; for (; !s;)
+                  i.skipSpace(), i.match("_") ? n = i.matchRequiredLatexArgument() : i.match("^") ? r = i.matchRequiredLatexArgument() : s = !0; const a = i.matchBalancedExpression("<{>", "<}>"); return [e, ["Integral", null != a ? a : "", null != r ? r : f, null != n ? n : f]]; }, serialize: function (e, i) { return ""; } }], core: $, inequalities: [{ name: "NotLess", trigger: { infix: ["!", "<"] }, associativity: "right", precedence: 246 }, { name: "NotLess", trigger: { infix: "\\nless" }, associativity: "right", precedence: 246 }, { name: "Less", trigger: { infix: "<" }, associativity: "right", precedence: 245 }, { name: "Less", trigger: { infix: "\\lt" }, associativity: "right", precedence: 245 }, { name: "LessEqual", trigger: { infix: ["<", "="] }, associativity: "right", precedence: 241 }, { name: "LessEqual", trigger: { infix: "\\le" }, associativity: "right", precedence: 241 }, { name: "LessEqual", trigger: { infix: "\\leq" }, associativity: "right", precedence: 241 }, { name: "LessEqual", trigger: { infix: "\\leqslant" }, associativity: "right", precedence: 265 }, { name: "LessNotEqual", trigger: { infix: "\\lneqq" }, associativity: "right", precedence: 260 }, { name: "NotLessNotEqual", trigger: { infix: "\\nleqq" }, associativity: "right", precedence: 260 }, { name: "LessOverEqual", trigger: { infix: "\\leqq" }, associativity: "right", precedence: 265 }, { name: "GreaterOverEqual", trigger: { infix: "\\geqq" }, associativity: "right", precedence: 265 }, { name: "Equal", trigger: { infix: "=" }, associativity: "right", precedence: 260 }, { name: "StarEqual", trigger: { infix: ["*", "="] }, associativity: "right", precedence: 260 }, { name: "StarEqual", trigger: { infix: ["\\star", "="] }, associativity: "right", precedence: 260 }, { name: "PlusEqual", trigger: { infix: ["+", "="] }, associativity: "right", precedence: 260 }, { name: "MinusEqual", trigger: { infix: ["-", "="] }, associativity: "right", precedence: 260 }, { name: "SlashEqual", trigger: { infix: ["/", "="] }, associativity: "right", precedence: 260 }, { name: "EqualEqual", trigger: { infix: ["=", "="] }, associativity: "right", precedence: 260 }, { name: "EqualEqualEqual", trigger: { infix: ["=", "=", "="] }, associativity: "right", precedence: 265 }, { name: "TildeFullEqual", trigger: { infix: "\\cong" }, associativity: "right", precedence: 260 }, { name: "NotTildeFullEqual", trigger: { infix: "\\ncong" }, associativity: "right", precedence: 260 }, { name: "Assign", trigger: { infix: [":", "="] }, associativity: "right", precedence: 260 }, { name: "Assign", trigger: { infix: "\\coloneq" }, associativity: "right", precedence: 260 }, { name: "Approx", trigger: { infix: "\\approx" }, associativity: "right", precedence: 247 }, { name: "NotApprox", trigger: { infix: "\\approx" }, associativity: "right", precedence: 247 }, { name: "ApproxEqual", trigger: { infix: "\\approxeq" }, associativity: "right", precedence: 260 }, { name: "NotApproxEqual", trigger: { infix: ["!", "\\approxeq"] }, associativity: "right", precedence: 250 }, { name: "NotEqual", trigger: { infix: "\\ne" }, associativity: "right", precedence: 255 }, { name: "Unequal", trigger: { infix: ["!", "="] }, associativity: "right", precedence: 260 }, { name: "GreaterEqual", trigger: { infix: "\\ge" }, associativity: "right", precedence: 242 }, { name: "GreaterEqual", trigger: { infix: "\\geq" }, associativity: "right", precedence: 242 }, { name: "GreaterEqual", trigger: { infix: [">", "="] }, associativity: "right", precedence: 243 }, { name: "GreaterEqual", trigger: { infix: "\\geqslant" }, associativity: "right", precedence: 265 }, { name: "GreaterNotEqual", trigger: { infix: "\\gneqq" }, associativity: "right", precedence: 260 }, { name: "NotGreaterNotEqual", trigger: { infix: "\\ngeqq" }, associativity: "right", precedence: 260 }, { name: "Greater", trigger: { infix: ">" }, associativity: "right", precedence: 245 }, { name: "Greater", trigger: { infix: "\\gt" }, associativity: "right", precedence: 245 }, { name: "NotGreater", trigger: { infix: "\\ngtr" }, associativity: "right", precedence: 244 }, { name: "NotGreater", trigger: { infix: ["!", ">"] }, associativity: "right", precedence: 244 }, { name: "RingEqual", trigger: { infix: "\\circeq" }, associativity: "right", precedence: 260 }, { name: "TriangleEqual", trigger: { infix: "\\triangleq" }, associativity: "right", precedence: 260 }, { name: "DotEqual", trigger: { infix: "\\doteq" }, associativity: "right", precedence: 265 }, { name: "DotEqualDot", trigger: { infix: "\\doteqdot" }, associativity: "right", precedence: 265 }, { name: "FallingDotEqual", trigger: { infix: "\\fallingdotseq" }, associativity: "right", precedence: 265 }, { name: "RisingDotEqual", trigger: { infix: "\\fallingdotseq" }, associativity: "right", precedence: 265 }, { name: "QuestionEqual", trigger: { infix: "\\questeq" }, associativity: "right", precedence: 260 }, { name: "Equivalent", trigger: { infix: "\\equiv" }, associativity: "right", precedence: 260 }, { name: "MuchLess", trigger: { infix: "\\ll" }, associativity: "right", precedence: 260 }, { name: "MuchGreater", trigger: { infix: "\\gg" }, associativity: "right", precedence: 260 }, { name: "Precedes", trigger: { infix: "\\prec" }, associativity: "right", precedence: 260 }, { name: "Succeeds", trigger: { infix: "\\succ" }, associativity: "right", precedence: 260 }, { name: "PrecedesEqual", trigger: { infix: "\\preccurlyeq" }, associativity: "right", precedence: 260 }, { name: "SucceedsEqual", trigger: { infix: "\\curlyeqprec" }, associativity: "right", precedence: 260 }, { name: "NotPrecedes", trigger: { infix: "\\nprec" }, associativity: "right", precedence: 260 }, { name: "NotSucceeds", trigger: { infix: "\\nsucc" }, associativity: "right", precedence: 260 }, { name: "Between", trigger: { infix: "\\between" }, associativity: "right", precedence: 265 }], other: D, physics: [{ name: "mu-0", trigger: { symbol: ["\\mu", "_", "0"] } }], sets: [{ trigger: { symbol: "\\N" }, parse: "NaturalNumber" }, { trigger: { symbol: "\\Z" }, parse: "Integer" }, { trigger: { symbol: "\\Q" }, parse: "RationalNumber" }, { trigger: { symbol: ["\\mathbb", "<{>", "A", "<}>"] }, parse: "AlgebraicNumber" }, { trigger: { symbol: "\\R" }, parse: "RealNumber" }, { trigger: { symbol: "\\C" }, parse: "ComplexNumber" }, { trigger: { symbol: "\\varnothing" }, parse: "EmptySet" }, { trigger: { symbol: "\\emptyset" }, parse: "EmptySet" }, { name: "Complement", trigger: { infix: "\\complement" }, precedence: 240 }, { name: "Element", trigger: { infix: "\\in" }, precedence: 240 }, { name: "Intersection", trigger: { infix: "\\Cap" }, precedence: 350 }, { name: "NotElement", trigger: { infix: "\\notin" }, precedence: 240 }, { name: "SetMinus", trigger: { infix: "\\setminus" }, precedence: 650 }, { name: "SubsetEqual", trigger: { infix: "\\subseteq" }, precedence: 240 }, { name: "SymmetricDifference", trigger: { infix: "\\triangle" }, precedence: 260 }, { name: "Union", trigger: { infix: "\\cup" }, precedence: 350 }, { name: "Contains", trigger: { infix: "\\ni" }, associativity: "right", precedence: 160 }, { name: "Subset", trigger: { infix: "\\subset" }, associativity: "right", precedence: 240 }, { name: "SquareSubset", trigger: { infix: "\\sqsubset" }, associativity: "right", precedence: 265 }, { name: "SquareSubsetEqual", trigger: { infix: "\\sqsubseteq" }, associativity: "right", precedence: 265 }, { name: "Superset", trigger: { infix: "\\supset" }, associativity: "right", precedence: 240 }, { name: "SquareSuperset", trigger: { infix: "\\sqsupset" }, associativity: "right", precedence: 265 }, { name: "SquareSupersetEqual", trigger: { infix: "\\sqsupseteq" }, associativity: "right", precedence: 265 }, { name: "NotSubset", trigger: { infix: "\\nsubset" }, associativity: "right", precedence: 240 }, { name: "NotSuperset", trigger: { infix: "\\nsupset" }, associativity: "right", precedence: 240 }, { name: "SupersetEqual", trigger: { infix: "\\supseteq" }, associativity: "right", precedence: 240 }, { name: "NotSubsetNotEqual", trigger: { infix: "\\nsubseteq" }, associativity: "right", precedence: 240 }, { name: "NotSupersetNotEqual", trigger: { infix: "\\nsupseteq" }, associativity: "right", precedence: 240 }, { name: "SubsetNotEqual", trigger: { infix: "\\subsetneq" }, associativity: "right", precedence: 240 }, { name: "SubsetNotEqual", trigger: { infix: "\\varsupsetneqq" }, associativity: "right", precedence: 240 }, { name: "SupersetNotEqual", trigger: { infix: "\\supsetneq" }, associativity: "right", precedence: 240 }, { name: "SupersetNotEqual", trigger: { infix: "\\varsupsetneq" }, associativity: "right", precedence: 240 }], symbols: [{ trigger: { symbol: "\\alpha" }, parse: "α" }, { trigger: { symbol: "\\beta" }, parse: "β" }, { trigger: { symbol: "\\gamma" }, parse: "γ" }, { trigger: { symbol: "\\delta" }, parse: "δ" }, { trigger: { symbol: "\\epsilon" }, parse: "ϵ" }, { trigger: { symbol: "\\varepsilon" }, parse: "ε" }, { trigger: { symbol: "\\zeta" }, parse: "ζ" }, { trigger: { symbol: "\\eta" }, parse: "η" }, { trigger: { symbol: "\\theta" }, parse: "θ" }, { trigger: { symbol: "\\vartheta" }, parse: "ϑ" }, { trigger: { symbol: "\\iota" }, parse: "ι" }, { trigger: { symbol: "\\kappa" }, parse: "κ" }, { trigger: { symbol: "\\varkappa" }, parse: "ϰ" }, { trigger: { symbol: "\\lambda" }, parse: "λ" }, { trigger: { symbol: "\\mu" }, parse: "μ" }, { trigger: { symbol: "\\nu" }, parse: "ν" }, { trigger: { symbol: "\\xi" }, parse: "ξ" }, { trigger: { symbol: "\\omicron" }, parse: "ο" }, { trigger: { symbol: "\\varpi" }, parse: "ϖ" }, { trigger: { symbol: "\\rho" }, parse: "ρ" }, { trigger: { symbol: "\\varrho" }, parse: "ϱ" }, { trigger: { symbol: "\\sigma" }, parse: "σ" }, { trigger: { symbol: "\\varsigma" }, parse: "ς" }, { trigger: { symbol: "\\tau" }, parse: "τ" }, { trigger: { symbol: "\\phi" }, parse: "ϕ" }, { trigger: { symbol: "\\varphi" }, parse: "φ" }, { trigger: { symbol: "\\upsilon" }, parse: "υ" }, { trigger: { symbol: "\\chi" }, parse: "χ" }, { trigger: { symbol: "\\psi" }, parse: "ψ" }, { trigger: { symbol: "\\omega" }, parse: "ω" }, { trigger: { symbol: "\\Gamma" }, parse: "Γ" }, { trigger: { symbol: "\\Delta" }, parse: "Δ" }, { trigger: { symbol: "\\Theta" }, parse: "Θ" }, { trigger: { symbol: "\\Lambda" }, parse: "Λ" }, { trigger: { symbol: "\\Xi" }, parse: "Ξ" }, { trigger: { symbol: "\\Pi" }, parse: "Π" }, { trigger: { symbol: "\\Sigma" }, parse: "Σ" }, { trigger: { symbol: "\\Upsilon" }, parse: "Υ" }, { trigger: { symbol: "\\Phi" }, parse: "Φ" }, { trigger: { symbol: "\\Psi" }, parse: "Ψ" }, { trigger: { symbol: "\\Omega" }, parse: "Ω" }, { trigger: { symbol: "\\digamma" }, parse: "ϝ" }, { trigger: { symbol: "\\aleph" }, parse: "ℵ" }, { trigger: { symbol: "\\beth" }, parse: "ℶ" }, { trigger: { symbol: "\\daleth" }, parse: "ℸ" }, { trigger: { symbol: "\\gimel" }, parse: "ℷ" }, { trigger: { symbol: "\\Finv" }, parse: "Ⅎ" }, { trigger: { symbol: "\\Game" }, parse: "⅁" }, { trigger: { symbol: "\\wp" }, parse: "℘" }, { trigger: { symbol: "\\eth" }, parse: "ð" }, { trigger: { symbol: "\\mho" }, parse: "℧" }, { trigger: { symbol: "\\clubsuit" }, parse: "♣" }, { trigger: { symbol: "\\heartsuit" }, parse: "♡" }, { trigger: { symbol: "\\spadesuit" }, parse: "♠" }, { trigger: { symbol: "\\diamondsuit" }, parse: "♢" }, { trigger: { symbol: "\\sharp" }, parse: "♯" }, { trigger: { symbol: "\\flat" }, parse: "♭" }, { trigger: { symbol: "\\natural" }, parse: "♮" }], trigonometry: [{ name: "Arcsin", trigger: "\\arcsin", arguments: "implicit", parse: V }, { name: "Arccos", trigger: "\\arccos", arguments: "implicit", parse: V }, { name: "Arctan", trigger: "\\arctan", arguments: "implicit", parse: V }, { name: "Arctan", trigger: "\\arctg", arguments: "implicit", parse: V }, { name: "Arccot", trigger: "\\arcctg", arguments: "implicit", parse: V }, { name: "Arcsec", trigger: "\\arcsec", arguments: "implicit", parse: V }, { name: "Arccsc", trigger: "\\arccsc", arguments: "implicit", parse: V }, { name: "Arsinh", trigger: "\\arsinh", arguments: "implicit", parse: V }, { name: "Arcosh", trigger: "\\arcosh", arguments: "implicit", parse: V }, { name: "Artanh", trigger: "\\artanh", arguments: "implicit", parse: V }, { name: "Arsech", trigger: "\\arsech", arguments: "implicit", parse: V }, { name: "Arcsch", trigger: "\\arcsch", arguments: "implicit", parse: V }, { name: "Cosh", trigger: "\\ch", arguments: "implicit", parse: V }, { name: "Cosec", trigger: "\\cosec", arguments: "implicit", parse: V }, { name: "Cosh", trigger: "\\cosh", arguments: "implicit", parse: V }, { name: "Cot", trigger: "\\cot", arguments: "implicit", parse: V }, { name: "Cot", trigger: "\\cotg", arguments: "implicit", parse: V }, { name: "Coth", trigger: "\\coth", arguments: "implicit", parse: V }, { name: "Csc", trigger: "\\csc", arguments: "implicit", parse: V }, { name: "Cot", trigger: "\\ctg", arguments: "implicit", parse: V }, { name: "Coth", trigger: "\\cth", arguments: "implicit", parse: V }, { name: "Sec", trigger: "\\sec", arguments: "implicit", parse: V }, { name: "Sinh", trigger: "\\sinh", arguments: "implicit", parse: V }, { name: "Sinh", trigger: "\\sh", arguments: "implicit", parse: V }, { name: "Tan", trigger: "\\tan", arguments: "implicit", parse: V }, { name: "Tan", trigger: "\\tg", arguments: "implicit", parse: V }, { name: "Tanh", trigger: "\\tanh", arguments: "implicit", parse: V }, { name: "Tanh", trigger: "\\th", arguments: "implicit", parse: V }, { name: "Cos", trigger: "\\cos", arguments: "implicit", parse: V }, { name: "Sin", trigger: "\\sin", arguments: "implicit", parse: V }] }, J = { precision: 15, positiveInfinity: "\\infty", negativeInfinity: "-\\infty", notANumber: "\\operatorname{NaN}", decimalMarker: ".", groupSeparator: ",", exponentProduct: "\\cdot", beginExponentMarker: "10^{", endExponentMarker: "}", notation: "auto", truncationMarker: "\\ldots", beginRepeatingDigits: "\\overline{", endRepeatingDigits: "}", imaginaryNumber: "\\imaginaryI" }, K = { invisibleOperator: v, skipSpace: !0, parseArgumentsOfUnknownLatexCommands: !0, parseNumbers: !0, promoteUnknownSymbols: /^[a-zA-Z]$/, promoteUnknownFunctions: /^[fg]$/, ignoreCommands: ["\\displaystyle", "\\!", "\\:", "\\enskip", "\\quad", "\\,", "\\;", "\\enspace", "\\qquad", "\\selectfont", "\\tiny", "\\scriptsize", "\\footnotesize", "\\small", "\\normalsize", "\\large", "\\Large", "\\LARGE", "\\huge", "\\Huge"], idempotentCommands: ["\\left", "\\right", "\\mleft", "\\mright", "\\middle", "\\bigl", "\\bigm", "\\bigr", "\\Bigl", "\\Bigm", "\\Bigr", "\\biggl", "\\biggm", "\\biggr", "\\Biggl", "\\Biggm", "\\Biggr"], invisiblePlusOperator: m, preserveLatex: !1 }, X = { invisibleMultiply: "", invisiblePlus: "", multiply: "\\times" };
+  function ee(e, i) { var t; let r = e; for (let e = 0; e < i.length; e++) {
       let n = null !== (t = i[e]) && void 0 !== t ? t : "";
       if (/[a-zA-Z*]/.test(n[0])) {
           const i = r.match(new RegExp("(.*)#" + Number(e + 1).toString()));
@@ -28712,16 +30125,16 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       }
       r = r.replace("#" + Number(e + 1).toString(), n);
   } return r; }
-  class V {
-      constructor(e, i, t, r) { let n; this.index = 0, this.options = { ...Z, ...i }, this.tokens = e, this.onError = e => r({ ...e, before: this.latexBefore(), after: this.latexAfter() }), this.dictionary = t, this.invisibleOperatorPrecedence = 0, this.options.invisibleOperator && (n = this.dictionary.name.get(this.options.invisibleOperator), void 0 === n ? r({ code: "unknown-operator", arg: "invisible operator " + this.options.invisibleOperator }) : void 0 === n.precedence ? r({ code: "expected-operator", arg: "invisible operator " + this.options.invisibleOperator }) : this.invisibleOperatorPrecedence = n.precedence); }
-      clone(e, i) { return new V(this.tokens.slice(e, i), this.options, this.dictionary, this.onError); }
+  class ie {
+      constructor(e, i, t, r) { let n; this.index = 0, this.options = { ...J, ...K, ...i }, this.tokens = e, this.onError = e => r({ ...e, before: this.latexBefore(), after: this.latexAfter() }), this.dictionary = t, this.invisibleOperatorPrecedence = 0, this.options.invisibleOperator && (n = this.dictionary.name.get(this.options.invisibleOperator), void 0 === n ? r({ code: "unknown-operator", arg: "invisible operator " + this.options.invisibleOperator }) : void 0 === n.precedence ? r({ code: "expected-operator", arg: "invisible operator " + this.options.invisibleOperator }) : this.invisibleOperatorPrecedence = n.precedence); }
+      clone(e, i) { return new ie(this.tokens.slice(e, i), this.options, this.dictionary, this.onError); }
       balancedClone(e, i, t = !0) { if (!this.matchAll(e))
-          return t || this.onError({ code: "syntax-error", arg: "Expected " + l(e) }), null; const r = this.index; let n = r, s = 1; for (; !this.atEnd && 0 !== s;)
-          this.skipSpace(), n = this.index, this.matchAll(i) ? s -= 1 : this.matchAll(e) ? s += 1 : this.next(); return 0 !== s ? (t || this.onError({ code: "unbalanced-symbols", arg: l(e) + l(i) }), this.index = r, null) : this.clone(r, n); }
+          return t || this.onError({ code: "syntax-error", arg: "Expected " + o(e) }), null; const r = this.index; let n = r, s = 1; for (; !this.atEnd && 0 !== s;)
+          this.skipSpace(), n = this.index, this.matchAll(i) ? s -= 1 : this.matchAll(e) ? s += 1 : this.next(); return 0 !== s ? (t || this.onError({ code: "unbalanced-symbols", arg: o(e) + o(i) }), this.index = r, null) : this.clone(r, n); }
       get atEnd() { return this.index >= this.tokens.length; }
       get peek() { return this.tokens[this.index]; }
-      latex(e, i) { return l(this.tokens.slice(e, i)); }
-      latexAhead(e) { return l(this.tokens.slice(this.index, this.index + e)); }
+      latex(e, i) { return o(this.tokens.slice(e, i)); }
+      latexAhead(e) { return o(this.tokens.slice(this.index, this.index + e)); }
       latexBefore() { return this.latex(0, this.index); }
       latexAfter() { return this.latex(this.index); }
       lookAhead() { let e = Math.min(this.dictionary.lookahead, this.tokens.length - this.index); const i = []; for (; e > 0;)
@@ -28730,10 +30143,11 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           if (void 0 !== i[e])
               return [i[e], e]; return [null, 0]; }
       next() { return this.tokens[this.index++]; }
-      skipSpace() { if ("<{>" === this.peek && !this.atEnd && "<}>" === this.tokens[this.index + 1])
-          return this.index += 2, !0; if (!this.options.skipSpace)
-          return !1; let e = !1; for (; this.match("<space>");)
-          e = !0; return e; }
+      skipSpace() { if (!this.atEnd && "<{>" === this.peek && "<}>" === this.tokens[this.index + 1])
+          return this.index += 2, this.skipSpace(), !0; let e = !1; for (; !this.atEnd && (this.options.ignoreCommands.includes(this.peek) || this.options.idempotentCommands.includes(this.peek));)
+          this.index += 1, this.skipSpace(), e = !0; if (!this.options.skipSpace)
+          return !1; for (; this.match("<space>");)
+          e = !0; return e && this.skipSpace(), e; }
       match(e) { return this.tokens[this.index] === e && (this.index++, !0); }
       matchAll(e) { let i = !0; "string" == typeof e && (e = [e]); let t = 0; do {
           i = this.tokens[this.index + t] === e[t++];
@@ -28763,8 +30177,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   return "e" + e;
           }
       } return this.index = e, ""; }
-      matchNumber() { var e, i, t; if (!this.options.parseNumbers)
-          return ""; const r = this.index, n = this.matchSign(); let s = this.matchDecimalDigits(); return s ? (this.match(null !== (e = this.options.decimalMarker) && void 0 !== e ? e : "") && (s += "." + (null !== (i = this.matchDecimalDigits()) && void 0 !== i ? i : "")), s += null !== (t = this.matchExponent()) && void 0 !== t ? t : "", s ? ("-" === n ? "-" : "") + s : (this.index = r, "")) : (this.index = r, ""); }
+      matchNumber() { var e, i; if (!this.options.parseNumbers)
+          return ""; const t = this.index, r = this.matchSign(); let n = this.matchDecimalDigits(); if (!n)
+          return this.index = t, ""; n = ("-" === r ? "-" : "") + n; let s = !1, a = !1; this.match(null !== (e = this.options.decimalMarker) && void 0 !== e ? e : "") && (s = !0, n += "." + (null !== (i = this.matchDecimalDigits()) && void 0 !== i ? i : "0")); const o = this.matchExponent(); return o && (a = !0), n ? n.length + o.length > 12 ? s || a ? n + o + "d" : n + "n" : n + o : (this.index = t, ""); }
       matchOperator(e, i = null, t = 0) { const [r, n] = this.peekDefinition(e); if (null === r)
           return null; if ("function" == typeof r.parse) {
           let e = null;
@@ -28773,10 +30188,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return null; s += "left" === r.associativity ? 1 : 0, this.index += n; const a = this.matchExpression(s); return this.applyInvisibleOperator(...this.applyOperator(r.parse, i, a)); }
       matchArguments(e) { if (!e)
           return null; const i = this.index; let t = null; const r = this.matchMatchfixOperator(); if ("group" === e && "Parentheses" === A(r))
-          t = E(r);
+          t = k(r);
       else if ("implicit" === e)
           if ("Parentheses" === A(r))
-              t = E(r);
+              t = k(r);
           else if (null !== r)
               t = [r];
           else {
@@ -28797,19 +30212,19 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return s; if (null === n) {
           if (null === (e = this.options.promoteUnknownFunctions) || void 0 === e ? void 0 : e.test(this.peek)) {
               const e = this.next(), i = this.matchMatchfixOperator();
-              return null === i ? e : "Parentheses" !== A(i) ? null : [e, ...E(i)];
+              return null === i ? e : "Parentheses" !== A(i) ? null : [e, ...k(i)];
           }
           return (null === (i = this.options.promoteUnknownSymbols) || void 0 === i ? void 0 : i.test(this.peek)) ? this.next() : this.matchUnknownLatexCommand();
-      } const a = [], l = []; let o, c = null !== (t = n.optionalLatexArg) && void 0 !== t ? t : 0; for (; c > 0;)
-          o = this.matchOptionalLatexArgument(), null !== o && l.push(o), c--; for (c = null !== (r = n.requiredLatexArg) && void 0 !== r ? r : 0; c > 0;)
-          o = this.matchRequiredLatexArgument(), null === o && this.onError({ code: "expected-argument" }), null !== o && a.push(o), c--; const u = this.matchArguments(n.arguments); return null === u ? 0 === a.length && 0 === l.length ? n.parse : [n.parse, ...a, ...l] : [n.parse, ...a, ...u, ...l]; }
+      } const a = [], o = []; let l, u = null !== (t = n.optionalLatexArg) && void 0 !== t ? t : 0; for (; u > 0;)
+          l = this.matchOptionalLatexArgument(), null !== l && o.push(l), u--; for (u = null !== (r = n.requiredLatexArg) && void 0 !== r ? r : 0; u > 0;)
+          l = this.matchRequiredLatexArgument(), null === l && this.onError({ code: "expected-argument" }), null !== l && a.push(l), u--; const c = this.matchArguments(n.arguments); return null === c ? 0 === a.length && 0 === o.length ? n.parse : [n.parse, ...a, ...o] : [n.parse, ...a, ...c, ...o]; }
       matchOptionalLatexArgument() { return this.skipSpace(), this.matchBalancedExpression("[", "]"); }
       matchRequiredLatexArgument() { return this.skipSpace(), this.matchBalancedExpression("<{>", "<}>") || (/^[0-9]$/.test(this.peek) ? parseFloat(this.next()) : /^[^\\#]$/.test(this.peek) ? this.next() : this.matchSymbol()); }
       matchSupsub(e) { if (null === e)
           return null; let i = null; return this.skipSpace(), [["^", "superfix"], ["_", "subfix"]].forEach((t => { var r, n, s; if (null !== i)
-          return; const [a, l] = t, o = this.index; if (!this.match(a))
-          return; const c = this.index; let u, g = 0; if (this.match("<{>") ? ([u, g] = this.peekDefinition(l), u ? "function" == typeof u.parse ? i = u.parse(e, this, 0)[1] : (this.index += g, this.match("<}>") ? i = [null !== (r = u.parse) && void 0 !== r ? r : u.name, e] : this.index = c) : this.index = c) : ([u, g] = this.peekDefinition(l), u ? "function" == typeof u.parse ? i = u.parse(e, this, 0)[1] : (this.index += g, i = [null !== (n = u.parse) && void 0 !== n ? n : u.name, e]) : this.index = c), null === i && (u = null === (s = this.dictionary.infix[1]) || void 0 === s ? void 0 : s.get(a), "function" == typeof (null == u ? void 0 : u.parse) ? (this.index = o, i = u.parse(e, this, 0)[1]) : "string" == typeof (null == u ? void 0 : u.parse) ? ([e, i] = this.applyOperator(u.parse, e, this.matchRequiredLatexArgument()), i = this.applyInvisibleOperator(e, i)) : i = this.applyInvisibleOperator(e, a)), null !== i) {
-          const e = this.matchArguments(null == u ? void 0 : u.arguments);
+          return; const [a, o] = t, l = this.index; if (!this.match(a))
+          return; const u = this.index; let c, h = 0; if (this.match("<{>") ? ([c, h] = this.peekDefinition(o), c ? "function" == typeof c.parse ? i = c.parse(e, this, 0)[1] : (this.index += h, this.match("<}>") ? i = [null !== (r = c.parse) && void 0 !== r ? r : c.name, e] : this.index = u) : this.index = u) : ([c, h] = this.peekDefinition(o), c ? "function" == typeof c.parse ? i = c.parse(e, this, 0)[1] : (this.index += h, i = [null !== (n = c.parse) && void 0 !== n ? n : c.name, e]) : this.index = u), null === i && (c = null === (s = this.dictionary.infix[1]) || void 0 === s ? void 0 : s.get(a), "function" == typeof (null == c ? void 0 : c.parse) ? (this.index = l, i = c.parse(e, this, 0)[1]) : "string" == typeof (null == c ? void 0 : c.parse) ? ([e, i] = this.applyOperator(c.parse, e, this.matchRequiredLatexArgument()), i = this.applyInvisibleOperator(e, i)) : i = this.applyInvisibleOperator(e, a)), null !== i) {
+          const e = this.matchArguments(null == c ? void 0 : c.arguments);
           null !== e && (i = [i, ...e]);
       } })), i; }
       matchPostfix(e) { if (null === e)
@@ -28834,7 +30249,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       } return !1; }
       matchTabular() { const e = ["list"]; let i = ["list"], t = null, r = !1; for (; !this.atEnd && !r;)
           if (this.match("&"))
-              i.push(null != t ? t : u), t = null;
+              i.push(null != t ? t : f), t = null;
           else if (this.match("\\\\") || this.match("\\cr"))
               this.skipSpace(), this.matchOptionalLatexArgument(), null !== t && i.push(t), e.push(i), i = ["list"], t = null;
           else {
@@ -28852,46 +30267,56 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               return "function" == typeof (null == s ? void 0 : s.parse) ? s.parse(null, this.clone(t, r), 0)[1] : null !== (e = null == s ? void 0 : s.parse) && void 0 !== e ? e : null;
           }
       } return null; }
-      applyOperator(e, i, t) { var r, n, s, a; const l = this.dictionary.name.get(e); if (void 0 === l)
-          return this.onError({ code: "unknown-operator" }), [i, t]; if (void 0 !== (null === (r = l.trigger) || void 0 === r ? void 0 : r.prefix) && null === i && null !== t)
-          return [null, [l.name, t]]; if (void 0 !== (null === (n = l.trigger) || void 0 === n ? void 0 : n.postfix) && null !== i)
-          return [null, [l.name, i]]; if (void 0 !== (null === (s = l.trigger) || void 0 === s ? void 0 : s.matchfix) || void 0 !== (null === (a = l.trigger) || void 0 === a ? void 0 : a.infix)) {
-          if ("non" === l.associativity)
+      applyOperator(e, i, t) { var r, n, s, a; const o = this.dictionary.name.get(e); if (void 0 === o)
+          return this.onError({ code: "unknown-operator" }), [i, t]; if (void 0 !== (null === (r = o.trigger) || void 0 === r ? void 0 : r.prefix) && null === i && null !== t)
+          return [null, [o.name, t]]; if (void 0 !== (null === (n = o.trigger) || void 0 === n ? void 0 : n.postfix) && null !== i)
+          return [null, [o.name, i]]; if (void 0 !== (null === (s = o.trigger) || void 0 === s ? void 0 : s.matchfix) || void 0 !== (null === (a = o.trigger) || void 0 === a ? void 0 : a.infix)) {
+          if ("non" === o.associativity)
               return [null, [e, null != i ? i : "Missing", null != t ? t : "Missing"]];
           if (A(i) === e) {
-              if ("both" === l.associativity) {
+              if ("both" === o.associativity) {
                   if (A(t) === e) {
                       if (Array.isArray(i))
-                          return [null, i.concat(E(t))];
-                      if (v(i))
-                          return [null, i.fn.concat(E(t))];
+                          return [null, i.concat(k(t))];
+                      if (w(i))
+                          return [null, i.fn.concat(k(t))];
                   }
                   else
-                      t && (Array.isArray(i) && i.push(t), v(i) && i.fn.push(t));
+                      t && (Array.isArray(i) && i.push(t), w(i) && i.fn.push(t));
                   return [null, i];
               }
-              return "left" === l.associativity ? [null, [e, null != i ? i : c, null != t ? t : c]] : Array.isArray(i) ? [null, [e, i[1], [e, i[2], null != t ? t : c]]] : (v(i) && (i.fn[2] = [e, i.fn[2], null != t ? t : c]), [null, i]);
+              return "left" === o.associativity ? [null, [e, null != i ? i : p, null != t ? t : p]] : Array.isArray(i) ? [null, [e, i[1], [e, i[2], null != t ? t : p]]] : (w(i) && (i.fn[2] = [e, i.fn[2], null != t ? t : p]), [null, i]);
           }
-          return A(t) === e ? "both" === l.associativity ? (Array.isArray(t) && i && t.splice(1, 0, i), v(t) && i && t.fn.splice(1, 0, i), [null, t]) : "right" === l.associativity ? [null, [e, null != i ? i : c, null != t ? t : c]] : Array.isArray(t) ? [null, [e, t[1], [e, t[2], null != i ? i : c]]] : (v(t) && (t.fn[2] = [e, t.fn[2], null != i ? i : c]), [null, t]) : [null, [e, null != i ? i : "Missing", null != t ? t : "Missing"]];
+          return A(t) === e ? "both" === o.associativity ? (Array.isArray(t) && i && t.splice(1, 0, i), w(t) && i && t.fn.splice(1, 0, i), [null, t]) : "right" === o.associativity ? [null, [e, null != i ? i : p, null != t ? t : p]] : Array.isArray(t) ? [null, [e, t[1], [e, t[2], null != i ? i : p]]] : (w(t) && (t.fn[2] = [e, t.fn[2], null != i ? i : p]), [null, t]) : [null, [e, null != i ? i : "Missing", null != t ? t : "Missing"]];
       } return [i, null]; }
       applyInvisibleOperator(e, i) { if (null === e)
           return i; if (null === i)
-          return e; if (this.options.invisiblePlusOperator && ("number" == typeof e || f(e)) && A(i) === g)
+          return e; if (this.options.invisiblePlusOperator && ("number" == typeof e || y(e)) && function (e) { var i, t; const r = z(e); if (null !== r && ["ThreeQuarter", "TwoThird", "Half", "Third", "Quarter"].includes(r))
+          return !0; if (A(e) !== d)
+          return !1; const n = null !== (i = N(O(e, 1))) && void 0 !== i ? i : NaN, s = null !== (t = N(O(e, 2))) && void 0 !== t ? t : NaN; return Number.isInteger(n) && Number.isInteger(s); }(i))
           return [e, i] = this.applyOperator(this.options.invisiblePlusOperator, e, i), null === e ? i : null; if (this.options.invisibleOperator)
-          return [e, i] = this.applyOperator(this.options.invisibleOperator, e, i), null === e ? i : null; let t = ["LatexTokens"]; return "LatexTokens" === A(e) ? t = t.concat(E(e)) : t.push(e), null !== i && ("LatexTokens" === A(i) ? t = t.concat(E(i)) : t.push(i)), this.options.invisibleOperator && this.onError({ code: "unexpected-sequence" }), t; }
-      matchUnknownLatexCommand() { const e = this.peek; if (!e || "\\" !== e[0])
-          return null; this.next(); const i = [], t = []; let r = !1; do {
-          r = !0;
+          return [e, i] = this.applyOperator(this.options.invisibleOperator, e, i), null === e ? i : null; let t = ["LatexTokens"]; return "LatexTokens" === A(e) ? t = t.concat(k(e)) : t.push(e), null !== i && ("LatexTokens" === A(i) ? t = t.concat(k(i)) : t.push(i)), this.options.invisibleOperator && this.onError({ code: "unexpected-sequence" }), t; }
+      matchUnknownLatexCommand() { var e; const i = this.peek; if (!i || "\\" !== i[0])
+          return null; if (this.next(), "\\operatorname" === i) {
+          if (this.skipSpace(), "<{>" === this.peek) {
+              let e = "";
+              for (this.next(); !this.atEnd && "<}>" !== this.tokens[this.index];)
+                  e += this.next();
+              return e;
+          }
+          return null !== (e = this.next()) && void 0 !== e ? e : p;
+      } const t = [], r = []; let n = !1; do {
+          n = !0;
           let e = this.matchOptionalLatexArgument();
-          null !== e && (i.push(e), r = !1), this.skipSpace(), "<{>" === this.peek && (e = this.matchRequiredLatexArgument(), null !== e && (t.push(e), r = !1));
-      } while (!r); return i.length > 0 || t.length > 0 ? [e, ...t, ...i] : e; }
+          null !== e && (t.push(e), n = !1), this.skipSpace(), "<{>" === this.peek && (e = this.matchRequiredLatexArgument(), null !== e && (r.push(e), n = !1));
+      } while (!n); return t.length > 0 || r.length > 0 ? [i, ...r, ...t] : i; }
       matchPrimary(e) { let i = null; const t = this.index, r = this.matchNumber(); r && (i = { num: r }), null === i && (i = this.matchMatchfixOperator()), null === i && (i = this.matchEnvironment()), null === i && (i = this.matchSymbol()); let n = null; do {
           n = this.matchSupsub(i), i = null != n ? n : i;
       } while (null !== n); let s = null; do {
           s = this.matchPostfix(i), i = null != s ? s : i;
       } while (null !== s); return this.decorate(i, t); }
       matchBalancedExpression(e, i, t) { const r = this.balancedClone(e, i); if (!r)
-          return null == t || t({ code: "unbalanced-symbols", arg: l(e) + l(i) }), null; const n = r.matchExpression(); return r.atEnd || null == t || t({ code: "unbalanced-symbols", arg: l(e) + l(i) }), n; }
+          return null == t || t({ code: "unbalanced-symbols", arg: o(e) + o(i) }), null; const n = r.matchExpression(); return r.atEnd || null == t || t({ code: "unbalanced-symbols", arg: o(e) + o(i) }), n; }
       matchExpression(e = 0) { let i = null; const t = this.index; this.skipSpace(), i = this.matchPrimary(e), null === i && (i = this.matchOperator("prefix")); let r = !1; for (; !this.atEnd && !r;) {
           this.skipSpace();
           let t = this.matchOperator("infix", i, e);
@@ -28910,39 +30335,39 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           Array.isArray(e) ? e = { latex: t, fn: e } : "number" == typeof e ? e = { latex: t, num: Number(e).toString() } : "string" == typeof e ? e = { latex: t, sym: e } : "object" == typeof e && null !== e && (e.latex = t);
       } return e; }
   }
-  function J(e, i) { const t = e.length; e = e.substr(0, i.precision - 2); for (let t = 0; t < e.length - 16; t++) {
+  function te(e, i) { const t = e.length, r = e; e = e.slice(0, -1); for (let t = 0; t < e.length - 16; t++) {
       const r = e.substr(0, t);
       for (let n = 0; n < 17; n++) {
           const s = e.substr(t, n + 1), a = Math.floor((e.length - r.length) / s.length);
           if (a > 1 && (r + s.repeat(a + 1)).startsWith(e))
-              return "0" === s ? r.replace(/(\d{3})/g, "$1" + i.groupSeparator) : r.replace(/(\d{3})/g, "$1" + i.groupSeparator) + i.beginRepeatingDigits + s.replace(/(\d{3})/g, "$1" + i.groupSeparator) + i.endRepeatingDigits;
+              return "0" === s ? r.replace(/(\d{3})/g, "$1" + i.groupSeparator) : r.replace(/(\d{3})/g, "$1" + i.groupSeparator) + i.beginRepeatingDigits + s + i.endRepeatingDigits;
       }
-  } const r = t !== e.length; return (e = e.replace(/(\d{3})/g, "$1" + i.groupSeparator)).endsWith(i.groupSeparator) && (e = e.slice(0, -1)), e + (r ? i.truncationMarker : ""); }
-  function Q(e, i) { var t; return e ? i.beginExponentMarker ? i.beginExponentMarker + e + (null !== (t = i.endExponentMarker) && void 0 !== t ? t : "") : "10^{" + e + "}" : ""; }
-  class X {
+  } const n = t > i.precision - 1; return e = r, n && (e = e.substr(0, i.precision - 1)), i.groupSeparator && (e = e.replace(/(\d{3})/g, "$1" + i.groupSeparator)).endsWith(i.groupSeparator) && (e = e.slice(0, -i.groupSeparator.length)), n ? e + i.truncationMarker : e; }
+  function re(e, i) { var t; return e ? i.beginExponentMarker ? i.beginExponentMarker + e + (null !== (t = i.endExponentMarker) && void 0 !== t ? t : "") : "10^{" + e + "}" : ""; }
+  class ne {
       constructor(e, i, t) { this.level = -1, this.options = e, e.invisibleMultiply && (/#1/.test(e.invisibleMultiply) && /#2/.test(e.invisibleMultiply) || t({ code: "expected-argument", arg: "invisibleMultiply" })), this.onError = t, this.dictionary = i; }
       wrap(e, i) { if (null === e)
           return ""; if (void 0 === i)
-          return "(" + this.serialize(e) + ")"; if ("number" == typeof e || f(e) || "string" == typeof e || d(e))
+          return "(" + this.serialize(e) + ")"; if ("number" == typeof e || y(e) || "string" == typeof e || b(e))
           return this.serialize(e); const t = A(e); if (t && "Parentheses" !== t) {
           const r = this.dictionary.name.get(t);
           if (r && void 0 !== r.precedence && r.precedence < i)
               return this.wrapString(this.serialize(e), (this.level, "paren"));
       } return this.serialize(e); }
       wrapShort(e) { if (null === e)
-          return ""; const i = this.serialize(e); return "Parentheses" === A(e) || "number" == typeof e || f(e) || /(^(.|\\[a-zA-Z*]+))$/.test(i) ? i : this.wrapString(i, (this.level, "paren")); }
+          return ""; const i = this.serialize(e); return "Parentheses" === A(e) || "number" == typeof e || y(e) || /(^(.|\\[a-zA-Z*]+))$/.test(i) ? i : this.wrapString(i, (this.level, "paren")); }
       wrapString(e, i) { return "none" === i ? e : "(" + e + ")"; }
-      serializeSymbol(e, i) { const t = q(e); if (!t) {
+      serializeSymbol(e, i) { const t = M(e); if (!t) {
           if ("string" == typeof (null == i ? void 0 : i.serialize))
               return i.serialize;
-          const t = S(e);
+          const t = z(e);
           if (null === t)
               return "";
-          switch (function (e, i) { const t = S(e); return null === t ? "asis" : t.length > 1 ? "upright" : "asis"; }(e, this.level)) {
+          switch (function (e, i) { const t = z(e); return null === t ? "asis" : t.length > 1 ? "upright" : "asis"; }(e, this.level)) {
               case "upright": return "\\operatorname{" + t + "}";
               default: return t;
           }
-      } const r = E(e); if (!i) {
+      } const r = k(e); if (!i) {
           if ("string" == typeof t && t.length > 0 && "\\" === t[0]) {
               let e = t;
               for (const i of r)
@@ -28962,99 +30387,103 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       } return this.level, i.serialize + this.serialize(["Parentheses", ...r]); }
       serializeDictionary(e) { return `\\left[\\begin{array}{lll}${Object.keys(e).map((i => `\\textbf{${i}} & \\rightarrow & ${this.serialize(e[i])}`)).join("\\\\")}\\end{array}\\right]`; }
       serialize(e) { if (null === e)
-          return ""; this.level += 1; const i = (() => { const i = function (e, i) { var t, r; let n; if ("number" == typeof e)
+          return ""; this.level += 1; const i = (() => { var i, t, r, n; const s = function (e, i) { var t, r; let n; if ("number" == typeof e)
           n = e;
       else {
-          if (!f(e))
+          if (!y(e))
               return "";
           n = e.num;
-      } if (n === 1 / 0 || "Infinity" === n)
+      } if (n === 1 / 0 || "Infinity" === n || "+Infinity" === n)
           return i.positiveInfinity; if (n === -1 / 0 || "-Infinity" === n)
           return i.negativeInfinity; if ("NaN" === n || "number" == typeof n && Number.isNaN(n))
           return i.notANumber; if ("number" == typeof n)
           return "engineering" === i.notation ? function (e, i) { if (0 === e)
-              return "0"; const t = Math.abs(e); let r = Math.round(Math.log10(t)); r -= r % 3, t < 1e3 && (r = 0); const n = t / Math.pow(10, r); let s = ""; const a = n.toString().match(/^(.*)\.(.*)$/); (null == a ? void 0 : a[1]) && a[2] && (s = a[1] + i.decimalMarker + a[2]), i.groupSeparator && (s = J(n.toExponential(), i)); let l = ""; return 0 !== r && (l = Q(r.toString(), i)), (e < 0 ? "-" : "") + s + l; }(function (e) { return parseFloat(Number(e).toPrecision(15)); }(n), i) : function (e, i) { let t, r = e.match(/^(.*)[e|E]([-+]?[0-9]+)$/i); (null == r ? void 0 : r[1]) && r[2] && (t = Q(r[2], i), t && (t = i.exponentProduct + t)); let n = e, s = ""; return r = (t ? r[1] : e).match(/^(.*)\.(.*)$/), (null == r ? void 0 : r[1]) && r[2] && (n = r[1], s = r[2]), i.groupSeparator && (n = n.replace(/\B(?=(\d{3})+(?!\d))/g, i.groupSeparator), s = J(s, i)), s && (s = i.decimalMarker + s), n + s + (null != t ? t : ""); }(n.toString(), i); let s = ""; for ("-" === n[0] ? (s = "-", n = n.substr(1)) : "+" === n[0] && (n = n.substr(1)); "0" === n[0];)
+              return "0"; const t = Math.abs(e); let r = Math.round(Math.log10(t)); r -= r % 3, t < 1e3 && (r = 0); const n = t / Math.pow(10, r); let s = ""; const a = n.toString().match(/^(.*)\.(.*)$/); (null == a ? void 0 : a[1]) && a[2] && (s = a[1] + i.decimalMarker + a[2]), i.groupSeparator && (s = te(n.toExponential(), i)); let o = ""; return 0 !== r && (o = re(r.toString(), i)), (e < 0 ? "-" : "") + s + o; }(n, i) : function (e, i) { let t, r = e.match(/^(.*)[e|E]([-+]?[0-9]+)$/i); (null == r ? void 0 : r[1]) && r[2] && (t = re(r[2], i), t && (t = i.exponentProduct + t)); let n = e, s = ""; return r = (t ? r[1] : e).match(/^(.*)\.(.*)$/), (null == r ? void 0 : r[1]) && r[2] && (n = r[1], s = r[2]), i.groupSeparator && (n = n.replace(/\B(?=(\d{3})+(?!\d))/g, i.groupSeparator), s = te(s, i)), s && (s = i.decimalMarker + s), n + s + (null != t ? t : ""); }(n.toString(), i); /[a-zA-Z]$/.test(n) && (n = n.slice(0, -1)); let s = ""; for ("-" === n[0] ? (s = "-", n = n.substr(1)) : "+" === n[0] && (n = n.substr(1)); "0" === n[0];)
           n = n.substr(1); if (0 === n.length)
-          return "0"; "." === n[0] && (n = "0" + n); let a = ""; if (n.indexOf(".") >= 0) {
+          return s + "0"; "." === n[0] && (n = "0" + n); let a = ""; if (n.indexOf(".") >= 0) {
           const e = n.match(/(\d*)\.(\d*)([e|E]([-+]?[0-9]*))?/);
           if (!e)
               return "";
-          const r = e[1], l = e[2].substring(0, Math.min(i.precision - r.length, e[2].length));
+          const r = e[1], o = e[2];
           if (a = null !== (t = e[4]) && void 0 !== t ? t : "", "0" === r) {
               let e = 0;
-              for (; "0" === l[e] && e < l.length;)
+              for (; "0" === o[e] && e < o.length;)
                   e += 1;
               let t = "";
               if (e <= 4)
-                  t = "0" + i.decimalMarker, t += l.substr(0, e), t += J(n.substr(t.length), i);
+                  t = "0" + i.decimalMarker, t += o.substr(0, e), t += te(n.substr(t.length), i);
               else if (e + 1 >= i.precision)
                   t = "0", s = "";
               else {
                   t = n[e];
-                  const r = J(n.substr(e + 1), i);
+                  const r = te(n.substr(e + 1), i);
                   r && (t += i.decimalMarker + r);
               }
-              "0" !== t && (!(n.length - 1 > i.precision) || i.endRepeatingDigits && t.endsWith(i.endRepeatingDigits) || i.truncationMarker && t.endsWith(i.truncationMarker) || (t += i.truncationMarker), e > 4 && (t += i.exponentProduct + Q((1 - e).toString(), i))), n = t;
+              "0" !== t && (!(n.length - 1 > i.precision) || i.endRepeatingDigits && t.endsWith(i.endRepeatingDigits) || !i.truncationMarker || t.endsWith(i.truncationMarker) || (t += i.truncationMarker), e > 4 && (t += i.exponentProduct + re((1 - e).toString(), i))), n = t;
           }
           else {
               n = r.replace(/\B(?=(\d{3})+(?!\d))/g, i.groupSeparator);
-              const e = J(l, i);
+              const e = te(o, i);
               e && (n += i.decimalMarker + e);
           }
       }
       else if (n.length > i.precision) {
           const e = n.length;
           let t = n[0];
-          const r = J(n.substr(1), i);
-          r && (t += i.decimalMarker + r, i.endRepeatingDigits && !t.endsWith(i.endRepeatingDigits) && (t += i.truncationMarker)), "1" !== t ? t += i.exponentProduct : t = "", n = t + Q((e - 2).toString(), i);
+          const r = te(n.substr(1), i);
+          r && (t += i.decimalMarker + r, i.truncationMarker && !t.endsWith(i.truncationMarker) && i.endRepeatingDigits && !t.endsWith(i.endRepeatingDigits) && (t += i.truncationMarker)), "1" !== t ? t += i.exponentProduct : t = "", n = t + re((e - 1).toString(), i);
       }
       else {
           const e = n.match(/([0-9]*)\.?([0-9]*)([e|E]([-+]?[0-9]+))?/);
           e && (n = e[1], e[2] && (n += i.decimalMarker + e[2]), a = null !== (r = e[4]) && void 0 !== r ? r : ""), n = n.replace(/\B(?=(\d{3})+(?!\d))/g, i.groupSeparator);
-      } const l = Q(a, i); return s + n + (l ? i.exponentProduct + l : ""); }(e, this.options); if (i)
-          return i; const t = y(e); if (null !== t)
-          return `\\text{${t}}`; const r = S(e); if (null !== r)
-          return this.serializeSymbol(e, this.dictionary.name.get(r)); const n = function (e) { return "object" == typeof e && "dict" in e ? e.dict : null; }(e); if (null !== n)
-          return this.serializeDictionary(n); const s = A(e); if (s) {
-          if ("\\" === s[0]) {
-              const i = E(e);
-              return 0 === i.length ? s : s + "{" + i.map((e => this.serialize(e))).filter((e => Boolean(e))).join("}{") + "}";
+      } const o = re(a, i); return s + n + (o ? i.exponentProduct + o : ""); }(e, this.options); if (s)
+          return s; const l = q(e); if (null !== l)
+          return `\\text{${l}}`; const u = z(e); if (null !== u)
+          return this.serializeSymbol(e, this.dictionary.name.get(u)); const c = P(e); if (null !== c)
+          return this.serializeDictionary(c); const h = A(e); if (h) {
+          if ("\\" === h[0]) {
+              const i = k(e);
+              return 0 === i.length ? h : h + "{" + i.map((e => this.serialize(e))).filter((e => Boolean(e))).join("}{") + "}";
           }
-          const i = this.dictionary.name.get(s);
-          if (i) {
-              let t = "";
-              return "function" == typeof i.serialize && (t = i.serialize(this, e)), t || void 0 === i.precedence && !i.trigger.superfix && !i.trigger.subfix || (t = function (e, i, t) { let r = ""; const n = k(i), s = A(i); if (t.trigger.superfix || t.trigger.subfix)
-                  return 1 !== n && e.onError({ code: "operator-requires-one-operand", arg: e.serializeSymbol(s) }), H(t.serialize, [e.serialize(z(i, 1))]); if (t.trigger.postfix)
-                  return 1 !== n && e.onError({ code: "postfix-operator-requires-one-operand", arg: e.serializeSymbol(s) }), H(t.serialize, [e.wrap(z(i, 1), t.precedence)]); if (t.trigger.prefix)
-                  return 1 !== n && e.onError({ code: "prefix-operator-requires-one-operand", arg: e.serializeSymbol(s) }), H(t.serialize, [e.wrap(z(i, 1), t.precedence + 1)]); if (t.trigger.infix) {
-                  r = e.wrap(z(i, 1), t.precedence);
-                  for (let s = 2; s < n + 1; s++) {
-                      const n = z(i, s);
-                      null !== n && (r = H(t.serialize, [r, e.wrap(n, t.precedence)]));
+          const s = this.dictionary.name.get(h);
+          if (s) {
+              let l = "";
+              return "function" == typeof s.serialize && (l = s.serialize(this, e)), l || void 0 === s.precedence && !(null === (i = s.trigger) || void 0 === i ? void 0 : i.superfix) && !(null === (t = s.trigger) || void 0 === t ? void 0 : t.subfix) || (l = function (e, i, t) { var r, n, s, a, o; let l = ""; const u = L(i), c = A(i); if ((null === (r = t.trigger) || void 0 === r ? void 0 : r.superfix) || (null === (n = t.trigger) || void 0 === n ? void 0 : n.subfix))
+                  return 1 !== u && e.onError({ code: "operator-requires-one-operand", arg: e.serializeSymbol(c) }), ee(t.serialize, [e.serialize(O(i, 1))]); if (null === (s = t.trigger) || void 0 === s ? void 0 : s.postfix)
+                  return 1 !== u && e.onError({ code: "postfix-operator-requires-one-operand", arg: e.serializeSymbol(c) }), ee(t.serialize, [e.wrap(O(i, 1), t.precedence)]); if (null === (a = t.trigger) || void 0 === a ? void 0 : a.prefix)
+                  return 1 !== u && e.onError({ code: "prefix-operator-requires-one-operand", arg: e.serializeSymbol(c) }), ee(t.serialize, [e.wrap(O(i, 1), t.precedence + 1)]); if (null === (o = t.trigger) || void 0 === o ? void 0 : o.infix) {
+                  l = e.wrap(O(i, 1), t.precedence);
+                  for (let r = 2; r < u + 1; r++) {
+                      const n = O(i, r);
+                      null !== n && (l = ee(t.serialize, [l, e.wrap(n, t.precedence)]));
                   }
-              } return r; }(this, e, i)), !t && i.trigger.matchfix && (t = function (e, i, t) { let r = []; if ("string" == typeof t.trigger.matchfix ? r.push(t.trigger.matchfix) : Array.isArray(t.trigger.matchfix) && (r = [...t.trigger.matchfix]), k(i) >= 1) {
-                  let n = "";
-                  for (const s of E(i))
-                      s && (r.push(n), r.push(e.serialize(s)), n = t.separator);
-              } return r.push(l(t.closeFence)), a(r); }(this, e, i)), !t && i.trigger.symbol && (t = this.serializeSymbol(e, i)), t;
+              } return l; }(this, e, s)), !l && (null === (r = s.trigger) || void 0 === r ? void 0 : r.matchfix) && (l = function (e, i, t) { var r, n; let s = []; if ("string" == typeof (null === (r = t.trigger) || void 0 === r ? void 0 : r.matchfix) ? s.push(null === (n = t.trigger) || void 0 === n ? void 0 : n.matchfix) : t.trigger && Array.isArray(t.trigger.matchfix) && (s = [...t.trigger.matchfix]), L(i) >= 1) {
+                  let r = "";
+                  for (const n of k(i))
+                      n && (s.push(r), s.push(e.serialize(n)), r = t.separator);
+              } return s.push(o(t.closeFence)), a(s); }(this, e, s)), !l && (null === (n = s.trigger) || void 0 === n ? void 0 : n.symbol) && (l = this.serializeSymbol(e, s)), l;
           }
-      } if (Array.isArray(e) || v(e))
+      } if (Array.isArray(e) || w(e))
           return this.serializeSymbol(e); this.onError({ code: "syntax-error", arg: JSON.stringify(e) }); })(); return this.level -= 1, null != i ? i : ""; }
   }
-  class K {
-      constructor(e) { var i, t; this.onError = null !== (i = null == e ? void 0 : e.onError) && void 0 !== i ? i : e => { "undefined" != typeof window && (!e.before || e.after); }; const r = { ...null != e ? e : {} }; delete r.dictionary, delete r.onError, this.options = { ...U, ...W, ...Z, ...r }, this.dictionary = function (e, i) { var t, r, n, s, a, l, o, c, u, g, p, h, m, f, d; const v = { lookahead: 1, name: new Map, prefix: [], infix: [], postfix: [], matchfix: [], superfix: [], subfix: [], symbol: [], environment: new Map }; for (const x of e)
-          void 0 === x.parse && (x.parse = x.name), "string" == typeof x.trigger && (x.trigger = { symbol: x.trigger }), "string" == typeof x.serialize && void 0 !== (null === (t = x.trigger) || void 0 === t ? void 0 : t.symbol) && /#[0-9]/.test(x.serialize) && i({ code: "unexpected-argument", arg: x.name }), void 0 === x.serialize && (void 0 !== (null === (r = x.trigger) || void 0 === r ? void 0 : r.postfix) ? x.serialize = "#1" + G(x.trigger.postfix) : void 0 !== (null === (n = x.trigger) || void 0 === n ? void 0 : n.prefix) ? x.serialize = G(x.trigger.prefix) + "#1" : void 0 !== (null === (s = x.trigger) || void 0 === s ? void 0 : s.infix) ? x.serialize = "#1" + G(x.trigger.infix) + "#2" : void 0 !== (null === (a = x.trigger) || void 0 === a ? void 0 : a.symbol) ? x.serialize = G(x.trigger.symbol) : void 0 !== (null === (l = x.trigger) || void 0 === l ? void 0 : l.superfix) ? x.serialize = "#1^{" + G(null === (o = x.trigger) || void 0 === o ? void 0 : o.superfix) + "}" : void 0 !== (null === (c = x.trigger) || void 0 === c ? void 0 : c.subfix) ? x.serialize = "#1_{" + G(null === (u = x.trigger) || void 0 === u ? void 0 : u.subfix) + "}" : x.serialize = ""), void 0 !== (null === (g = x.trigger) || void 0 === g ? void 0 : g.infix) && (void 0 === x.precedence && i({ code: "syntax-error", arg: "Infix operators require a precedence" }), x.associativity || (x.associativity = "non")), void 0 !== (null === (p = x.trigger) || void 0 === p ? void 0 : p.symbol) && (x.arguments = null !== (h = x.arguments) && void 0 !== h ? h : "", x.optionalLatexArg = null !== (m = x.optionalLatexArg) && void 0 !== m ? m : 0, x.requiredLatexArg = null !== (f = x.requiredLatexArg) && void 0 !== f ? f : 0), void 0 !== (null === (d = x.trigger) || void 0 === d ? void 0 : d.matchfix) && ("function" === x.parse || x.closeFence || i({ code: "syntax-error", arg: "Matchfix operators require a close fence or a custom parse function" })), void 0 !== x.trigger && (["infix", "prefix", "postfix", "symbol", "matchfix", "superfix", "subfix"].forEach((e => { const i = (t = x.trigger[e], Array.isArray(t) ? t.length : 1); var t; v.lookahead = Math.max(v.lookahead, i), void 0 === v[e][i] && (v[e][i] = new Map), v[e][i].set(G(x.trigger[e]), x); })), void 0 !== x.trigger.environment && v.environment.set(x.trigger.environment, x)), x.name && v.name.set(G(x.name), x), void 0 !== x.trigger || x.name || i({ code: "syntax-error", arg: "Need at least a trigger or a name" }); return v; }(null !== (t = null == e ? void 0 : e.dictionary) && void 0 !== t ? t : K.getDictionary(), this.onError); }
+  class se {
+      constructor(e) { var i, t; this.onError = null !== (i = null == e ? void 0 : e.onError) && void 0 !== i ? i : e => { "undefined" != typeof window && (!e.before || e.after); }; const r = { ...null != e ? e : {} }; delete r.dictionary, delete r.onError, this.options = { ...J, ...X, ...K, ...r }, this.dictionary = function (e, i) { var t, r, n, s, a, o, l, u, c, h, g, p, f, m, d; const v = { lookahead: 1, name: new Map, prefix: [], infix: [], postfix: [], matchfix: [], superfix: [], subfix: [], symbol: [], environment: new Map }; for (const x of e)
+          void 0 === x.parse && (x.parse = x.name), "string" == typeof x.trigger && (x.trigger = { symbol: x.trigger }), "string" == typeof x.serialize && void 0 !== (null === (t = x.trigger) || void 0 === t ? void 0 : t.symbol) && /#[0-9]/.test(x.serialize) && i({ code: "unexpected-argument", arg: x.name }), void 0 === x.serialize && (void 0 !== (null === (r = x.trigger) || void 0 === r ? void 0 : r.postfix) ? x.serialize = "#1" + Q(x.trigger.postfix) : void 0 !== (null === (n = x.trigger) || void 0 === n ? void 0 : n.prefix) ? x.serialize = Q(x.trigger.prefix) + "#1" : void 0 !== (null === (s = x.trigger) || void 0 === s ? void 0 : s.infix) ? x.serialize = "#1" + Q(x.trigger.infix) + "#2" : void 0 !== (null === (a = x.trigger) || void 0 === a ? void 0 : a.symbol) ? x.serialize = Q(x.trigger.symbol) : void 0 !== (null === (o = x.trigger) || void 0 === o ? void 0 : o.superfix) ? x.serialize = "#1^{" + Q(null === (l = x.trigger) || void 0 === l ? void 0 : l.superfix) + "}" : void 0 !== (null === (u = x.trigger) || void 0 === u ? void 0 : u.subfix) ? x.serialize = "#1_{" + Q(null === (c = x.trigger) || void 0 === c ? void 0 : c.subfix) + "}" : x.serialize = ""), void 0 !== (null === (h = x.trigger) || void 0 === h ? void 0 : h.infix) && (void 0 === x.precedence && i({ code: "syntax-error", arg: "Infix operators require a precedence" }), x.associativity || (x.associativity = "non")), void 0 !== (null === (g = x.trigger) || void 0 === g ? void 0 : g.symbol) && (x.arguments = null !== (p = x.arguments) && void 0 !== p ? p : "", x.optionalLatexArg = null !== (f = x.optionalLatexArg) && void 0 !== f ? f : 0, x.requiredLatexArg = null !== (m = x.requiredLatexArg) && void 0 !== m ? m : 0), void 0 !== (null === (d = x.trigger) || void 0 === d ? void 0 : d.matchfix) && ("function" === x.parse || x.closeFence || i({ code: "syntax-error", arg: "Matchfix operators require a close fence or a custom parse function" })), void 0 !== x.trigger && (["infix", "prefix", "postfix", "symbol", "matchfix", "superfix", "subfix"].forEach((e => { if (x.trigger[e]) {
+              const t = (i = x.trigger[e], Array.isArray(i) ? i.length : 1);
+              v.lookahead = Math.max(v.lookahead, t), void 0 === v[e][t] && (v[e][t] = new Map), v[e][t].set(Q(x.trigger[e]), x);
+          } var i; })), void 0 !== x.trigger.environment && v.environment.set(x.trigger.environment, x)), void 0 !== x.name ? v.name.set(Q(x.name), x) : "string" == typeof x.parse && v.name.set(x.parse, x), void 0 !== x.trigger || x.name || i({ code: "syntax-error", arg: "Need at least a trigger or a name" }); return v; }(null !== (t = null == e ? void 0 : e.dictionary) && void 0 !== t ? t : se.getDictionary(), this.onError); }
       static getDictionary(e = "all") { if ("all" === e) {
           let e = [];
-          for (const i of Object.keys(_))
-              e = [...e, ..._[i]];
+          for (const i of Object.keys(Y))
+              e = [...e, ...Y[i]];
           return e;
-      } return _[e] ? [..._[e]] : []; }
-      parse(e) { var i; const t = new V(s(e, []), this.options, this.dictionary, this.onError), r = t.matchExpression(); return t.atEnd || null === (i = this.onError) || void 0 === i || i.call(this, { code: "syntax-error" }), null != r ? r : ""; }
-      serialize(e) { return new X(this.options, this.dictionary, this.onError).serialize(e); }
+      } return Y[e] ? [...Y[e]] : []; }
+      parse(e) { var i; const t = new ie(s(e, []), this.options, this.dictionary, this.onError), r = t.matchExpression(); return t.atEnd || null === (i = this.onError) || void 0 === i || i.call(this, { code: "syntax-error" }), null != r ? r : ""; }
+      serialize(e) { return new ne(this.options, this.dictionary, this.onError).serialize(e); }
   }
-  function Y(e, i) { return new K(i).parse(e); }
-  function ee(e, i) { return new K(i).serialize(e); }
+  function ae(e, i) { return new se(i).parse(e); }
+  function oe(e, i) { return new se(i).serialize(e); }
+  const le = "0.4.2";
 
   class ModelPrivate {
       constructor(options, listeners, hooks, target) {
@@ -29317,10 +30746,15 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
           }
           else if (format === 'math-json') {
-              const json = Y(Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }), {
-                  onError: this.mathfield.options.onError,
-              });
-              result = JSON.stringify(json);
+              try {
+                  const json = ae(Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }), {
+                      onError: this.mathfield.options.onError,
+                  });
+                  result = JSON.stringify(json);
+              }
+              catch (e) {
+                  return '';
+              }
           }
           else if (format === 'ascii-math') {
               result = atomToAsciiMath(atom);
@@ -30726,7 +32160,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           const regularTabbables = [];
           const orderedTabbables = [];
           const candidates = [
-              ...element.querySelectorAll(`input, select, textarea, a[href], button, 
+              ...element.querySelectorAll(`input, select, textarea, a[href], button,
         [tabindex], audio[controls], video[controls],
         [contenteditable]:not([contenteditable="false"]), details>summary`),
           ].filter(isNodeMatchingSelectorTabbable);
@@ -30870,16 +32304,50 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               return false;
           }
           let index = tabbable.indexOf(document.activeElement) + dist;
+          if (document.activeElement instanceof MathfieldElement &&
+              moveToNextNestedMathfield(document.activeElement, dir, dist)) {
+              return true;
+          }
           if (index < 0)
               index = tabbable.length - 1;
           if (index >= tabbable.length)
               index = 0;
+          if (tabbable[index] instanceof MathfieldElement &&
+              moveToNextNestedMathfield(tabbable[index], dir, dist)) {
+              return true;
+          }
           tabbable[index].focus();
           if (index === 0) {
               model.announce('plonk');
               return false;
           }
           return true;
+      }
+      /**
+       *
+       */
+      function moveToNextNestedMathfield(element, dir, dist) {
+          var _a, _b, _c;
+          const nestedMathfield = [
+              ...((_b = (_a = element.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelectorAll('math-field')) !== null && _b !== void 0 ? _b : []),
+          ];
+          if (nestedMathfield.length) {
+              const activeMathfield = (_c = element.shadowRoot) === null || _c === void 0 ? void 0 : _c.activeElement;
+              console.log(activeMathfield);
+              const activeIndex = nestedMathfield.indexOf(activeMathfield);
+              let newMathfieldIndex = activeIndex + dist;
+              console.log(activeIndex);
+              if (activeIndex < 0 && dir === 'backward') {
+                  newMathfieldIndex = nestedMathfield.length - 1;
+              }
+              if (newMathfieldIndex >= 0 &&
+                  newMathfieldIndex < nestedMathfield.length) {
+                  console.log(newMathfieldIndex, nestedMathfield, 'forward');
+                  nestedMathfield[newMathfieldIndex].focus();
+                  return true;
+              }
+          }
+          return false;
       }
       // Set the selection to the next placeholder
       const previousPosition = model.position;
@@ -31702,6 +33170,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       const branch = atom.branch(branchName);
       if (!branch)
           return;
+      branch.forEach((x) => replaceInAtom(model, x, pattern, replacement, options));
       let i = 1;
       while (i < branch.length) {
           let length = branch.length - i;
@@ -31762,7 +33231,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }
           i++;
       }
-      branch.forEach((x) => replaceInAtom(model, x, pattern, replacement, options));
   }
   function replaceInAtom(model, atom, pattern, replacement, options) {
       if (atom.type === 'first')
@@ -32143,7 +33611,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           const json = ev.clipboardData.getData('application/json');
           if (json) {
               try {
-                  text = ee(JSON.parse(json), {});
+                  text = oe(JSON.parse(json), {});
                   format = 'latex';
               }
               catch {
@@ -32271,6 +33739,52 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           const [format, newAtoms] = convertStringToAtoms$1(model, text, argFunction, options);
           if (!newAtoms)
               return false;
+          const newPlaceholders = findPlaceholders(newAtoms);
+          newPlaceholders.forEach((placeholder) => {
+              var _a, _b;
+              if (placeholder.placeholderId &&
+                  !model.mathfield._placeholders.has(placeholder.placeholderId)) {
+                  const element = new MathfieldElement({
+                      virtualKeyboardMode: 'onfocus',
+                      readOnly: false,
+                      fontsDirectory: model.mathfield.options.fontsDirectory,
+                  });
+                  const container = (_a = model.mathfield.element) === null || _a === void 0 ? void 0 : _a.querySelector('.ML__placeholdercontainer');
+                  element.value = ((_b = placeholder.defaultValue) === null || _b === void 0 ? void 0 : _b.length)
+                      ? Atom.serialize(placeholder.defaultValue, { defaultMode: 'text' })
+                      : '';
+                  element.classList.add('nested-mathfield');
+                  element.style.display = 'inline-block';
+                  element.style.zIndex = '1001';
+                  element.style.position = 'absolute';
+                  element.style.minWidth = '30px';
+                  const style = document.createElement('style');
+                  style.innerHTML = `.nested-mathfield {
+          border: 1px solid black;
+        }
+          .ML__fieldcontainer{
+            min-height:auto !important;
+          }
+
+          `;
+                  element.appendChild(style);
+                  element.addEventListener('input', () => {
+                      placeholderDidChange(model, placeholder.placeholderId);
+                      /**
+                       * this timeout give some time when is a placeholder to render properly
+                       * before rendering the main field.
+                       */
+                      setTimeout(() => {
+                          requestUpdate(model.mathfield);
+                      });
+                  });
+                  container === null || container === void 0 ? void 0 : container.appendChild(element);
+                  model.mathfield._placeholders.set(placeholder.placeholderId, {
+                      atom: placeholder,
+                      field: element,
+                  });
+              }
+          });
           //
           // Insert the new atoms
           //
@@ -32449,6 +33963,23 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   simplifyParen(x);
           }
       }
+  }
+  function findPlaceholders(atoms) {
+      if (!atoms)
+          return [];
+      let result = [];
+      for (const atom of atoms) {
+          for (const branch of atom.branches) {
+              if (!atom.hasEmptyBranch(branch)) {
+                  const branchPlaceholder = findPlaceholders(atom.branch(branch));
+                  result = result.concat(branchPlaceholder);
+              }
+          }
+          if (atom instanceof PlaceholderAtom) {
+              result.push(atom);
+          }
+      }
+      return result;
   }
   /**
    * Locate the offset before the insertion point that would indicate
@@ -33582,7 +35113,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       return result;
   }
 
-  var css_248z = "@-webkit-keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));content:\"\";left:-1px;margin-right:-2px;position:relative}.ML__text-caret:after{-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));content:\"\";left:0;margin-right:-1px;position:relative}.ML__latex-caret:after{-webkit-animation:ML__caret-blink 1.05s step-end infinite forwards;animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;color:var(--caret,hsl(var(--hue,212),40%,49%));content:\"_\";margin-right:calc(-1ex - 2px);position:relative}.ML__fieldcontainer{align-items:flex-end;display:flex;flex-flow:row;justify-content:space-between;min-height:39px;touch-action:none;width:100%}.ML__fieldcontainer__field{align-items:center;align-self:center;display:flex;overflow:hidden;padding:2px 0 2px 1px;position:relative;width:100%}.ML__virtual-keyboard-toggle{display:none}.ML__virtual-keyboard-toggle>span{align-items:center;align-self:center;display:flex}.ML__virtual-keyboard-toggle.is-visible{fill:currentColor;align-items:center;align-self:center;background:transparent;border:1px solid transparent;border-radius:8px;box-sizing:border-box;color:var(--primary,hsl(var(--hue,212),40%,50%));cursor:pointer;display:flex;flex-direction:column;flex-shrink:0;height:34px;justify-content:center;margin-right:4px;padding:0;transition:background .2s cubic-bezier(.64,.09,.08,1);width:34px}.ML__virtual-keyboard-toggle.is-visible:hover{fill:currentColor;background:hsla(0,0%,70%,.5);border-radius:8px;color:#333}.ML__textarea__textarea{clip:rect(0 0 0 0);border:none;display:inline-block;font-family:KaTeX_Main;font-size:1em;height:1px;outline:none;position:absolute;resize:none;transform:scale(0);width:1px}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{color:var(--smart-fence-color,currentColor);opacity:var(--smart-fence-opacity,.5)}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret .ML__sqrt-line,.ML__contains-caret .ML__sqrt-sign,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__contains-highlight{background:var(--contains-highlight,var(--highlight,hsl(var(--hue,212),40%,95%)));box-sizing:border-box}.ML__latex{color:var(--primary,hsl(var(--hue,212),40%,50%));font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.is-visible.is-pressed:hover{fill:currentColor;background:hsl(var(--hue,212),25%,35%);color:#fafafa}.ML__virtual-keyboard-toggle:focus{border:2px solid var(--primary,hsl(var(--hue,212),40%,50%));border-radius:8px;outline:none}.ML__virtual-keyboard-toggle.is-active,.ML__virtual-keyboard-toggle.is-active:hover,.ML__virtual-keyboard-toggle.is-pressed{fill:currentColor;background:hsl(var(--hue,212),25%,35%);color:#fafafa}.ML__scroller{height:100vh;position:fixed;top:0;width:200px;z-index:1}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{bottom:100%;top:inherit}[data-ML__tooltip]:after{background:#616161;border-radius:2px;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);color:#fff;content:attr(data-ML__tooltip);display:none;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:12px;font-weight:400;max-width:200px;opacity:0;padding:8px;position:absolute;text-align:center;top:110%;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1);width:-webkit-max-content;width:-moz-max-content;width:max-content;z-index:2}@media only screen and (max-width:767px){[data-ML__tooltip]:after{font-size:14px;padding:8px 16px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{display:inline-table;opacity:1;transform:scale(1);visibility:visible}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
+  var css_248z = "@keyframes ML__caret-blink{0%,to{opacity:1}50%{opacity:0}}.ML__caret:after{animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;border-radius:2px;border-right:2px solid var(--caret,hsl(var(--hue,212),40%,49%));content:\"\";left:-1px;margin-right:-2px;position:relative}.ML__text-caret:after{animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;border-radius:1px;border-right:1px solid var(--caret,hsl(var(--hue,212),40%,49%));content:\"\";left:0;margin-right:-1px;position:relative}.ML__latex-caret:after{animation:ML__caret-blink 1.05s step-end infinite forwards;border:none;color:var(--caret,hsl(var(--hue,212),40%,49%));content:\"_\";margin-right:calc(-1ex - 2px);position:relative}.ML__fieldcontainer{align-items:flex-end;display:flex;flex-flow:row;justify-content:space-between;min-height:39px;touch-action:none;width:100%}.ML__fieldcontainer__field{align-items:center;align-self:center;display:flex;overflow:hidden;padding:2px 0 2px 1px;position:relative;width:100%}.ML__virtual-keyboard-toggle{display:none}.ML__virtual-keyboard-toggle>span{align-items:center;align-self:center;display:flex}.ML__virtual-keyboard-toggle.is-visible{fill:currentColor;align-items:center;align-self:center;background:transparent;border:1px solid transparent;border-radius:8px;box-sizing:border-box;color:var(--primary,hsl(var(--hue,212),40%,50%));cursor:pointer;display:flex;flex-direction:column;flex-shrink:0;height:34px;justify-content:center;margin-right:4px;padding:0;transition:background .2s cubic-bezier(.64,.09,.08,1);width:34px}.ML__virtual-keyboard-toggle.is-visible:hover{fill:currentColor;background:hsla(0,0%,70%,.5);border-radius:8px;color:#333}.ML__textarea__textarea{clip:rect(0 0 0 0);border:none;display:inline-block;font-family:KaTeX_Main;font-size:1em;height:1px;outline:none;position:absolute;resize:none;transform:scale(0);width:1px}.ML__focused .ML__text{background:hsla(var(--hue,212),40%,50%,.1)}.ML__smart-fence__close{color:var(--smart-fence-color,currentColor);opacity:var(--smart-fence-opacity,.5)}.ML__selection{background:var(--highlight-inactive,#ccc);box-sizing:border-box}.ML__focused .ML__selection{background:var(--highlight,hsl(var(--hue,212),97%,85%))!important;color:var(--on-highlight)}.ML__contains-caret.ML__close,.ML__contains-caret.ML__open,.ML__contains-caret .ML__sqrt-line,.ML__contains-caret .ML__sqrt-sign,.ML__contains-caret>.ML__close,.ML__contains-caret>.ML__open{color:var(--caret,hsl(var(--hue,212),40%,49%))}.ML__contains-highlight{background:var(--contains-highlight,var(--highlight,hsl(var(--hue,212),40%,95%)));box-sizing:border-box}.ML__latex{color:var(--primary,hsl(var(--hue,212),40%,50%));font-family:IBM Plex Mono,Source Code Pro,Consolas,Roboto Mono,Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Courier,monospace;font-weight:400}:not(.ML__latex)+.ML__latex{margin-left:.25em}.ML__latex+:not(.ML__latex){padding-left:.25em}.ML__suggestion{opacity:.5}.ML__virtual-keyboard-toggle.is-visible.is-pressed:hover{fill:currentColor;background:hsl(var(--hue,212),25%,35%);color:#fafafa}.ML__virtual-keyboard-toggle:focus{border:2px solid var(--primary,hsl(var(--hue,212),40%,50%));border-radius:8px;outline:none}.ML__virtual-keyboard-toggle.is-active,.ML__virtual-keyboard-toggle.is-active:hover,.ML__virtual-keyboard-toggle.is-pressed{fill:currentColor;background:hsl(var(--hue,212),25%,35%);color:#fafafa}.ML__scroller{height:100vh;position:fixed;top:0;width:200px;z-index:1}[data-ML__tooltip]{position:relative}[data-ML__tooltip][data-placement=top]:after{bottom:100%;top:inherit}[data-ML__tooltip]:after{background:#616161;border-radius:2px;box-shadow:0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12),0 3px 1px -2px rgba(0,0,0,.2);color:#fff;content:attr(data-ML__tooltip);display:none;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;font-size:12px;font-weight:400;max-width:200px;opacity:0;padding:8px;position:absolute;text-align:center;top:110%;transform:scale(.5);transition:all .15s cubic-bezier(.4,0,1,1);width:max-content;z-index:2}@media only screen and (max-width:767px){[data-ML__tooltip]:after{font-size:14px;padding:8px 16px}}:not(.tracking) [data-ML__tooltip]:hover{position:relative}:not(.tracking) [data-ML__tooltip]:hover:after{display:inline-table;opacity:1;transform:scale(1);visibility:visible}[data-ML__tooltip][data-delay]:after{transition-delay:0s}[data-ML__tooltip][data-delay]:hover:after{transition-delay:1s}";
 
   class TextModeEditor extends ModeEditor {
       constructor() {
@@ -33707,6 +35238,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
                   ...options,
               });
           this.macros = this.options.macros;
+          this._placeholders = new Map();
           this.colorMap = (name) => {
               let result = undefined;
               if (typeof this.options.colorMap === 'function') {
@@ -33804,6 +35336,9 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           markup +=
               (_c = this.options.virtualKeyboardToggleGlyph) !== null && _c !== void 0 ? _c : DEFAULT_KEYBOARD_TOGGLE_GLYPH;
           markup += '</div>';
+          if (this.options.readOnly) {
+              markup += "<div class='ML__placeholdercontainer'></div>";
+          }
           markup += '</span>';
           // 3.1/ The aria-live region for announcements
           // 3.1/ The area to stick MathML for screen reading larger exprs
@@ -33842,7 +35377,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           }, { passive: false });
           iChild++;
           this.virtualKeyboardToggle = this.element.querySelector('.ML__virtual-keyboard-toggle');
-          if (this.options.virtualKeyboardMode === 'manual') {
+          if (!this.options.readOnly &&
+              this.options.virtualKeyboardMode === 'manual') {
               this.virtualKeyboardToggle.classList.add('is-visible');
           }
           else {
@@ -33954,6 +35490,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               onContentWillChange: () => this.options.onContentWillChange(this),
               onSelectionWillChange: () => this.options.onSelectionWillChange(this),
               onError: this.options.onError,
+              onPlaceholderDidChange: (_sender, placeholderId) => this.options.onPlaceholderDidChange(this, placeholderId),
           }, {
               announce: (_sender, command, previousPosition, atoms) => { var _a, _b; return (_b = (_a = this.options).onAnnounce) === null || _b === void 0 ? void 0 : _b.call(_a, this, command, previousPosition, atoms); },
               moveOut: (_sender, direction) => this.options.onMoveOutOf(this, direction),
@@ -33980,6 +35517,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               onContentWillChange: () => this.options.onContentWillChange(this),
               onSelectionWillChange: () => this.options.onSelectionWillChange(this),
               onError: this.options.onError,
+              onPlaceholderDidChange: (_sender, placeholderId) => this.options.onPlaceholderDidChange(this, placeholderId),
           });
           this.model.setHooks({
               announce: (_sender, command, previousPosition, atoms) => { var _a, _b; return (_b = (_a = this.options).onAnnounce) === null || _b === void 0 ? void 0 : _b.call(_a, this, command, previousPosition, atoms); },
@@ -34037,6 +35575,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               onContentWillChange: () => this.options.onContentWillChange(this),
               onSelectionWillChange: () => this.options.onSelectionWillChange(this),
               onError: this.options.onError,
+              onPlaceholderDidChange: (_sender, placeholderId) => this.options.onPlaceholderDidChange(this, placeholderId),
           });
           this.model.setHooks({
               announce: (_sender, command, previousPosition, atoms) => { var _a, _b; return (_b = (_a = this.options).onAnnounce) === null || _b === void 0 ? void 0 : _b.call(_a, this, command, previousPosition, atoms); },
@@ -34074,7 +35613,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               this.element.classList.remove('ML__isInline');
           }
           (_a = this.virtualKeyboard) === null || _a === void 0 ? void 0 : _a.setOptions(this.options);
-          if (this.options.virtualKeyboardMode === 'manual') {
+          if (!this.options.readOnly &&
+              this.options.virtualKeyboardMode === 'manual') {
               (_b = this.virtualKeyboardToggle) === null || _b === void 0 ? void 0 : _b.classList.add('is-visible');
           }
           else {
@@ -34266,6 +35806,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       replace(searchValue, newValue, options) {
           replace(this.model, searchValue, newValue, options);
       }
+      getPlaceholderField(placeholderId) {
+          var _a;
+          return (_a = this._placeholders.get(placeholderId)) === null || _a === void 0 ? void 0 : _a.field;
+      }
       scrollIntoView() {
           var _a;
           // If a render is pending, do it now to make sure we have correct layout
@@ -34344,7 +35888,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           return false;
       }
       switchMode(mode, prefix = '', suffix = '') {
-          if (this.mode === mode)
+          if (this.mode === mode || this.options.readOnly)
               return;
           const { model } = this;
           model.deferNotifications({ content: Boolean(suffix) || Boolean(prefix), selection: true }, () => {
@@ -34482,6 +36026,31 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           requestUpdate(this);
           return true;
       }
+      attachNestedMathfield() {
+          let fontSizeChanged = false;
+          this._placeholders.forEach((v) => {
+              var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+              const container = (_a = this.field) === null || _a === void 0 ? void 0 : _a.querySelector(`[data-placeholder-id=${v.atom.placeholderId}]`);
+              if (container) {
+                  const placeholderPosition = container.getBoundingClientRect();
+                  const parentPosition = (_b = this.field) === null || _b === void 0 ? void 0 : _b.getBoundingClientRect();
+                  const scaleDownFontsize = parseInt(window.getComputedStyle(container).fontSize) * 0.6;
+                  if (v.field.style.fontSize !== `${scaleDownFontsize}px`) {
+                      fontSizeChanged = true;
+                  }
+                  v.field.style.fontSize = `${scaleDownFontsize}px`;
+                  v.field.style.top = `${((_c = placeholderPosition === null || placeholderPosition === void 0 ? void 0 : placeholderPosition.top) !== null && _c !== void 0 ? _c : 0) -
+                    ((_d = parentPosition === null || parentPosition === void 0 ? void 0 : parentPosition.top) !== null && _d !== void 0 ? _d : 0) +
+                    ((_f = (_e = this.element) === null || _e === void 0 ? void 0 : _e.offsetTop) !== null && _f !== void 0 ? _f : 0)}px`;
+                  v.field.style.left = `${((_g = placeholderPosition === null || placeholderPosition === void 0 ? void 0 : placeholderPosition.left) !== null && _g !== void 0 ? _g : 0) -
+                    ((_h = parentPosition === null || parentPosition === void 0 ? void 0 : parentPosition.left) !== null && _h !== void 0 ? _h : 0) +
+                    ((_k = (_j = this.element) === null || _j === void 0 ? void 0 : _j.offsetLeft) !== null && _k !== void 0 ? _k : 0)}px`;
+              }
+          });
+          if (fontSizeChanged) {
+              requestUpdate(this);
+          }
+      }
       canUndo() {
           return this.undoManager.canUndo();
       }
@@ -34556,14 +36125,22 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           });
       }
       _onSelectionDidChange() {
-          var _a;
+          var _a, _b;
           // Keep the content of the textarea in sync wiht the selection.
           // This will allow cut/copy to work.
           this.keyboardDelegate.setValue(this.getValue(this.model.selection, 'latex-expanded'));
+          const selectedAtoms = this.model.getAtoms(this.model.selection);
+          if (selectedAtoms.length === 1 && selectedAtoms[0].type === 'placeholder') {
+              const placeholder = selectedAtoms[0];
+              if (this.model.mathfield._placeholders.has(placeholder.placeholderId)) {
+                  (_a = this.model.mathfield._placeholders
+                      .get(placeholder.placeholderId)) === null || _a === void 0 ? void 0 : _a.field.focus();
+              }
+          }
           // Adjust mode
           {
               const cursor = this.model.at(this.model.position);
-              const newMode = (_a = cursor.mode) !== null && _a !== void 0 ? _a : effectiveMode(this.options);
+              const newMode = (_b = cursor.mode) !== null && _b !== void 0 ? _b : effectiveMode(this.options);
               if (this.mode !== newMode) {
                   if (this.mode === 'latex') {
                       complete(this, 'accept', { mode: newMode });
@@ -34876,43 +36453,28 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           this.shadowRoot.append(MATHFIELD_TEMPLATE.content.cloneNode(true));
           // When the elements get focused (through tabbing for example)
           // focus the mathfield
-          this.shadowRoot.host.addEventListener('focus', (_event) => { var _a; return (_a = this._mathfield) === null || _a === void 0 ? void 0 : _a.focus(); }, true);
-          this.shadowRoot.host.addEventListener('blur', (_event) => { var _a; return (_a = this._mathfield) === null || _a === void 0 ? void 0 : _a.blur(); }, true);
           const slot = this.shadowRoot.querySelector('slot:not([name])');
           this._slotValue = slot
               .assignedNodes()
               .map((x) => (x.nodeType === 3 ? x.textContent : ''))
               .join('')
               .trim();
-          // Inline options (as a JSON structure in the markup)
-          try {
-              const json = slot
-                  .assignedElements()
-                  .filter((x) => x.tagName.toLowerCase() === 'script' &&
-                  x.type === 'application/json')
-                  .map((x) => x.textContent)
-                  .join('');
-              if (json) {
-                  this.setOptions(JSON.parse(json));
-              }
-          }
-          catch (error) {
-              console.log(error);
-          }
-          try {
-              this._style = slot
-                  .assignedElements()
-                  .filter((x) => x.tagName.toLowerCase() === 'style')
-                  .map((x) => x.textContent)
-                  .join('');
-          }
-          catch (error) {
-              console.log(error);
-          }
           // Record the (optional) configuration options, as a deferred state
           if (options) {
               this.setOptions(options);
           }
+          this.shadowRoot.host.addEventListener('focus', (_event) => {
+              var _a;
+              if (!this.readOnly) {
+                  (_a = this._mathfield) === null || _a === void 0 ? void 0 : _a.focus();
+              }
+          }, true);
+          this.shadowRoot.host.addEventListener('blur', (_event) => {
+              var _a;
+              if (!this.readOnly) {
+                  (_a = this._mathfield) === null || _a === void 0 ? void 0 : _a.blur();
+              }
+          }, true);
       }
       /**
        * Private lifecycle hooks
@@ -34959,6 +36521,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
               'readonly', // A semi-global attribute (not all standard elements support it, but some do)
           ];
       }
+      getPlaceholderField(placeholderId) {
+          var _a;
+          return (_a = this._mathfield) === null || _a === void 0 ? void 0 : _a.getPlaceholderField(placeholderId);
+      }
       addEventListener(type, listener, options) {
           return super.addEventListener(type, listener, options);
       }
@@ -34994,6 +36560,13 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       setOptions(options) {
           if (this._mathfield) {
               this._mathfield.setOptions(options);
+              this._mathfield._placeholders.forEach((placeholder) => {
+                  placeholder.field.setOptions({
+                      ...options,
+                      virtualKeyboardMode: 'onfocus',
+                      readOnly: false,
+                  });
+              });
           }
           else if (gDeferredState.has(this)) {
               const mergedOptions = {
@@ -35252,13 +36825,38 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
           // This.setAttribute('aria-multiline', 'false');
           if (!this.hasAttribute('tabindex'))
               this.setAttribute('tabindex', '0');
+          const slot = this.shadowRoot.querySelector('slot:not([name])');
+          try {
+              this._style = slot
+                  .assignedElements()
+                  .filter((x) => x.tagName.toLowerCase() === 'style')
+                  .map((x) => x.textContent)
+                  .join('');
+          }
+          catch (error) {
+              console.log(error);
+          }
           // Add shadowed stylesheet if one was provided
           if (this._style) {
               const styleElement = document.createElement('style');
               styleElement.textContent = this._style;
               this.shadowRoot.appendChild(styleElement);
           }
-          const slot = this.shadowRoot.querySelector('slot:not([name])');
+          // Inline options (as a JSON structure in the markup)
+          try {
+              const json = slot
+                  .assignedElements()
+                  .filter((x) => x.tagName.toLowerCase() === 'script' &&
+                  x.type === 'application/json')
+                  .map((x) => x.textContent)
+                  .join('');
+              if (json) {
+                  this.setOptions(JSON.parse(json));
+              }
+          }
+          catch (error) {
+              console.log(error);
+          }
           let value = '';
           // Check if there is a `value` attribute and set the initial value
           // of the mathfield from it
@@ -35642,10 +37240,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       set virtualKeyboardTheme(value) {
           this.setOptions({ virtualKeyboardTheme: value });
       }
-      get virtualKeyboars() {
+      get virtualKeyboards() {
           return this.getOption('virtualKeyboards');
       }
-      set virtualKeyboars(value) {
+      set virtualKeyboards(value) {
           this.setOptions({ virtualKeyboards: value });
       }
       get useSharedVirtualKeyboard() {
@@ -35818,7 +37416,7 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       });
       return result;
   }
-  if (!((_a = window.customElements) === null || _a === void 0 ? void 0 : _a.get('math-field'))) {
+  if (isBrowser() && !((_a = window.customElements) === null || _a === void 0 ? void 0 : _a.get('math-field'))) {
       window.MathfieldElement = MathfieldElement;
       (_b = window.customElements) === null || _b === void 0 ? void 0 : _b.define('math-field', MathfieldElement);
   }
@@ -35936,8 +37534,8 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   }
   // This SDK_VERSION variable will be replaced during the build process.
   const version = {
-      mathlive: '0.69.3',
-      mathJson: '', // mathJsonVersion,
+      mathlive: '0.69.7',
+      computeEngine: le,
   };
   const debug = {
       latexToAsciiMath,
@@ -35948,7 +37546,6 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
       ENVIRONMENTS: MathliveDebug.ENVIRONMENTS,
       DEFAULT_KEYBINDINGS: MathliveDebug.DEFAULT_KEYBINDINGS,
       getKeybindingMarkup: MathliveDebug.getKeybindingMarkup,
-      INLINE_SHORTCUTS: MathliveDebug.INLINE_SHORTCUTS,
   };
 
   exports.MathfieldElement = MathfieldElement;
@@ -35957,10 +37554,10 @@ M500 241 v40 H399408 v-40z M500 435 v40 H400000 v-40z`,
   exports.convertLatexToSpeakableText = convertLatexToSpeakableText;
   exports.debug = debug;
   exports.makeSharedVirtualKeyboard = makeSharedVirtualKeyboard;
-  exports.parseMathJson = Y;
+  exports.parseMathJson = ae;
   exports.renderMathInDocument = renderMathInDocument;
   exports.renderMathInElement = renderMathInElement;
-  exports.serializeMathJson = ee;
+  exports.serializeMathJson = oe;
   exports.version = version;
 
   Object.defineProperty(exports, '__esModule', { value: true });

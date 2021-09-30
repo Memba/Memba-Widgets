@@ -11,8 +11,8 @@
     }
 }((window || {}), function(window) {
 	/* global locationHref:writable, animationManager, subframeEnabled:writable, defaultCurveSegments:writable, roundValues,
-expressionsPlugin:writable, PropertyFactory, ShapePropertyFactory, Matrix */
-/* exported locationHref, subframeEnabled, expressionsPlugin */
+expressionsPlugin:writable, PropertyFactory, ShapePropertyFactory, Matrix, idPrefix:writable */
+/* exported locationHref, subframeEnabled, expressionsPlugin, idPrefix */
 
 'use strict';
 
@@ -31,6 +31,7 @@ BMSegmentStartEvent, BMDestroyEvent, BMRenderFrameErrorEvent, BMConfigErrorEvent
 addSaturationToRGB, addBrightnessToRGB, addHueToRGB, rgbToHex */
 
 var subframeEnabled = true;
+var idPrefix = '';
 var expressionsPlugin;
 var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 var cachedColors = {};
@@ -146,7 +147,7 @@ var createElementID = (function () {
   var _count = 0;
   return function createID() {
     _count += 1;
-    return '__lottie_element_' + _count;
+    return idPrefix + '__lottie_element_' + _count;
   };
 }());
 
@@ -261,9 +262,9 @@ function BaseEvent() {}
 BaseEvent.prototype = {
   triggerEvent: function (eventName, args) {
     if (this._cbs[eventName]) {
-      var len = this._cbs[eventName].length;
-      for (var i = 0; i < len; i += 1) {
-        this._cbs[eventName][i](args);
+      var callbacks = this._cbs[eventName];
+      for (var i = 0; i < callbacks.length; i += 1) {
+        callbacks[i](args);
       }
     }
   },
@@ -408,6 +409,20 @@ var getBlendMode = (function () {
     return blendModeEnums[mode] || '';
   };
 }());
+
+/* exported lineCapEnum, lineJoinEnum */
+
+var lineCapEnum = {
+  1: 'butt',
+  2: 'round',
+  3: 'square',
+};
+
+var lineJoinEnum = {
+  1: 'miter',
+  2: 'round',
+  3: 'bevel',
+};
 
 /* global createTypedArray */
 
@@ -1939,6 +1954,16 @@ var FontManager = (function () {
     2367, 2368, 2369, 2370, 2371, 2372, 2373, 2374, 2375, 2376, 2377, 2378, 2379,
     2380, 2381, 2382, 2383, 2387, 2388, 2389, 2390, 2391, 2402, 2403]);
 
+  var surrogateModifiers = [
+    'd83cdffb',
+    'd83cdffc',
+    'd83cdffd',
+    'd83cdffe',
+    'd83cdfff',
+  ];
+
+  var zeroWidthJoiner = [65039, 8205];
+
   function trimFontOptions(font) {
     var familyArray = font.split(',');
     var i;
@@ -2217,8 +2242,20 @@ var FontManager = (function () {
     return this.fonts[0];
   }
 
-  function getCombinedCharacterCodes() {
-    return combinedCharacters;
+  function isModifier(firstCharCode, secondCharCode) {
+    var sum = firstCharCode.toString(16) + secondCharCode.toString(16);
+    return surrogateModifiers.indexOf(sum) !== -1;
+  }
+
+  function isZeroWidthJoiner(firstCharCode, secondCharCode) {
+    if (!secondCharCode) {
+      return firstCharCode === zeroWidthJoiner[1];
+    }
+    return firstCharCode === zeroWidthJoiner[0] && secondCharCode === zeroWidthJoiner[1];
+  }
+
+  function isCombinedCharacter(char) {
+    return combinedCharacters.indexOf(char) !== -1;
   }
 
   function setIsLoaded() {
@@ -2235,8 +2272,9 @@ var FontManager = (function () {
     this.setIsLoadedBinded = this.setIsLoaded.bind(this);
     this.checkLoadedFontsBinded = this.checkLoadedFonts.bind(this);
   };
-    // TODO: for now I'm adding these methods to the Class and not the prototype. Think of a better way to implement it.
-  Font.getCombinedCharacterCodes = getCombinedCharacterCodes;
+  Font.isModifier = isModifier;
+  Font.isZeroWidthJoiner = isZeroWidthJoiner;
+  Font.isCombinedCharacter = isCombinedCharacter;
 
   var fontPrototype = {
     addChars: addChars,
@@ -4811,7 +4849,7 @@ var ImagePreloader = (function () {
     var len = assets.length;
     for (i = 0; i < len; i += 1) {
       if (!assets[i].layers) {
-        if (!assets[i].t) {
+        if (!assets[i].t || assets[i].t === 'seq') {
           this.totalImages += 1;
           this.images.push(this._createImageData(assets[i]));
         } else if (assets[i].t === 3) {
@@ -5807,23 +5845,41 @@ TextProperty.prototype.getKeyframeValue = function () {
 };
 
 TextProperty.prototype.buildFinalText = function (text) {
-  var combinedCharacters = FontManager.getCombinedCharacterCodes();
   var charactersArray = [];
-  var i = 0; var
-    len = text.length;
+  var i = 0;
+  var len = text.length;
   var charCode;
+  var secondCharCode;
+  var shouldCombine = false;
   while (i < len) {
     charCode = text.charCodeAt(i);
-    if (combinedCharacters.indexOf(charCode) !== -1) {
+    if (FontManager.isCombinedCharacter(charCode)) {
       charactersArray[charactersArray.length - 1] += text.charAt(i);
     } else if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-      charCode = text.charCodeAt(i + 1);
-      if (charCode >= 0xDC00 && charCode <= 0xDFFF) {
-        charactersArray.push(text.substr(i, 2));
+      secondCharCode = text.charCodeAt(i + 1);
+      if (secondCharCode >= 0xDC00 && secondCharCode <= 0xDFFF) {
+        if (shouldCombine || FontManager.isModifier(charCode, secondCharCode)) {
+          charactersArray[charactersArray.length - 1] += text.substr(i, 2);
+          shouldCombine = false;
+        } else {
+          charactersArray.push(text.substr(i, 2));
+        }
         i += 1;
       } else {
         charactersArray.push(text.charAt(i));
       }
+    } else if (charCode > 0xDBFF) {
+      secondCharCode = text.charCodeAt(i + 1);
+      if (FontManager.isZeroWidthJoiner(charCode, secondCharCode)) {
+        shouldCombine = true;
+        charactersArray[charactersArray.length - 1] += text.substr(i, 2);
+        i += 1;
+      } else {
+        charactersArray.push(text.charAt(i));
+      }
+    } else if (FontManager.isZeroWidthJoiner(charCode)) {
+      charactersArray[charactersArray.length - 1] += text.charAt(i);
+      shouldCombine = true;
     } else {
       charactersArray.push(text.charAt(i));
     }
@@ -8218,7 +8274,7 @@ function SVGFillStyleData(elem, data, styleOb) {
 extendPrototype([DynamicPropertyContainer], SVGFillStyleData);
 
 /* global PropertyFactory, degToRads, GradientProperty, createElementID, createNS, locationHref,
-extendPrototype, DynamicPropertyContainer */
+extendPrototype, DynamicPropertyContainer, lineCapEnum, lineJoinEnum */
 
 function SVGGradientFillStyleData(elem, data, styleOb) {
   this.initDynamicPropertyContainer(elem);
@@ -8257,7 +8313,6 @@ SVGGradientFillStyleData.prototype.setGradientData = function (pathElement, data
     stops.push(stop);
   }
   pathElement.setAttribute(data.ty === 'gf' ? 'fill' : 'stroke', 'url(' + locationHref + '#' + gradientId + ')');
-
   this.gf = gfill;
   this.cst = stops;
 };
@@ -8286,6 +8341,13 @@ SVGGradientFillStyleData.prototype.setGradientOpacity = function (data, styleOb)
       stops.push(stop);
     }
     maskElement.setAttribute(data.ty === 'gf' ? 'fill' : 'stroke', 'url(' + locationHref + '#' + opacityId + ')');
+    if (data.ty === 'gs') {
+      maskElement.setAttribute('stroke-linecap', lineCapEnum[data.lc || 2]);
+      maskElement.setAttribute('stroke-linejoin', lineJoinEnum[data.lj || 2]);
+      if (data.lj === 1) {
+        maskElement.setAttribute('stroke-miterlimit', data.ml);
+      }
+    }
     this.of = opFill;
     this.ms = mask;
     this.ost = stops;
@@ -8944,16 +9006,7 @@ IShapeElement.prototype = {
       }
     }
   },
-  lcEnum: {
-    1: 'butt',
-    2: 'round',
-    3: 'square',
-  },
-  ljEnum: {
-    1: 'miter',
-    2: 'round',
-    3: 'bevel',
-  },
+
   searchProcessedElement: function (elem) {
     var elements = this.processedElements;
     var i = 0;
@@ -9571,7 +9624,8 @@ SVGTextLottieElement.prototype.renderInnerContent = function () {
 /* global extendPrototype, BaseElement, TransformElement, SVGBaseElement, IShapeElement, HierarchyElement,
 FrameElement, RenderableDOMElement, Matrix, SVGStyleData, SVGStrokeStyleData, SVGFillStyleData,
 SVGGradientFillStyleData, SVGGradientStrokeStyleData, locationHref, getBlendMode, ShapeGroupData,
-TransformPropertyFactory, SVGTransformData, ShapePropertyFactory, SVGShapeData, SVGElementsRenderer, ShapeModifiers */
+TransformPropertyFactory, SVGTransformData, ShapePropertyFactory, SVGShapeData, SVGElementsRenderer, ShapeModifiers,
+lineCapEnum, lineJoinEnum */
 
 function SVGShapeElement(data, globalData, comp) {
   // List of drawable elements
@@ -9668,8 +9722,8 @@ SVGShapeElement.prototype.createStyleElement = function (data, level) {
   }
 
   if (data.ty === 'st' || data.ty === 'gs') {
-    pathElement.setAttribute('stroke-linecap', this.lcEnum[data.lc] || 'round');
-    pathElement.setAttribute('stroke-linejoin', this.ljEnum[data.lj] || 'round');
+    pathElement.setAttribute('stroke-linecap', lineCapEnum[data.lc || 2]);
+    pathElement.setAttribute('stroke-linejoin', lineJoinEnum[data.lj || 2]);
     pathElement.setAttribute('fill-opacity', '0');
     if (data.lj === 1) {
       pathElement.setAttribute('stroke-miterlimit', data.ml);
@@ -10758,7 +10812,7 @@ CVMaskElement.prototype.destroy = function () {
 
 /* global ShapeTransformManager, extendPrototype, BaseElement, TransformElement, CVBaseElement, IShapeElement,
 HierarchyElement, FrameElement, RenderableElement, RenderableDOMElement, PropertyFactory, degToRads, GradientProperty,
-DashProperty, TransformPropertyFactory, CVShapeData, ShapeModifiers, bmFloor */
+DashProperty, TransformPropertyFactory, CVShapeData, ShapeModifiers, bmFloor, lineCapEnum, lineJoinEnum */
 
 function CVShapeElement(data, globalData, comp) {
   this.shapes = [];
@@ -10808,8 +10862,8 @@ CVShapeElement.prototype.createStyleElement = function (data, transforms) {
   }
   elementData.o = PropertyFactory.getProp(this, data.o, 0, 0.01, this);
   if (data.ty === 'st' || data.ty === 'gs') {
-    styleElem.lc = this.lcEnum[data.lc] || 'round';
-    styleElem.lj = this.ljEnum[data.lj] || 'round';
+    styleElem.lc = lineCapEnum[data.lc || 2];
+    styleElem.lj = lineJoinEnum[data.lj || 2];
     if (data.lj == 1) { // eslint-disable-line eqeqeq
       styleElem.ml = data.ml;
     }
@@ -11853,7 +11907,7 @@ HShapeElement.prototype.renderInnerContent = function () {
 };
 
 /* global extendPrototype, BaseElement, TransformElement, HBaseElement, HierarchyElement, FrameElement,
-RenderableDOMElement, ITextElement, createSizedArray, createTag, styleDiv, createNS */
+RenderableDOMElement, ITextElement, createSizedArray, createTag, styleDiv, createNS, lineJoinEnum, lineCapEnum */
 
 function HTextElement(data, globalData, comp) {
   this.textSpans = [];
@@ -11930,8 +11984,8 @@ HTextElement.prototype.buildNewText = function () {
     if (this.globalData.fontManager.chars) {
       if (!this.textPaths[cnt]) {
         tSpan = createNS('path');
-        tSpan.setAttribute('stroke-linecap', 'butt');
-        tSpan.setAttribute('stroke-linejoin', 'round');
+        tSpan.setAttribute('stroke-linecap', lineCapEnum[1]);
+        tSpan.setAttribute('stroke-linejoin', lineJoinEnum[2]);
         tSpan.setAttribute('stroke-miterlimit', '4');
       } else {
         tSpan = this.textPaths[cnt];
@@ -13364,6 +13418,8 @@ var ExpressionManager = (function () {
   var Math = BMMath;
   var window = null;
   var document = null;
+  var XMLHttpRequest = null;
+  var fetch = null;
 
   function $bm_isInstanceOfArray(arr) {
     return arr.constructor === Array || arr.constructor === Float32Array;
@@ -13766,6 +13822,7 @@ var ExpressionManager = (function () {
     var velocityAtTime;
 
     var scoped_bm_rt;
+    // val = val.replace(/(\\?"|')((http)(s)?(:\/))?\/.*?(\\?"|')/g, "\"\""); // deter potential network calls
     var expression_function = eval('[function _expression_function(){' + val + ';scoped_bm_rt=$bm_rt}]')[0]; // eslint-disable-line no-eval
     var numKeys = property.kf ? data.k.length : 0;
 
@@ -14743,6 +14800,10 @@ var ShapeExpressionInterface = (function () {
         arr.push(roundedInterfaceFactory(shapes[i], view[i], propertyGroup));
       } else if (shapes[i].ty === 'rp') {
         arr.push(repeaterInterfaceFactory(shapes[i], view[i], propertyGroup));
+      } else if (shapes[i].ty === 'gf') {
+        arr.push(gradientFillInterfaceFactory(shapes[i], view[i], propertyGroup));
+      } else {
+        arr.push(defaultInterfaceFactory(shapes[i], view[i], propertyGroup));
       }
     }
     return arr;
@@ -14830,6 +14891,50 @@ var ShapeExpressionInterface = (function () {
 
     view.c.setGroupProperty(PropertyInterface('Color', propertyGroup));
     view.o.setGroupProperty(PropertyInterface('Opacity', propertyGroup));
+    return interfaceFunction;
+  }
+
+  function gradientFillInterfaceFactory(shape, view, propertyGroup) {
+    function interfaceFunction(val) {
+      if (val === 'Start Point' || val === 'start point') {
+        return interfaceFunction.startPoint;
+      }
+      if (val === 'End Point' || val === 'end point') {
+        return interfaceFunction.endPoint;
+      }
+      if (val === 'Opacity' || val === 'opacity') {
+        return interfaceFunction.opacity;
+      }
+      return null;
+    }
+    Object.defineProperties(interfaceFunction, {
+      startPoint: {
+        get: ExpressionPropertyInterface(view.s),
+      },
+      endPoint: {
+        get: ExpressionPropertyInterface(view.e),
+      },
+      opacity: {
+        get: ExpressionPropertyInterface(view.o),
+      },
+      type: {
+        get: function () {
+          return 'a';
+        },
+      },
+      _name: { value: shape.nm },
+      mn: { value: shape.mn },
+    });
+
+    view.s.setGroupProperty(PropertyInterface('Start Point', propertyGroup));
+    view.e.setGroupProperty(PropertyInterface('End Point', propertyGroup));
+    view.o.setGroupProperty(PropertyInterface('Opacity', propertyGroup));
+    return interfaceFunction;
+  }
+  function defaultInterfaceFactory() {
+    function interfaceFunction() {
+      return null;
+    }
     return interfaceFunction;
   }
 
@@ -14948,7 +15053,6 @@ var ShapeExpressionInterface = (function () {
       }
       return null;
     }
-
     var _propertyGroup = propertyGroupFactory(interfaceFunction, propertyGroup);
     view.transform.mProps.o.setGroupProperty(PropertyInterface('Opacity', _propertyGroup));
     view.transform.mProps.p.setGroupProperty(PropertyInterface('Position', _propertyGroup));
@@ -15916,48 +16020,46 @@ var ExpressionPropertyInterface = (function () {
 }());
 
 /* global expressionHelpers, TextSelectorProp, ExpressionManager */
-/* exported TextExpressionSelectorProp */
+/* exported TextExpressionSelectorPropFactory */
 
-(function () {
-  var TextExpressionSelectorProp = (function () { // eslint-disable-line no-unused-vars
-    function getValueProxy(index, total) {
-      this.textIndex = index + 1;
-      this.textTotal = total;
-      this.v = this.getValue() * this.mult;
-      return this.v;
+var TextExpressionSelectorPropFactory = (function () { // eslint-disable-line no-unused-vars
+  function getValueProxy(index, total) {
+    this.textIndex = index + 1;
+    this.textTotal = total;
+    this.v = this.getValue() * this.mult;
+    return this.v;
+  }
+
+  return function (elem, data) {
+    this.pv = 1;
+    this.comp = elem.comp;
+    this.elem = elem;
+    this.mult = 0.01;
+    this.propType = 'textSelector';
+    this.textTotal = data.totalChars;
+    this.selectorValue = 100;
+    this.lastValue = [1, 1, 1];
+    this.k = true;
+    this.x = true;
+    this.getValue = ExpressionManager.initiateExpression.bind(this)(elem, data, this);
+    this.getMult = getValueProxy;
+    this.getVelocityAtTime = expressionHelpers.getVelocityAtTime;
+    if (this.kf) {
+      this.getValueAtTime = expressionHelpers.getValueAtTime.bind(this);
+    } else {
+      this.getValueAtTime = expressionHelpers.getStaticValueAtTime.bind(this);
     }
-
-    return function TextExpressionSelectorPropFactory(elem, data) {
-      this.pv = 1;
-      this.comp = elem.comp;
-      this.elem = elem;
-      this.mult = 0.01;
-      this.propType = 'textSelector';
-      this.textTotal = data.totalChars;
-      this.selectorValue = 100;
-      this.lastValue = [1, 1, 1];
-      this.k = true;
-      this.x = true;
-      this.getValue = ExpressionManager.initiateExpression.bind(this)(elem, data, this);
-      this.getMult = getValueProxy;
-      this.getVelocityAtTime = expressionHelpers.getVelocityAtTime;
-      if (this.kf) {
-        this.getValueAtTime = expressionHelpers.getValueAtTime.bind(this);
-      } else {
-        this.getValueAtTime = expressionHelpers.getStaticValueAtTime.bind(this);
-      }
-      this.setGroupProperty = expressionHelpers.setGroupProperty;
-    };
-  }());
-
-  var propertyGetTextProp = TextSelectorProp.getTextSelectorProp;
-  TextSelectorProp.getTextSelectorProp = function (elem, data, arr) {
-    if (data.t === 1) {
-      return new TextExpressionSelectorPropFactory(elem, data, arr); // eslint-disable-line no-undef
-    }
-    return propertyGetTextProp(elem, data, arr);
+    this.setGroupProperty = expressionHelpers.setGroupProperty;
   };
 }());
+
+var propertyGetTextProp = TextSelectorProp.getTextSelectorProp;
+TextSelectorProp.getTextSelectorProp = function (elem, data, arr) {
+  if (data.t === 1) {
+    return new TextExpressionSelectorPropFactory(elem, data, arr); // eslint-disable-line no-undef
+  }
+  return propertyGetTextProp(elem, data, arr);
+};
 
 /* global PropertyFactory */
 /* exported SliderEffect, AngleEffect, ColorEffect, PointEffect, LayerIndexEffect, MaskIndexEffect, CheckboxEffect, NoValueEffect */
@@ -16076,6 +16178,10 @@ function setSubframeRendering(flag) {
   subframeEnabled = flag;
 }
 
+function setIDPrefix(prefix) {
+  idPrefix = prefix;
+}
+
 function loadAnimation(params) {
   if (standalone === true) {
     params.animationData = JSON.parse(animationData);
@@ -16154,8 +16260,9 @@ lottie.setVolume = animationManager.setVolume;
 lottie.mute = animationManager.mute;
 lottie.unmute = animationManager.unmute;
 lottie.getRegisteredAnimations = animationManager.getRegisteredAnimations;
+lottie.setIDPrefix = setIDPrefix;
 lottie.__getFactory = getFactory;
-lottie.version = '5.7.8';
+lottie.version = '5.7.13';
 
 function checkReady() {
   if (document.readyState === 'complete') {

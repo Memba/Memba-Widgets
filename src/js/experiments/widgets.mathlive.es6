@@ -128,9 +128,9 @@ const MathInput = Widget.extend({
         if (enabled) {
             $(_mathField)
                 .css('cursor', 'text')
-                .on(`input${NS}`, (e) => {
+                .on(`input${NS}`, (/* e */) => {
                     this.trigger(CONSTANTS.CHANGE);
-                    e.target.focus();
+                    // e.target.focus();
                 });
         }
     },

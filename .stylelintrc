@@ -1,7 +1,7 @@
 {
-    "extends": "stylelint-config-sass-guidelines",
+    "extends": "stylelint-config-standard",
+    "plugins": ["stylelint-scss"],
     "rules": {
-        "indentation": 4,
-        "number-leading-zero": null
+        "indentation": 4
     }
 }

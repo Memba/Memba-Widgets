@@ -34,8 +34,121 @@ const ProseMirrorToolBar = ToolBar.extend({
         ToolBar.fn.init.call(this, element, {
             ...options,
             items: [
-                { type: 'button', id: 'btn1', text: 'Button 1' },
-                { type: 'button', id: 'btn2', text: 'Button 2' },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'undo' },
+                    icon: 'undo',
+                    text: 'Undo',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'redo' },
+                    icon: 'redo',
+                    text: 'Redo',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    type: 'splitButton',
+                    attributes: { 'data-command': 'h1' },
+                    icon: 'h1',
+                    menuButtons: [
+                        {
+                            icon: 'h1',
+                            attributes: { 'data-command': 'h1' },
+                            text: 'Heading 1',
+                        },
+                        {
+                            icon: 'h2',
+                            attributes: { 'data-command': 'h2' },
+                            text: 'Heading 2',
+                        },
+                        {
+                            icon: 'h3',
+                            attributes: { 'data-command': 'h3' },
+                            text: 'Heading 3',
+                        },
+                        {
+                            icon: 'h4',
+                            attributes: { 'data-command': 'h4' },
+                            text: 'Heading 4',
+                        },
+                        {
+                            icon: 'h5',
+                            attributes: { 'data-command': 'h5' },
+                            text: 'Heading 5',
+                        },
+                        {
+                            icon: 'h6',
+                            attributes: { 'data-command': 'h6' },
+                            text: 'Heading 6',
+                        },
+                    ],
+                    showText: 'overflow',
+                    text: 'Heading',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'bold' },
+                    icon: 'bold',
+                    text: 'Bold',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'italic' },
+                    icon: 'italic',
+                    text: 'Italic',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'ordered' },
+                    icon: 'list-ordered',
+                    text: 'Ordered List',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'unordered' },
+                    icon: 'list-unordered',
+                    text: 'Unordered List',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'code' },
+                    icon: 'code-snippet',
+                    text: 'Code',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'hyperlink' },
+                    icon: 'hyperlink',
+                    text: 'Hyperlink',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'image' },
+                    icon: 'image',
+                    text: 'Image',
+                    showText: 'overflow',
+                },
+                {
+                    type: 'button',
+                    attributes: { 'data-command': 'math' },
+                    icon: 'sum',
+                    text: 'Math Formula',
+                    showText: 'overflow',
+                },
             ],
             click: this._eventHandler.bind(this),
             toggle: this._eventHandler.bind(this),
@@ -63,7 +176,7 @@ const ProseMirrorToolBar = ToolBar.extend({
     _eventHandler(e) {
         this.trigger('command', {
             ...e,
-            command: e.id, // e.g 'color' or 'font'
+            command: e.item.element.data('command'), // e.g 'color' or 'font'
             // options: ?, // e.g. color or font value
         });
     },

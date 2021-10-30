@@ -126,6 +126,7 @@ const ProseMirror = Widget.extend({
                 .appendTo(this.element)
                 .kendoProseMirrorToolBar({
                     command: this._onToolBarCommand.bind(this),
+                    resizable: true,
                 })
                 .data('kendoProseMirrorToolBar');
         }
@@ -161,6 +162,55 @@ const ProseMirror = Widget.extend({
             assert.format(assert.messages.isPlainObject.default, 'e')
         );
         console.log(e.command);
+        const {
+            commands: { setBlockType, toggleMark, wrapIn },
+            history: { undo, redo },
+            schemaList: { wrapInList },
+        } = pm;
+        const { marks, nodes } = schema;
+        const { state, dispatch } = this.view;
+        switch (e.command) {
+            case 'bold':
+                toggleMark(marks.strong)(state, dispatch);
+                break;
+            case 'code':
+                toggleMark(marks.code)(state, dispatch);
+                break;
+            case 'h1':
+            case 'h2':
+            case 'h3':
+            case 'h4':
+            case 'h5':
+            case 'h6':
+                setBlockType(nodes.heading, {
+                    level: parseInt(e.command.slice(-1), 10),
+                })(state, dispatch);
+                break;
+            case 'italic':
+                toggleMark(marks.em)(state, dispatch);
+                break;
+            case 'ordered':
+                // TODO https://prosemirror.net/docs/ref/#schema-list
+                // TODO https://discuss.prosemirror.net/t/list-type-toggle/948/9
+                // const mySchema = new Schema({
+                //   nodes: addListNodes(baseSchema.spec.nodes, "paragraph block*", "block"),
+                //   marks: baseSchema.spec.marks
+                // })
+                // --------------
+                wrapInList(nodes.ordered_list)(state, dispatch);
+                break;
+            case 'undo':
+                undo(state, dispatch);
+                break;
+            case 'redo':
+                redo(state, dispatch);
+                break;
+            case 'unordered':
+                wrapInList(nodes.bullet_list)(state, dispatch);
+                break;
+            default:
+                e.preventDefault();
+        }
     },
 
     /**

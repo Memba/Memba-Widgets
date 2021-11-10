@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, ui = kendo.ui, keys = kendo.keys, extend = $.extend, NS = '.kendoExpansionPanel', EXPAND = 'expand', COLLAPSE = 'collapse', COMPLETE = 'complete', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', EXPANDED = 'k-expanded', EXPANDER_CONTENT = 'k-expander-content', EXPANDER_CONTENT_WRAPPER = 'k-expander-content-wrapper', INDICATOR = '.k-expander-indicator', FOCUSED = 'k-state-focus', CLICK = 'click', KEYDOWN = 'keydown', HEIGHT = 'height', proxy = $.proxy, headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0">' + '#if(!useBareTemplate){#' + '<div class="k-expander-title">#:title#</div>' + '#} else {#' + '#=title#' + '#}#' + '<span class="k-expander-spacer"></span>' + '#if(!useBareTemplate){#' + '<div class="k-expander-sub-title">#:subTitle#</div>' + '#}#' + '<span class="k-expander-indicator #:iconClass#"></span>' + '</div>';
+        var kendo = window.kendo, Widget = kendo.ui.Widget, ui = kendo.ui, keys = kendo.keys, extend = $.extend, NS = '.kendoExpansionPanel', EXPAND = 'expand', COLLAPSE = 'collapse', COMPLETE = 'complete', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_EXPANDED = 'aria-expanded', ARIA_HIDDEN = 'aria-hidden', EXPANDED = 'k-expanded', EXPANDER_CONTENT = 'k-expander-content', EXPANDER_CONTENT_WRAPPER = 'k-expander-content-wrapper', INDICATOR = '.k-expander-indicator', FOCUSED = 'k-state-focus', CLICK = 'click', KEYDOWN = 'keydown', HEIGHT = 'height', proxy = $.proxy, headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0" aria-controls="#: elementId #">' + '#if(!useBareTemplate){#' + '<div class="k-expander-title">#:title#</div>' + '#} else {#' + '#=title#' + '#}#' + '<span class="k-expander-spacer"></span>' + '#if(!useBareTemplate){#' + '<div class="k-expander-sub-title">#:subTitle#</div>' + '#}#' + '<span class="k-expander-indicator #:iconClass#"></span>' + '</div>';
         var ExpansionPanel = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -81,13 +81,19 @@
                 var DOMElement = element[0];
                 var wrapper;
                 var header;
+                var elementId = element.attr('id');
+                if (!elementId) {
+                    elementId = kendo.guid();
+                    element.attr('id', elementId);
+                }
                 wrapper = element.wrap('<div class=\'k-widget k-expander' + (that.options.expanded ? ' ' + EXPANDED : '') + '\'></div>').parent();
                 header = kendo.template(headerTemplate)({
                     title: that.options.title,
                     subTitle: that.options.subTitle,
                     iconClass: that.options.expanded ? that.options.expandIconClass : that.options.collapseIconClass,
                     useBareTemplate: that.options.useBareTemplate,
-                    ns: kendo.ns
+                    ns: kendo.ns,
+                    elementId: elementId
                 });
                 that.header = $(header);
                 wrapper.prepend(that.header);

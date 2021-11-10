@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -43,12 +43,12 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, END = 'end', PAUSE = 'pause', PLAY = 'play', READY = 'ready', TIMECHANGE = 'timeChange', VOLUMECHANGE = 'volumeChange', FULLSCREEN_ENTER = 'k-i-full-screen', FULLSCREEN_EXIT = 'k-i-full-screen-exit', MUTE = 'k-i-volume-off', LOW_VOLUME = 'k-i-volume-down', HIGH_VOLUME = 'k-i-volume-up', VIDEO_QUALITY = 'k-mediaplayer-quality', STATE_PLAY = 'k-i-play', STATE_PAUSE = 'k-i-pause', TITLEBAR = 'k-mediaplayer-titlebar', TITLE = 'k-title', TOOLBARWRAP = 'k-mediaplayer-toolbar-wrap', TOOLBAR = 'k-mediaplayer-toolbar', SLIDER = 'k-mediaplayer-seekbar', VOLUME_SLIDER = 'k-mediaplayer-volume', MEDIA = 'k-mediaplayer-media', OVERLAY = 'k-mediaplayer-overlay', YTPLAYER = 'k-mediaplayer-yt', DOT = '.', ui = kendo.ui, ns = '.kendoMediaPlayer', baseTime = new Date(1970, 0, 1), timeZoneSec = baseTime.getTimezoneOffset() * 60, Widget = kendo.ui.Widget, isArray = $.isArray, timeFormats = {
+        var kendo = window.kendo, END = 'end', PAUSE = 'pause', PLAY = 'play', READY = 'ready', TIMECHANGE = 'timeChange', VOLUMECHANGE = 'volumeChange', FULLSCREEN_ENTER = 'k-i-full-screen', FULLSCREEN_EXIT = 'k-i-full-screen-exit', MUTE = 'k-i-volume-off', LOW_VOLUME = 'k-i-volume-down', HIGH_VOLUME = 'k-i-volume-up', VIDEO_QUALITY = 'k-mediaplayer-quality', STATE_PLAY = 'k-i-play', STATE_PAUSE = 'k-i-pause', TITLEBAR = 'k-mediaplayer-titlebar', TITLE = 'k-title', TOOLBARWRAP = 'k-mediaplayer-toolbar-wrap', TOOLBAR = 'k-mediaplayer-toolbar', SLIDER = 'k-mediaplayer-seekbar', VOLUME_SLIDER = 'k-mediaplayer-volume', MEDIA = 'k-mediaplayer-media', OVERLAY = 'k-mediaplayer-overlay', YTPLAYER = 'k-mediaplayer-yt', DOT = '.', ui = kendo.ui, ns = '.kendoMediaPlayer', baseTime = new Date(1970, 0, 1), timeZoneSec = baseTime.getTimezoneOffset() * 60, Widget = kendo.ui.Widget, isArray = Array.isArray, timeFormats = {
                 shortTime: 'mm:ss',
                 longTime: 'HH:mm:ss'
             }, template = kendo.template, proxy = $.proxy, keys = kendo.keys, templates = {
                 htmlPlayer: '<video class=\'' + MEDIA + '\'> </video>',
-                titleBar: template('<div class=\'' + TITLEBAR + '\' role=\'heading\'><span class=\'' + TITLE + '\'>Video Title</span></div>'),
+                titleBar: template('<div class=\'' + TITLEBAR + '\'><span class=\'' + TITLE + '\'>Video Title</span></div>'),
                 toolBar: '<div class=\'' + TOOLBARWRAP + '\'><div class=\'' + TOOLBAR + '\'></div></div>',
                 youtubePlayer: '<div class=\'' + YTPLAYER + '\'> </div>',
                 toolBarTime: '<span class=\'k-mediaplayer-currenttime\'>00:00:00</span> / <span class=\'k-mediaplayer-duration\'>00:00:00</span>',
@@ -136,7 +136,7 @@
                         change: this._sliderDragChangeHandler,
                         slide: this._sliderDraggingHandler,
                         tooltip: { template: templates.toolTip },
-                        dragHandleTitle: ''
+                        dragHandleTitle: this.options.messages.time
                     });
                 }
             },
@@ -156,7 +156,7 @@
                         tickPlacement: 'none',
                         showButtons: false,
                         tooltip: { enabled: false },
-                        dragHandleTitle: ''
+                        dragHandleTitle: this.options.messages.volume
                     });
                 }
             },
@@ -654,7 +654,7 @@
                 } else {
                     uiElements.fadeOut(animationSpeed);
                     if (this.options.navigatable) {
-                        this.wrapper.focus();
+                        this.wrapper.trigger('focus');
                     }
                 }
             },

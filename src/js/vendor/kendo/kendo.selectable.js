@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -56,9 +56,6 @@
                 that.element.addClass(SELECTABLE);
                 that.relatedTarget = that.options.relatedTarget;
                 multiple = that.options.multiple;
-                if (this.options.aria && multiple) {
-                    that.element.attr('aria-multiselectable', true);
-                }
                 that.userEvents = new kendo.UserEvents(that.element, {
                     global: true,
                     allowSelection: true,

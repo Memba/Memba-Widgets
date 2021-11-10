@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -359,7 +359,7 @@
                     buttons: that._buildActionsHtml()
                 }, that._dataItem)));
                 setTimeout(function () {
-                    that.header.find('input').focus();
+                    that.header.find('input').trigger('focus');
                 }, 0);
                 that.header.find(DOT + styles.actions).addClass(styles.disabled);
             },
@@ -758,7 +758,7 @@
             },
             _focus: function (ev) {
                 if (ev.sender) {
-                    ev.sender.element.focus();
+                    ev.sender.element.trigger('focus');
                 }
             },
             action: function (args) {
@@ -877,9 +877,9 @@
                 if (cardElement) {
                     that._moveFromCardFocus(direction, cardElement);
                 } else if (columnElement && direction === 'down') {
-                    that.cards.eq(0).focus();
+                    that.cards.eq(0).trigger('focus');
                 } else {
-                    columns.eq(columnIndex).focus();
+                    columns.eq(columnIndex).trigger('focus');
                 }
             },
             _moveFromCardFocus: function (direction, cardElement) {
@@ -901,7 +901,7 @@
                     focusCard = that._getFocusableCard(index, direction);
                 }
                 if (index >= 0) {
-                    focusCard.focus();
+                    focusCard.trigger('focus');
                 } else {
                     that.options.columnElement.focus();
                 }
@@ -971,7 +971,7 @@
                     that._updateOrder(targetColumn, options.card.get(taskBoardOptions.dataOrderField));
                 }
                 taskboard.dataSource.sync().then(function () {
-                    taskboard.columns().eq(0).focus();
+                    taskboard.columns().eq(0).trigger('focus');
                 });
             }
         });
@@ -1352,7 +1352,7 @@
                 that.header.find(DOT + styles.headerText).attr('id', formLabelId);
                 that.content.append(element);
                 that.form = new Form(element, extend({}, formSettings, { formData: that._dataItem }));
-                that.form.element.find('input').focus();
+                that.form.element.find('input').trigger('focus');
             }
         });
         var TaskBoardCreatePane = TaskBoardEditPane.extend({
@@ -1531,7 +1531,7 @@
         ev.preventDefault();
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, DataSource = kendo.data.DataSource, extend = $.extend, ui = kendo.ui, proxy = $.proxy, isArray = $.isArray, isPlainObject = $.isPlainObject, GENERIC = '_generic', DOT = '.', MOVE = 'move', MOVE_START = 'moveStart', MOVE_END = 'moveEnd', SELECT = 'select', EXECUTE = 'execute', ACTION = 'action', CHANGE = 'change', ERROR = 'change', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EDIT_CARD = 'editCard', SAVE_CARD = 'saveCard', DELETE_CARD = 'deleteCard', EDIT_COLUMN = 'editColumn', SAVE_COLUMN = 'saveColumn', DELETE_COLUMN = 'deleteColumn', COLUMNSDATABINDING = 'columnsDataBinding', COLUMNSDATABOUND = 'columnsDataBound';
+        var kendo = window.kendo, Widget = kendo.ui.Widget, DataSource = kendo.data.DataSource, extend = $.extend, ui = kendo.ui, proxy = $.proxy, isArray = Array.isArray, isPlainObject = $.isPlainObject, GENERIC = '_generic', DOT = '.', MOVE = 'move', MOVE_START = 'moveStart', MOVE_END = 'moveEnd', SELECT = 'select', EXECUTE = 'execute', ACTION = 'action', CHANGE = 'change', ERROR = 'change', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EDIT_CARD = 'editCard', SAVE_CARD = 'saveCard', DELETE_CARD = 'deleteCard', EDIT_COLUMN = 'editColumn', SAVE_COLUMN = 'saveColumn', DELETE_COLUMN = 'deleteColumn', COLUMNSDATABINDING = 'columnsDataBinding', COLUMNSDATABOUND = 'columnsDataBound';
         var TaskBoard = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -1823,7 +1823,7 @@
                     focusableElement = that.pane.element.find('button');
                 }
                 setTimeout(function () {
-                    focusableElement.eq(0).focus();
+                    focusableElement.eq(0).trigger('focus');
                 }, 0);
             },
             _closePane: function () {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -309,7 +309,7 @@
                 if (that.form) {
                     kendo.unbind(that.form);
                     kendo.destroy(that.form);
-                    that.form.unbind(NS);
+                    that.form.off(NS);
                     if (that.popup) {
                         that.popup.destroy();
                         that.popup = null;
@@ -320,7 +320,7 @@
                     that.view.purge();
                     that.view = null;
                 }
-                that.link.unbind(NS);
+                that.link.off(NS);
                 if (that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                     that.dataSource = null;
@@ -426,7 +426,7 @@
                     var operatorSelects = viewElement.find('select');
                     operatorSelects.each(function (i, e) {
                         var input = $(e);
-                        input.val(input.find('option:first').val());
+                        input.val(input.find('option').first().val());
                         input.trigger('change');
                     });
                     if (that.type === 'string' || that.type === 'date' || that.type === 'number') {
@@ -530,7 +530,7 @@
                 });
             },
             _activate: function () {
-                this.form.find(':kendoFocusable:first').focus();
+                this.form.find(':kendoFocusable').first().trigger('focus');
                 this.trigger(OPEN, {
                     field: this.field,
                     container: this.form
@@ -811,7 +811,7 @@
                 }
             },
             _activate: function () {
-                this.form.find(':kendoFocusable:first').focus();
+                this.form.find(':kendoFocusable').first().trigger('focus');
                 this.trigger(OPEN, {
                     field: this.field,
                     container: this.form
@@ -1069,18 +1069,18 @@
                 if (that.form) {
                     kendo.unbind(that.form);
                     kendo.destroy(that.form);
-                    that.form.unbind(multiCheckNS);
+                    that.form.off(multiCheckNS);
                     if (that.popup) {
                         that.popup.destroy();
                         that.popup = null;
                     }
                     that.form = null;
                     if (that.container) {
-                        that.container.unbind(multiCheckNS);
+                        that.container.off(multiCheckNS);
                         that.container = null;
                     }
                     if (that.checkBoxAll) {
-                        that.checkBoxAll.unbind(multiCheckNS);
+                        that.checkBoxAll.off(multiCheckNS);
                     }
                 }
                 if (that.view) {
@@ -1088,7 +1088,7 @@
                     that.view = null;
                 }
                 if (that._link) {
-                    that._link.unbind(NS);
+                    that._link.off(NS);
                 }
                 if (that._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
@@ -1105,11 +1105,11 @@
                 }
                 this._clearTypingTimeout();
                 if (this.searchTextBox) {
-                    this.searchTextBox.unbind(multiCheckNS);
+                    this.searchTextBox.off(multiCheckNS);
                     this.searchTextBox = null;
                 }
                 if (this.clearSearchButton) {
-                    this.clearSearchButton.unbind(multiCheckNS);
+                    this.clearSearchButton.off(multiCheckNS);
                     this.clearSearchButton = null;
                 }
                 that.element = that.checkSource = that.container = that.checkBoxAll = that._link = that._refreshHandler = that.checkAllHandler = null;

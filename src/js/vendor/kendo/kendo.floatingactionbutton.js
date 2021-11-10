@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -318,7 +318,7 @@
                 if (this.trigger(EXPAND)) {
                     ev.preventDefault();
                 }
-                this._popup.element.find(DOT + cssClasses.item).first().focus();
+                this._popup.element.find(DOT + cssClasses.item).first().trigger('focus');
             },
             _popupCollapseHandler: function (ev) {
                 if (this.trigger(COLLAPSE)) {
@@ -327,9 +327,9 @@
             },
             _attachEvents: function () {
                 var that = this, popup = that._popup;
-                that.element.bind(CLICK + NS, proxy(that._click, that));
+                that.element.on(CLICK + NS, proxy(that._click, that));
                 if (popup) {
-                    popup.element.bind(CLICK + NS, DOT + cssClasses.item, proxy(that._itemClick, that)).bind(KEYDOWN + NS, DOT + cssClasses.item, proxy(that._itemKeydown, that)).on(HOVEREVENTS, DOT + cssClasses.item, proxy(that._itemHover, that));
+                    popup.element.on(CLICK + NS, DOT + cssClasses.item, proxy(that._itemClick, that)).on(KEYDOWN + NS, DOT + cssClasses.item, proxy(that._itemKeydown, that)).on(HOVEREVENTS, DOT + cssClasses.item, proxy(that._itemHover, that));
                 }
             },
             _click: function (ev) {
@@ -362,7 +362,7 @@
                         item: itemOptions
                     };
                     if (handler) {
-                        that.element.focus();
+                        that.element.trigger('focus');
                         that._popup.close();
                         handler.call(that, eventData);
                     }
@@ -379,27 +379,27 @@
                 }
                 if (!isBottom && keyCode === keys.DOWN || isBottom && keyCode === keys.UP) {
                     if (index === listItems.length - 1) {
-                        listItems.first().focus();
+                        listItems.first().trigger('focus');
                         return;
                     }
-                    $(listItems[index + 1]).focus();
+                    $(listItems[index + 1]).trigger('focus');
                 }
                 if (!isBottom && keyCode === keys.UP || isBottom && keyCode === keys.DOWN) {
                     if (index === 0) {
-                        listItems.last().focus();
+                        listItems.last().trigger('focus');
                         return;
                     }
-                    $(listItems[index - 1]).focus();
+                    $(listItems[index - 1]).trigger('focus');
                 }
                 if (keyCode === keys.ESC || keyCode === keys.TAB) {
                     popup.close();
-                    element.focus();
+                    element.trigger('focus');
                 }
                 if (keyCode === keys.HOME) {
-                    listItems.first().focus();
+                    listItems.first().trigger('focus');
                 }
                 if (keyCode === keys.END) {
-                    listItems.last().focus();
+                    listItems.last().trigger('focus');
                 }
             },
             _itemHover: function (ev) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -160,29 +160,29 @@
                     result = that.parent(node) || node;
                     if (!result.length) {
                         if (that.dropdowntree.checkAll && that.dropdowntree.checkAll.is(':visible')) {
-                            that.dropdowntree.checkAll.find('.k-checkbox').focus();
+                            that.dropdowntree.checkAll.find('.k-checkbox').trigger('focus');
                         } else if (that.dropdowntree.filterInput) {
-                            that.dropdowntree.filterInput.focus();
+                            that.dropdowntree.filterInput.trigger('focus');
                         } else {
-                            that.dropdowntree.wrapper.focus();
+                            that.dropdowntree.wrapper.trigger('focus');
                         }
                     }
                 }
                 return result;
             },
             _keydown: function (e) {
-                var that = this, key = e.keyCode, target, focused = that.current(), expanded = that._expanded(focused), checkbox = focused.find('.k-checkbox-wrapper:first :checkbox'), rtl = kendo.support.isRtl(that.element);
+                var that = this, key = e.keyCode, target, focused = that.current(), expanded = that._expanded(focused), checkbox = focused.find('.k-checkbox-wrapper').first().find(':checkbox'), rtl = kendo.support.isRtl(that.element);
                 if (e.target != e.currentTarget) {
                     return;
                 }
                 if (!rtl && key == keys.RIGHT || rtl && key == keys.LEFT) {
                     if (expanded) {
                         target = that._nextVisible(focused);
-                    } else if (!focused.find('.k-in:first').hasClass(DISABLED)) {
+                    } else if (!focused.find('.k-in').first().hasClass(DISABLED)) {
                         that.expand(focused);
                     }
                 } else if (!rtl && key == keys.LEFT || rtl && key == keys.RIGHT) {
-                    if (expanded && !focused.find('.k-in:first').hasClass(DISABLED)) {
+                    if (expanded && !focused.find('.k-in').first().hasClass(DISABLED)) {
                         that.collapse(focused);
                     } else {
                         target = that.parent(focused);
@@ -198,13 +198,13 @@
                     target = that._nextVisible($());
                 } else if (key == keys.END) {
                     target = that._previousVisible($());
-                } else if (key == keys.ENTER && !focused.find('.k-in:first').hasClass(DISABLED)) {
-                    if (!focused.find('.k-in:first').hasClass('k-state-selected')) {
+                } else if (key == keys.ENTER && !focused.find('.k-in').first().hasClass(DISABLED)) {
+                    if (!focused.find('.k-in').first().hasClass('k-state-selected')) {
                         if (!that._trigger(SELECT, focused)) {
                             that.select(focused);
                         }
                     }
-                } else if (key == keys.SPACEBAR && checkbox.length && !focused.find('.k-in:first').hasClass(DISABLED)) {
+                } else if (key == keys.SPACEBAR && checkbox.length && !focused.find('.k-in').first().hasClass(DISABLED)) {
                     checkbox.prop(CHECKED, !checkbox.prop(CHECKED)).data(INDETERMINATE, false).prop(INDETERMINATE, false);
                     that._checkboxChange({ target: checkbox });
                     target = focused;
@@ -224,7 +224,7 @@
             },
             _closePopup: function () {
                 this.dropdowntree.close();
-                this.dropdowntree.wrapper.focus();
+                this.dropdowntree.wrapper.trigger('focus');
             },
             refresh: function (e) {
                 this.defaultrefresh(e);
@@ -284,7 +284,7 @@
                 }
                 if (!this._isNullorUndefined(value)) {
                     this._valueMethodCalled = true;
-                    this._values = $.isArray(value) ? value.slice(0) : [value];
+                    this._values = Array.isArray(value) ? value.slice(0) : [value];
                 }
                 this._inputTemplate();
                 this._accessors();
@@ -433,7 +433,7 @@
                 'filtering'
             ],
             focus: function () {
-                this.wrapper.focus();
+                this.wrapper.trigger('focus');
             },
             dataItem: function (node) {
                 return this.treeview.dataItem(node);
@@ -485,7 +485,7 @@
                 clearTimeout(this._typingTimeout);
                 if (!options.enforceMinLength && !word.length || word.length >= options.minLength) {
                     filter = this._getFilter(word);
-                    if (this.trigger('filtering', { filter: filter }) || $.isArray(this.options.dataTextField)) {
+                    if (this.trigger('filtering', { filter: filter }) || Array.isArray(this.options.dataTextField)) {
                         return;
                     }
                     this._filtering = true;
@@ -562,7 +562,7 @@
                 }
             },
             setValue: function (value) {
-                value = $.isArray(value) || value instanceof ObservableArray ? value.slice(0) : [value];
+                value = Array.isArray(value) || value instanceof ObservableArray ? value.slice(0) : [value];
                 this._values = value;
             },
             items: function () {
@@ -645,7 +645,7 @@
                     return;
                 }
                 this._angularElement(noData, 'cleanup');
-                noData.children(':first').html(list.noDataTemplate({ instance: list }));
+                noData.children().first().html(list.noDataTemplate({ instance: list }));
                 this._angularElement(noData, 'compile');
             },
             _footer: function () {
@@ -811,7 +811,7 @@
                 }
                 if (this.options.autoClose && this.popup.visible()) {
                     this.close();
-                    this.wrapper.focus();
+                    this.wrapper.trigger('focus');
                 }
                 this.popup.position();
                 this._toggleCloseVisibility();
@@ -874,14 +874,14 @@
                 this._valueMethodCalled = false;
                 if (this.options.autoClose && this.popup.visible()) {
                     this.close();
-                    this.wrapper.focus();
+                    this.wrapper.trigger('focus');
                 }
                 this.popup.position();
                 this._toggleCloseVisibility();
             },
             _clearClick: function (e) {
                 e.stopPropagation();
-                this.wrapper.focus();
+                this.wrapper.trigger('focus');
                 this._clearTextAndValue();
             },
             _clearTextAndValue: function () {
@@ -958,7 +958,7 @@
                 var textField = element.attr(kendo.attr('text-field'));
                 var valueField = element.attr(kendo.attr('value-field'));
                 var getterFunction = function (field) {
-                    if ($.isArray(field)) {
+                    if (Array.isArray(field)) {
                         var count = field.length;
                         var levels = $.map(field, function (x) {
                             return function (d) {
@@ -1228,15 +1228,15 @@
                 var altKey = e.altKey;
                 if (altKey && key === keys.UP || key === keys.ESC || key === keys.TAB) {
                     this.close();
-                    this.wrapper.focus();
+                    this.wrapper.trigger('focus');
                     e.preventDefault();
                     return;
                 }
                 if (key === keys.UP) {
                     if (this.filterInput) {
-                        this.filterInput.focus();
+                        this.filterInput.trigger('focus');
                     } else {
-                        this.wrapper.focus();
+                        this.wrapper.trigger('focus');
                     }
                     e.preventDefault();
                 }
@@ -1255,7 +1255,7 @@
                 var checkAllCheckbox = this.checkAll.find('.k-checkbox');
                 var isChecked = checkAllCheckbox.prop('checked');
                 this._updateCheckAll(!isChecked);
-                checkAllCheckbox.focus();
+                checkAllCheckbox.trigger('focus');
             },
             _dfs: function (items, action, prop) {
                 for (var idx = 0; idx < items.length; idx++) {
@@ -1393,7 +1393,7 @@
                     that.tagList.off(CLICK + ns);
                 }
                 if (!readonly && !disable) {
-                    element.removeAttr(DISABLED).removeAttr(READONLY);
+                    element.prop(DISABLED, false).prop(READONLY, false);
                     dropDownWrapper.removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
                     that._clear.on('click' + ns, proxy(that._clearClick, that));
                     wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
@@ -1429,7 +1429,7 @@
                 if (!that._prevent) {
                     this._inputWrapper.removeClass(FOCUSED);
                     that._prevent = true;
-                    that.element.blur();
+                    that.element.trigger('blur');
                 }
             },
             _toggle: function (open) {
@@ -1448,9 +1448,9 @@
             },
             _focusInput: function () {
                 if (this.filterInput) {
-                    this.filterInput.focus();
+                    this.filterInput.trigger('focus');
                 } else if (this.checkAll) {
-                    this.checkAll.find('.k-checkbox').focus();
+                    this.checkAll.find('.k-checkbox').trigger('focus');
                 } else if (this.tree.is(':visible')) {
                     this.tree[0].focus({ preventScroll: true });
                     this._ie11PreventScrollOnFocus();
@@ -1536,7 +1536,7 @@
                         this._clearFilter();
                     }
                     if (key === keys.UP && !altKey) {
-                        this.wrapper.focus();
+                        this.wrapper.trigger('focus');
                         e.preventDefault();
                     }
                     if (browser.msie && browser.version < 10) {
@@ -1546,14 +1546,14 @@
                     }
                     if (key === keys.TAB) {
                         this.close();
-                        this.wrapper.focus();
+                        this.wrapper.trigger('focus');
                         e.preventDefault();
                         return;
                     }
                 }
                 if (altKey && key === keys.UP || key === keys.ESC) {
                     this.close();
-                    this.wrapper.focus();
+                    this.wrapper.trigger('focus');
                     e.preventDefault();
                     return;
                 }
@@ -1571,9 +1571,9 @@
                 }
                 if (key === keys.DOWN && isPopupVisible) {
                     if (this.filterInput && !isFilterInputActive) {
-                        this.filterInput.focus();
+                        this.filterInput.trigger('focus');
                     } else if (this.checkAll && this.checkAll.is(':visible')) {
-                        this.checkAll.find('input').focus();
+                        this.checkAll.find('input').trigger('focus');
                     } else if (this.tree.is(':visible')) {
                         this.tree[0].focus({ preventScroll: true });
                         this._ie11PreventScrollOnFocus();
@@ -1582,7 +1582,7 @@
                 }
                 if (key === keys.TAB && isPopupVisible) {
                     this.close();
-                    this.wrapper.focus();
+                    this.wrapper.trigger('focus');
                     e.preventDefault();
                 }
             },
@@ -1769,7 +1769,7 @@
             _preselect: function (data, value) {
                 var dropdowntree = this._dropdowntree;
                 var valueToSelect = value || dropdowntree.options.value;
-                if (!$.isArray(data) && !(data instanceof kendo.data.ObservableArray)) {
+                if (!Array.isArray(data) && !(data instanceof kendo.data.ObservableArray)) {
                     data = [data];
                 }
                 if ($.isPlainObject(data[0]) || data[0] instanceof kendo.data.ObservableObject || !dropdowntree.options.dataValueField) {

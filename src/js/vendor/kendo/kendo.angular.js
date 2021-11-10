@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -774,7 +774,7 @@
         };
         var pendingPatches = [];
         function defadvice(klass, methodName, func) {
-            if ($.isArray(klass)) {
+            if (Array.isArray(klass)) {
                 return angular.forEach(klass, function (klass) {
                     defadvice(klass, methodName, func);
                 });
@@ -944,7 +944,7 @@
         });
         defadvice('ui.Widget', '$angular_init', function (element, options) {
             var self = this.self;
-            if (options && !$.isArray(options)) {
+            if (options && !Array.isArray(options)) {
                 var scope = self.$angular_scope;
                 for (var i = self.events.length; --i >= 0;) {
                     var event = self.events[i];

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, proxy = $.proxy, CHANGE = 'change', FOCUS = 'focus', CLICK = 'click', SELECT = 'select', DOT = '.', DISABLED = 'disabled', VERTICAL = 'vertical', AFTER = 'after';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, proxy = $.proxy, CHANGE = 'change', FOCUS = 'focus', CLICK = 'click', SELECT = 'select', DOT = '.', DISABLED = 'disabled', VERTICAL = 'vertical', REQUIRED = 'required', AFTER = 'after';
         var InputGroupBase = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -119,7 +119,7 @@
                     inputs.attr(DISABLED, '');
                     items.addClass(this.groupStyles.disabled);
                 } else {
-                    inputs.removeAttr(DISABLED);
+                    inputs.prop(DISABLED, false);
                     items.removeClass(this.groupStyles.disabled);
                 }
             },
@@ -222,8 +222,8 @@
                         items.push({});
                     };
                 if (wrapper.is('[required]')) {
-                    validationAttributes.required = 'required';
-                    wrapper.removeAttr('required');
+                    validationAttributes.required = REQUIRED;
+                    wrapper.prop(REQUIRED, false);
                 }
                 if (wrapper.is('[data-val=true]')) {
                     validationAttributes['data-val'] = 'true';

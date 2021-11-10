@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,7 +40,7 @@
         hidden: true
     };
     (function ($) {
-        var extend = $.extend, map = $.map, proxy = $.proxy, isFunction = $.isFunction, ui = kendo.ui, TreeList = ui.TreeList, outerHeight = kendo._outerHeight, activeElement = kendo._activeElement, keys = kendo.keys, mobileOS = kendo.support.mobileOS, DATATYPE = kendo.attr('type'), BINDING = kendo.attr('bind'), FORMAT = kendo.attr('format'), STRING = 'string', NS = '.kendoGanttList', DOUBLE_CLICK = 'dblclick', FOCUSIN = 'focusin', FOCUSOUT = 'focusout', KEYDOWN = 'keydown', KEYUP = 'keyup', MOUSE_DOWN = 'mousedown', BEFORE_EDIT = 'beforeEdit', EDIT = 'edit', SAVE = 'save', CANCEL = 'cancel', RENDER = 'render', DOT = '.', defaultDateFormat = '{0:' + kendo.getCulture().calendar.patterns.d + '}', titleFromField = {
+        var extend = $.extend, map = $.map, proxy = $.proxy, isFunction = kendo.isFunction, ui = kendo.ui, TreeList = ui.TreeList, outerHeight = kendo._outerHeight, activeElement = kendo._activeElement, keys = kendo.keys, mobileOS = kendo.support.mobileOS, DATATYPE = kendo.attr('type'), BINDING = kendo.attr('bind'), FORMAT = kendo.attr('format'), STRING = 'string', NS = '.kendoGanttList', DOUBLE_CLICK = 'dblclick', FOCUSIN = 'focusin', FOCUSOUT = 'focusout', KEYDOWN = 'keydown', KEYUP = 'keyup', MOUSE_DOWN = 'mousedown', BEFORE_EDIT = 'beforeEdit', EDIT = 'edit', SAVE = 'save', CANCEL = 'cancel', RENDER = 'render', DOT = '.', defaultDateFormat = '{0:' + kendo.getCulture().calendar.patterns.d + '}', titleFromField = {
                 'title': 'Title',
                 'start': 'Start Time',
                 'end': 'End Time',
@@ -215,7 +215,7 @@
             _blurActiveElement: function () {
                 var activeElement = kendo._activeElement();
                 if (activeElement && activeElement.nodeName.toLowerCase() !== 'body') {
-                    $(activeElement).blur();
+                    $(activeElement).trigger('blur');
                 }
             },
             _closeCellTimeouted: function () {
@@ -410,7 +410,7 @@
                 if (that.editor) {
                     if (that.editor.end()) {
                         if (selectable) {
-                            $(activeElement()).blur();
+                            $(activeElement()).trigger('blur');
                         }
                         that.closeCell();
                         that.editCell(td);

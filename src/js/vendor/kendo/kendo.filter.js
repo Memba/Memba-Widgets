@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -493,8 +493,8 @@
                     close: that.options.messages.close,
                     uid: that.filterModel.uid,
                     ns: kendo.ns
-                })).appendTo(that.element.find('li:first'));
-                that._bindModel(that.element.find('.k-toolbar:first'), that.filterModel);
+                })).appendTo(that.element.find('li').first());
+                that._bindModel(that.element.find('.k-toolbar').first(), that.filterModel);
             },
             _removeExpression: function (parent) {
                 var that = this;
@@ -539,7 +539,7 @@
                     return;
                 }
                 var operator = model.operator;
-                var editorContainer = container.find('.k-filter-toolbar-item:eq(2)');
+                var editorContainer = container.find('.k-filter-toolbar-item').eq(2);
                 if (operator == 'isnull' || operator == 'isnotnull' || operator == 'isempty' || operator == 'isnotempty' || operator == 'isnullorempty' || operator == 'isnotnullorempty') {
                     editorContainer.hide();
                 } else {

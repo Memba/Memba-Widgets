@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -313,7 +313,7 @@
                 var that = this;
                 var dataSource = source || {};
                 var value;
-                dataSource = $.isArray(dataSource) ? { data: dataSource } : dataSource;
+                dataSource = Array.isArray(dataSource) ? { data: dataSource } : dataSource;
                 dataSource = kendo.data.DataSource.create(dataSource);
                 if (that.dataSource) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);

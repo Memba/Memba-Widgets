@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -623,7 +623,7 @@
                 }
             },
             _isEmpty: function (element) {
-                return !$.trim(element.html());
+                return !kendo.trim(element.html());
             },
             _iterateAriaStep: function (step) {
                 step._ariaAttributes();
@@ -729,7 +729,7 @@
                 var stepper = this.stepper, targetStep = stepper.steps()[index], targetLink = targetStep.element.find(DOT + STEPPER_STEP_LINK);
                 stepper.select(index);
                 stepper.wrapper.find(DOT + STEPPER_STEP_LINK).attr(ARIA_SELECTED, false);
-                targetLink.attr(ARIA_SELECTED, true).focus();
+                targetLink.attr(ARIA_SELECTED, true).trigger('focus');
             },
             _stepper: function () {
                 var wrapper = this.wrapper, stepperElement = $('<div>').prependTo(wrapper), options = this.options, stepperOptions = options.stepper, stepsOptions = options.steps.map(this._mapStepForStepper);

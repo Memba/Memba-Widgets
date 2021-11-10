@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -223,12 +223,12 @@
                     var lastFocusable = allFocusables.last();
                     if (e.shiftKey) {
                         if (document.activeElement === firstFocusable[0]) {
-                            lastFocusable.focus();
+                            lastFocusable.trigger('focus');
                             e.preventDefault();
                         }
                     } else {
                         if (document.activeElement === lastFocusable[0]) {
-                            firstFocusable.focus();
+                            firstFocusable.trigger('focus');
                             e.preventDefault();
                         }
                     }
@@ -247,7 +247,7 @@
                         that._attachActions();
                         DOCUMENT.on('keydown' + NS, that._documentKeyDownHandler);
                         if (that._isDialog) {
-                            that.wrapper.find(':kendoFocusable').first().focus();
+                            that.wrapper.find(':kendoFocusable').first().trigger('focus');
                         } else {
                             that._addDescribedBy();
                         }

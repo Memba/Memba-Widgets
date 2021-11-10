@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -32,14 +32,14 @@
         description: 'The core of the Kendo framework.'
     };
     (function ($, window, undefined) {
-        var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice, noDepricateExtend = function () {
+        var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = Array.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice, noDepricateExtend = function () {
                 var src, copyIsArray, copy, name, options, clone, target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
                 if (typeof target === 'boolean') {
                     deep = target;
                     target = arguments[i] || {};
                     i++;
                 }
-                if (typeof target !== 'object' && !jQuery.isFunction(target)) {
+                if (typeof target !== 'object' && typeof target !== 'function') {
                     target = {};
                 }
                 if (i === length) {
@@ -57,10 +57,10 @@
                             if (target === copy) {
                                 continue;
                             }
-                            if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)))) {
+                            if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
                                 if (copyIsArray) {
                                     copyIsArray = false;
-                                    clone = src && jQuery.isArray(src) ? src : [];
+                                    clone = src && Array.isArray(src) ? src : [];
                                 } else {
                                     clone = src && jQuery.isPlainObject(src) ? src : {};
                                 }
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.3.914'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.3.1109'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1977,7 +1977,7 @@
                 'tap'
             ], function (m, value) {
                 $.fn[value] = function (callback) {
-                    return this.bind(value, callback);
+                    return this.on(value, callback);
                 };
             });
         }
@@ -3448,7 +3448,7 @@
                 if (widget && widget.focus) {
                     widget.focus();
                 } else {
-                    el.focus();
+                    el.trigger('focus');
                 }
             }
             lastElement.on('keydown', function (e) {
@@ -3820,7 +3820,7 @@
         kendo.registerCssClasses('align', alignValues);
         kendo.registerCssClasses('positionMode', positionModeValues);
         kendo.whenAll = function (array) {
-            var resolveValues = arguments.length == 1 && $.isArray(array) ? array : Array.prototype.slice.call(arguments), length = resolveValues.length, remaining = length, deferred = $.Deferred(), i = 0, failed = 0, rejectContexts = Array(length), rejectValues = Array(length), resolveContexts = Array(length), value;
+            var resolveValues = arguments.length == 1 && Array.isArray(array) ? array : Array.prototype.slice.call(arguments), length = resolveValues.length, remaining = length, deferred = $.Deferred(), i = 0, failed = 0, rejectContexts = Array(length), rejectValues = Array(length), resolveContexts = Array(length), value;
             function updateFunc(index, contexts, values) {
                 return function () {
                     if (values != resolveValues) {
@@ -3833,7 +3833,7 @@
                 };
             }
             for (; i < length; i++) {
-                if ((value = resolveValues[i]) && $.isFunction(value.promise)) {
+                if ((value = resolveValues[i]) && kendo.isFunction(value.promise)) {
                     value.promise().done(updateFunc(i, resolveContexts, resolveValues)).fail(updateFunc(i, rejectContexts, rejectValues));
                 } else {
                     deferred.notifyWith(this, value);
@@ -3953,6 +3953,18 @@
                 } else {
                     curr[key] = value;
                 }
+            };
+        }());
+        (function () {
+            kendo.class2type = {};
+            jQuery.each('Boolean Number String Function Array Date RegExp Object Error Symbol'.split(' '), function (_i, name) {
+                kendo.class2type['[object ' + name + ']'] = name.toLowerCase();
+            });
+            kendo.type = function (obj) {
+                if (obj == null) {
+                    return obj + '';
+                }
+                return typeof obj === 'object' || typeof obj === 'function' ? kendo.class2type[Object.prototype.toString.call(obj)] || 'object' : typeof obj;
             };
         }());
     }(jQuery, window));
@@ -5232,7 +5244,7 @@
                     } else if (operator === 'isempty' || operator === 'isnotempty') {
                         filter = kendo.format('{0} {1} \'\'', field, filter);
                     } else if (filter && value !== undefined) {
-                        type = $.type(value);
+                        type = kendo.type(value);
                         if (type === 'string') {
                             format = '\'{1}\'';
                             value = value.replace(/'/g, '\'\'');
@@ -5494,7 +5506,7 @@
                 'odata-v4': {
                     type: 'json',
                     data: function (data) {
-                        if ($.isArray(data)) {
+                        if (Array.isArray(data)) {
                             for (var i = 0; i < data.length; i++) {
                                 stripMetadata(data[i]);
                             }
@@ -5607,7 +5619,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, each = $.each, extend = $.extend, getter = kendo.getter, Class = kendo.Class;
+        var kendo = window.kendo, isArray = Array.isArray, isPlainObject = $.isPlainObject, map = $.map, each = $.each, extend = $.extend, getter = kendo.getter, Class = kendo.Class;
         var XmlDataReader = Class.extend({
             init: function (options) {
                 var that = this, total = options.total, model = options.model, parse = options.parse, errors = options.errors, serialize = options.serialize, data = options.data;
@@ -5617,7 +5629,7 @@
                         if (model.fields) {
                             each(model.fields, function (field, value) {
                                 if (isPlainObject(value) && value.field) {
-                                    if (!$.isFunction(value.field)) {
+                                    if (!kendo.isFunction(value.field)) {
                                         value = extend(value, { field: that.getter(value.field) });
                                     }
                                 } else {
@@ -6263,7 +6275,7 @@
             if (x === y) {
                 return true;
             }
-            var xtype = $.type(x), ytype = $.type(y), field;
+            var xtype = kendo.type(x), ytype = kendo.type(y), field;
             if (xtype !== ytype) {
                 return false;
             }
@@ -13018,7 +13030,7 @@
                 }
                 nextFocusable = kendo.getWidgetFocusableElement(target);
                 if (nextFocusable) {
-                    nextFocusable.focus();
+                    nextFocusable.trigger('focus');
                 }
             },
             showValidationSummary: function () {
@@ -14017,7 +14029,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, Class = kendo.Class, Observable = kendo.Observable, now = $.now, extend = $.extend, OS = support.mobileOS, invalidZeroEvents = OS && OS.android, DEFAULT_MIN_HOLD = 800, CLICK_DELAY = 300, DEFAULT_THRESHOLD = support.browser.msie ? 5 : 0, PRESS = 'press', HOLD = 'hold', SELECT = 'select', START = 'start', MOVE = 'move', END = 'end', CANCEL = 'cancel', TAP = 'tap', DOUBLETAP = 'doubleTap', RELEASE = 'release', GESTURESTART = 'gesturestart', GESTURECHANGE = 'gesturechange', GESTUREEND = 'gestureend', GESTURETAP = 'gesturetap';
+        var kendo = window.kendo, support = kendo.support, Class = kendo.Class, Observable = kendo.Observable, now = Date.now, extend = $.extend, OS = support.mobileOS, invalidZeroEvents = OS && OS.android, DEFAULT_MIN_HOLD = 800, CLICK_DELAY = 300, DEFAULT_THRESHOLD = support.browser.msie ? 5 : 0, PRESS = 'press', HOLD = 'hold', SELECT = 'select', START = 'start', MOVE = 'move', END = 'end', CANCEL = 'cancel', TAP = 'tap', DOUBLETAP = 'doubleTap', RELEASE = 'release', GESTURESTART = 'gesturestart', GESTURECHANGE = 'gesturechange', GESTUREEND = 'gestureend', GESTURETAP = 'gesturetap';
         var THRESHOLD = {
             'api': 0,
             'touch': 0,
@@ -18890,7 +18902,7 @@
                 }
                 this.options.enable = enable;
                 if (enable) {
-                    element.removeAttr(DISABLED);
+                    element.prop(DISABLED, false);
                 } else {
                     element.attr(DISABLED, DISABLED);
                 }
@@ -20721,7 +20733,7 @@
                 var buffer = this.buffer, template = this.template, emptyTemplate = this.emptyTemplate, view = null;
                 if (index >= 0) {
                     view = buffer.at(index);
-                    if ($.isArray(view) && !view.length) {
+                    if (Array.isArray(view) && !view.length) {
                         view = null;
                     }
                 }
@@ -21059,7 +21071,7 @@
                 }
                 this.options.enable = enable;
                 if (enable) {
-                    element.removeAttr(DISABLED);
+                    element.prop(DISABLED, false);
                 } else {
                     element.attr(DISABLED, DISABLED);
                 }
@@ -22017,7 +22029,7 @@
         };
         var pendingPatches = [];
         function defadvice(klass, methodName, func) {
-            if ($.isArray(klass)) {
+            if (Array.isArray(klass)) {
                 return angular.forEach(klass, function (klass) {
                     defadvice(klass, methodName, func);
                 });
@@ -22187,7 +22199,7 @@
         });
         defadvice('ui.Widget', '$angular_init', function (element, options) {
             var self = this.self;
-            if (options && !$.isArray(options)) {
+            if (options && !Array.isArray(options)) {
                 var scope = self.$angular_scope;
                 for (var i = self.events.length; --i >= 0;) {
                     var event = self.events[i];

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -60,7 +60,7 @@
                     return filter;
                 }
             }
-            if ($.isArray(filter)) {
+            if (Array.isArray(filter)) {
                 filters = filter;
             }
             for (var i = 0; i < filters.length; i++) {
@@ -370,7 +370,7 @@
             },
             _createClearIcon: function () {
                 var that = this;
-                $('<button type=\'button\' class=\'k-button k-button-icon\' title = \'' + that.options.messages.clear + '\'/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-filter-clear\'></span>').click(proxy(that.clearFilter, that)).appendTo(that.wrapper);
+                $('<button type=\'button\' class=\'k-button k-button-icon\' title = \'' + that.options.messages.clear + '\'/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-filter-clear\'></span>').on('click', proxy(that.clearFilter, that)).appendTo(that.wrapper);
             },
             clearFilter: function () {
                 this._clearInProgress = true;

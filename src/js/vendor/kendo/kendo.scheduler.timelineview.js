@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -112,8 +112,8 @@
             },
             _hideHeaders: function () {
                 var view = this._view;
-                view.timesHeader.find('table tr:last').hide();
-                view.datesHeader.find('table tr:last').hide();
+                view.timesHeader.find('table tr').last().hide();
+                view.datesHeader.find('table tr').last().hide();
             },
             _setColspan: function (timeColumn) {
                 setColspan(timeColumn);
@@ -252,7 +252,7 @@
                 var timesTableMarker = $(elementHtml).prependTo(headerWrap).addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-down');
                 timesTableMarker.css({
                     left: view._adjustLeftPosition(left - outerWidth(timesTableMarker) * BORDER_SIZE_COEFF / 2),
-                    top: headerWrap.find('tr:last').prev().position().top
+                    top: headerWrap.find('tr').last().prev().position().top
                 });
                 $(elementHtml).prependTo(view.content).css({
                     left: view._adjustLeftPosition(left),
@@ -515,8 +515,8 @@
             },
             _updateCurrentVerticalTimeMarker: function (ranges, currentTime) {
                 var view = this._view;
-                var firstTimesCell = view.times.find('tr:first th:first');
-                var lastTimesCell = view.times.find('tr:first th:last');
+                var firstTimesCell = view.times.find('tr').first().find('th').first();
+                var lastTimesCell = view.times.find('tr').first().find('th').last();
                 var elementHtml = '<div class=\'' + CURRENT_TIME_MARKER_CLASS + '\'></div>';
                 var timesTableMarker = $(elementHtml).prependTo(view.times);
                 var markerTopPosition = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).top);
@@ -766,7 +766,7 @@
                             var timesTableMarker = $(elementHtml).prependTo(headerWrap).addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-down');
                             timesTableMarker.css({
                                 left: this._adjustLeftPosition(left - outerWidth(timesTableMarker) * BORDER_SIZE_COEFF / 2),
-                                top: headerWrap.find('tr:last').prev().position().top
+                                top: headerWrap.find('tr').last().prev().position().top
                             });
                             $(elementHtml).prependTo(this.content).css({
                                 left: this._adjustLeftPosition(left),
@@ -987,7 +987,7 @@
                 var content = this.content;
                 var contentWidth = content.width();
                 var contentTable = this.content.find('table');
-                var columnCount = contentTable.find('tr:first').children().length;
+                var columnCount = contentTable.find('tr').first().children().length;
                 var minWidth = 100;
                 var calculatedWidth = columnCount * this.options.columnWidth;
                 if (contentWidth < calculatedWidth) {
@@ -1320,7 +1320,7 @@
                     var eventsForGroup = eventGroups[groupIndex].events;
                     for (var eventUid in eventsForGroup) {
                         var eventObject = eventsForGroup[eventUid];
-                        if ($.isArray(eventObject)) {
+                        if (Array.isArray(eventObject)) {
                             for (var eventIndex = 0; eventIndex < eventObject.length; eventIndex++) {
                                 this._positionEvent(eventObject[eventIndex]);
                             }

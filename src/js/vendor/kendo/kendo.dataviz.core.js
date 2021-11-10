@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -737,6 +737,94 @@
                 return WHITE;
             }
             return BLACK;
+        }
+        var DELETED = {};
+        var LegacySet = Class.extend({
+            init: function (values) {
+                var this$1 = this;
+                this._index = {};
+                this._values = values ? values.slice(0) : [];
+                for (var i = 0; i < this._values.length; i++) {
+                    this$1._index[this$1._values[i]] = i;
+                }
+            },
+            values: function () {
+                return this._values.filter(function (item) {
+                    return item !== DELETED;
+                });
+            },
+            has: function (value) {
+                return this._index[value] !== undefined;
+            },
+            add: function (value) {
+                if (!this.has(value)) {
+                    this._index[value] = this._values.length;
+                    this._values.push(value);
+                }
+            },
+            delete: function (value) {
+                var index = this._index[value];
+                if (index !== undefined) {
+                    this._values[index] = DELETED;
+                    delete this._index[value];
+                }
+            },
+            clear: function () {
+                this._index = {};
+                this._values = [];
+            }
+        });
+        if (Object.defineProperties) {
+            Object.defineProperties(LegacySet.fn, {
+                size: {
+                    get: function () {
+                        return this._values.length;
+                    }
+                }
+            });
+        }
+        var SetWrapper = Class.extend({
+            init: function (values) {
+                this._set = new Set(values);
+            },
+            values: function () {
+                return Array.from(this._set);
+            },
+            has: function (value) {
+                return this._set.has(value);
+            },
+            add: function (value) {
+                this._set.add(value);
+            },
+            delete: function (value) {
+                this._set.delete(value);
+            },
+            clear: function () {
+                this._set.clear();
+            }
+        });
+        if (Object.defineProperties) {
+            Object.defineProperties(SetWrapper.fn, {
+                size: {
+                    get: function () {
+                        return this._set.size;
+                    }
+                }
+            });
+        }
+        var supportsSet = function () {
+            var supported = false;
+            if (typeof Set === 'function') {
+                var set = new Set([1]);
+                supported = set.has(1);
+            }
+            return supported;
+        };
+        function createHashSet(values) {
+            if (supportsSet()) {
+                return new SetWrapper(values);
+            }
+            return new LegacySet(values);
         }
         function autoMajorUnit(min, max) {
             var diff = round(max - min, DEFAULT_PRECISION - 1);
@@ -6626,6 +6714,7 @@
             find: find,
             elementScale: elementScale,
             autoTextColor: autoTextColor,
+            createHashSet: createHashSet,
             append: append,
             bindEvents: bindEvents,
             Class: Class,

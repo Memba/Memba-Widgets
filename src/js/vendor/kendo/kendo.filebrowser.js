@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -526,7 +526,7 @@
             },
             _navigation: function () {
                 var that = this, navigation = $('<div class="k-floatwrap"><nav></nav></div>').appendTo(this.element);
-                that.breadcrumbs = navigation.find('nav:first').kendoBreadcrumb({
+                that.breadcrumbs = navigation.find('nav').first().kendoBreadcrumb({
                     editable: true,
                     gap: 50,
                     value: that.options.path || '/',

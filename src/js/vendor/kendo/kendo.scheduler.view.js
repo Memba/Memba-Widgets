@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1504,8 +1504,8 @@
                 }
                 this.table = $('<table role="presentation" class="k-scheduler-layout k-scheduler-' + this.name + 'view"><tbody></tbody></table>');
                 var rowCount = rowLevels[rowLevels.length - 1].length;
-                this.table.find('tbody:first').append(this._topSection(columnLevels, allDaySlot, rowCount));
-                this.table.find('tbody:first').append(this._bottomSection(columnLevels, rowLevels, rowCount));
+                this.table.find('tbody').first().append(this._topSection(columnLevels, allDaySlot, rowCount));
+                this.table.find('tbody').first().append(this._bottomSection(columnLevels, rowLevels, rowCount));
                 this.element.append(this.table);
                 if (this._isVirtualized()) {
                     this._updateDomRowLevels();
@@ -1575,11 +1575,11 @@
                 for (var i = levelMarker; i < this.rowLevels.length; i++) {
                     this.rowLevels[i] = this.rowLevels[i].concat(rowLevels[i - levelMarker]);
                 }
-                this.table.find('.k-scheduler-times:last tbody').append(this._times(rowLevels, rowCount, this._isMobile()).find('tr'));
+                this.table.find('.k-scheduler-times').last().find('tbody').append(this._times(rowLevels, rowCount, this._isMobile()).find('tr'));
                 this._updateDomRowLevels();
                 if (levelMarker > 0) {
                     for (i = 0; i < levelMarker; i++) {
-                        var cell = this.table.find('[data-row-level=' + i + ']:last');
+                        var cell = this.table.find('[data-row-level=' + i + ']').last();
                         var rowSpan = parseInt(cell.attr('rowspan'), 10) + rowCount;
                         cell.attr('rowspan', rowSpan);
                     }
@@ -1624,7 +1624,7 @@
                     headerHeight = outerHeight(that.timesHeader);
                 }
                 if (that.datesHeader && that.timesHeader) {
-                    var datesHeaderRows = that.datesHeader.find('table:first tr');
+                    var datesHeaderRows = that.datesHeader.find('table').first().find('tr');
                     that.timesHeader.find('tr').height(function (index) {
                         $(this).height(datesHeaderRows.eq(index).height());
                     });
@@ -1701,7 +1701,7 @@
             },
             _scroller: function () {
                 var that = this;
-                this.content.bind('scroll' + NS, function () {
+                this.content.on('scroll' + NS, function () {
                     kendo.scrollLeft(that.datesHeader.find('>.k-scheduler-header-wrap'), this.scrollLeft);
                     that.times.scrollTop(this.scrollTop);
                     if (that._isVirtualized()) {
@@ -2216,7 +2216,7 @@
         }
         function groupEqFilter(value) {
             return function (item) {
-                if ($.isArray(item) || item instanceof kendo.data.ObservableArray) {
+                if (Array.isArray(item) || item instanceof kendo.data.ObservableArray) {
                     for (var idx = 0; idx < item.length; idx++) {
                         if (item[idx] == value) {
                             return true;

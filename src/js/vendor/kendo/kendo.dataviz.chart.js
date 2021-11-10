@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -10873,21 +10873,21 @@
                     var ref = this$1.seriesAxes(currentSeries);
                     var xAxis = ref.xAxis;
                     var yAxis = ref.yAxis;
-                    var xCategories = [].concat(xAxis.categories || []);
-                    var yCategories = [].concat(yAxis.categories || []);
+                    var xCategories = dataviz.createHashSet(xAxis.categories || []);
+                    var yCategories = dataviz.createHashSet(yAxis.categories || []);
                     for (var pointIndex = 0; pointIndex < data.length; pointIndex++) {
                         var ref$1 = SeriesBinder.current.bindPoint(currentSeries, pointIndex).valueFields;
                         var x = ref$1.x;
                         var y = ref$1.y;
-                        if (xCategories.indexOf(x) === -1) {
-                            xCategories.push(x);
+                        if (!xCategories.has(x)) {
+                            xCategories.add(x);
                         }
-                        if (yCategories.indexOf(y) === -1) {
-                            yCategories.push(y);
+                        if (!yCategories.has(y)) {
+                            yCategories.add(y);
                         }
                     }
-                    xAxis.categories = xCategories;
-                    yAxis.categories = yCategories;
+                    xAxis.categories = xCategories.values();
+                    yAxis.categories = yCategories.values();
                 }
             },
             createCharts: function (panes) {
@@ -13012,7 +13012,7 @@
         var inArray = dataviz.inArray;
         var services = dataviz.services;
         var proxy = $.proxy;
-        var isArray = $.isArray;
+        var isArray = Array.isArray;
         var extend = $.extend;
         var template = kendo.template;
         var MOUSELEAVE_NS = 'mouseleave' + NS;

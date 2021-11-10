@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1492,10 +1492,16 @@
                 var origin = map.locationToLayer(map.extent().nw).round();
                 this._view.viewOrigin(origin);
             },
-            _reset: function () {
+            _reset: function (e) {
+                var tileTitle;
+                if (e) {
+                    tileTitle = e.tileTitle;
+                } else {
+                    tileTitle = '';
+                }
                 Layer.fn._reset.call(this);
                 this._updateView();
-                this._view.reset();
+                this._view.reset(tileTitle);
             },
             _viewType: function () {
                 return TileView;
@@ -1592,7 +1598,8 @@
                 this.element.empty();
                 this.pool.empty();
             },
-            reset: function () {
+            reset: function (tileTitle) {
+                this._tileTitle = tileTitle;
                 this.pool.reset();
                 this.subdomainIndex = 0;
                 this.render();
@@ -1630,7 +1637,8 @@
                     size: this.options.tileSize,
                     subdomain: this.subdomainText(),
                     urlTemplate: this.options.urlTemplate,
-                    errorUrlTemplate: this.options.errorUrlTemplate
+                    errorUrlTemplate: this.options.errorUrlTemplate,
+                    tileTitle: this._tileTitle
                 };
             },
             wrapIndex: function (index) {
@@ -1663,7 +1671,7 @@
                 errorUrlTemplate: ''
             },
             createElement: function () {
-                this.element = $('<img style=\'position: absolute; display: block;\' alt=\'\' />').css({
+                this.element = $('<img style=\'position: absolute; display: block;\' alt=\'' + this.options.tileTitle + '\' />').css({
                     width: this.options.size,
                     height: this.options.size
                 }).on('error', proxy(function (e) {
@@ -1954,7 +1962,7 @@
                 titleField: 'title'
             },
             add: function (arg) {
-                if ($.isArray(arg)) {
+                if (Array.isArray(arg)) {
                     for (var i = 0; i < arg.length; i++) {
                         this._addOne(arg[i]);
                     }
@@ -2172,7 +2180,7 @@
                 this._initLayers();
                 this._reset();
                 this._mousewheel = proxy(this._mousewheel, this);
-                this.element.bind(MOUSEWHEEL, this._mousewheel);
+                this.element.on(MOUSEWHEEL, this._mousewheel);
             },
             options: {
                 name: 'Map',
@@ -2222,7 +2230,8 @@
                     shape: 'pinTarget',
                     tooltip: { position: 'top' }
                 },
-                wraparound: true
+                wraparound: true,
+                messages: { tileTitle: 'Map tile' }
             },
             events: [
                 'beforeReset',
@@ -2569,7 +2578,7 @@
                 this._viewOrigin = this._getOrigin(true);
                 this._resetScroller();
                 this.trigger('beforeReset');
-                this.trigger('reset');
+                this.trigger('reset', { tileTitle: this.options.messages.tileTitle });
             },
             _resetScroller: function () {
                 var scroller = this.scroller;

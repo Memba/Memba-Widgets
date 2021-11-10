@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,6 +39,8 @@
         var DIR = 'dir';
         var ASC = 'asc';
         var SINGLE = 'single';
+        var MULTIPLE = 'multiple';
+        var MIXED = 'mixed';
         var FIELD = 'field';
         var DESC = 'desc';
         var sorterNS = '.kendoColumnSorter';
@@ -127,7 +129,7 @@
                 return directions[0] === dir ? directions[1] : directions[0];
             },
             _click: function (e) {
-                var that = this, element = that.element, field = element.attr(kendo.attr(FIELD)), dir = element.attr(kendo.attr(DIR)), options = that.options, compare = that.options.compare === null ? undefined : that.options.compare, sort = that.dataSource.sort() || [], idx, length;
+                var that = this, element = that.element, field = element.attr(kendo.attr(FIELD)), dir = element.attr(kendo.attr(DIR)), options = that.options, compare = that.options.compare === null ? undefined : that.options.compare, sort = that.dataSource.sort() || [], ctrlKey = e.ctrlKey || e.metaKey, idx, length;
                 e.preventDefault();
                 if (options.filter && !element.is(options.filter)) {
                     return;
@@ -142,13 +144,13 @@
                     })) {
                     return;
                 }
-                if (options.mode === SINGLE) {
+                if (options.mode === SINGLE || options.mode === MIXED && !ctrlKey) {
                     sort = [{
                             field: field,
                             dir: dir,
                             compare: compare
                         }];
-                } else if (options.mode === 'multiple') {
+                } else if (options.mode === MULTIPLE || options.mode === MIXED && ctrlKey) {
                     for (idx = 0, length = sort.length; idx < length; idx++) {
                         if (sort[idx].field === field) {
                             sort.splice(idx, 1);

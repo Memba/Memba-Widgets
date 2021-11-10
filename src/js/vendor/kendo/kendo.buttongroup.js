@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -165,9 +165,9 @@
                     return;
                 }
                 if (element.find('.' + ACTIVE).length) {
-                    element.find('.' + ACTIVE).first().focus();
+                    element.find('.' + ACTIVE).first().trigger('focus');
                 } else {
-                    element.children().first().focus();
+                    element.children().first().trigger('focus');
                 }
             },
             _focusout: function () {
@@ -194,11 +194,11 @@
                 var itemToFocus;
                 if (e.keyCode === keys.LEFT && !isRtl || e.keyCode === keys.RIGHT && isRtl) {
                     itemToFocus = currentIndex === 0 ? focusableItems.eq(focusableItems.length - 1) : $(focusableItems[currentIndex - 1]);
-                    itemToFocus.focus();
+                    itemToFocus.trigger('focus');
                     e.preventDefault();
                 } else if (e.keyCode === keys.LEFT && isRtl || e.keyCode === keys.RIGHT && !isRtl) {
                     itemToFocus = currentIndex + 1 === focusableItems.length ? focusableItems.eq(0) : $(focusableItems[currentIndex + 1]);
-                    itemToFocus.focus();
+                    itemToFocus.trigger('focus');
                     e.preventDefault();
                 } else if (e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) {
                     that._select(focusedElement);

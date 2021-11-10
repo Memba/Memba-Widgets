@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -88,7 +88,7 @@
             tabs.children(IMG).addClass(IMAGE);
             tabs.children('a').addClass(LINK).children(IMG).addClass(IMAGE);
             tabs.filter(':not([disabled]):not([class*=k-state-disabled])').addClass(DEFAULTSTATE);
-            tabs.filter('li[disabled]').addClass(DISABLEDSTATE).attr('aria-disabled', 'true').removeAttr('disabled');
+            tabs.filter('li[disabled]').addClass(DISABLEDSTATE).attr('aria-disabled', 'true').prop('disabled', false);
             tabs.filter(':not([class*=k-state])').children('a').filter(':focus').parent().addClass(ACTIVESTATE + ' ' + TABONTOP);
             tabs.attr('role', 'tab');
             tabs.filter('.' + ACTIVESTATE).attr('aria-selected', true);
@@ -723,8 +723,8 @@
             _create: function (tab) {
                 var that = this, tabs, contents, content, newTabsCreated = false;
                 tab = tab instanceof kendo.data.ObservableArray ? tab.toJSON() : tab;
-                if ($.isPlainObject(tab) || $.isArray(tab)) {
-                    tab = $.isArray(tab) ? tab : [tab];
+                if ($.isPlainObject(tab) || Array.isArray(tab)) {
+                    tab = Array.isArray(tab) ? tab : [tab];
                     newTabsCreated = true;
                     tabs = map(tab, function (value, idx) {
                         that._appendUrlItem(tab[idx].contentUrl || null);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -620,7 +620,7 @@
                 var that = this;
                 that.treeView.bind(SELECT, proxy(that._navigate, that));
                 that.treeView.bind(EXPAND, proxy(that._expand, that));
-                that.treeView.element.bind(KEYDOWN, proxy(that._keydownAction, that));
+                that.treeView.element.on(KEYDOWN, proxy(that._keydownAction, that));
             },
             _keydownAction: function (ev) {
                 var that = this, target = $(ev.target).find('.k-state-focused').closest('.k-item');
@@ -1540,7 +1540,7 @@
             }]
     };
     (function ($, undefined) {
-        var ui = kendo.ui, extend = $.extend, isPlainObject = $.isPlainObject, isArray = $.isArray, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, template = kendo.template, outerHeight = kendo._outerHeight, NAVIGATE = 'navigate', SELECT = 'select', OPEN = 'open', ERROR = 'error', CHANGE = 'change', UPLOAD = 'upload', SUCCESS = 'success', CLOSE = 'close', HIDE = 'hide', LOAD = 'load', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', DROP = 'drop', EXECUTE = 'execute', COMMAND = 'command', KEYDOWNACTION = 'keydownAction', CANCEL = 'cancel', TREE_TYPE = 'tree', DOT = '.';
+        var ui = kendo.ui, extend = $.extend, isPlainObject = $.isPlainObject, isArray = Array.isArray, DataBoundWidget = ui.DataBoundWidget, proxy = $.proxy, template = kendo.template, outerHeight = kendo._outerHeight, NAVIGATE = 'navigate', SELECT = 'select', OPEN = 'open', ERROR = 'error', CHANGE = 'change', UPLOAD = 'upload', SUCCESS = 'success', CLOSE = 'close', HIDE = 'hide', LOAD = 'load', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', DROP = 'drop', EXECUTE = 'execute', COMMAND = 'command', KEYDOWNACTION = 'keydownAction', CANCEL = 'cancel', TREE_TYPE = 'tree', DOT = '.';
         var fileManagerStyles = {
             wrapper: 'k-widget k-filemanager',
             header: 'k-filemanager-header',
@@ -1961,9 +1961,9 @@
                     return;
                 }
                 if (view._focusElement) {
-                    view._focusElement.focus();
+                    view._focusElement.trigger('focus');
                 } else if (target.closest && target.closest(':kendoFocusable').length) {
-                    target.closest(':kendoFocusable').focus();
+                    target.closest(':kendoFocusable').trigger('focus');
                 }
             },
             _initView: function () {

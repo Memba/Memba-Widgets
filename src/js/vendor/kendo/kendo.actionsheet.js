@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -62,7 +62,7 @@
         var KEYDOWN = 'keydown';
         var hexColor = /^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/;
         var HEADER_TEMPLATE = '<div class="k-actionsheet-header">' + '#=title#' + '</div>';
-        var ITEM_TEMPLATE = '<li class="k-actionsheet-item #= disabled ? "' + STATEDISABLED + '" : "" #">' + '<a href="\\#" class="k-actionsheet-action">' + '#if(icon){# #=icon# #}#' + '<span class="k-actionsheet-item-text">' + '<span class="k-actionsheet-item-title">#:text#</span>' + '#if(description){#<span class="k-actionsheet-item-description">#:description#</span>#}#' + '</span>' + '</a>' + '</li>';
+        var ITEM_TEMPLATE = '<li role="none" class="k-actionsheet-item #= disabled ? "' + STATEDISABLED + '" : "" #">' + '<a href="\\#" class="k-actionsheet-action">' + '#if(icon){# #=icon# #}#' + '<span class="k-actionsheet-item-text">' + '<span class="k-actionsheet-item-title">#:text#</span>' + '#if(description){#<span class="k-actionsheet-item-description">#:description#</span>#}#' + '</span>' + '</a>' + '</li>';
         var SEPARATOR = '<hr class="k-hr" />';
         var defaultItem = {
             text: '',
@@ -176,7 +176,7 @@
                 var item;
                 var itemTemplate;
                 var itemElement;
-                var container = $('<ul class=\'k-actionsheet-items\'></ul>');
+                var container = $('<ul class=\'k-actionsheet-items\' role=\'group\'></ul>');
                 var icon;
                 if (!items.length) {
                     return;
@@ -232,7 +232,7 @@
             },
             _openHandler: function () {
                 var that = this;
-                that.element.find('li.k-actionsheet-item:eq(0) a').focus();
+                that.element.find('li.k-actionsheet-item').eq(0).find('a').trigger('focus');
             },
             _mousedown: function (e) {
                 var that = this;

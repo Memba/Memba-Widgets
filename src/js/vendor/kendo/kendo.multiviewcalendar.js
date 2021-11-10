@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -102,8 +102,8 @@
                 elements.addClass(MID);
                 tables.each(function () {
                     var that = $(this);
-                    var lastCell = that.find(CELLSELECTORVALID + ':last');
-                    var firstCell = that.find(CELLSELECTORVALID + ':first');
+                    var lastCell = that.find(CELLSELECTORVALID).last();
+                    var firstCell = that.find(CELLSELECTORVALID).first();
                     if (lastCell.hasClass(MID)) {
                         lastCell.addClass(SPLITEND);
                     }
@@ -372,7 +372,7 @@
                     this._cell.closest('table').trigger('focus');
                 } else {
                     table = this.element.find('table').first().trigger('focus');
-                    this._cell = table.find(CELLSELECTORVALID + ':first');
+                    this._cell = table.find(CELLSELECTORVALID).first();
                     this._current = toDateObject(this._cell.find('a'));
                 }
                 this._cell.addClass(FOCUSED);
@@ -504,7 +504,7 @@
                                 return;
                             }
                             that.rangeSelectable.range(that.rangeSelectable._start, cell);
-                        } else if (+toDateObject(that.element.find(CELLSELECTOR + ':first').find('a')) > +range.start) {
+                        } else if (+toDateObject(that.element.find(CELLSELECTOR).first().find('a')) > +range.start) {
                             that.rangeSelectable.selectTo(cell);
                         }
                         that.rangeSelectable._end = null;
@@ -549,7 +549,7 @@
                         } else {
                             navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
                             that._navigate(PREVARROW, -1, preventFocus);
-                            that._focusCell(that.element.find('table:first ' + CELLSELECTORVALID + ':first'));
+                            that._focusCell(that.element.find('table').first().find(CELLSELECTORVALID).first());
                         }
                     } else {
                         that._focusCell(cell);
@@ -564,7 +564,7 @@
                         } else {
                             navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
                             that._navigate(NEXTARROW, 1, preventFocus);
-                            that._focusCell(that.element.find('table:last ' + CELLSELECTORVALID + ':last'));
+                            that._focusCell(that.element.find('table').last().find(CELLSELECTORVALID).last());
                         }
                     } else {
                         that._focusCell(cell);
@@ -674,11 +674,11 @@
                             if (key == keys.PAGEUP) {
                                 navigate = that[PREVARROW] && !that[PREVARROW].hasClass(DISABLED);
                                 that.navigateToPast();
-                                table = that.element.find('table:first');
+                                table = that.element.find('table').first();
                             } else {
                                 navigate = that[NEXTARROW] && !that[NEXTARROW].hasClass(DISABLED);
                                 that.navigateToFuture();
-                                table = that.element.find('table:last');
+                                table = that.element.find('table').last();
                             }
                         }
                         cell = table.find(CELLSELECTORVALID).eq(cellIndex);
@@ -1038,8 +1038,8 @@
             },
             _visibleRange: function () {
                 var tables = this.element.find('.k-calendar-view table');
-                var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR + ':first').find('a'));
-                var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR + ':last').find('a'));
+                var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR).first().find('a'));
+                var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR).last().find('a'));
                 return {
                     start: firstDateInView,
                     end: lastDateInView
@@ -1048,8 +1048,8 @@
             _dateInViews: function (date) {
                 var that = this;
                 var tables = that.element.find('.k-calendar-view table');
-                var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR + ':first').find('a'));
-                var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR + ':last').find('a'));
+                var firstDateInView = toDateObject(tables.first().find(CELLSELECTOR).first().find('a'));
+                var lastDateInView = toDateObject(tables.last().find(CELLSELECTOR).last().find('a'));
                 date = new Date(date.toDateString());
                 return +date <= +lastDateInView && +date >= +firstDateInView;
             },
@@ -1215,7 +1215,7 @@
                 var table = $(e.currentTarget);
                 var cell = that._cell;
                 if (!cell || !$.contains(table[0], cell[0])) {
-                    cell = table.find(CELLSELECTORVALID + ':first');
+                    cell = table.find(CELLSELECTORVALID).first();
                 }
                 that._focusCell(cell);
             },

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -45,6 +45,7 @@
                 that._setWrapperStyles();
                 that._initItems();
                 that._initTemplate();
+                that._aria();
             },
             options: {
                 name: 'SkeletonContainer',
@@ -62,6 +63,14 @@
             getOptions: function () {
                 var result = $.extend(true, {}, this.options);
                 return result;
+            },
+            _aria: function () {
+                var element = this.element;
+                element.attr({
+                    'role': 'alert',
+                    'aria-live': 'polite',
+                    'aria-label': kendo.ui.progress.messages.loading
+                });
             },
             _initItems: function () {
                 if (!this.options.grid) {

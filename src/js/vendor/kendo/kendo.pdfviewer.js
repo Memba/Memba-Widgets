@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1242,7 +1242,7 @@
     define('pdfviewer/search', ['kendo.core'], f);
 }(function () {
     (function ($, undefined) {
-        var Class = kendo.Class, extend = $.extend, isArray = $.isArray;
+        var Class = kendo.Class, extend = $.extend, isArray = Array.isArray;
         var SearchDOM = Class.extend({
             init: function (options) {
                 var that = this;
@@ -1523,7 +1523,7 @@
                     minHeight: 30,
                     draggable: { dragHandle: '.k-search-dialog-draghandle' },
                     activate: function (ev) {
-                        ev.sender.element.find('.k-search-dialog-input').focus();
+                        ev.sender.element.find('.k-search-dialog-input').trigger('focus');
                     }
                 }));
                 that.searchModel = kendo.observable({
@@ -1572,7 +1572,7 @@
     define('pdfviewer/commands', ['kendo.upload'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, proxy = $.proxy, extend = $.extend, parseJSON = $.parseJSON, progress = kendo.ui.progress, Class = kendo.Class, OPEN = 'open', ZOOMSTART = 'zoomStart', ZOOMEND = 'zoomEnd';
+        var kendo = window.kendo, proxy = $.proxy, extend = $.extend, parseJSON = JSON.parse, progress = kendo.ui.progress, Class = kendo.Class, OPEN = 'open', ZOOMSTART = 'zoomStart', ZOOMEND = 'zoomEnd';
         var Command = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -2185,9 +2185,9 @@
             },
             _focus: function (e) {
                 if (this.toolbar) {
-                    this.toolbar.wrapper.focus();
+                    this.toolbar.wrapper.trigger('focus');
                 } else {
-                    this.pageContainer.focus();
+                    this.pageContainer.trigger('focus');
                 }
                 e.preventDefault();
             },
@@ -2351,7 +2351,7 @@
                             return;
                         }
                         if (document.activeElement !== that.pageContainer[0]) {
-                            that.pageContainer.focus();
+                            that.pageContainer.trigger('focus');
                         }
                         that._wheel(e);
                         e.preventDefault();

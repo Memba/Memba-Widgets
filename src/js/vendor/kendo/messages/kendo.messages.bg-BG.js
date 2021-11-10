@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -412,7 +412,9 @@ $.extend(true, kendo.ui.MediaPlayer.prototype.options.messages,{
   "mute": "Заглушаване на звука",
   "unmute": "Включване на звука",
   "quality": "Промяна на качеството",
-  "fullscreen": "Цял екран"
+  "fullscreen": "Цял екран",
+  "volume": "сила на звука",
+  "time": "време"
 });
 }
 

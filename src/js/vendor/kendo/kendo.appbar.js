@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -42,7 +42,7 @@
                 if (that.options.position != 'none') {
                     that.element.addClass('k-appbar-' + that.options.position);
                 }
-                that.element.addClass('k-appbar-' + that.options.positionMode + ' k-appbar-' + that.options.themeColor);
+                that.element.addClass('k-appbar-' + that.options.positionMode + ' k-appbar-' + that.options.themeColor).attr('role', 'toolbar');
                 that._initItems();
                 that._attachEvents();
             },

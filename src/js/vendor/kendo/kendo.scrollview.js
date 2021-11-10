@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -236,7 +236,7 @@
                 var innerNavigationContainer = this.scrollView._navigationContainer.find('.k-scrollview-nav');
                 var scrollViewWidth = this.scrollView.element.width();
                 var containerOffset = (scrollViewWidth - innerNavigationContainer.width()) / 2;
-                var pageWidth = innerNavigationContainer.find('li.k-link:eq(0)').outerWidth(true) / 2;
+                var pageWidth = innerNavigationContainer.find('li.k-link').eq(0).outerWidth(true) / 2;
                 var items = this.items();
                 var navigatable = this.scrollView.options.navigatable;
                 var current;

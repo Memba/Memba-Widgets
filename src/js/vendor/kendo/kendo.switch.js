@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -150,7 +150,7 @@
                 if (checked) {
                     that.element.attr(CHECKED, CHECKED);
                 } else {
-                    that.element.removeAttr(CHECKED);
+                    that.element.prop(CHECKED, false);
                 }
             },
             value: function (value) {
@@ -174,7 +174,7 @@
                 }
                 this.options.enabled = enable;
                 if (enable) {
-                    element.removeAttr(DISABLED);
+                    element.prop(DISABLED, false);
                     wrapper.removeAttr(ARIA_DISABLED);
                 } else {
                     element.attr(DISABLED, DISABLED);
@@ -192,14 +192,14 @@
                     element.attr(READONLY, true);
                     wrapper.attr(ARIA_READONLY, true);
                 } else {
-                    element.removeAttr(READONLY);
+                    element.prop(READONLY, false);
                     wrapper.removeAttr(ARIA_READONLY);
                 }
                 wrapper.toggleClass(switchStyles.readonly, readonly);
             },
             _check: function () {
                 var that = this, checked = that.element[0].checked = !that.element[0].checked;
-                that.wrapper.focus();
+                that.wrapper.trigger('focus');
                 if (!that.options.enabled || that.options.readonly || that.trigger(CHANGE, { checked: checked })) {
                     that.element[0].checked = !checked;
                     return;

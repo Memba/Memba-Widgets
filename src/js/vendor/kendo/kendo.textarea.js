@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -139,7 +139,7 @@
                 var readonly = options.readonly;
                 element.off(NS);
                 if (!readonly && !disable) {
-                    element.removeAttr(DISABLED).removeAttr(READONLY).attr(ARIA_DISABLED, false);
+                    element.prop(DISABLED, false).prop(READONLY, false).attr(ARIA_DISABLED, false);
                     wrapper.removeClass(STATEDISABLED).removeClass(STATEREADONLY);
                     element.on('focusin' + NS, proxy(that._focusin, that));
                     element.on('focusout' + NS, proxy(that._focusout, that));

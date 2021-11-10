@@ -22,84 +22,148 @@
                                                                                                                                                                                                        
 
 */
-// PanelBar
+// ColorPalette
 
-.k-panelbar
-{
-    zoom: 1;
+.k-colorpalette-tile {
+
+    &:focus,
+    &.k-state-focus,
+    &.k-focus {
+        .box-shadow( @colorpalette-tile-focus-shadow );
+    }
+
+    &:hover,
+    &.k-state-hover,
+    &.k-hover {
+        .box-shadow( @colorpalette-tile-hover-shadow );
+    }
+
+    &.k-state-selected,
+    &.k-state-selected:hover {
+        .box-shadow( @colorpalette-tile-selected-shadow );
+    }
+
 }
 
-.k-panelbar > .k-item,
-.k-panel > .k-item
-{
-    list-style-type: none;
-    display: block;
-    border-width: 0;
-    margin: 0;
-    zoom: 1;
 
-    border-radius: 0;
+// ColorGradient
+.k-colorgradient {
+    .fill(
+        @colorgradient-text,
+        @colorgradient-bg,
+        @colorgradient-border
+    );
 }
 
-.k-panelbar .k-link > .k-image,
-.k-panelbar .k-link > .k-sprite
-{
-    margin-top: -2px;
-    margin-right: 5px;
-    vertical-align: middle;
+.k-colorgradient:focus,
+.k-colorgradient.k-state-focus,
+.k-colorgradient.k-focus {
+    .fill( @border: @colorgradient-focus-border );
+    .box-shadow( @colorgradient-focus-shadow );
 }
 
-.k-panelbar > .k-item > .k-link,
-.k-panel > .k-item > .k-link {
-    color: inherit;
-    display: block;
-    position: relative;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    padding: 0 1em;
-    line-height: 2.34em;
-    text-decoration: none;
-    zoom: 1;
+.k-colorgradient-canvas .k-hsv-gradient {
+    background: linear-gradient( to bottom, @gradient-transparent-to-black ), linear-gradient( to right, @gradient-white-to-transparent );
 }
 
-.k-panelbar-expand.k-icon,
-.k-panelbar-collapse.k-icon
-{
-    position: absolute;
-    top: 50%;
-    right: 4px;
-    margin-top: -8px;
+.k-colorgradient .k-draghandle {
+    .fill(
+        @colorgradient-draghandle-text,
+        @colorgradient-draghandle-bg,
+        @colorgradient-draghandle-border
+    );
+    .box-shadow( @colorgradient-draghandle-shadow );
+
+    &:focus,
+    &.k-state-focus,
+    &.k-focus {
+        .fill( @bg: transparent, @border: white );
+        .box-shadow( @colorgradient-draghandle-focus-shadow );
+    }
+
+    &:active,
+    &:hover,
+    &.k-state-hover,
+    &.k-hover {
+        .fill( @bg: transparent, @border: white );
+        .box-shadow( @colorgradient-draghandle-hover-shadow );
+    }
+
+    &.k-state-selected:hover {
+        .fill( @bg: transparent, @border: white, @text: inherit );
+    }
+
+    &.k-state-focused.k-state-selected {
+        .fill( @bg: transparent, @border: white, @text: inherit );
+        .box-shadow( @colorgradient-draghandle-hover-shadow );
+    }
 }
 
-.k-panelbar .k-panel,
-.k-panelbar .k-content
-{
-    position: relative;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    margin: 0;
-    padding: 0;
-    zoom: 1;
+.k-colorgradient-slider.k-hue-slider {
+    &.k-slider-horizontal .k-slider-track {
+        background: linear-gradient( to right, @gradient-rainbow );
+    }
+
+    &.k-slider-vertical .k-slider-track {
+        background: linear-gradient( to top, @gradient-rainbow );
+    }
 }
 
-.k-panel > .k-item > .k-link
-{
-    border-bottom: 0;
-    font-size: .95em;
-    line-height: 2.2;
+.k-colorgradient-slider.k-alpha-slider .k-slider-track::before {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAuSURBVHgBxYyxDQAwDMJIL+YT+DjtzFRliUfLcklqBCRT4eCTxbD6kdL2/LgYXqpvCbs3kBv/AAAAAElFTkSuQmCC") center repeat;
 }
 
-.k-panel .k-panel > .k-item > .k-link
-{
-    padding-left: 2em;
+.k-colorgradient-input-label {
+    .fill( @text: @colorgradient-input-label-text );
 }
 
-.k-panelbar .k-i-arrow-end-right .k-link
-{
-    border-bottom: 0;
+.k-colorgradient .k-text-success {
+    color: @success;
 }
 
-.k-panel .k-panel
-{
-    border-bottom: 0;
+
+// Color Preview
+.k-color-preview {
+    .fill(
+        @color-preview-text,
+        @color-preview-bg,
+        @color-preview-border
+    );
+
+    &::before {
+        background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAuSURBVHgBxYyxDQAwDMJIL+YT+DjtzFRliUfLcklqBCRT4eCTxbD6kdL2/LgYXqpvCbs3kBv/AAAAAElFTkSuQmCC");
+        background-size: contain;
+        background-position: 0;
+    }
+
+    &:hover,
+    &.k-state-hover,
+    &.k-hover {
+        .fill( @border: @color-preview-hover-border );
+    }
+}
+
+// No Color
+.k-no-color::after {
+    @no-color-svg: escape('<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" version="1.1"><line x1="0" x2="20" y1="0" y2="20" stroke="@{color-preview-no-color-text}" stroke-width="1"/></svg>');
+    background-image: url('data:image/svg+xml,@{no-color-svg}');
+    background-color: @color-preview-no-color-bg;
+    background-size: 100% 100%;
+}
+
+
+// ColorEditor/FlatColorPicker
+.k-coloreditor {
+    .fill(
+        @coloreditor-text,
+        @coloreditor-bg,
+        @coloreditor-border
+    );
+}
+
+.k-coloreditor:focus,
+.k-coloreditor.k-state-focus,
+.k-coloreditor.k-focus {
+    .fill( @border: @coloreditor-focus-border );
+    .box-shadow( @coloreditor-focus-shadow );
 }

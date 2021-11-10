@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, each = $.each, extend = $.extend, getter = kendo.getter, Class = kendo.Class;
+        var kendo = window.kendo, isArray = Array.isArray, isPlainObject = $.isPlainObject, map = $.map, each = $.each, extend = $.extend, getter = kendo.getter, Class = kendo.Class;
         var XmlDataReader = Class.extend({
             init: function (options) {
                 var that = this, total = options.total, model = options.model, parse = options.parse, errors = options.errors, serialize = options.serialize, data = options.data;
@@ -43,7 +43,7 @@
                         if (model.fields) {
                             each(model.fields, function (field, value) {
                                 if (isPlainObject(value) && value.field) {
-                                    if (!$.isFunction(value.field)) {
+                                    if (!kendo.isFunction(value.field)) {
                                         value = extend(value, { field: that.getter(value.field) });
                                     }
                                 } else {

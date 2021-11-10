@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -121,8 +121,8 @@
                 currentTimeMarkers = this.times.find('.' + CURRENT_TIME_MARKER_CLASS);
                 currentContentMarkers = this.content.find('.' + CURRENT_TIME_MARKER_CLASS);
                 var groupsCount = !options.group || options.group.orientation == 'horizontal' ? 1 : this.groups.length;
-                var firstTimesCell = this.times.find('tr:first th:first');
-                var lastTimesCell = this.times.find('tr:first th:last');
+                var firstTimesCell = this.times.find('tr').first().find('th').first();
+                var lastTimesCell = this.times.find('tr').first().find('th').last();
                 if (firstTimesCell.length > 0 && lastTimesCell.length > 0) {
                     if (this._isRtl) {
                         position = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);

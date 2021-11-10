@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -249,7 +249,7 @@
             $('<span ' + kendo.attr('for') + '="' + options.field + '" class="k-invalid-msg"/>').hide().appendTo(container);
         };
         var RESOURCESEDITOR = function (container, options) {
-            $('<a href="#" class="' + options.styles.button + '">' + options.messages.assignButton + '</a>').click(options.click).appendTo(container);
+            $('<a href="#" class="' + options.styles.button + '">' + options.messages.assignButton + '</a>').on('click', options.click).appendTo(container);
         };
         var TaskDropDown = Observable.extend({
             init: function (element, options) {
@@ -348,7 +348,7 @@
                             that.list.find('li:first').addClass(ganttStyles.focused).attr('id', ACTIVE_OPTION).end().find('ul').attr({
                                 TABINDEX: 0,
                                 'aria-activedescendant': ACTIVE_OPTION
-                            }).focus();
+                            }).trigger('focus');
                         }
                     }
                 });
@@ -363,7 +363,7 @@
                 if (navigatable) {
                     this.popup.bind('close', function () {
                         that.list.find(itemSelector).removeClass(ganttStyles.focused).end().find('ul').attr(TABINDEX, 0);
-                        that.element.parents('[' + kendo.attr('role') + '="gantt"]').find(DOT + ganttStyles.gridContent + ' > table:first').focus();
+                        that.element.parents('[' + kendo.attr('role') + '="gantt"]').find(DOT + ganttStyles.gridContent + ' > table').first().trigger('focus');
                     });
                     this.list.find('ul').on('keydown' + NS, function (e) {
                         var key = e.keyCode;
@@ -560,11 +560,11 @@
                     visible: false,
                     deactivate: function () {
                         this.destroy();
-                        wrapper.focus();
+                        wrapper.trigger('focus');
                     }
                 }).getKendoWindow();
                 popup.center().open();
-                popup.element.find('.k-primary').focus();
+                popup.element.find('.k-primary').trigger('focus');
             },
             _createPopupEditor: function (task, plannedEditors) {
                 var that = this;

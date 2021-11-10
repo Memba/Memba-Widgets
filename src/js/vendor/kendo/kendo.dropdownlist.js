@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -58,7 +58,7 @@
                 var index = options && options.index;
                 var optionLabel, text, disabled;
                 that.ns = ns;
-                options = $.isArray(options) ? { dataSource: options } : options;
+                options = Array.isArray(options) ? { dataSource: options } : options;
                 Select.fn.init.call(that, element, options);
                 options = that.options;
                 element = that.element.on('focus' + ns, proxy(that._focusHandler, that));
@@ -244,7 +244,7 @@
                 this._prevent = true;
                 filterInput.css('display', 'none').css('width', this.popup.element.css('width')).css('display', 'inline-block');
                 if (isInputActive) {
-                    filterInput.focus();
+                    filterInput.trigger('focus');
                     kendo.caret(filterInput[0], caret);
                 }
                 this._prevent = originalPrevent;
@@ -486,7 +486,7 @@
                 }
             },
             _focusHandler: function () {
-                this.wrapper.focus();
+                this.wrapper.trigger('focus');
             },
             _focusinHandler: function () {
                 this._inputWrapper.addClass(FOCUSED);
@@ -505,7 +505,7 @@
                     that._inputWrapper.removeClass(FOCUSED);
                     that._prevent = true;
                     that._open = false;
-                    that.element.blur();
+                    that.element.trigger('blur');
                 }
             },
             _wrapperMousedown: function () {
@@ -526,7 +526,7 @@
                 var wrapper = that.wrapper.add(that.filterInput).off(ns);
                 var dropDownWrapper = that._inputWrapper.off(HOVEREVENTS);
                 if (!readonly && !disable) {
-                    element.removeAttr(DISABLED).removeAttr(READONLY);
+                    element.prop(DISABLED, false).prop(READONLY, false);
                     dropDownWrapper.addClass(DEFAULT).removeClass(STATEDISABLED).on(HOVEREVENTS, that._toggleHover);
                     wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).attr(ARIA_READONLY, false).on('keydown' + ns, that, proxy(that._keydown, that)).on(kendo.support.mousedown + ns, proxy(that._wrapperMousedown, that)).on('paste' + ns, proxy(that._filterPaste, that));
                     that.wrapper.on('click' + ns, proxy(that._wrapperClick, that));
@@ -741,7 +741,7 @@
                 if (filterInput && (compareElement[0] === active || this._focusFilter)) {
                     this._focusFilter = false;
                     this._prevent = true;
-                    this._focused = element.focus();
+                    this._focused = element.trigger('focus');
                 }
             },
             _searchByWord: function (word) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -23,7 +23,1526 @@
 
 */
 (function (f, define) {
+    define('pivotgrid/common', ['kendo.core'], f);
+}(function () {
+    (function () {
+        window.kendo.pivotgrid = window.kendo.pivotgrid || {};
+        window.kendo.pivotgrid.common = function (exports) {
+            var filterFunctionFormats = {
+                contains: ', InStr({0}.CurrentMember.MEMBER_CAPTION,"{1}") > 0',
+                doesnotcontain: ', InStr({0}.CurrentMember.MEMBER_CAPTION,"{1}")',
+                endswith: ', Right({0}.CurrentMember.MEMBER_CAPTION,Len("{1}"))="{1}"',
+                eq: ', {0}.CurrentMember.MEMBER_CAPTION = "{1}"',
+                neq: ', {0}.CurrentMember.MEMBER_CAPTION = "{1}"',
+                startswith: ', Left({0}.CurrentMember.MEMBER_CAPTION,Len("{1}"))="{1}"'
+            };
+            var operators = {
+                doesnotcontain: 'doesnotcontain',
+                in: 'in',
+                neq: 'neq'
+            };
+            function serializeFilters(filters, cube) {
+                var command = '';
+                var current = '';
+                for (var idx = filters.length - 1; idx >= 0; idx--) {
+                    current = 'SELECT (';
+                    current += serializeExpression(filters[idx]);
+                    current += ') ON 0';
+                    if (idx === filters.length - 1) {
+                        current += ' FROM [' + cube + ']';
+                        command = current;
+                    } else {
+                        command = current + ' FROM ( ' + command + ' )';
+                    }
+                }
+                return command;
+            }
+            function serializeExpression(expression) {
+                var command = '';
+                var value = String(expression.value);
+                var field = expression.field;
+                var operator = expression.operator;
+                if (operator === operators.in) {
+                    command += '{';
+                    command += value;
+                    command += '}';
+                } else {
+                    command += operator === operators.neq || operator === operators.doesnotcontain ? '-' : '';
+                    command += 'Filter(';
+                    command += field + '.MEMBERS';
+                    command += formatString(filterFunctionFormats[operator], field, value);
+                    command += ')';
+                }
+                return command;
+            }
+            function formatString(str) {
+                var values = [];
+                for (var _i = 1; _i < arguments.length; _i++) {
+                    values[_i - 1] = arguments[_i];
+                }
+                values.forEach(function (value, index) {
+                    str = str.replace(new RegExp('\\{' + index + '\\}', 'g'), value);
+                });
+                return str;
+            }
+            function serializeMembers(members, measures, sort) {
+                var command = '';
+                members = members || [];
+                var parsed = parseDescriptors(members);
+                var expanded = parsed.expanded;
+                var rootNames = getRootNames(parsed.root);
+                var crossJoinCommands = [];
+                var length = expanded.length;
+                var idx = 0;
+                var memberName;
+                var names = [];
+                if (rootNames.length > 1 || measures.length > 1) {
+                    crossJoinCommands.push(crossJoinCommand(rootNames, measures));
+                    for (; idx < length; idx++) {
+                        memberName = expandMemberDescriptor(expanded[idx].name, sort);
+                        names = mapNames(memberName, rootNames);
+                        crossJoinCommands.push(crossJoinCommand(names, measures));
+                    }
+                    command += crossJoinCommands.join(',');
+                } else {
+                    for (; idx < length; idx++) {
+                        memberName = expandMemberDescriptor(expanded[idx].name, sort);
+                        names.push(memberName[0]);
+                    }
+                    command += rootNames.concat(names).join(',');
+                }
+                return command;
+            }
+            function measureNames(measures) {
+                var length = measures.length;
+                var result = [];
+                var measure;
+                for (var idx = 0; idx < length; idx++) {
+                    measure = measures[idx];
+                    result.push(measure.name !== undefined ? measure.name : measure);
+                }
+                return result;
+            }
+            function getRootNames(members) {
+                var root = [];
+                members.forEach(function (member) {
+                    var name = member.name[0];
+                    var hierarchyName = baseHierarchyPath(name);
+                    if (!root.some(function (n) {
+                            return n.indexOf(hierarchyName) === 0;
+                        })) {
+                        root.push(name);
+                    }
+                });
+                return root;
+            }
+            function parseDescriptors(members) {
+                var expanded = [];
+                var child = [];
+                var root = [];
+                var idx = 0;
+                var found;
+                for (; idx < members.length; idx++) {
+                    var member = members[idx];
+                    var name_1 = member.name;
+                    found = false;
+                    if (name_1.length > 1) {
+                        child.push(member);
+                    } else {
+                        var hierarchyName = baseHierarchyPath(name_1[0]);
+                        for (var j = 0, l = root.length; j < l; j++) {
+                            if (root[j].name[0].indexOf(hierarchyName) === 0) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            root.push(member);
+                        }
+                        if (member.expand) {
+                            expanded.push(member);
+                        }
+                    }
+                }
+                expanded = expanded.concat(child);
+                return {
+                    expanded: expanded,
+                    root: root
+                };
+            }
+            function mapNames(names, rootNames) {
+                var rootLength = rootNames.length;
+                rootNames = rootNames.slice(0);
+                for (var idx = 0; idx < names.length; idx++) {
+                    var name_2 = names[idx];
+                    for (var j = 0; j < rootLength; j++) {
+                        var rootName = baseHierarchyPath(rootNames[j]);
+                        if (name_2.indexOf(rootName) !== -1) {
+                            rootNames[j] = name_2;
+                            break;
+                        }
+                    }
+                }
+                return rootNames;
+            }
+            function crossJoinCommand(members, measures) {
+                var tmp = members.slice(0);
+                if (measures.length > 1) {
+                    tmp.push('{' + measureNames(measures).join(',') + '}');
+                }
+                return crossJoin(tmp);
+            }
+            function expandMemberDescriptor(names, sort) {
+                var idx = names.length - 1;
+                var name = names[idx];
+                var sortDescriptor = sortDescriptorForMember(sort, name);
+                if (sortDescriptor && sortDescriptor.dir) {
+                    name = 'ORDER(' + name + '.Children,' + sortDescriptor.field + '.CurrentMember.MEMBER_CAPTION,' + sortDescriptor.dir + ')';
+                } else {
+                    name += '.Children';
+                }
+                names[idx] = name;
+                return names;
+            }
+            function sortDescriptorForMember(sort, member) {
+                for (var idx = 0, length_1 = sort.length; idx < length_1; idx++) {
+                    if (member.indexOf(sort[idx].field) === 0) {
+                        return sort[idx];
+                    }
+                }
+                return null;
+            }
+            function baseHierarchyPath(memberName) {
+                var parts = memberName.split('.');
+                if (parts.length > 2) {
+                    return parts[0] + '.' + parts[1];
+                }
+                return memberName;
+            }
+            function crossJoin(names) {
+                var result = 'CROSSJOIN({';
+                var name;
+                if (names.length > 2) {
+                    name = names.pop();
+                    result += crossJoin(names);
+                } else {
+                    result += names.shift();
+                    name = names.pop();
+                }
+                result += '},{';
+                result += name;
+                result += '})';
+                return result;
+            }
+            function createRequestBody(options) {
+                var command = '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Header/><Body><Execute xmlns="urn:schemas-microsoft-com:xml-analysis"><Command><Statement>';
+                var _a = options.columnAxes, columnAxes = _a === void 0 ? [] : _a, _b = options.rowAxes, rowAxes = _b === void 0 ? [] : _b;
+                var _c = options.measureAxes, measureAxes = _c === void 0 ? [] : _c, _d = options.sort, sort = _d === void 0 ? [] : _d, _e = options.filter, filter = _e === void 0 ? [] : _e;
+                var measuresRowAxis = options.measuresAxis === 'rows';
+                command += 'SELECT NON EMPTY {';
+                if (!columnAxes.length && rowAxes.length && (!measureAxes.length || measureAxes.length && measuresRowAxis)) {
+                    columnAxes = rowAxes;
+                    rowAxes = [];
+                    measuresRowAxis = false;
+                }
+                if (!columnAxes.length && !rowAxes.length) {
+                    measuresRowAxis = false;
+                }
+                if (columnAxes.length) {
+                    command += serializeMembers(columnAxes, !measuresRowAxis ? measureAxes : [], sort);
+                } else if (measureAxes.length && !measuresRowAxis) {
+                    command += measureNames(measureAxes).join(',');
+                }
+                command += '} DIMENSION PROPERTIES CHILDREN_CARDINALITY, PARENT_UNIQUE_NAME ON COLUMNS';
+                if (rowAxes.length || measuresRowAxis && measureAxes.length > 1) {
+                    command += ', NON EMPTY {';
+                    if (rowAxes.length) {
+                        command += serializeMembers(rowAxes, measuresRowAxis ? measureAxes : [], sort);
+                    } else {
+                        command += measureNames(measureAxes).join(',');
+                    }
+                    command += '} DIMENSION PROPERTIES CHILDREN_CARDINALITY, PARENT_UNIQUE_NAME ON ROWS';
+                }
+                if (filter.length) {
+                    command += ' FROM ';
+                    command += '(';
+                    command += serializeFilters(filter, options.connection.cube);
+                    command += ')';
+                } else {
+                    command += ' FROM [' + options.connection.cube + ']';
+                }
+                if (measureAxes.length === 1 && columnAxes.length) {
+                    command += ' WHERE (' + measureNames(measureAxes).join(',') + ')';
+                }
+                command += '</Statement></Command><Properties><PropertyList><Catalog>' + options.connection.catalog + '</Catalog><Format>Multidimensional</Format></PropertyList></Properties></Execute></Body></Envelope>';
+                return command.replace(/&/g, '&amp;');
+            }
+            var __assign = function () {
+                __assign = Object.assign || function __assign(t) {
+                    for (var s, i = 1, n = arguments.length; i < n; i++) {
+                        s = arguments[i];
+                        for (var p in s)
+                            if (Object.prototype.hasOwnProperty.call(s, p))
+                                t[p] = s[p];
+                    }
+                    return t;
+                };
+                return __assign.apply(this, arguments);
+            };
+            function __awaiter(thisArg, _arguments, P, generator) {
+                function adopt(value) {
+                    return value instanceof P ? value : new P(function (resolve) {
+                        resolve(value);
+                    });
+                }
+                return new (P || (P = Promise))(function (resolve, reject) {
+                    function fulfilled(value) {
+                        try {
+                            step(generator.next(value));
+                        } catch (e) {
+                            reject(e);
+                        }
+                    }
+                    function rejected(value) {
+                        try {
+                            step(generator['throw'](value));
+                        } catch (e) {
+                            reject(e);
+                        }
+                    }
+                    function step(result) {
+                        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+                    }
+                    step((generator = generator.apply(thisArg, _arguments || [])).next());
+                });
+            }
+            function __generator(thisArg, body) {
+                var _ = {
+                        label: 0,
+                        sent: function () {
+                            if (t[0] & 1)
+                                throw t[1];
+                            return t[1];
+                        },
+                        trys: [],
+                        ops: []
+                    }, f, y, t, g;
+                return g = {
+                    next: verb(0),
+                    'throw': verb(1),
+                    'return': verb(2)
+                }, typeof Symbol === 'function' && (g[Symbol.iterator] = function () {
+                    return this;
+                }), g;
+                function verb(n) {
+                    return function (v) {
+                        return step([
+                            n,
+                            v
+                        ]);
+                    };
+                }
+                function step(op) {
+                    if (f)
+                        throw new TypeError('Generator is already executing.');
+                    while (_)
+                        try {
+                            if (f = 1, y && (t = op[0] & 2 ? y['return'] : op[0] ? y['throw'] || ((t = y['return']) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done)
+                                return t;
+                            if (y = 0, t)
+                                op = [
+                                    op[0] & 2,
+                                    t.value
+                                ];
+                            switch (op[0]) {
+                            case 0:
+                            case 1:
+                                t = op;
+                                break;
+                            case 4:
+                                _.label++;
+                                return {
+                                    value: op[1],
+                                    done: false
+                                };
+                            case 5:
+                                _.label++;
+                                y = op[1];
+                                op = [0];
+                                continue;
+                            case 7:
+                                op = _.ops.pop();
+                                _.trys.pop();
+                                continue;
+                            default:
+                                if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                                    _ = 0;
+                                    continue;
+                                }
+                                if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                                    _.label = op[1];
+                                    break;
+                                }
+                                if (op[0] === 6 && _.label < t[1]) {
+                                    _.label = t[1];
+                                    t = op;
+                                    break;
+                                }
+                                if (t && _.label < t[2]) {
+                                    _.label = t[2];
+                                    _.ops.push(op);
+                                    break;
+                                }
+                                if (t[2])
+                                    _.ops.pop();
+                                _.trys.pop();
+                                continue;
+                            }
+                            op = body.call(thisArg, _);
+                        } catch (e) {
+                            op = [
+                                6,
+                                e
+                            ];
+                            y = 0;
+                        } finally {
+                            f = t = 0;
+                        }
+                    if (op[0] & 5)
+                        throw op[1];
+                    return {
+                        value: op[0] ? op[1] : void 0,
+                        done: true
+                    };
+                }
+            }
+            function __spreadArrays() {
+                for (var s = 0, i = 0, il = arguments.length; i < il; i++)
+                    s += arguments[i].length;
+                for (var r = Array(s), k = 0, i = 0; i < il; i++)
+                    for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                        r[k] = a[j];
+                return r;
+            }
+            function parseResponse(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var axes = Array.from(xmlDoc.querySelectorAll('Axis'));
+                var cells = Array.from(xmlDoc.querySelectorAll('CellData > Cell')).map(function (cell) {
+                    return {
+                        fmtValue: getPropertyValue(cell, 'FmtValue'),
+                        ordinal: parseInt(cell.getAttribute('CellOrdinal'), 10),
+                        value: getPropertyValue(cell, 'Value')
+                    };
+                });
+                var columns = { tuples: [] };
+                var rows = { tuples: [] };
+                var data = [];
+                axes.forEach(function (axis) {
+                    if (axis.getAttribute('name') !== 'SlicerAxis') {
+                        var tuples = columns.tuples.length === 0 ? columns.tuples : rows.tuples;
+                        Array.prototype.push.apply(tuples, translateAxis(axis));
+                    }
+                });
+                var indexedData = new Array(rows.tuples.length * columns.tuples.length).fill(null);
+                cells.forEach(function (c) {
+                    indexedData[c.ordinal] = c;
+                });
+                var counter = 0;
+                rows.tuples.forEach(function (rowTuple) {
+                    columns.tuples.forEach(function (colTuple) {
+                        data.push({
+                            columnTuple: colTuple,
+                            data: indexedData[counter],
+                            rowTuple: rowTuple
+                        });
+                        counter++;
+                    });
+                });
+                return {
+                    columns: columns,
+                    data: data,
+                    rows: rows
+                };
+            }
+            function getPropertyValue(member, name) {
+                var node = member.querySelector(name);
+                return node ? node.textContent : '';
+            }
+            function translateAxis(axis) {
+                var tuples = Array.from(axis.querySelectorAll('Tuple'));
+                return tuples.map(function (tuple) {
+                    var memberElements = Array.from(tuple.querySelectorAll('Member'));
+                    var members = memberElements.map(function (member) {
+                        var lNum = parseInt(getPropertyValue(member, 'LNum') || '0', 10);
+                        var hasChildren = parseInt(getPropertyValue(member, 'CHILDREN_CARDINALITY') || '0', 10) > 0;
+                        return {
+                            caption: getPropertyValue(member, 'Caption'),
+                            children: [],
+                            hasChildren: hasChildren,
+                            hierarchy: member.getAttribute('Hierarchy'),
+                            levelName: getPropertyValue(member, 'LName'),
+                            levelNum: lNum,
+                            name: getPropertyValue(member, 'UName'),
+                            parentName: getPropertyValue(member, 'PARENT_UNIQUE_NAME')
+                        };
+                    });
+                    return { members: members };
+                });
+            }
+            var discoverCommands = {
+                schemaCatalogs: 'DBSCHEMA_CATALOGS',
+                schemaCubes: 'MDSCHEMA_CUBES',
+                schemaDimensions: 'MDSCHEMA_DIMENSIONS',
+                schemaHierarchies: 'MDSCHEMA_HIERARCHIES',
+                schemaKPIs: 'MDSCHEMA_KPIS',
+                schemaLevels: 'MDSCHEMA_LEVELS',
+                schemaMeasures: 'MDSCHEMA_MEASURES',
+                schemaMembers: 'MDSCHEMA_MEMBERS'
+            };
+            function createDiscoverBody(options) {
+                var properties = {};
+                var command = '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Header/><Body><Discover xmlns="urn:schemas-microsoft-com:xml-analysis">';
+                command += '<RequestType>' + (discoverCommands[options.command] || options.command) + '</RequestType>';
+                command += '<Restrictions>' + serializeOptions('RestrictionList', options.restrictions, true) + '</Restrictions>';
+                if (options.connection && options.connection.catalog) {
+                    properties.Catalog = options.connection.catalog;
+                }
+                command += '<Properties>' + serializeOptions('PropertyList', properties, false) + '</Properties>';
+                command += '</Discover></Body></Envelope>';
+                return command;
+            }
+            function serializeOptions(parentTagName, options, capitalize) {
+                var result = '';
+                if (options) {
+                    result += '<' + parentTagName + '>';
+                    var value = void 0;
+                    for (var key in options) {
+                        if (options[key]) {
+                            value = options[key];
+                            if (capitalize) {
+                                key = key.replace(/([A-Z]+(?=$|[A-Z][a-z])|[A-Z]?[a-z]+)/g, '$1_').toUpperCase().replace(/_$/, '');
+                            }
+                            result += '<' + key + '>' + value + '</' + key + '>';
+                        }
+                    }
+                    result += '</' + parentTagName + '>';
+                } else {
+                    result += '<' + parentTagName + '/>';
+                }
+                return result;
+            }
+            function parseCubes(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'CUBE_NAME'),
+                        caption: getPropertyValue(row, 'CUBE_CAPTION'),
+                        description: getPropertyValue(row, 'DESCRIPTION'),
+                        type: getPropertyValue(row, 'CUBE_TYPE')
+                    };
+                });
+                return rows;
+            }
+            function parseCatalogs(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'CATALOG_NAME'),
+                        description: getPropertyValue(row, 'DESCRIPTION')
+                    };
+                });
+                return rows;
+            }
+            function parseMeasures(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'MEASURE_NAME'),
+                        caption: getPropertyValue(row, 'MEASURE_CAPTION'),
+                        uniqueName: getPropertyValue(row, 'MEASURE_UNIQUE_NAME'),
+                        description: getPropertyValue(row, 'DESCRIPTION'),
+                        aggregator: getPropertyValue(row, 'MEASURE_AGGREGATOR'),
+                        groupName: getPropertyValue(row, 'MEASUREGROUP_NAME'),
+                        displayFolder: getPropertyValue(row, 'MEASURE_DISPLAY_FOLDER'),
+                        defaultFormat: getPropertyValue(row, 'DEFAULT_FORMAT_STRING')
+                    };
+                });
+                return rows;
+            }
+            function parseKPIs(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'KPI_NAME'),
+                        uniqueName: getPropertyValue(row, 'KPI_NAME'),
+                        caption: getPropertyValue(row, 'KPI_CAPTION'),
+                        value: getPropertyValue(row, 'KPI_VALUE'),
+                        goal: getPropertyValue(row, 'KPI_GOAL'),
+                        status: getPropertyValue(row, 'KPI_STATUS'),
+                        trend: getPropertyValue(row, 'KPI_TREND'),
+                        statusGraphic: getPropertyValue(row, 'KPI_STATUS_GRAPHIC'),
+                        trendGraphic: getPropertyValue(row, 'KPI_TREND_GRAPHIC'),
+                        description: getPropertyValue(row, 'KPI_DESCRIPTION'),
+                        groupName: getPropertyValue(row, 'MEASUREGROUP_NAME'),
+                        type: 'kpi'
+                    };
+                });
+                return rows;
+            }
+            function parseDimensions(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        caption: getPropertyValue(row, 'DIMENSION_CAPTION'),
+                        defaultHierarchy: getPropertyValue(row, 'DEFAULT_HIERARCHY'),
+                        description: getPropertyValue(row, 'DESCRIPTION'),
+                        name: getPropertyValue(row, 'DIMENSION_NAME'),
+                        type: parseInt(getPropertyValue(row, 'DIMENSION_TYPE'), 10),
+                        uniqueName: getPropertyValue(row, 'DIMENSION_UNIQUE_NAME')
+                    };
+                });
+                return rows;
+            }
+            function parseHierarchies(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'HIERARCHY_NAME'),
+                        caption: getPropertyValue(row, 'HIERARCHY_CAPTION'),
+                        description: getPropertyValue(row, 'DESCRIPTION'),
+                        uniqueName: getPropertyValue(row, 'HIERARCHY_UNIQUE_NAME'),
+                        dimensionUniqueName: getPropertyValue(row, 'DIMENSION_UNIQUE_NAME'),
+                        displayFolder: getPropertyValue(row, 'HIERARCHY_DISPLAY_FOLDER'),
+                        origin: getPropertyValue(row, 'HIERARCHY_ORIGIN'),
+                        defaultMember: getPropertyValue(row, 'DEFAULT_MEMBER')
+                    };
+                });
+                return rows;
+            }
+            function parseLevels(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'LEVEL_NAME'),
+                        caption: getPropertyValue(row, 'LEVEL_CAPTION'),
+                        description: getPropertyValue(row, 'DESCRIPTION'),
+                        uniqueName: getPropertyValue(row, 'LEVEL_UNIQUE_NAME'),
+                        dimensionUniqueName: getPropertyValue(row, 'DIMENSION_UNIQUE_NAME'),
+                        displayFolder: getPropertyValue(row, 'LEVEL_DISPLAY_FOLDER'),
+                        orderingProperty: getPropertyValue(row, 'LEVEL_ORDERING_PROPERTY'),
+                        origin: getPropertyValue(row, 'LEVEL_ORIGIN'),
+                        hierarchyUniqueName: getPropertyValue(row, 'HIERARCHY_UNIQUE_NAME')
+                    };
+                });
+                return rows;
+            }
+            function parseMembers(response) {
+                var xmlDoc = new DOMParser().parseFromString(response, 'text/xml');
+                var rows = Array.from(xmlDoc.querySelectorAll('DiscoverResponse > return > root > row')).map(function (row) {
+                    return {
+                        name: getPropertyValue(row, 'MEMBER_NAME'),
+                        caption: getPropertyValue(row, 'MEMBER_CAPTION'),
+                        uniqueName: getPropertyValue(row, 'MEMBER_UNIQUE_NAME'),
+                        dimensionUniqueName: getPropertyValue(row, 'DIMENSION_UNIQUE_NAME'),
+                        hierarchyUniqueName: getPropertyValue(row, 'HIERARCHY_UNIQUE_NAME'),
+                        levelUniqueName: getPropertyValue(row, 'LEVEL_UNIQUE_NAME'),
+                        childrenCardinality: getPropertyValue(row, 'CHILDREN_CARDINALITY')
+                    };
+                });
+                return rows;
+            }
+            var discoverParser = {
+                schemaCatalogs: parseCatalogs,
+                schemaCubes: parseCubes,
+                schemaDimensions: parseDimensions,
+                schemaHierarchies: parseHierarchies,
+                schemaKPIs: parseKPIs,
+                schemaLevels: parseLevels,
+                schemaMeasures: parseMeasures,
+                schemaMembers: parseMembers
+            };
+            var fetchData = function (fetchOptions, options) {
+                return __awaiter(void 0, void 0, void 0, function () {
+                    var init, response, stringResponse;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                        case 0:
+                            init = __assign({
+                                body: createRequestBody(options),
+                                headers: { 'Content-Type': 'text/xml' },
+                                method: 'POST'
+                            }, fetchOptions.init);
+                            return [
+                                4,
+                                fetch(fetchOptions.url, init)
+                            ];
+                        case 1:
+                            response = _a.sent();
+                            return [
+                                4,
+                                response.text()
+                            ];
+                        case 2:
+                            stringResponse = _a.sent();
+                            return [
+                                2,
+                                parseResponse(stringResponse)
+                            ];
+                        }
+                    });
+                });
+            };
+            var fetchDiscover = function (fetchOptions, options) {
+                return __awaiter(void 0, void 0, void 0, function () {
+                    var init, response, stringResponse;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                        case 0:
+                            init = __assign({
+                                body: createDiscoverBody(options),
+                                headers: { 'Content-Type': 'text/xml' },
+                                method: 'POST'
+                            }, fetchOptions.init);
+                            return [
+                                4,
+                                fetch(fetchOptions.url, init)
+                            ];
+                        case 1:
+                            response = _a.sent();
+                            return [
+                                4,
+                                response.text()
+                            ];
+                        case 2:
+                            stringResponse = _a.sent();
+                            return [
+                                2,
+                                discoverParser[options.command](stringResponse)
+                            ];
+                        }
+                    });
+                });
+            };
+            var createDataState = function (response) {
+                var state = {
+                    columns: response.columns.tuples,
+                    data: response.data,
+                    rows: response.rows.tuples
+                };
+                return state;
+            };
+            function createAxisDescriptors(expandTree) {
+                var descriptors = [];
+                for (var _i = 0, _a = Object.keys(expandTree); _i < _a.length; _i++) {
+                    var key = _a[_i];
+                    descriptors.push({
+                        name: JSON.parse(key),
+                        expand: expandTree[key]
+                    });
+                }
+                return descriptors;
+            }
+            var setSort = function (options, sort) {
+                if (sort === void 0) {
+                    sort = [];
+                }
+                options.sort = sort;
+            };
+            var setFilter = function (options, filter) {
+                if (filter === void 0) {
+                    filter = [];
+                }
+                options.filter = filter;
+            };
+            var getMaxNesting = function (node, set) {
+                if (set === void 0) {
+                    set = new Set();
+                }
+                (node.children || []).forEach(function (child) {
+                    set.add(child.levelName);
+                    getMaxNesting(child, set);
+                });
+                return set.size;
+            };
+            var getMaxExpansion = function (node) {
+                var expanded = 0;
+                (node.children || []).forEach(function (child) {
+                    expanded += getMaxExpansion(child) || 1;
+                });
+                return expanded;
+            };
+            var generateNormalizedPath = function (node, parent) {
+                return (parent && parent.hierarchy === node.hierarchy ? __spreadArrays((parent.normalizedPath || []).slice(0, -1), [node.name || null]) : __spreadArrays(parent && parent.normalizedPath ? parent.normalizedPath : [], [node.name])).filter(Boolean);
+            };
+            var generatePath = function (node, parent) {
+                return (parent && parent.hierarchy === node.hierarchy ? __spreadArrays((parent.path || []).slice(0, -1), [(node.levelNum === 0 ? node.hierarchy : node.name) || null]) : __spreadArrays(parent && parent.path ? parent.path : [], [node.levelNum === 0 ? node.hierarchy : node.name])).filter(Boolean);
+            };
+            var toMatrix = function (node, rowIndex, colIndex, maxDepth, maxBreadth, matrix, leafs, parent) {
+                if (rowIndex === void 0) {
+                    rowIndex = -1;
+                }
+                if (colIndex === void 0) {
+                    colIndex = 0;
+                }
+                if (maxDepth === void 0) {
+                    maxDepth = undefined;
+                }
+                if (maxBreadth === void 0) {
+                    maxBreadth = undefined;
+                }
+                if (matrix === void 0) {
+                    matrix = undefined;
+                }
+                if (leafs === void 0) {
+                    leafs = undefined;
+                }
+                if (parent === void 0) {
+                    parent = undefined;
+                }
+                var branchDepth = getMaxNesting(node);
+                var branchBreadth = getMaxExpansion(node);
+                var depth = maxDepth || branchDepth;
+                var breadth = maxBreadth || branchBreadth;
+                var matrixResult = matrix ? matrix.slice() : [];
+                var leafsResult = leafs ? leafs.slice() : new Array(breadth);
+                var index = matrixResult.findIndex(function (l) {
+                    return l && l.name === node.levelName && l.level === node.levelNum;
+                });
+                var level = matrixResult[index];
+                var row = {
+                    name: node.levelName,
+                    level: node.levelNum,
+                    index: rowIndex,
+                    cells: new Array(breadth).fill(null)
+                };
+                var inject = rowIndex !== -1 && colIndex !== -1;
+                var cell = {
+                    caption: node.caption,
+                    name: node.name,
+                    levelName: node.levelName,
+                    levelNum: node.levelNum,
+                    hasChildren: node.hasChildren,
+                    parentName: node.parentName,
+                    hierarchy: node.hierarchy,
+                    total: (node.total !== undefined ? node.total : false) || parent && parent.children.length <= 1 && parent.total,
+                    parent: parent,
+                    rowIndex: rowIndex,
+                    colIndex: colIndex,
+                    depth: 1,
+                    breadth: 1,
+                    path: node.path || [],
+                    normalizedPath: node.normalizedPath || [],
+                    children: node.children.filter(function (c) {
+                        return c.hierarchy === node.hierarchy;
+                    })
+                };
+                if (inject) {
+                    if (level) {
+                        level.cells[colIndex] = cell;
+                        if (level.index >= rowIndex) {
+                            rowIndex = level.index;
+                        }
+                    } else {
+                        if (matrixResult[rowIndex] && matrixResult[rowIndex].cells.length) {
+                            for (var idx = rowIndex; idx < matrixResult.length; idx++) {
+                                var shiftedRow = matrixResult[idx];
+                                shiftedRow.index++;
+                            }
+                            matrixResult.splice(rowIndex, 0, row);
+                            matrixResult[rowIndex].cells[colIndex] = cell;
+                        } else {
+                            matrixResult[rowIndex] = row;
+                            matrixResult[rowIndex].cells[colIndex] = cell;
+                        }
+                    }
+                }
+                var collOffset = 0;
+                if (node.children && node.children.length) {
+                    node.children.forEach(function (child) {
+                        var _a = toMatrix(child, rowIndex + 1, colIndex + collOffset, depth, breadth, matrixResult, leafsResult, cell), newMatrix = _a[0], newLeafs = _a[1], childBreadth = _a[3];
+                        collOffset += childBreadth || 1;
+                        matrixResult = newMatrix.slice();
+                        leafsResult = newLeafs.slice();
+                    });
+                } else if (node.normalizedPath) {
+                    leafsResult[colIndex] = {
+                        total: cell.total,
+                        path: node.normalizedPath
+                    };
+                }
+                cell.depth = branchDepth;
+                cell.breadth = branchBreadth;
+                return [
+                    matrixResult,
+                    leafsResult,
+                    branchDepth,
+                    branchBreadth
+                ];
+            };
+            var withTotal = function (root, parent, index) {
+                if (parent === void 0) {
+                    parent = null;
+                }
+                if (index === void 0) {
+                    index = 0;
+                }
+                var hierarchy;
+                var alt = __assign(__assign({}, root), {
+                    total: true,
+                    hasChildren: false,
+                    children: []
+                });
+                for (var childIndex = 0; childIndex < root.children.length; childIndex++) {
+                    var child = withTotal(root.children[childIndex], root, childIndex);
+                    hierarchy = hierarchy || child.hierarchy;
+                    if (child.hierarchy !== hierarchy && parent && !parent.children.some(function (c) {
+                            return c.total && c.name === alt.name;
+                        }) && !root.total) {
+                        alt.children.push(child);
+                        root.children.splice(childIndex, 1);
+                        childIndex--;
+                    }
+                }
+                if (root.children.filter(function (c) {
+                        return !c.total;
+                    }).length >= 1 && parent && !parent.children.some(function (c) {
+                        return c.total && c.name === alt.name;
+                    }) && !root.total) {
+                    var childHierarchy = root.children[0].hierarchy;
+                    if (root.hierarchy === childHierarchy) {
+                        parent.children.splice(index + 1, 0, alt);
+                    }
+                }
+                return root;
+            };
+            var toTree = function (tuples) {
+                var root = { children: [] };
+                var map = {};
+                var _loop_1 = function (tupleIndex) {
+                    var tuple = copy(tuples[tupleIndex]);
+                    var key = '';
+                    var _loop_2 = function (memberIndex) {
+                        var member = tuple.members[memberIndex];
+                        var parent_1;
+                        if (root.children && root.children.length === 0) {
+                            parent_1 = root;
+                        } else if (map[key] && !map[key + member.name] && member.levelNum === 0) {
+                            parent_1 = map[key];
+                        } else if (map[key + member.parentName] && member.levelNum > 0 && !map[key + member.parentName + member.name]) {
+                            parent_1 = map[key + member.parentName];
+                        } else if (!map[key + member.parentName] && member.levelNum > 0 && !map[key + member.parentName + member.name]) {
+                            var parentKey = Object.keys(map).find(function (e) {
+                                return e.indexOf(member.hierarchy) === 0 && e.lastIndexOf(key + member.parentName) + (key + member.parentName).length === e.length;
+                            });
+                            if (parentKey) {
+                                parent_1 = map[parentKey];
+                            }
+                        }
+                        if (parent_1) {
+                            member.path = generatePath(member, parent_1);
+                            member.normalizedPath = generateNormalizedPath(member, parent_1);
+                            var intruderIndex = parent_1.children.findIndex(function (c) {
+                                return c.hierarchy !== parent_1.hierarchy;
+                            });
+                            if (intruderIndex !== -1) {
+                                parent_1.children.splice(Math.max(intruderIndex, 0), 0, member);
+                            } else {
+                                parent_1.children.push(member);
+                            }
+                        }
+                        key += member.parentName += member.name;
+                        if (!map[key]) {
+                            map[key] = member;
+                        }
+                    };
+                    for (var memberIndex = 0; memberIndex < tuple.members.length; memberIndex++) {
+                        _loop_2(memberIndex);
+                    }
+                };
+                for (var tupleIndex = 0; tupleIndex < tuples.length; tupleIndex++) {
+                    _loop_1(tupleIndex);
+                }
+                return copy(withTotal(root));
+            };
+            var toData = function (data, columns, rows, breadth, depth) {
+                var result = Array.from(new Array(depth), function () {
+                    return {
+                        cells: Array.from(new Array(breadth), function () {
+                            return null;
+                        })
+                    };
+                });
+                var hash = function (names) {
+                    return names.join('|');
+                };
+                var membersNames = function (tuple) {
+                    return tuple.members.map(function (m) {
+                        return m.name;
+                    });
+                };
+                var columnsIndexes = new Map();
+                var rowsIndexes = new Map();
+                columns.forEach(function (colMembers, idx) {
+                    columnsIndexes.set(hash(colMembers.path), idx);
+                });
+                rows.forEach(function (rowMembers, idx) {
+                    rowsIndexes.set(hash(rowMembers.path), idx);
+                });
+                data.forEach(function (item) {
+                    var colIndex = columnsIndexes.get(hash(membersNames(item.columnTuple)));
+                    var rowIndex = rowsIndexes.get(hash(membersNames(item.rowTuple)));
+                    if (colIndex !== undefined && rowIndex !== undefined) {
+                        if (!result[rowIndex].cells[colIndex]) {
+                            result[rowIndex].row = rows[rowIndex].path;
+                            result[rowIndex].cells[colIndex] = item;
+                        }
+                    }
+                });
+                return result;
+            };
+            var rotateMatrix = function (matrix, leafs, depth, breadth) {
+                var result = new Array(breadth);
+                for (var colIndex = 0; colIndex < breadth; colIndex++) {
+                    for (var rowIndex = 0; rowIndex < depth; rowIndex++) {
+                        if (matrix[rowIndex] && matrix[rowIndex].cells[colIndex]) {
+                            var cell = matrix[rowIndex].cells[colIndex];
+                            if (!result[colIndex]) {
+                                result[colIndex] = { cells: new Array(depth).fill(null) };
+                            }
+                            result[colIndex].cells[rowIndex] = __assign(__assign({}, cell), {
+                                rowSpan: cell.colSpan,
+                                colSpan: cell.rowSpan
+                            });
+                        }
+                    }
+                }
+                return [
+                    result,
+                    leafs,
+                    breadth,
+                    depth
+                ];
+            };
+            var toColumns = function (root) {
+                var _a = toMatrix(root), matrix = _a[0], leafs = _a[1], depth = _a[2], breadth = _a[3];
+                for (var colIndex = 0; colIndex < breadth; colIndex++) {
+                    var cell = null;
+                    for (var rowIndex = 0; rowIndex < depth; rowIndex++) {
+                        if (matrix[rowIndex]) {
+                            var next = matrix[rowIndex].cells[colIndex];
+                            if (!next && cell) {
+                                cell.rowSpan = (cell.rowSpan || 1) + 1;
+                            }
+                            if (cell) {
+                                cell.colSpan = cell.breadth || 1;
+                            }
+                            if (next) {
+                                cell = next;
+                            }
+                        }
+                    }
+                }
+                return [
+                    matrix,
+                    leafs,
+                    depth,
+                    breadth
+                ];
+            };
+            var toRows = function (root) {
+                var _a = toMatrix(root), matrix = _a[0], leafs = _a[1], depth = _a[2], breadth = _a[3];
+                for (var colIndex = 0; colIndex < breadth; colIndex++) {
+                    var cell = null;
+                    for (var rowIndex = 0; rowIndex < depth; rowIndex++) {
+                        if (matrix[rowIndex]) {
+                            var next = matrix[rowIndex].cells[colIndex];
+                            if (!next && cell) {
+                                cell.rowSpan = (cell.rowSpan || 1) + 1;
+                            }
+                            if (cell) {
+                                cell.colSpan = cell.breadth;
+                            }
+                            if (next) {
+                                cell = next;
+                            }
+                        }
+                    }
+                }
+                return rotateMatrix(matrix, leafs, depth, breadth);
+            };
+            function copy(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            }
+            var kpiMeasure = function (name, measure, type) {
+                return {
+                    hierarchyUniqueName: name,
+                    uniqueName: measure,
+                    caption: measure,
+                    measure: measure,
+                    name: measure,
+                    type: type,
+                    kpi: true
+                };
+            };
+            function buildKPIMeasures(node) {
+                var name = node.name;
+                return [
+                    kpiMeasure(name, node.value, 'value'),
+                    kpiMeasure(name, node.goal, 'goal'),
+                    kpiMeasure(name, node.status, 'status'),
+                    kpiMeasure(name, node.trend, 'trend')
+                ];
+            }
+            var addKPI = function (data) {
+                var found;
+                var idx = 0;
+                for (; idx < data.length; idx++) {
+                    if (data[idx].type === 2) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    data.splice(idx + 1, 0, {
+                        caption: 'KPIs',
+                        defaultHierarchy: '[KPIs]',
+                        name: 'KPIs',
+                        uniqueName: '[KPIs]'
+                    });
+                }
+            };
+            var compareAxisWithField = function (a, b) {
+                return String(a.name) === String([b.defaultHierarchy ? b.defaultHierarchy : b.uniqueName]);
+            };
+            var compareAxes = function (a, b) {
+                return String(a.name) === String(b.name);
+            };
+            exports.HEADERS_ACTION = void 0;
+            (function (HEADERS_ACTION) {
+                HEADERS_ACTION['toggle'] = 'HEADERS_ACTION_TOGGLE';
+                HEADERS_ACTION['expand'] = 'HEADERS_ACTION_EXPAND';
+                HEADERS_ACTION['collapse'] = 'HEADERS_ACTION_COLLAPSE';
+            }(exports.HEADERS_ACTION || (exports.HEADERS_ACTION = {})));
+            var findPath = function (node, matchFn, matched) {
+                var result = new Set();
+                node.children.forEach(function (child) {
+                    var match = matchFn(child);
+                    if (matched) {
+                        result.add(String(child.path));
+                    }
+                    findPath(child, matchFn, matched || match).map(function (h) {
+                        result.add(h);
+                    });
+                });
+                return Array.from(result.values());
+            };
+            var headersReducer = function (state, action) {
+                switch (action.type) {
+                case exports.HEADERS_ACTION.toggle: {
+                        var existing = state.find(function (s) {
+                            return String(s.name) === String(action.payload);
+                        });
+                        return headersReducer(state, __assign(__assign({}, action), { type: existing && existing.expand ? exports.HEADERS_ACTION.collapse : exports.HEADERS_ACTION.expand }));
+                    }
+                case exports.HEADERS_ACTION.expand: {
+                        var existing_1 = state.find(function (s) {
+                            return String(s.name) === String(action.payload);
+                        });
+                        if (existing_1 && existing_1.expand === true) {
+                            return state;
+                        } else if (existing_1 && (existing_1.expand === false || existing_1.expand === undefined)) {
+                            return state.map(function (s) {
+                                return s === existing_1 ? __assign(__assign({}, existing_1), { expand: true }) : s;
+                            });
+                        } else {
+                            return __spreadArrays(state, [{
+                                    name: action.payload,
+                                    expand: true
+                                }]);
+                        }
+                    }
+                case exports.HEADERS_ACTION.collapse: {
+                        var filtered_1 = findPath(action.tree, function (node) {
+                            return !node.total && String(node.path) === String(action.payload);
+                        });
+                        var newState = __spreadArrays(state).filter(function (h) {
+                            return !filtered_1.some(function (f) {
+                                return f === String(h.name);
+                            });
+                        }).map(function (h) {
+                            return __assign(__assign({}, h), { expand: Boolean(h.expand) });
+                        }).map(function (h) {
+                            return String(h.name) === String(action.payload) ? action.payload.length > 1 ? undefined : {
+                                name: action.payload,
+                                expand: false
+                            } : h;
+                        }).filter(Boolean);
+                        return newState;
+                    }
+                default: {
+                        return state;
+                    }
+                }
+            };
+            exports.PIVOT_CONFIGURATOR_ACTION = void 0;
+            (function (PIVOT_CONFIGURATOR_ACTION) {
+                PIVOT_CONFIGURATOR_ACTION['toggleSelection'] = 'PIVOT_CONFIGURATOR_ACTION_TOGGLE_SELECTION';
+                PIVOT_CONFIGURATOR_ACTION['addColumnAxis'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_COLUMN_AXIS';
+                PIVOT_CONFIGURATOR_ACTION['addColumnAxes'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_COLUMN_AXES';
+                PIVOT_CONFIGURATOR_ACTION['removeColumnAxis'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_COLUMN_AXIS';
+                PIVOT_CONFIGURATOR_ACTION['removeColumnAxes'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_COLUMN_AXES';
+                PIVOT_CONFIGURATOR_ACTION['addRowAxis'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_ROW_AXIS';
+                PIVOT_CONFIGURATOR_ACTION['addRowAxes'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_ROW_AXES';
+                PIVOT_CONFIGURATOR_ACTION['removeRowAxis'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_ROW_AXIS';
+                PIVOT_CONFIGURATOR_ACTION['removeRowAxes'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_ROW_AXES';
+                PIVOT_CONFIGURATOR_ACTION['addMeasureAxis'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_MEASURE_AXIS';
+                PIVOT_CONFIGURATOR_ACTION['addMeasureAxes'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_MEASURE_AXES';
+                PIVOT_CONFIGURATOR_ACTION['removeMeasureAxis'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_MEASURE_AXIS';
+                PIVOT_CONFIGURATOR_ACTION['removeMeasureAxes'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_MEASURE_AXES';
+                PIVOT_CONFIGURATOR_ACTION['remove'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE';
+                PIVOT_CONFIGURATOR_ACTION['setSort'] = 'PIVOT_CONFIGURATOR_ACTION_SET_SORT';
+                PIVOT_CONFIGURATOR_ACTION['setFilter'] = 'PIVOT_CONFIGURATOR_ACTION_SET_FILTER';
+                PIVOT_CONFIGURATOR_ACTION['addFilter'] = 'PIVOT_CONFIGURATOR_ACTION_ADD_FILTER';
+                PIVOT_CONFIGURATOR_ACTION['changeFilter'] = 'PIVOT_CONFIGURATOR_ACTION_CHANGE_FILTER';
+                PIVOT_CONFIGURATOR_ACTION['removeFilter'] = 'PIVOT_CONFIGURATOR_ACTION_REMOVE_FILTER';
+                PIVOT_CONFIGURATOR_ACTION['setDragItem'] = 'PIVOT_CONFIGURATOR_ACTION_SET_DRAGITEM';
+                PIVOT_CONFIGURATOR_ACTION['drop'] = 'PIVOT_CONFIGURATOR_ACTION_DROP';
+                PIVOT_CONFIGURATOR_ACTION['setDropZone'] = 'PIVOT_CONFIGURATOR_ACTION_SET_DROP_ZONE';
+                PIVOT_CONFIGURATOR_ACTION['setDropTarget'] = 'PIVOT_CONFIGURATOR_ACTION_SET_DROP_TARGET';
+                PIVOT_CONFIGURATOR_ACTION['setDropDirection'] = 'PIVOT_CONFIGURATOR_ACTION_SET_DROP_DIRECTION';
+            }(exports.PIVOT_CONFIGURATOR_ACTION || (exports.PIVOT_CONFIGURATOR_ACTION = {})));
+            var configuratorReducer = function (state, action) {
+                var newRows;
+                var newColumns;
+                var newMeasures;
+                var newSort;
+                var newFilter;
+                var newDragitem;
+                var newDropZone;
+                var newDropDirection;
+                var newDropTarget;
+                switch (action.type) {
+                case exports.PIVOT_CONFIGURATOR_ACTION.toggleSelection: {
+                        if (Array.isArray(action.payload));
+                        else {
+                            var payload_1 = action.payload;
+                            if (payload_1.type === 2 || 'aggregator' in payload_1) {
+                                if (state.measureAxes.some(function (s) {
+                                        return compareAxisWithField(s, payload_1);
+                                    })) {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.removeMeasureAxis }));
+                                } else {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.addMeasureAxis }));
+                                }
+                            } else if (payload_1.type === 'kpi') {
+                                var measures = buildKPIMeasures(payload_1);
+                                if (measures.every(function (m) {
+                                        return state.measureAxes.some(function (s) {
+                                            return compareAxisWithField(s, m);
+                                        });
+                                    })) {
+                                    return configuratorReducer(state, __assign(__assign({}, action), {
+                                        type: exports.PIVOT_CONFIGURATOR_ACTION.removeMeasureAxes,
+                                        payload: measures
+                                    }));
+                                } else {
+                                    return configuratorReducer(state, __assign(__assign({}, action), {
+                                        type: exports.PIVOT_CONFIGURATOR_ACTION.addMeasureAxes,
+                                        payload: measures.filter(function (m) {
+                                            return !state.measureAxes.some(function (s) {
+                                                return compareAxisWithField(s, m);
+                                            });
+                                        })
+                                    }));
+                                }
+                            } else if (action.payload.kpi) {
+                                if (state.measureAxes.some(function (s) {
+                                        return compareAxisWithField(s, payload_1);
+                                    })) {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.removeMeasureAxis }));
+                                } else {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.addMeasureAxis }));
+                                }
+                            } else {
+                                if (state.columnAxes.some(function (s) {
+                                        return compareAxisWithField(s, payload_1);
+                                    })) {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.removeColumnAxis }));
+                                } else if (state.rowAxes.some(function (s) {
+                                        return compareAxisWithField(s, payload_1);
+                                    })) {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.removeRowAxis }));
+                                } else if (state.columnAxes && state.columnAxes.length && (!state.rowAxes || !state.rowAxes.length)) {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.addRowAxis }));
+                                } else {
+                                    return configuratorReducer(state, __assign(__assign({}, action), { type: exports.PIVOT_CONFIGURATOR_ACTION.addColumnAxis }));
+                                }
+                            }
+                        }
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.addColumnAxis: {
+                        newColumns = __spreadArrays(state.columnAxes || [], [{ name: [action.payload.defaultHierarchy || action.payload.uniqueName] }]);
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.addColumnAxes: {
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeColumnAxis: {
+                        newColumns = __spreadArrays((state.columnAxes || []).filter(function (s) {
+                            return !compareAxisWithField(s, action.payload);
+                        }));
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeColumnAxes: {
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.addRowAxis: {
+                        newRows = __spreadArrays(state.rowAxes || [], [{ name: [action.payload.defaultHierarchy || action.payload.uniqueName] }]);
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.addRowAxes: {
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeRowAxis: {
+                        newRows = __spreadArrays((state.rowAxes || []).filter(function (s) {
+                            return !compareAxisWithField(s, action.payload);
+                        }));
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeRowAxes: {
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.addMeasureAxis: {
+                        newMeasures = __spreadArrays(state.measureAxes || [], [{ name: [action.payload.defaultHierarchy || action.payload.uniqueName] }]);
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeMeasureAxis: {
+                        newMeasures = __spreadArrays((state.measureAxes || []).filter(function (s) {
+                            return !compareAxisWithField(s, action.payload);
+                        }));
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.addMeasureAxes: {
+                        newMeasures = __spreadArrays(state.measureAxes || [], (action.payload || []).map(function (p) {
+                            return { name: [p.defaultHierarchy || p.uniqueName] };
+                        }));
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeMeasureAxes: {
+                        newMeasures = __spreadArrays((state.measureAxes || []).filter(function (s) {
+                            return !action.payload.some(function (p) {
+                                return compareAxisWithField(s, p);
+                            });
+                        }));
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.remove: {
+                        if (state.columnAxes.some(function (s) {
+                                return compareAxes(s, action.payload);
+                            })) {
+                            newColumns = __spreadArrays(state.columnAxes.filter(function (s) {
+                                return !compareAxes(s, action.payload);
+                            }));
+                        }
+                        if (state.rowAxes.some(function (s) {
+                                return compareAxes(s, action.payload);
+                            })) {
+                            newRows = __spreadArrays(state.rowAxes.filter(function (s) {
+                                return !compareAxes(s, action.payload);
+                            }));
+                        }
+                        if (state.measureAxes.some(function (s) {
+                                return compareAxes(s, action.payload);
+                            })) {
+                            newMeasures = __spreadArrays(state.measureAxes.filter(function (s) {
+                                return !compareAxes(s, action.payload);
+                            }));
+                        }
+                        break;
+                    }
+                case exports.PIVOT_CONFIGURATOR_ACTION.setDragItem:
+                    newDragitem = action.payload;
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.setDropZone:
+                    newDropZone = action.payload;
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.setDropTarget:
+                    newDropTarget = action.payload;
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.setDropDirection:
+                    newDropDirection = action.payload;
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.drop:
+                    if (state.dragItem && state.dropZone) {
+                        var currentColumn = state.columnAxes.find(function (s) {
+                            return compareAxes(s, action.payload);
+                        });
+                        var currentRow = state.rowAxes.find(function (s) {
+                            return compareAxes(s, action.payload);
+                        });
+                        var currentMeasure = state.measureAxes.find(function (s) {
+                            return compareAxes(s, action.payload);
+                        });
+                        var current = void 0;
+                        if (currentColumn) {
+                            current = currentColumn;
+                            newColumns = __spreadArrays(state.columnAxes.filter(function (s) {
+                                return !compareAxes(s, action.payload);
+                            }));
+                        }
+                        if (currentRow) {
+                            current = currentRow;
+                            newRows = __spreadArrays(state.rowAxes.filter(function (s) {
+                                return !compareAxes(s, action.payload);
+                            }));
+                        }
+                        if (currentMeasure) {
+                            current = currentMeasure;
+                            newMeasures = __spreadArrays(state.measureAxes.filter(function (s) {
+                                return !compareAxes(s, action.payload);
+                            }));
+                        }
+                        switch (state.dropZone) {
+                        case 'columnAxes': {
+                                newColumns = newColumns || state.columnAxes.slice();
+                                var insertAtIndex = -1;
+                                if (state.dropTarget && state.dropDirection) {
+                                    var offset = state.dropDirection ? state.dropDirection === 'before' ? 0 : 1 : 0;
+                                    insertAtIndex = newColumns.findIndex(function (c) {
+                                        return compareAxes(c, state.dropTarget);
+                                    }) + offset;
+                                }
+                                if (insertAtIndex >= 0) {
+                                    newColumns.splice(insertAtIndex, 0, current);
+                                } else {
+                                    newColumns.push(current);
+                                }
+                                break;
+                            }
+                        case 'rowAxes': {
+                                newRows = newRows || state.rowAxes.slice();
+                                var insertAtIndex = -1;
+                                if (state.dropTarget && state.dropDirection) {
+                                    var offset = state.dropDirection ? state.dropDirection === 'before' ? 0 : 1 : 0;
+                                    insertAtIndex = newRows.findIndex(function (c) {
+                                        return compareAxes(c, state.dropTarget);
+                                    }) + offset;
+                                }
+                                if (insertAtIndex >= 0) {
+                                    newRows.splice(insertAtIndex, 0, current);
+                                } else {
+                                    newRows.push(current);
+                                }
+                                break;
+                            }
+                        case 'measureAxes': {
+                                newMeasures = newMeasures || state.measureAxes.slice();
+                                var insertAtIndex = -1;
+                                if (state.dropTarget && state.dropDirection) {
+                                    var offset = state.dropDirection ? state.dropDirection === 'before' ? 0 : 1 : 0;
+                                    insertAtIndex = newMeasures.findIndex(function (c) {
+                                        return compareAxes(c, state.dropTarget);
+                                    }) + offset;
+                                }
+                                if (insertAtIndex >= 0) {
+                                    newMeasures.splice(insertAtIndex, 0, current);
+                                } else {
+                                    newMeasures.push(current);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    newDragitem = null;
+                    newDropZone = null;
+                    newDropTarget = null;
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.setSort:
+                    newSort = action.payload;
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.setFilter:
+                    if (Array.isArray(action.payload)) {
+                        newFilter = action.payload;
+                    } else {
+                        newFilter = [action.payload];
+                    }
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.addFilter:
+                    newFilter = (state.filter || []).slice();
+                    if (Array.isArray(action.payload)) {
+                        newFilter.push.apply(newFilter, action.payload);
+                    } else {
+                        newFilter.push(action.payload);
+                    }
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.changeFilter:
+                    newFilter = Array.isArray(action.payload) ? (state.filter || []).map(function (f) {
+                        return action.payload.some(function (a) {
+                            return a.field === f.field;
+                        }) ? action.payload.find(function (a) {
+                            return a.field === f.field;
+                        }) : f;
+                    }) : (state.filter || []).map(function (f) {
+                        return f.field === action.payload.field ? action.payload : f;
+                    });
+                    break;
+                case exports.PIVOT_CONFIGURATOR_ACTION.removeFilter:
+                    newFilter = (state.filter || []).slice();
+                    if (Array.isArray(action.payload)) {
+                        newFilter = newFilter.filter(function (f) {
+                            return !action.payload.some(function (p) {
+                                return p.field === f.field && p.operator === f.operator;
+                            });
+                        });
+                    } else {
+                        newFilter = newFilter.filter(function (f) {
+                            return !(f.field === action.payload.field && f.operator === action.payload.operator);
+                        });
+                    }
+                    break;
+                }
+                return {
+                    dragItem: newDragitem,
+                    dropTarget: newDropTarget,
+                    dropDirection: newDropDirection,
+                    dropZone: newDropZone,
+                    columnAxes: newColumns,
+                    rowAxes: newRows,
+                    measureAxes: newMeasures,
+                    filter: newFilter,
+                    sort: newSort
+                };
+            };
+            exports.addKPI = addKPI;
+            exports.buildKPIMeasures = buildKPIMeasures;
+            exports.compareAxes = compareAxes;
+            exports.configuratorReducer = configuratorReducer;
+            exports.createAxisDescriptors = createAxisDescriptors;
+            exports.createDataState = createDataState;
+            exports.createDiscoverBody = createDiscoverBody;
+            exports.createRequestBody = createRequestBody;
+            exports.discoverCommands = discoverCommands;
+            exports.fetchData = fetchData;
+            exports.fetchDiscover = fetchDiscover;
+            exports.headersReducer = headersReducer;
+            exports.parseResponse = parseResponse;
+            exports.setFilter = setFilter;
+            exports.setSort = setSort;
+            exports.toColumns = toColumns;
+            exports.toData = toData;
+            exports.toRows = toRows;
+            exports.toTree = toTree;
+            Object.defineProperty(exports, '__esModule', { value: true });
+            return exports;
+        }({});
+    }());
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('kendo.pivotgrid', [
+        'pivotgrid/common',
         'kendo.dom',
         'kendo.data'
     ], f);
@@ -76,9 +1595,9 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Comparer = kendo.data.Comparer, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
+        var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Comparer = kendo.data.Comparer, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, common = window.kendo.pivotgrid.common, fetchDiscover = common.fetchDiscover, normalizeFilter = kendo.data.Query.normalizeFilter, normalizeSort = kendo.data.Query.normalizeSort, toString = {}.toString, identity = function (o) {
                 return o;
-            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div></div>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "deny" : "hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
+            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, fetchData = common.fetchData, createDataState = common.createDataState, toColumns = common.toColumns, toRows = common.toRows, toTree = common.toTree, toData = common.toData, headersReducer = common.headersReducer, RESIZE = 'resize', READ = 'read', CHANGE = 'change', ERROR = 'error', REQUESTSTART = 'requestStart', PROGRESS = 'progress', REQUESTEND = 'requestEnd', MEASURES = 'Measures', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div></div>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', HEADERTEMPLATE = '<th data-key="#:key#" class="#:headerClass#" #if (colspan) {#colspan="#:colspan#"#}# #if (rowspan) {#rowspan="#:rowspan#"#}#>' + '#if (expandable) {# <span class="k-icon k-i-arrow-chevron-#:iconClass# k-color-inherit" role="presentation"></span>#}#' + '</th>', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "deny" : "hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
         var AXIS_ROWS = 'rows';
         var AXIS_COLUMNS = 'columns';
         function normalizeMeasures(measure) {
@@ -155,7 +1674,7 @@
             var descriptors = [];
             for (var k in result) {
                 descriptors.push({
-                    name: $.parseJSON(k),
+                    name: JSON.parse(k),
                     expand: result[k]
                 });
             }
@@ -230,6 +1749,19 @@
         }
         function isDate(val) {
             return val && val.getTime;
+        }
+        function getScollWidth() {
+            var scrollbar = 0;
+            var div;
+            if (document && document.createElement) {
+                div = document.createElement('div');
+                div.style.cssText = 'overflow:scroll;overflow-x:hidden;zoom:1;clear:both;display:block';
+                div.innerHTML = '&nbsp;';
+                document.body.appendChild(div);
+                scrollbar = div.offsetWidth - div.scrollWidth;
+                document.body.removeChild(div);
+            }
+            return scrollbar;
         }
         var functions = {
             sum: function (value, state) {
@@ -911,6 +2443,241 @@
                 connection.cube = val;
                 this.options.connection = connection;
                 extend(true, this.transport.options, { connection: connection });
+            }
+        });
+        var PivotDataSourceV2 = DataSource.extend({
+            init: function (options) {
+                DataSource.fn.init.call(this, extend(true, {}, {}, options));
+                var transportOptions = this.options.transport || {};
+                if ((this.options.type || 'xmla').toLowerCase() === 'xmla') {
+                    this._online = true;
+                    this.transport = new XmlaTransportV2(transportOptions);
+                }
+                this._columns = normalizeMembers(this.options.columns);
+                this._rows = normalizeMembers(this.options.rows);
+                var measures = this.options.measures || [];
+                if (toString.call(measures) === '[object Object]') {
+                    this._measuresAxis = measures.axis || 'columns';
+                    measures = measures.values || [];
+                }
+                this._measures = normalizeMeasures(measures);
+            },
+            options: {
+                serverSorting: true,
+                serverPaging: true,
+                serverFiltering: true,
+                serverGrouping: true,
+                serverAggregates: true
+            },
+            axes: function () {
+                return {
+                    columns: normalizeAxis(this.columns()),
+                    rows: normalizeAxis(this.rows())
+                };
+            },
+            catalog: function (val) {
+                if (val === undefined) {
+                    return this.transport.catalog();
+                }
+                this.transport.catalog(val);
+                this._mergeState({});
+                this.read();
+            },
+            cube: function (val) {
+                if (val === undefined) {
+                    return this.transport.cube();
+                }
+                this.transport.cube(val);
+                this._mergeState({});
+                this.read();
+            },
+            measuresAxis: function () {
+                return this._measuresAxis || 'columns';
+            },
+            fetch: function () {
+                if (this.options.type.toLowerCase() === 'xmla' && (this._data === undefined || this._data.length === 0)) {
+                    this._query();
+                }
+            },
+            read: function (data) {
+                var that = this;
+                var isPrevented = that.trigger(REQUESTSTART, { type: READ });
+                var params = that._params(data);
+                if (!isPrevented) {
+                    that.trigger(PROGRESS);
+                    that.transport.read({
+                        data: params,
+                        success: function (newDataState) {
+                            that._saveState(newDataState);
+                            that.trigger(REQUESTEND, {
+                                response: newDataState,
+                                type: READ
+                            });
+                            that.trigger(CHANGE);
+                            if (that._preventRefresh) {
+                                that._preventRefresh = false;
+                            }
+                        },
+                        error: function (err) {
+                            that.trigger(ERROR, { error: err });
+                        }
+                    });
+                }
+            },
+            _params: function (data) {
+                var that = this;
+                var options = DataSource.fn._params.call(that, data);
+                options = extend({
+                    connection: that.options.transport.connection,
+                    columnAxes: JSON.parse(JSON.stringify(that._columns)),
+                    rowAxes: JSON.parse(JSON.stringify(that._rows)),
+                    measuresAxis: that.measuresAxis(),
+                    measureAxes: that._measures
+                }, options);
+                if (options.filter) {
+                    options.filter = normalizeFilter(options.filter);
+                    options.filter = (options.filter || {}).filters;
+                }
+                if (options.sort) {
+                    options.sort = normalizeSort(options.sort);
+                }
+                return options;
+            },
+            discover: function (options) {
+                var that = this, transport = that.transport;
+                if (transport.discover) {
+                    return transport.discover(options);
+                }
+            },
+            schemaMeasures: function () {
+                var that = this;
+                return that.discover({
+                    command: 'schemaMeasures',
+                    restrictions: {
+                        catalogName: that.transport.catalog(),
+                        cubeName: that.transport.cube()
+                    }
+                }, function (response) {
+                    return response;
+                });
+            },
+            schemaKPIs: function () {
+                var that = this;
+                return that.discover({
+                    command: 'schemaKPIs',
+                    restrictions: {
+                        catalogName: that.transport.catalog(),
+                        cubeName: that.transport.cube()
+                    }
+                }, function (response) {
+                    return response;
+                });
+            },
+            schemaDimensions: function () {
+                var that = this;
+                return that.discover({
+                    command: 'schemaDimensions',
+                    restrictions: {
+                        catalogName: that.transport.catalog(),
+                        cubeName: that.transport.cube()
+                    }
+                }, function (response) {
+                    return response;
+                });
+            },
+            schemaHierarchies: function (dimensionName) {
+                var that = this;
+                return that.discover({
+                    command: 'schemaHierarchies',
+                    restrictions: {
+                        catalogName: that.transport.catalog(),
+                        cubeName: that.transport.cube(),
+                        dimensionUniqueName: dimensionName
+                    }
+                }, function (response) {
+                    return response;
+                });
+            },
+            schemaLevels: function (hierarchyName) {
+                var that = this;
+                return that.discover({
+                    command: 'schemaLevels',
+                    restrictions: {
+                        catalogName: that.transport.catalog(),
+                        cubeName: that.transport.cube(),
+                        hierarchyUniqueName: hierarchyName
+                    }
+                }, function (response) {
+                    return response;
+                });
+            },
+            schemaCubes: function () {
+                var that = this;
+                return that.discover({
+                    command: 'schemaCubes',
+                    restrictions: { catalogName: that.transport.catalog() }
+                }, function (response) {
+                    return response;
+                });
+            },
+            schemaCatalogs: function () {
+                var that = this;
+                return that.discover({ command: 'schemaCatalogs' }, function (response) {
+                    return response;
+                });
+            },
+            schemaMembers: function (restrictions) {
+                var that = this;
+                return that.discover({
+                    command: 'schemaMembers',
+                    restrictions: extend({
+                        catalogName: that.transport.catalog(),
+                        cubeName: that.transport.cube()
+                    }, restrictions)
+                }, function (response) {
+                    return response;
+                });
+            },
+            _saveState: function (state) {
+                var that = this;
+                that._columnTuples = state.columns;
+                that._rowTuples = state.rows;
+                that._view = state.data;
+            },
+            columns: function (val) {
+                if (val === undefined) {
+                    return this._columns;
+                }
+                this._columns = normalizeMembers(val);
+                this.read();
+            },
+            rows: function (val) {
+                if (val === undefined) {
+                    return this._rows;
+                }
+                this._rows = normalizeMembers(val);
+                this.read();
+            },
+            measures: function (val) {
+                if (val === undefined) {
+                    return this._measures;
+                }
+                this._measures = normalizeMeasures(val);
+                this.read();
+            },
+            _mergeState: function (options) {
+                options = DataSource.fn._mergeState.call(this, options);
+                return options;
+            },
+            _query: function (options) {
+                var that = this;
+                var params = extend({}, {
+                    sort: that.sort(),
+                    measuresAxis: that.measuresAxis(),
+                    filter: that.filter()
+                }, options);
+                var state = this._mergeState(params);
+                return this.read(state);
             }
         });
         var PivotDataSource = DataSource.extend({
@@ -2159,6 +3926,15 @@
             }
             return result;
         }
+        PivotDataSourceV2.create = function (options) {
+            options = options && options.push ? { data: options } : options;
+            var dataSource = options || {}, data = dataSource.data;
+            dataSource.data = data;
+            if (!(dataSource instanceof PivotDataSourceV2) && dataSource instanceof kendo.data.DataSource) {
+                throw new Error('Incorrect DataSource type. Only PivotDataSource instances are supported');
+            }
+            return dataSource instanceof PivotDataSourceV2 ? dataSource : new PivotDataSourceV2(dataSource);
+        };
         PivotDataSource.create = function (options) {
             options = options && options.push ? { data: options } : options;
             var dataSource = options || {}, data = dataSource.data;
@@ -2228,6 +4004,16 @@
                 result.push(measure.name !== undefined ? measure.name : measure);
             }
             return result;
+        }
+        function indexOf(name, items) {
+            var idx, length, index = -1;
+            for (idx = 0, length = items.length; idx < length; idx++) {
+                if (getName(items[idx]) === name) {
+                    index = idx;
+                    break;
+                }
+            }
+            return index;
         }
         function getName(name) {
             name = name.name || name;
@@ -2508,6 +4294,51 @@
                 return $.ajax(this.setup(options, 'discover'));
             }
         });
+        var XmlaTransportV2 = Class.extend({
+            init: function (options) {
+                options = this.options = extend(true, {}, this.options, options);
+            },
+            setup: function (options) {
+                return $.extend(true, options || {}, { connection: this.options.connection });
+            },
+            read: function (options) {
+                var that = this, success, error;
+                var fetchOptions = that.setup(options.data, READ);
+                success = options.success || $.noop;
+                error = options.error || $.noop;
+                if (options.parameterMap) {
+                    fetchOptions = that.parameterMap(fetchOptions, READ);
+                }
+                fetchData({ url: that.options.read }, fetchOptions).then(createDataState).then(function (newDataState) {
+                    success(newDataState);
+                }).catch(function (err) {
+                    error(err);
+                });
+            },
+            catalog: function (val) {
+                var options = this.options || {};
+                if (val === undefined) {
+                    return (options.connection || {}).catalog;
+                }
+                var connection = options.connection || {};
+                connection.catalog = val;
+                this.options.connection = connection;
+                $.extend(this.transport.options, { connection: connection });
+            },
+            cube: function (val) {
+                var options = this.options || {};
+                if (val === undefined) {
+                    return (options.connection || {}).cube;
+                }
+                var connection = options.connection || {};
+                connection.cube = val;
+                this.options.connection = connection;
+                extend(true, this.transport.options, { connection: connection });
+            },
+            discover: function (options) {
+                return fetchDiscover({ url: this.options.read }, options);
+            }
+        });
         function asArray(object) {
             if (object == null) {
                 return [];
@@ -2736,6 +4567,7 @@
         });
         extend(true, kendo.data, {
             PivotDataSource: PivotDataSource,
+            PivotDataSourceV2: PivotDataSourceV2,
             XmlaTransport: XmlaTransport,
             XmlaDataReader: XmlaDataReader,
             PivotCubeBuilder: PivotCubeBuilder,
@@ -2830,7 +4662,7 @@
                         filter: '>*:not(.k-empty)',
                         cursor: 'move',
                         start: function (e) {
-                            e.item.focus().blur();
+                            e.item.trigger('focus').trigger('blur');
                         },
                         change: function (e) {
                             var name = e.item.attr(kendo.attr('name'));
@@ -2845,16 +4677,6 @@
                     }).data('kendoSortable');
                 }
             },
-            _indexOf: function (name, items) {
-                var idx, length, index = -1;
-                for (idx = 0, length = items.length; idx < length; idx++) {
-                    if (getName(items[idx]) === name) {
-                        index = idx;
-                        break;
-                    }
-                }
-                return index;
-            },
             _isKPI: function (data) {
                 return data.type === 'kpi' || data.measure;
             },
@@ -2868,11 +4690,11 @@
                 }
                 var items = this.dataSource[this.options.setting]();
                 var name = data.defaultHierarchy || data.uniqueName;
-                if (this._indexOf(name, items) > -1) {
+                if (indexOf(name, items) > -1) {
                     return false;
                 }
                 items = this.dataSource[this.options.setting === 'columns' ? 'rows' : 'columns']();
-                if (this._indexOf(name, items) > -1) {
+                if (indexOf(name, items) > -1) {
                     return false;
                 }
                 return true;
@@ -2880,9 +4702,9 @@
             add: function (name) {
                 var items = this.dataSource[this.options.setting]();
                 var i, l;
-                name = $.isArray(name) ? name.slice(0) : [name];
+                name = Array.isArray(name) ? name.slice(0) : [name];
                 for (i = 0, l = name.length; i < l; i++) {
-                    if (this._indexOf(name[i], items) !== -1) {
+                    if (indexOf(name[i], items) !== -1) {
                         name.splice(i, 1);
                         i -= 1;
                         l -= 1;
@@ -2895,7 +4717,7 @@
             },
             move: function (name, index) {
                 var items = this.dataSource[this.options.setting]();
-                var idx = this._indexOf(name, items);
+                var idx = indexOf(name, items);
                 if (idx > -1) {
                     name = items.splice(idx, 1)[0];
                     items.splice(index, 0, name);
@@ -2904,7 +4726,7 @@
             },
             remove: function (name) {
                 var items = this.dataSource[this.options.setting]();
-                var idx = this._indexOf(name, items);
+                var idx = indexOf(name, items);
                 var sortExpressions = this.dataSource.sort();
                 var filter = this.dataSource.filter();
                 if (idx > -1) {
@@ -2977,6 +4799,510 @@
                 return icon;
             }
         });
+        kendo.ui.PivotSettingTargetV2 = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                that.dataSource = kendo.data.PivotDataSourceV2.create(options.dataSource);
+                that._refreshHandler = $.proxy(that.refresh, that);
+                that.dataSource.first(CHANGE, that._refreshHandler);
+                that.template = kendo.template(that.options.template);
+                that._sortable();
+                that.element.on('click' + NS, '.k-i-close-circle', function (e) {
+                    var target = $(e.target);
+                    var parent = target.closest('.k-chip');
+                    var name = parent.find('.k-chip-label').text();
+                    if (!name) {
+                        return;
+                    }
+                    that.remove(name);
+                    parent.remove();
+                    that.trigger('remove', { name: name });
+                });
+                if (options.filterable || options.sortable) {
+                    that.fieldMenu = new ui.PivotFieldMenuV2(that.element, {
+                        messages: that.options.messages.fieldMenu,
+                        filterable: options.filterable,
+                        filter: '.k-i-more-vertical',
+                        sortable: options.sortable,
+                        dataSource: that.dataSource
+                    });
+                }
+                that.refresh();
+            },
+            events: ['remove'],
+            options: {
+                name: 'PivotSettingTargetV2',
+                template: null,
+                filterable: false,
+                sortable: false,
+                setting: 'columns',
+                enabled: true,
+                messages: { empty: 'Drop Fields Here' }
+            },
+            setDataSource: function (dataSource) {
+                this.dataSource.unbind(CHANGE, this._refreshHandler);
+                this.dataSource = this.options.dataSource = dataSource;
+                if (this.fieldMenu) {
+                    this.fieldMenu.setDataSource(dataSource);
+                }
+                dataSource.first(CHANGE, this._refreshHandler);
+                this.refresh();
+            },
+            _applyState: function () {
+                if (this._sortState !== undefined) {
+                    this.dataSource._sort = this._sortState;
+                    this._sortState = undefined;
+                }
+                if (this._stateFilter !== undefined) {
+                    this.dataSource._filter = this._stateFilter;
+                    this._stateFilter = undefined;
+                }
+                this.dataSource['_' + this.options.setting] = this.options.setting === 'measures' ? normalizeMeasures(this._savedState) : normalizeMembers(this._savedState);
+            },
+            _cancelChanges: function () {
+                this._sortState = undefined;
+                this._stateFilter = undefined;
+                this._savedState = kendo.deepExtend([], this._initialState);
+                this._redraw();
+            },
+            _state: function (newState, modifyInit) {
+                var that = this;
+                if (!newState) {
+                    return that._savedState || [];
+                } else {
+                    if (!that._savedState || modifyInit) {
+                        that._initialState = kendo.deepExtend([], newState);
+                    }
+                    that._savedState = kendo.deepExtend([], newState);
+                }
+            },
+            _sortable: function () {
+                var that = this;
+                this.sortable = this.element.kendoSortable({
+                    connectWith: this.options.connectWith,
+                    hint: that.options.hint,
+                    filter: '>*:not(.k-empty)',
+                    cursor: 'move',
+                    start: function (e) {
+                        e.item.focus().blur();
+                    },
+                    change: function (e) {
+                        var name = e.item.find('.k-chip-label').text();
+                        if (e.action == 'receive') {
+                            that.add(name);
+                        } else if (e.action == 'remove') {
+                            that.remove(name);
+                        } else if (e.action == 'sort') {
+                            that.move(name, e.newIndex);
+                        }
+                    }
+                }).data('kendoSortable');
+            },
+            add: function (name) {
+                var items = this._state();
+                var i, l;
+                name = $.isArray(name) ? name.slice(0) : [name];
+                for (i = 0, l = name.length; i < l; i++) {
+                    if (indexOf(name[i], items) !== -1) {
+                        name.splice(i, 1);
+                        i -= 1;
+                        l -= 1;
+                    }
+                }
+                if (name.length) {
+                    items = items.concat(name);
+                    this._state(items);
+                    this._redraw();
+                }
+            },
+            move: function (name, index) {
+                var items = this._state();
+                var idx = indexOf(name, items);
+                if (idx > -1) {
+                    name = items.splice(idx, 1)[0];
+                    items.splice(index, 0, name);
+                    this._state(items);
+                    this._redraw();
+                }
+            },
+            remove: function (name) {
+                var items = this._state();
+                var idx = indexOf(name, items);
+                var sortExpressions = this.dataSource.sort();
+                var filter = this.dataSource.filter();
+                if (idx > -1) {
+                    if (filter) {
+                        filter.filters = removeExpr(filter.filters, name);
+                        this._savedFilter = this.dataSource._filter;
+                        this._savedFilter.filters = filter.filters;
+                        if (!filter.filters.length) {
+                            this._savedFilter = null;
+                        }
+                    }
+                    if (sortExpressions) {
+                        sortExpressions = removeExpr(sortExpressions, name);
+                        this._sortState = sortExpressions;
+                    }
+                    items.splice(idx, 1);
+                    this._state(items);
+                    this._redraw();
+                }
+            },
+            _emptyState: function (enable) {
+                var that = this;
+                if (enable) {
+                    that.element.html(this.options.messages.empty).addClass('k-settings-description').removeClass('k-chip-list');
+                } else {
+                    that.element.removeClass('k-settings-description').addClass('k-chip-list');
+                }
+            },
+            _redraw: function () {
+                var items = this._state() || [];
+                this._emptyState(!items.length);
+                if (items.length) {
+                    this.element.html(this._targetsHTML(items));
+                }
+            },
+            _targetsHTML: function (items) {
+                var item;
+                var html = '';
+                var idx = 0;
+                var options = this.options;
+                var enabled = false;
+                if (this.options.setting != 'measures') {
+                    enabled = options.filterable || options.sortable;
+                }
+                if (items.length) {
+                    for (; idx < items.length; idx++) {
+                        item = items[idx];
+                        item = item.name === undefined ? { name: item } : item;
+                        html += this.template({
+                            name: item.name,
+                            menuenabled: enabled
+                        });
+                    }
+                }
+                return html;
+            },
+            refresh: function () {
+                if (this.dataSource._preventRefresh) {
+                    return;
+                }
+                var items = this.dataSource[this.options.setting]();
+                this._emptyState(!this._state().length);
+                this._state(items, true);
+                if (items.length) {
+                    this.element.html(this._targetsHTML(items));
+                }
+            },
+            destroy: function () {
+                Widget.fn.destroy.call(this);
+                this.dataSource.unbind(CHANGE, this._refreshHandler);
+                this.element.off(NS);
+                if (this.sortable) {
+                    this.sortable.destroy();
+                }
+                if (this.fieldMenu) {
+                    this.fieldMenu.destroy();
+                }
+                this.element = null;
+                this._refreshHandler = null;
+            }
+        });
+        var PivotConfiguratorButton = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                that.element = $(element);
+                that._element();
+                that._attachEvents();
+            },
+            options: {
+                name: 'PivotConfiguratorButton',
+                text: 'Change settings',
+                configurator: ''
+            },
+            destroy: function () {
+                this.element.off(NS);
+            },
+            setOptions: function (options) {
+                var that = this;
+                kendo.deepExtend(that.options, options);
+                this.init(this.element, this.options);
+            },
+            toggle: function () {
+                var attr = kendo.attr('role');
+                var pivotEl = this.element.closest('[' + attr + '=pivotcontainer]').find('[' + attr + '=pivotgridv2]');
+                var pivot;
+                $('#' + this.options.configurator).toggleClass('k-hidden');
+                if (pivotEl.length) {
+                    pivot = pivotEl.getKendoPivotGridV2();
+                    pivot._setContentWidth();
+                    pivot._updateDimensions();
+                }
+            },
+            _attachEvents: function () {
+                this.element.on('click' + NS, $.proxy(this.toggle, this));
+            },
+            _element: function () {
+                var options = this.options;
+                this.element.addClass('k-pivotgrid-configurator-button');
+                this.element.html(kendo.format('<span>{0}<span class=\'k-icon k-i-gear k-color-inherit\'></span></span>', options.text));
+            }
+        });
+        var PivotContainer = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                that.element = $(element);
+                that.options = options;
+                that._addClasses();
+            },
+            options: {
+                name: 'PivotContainer',
+                configuratorPosition: 'left'
+            },
+            setOptions: function (options) {
+                var that = this;
+                kendo.deepExtend(that.options, options);
+                this.init(this.element, this.options);
+            },
+            _addClasses: function () {
+                var options = this.options;
+                var className;
+                this.element.removeClass('k-flex-row k-flex-row-reverse k-flex-column k-flex-column-reverse');
+                switch (options.configuratorPosition) {
+                case 'right':
+                    className = 'k-flex-row';
+                    break;
+                case 'left':
+                    className = 'k-flex-row-reverse';
+                    break;
+                case 'bottom':
+                    className = 'k-flex-column';
+                    break;
+                case 'top':
+                    className = 'k-flex-column-reverse';
+                    break;
+                default:
+                    className = 'k-flex-row';
+                }
+                this.element.addClass('k-d-flex k-pos-relative').addClass(className);
+            }
+        });
+        var PivotGridV2 = Widget.extend({
+            init: function (element, options) {
+                var that = this;
+                Widget.fn.init.call(that, element, options);
+                that._dataSource();
+                that._bindConfigurator();
+                that._wrapper();
+                that._columnHeadersWrapper = $('<div class="k-pivotgrid-column-headers"></div>');
+                that._rowHeadersWrapper = $('<div class="k-pivotgrid-row-headers"></div>');
+                that._contentWrapper = $('<div class="k-pivotgrid-values"></div>');
+                that.wrapper.append(that._columnHeadersWrapper);
+                that.wrapper.append(that._rowHeadersWrapper);
+                that.wrapper.append(that._contentWrapper);
+                that._columnBuilder = new ColumnRowBuilder({
+                    template: this.options.columnHeaderTemplate,
+                    axes: 'columns'
+                });
+                that._rowBuilder = new ColumnRowBuilder({
+                    template: this.options.rowHeaderTemplate,
+                    axes: 'rows'
+                });
+                that._contentBuilder = new ContentBuilderV2({ template: this.options.dataCellTemplate || DATACELL_TEMPLATE });
+                that._scrollable();
+                that._rowHeadersWrapper.add(that._columnHeadersWrapper).on('click', 'span.k-icon', function () {
+                    var button = $(this);
+                    var path = button.parent().attr(kendo.attr('key'));
+                    var expanded = button.hasClass('k-i-arrow-chevron-up');
+                    var isRow = button.closest('.k-pivotgrid-row-headers').length !== 0;
+                    var paths = path.split(',');
+                    var eventName = expanded ? COLLAPSEMEMBER : EXPANDMEMBER;
+                    if (that.trigger(eventName, {
+                            path: paths,
+                            axis: isRow ? 'rows' : 'columns'
+                        })) {
+                        return;
+                    }
+                    var reducerPayLoad = {
+                        type: 'HEADERS_ACTION_TOGGLE',
+                        payload: paths,
+                        tree: isRow ? that._rowBuilder.getTree() : that._columnBuilder.getTree()
+                    };
+                    var currentAxes = isRow ? that.dataSource._rows : that.dataSource._columns;
+                    var newHeaders = headersReducer(currentAxes, reducerPayLoad);
+                    that.dataSource._preventRefresh = true;
+                    if (isRow) {
+                        that.dataSource.rows(newHeaders);
+                    } else {
+                        that.dataSource.columns(newHeaders);
+                    }
+                });
+                if (that.options.autoBind) {
+                    that.dataSource.fetch();
+                }
+                kendo.notify(that);
+            },
+            events: [
+                DATABINDING,
+                DATABOUND,
+                EXPANDMEMBER,
+                COLLAPSEMEMBER
+            ],
+            options: {
+                name: 'PivotGridV2',
+                autoBind: true,
+                height: null,
+                columnWidth: null,
+                configurator: '',
+                columnHeaderTemplate: null,
+                rowHeaderTemplate: null,
+                dataCellTemplate: null
+            },
+            destroy: function () {
+                var that = this;
+                Widget.fn.destroy.call(that);
+                if (that._windowResizeHandler) {
+                    $(window).off(RESIZE + NS, that._windowResizeHandler);
+                    that._windowResizeHandler = null;
+                }
+            },
+            _dataSource: function () {
+                var that = this;
+                var dataSource = that.options.dataSource;
+                dataSource = $.isArray(dataSource) ? { data: dataSource } : dataSource;
+                if (that.dataSource && this._refreshHandler) {
+                    that.dataSource.unbind(CHANGE, that._refreshHandler).unbind(PROGRESS, that._progressHandler).unbind(ERROR, that._errorHandler);
+                } else {
+                    that._refreshHandler = $.proxy(that.refresh, that);
+                    that._progressHandler = $.proxy(that._requestStart, that);
+                    that._errorHandler = $.proxy(that._error, that);
+                }
+                that.dataSource = kendo.data.PivotDataSourceV2.create(dataSource).bind(CHANGE, that._refreshHandler).bind(PROGRESS, that._progressHandler).bind(ERROR, that._errorHandler);
+            },
+            _resize: function () {
+                var that = this;
+                that.wrapper[0].style.setProperty('--kendo-scrollbar-width', kendo.format('{0}px', getScollWidth()));
+            },
+            _scrollable: function () {
+                var that = this;
+                var columnsHeader = that._columnHeadersWrapper;
+                var rowsHeader = that._rowHeadersWrapper;
+                that._resize();
+                that._windowResizeHandler = $.proxy(that._resize, that);
+                that._contentWrapper.scroll(function () {
+                    kendo.scrollLeft(columnsHeader, this.scrollLeft);
+                    rowsHeader.scrollTop(this.scrollTop);
+                });
+                rowsHeader.bind('DOMMouseScroll' + NS + ' mousewheel' + NS, $.proxy(that._wheelScroll, that));
+                $(window).on(RESIZE + NS, that._windowResizeHandler);
+            },
+            _wheelScroll: function (e) {
+                if (e.ctrlKey) {
+                    return;
+                }
+                var delta = kendo.wheelDeltaY(e);
+                var scrollTop = this._contentWrapper.scrollTop();
+                if (delta) {
+                    e.preventDefault();
+                    $(e.currentTarget).one('wheel' + NS, false);
+                    this._rowHeadersWrapper.scrollTop(scrollTop + -delta);
+                    this._contentWrapper.scrollTop(scrollTop + -delta);
+                }
+            },
+            _wrapper: function () {
+                var height = this.options.height;
+                this.wrapper = this.element.addClass('k-widget k-pivotgrid');
+                this.wrapper.append('<span class="k-pivotgrid-empty-cell" />');
+                if (height) {
+                    this.wrapper.css('height', height);
+                }
+            },
+            _progress: function (toggle) {
+                kendo.ui.progress(this.wrapper, toggle);
+            },
+            _error: function () {
+                this._progress(false);
+            },
+            _requestStart: function () {
+                this._progress(true);
+            },
+            _updateDimensions: function () {
+                var that = this;
+                that.wrapper.css({
+                    'grid-template-columns': kendo.format('{0}px 1fr', that._rowHeadersWrapper.find('.k-pivotgrid-table')[0].offsetWidth),
+                    'grid-template-rows': kendo.format('{0}px 1fr', that._columnHeadersWrapper.find('.k-pivotgrid-table')[0].offsetHeight)
+                });
+            },
+            _setContentWidth: function () {
+                if (!this.options.columnWidth) {
+                    return;
+                }
+                var contentTable = this._contentWrapper.find('table');
+                var columnTable = this._columnHeadersWrapper.children('table');
+                var rowLength = contentTable.children('colgroup').children().length;
+                var calculatedWidth = rowLength * this.options.columnWidth;
+                var minWidth = Math.ceil(calculatedWidth / this._contentWrapper.width() * 100);
+                if (minWidth < 100) {
+                    minWidth = 100;
+                }
+                contentTable.add(columnTable).css('width', minWidth + '%');
+            },
+            _bindConfigurator: function () {
+                var configurator = this.options.configurator;
+                if (configurator) {
+                    $(configurator).kendoPivotConfiguratorV2('setDataSource', this.dataSource);
+                }
+            },
+            cellInfoByElement: function (element) {
+                element = $(element);
+                return this.cellInfo(element.index(), element.parent('tr').index());
+            },
+            cellInfo: function (columnIndex, rowIndex) {
+                var contentBuilder = this._contentBuilder;
+                var dataIndex;
+                var dataItem;
+                if (columnIndex >= contentBuilder.columnsCount || columnIndex < 0 || rowIndex >= contentBuilder.rowsCount || rowIndex < 0) {
+                    return null;
+                }
+                dataIndex = rowIndex * contentBuilder.columnsCount + columnIndex;
+                dataItem = contentBuilder.hash[dataIndex < 0 ? 0 : dataIndex];
+                return {
+                    columnTuple: dataItem.columnTuple,
+                    rowTuple: dataItem.rowTuple,
+                    dataItem: dataItem.data
+                };
+            },
+            refresh: function () {
+                var that = this;
+                var dataSource = that.dataSource;
+                if (that.trigger(DATABINDING, { action: 'rebind' })) {
+                    return;
+                }
+                that._columnBuilder.setTuples(dataSource._columnTuples);
+                that._columnHeadersWrapper.html(that._columnBuilder.build());
+                that._rowBuilder.setTuples(dataSource._rowTuples);
+                that._rowHeadersWrapper.html(that._rowBuilder.build());
+                that._contentBuilder.setRowColumnInfo({
+                    columnHeaderLeafs: that._columnBuilder.getHeaderLeafs(),
+                    rowHeaderLeafs: that._rowBuilder.getHeaderLeafs(),
+                    columnHeaderBreadth: that._columnBuilder.getBreadth(),
+                    rowHeaderDepth: that._rowBuilder.getBreadth(),
+                    data: dataSource._view
+                });
+                that._contentWrapper.html(that._contentBuilder.build());
+                that._setContentWidth();
+                that._updateDimensions();
+                that._progress(false);
+                that.trigger(DATABOUND);
+            }
+        });
+        ui.plugin(PivotConfiguratorButton);
+        ui.plugin(PivotContainer);
+        ui.plugin(PivotGridV2);
         var PivotGrid = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -3120,7 +5446,7 @@
             _dataSource: function () {
                 var that = this;
                 var dataSource = that.options.dataSource;
-                dataSource = $.isArray(dataSource) ? { data: dataSource } : dataSource;
+                dataSource = Array.isArray(dataSource) ? { data: dataSource } : dataSource;
                 if (that.dataSource && this._refreshHandler) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler).unbind(STATERESET, that._stateResetHandler).unbind(PROGRESS, that._progressHandler).unbind(ERROR, that._errorHandler);
                 } else {
@@ -3319,7 +5645,7 @@
             },
             _resetColspan: function (columnTable) {
                 var that = this;
-                var cell = columnTable.children('tbody').children(':first').children(':first');
+                var cell = columnTable.children('tbody').children().first().children().first();
                 if (that._colspan === undefined) {
                     that._colspan = cell.attr('colspan');
                 }
@@ -3393,11 +5719,11 @@
                 var that = this;
                 var columnsHeader = that.columnsHeader;
                 var rowsHeader = that.rowsHeader;
-                that.content.scroll(function () {
+                that.content.on('scroll', function () {
                     kendo.scrollLeft(columnsHeader, this.scrollLeft);
                     rowsHeader.scrollTop(this.scrollTop);
                 });
-                rowsHeader.bind('DOMMouseScroll' + NS + ' mousewheel' + NS, $.proxy(that._wheelScroll, that));
+                rowsHeader.on('DOMMouseScroll' + NS + ' mousewheel' + NS, $.proxy(that._wheelScroll, that));
             },
             _wheelScroll: function (e) {
                 if (e.ctrlKey) {
@@ -3442,6 +5768,144 @@
             }
             return name;
         };
+        var ContentBuilderV2 = Class.extend({
+            init: function (options) {
+                this.template = kendo.template(options.template);
+                this.hash = [];
+            },
+            setRowColumnInfo: function (options) {
+                this.data = options.data;
+                this.columnHeaderLeafs = options.columnHeaderLeafs;
+                this.rowHeaderLeafs = options.rowHeaderLeafs;
+                this.columnHeaderBreadth = options.columnHeaderBreadth;
+                this.rowHeaderDepth = options.rowHeaderDepth;
+                this.hash.length = 0;
+            },
+            addColElements: function (count) {
+                var html = '';
+                for (var index = 0; index < count; index++) {
+                    html += '<col>';
+                }
+                this.table.find('colgroup').append(html);
+            },
+            addRowElements: function (data) {
+                var that = this;
+                var body = that.table.find('tbody');
+                var row;
+                for (var index = 0; index < data.length; index++) {
+                    row = $('<tr class="k-pivotgrid-row"></tr>');
+                    body.append(row);
+                    that.addColumCell(row, data[index], index);
+                }
+                this.rowsCount = data.length;
+            },
+            addColumCell: function (rowEl, rowItem, rowIndex) {
+                var that = this;
+                for (var index = 0; index < rowItem.cells.length; index++) {
+                    var cell = rowItem.cells[index];
+                    if (cell) {
+                        var cellEl = $('<td class="k-pivotgrid-cell"></td>');
+                        if (this.rowHeaderLeafs[rowIndex].total || this.columnHeaderLeafs[index].total) {
+                            cellEl.addClass('k-pivotgrid-header-total');
+                        }
+                        cellEl.append(that.template({
+                            dataItem: cell.data,
+                            rowTuple: cell.rowTuple,
+                            columnTuple: cell.columnTuple
+                        }));
+                        this.hash.push(cell);
+                        rowEl.append(cellEl);
+                    }
+                }
+            },
+            build: function () {
+                var data = toData((this.data || []).slice(), this.columnHeaderLeafs, this.rowHeaderLeafs, this.columnHeaderBreadth, this.rowHeaderDepth);
+                var that = this;
+                var table = $('<table class=\'k-pivotgrid-table\'><colgroup></colgroup><tbody class=\'k-pivotgrid-tbody\'></tbody></table>');
+                that.table = table;
+                that.addColElements(this.columnHeaderLeafs.length);
+                that.addRowElements(data);
+                this.rowsCount = data.length;
+                this.columnsCount = this.columnHeaderLeafs.length;
+                return that.table;
+            }
+        });
+        var ColumnRowBuilder = Class.extend({
+            init: function (options) {
+                this.tuples = options.tuples;
+                this.axes = options.axes;
+                this.headerTemplate = kendo.template(HEADERTEMPLATE);
+                if (options.template) {
+                    this.template = kendo.template(options.template);
+                }
+            },
+            setTuples: function (tuples) {
+                this.tuples = tuples;
+            },
+            addColElements: function (count) {
+                var html = '';
+                for (var index = 0; index < count; index++) {
+                    html += '<col>';
+                }
+                this.table.find('colgroup').append(html);
+            },
+            addRowElements: function (columnHeaderRows) {
+                var that = this;
+                var body = that.table.find('tbody');
+                var row;
+                for (var index = 0; index < columnHeaderRows.length; index++) {
+                    row = $('<tr class="k-pivotgrid-row"></tr>');
+                    body.append(row);
+                    that.addColumCell(row, columnHeaderRows[index]);
+                }
+            },
+            addColumCell: function (rowEl, rowItem) {
+                var that = this;
+                var cellEl;
+                var cell;
+                for (var index = 0; index < rowItem.cells.length; index++) {
+                    cell = rowItem.cells[index];
+                    if (cell) {
+                        cellEl = $(that.headerTemplate({
+                            rowspan: cell.rowSpan,
+                            colspan: cell.colSpan,
+                            key: cell.path.join(',') + (cell.total ? '|[TOTAL]' : ''),
+                            iconClass: cell.children && cell.children.length ? 'up' : 'down',
+                            expandable: cell.hasChildren && !cell.total,
+                            headerClass: kendo.format('k-pivotgrid-cell{0}{1}', cell.total ? ' k-pivotgrid-header-total' : '', cell.levelNum === 0 ? ' k-pivotgrid-header-root' : '')
+                        }));
+                        cellEl.append(that.template ? that.template({ member: cell }) : cell.caption);
+                        rowEl.append(cellEl);
+                    }
+                }
+            },
+            build: function () {
+                var tree = toTree((this.tuples || []).slice());
+                var treeData = this.axes == 'columns' ? toColumns(tree) : toRows(tree);
+                var headerRows = treeData[0];
+                var headerLeafs = treeData[1];
+                var breadth = treeData[2];
+                var rowHeaderBreadth = treeData[3];
+                var that = this;
+                that._tree = tree;
+                that._breadth = breadth;
+                that._headerLeafs = headerLeafs;
+                var table = $('<table class=\'k-pivotgrid-table\'><colgroup></colgroup><tbody class=\'k-pivotgrid-tbody\'></tbody></table>');
+                that.table = table;
+                that.addColElements(this.axes == 'columns' ? headerLeafs.length : rowHeaderBreadth);
+                that.addRowElements(headerRows);
+                return that.table;
+            },
+            getTree: function () {
+                return this._tree;
+            },
+            getBreadth: function () {
+                return this._breadth;
+            },
+            getHeaderLeafs: function () {
+                return this._headerLeafs;
+            }
+        });
         var ColumnBuilder = Class.extend({
             init: function () {
                 this.measures = 1;
@@ -4231,6 +6695,12 @@
         if (kendo.PDFMixin) {
             kendo.PDFMixin.extend(PivotGrid.prototype);
             PivotGrid.fn._drawPDF = function () {
+                return this._drawPDFShadow({ width: this.wrapper.width() }, { avoidLinks: this.options.pdf.avoidLinks });
+            };
+        }
+        if (kendo.PDFMixin) {
+            kendo.PDFMixin.extend(PivotGridV2.prototype);
+            PivotGridV2.fn._drawPDF = function () {
                 return this._drawPDFShadow({ width: this.wrapper.width() }, { avoidLinks: this.options.pdf.avoidLinks });
             };
         }

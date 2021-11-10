@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -491,7 +491,7 @@
                 }
             },
             _dateInView: function (date) {
-                var that = this, firstDateInView = toDateObject(that._cellsBySelector(CELLSELECTORVALID + ':first').find('a')), lastDateInView = toDateObject(that._cellsBySelector(CELLSELECTORVALID + ':last').find('a'));
+                var that = this, firstDateInView = toDateObject(that._cellsBySelector(CELLSELECTORVALID).first().find('a')), lastDateInView = toDateObject(that._cellsBySelector(CELLSELECTORVALID).last().find('a'));
                 return +date <= +lastDateInView && +date >= +firstDateInView;
             },
             _isNavigatable: function (currentValue, cellIndex) {
@@ -503,7 +503,7 @@
                     return !isDisabled(currentValue);
                 } else {
                     index = that.wrapper.find('.' + FOCUSED).index();
-                    cell = that.wrapper.find('.k-content td:eq(' + (index + cellIndex) + ')');
+                    cell = that.wrapper.find('.k-content td').eq(index + cellIndex);
                     return cell.is(CELLSELECTORVALID) || !isDisabled(currentValue);
                 }
             },
@@ -1416,7 +1416,7 @@
             if (kendo.isFunction(option)) {
                 return option;
             }
-            if ($.isArray(option)) {
+            if (Array.isArray(option)) {
                 return createDisabledExpr(option);
             }
             return $.noop;

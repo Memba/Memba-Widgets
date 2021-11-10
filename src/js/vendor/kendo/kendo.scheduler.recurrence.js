@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -767,7 +767,7 @@
             return dates;
         }
         function isException(exceptions, date, zone) {
-            var dates = $.isArray(exceptions) ? exceptions : parseExceptions(exceptions, zone), dateTime = date.getTime() - date.getMilliseconds(), idx = 0, length = dates.length;
+            var dates = Array.isArray(exceptions) ? exceptions : parseExceptions(exceptions, zone), dateTime = date.getTime() - date.getMilliseconds(), idx = 0, length = dates.length;
             for (; idx < length; idx++) {
                 if (dates[idx].getTime() === dateTime) {
                     return true;
@@ -2321,7 +2321,7 @@
                             text: offsetMessage.last,
                             value: '-1'
                         }
-                    ])).change(change);
+                    ])).on('change', change);
                     data = [
                         {
                             text: weekdayMessage.day,
@@ -2342,7 +2342,7 @@
                             value: idx
                         };
                     }));
-                    that._weekDay = weekDaySelect.html(that._options(data)).change(change).val(that.options.start.getDay());
+                    that._weekDay = weekDaySelect.html(that._options(data)).on('change', change).val(that.options.start.getDay());
                     that._weekDayView();
                 }
             },
@@ -2360,7 +2360,7 @@
                             value: idx + 1
                         };
                     });
-                    monthSelect.html(that._options(data)).change(function () {
+                    monthSelect.html(that._options(data)).on('change', function () {
                         rule.months = [Number(this.value)];
                     });
                     that._monthSelect = monthSelect;

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -166,7 +166,7 @@
                 this.element.prop('disabled', enable);
             },
             focus: function () {
-                this.element.focus();
+                this.element.trigger('focus');
             },
             destroy: function () {
                 var that = this;
@@ -287,7 +287,7 @@
                 input.insertAfter(that.element).data('kendo' + that.options.prefix + that.options.name, that);
                 $(that.element).hide().attr(TABINDEX, '-1').removeAttr('id').off(NS);
                 that._activeInput(input);
-                that.element.focus();
+                that.element.trigger('focus');
             },
             _activeInput: function (input) {
                 var that = this, wrapper = that.wrapper;
@@ -315,7 +315,7 @@
             _arrowKeyNavigation: function (key, focusedItem) {
                 var that = this, kendoKeys = kendo.keys, toFocus;
                 if (key === kendoKeys.DOWN) {
-                    toFocus = that.wrapper.find('.k-upload-files .k-file:first');
+                    toFocus = that.wrapper.find('.k-upload-files .k-file').first();
                     if (focusedItem.length > 0) {
                         if (focusedItem.hasClass('k-upload-action')) {
                             focusedItem.removeClass(FOCUS_STATE);
@@ -369,7 +369,7 @@
                 }
                 if (toFocus && toFocus.length > 0) {
                     that._preventFocusRemove = true;
-                    toFocus.focus();
+                    toFocus.trigger('focus');
                 }
             },
             _asyncCommandKeyNavigation: function (key, focusedItem, eventArgs) {
@@ -381,7 +381,7 @@
                     that._checkAllComplete();
                     that._updateHeaderUploadStatus();
                     that._preventFocusRemove = true;
-                    that.element.focus();
+                    that.element.trigger('focus');
                 } else if (key === kendoKeys.SPACEBAR) {
                     if (focusedItem.find('.k-i-pause-sm').length > 0) {
                         that.trigger(PAUSE, eventArgs);
@@ -413,7 +413,7 @@
                     if (!that.trigger(REMOVE, eventArgs)) {
                         that._module.onRemove({ target: $(focusedItem, that.wrapper) }, eventArgs, !hasValidationErrors);
                         that._preventFocusRemove = true;
-                        that.element.focus();
+                        that.element.trigger('focus');
                     }
                 } else if (key === kendoKeys.TAB) {
                     focusedItem.removeClass(FOCUS_STATE);
@@ -795,14 +795,14 @@
                     if (icon.hasClass('k-i-x')) {
                         if (!that.trigger(REMOVE, eventArgs)) {
                             that._module.onRemove({ target: $(fileEntry, that.wrapper) }, eventArgs, !hasValidationErrors);
-                            that.element.focus();
+                            that.element.trigger('focus');
                         }
                     } else if (icon.hasClass('k-i-cancel')) {
                         that.trigger(CANCEL, eventArgs);
                         that._module.onCancel({ target: $(fileEntry, that.wrapper) });
                         that._checkAllComplete();
                         that._updateHeaderUploadStatus();
-                        that.element.focus();
+                        that.element.trigger('focus');
                     } else if (icon.hasClass('k-i-pause-sm')) {
                         that.trigger(PAUSE, eventArgs);
                         that.pause(fileEntry);
@@ -952,7 +952,7 @@
                 this._fileAction(fileEntry, 'retry');
                 this._fileAction(fileEntry, REMOVE, true);
                 if (that._retryClicked) {
-                    fileEntry.focus();
+                    fileEntry.trigger('focus');
                 }
             },
             _updateUploadProgress: function (fileEntry) {
@@ -1049,7 +1049,7 @@
                     var input = $(element);
                     input.attr('disabled', 'disabled');
                     window.setTimeout(function () {
-                        input.removeAttr('disabled');
+                        input.prop('disabled', false);
                     }, 0);
                 }
             },
@@ -2022,7 +2022,7 @@
         function tryParseJSON(input, onSuccess, onError) {
             var success = false, json = '';
             try {
-                json = $.parseJSON(normalizeJSON(input));
+                json = JSON.parse(normalizeJSON(input));
                 success = true;
             } catch (e) {
                 onError();

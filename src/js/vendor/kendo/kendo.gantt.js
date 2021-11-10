@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -202,7 +202,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, keys = $.extend({ F10: 121 }, kendo.keys), supportsMedia = 'matchMedia' in window, mobileOS = kendo.support.mobileOS, Widget = kendo.ui.Widget, ObservableObject = kendo.data.ObservableObject, ObservableArray = kendo.data.ObservableArray, Query = kendo.data.Query, isArray = $.isArray, inArray = $.inArray, isFunction = kendo.isFunction, proxy = $.proxy, extend = $.extend, isPlainObject = $.isPlainObject, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, defaultIndicatorWidth = 3, NS = '.kendoGantt', PERCENTAGE_FORMAT = 'p0', TABINDEX = 'tabIndex', CLICK = 'click', STRING = 'string', ARIA_DESCENDANT = 'aria-activedescendant', ARIA_LABEL = 'aria-label', ACTIVE_CELL = 'gantt_active_cell', DOT = '.', TASK_DELETE_CONFIRM = 'Are you sure you want to delete this task?', DEPENDENCY_DELETE_CONFIRM = 'Are you sure you want to delete this dependency?', TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#" type="button" ' + ARIA_LABEL + '="Toggle"><span class="#=styles.iconToggle#"></span></button>'), BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" type="button" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '><span class="#=iconClass#"></span><span class="k-button-text">#=text#</span></button>', COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#">#=text#</a>', VIEWS_DROPDOWN_TEMPLATE = kendo.template('<select class="k-dropdown #= styles.viewsDropdown #">' + '#for(var view in views){#' + '<option value="#=view#">#=views[view].title#</option>' + '#}#' + '</select>'), HEADER_VIEWS_TEMPLATE = kendo.template('<div class="#=styles.viewsWrapper#">' + '<span class="k-button-group #=styles.views#">' + '#for(var view in views){#' + '<button type="button" class="#=styles.button# #=styles.viewButton#-#= view.toLowerCase() #" data-#=ns#name="#=view#"><span class="k-button-text">#=views[view].title#</span></button>' + '#}#' + '</span>' + '</div>');
+        var kendo = window.kendo, keys = $.extend({ F10: 121 }, kendo.keys), supportsMedia = 'matchMedia' in window, mobileOS = kendo.support.mobileOS, Widget = kendo.ui.Widget, ObservableObject = kendo.data.ObservableObject, ObservableArray = kendo.data.ObservableArray, Query = kendo.data.Query, isArray = Array.isArray, inArray = $.inArray, isFunction = kendo.isFunction, proxy = $.proxy, extend = $.extend, isPlainObject = $.isPlainObject, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, defaultIndicatorWidth = 3, NS = '.kendoGantt', PERCENTAGE_FORMAT = 'p0', TABINDEX = 'tabIndex', CLICK = 'click', STRING = 'string', ARIA_DESCENDANT = 'aria-activedescendant', ARIA_LABEL = 'aria-label', ACTIVE_CELL = 'gantt_active_cell', DOT = '.', TASK_DELETE_CONFIRM = 'Are you sure you want to delete this task?', DEPENDENCY_DELETE_CONFIRM = 'Are you sure you want to delete this dependency?', TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#" type="button" ' + ARIA_LABEL + '="Toggle"><span class="#=styles.iconToggle#"></span></button>'), BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" type="button" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '><span class="#=iconClass#"></span><span class="k-button-text">#=text#</span></button>', COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#">#=text#</a>', VIEWS_DROPDOWN_TEMPLATE = kendo.template('<select class="k-dropdown #= styles.viewsDropdown #">' + '#for(var view in views){#' + '<option value="#=view#">#=views[view].title#</option>' + '#}#' + '</select>'), HEADER_VIEWS_TEMPLATE = kendo.template('<div class="#=styles.viewsWrapper#">' + '<span class="k-button-group #=styles.views#">' + '#for(var view in views){#' + '<button type="button" class="#=styles.button# #=styles.viewButton#-#= view.toLowerCase() #" data-#=ns#name="#=view#"><span class="k-button-text">#=views[view].title#</span></button>' + '#}#' + '</span>' + '</div>');
         var ganttStyles = {
             wrapper: 'k-widget k-gantt',
             plannedTasks: 'k-gantt-planned',
@@ -461,7 +461,7 @@
                     value = list.content.find(value);
                 }
                 list.select(value);
-                this.list.element.find('table[role=treegrid]').focus();
+                this.list.element.find('table[role=treegrid]').trigger('focus');
                 return;
             },
             clearSelection: function () {
@@ -671,12 +671,12 @@
                     if (e.keyCode === keys.RIGHT) {
                         $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
                         that._focusedView = focusedViewIndex + 1 === views.length ? $(views[0]) : $(views[focusedViewIndex + 1]);
-                        that._focusedView.focus().addClass(ganttStyles.focused);
+                        that._focusedView.trigger('focus').addClass(ganttStyles.focused);
                         e.preventDefault();
                     } else if (e.keyCode === keys.LEFT) {
                         $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
                         that._focusedView = focusedViewIndex === 0 ? $(views[views.length - 1]) : $(views[focusedViewIndex - 1]);
-                        that._focusedView.focus().addClass(ganttStyles.focused);
+                        that._focusedView.trigger('focus').addClass(ganttStyles.focused);
                         e.preventDefault();
                     } else if ((e.keyCode === keys.ENTER || e.keyCode === keys.SPACEBAR) && that._focusedView) {
                         that.view(that._focusedView.text().toLowerCase());
@@ -1677,7 +1677,7 @@
                     this.select(selector(scrollToUid));
                 }
                 if ((scrollToUid || cachedUid) && cachedIndex >= 0) {
-                    current = this.list.element.find('tr' + selector(scrollToUid || cachedUid) + ' > td:eq(' + cachedIndex + ')');
+                    current = this.list.element.find('tr' + selector(scrollToUid || cachedUid) + ' > td').eq(cachedIndex);
                     this._current(current);
                 }
                 this._scrollToUid = null;
@@ -1880,7 +1880,7 @@
                         that.clearSelection();
                     }
                     if (sibling.length !== 0) {
-                        that._current(sibling.children('td:eq(' + index + ')'));
+                        that._current(sibling.children('td').eq(index));
                         that._scrollTo(that.current);
                     } else {
                         if (that.current.is('td') && method == 'prevAll') {
@@ -1925,7 +1925,7 @@
                         if (currentTarget.is('tr')) {
                             current = $(e.target).closest('td');
                         } else {
-                            current = that.list.content.find('tr' + selector(currentTarget.attr(kendo.attr('uid'))) + ' > td:first');
+                            current = that.list.content.find('tr' + selector(currentTarget.attr(kendo.attr('uid'))) + ' > td').first();
                         }
                         that._current(current);
                     }
@@ -1944,17 +1944,17 @@
                     }
                     var itemToFocus = e.shiftKey ? focusableItems[idx - 1] : focusableItems[idx + 1];
                     if (key === keys.F10) {
-                        that.toolbar.find('.k-button:visible:first').addClass(ganttStyles.focused).focus();
+                        that.toolbar.find('.k-button:visible').first().addClass(ganttStyles.focused).trigger('focus');
                         e.preventDefault();
                     } else if (key == keys.TAB && $(e.target).closest(DOT + ganttStyles.toolbar.toolbar).length) {
-                        that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused).blur();
+                        that.toolbar.find(DOT + ganttStyles.focused).removeClass(ganttStyles.focused).trigger('blur');
                         if (itemToFocus) {
-                            $(itemToFocus).addClass(ganttStyles.focused).focus();
+                            $(itemToFocus).addClass(ganttStyles.focused).trigger('focus');
                             e.preventDefault();
                             return;
                         }
                         if (this.list.element.is(':visible')) {
-                            this.list.element.find('table[role=treegrid]').focus();
+                            this.list.element.find('table[role=treegrid]').trigger('focus');
                         } else {
                             this.element.find(DOT + ganttStyles.tasks)[0].focus();
                         }
@@ -1972,7 +1972,7 @@
                 tables.on('focus' + NS, function () {
                     var selector = this === contentTable.get(0) ? 'td' : 'th';
                     var selection = that.select();
-                    var current = that.current || $(selection.length ? selection : this).find(selector + ':eq(' + (cellIndex || 0) + ')');
+                    var current = that.current || $(selection.length ? selection : this).find(selector).eq(cellIndex || 0);
                     that._current(current);
                     $(that.toolbar.find(DOT + ganttStyles.focused)).removeClass(ganttStyles.focused);
                 }).on('blur' + NS, function () {

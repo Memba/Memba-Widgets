@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -109,7 +109,7 @@
                     } else if (operator === 'isempty' || operator === 'isnotempty') {
                         filter = kendo.format('{0} {1} \'\'', field, filter);
                     } else if (filter && value !== undefined) {
-                        type = $.type(value);
+                        type = kendo.type(value);
                         if (type === 'string') {
                             format = '\'{1}\'';
                             value = value.replace(/'/g, '\'\'');
@@ -371,7 +371,7 @@
                 'odata-v4': {
                     type: 'json',
                     data: function (data) {
-                        if ($.isArray(data)) {
+                        if (Array.isArray(data)) {
                             for (var i = 0; i < data.length; i++) {
                                 stripMetadata(data[i]);
                             }

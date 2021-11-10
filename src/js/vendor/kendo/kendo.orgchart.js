@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -394,7 +394,7 @@
                     return;
                 }
                 previousSelection.removeAttr(TABINDEX).removeClass(ORGCHART_STYLES.focused).attr(ARIA_SELECTED, false);
-                $item.attr(TABINDEX, '0').addClass(ORGCHART_STYLES.focused).focus().attr(ARIA_SELECTED, true);
+                $item.attr(TABINDEX, '0').addClass(ORGCHART_STYLES.focused).trigger('focus').attr(ARIA_SELECTED, true);
             },
             _attachEvents: function () {
                 var itemsSelector = DOT + ORGCHART_STYLES.card + COMMA + DOT + ORGCHART_STYLES.nodesGroupContainer;
@@ -626,7 +626,7 @@
                 if (this._shouldRestoreSelection) {
                     this._shouldRestoreSelection = false;
                     this._preventTriggerSelect = true;
-                    toFocus.focus();
+                    toFocus.trigger('focus');
                     toFocus.addClass(ORGCHART_STYLES.focused);
                 }
             },
@@ -1616,7 +1616,7 @@
             },
             _destroyItem: function (item) {
                 var that = this, el = $('<div></div>'), messages = that.options.messages, restoreFocus = function () {
-                        that.wrapper.find(DOT + ORGCHART_STYLES.card + '[tabindex=0]' + COMMA + DOT + ORGCHART_STYLES.nodesGroup + '[tabindex=0]').addClass(ORGCHART_STYLES.focused).focus();
+                        that.wrapper.find(DOT + ORGCHART_STYLES.card + '[tabindex=0]' + COMMA + DOT + ORGCHART_STYLES.nodesGroup + '[tabindex=0]').addClass(ORGCHART_STYLES.focused).trigger('focus');
                     }, confirm = this._confirmDestroy = new kendo.ui.Confirm(el, {
                         title: messages.destroyTitle,
                         content: messages.destroyContent,
@@ -1626,7 +1626,7 @@
                         },
                         show: function () {
                             setTimeout(function () {
-                                confirm.element.focus();
+                                confirm.element.trigger('focus');
                             });
                         }
                     });
@@ -1768,7 +1768,7 @@
             },
             _onMenuClose: function () {
                 if ($(document.activeElement).closest('[role=\'alertdialog\']').length === 0) {
-                    this.wrapper.find('[tabindex=\'0\']').addClass(ORGCHART_STYLES.focused).focus();
+                    this.wrapper.find('[tabindex=\'0\']').addClass(ORGCHART_STYLES.focused).trigger('focus');
                 }
             },
             _onMenuItemClick: function (e) {

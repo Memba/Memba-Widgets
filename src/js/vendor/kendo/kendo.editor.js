@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -480,7 +480,7 @@
                         start: function (e) {
                             var editor = this.editor = $(e.currentTarget).closest('.k-editor');
                             this.initialSize = editor.height();
-                            editor.find('td:last').append('<div class=\'k-overlay\' />');
+                            editor.find('td').last().append('<div class=\'k-overlay\' />');
                         },
                         resize: function (e) {
                             var delta = e.y.initialDelta;
@@ -681,7 +681,7 @@
                         doc.getElementsByTagName('html')[0].appendChild(body);
                         var interval = setInterval(function () {
                             if ($(editor.document).find('body').length > 1) {
-                                $(editor.document).find('body:last').remove();
+                                $(editor.document).find('body').last().remove();
                                 window.clearInterval(interval);
                             }
                         }, 10);
@@ -1095,8 +1095,8 @@
             },
             _focusOutside: function () {
                 if (kendo.support.browser.msie && this.textarea) {
-                    var tempInput = $('<input style=\'position:fixed;left:1px;top:1px;width:1px;height:1px;font-size:0;border:0;opacity:0\' />').appendTo(document.body).focus();
-                    tempInput.blur().remove();
+                    var tempInput = $('<input style=\'position:fixed;left:1px;top:1px;width:1px;height:1px;font-size:0;border:0;opacity:0\' />').appendTo(document.body).trigger('focus');
+                    tempInput.trigger('blur').remove();
                 }
             },
             _destroyUploadWidget: function () {
@@ -2588,7 +2588,7 @@
         div.innerHTML = ' <hr>';
         var supportsLeadingWhitespace = div.firstChild.nodeType === 3;
         div = null;
-        var isFunction = $.isFunction;
+        var isFunction = kendo.isFunction;
         var TD = 'td';
         var Serializer = {
             toEditableHtml: function (html) {
@@ -3075,7 +3075,7 @@
                     return textChild && (childrenCount == 1 || childrenCount == 2 && dom.insignificant(root.lastChild));
                 }
                 function runCustom() {
-                    if ($.isFunction(options.custom)) {
+                    if (kendo.isFunction(options.custom)) {
                         result = options.custom(result) || result;
                     }
                 }
@@ -4780,7 +4780,7 @@
                 }
                 that.tools = that.expandTools(editor.options.tools);
                 that.render();
-                that.element.find('.k-combobox .k-input').keydown(function (e) {
+                that.element.find('.k-combobox .k-input').on('keydown', function (e) {
                     var combobox = $(this).closest('.k-combobox').data('kendoComboBox'), key = e.keyCode;
                     if (key == keys.RIGHT || key == keys.LEFT) {
                         combobox.close();
@@ -4861,7 +4861,7 @@
                 var TABINDEX = 'tabIndex';
                 var element = this.element;
                 var tabIndex = this._editor.element.attr(TABINDEX);
-                element.attr(TABINDEX, tabIndex || 0).focus().find(focusable).first().focus();
+                element.attr(TABINDEX, tabIndex || 0).trigger('focus').find(focusable).first().trigger('focus');
                 if (!tabIndex && tabIndex !== 0) {
                     element.removeAttr(TABINDEX);
                 }
@@ -4871,7 +4871,7 @@
                 var element = this.overflowPopup.element;
                 var tabIndex = this._editor.element.attr(TABINDEX);
                 element.closest('.k-animation-container').addClass('k-overflow-wrapper');
-                element.attr(TABINDEX, tabIndex || 0).find(focusable).first().focus();
+                element.attr(TABINDEX, tabIndex || 0).find(focusable).first().trigger('focus');
                 if (!tabIndex && tabIndex !== 0) {
                     element.removeAttr(TABINDEX);
                 }
@@ -4947,7 +4947,7 @@
                     if (template.getHtml) {
                         result = template.getHtml();
                     } else {
-                        if (!$.isFunction(template)) {
+                        if (!kendo.isFunction(template)) {
                             template = kendo.template(template);
                         }
                         result = template(options);
@@ -5007,7 +5007,7 @@
                         startGroup(toolName, overflowFlaseTools);
                     }
                     if (options.exec && toolElement.hasClass('k-tool')) {
-                        toolElement.click(proxy(options.exec, editorElement[0]));
+                        toolElement.on('click', proxy(options.exec, editorElement[0]));
                     }
                 }
                 endGroup();
@@ -5391,8 +5391,8 @@
                     resizable: true,
                     close: close,
                     visible: false
-                }).find(textarea).val(content).end().find('.k-dialog-update').click(apply).end().find('.k-dialog-close').click(close).end().data('kendoWindow').center().open();
-                dialog.find(textarea).focus();
+                }).find(textarea).val(content).end().find('.k-dialog-update').on('click', apply).end().find('.k-dialog-close').on('click', close).end().data('kendoWindow').center().open();
+                dialog.find(textarea).trigger('focus');
             }
         });
         extend(ViewHtmlCommand, {
@@ -5806,7 +5806,10 @@
                     }];
                 this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
             },
-            options: { palette: 'websafe' },
+            options: {
+                palette: 'websafe',
+                columns: 18
+            },
             update: function () {
                 this._widget.close();
             },
@@ -5822,6 +5825,11 @@
             initialize: function (ui, initOptions) {
                 var that = this, editor = initOptions.editor, toolName = this.name, options = extend({}, ColorTool.fn.options, this.options), palette = options.palette, columns = options.columns;
                 ui = this._widget = new kendo.ui.ColorPicker(ui, {
+                    closeOnSelect: true,
+                    views: ['palette'],
+                    preview: false,
+                    input: false,
+                    buttons: false,
                     toolIcon: 'k-icon k-i-' + EditorUtils.getToolCssClass(options.name),
                     palette: palette,
                     columns: columns,
@@ -6131,9 +6139,9 @@
                     nodes = textNodes(this._range);
                 }
                 this._initialText = this.linkText(nodes);
-                dialog.find('.k-dialog-insert').click(proxy(this._apply, this)).end().find('.k-dialog-close').click(proxy(this._close, this)).end().find('.k-edit-field input').keydown(proxy(this._keydown, this)).end().find('#k-editor-link-url').val(this.linkUrl(a)).end().find('#k-editor-link-text').val(this._initialText).end().find('#k-editor-link-title').val(a ? a.title : '').end().find('#k-editor-link-target').attr('checked', a ? a.target == '_blank' : false).end().find('.k-editor-link-text-row').toggle(!img);
+                dialog.find('.k-dialog-insert').on('click', proxy(this._apply, this)).end().find('.k-dialog-close').on('click', proxy(this._close, this)).end().find('.k-edit-field input').on('keydown', proxy(this._keydown, this)).end().find('#k-editor-link-url').val(this.linkUrl(a)).end().find('#k-editor-link-text').val(this._initialText).end().find('#k-editor-link-title').val(a ? a.title : '').end().find('#k-editor-link-target').attr('checked', a ? a.target == '_blank' : false).end().find('.k-editor-link-text-row').toggle(!img);
                 this._dialog = dialog.data('kendoWindow').center().open();
-                $('#k-editor-link-url', dialog).focus().select();
+                $('#k-editor-link-url', dialog).trigger('focus').select();
             },
             _keydown: function (e) {
                 var keys = kendo.keys;
@@ -7757,7 +7765,7 @@
                 if (showBrowser) {
                     dialogOptions.width = 750;
                 }
-                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORIMAGEURL).val(img ? img.getAttribute('src', 2) : 'http://').end().find(KEDITORIMAGETITLE).val(img ? img.alt : '').end().find(KEDITORIMAGEWIDTH).val(imageWidth).end().find(KEDITORIMAGEHEIGHT).val(imageHeight).end().data('kendoWindow');
+                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').on('click', apply).end().find('.k-dialog-close').on('click', close).end().find('.k-edit-field input').on('keydown', keyDown).end().find(KEDITORIMAGEURL).val(img ? img.getAttribute('src', 2) : 'http://').end().find(KEDITORIMAGETITLE).val(img ? img.alt : '').end().find(KEDITORIMAGEWIDTH).val(imageWidth).end().find(KEDITORIMAGEHEIGHT).val(imageHeight).end().data('kendoWindow');
                 var element = dialog.element;
                 if (showBrowser) {
                     this._imageBrowser = new kendo.ui.ImageBrowser(element.find('.k-imagebrowser'), extend({}, imageBrowser));
@@ -7773,7 +7781,7 @@
                     element.css('max-height', dialogHeight);
                 }
                 dialog.center().open();
-                element.find(KEDITORIMAGEURL).focus().select();
+                element.find(KEDITORIMAGEURL).trigger('focus').select();
             }
         });
         kendo.ui.editor.ImageCommand = ImageCommand;
@@ -8657,7 +8665,7 @@
                 if (showBrowser) {
                     dialogOptions.width = 750;
                 }
-                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETEXT).val(file ? file.innerText : '').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
+                dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').on('click', apply).end().find('.k-dialog-close').on('click', close).end().find('.k-edit-field input').on('keydown', keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETEXT).val(file ? file.innerText : '').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
                 var element = dialog.element;
                 if (showBrowser) {
                     that._fileBrowser = new kendo.ui.FileBrowser(element.find('.k-filebrowser'), extend({}, fileBrowser));
@@ -8673,7 +8681,7 @@
                     element.css('max-height', dialogHeight);
                 }
                 dialog.center().open();
-                element.find(KEDITORFILEURL).focus().select();
+                element.find(KEDITORFILEURL).trigger('focus').select();
             }
         });
         kendo.ui.editor.FileCommand = FileCommand;
@@ -8739,7 +8747,7 @@
                     activate: proxy(this._activate, this),
                     close: proxy(this._close, this)
                 }).data('kendoPopup');
-                ui.click(proxy(this._toggle, this)).keydown(proxy(this._keydown, this));
+                ui.on('click', proxy(this._toggle, this)).on('keydown', proxy(this._keydown, this));
                 var editor = this._editor = options.editor;
                 this._popup = popup;
                 var tableWizard = new Editor.TableWizardTool({
@@ -9513,7 +9521,7 @@
                     ui.addClass('k-state-disabled');
                 } else {
                     ui.parent().removeClass('k-hidden k-state-disabled');
-                    ui.removeAttr('disabled');
+                    ui.prop('disabled', false);
                     ui.removeClass('k-state-disabled');
                 }
             }
@@ -9543,7 +9551,7 @@
                     ui.addClass('k-state-disabled');
                 } else {
                     ui.parent().removeClass('k-hidden k-state-disabled');
-                    ui.removeAttr('disabled');
+                    ui.prop('disabled', false);
                     ui.removeClass('k-state-disabled');
                 }
                 ui.toggleClass('k-state-selected', isFormatted);
@@ -9891,9 +9899,9 @@
                         editor.selectRange(r);
                         var textRange = editor.document.body.createTextRange();
                         textRange.moveToElementText(clipboardNode);
-                        $(body).unbind('paste');
+                        $(body).off('paste');
                         textRange.execCommand('Paste');
-                        $(body).bind('paste', $.proxy(this.onpaste, this));
+                        $(body).on('paste', $.proxy(this.onpaste, this));
                     } else {
                         var clipboardRange = editor.createRange();
                         clipboardRange.selectNodeContents(clipboardNode);
@@ -10381,7 +10389,7 @@
                     if (!rootMargin || rootMargin < 0) {
                         rootMargin = margin;
                         rootIndex = listIndex;
-                        lastRootLi = $(placeholder).find('[data-list=\'' + rootIndex + '\']:last')[0];
+                        lastRootLi = $(placeholder).find('[data-list=\'' + rootIndex + '\']').last()[0];
                         rootList = this._createList(type, listType.style);
                         dom.insertBefore(rootList, p);
                         lastMargin = margin;
@@ -11338,7 +11346,7 @@
                         alt: false,
                         shift: false
                     }, tools[toolName].options);
-                    matchesKey = $.isArray(o.key) ? $.grep(o.key, matchKey).length > 0 : matchKey(o.key);
+                    matchesKey = Array.isArray(o.key) ? $.grep(o.key, matchKey).length > 0 : matchKey(o.key);
                     if (matchesKey && o.ctrl == e.ctrlKey && o.alt == e.altKey && o.shift == e.shiftKey) {
                         found.push(tools[toolName]);
                     }
@@ -11847,7 +11855,7 @@
             init: function (element, options) {
                 var that = this;
                 that.options = extend({}, that.options, options);
-                that.options.tags = $.isArray(that.options.tags) ? that.options.tags : [that.options.tags];
+                that.options.tags = Array.isArray(that.options.tags) ? that.options.tags : [that.options.tags];
                 if ($(element).is(TABLE)) {
                     that.element = element;
                     that._attachEventHandlers();
@@ -14105,7 +14113,7 @@
                     ui.addClass('k-state-disabled');
                 } else {
                     ui.parent().removeClass('k-hidden k-state-disabled');
-                    ui.removeAttr('disabled');
+                    ui.prop('disabled', false);
                     ui.removeClass('k-state-disabled');
                 }
             }
@@ -14287,7 +14295,7 @@
                 dialogOptions.close = closeHandler;
                 dialogOptions.title = messages.tableWizard;
                 dialogOptions.visible = options.visible;
-                dialog = $(that._dialogTemplate(messages)).appendTo(document.body).kendoWindow(dialogOptions).closest('.k-window').toggleClass('k-rtl', options.isRtl).end().find('.k-dialog-ok').click(okHandler).end().find('.k-dialog-close').click(closeHandler).end().data('kendoWindow');
+                dialog = $(that._dialogTemplate(messages)).appendTo(document.body).kendoWindow(dialogOptions).closest('.k-window').toggleClass('k-rtl', options.isRtl).end().find('.k-dialog-ok').on('click', okHandler).end().find('.k-dialog-close').on('click', closeHandler).end().data('kendoWindow');
                 var element = dialog.element;
                 that._initTabStripComponent(element);
                 that._initTableViewComponents(element, tableData);

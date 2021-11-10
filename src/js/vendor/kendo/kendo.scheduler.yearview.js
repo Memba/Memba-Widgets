@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -203,7 +203,7 @@
                 var that = this, tooltip = ev.sender;
                 tooltip.refresh();
                 that._inverseTooltipEventsColor();
-                tooltip.popup.element.find(':kendoFocusable').first().focus();
+                tooltip.popup.element.find(':kendoFocusable').first().trigger('focus');
             },
             _tooltipHide: function () {
                 if (!this.calendar) {
@@ -224,10 +224,10 @@
                     var firstFocusable = element.find(':kendoFocusable').first();
                     var lastFocusable = element.find(':kendoFocusable').last();
                     if (shiftKey && target.is(firstFocusable)) {
-                        lastFocusable.focus();
+                        lastFocusable.trigger('focus');
                         ev.preventDefault();
                     } else if (target.is(lastFocusable)) {
-                        firstFocusable.focus();
+                        firstFocusable.trigger('focus');
                         ev.preventDefault();
                     }
                 }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -130,20 +130,20 @@
                 var next;
                 if (e.keyCode == keys.UP) {
                     handled = true;
-                    next = current.prevAll('[data-role=\'drawer-item\']:first');
+                    next = current.prevAll('[data-role=\'drawer-item\']').first();
                     if (next.length) {
                         that._setCurrent(next);
                     } else {
-                        that._setCurrent(current.parent().find('[data-role=\'drawer-item\']:last'));
+                        that._setCurrent(current.parent().find('[data-role=\'drawer-item\']').last());
                     }
                 }
                 if (e.keyCode == keys.DOWN) {
                     handled = true;
-                    next = current.nextAll('[data-role=\'drawer-item\']:first');
+                    next = current.nextAll('[data-role=\'drawer-item\']').first();
                     if (next.length) {
                         that._setCurrent(next);
                     } else {
-                        that._setCurrent(current.parent().find('[data-role=\'drawer-item\']:first'));
+                        that._setCurrent(current.parent().find('[data-role=\'drawer-item\']').first());
                     }
                 }
                 if (e.keyCode == keys.HOME) {
@@ -152,7 +152,7 @@
                 }
                 if (e.keyCode == keys.END) {
                     handled = true;
-                    that._setCurrent(that.drawerItemsWrapper.find('[data-role=\'drawer-item\']:last'));
+                    that._setCurrent(that.drawerItemsWrapper.find('[data-role=\'drawer-item\']').last());
                 }
                 if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
                     handled = true;

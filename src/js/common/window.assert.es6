@@ -21,7 +21,7 @@ const $ = {
     },
     isEmptyObject(obj) {
         let name;
-        // eslint-disable-next-line guard-for-in, no-restricted-syntax
+        // eslint-disable-next-line guard-for-in, no-restricted-syntax, no-unreachable-loop
         for (name in obj) {
             return false;
         }

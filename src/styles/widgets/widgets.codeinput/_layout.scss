@@ -12,13 +12,16 @@
             }
 
             .kj-codeinput-wrap {
+                // We need this for the additional more... button to match dropdownlist
+                // From @progress/kendo-theme-default/scss/dropdownlist/_layout.scss
+
                 @include border-right-radius-only();
 
                 display: flex;
                 flex-direction: row;
 
                 .k-select {
-                    @include border-right-radius-only();
+                    @include border-right-radius-only( $input-border-radius );
                     align-items: center;
                     border-style: solid;
                     border-width: 0;
@@ -27,8 +30,8 @@
                     display: flex;
                     flex: 0 0 auto;
                     justify-content: center;
-
                     padding: $picker-select-padding-y $picker-select-padding-x;
+                    width: if( $use-picker-select-width, $button-inner-calc-size, null );
                     text-align: center;
 
                     // .k-icon {}

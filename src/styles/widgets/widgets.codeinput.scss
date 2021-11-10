@@ -1,6 +1,11 @@
 @import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
 @import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/mixins';
 
+// Dependencies
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/button/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdownlist/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/input/variables";
+
 // Component
 @import 'widgets.codeinput/layout';
 @import 'widgets.codeinput/theme';

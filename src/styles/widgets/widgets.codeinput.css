@@ -1,6 +1,63 @@
-.kj-codeinput {
+.kj-codeinput .kj-codeinput-formula {
   display: flex;
   flex-direction: row;
+}
+.kj-codeinput .kj-codeinput-formula > .k-input,
+.kj-codeinput .kj-codeinput-formula > .k-textbox {
+  border-radius: 0.25rem 0 0 0.25rem;
+  width: 100%;
+}
+.kj-codeinput .kj-codeinput-formula .kj-codeinput-wrap {
+  border-radius: 0 0;
+  display: flex;
+  flex-direction: row;
+}
+.kj-codeinput .kj-codeinput-formula .kj-codeinput-wrap .k-select {
+  border-radius: 0 0.25rem 0.25rem 0;
+  align-items: center;
+  border-style: solid;
+  border-width: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  padding: 0.375rem 0.375rem;
+  text-align: center;
+}
+.kj-codeinput .kj-codeinput-formula .k-dropdown .k-dropdown-wrap {
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+.kj-codeinput .kj-codeinput-formula .k-dropdown .k-dropdown-wrap .k-select {
+  border-radius: 0;
+}
+
+.kj-codeinput .kj-codeinput-wrap {
+  border-color: #e4e7eb;
+  color: #212529;
+  background-color: #e4e7eb;
+  /*
+  .k-select {
+      padding: 0;
+      width: button-inner-size();
+  }
+   */
+  /*
+  // TODO review box-shadow on .k-dropdown .k-state-focused
+  &.k-state-focused {
+      @include fill(
+          $dropdownlist-focused-text,
+          $dropdownlist-focused-bg,
+          $dropdownlist-focused-border,
+          $dropdownlist-focused-gradient
+      );
+      @include box-shadow($dropdownlist-focused-shadow);
+  }
+  */
+}
+.kj-codeinput .kj-codeinput-wrap:hover, .kj-codeinput .kj-codeinput-wrap.k-state-hover {
+  border-color: #c7cdd5;
+  background-color: #ced3db;
 }
 
 /*# sourceMappingURL=widgets.codeinput.css.map */

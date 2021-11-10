@@ -1,5 +1,8 @@
 @include exports( 'widgets.codeinput/theme' ) {
     .kj-codeinput {
+        // We need this for the additional more... button to match dropdownlist
+        // From @progress/kendo-theme-default/scss/dropdownlist/_theme.scss
+
         .kj-codeinput-wrap {
             @include fill(
                 $dropdownlist-text,
@@ -7,12 +10,13 @@
                 $dropdownlist-border,
                 $dropdownlist-gradient
             );
-            @include use-background-clip();
 
+            /*
             .k-select {
                 padding: 0;
                 width: button-inner-size();
             }
+             */
 
             &:hover,
             &.k-state-hover {

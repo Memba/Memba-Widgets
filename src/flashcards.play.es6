@@ -6,36 +6,18 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.binder';
 import 'kendo.appbar';
 import 'kendo.scrollview';
+import 'kendo.toolbar'
+import stream from './flashcards.data.es6';
 
 const {
-    bind,
-    data: { DataSource },
     fx,
     resize,
     roleSelector,
     throttle,
     // ui: { appbar }
 } = window.kendo;
-
-const dataSource = new DataSource({
-    data: [
-        {
-            q: 'Question 1',
-            a: 'Answer 1'
-        },
-        {
-            q: 'Question 2',
-            a: 'Answer 2'
-        },
-        {
-            q: 'Question 3',
-            a: 'Answer 3'
-        }
-    ]
-});
 
 $(() => {
     $(roleSelector('appbar')).kendoAppBar({
@@ -49,10 +31,22 @@ $(() => {
         ]
     });
 
+    $(roleSelector('toolbar')).kendoToolBar({
+        items: [
+            {
+                type: 'button',
+                text: 'Design'
+            }
+        ],
+        click(e) {
+            location.assign('./flashcards.design.html');
+        }
+    });
+
     $(roleSelector('scrollview'))
         .kendoScrollView({
             autoBind: true,
-            dataSource: dataSource,
+            dataSource: stream.pages,
             enablePager: false,
             // enableNavigationButtons: false,
             template: $('#scrollview-template').html(),

@@ -8,6 +8,8 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.appbar'
+import 'kendo.toolbar'
+import stream from './flashcards.data.es6';
 
 const {
     bind,
@@ -30,12 +32,26 @@ $(() => {
         ]
     });
 
+    $(roleSelector('toolbar')).kendoToolBar({
+        items: [
+            {
+                type: 'button',
+                text: 'Play'
+            }
+        ],
+        click(e) {
+            location.assign('./flashcards.play.html')
+        }
+    });
+
+    /*
     $(roleSelector('scrollview')).kendoScrollView({
         dataSource: dataSource,
         template: $("#scrollview-template").html(),
         contentHeight: '100%',
         enablePager: false
     });
+    */
 
     bind($('main'), viewModel);
 });

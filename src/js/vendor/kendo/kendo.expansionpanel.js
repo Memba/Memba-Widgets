@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -128,6 +128,7 @@
                 var that = this;
                 var expanded = that._indicator.hasClass(that.options.collapseIconClass);
                 var element = that.element;
+                e.stopPropagation();
                 if (!that.options.toggleable) {
                     e.preventDefault();
                     return;

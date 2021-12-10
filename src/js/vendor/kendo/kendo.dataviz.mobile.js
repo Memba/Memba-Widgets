@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -73,7 +73,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.3.1109'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2021.3.1207'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2473,7 +2473,7 @@
                         leftRight = isRtl ? 'right' : 'left';
                         containerScrollLeft = kendo.scrollLeft(container);
                         webkitCorrection = browser.webkit ? !isRtl ? 0 : container[0].scrollWidth - container.width() - 2 * containerScrollLeft : 0;
-                        mask = $(kendo.format('<div class=\'{0}\'><span class=\'k-loading-text\'>{1}</span><div class=\'k-loading-image\'></div><div class=\'k-loading-color\'></div></div>', cssClass, kendo.ui.progress.messages.loading)).width(options.width).height(options.height).css('top', options.top).css(leftRight, Math.abs(containerScrollLeft) + webkitCorrection).prependTo(container);
+                        mask = $(kendo.format('<div class=\'{0}\'><span role=\'alert\' aria-live=\'polite\' class=\'k-loading-text\'>{1}</span><div class=\'k-loading-image\'></div><div class=\'k-loading-color\'></div></div>', cssClass, kendo.ui.progress.messages.loading)).width(options.width).height(options.height).css('top', options.top).css(leftRight, Math.abs(containerScrollLeft) + webkitCorrection).prependTo(container);
                     }
                 } else if (mask) {
                     mask.remove();
@@ -7698,7 +7698,7 @@
                 if (skip !== undefined && take !== undefined) {
                     query = query.range(skip, take);
                 }
-                if (group) {
+                if (group && (!isEmptyObject(group) || group.length !== 0)) {
                     query = query.group(group, data, options);
                 }
             }
@@ -8570,6 +8570,43 @@
                     this.options.autoSync = autoSync;
                 }
                 return destroyed;
+            },
+            pushMove: function (index, items) {
+                var pushed = this._moveItems(index, items);
+                if (pushed.length) {
+                    this.trigger('push', {
+                        type: 'update',
+                        items: pushed
+                    });
+                }
+            },
+            _moveItems: function (index, items) {
+                if (!isArray(items)) {
+                    items = [items];
+                }
+                var moved = [];
+                var autoSync = this.options.autoSync;
+                this.options.autoSync = false;
+                try {
+                    for (var i = 0; i < items.length; i++) {
+                        var item = items[i];
+                        var model = this._createNewModel(item);
+                        this._eachItem(this._data, function (dataItems) {
+                            for (var idx = 0; idx < dataItems.length; idx++) {
+                                var dataItem = dataItems.at(idx);
+                                if (dataItem.id === model.id) {
+                                    moved.push(dataItem);
+                                    dataItems.splice(index >= idx ? --index : index, 0, dataItems.splice(idx, 1)[0]);
+                                    index++;
+                                    break;
+                                }
+                            }
+                        });
+                    }
+                } finally {
+                    this.options.autoSync = autoSync;
+                }
+                return moved;
             },
             remove: function (model) {
                 var result, that = this, hasGroups = that._isServerGrouped();
@@ -9893,6 +9930,9 @@
                 var that = this;
                 var options = { group: val };
                 if (that._groupPaging) {
+                    if (val !== undefined && (!val || !val.length)) {
+                        that._ranges = [];
+                    }
                     options.page = 1;
                 }
                 if (val !== undefined) {
@@ -14977,7 +15017,10 @@
         });
         var ScrollBar = Class.extend({
             init: function (options) {
-                var that = this, horizontal = options.axis === 'x', element = $('<div class="km-touch-scrollbar km-' + (horizontal ? 'horizontal' : 'vertical') + '-scrollbar" />');
+                var that = this, horizontal = options.axis === 'x', element = $('<div role="scrollbar" aria-controls="' + options.controlsId + '" class="km-touch-scrollbar km-' + (horizontal ? 'horizontal' : 'vertical') + '-scrollbar" />');
+                if (horizontal) {
+                    element.attr('aria-orientation', 'horizontal');
+                }
                 extend(that, options, {
                     element: element,
                     elementSize: 0,
@@ -15009,6 +15052,7 @@
                     that.element.css(that.size, size + 'px');
                     that.elementSize = size;
                 }
+                that._ariaValue(position, dimension.size - that.elementSize);
                 that.movable.moveAxis(axis, position);
             },
             show: function () {
@@ -15021,6 +15065,14 @@
                 if (!this.alwaysVisible) {
                     this.element.css({ opacity: 0 });
                 }
+            },
+            _ariaValue: function (current, total) {
+                var element = this.element;
+                if (current > total) {
+                    current = total;
+                }
+                element.attr('aria-valuemax', total);
+                element.attr('aria-valuenow', current);
             }
         });
         var Scroller = Widget.extend({
@@ -15297,13 +15349,19 @@
                 }
             },
             _initAxis: function (axis) {
-                var that = this, movable = that.movable, dimension = that.dimensions[axis], tapCapture = that.tapCapture, paneAxis = that.pane[axis], scrollBar = new ScrollBar({
-                        axis: axis,
-                        movable: movable,
-                        dimension: dimension,
-                        container: that.element,
-                        alwaysVisible: that.options.visibleScrollHints
-                    });
+                var that = this, elementId = that.element.attr('id'), movable = that.movable, dimension = that.dimensions[axis], tapCapture = that.tapCapture, paneAxis = that.pane[axis], scrollBar;
+                if (!elementId) {
+                    elementId = kendo.guid();
+                    that.element.attr('id', elementId);
+                }
+                scrollBar = new ScrollBar({
+                    axis: axis,
+                    movable: movable,
+                    dimension: dimension,
+                    container: that.element,
+                    alwaysVisible: that.options.visibleScrollHints,
+                    controlsId: elementId
+                });
                 dimension.bind(CHANGE, function () {
                     scrollBar.refresh();
                 });
@@ -36825,6 +36883,7 @@
         var OUTSIDE_END = 'outsideEnd';
         var MOUSEWHEEL = 'DOMMouseScroll mousewheel';
         var MOUSEWHEEL_DELAY = 150;
+        var MOUSEWHEEL_ZOOM_RATE = 0.3;
         var constants = {
             INITIAL_ANIMATION_DURATION: INITIAL_ANIMATION_DURATION,
             FADEIN: FADEIN,
@@ -36902,6 +36961,7 @@
             OUTSIDE_END: OUTSIDE_END,
             MOUSEWHEEL: MOUSEWHEEL,
             MOUSEWHEEL_DELAY: MOUSEWHEEL_DELAY,
+            MOUSEWHEEL_ZOOM_RATE: MOUSEWHEEL_ZOOM_RATE,
             SHOW_TOOLTIP: SHOW_TOOLTIP,
             HIDE_TOOLTIP: HIDE_TOOLTIP,
             EQUALLY_SPACED_SERIES: EQUALLY_SPACED_SERIES,
@@ -43515,9 +43575,10 @@
         var MousewheelZoom = Class.extend({
             init: function (chart, options) {
                 this.chart = chart;
-                this.options = deepExtend({}, this.options, options);
+                this.options = deepExtend({ rate: 0.3 }, this.options, options);
             },
-            updateRanges: function (delta) {
+            updateRanges: function (delta, coords) {
+                var this$1 = this;
                 var lock = (this.options.lock || '').toLowerCase();
                 var axisRanges = [];
                 var axes = this.chart._plotArea.axes;
@@ -43525,7 +43586,7 @@
                     var axis = axes[idx];
                     var vertical = axis.options.vertical;
                     if (!(lock === X && !vertical) && !(lock === Y && vertical) && axis.zoomRange) {
-                        var range = axis.zoomRange(-delta);
+                        var range = axis.zoomRange(-delta * this$1.options.rate, coords);
                         if (range) {
                             axisRanges.push({
                                 axis: axis,
@@ -44397,6 +44458,36 @@
                 if (zDir !== LEFT) {
                     range.to = limitValue(limitValue(to + delta, range.from + 1, max), min, max);
                 }
+                if (range.from !== oldRange.from || range.to !== oldRange.to) {
+                    this.set(range.from, range.to);
+                    return true;
+                }
+            },
+            zoom: function (delta, coords) {
+                var options = this.options;
+                var min = this._index(options.min);
+                var max = this._index(options.max);
+                var from = this._index(options.from);
+                var to = this._index(options.to);
+                var range = {
+                    from: from,
+                    to: to
+                };
+                var oldRange = deepExtend({}, range);
+                var ref = this.categoryAxis.options;
+                var reverse = ref.reverse;
+                var origin = X + (reverse ? '2' : '1');
+                var lineBox = this.categoryAxis.lineBox();
+                var relative = Math.abs(lineBox[origin] - coords[X]);
+                var size = lineBox.width();
+                var position = round(relative / size, 2);
+                var minDelta = round(position * delta);
+                var maxDelta = round((1 - position) * delta);
+                if (this._state) {
+                    range = this._state.range;
+                }
+                range.from = limitValue(limitValue(from - minDelta, 0, to - 1), min, max);
+                range.to = limitValue(limitValue(to + maxDelta, range.from + 1, max), min, max);
                 if (range.from !== oldRange.from || range.to !== oldRange.to) {
                     this.set(range.from, range.to);
                     return true;
@@ -47993,10 +48084,11 @@
                             originalEvent: e
                         };
                         if (this._zooming || !this.trigger(ZOOM_START, args)) {
+                            var coords = this._eventCoordinates(e);
                             if (!this._zooming) {
                                 this._zooming = true;
                             }
-                            var ranges = args.axisRanges = mousewheelZoom.updateRanges(scaleDelta);
+                            var ranges = args.axisRanges = mousewheelZoom.updateRanges(scaleDelta, coords);
                             if (ranges && !this.trigger(ZOOM, args)) {
                                 mousewheelZoom.zoom();
                             }
@@ -48123,6 +48215,11 @@
                     }
                 }
             },
+            _mousewheelZoomRate: function () {
+                var zoomable = this.options.zoomable;
+                var mousewheel = (zoomable || {}).mousewheel || {};
+                return valueOrDefault(mousewheel.rate, MOUSEWHEEL_ZOOM_RATE);
+            },
             _mousewheel: function (e) {
                 var this$1 = this;
                 var delta = dataviz.mousewheelDelta(e);
@@ -48147,7 +48244,7 @@
                         if (this._mwTimeout) {
                             clearTimeout(this._mwTimeout);
                         }
-                        args.axisRanges = mousewheelZoom.updateRanges(delta);
+                        args.axisRanges = mousewheelZoom.updateRanges(delta, coords);
                         if (args.axisRanges && !this.trigger(ZOOM, args)) {
                             mousewheelZoom.zoom();
                         }
@@ -48176,7 +48273,7 @@
                             var currentAxis = axes[i];
                             var axisName = currentAxis.options.name;
                             if (axisName) {
-                                ranges[axisName] = currentAxis.scaleRange(-totalDelta);
+                                ranges[axisName] = currentAxis.scaleRange(-totalDelta * this$1._mousewheelZoomRate(), coords);
                             }
                         }
                         this.trigger(ZOOM, {

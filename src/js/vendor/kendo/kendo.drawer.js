@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -98,8 +98,11 @@
                 }
                 var that = this;
                 var element = that.element;
-                element.attr(TABINDEX, 0).attr('role', 'tablist').attr('aria-orientation', 'vertical');
-                element.on('focus' + NS, proxy(that._focus, that)).on('focusout' + NS, proxy(that._blur, that)).on('keydown' + NS, that, proxy(that._keyDown, that));
+                var drawerItems = element.find('[data-role=\'drawer-item\']');
+                element.find('[data-role=\'drawer-separator\']').attr('aria-hidden', true);
+                drawerItems.attr('role', 'tab');
+                drawerItems.first().parent().attr('role', 'tablist').attr('aria-orientation', 'vertical');
+                element.attr(TABINDEX, 0).on('focus' + NS, proxy(that._focus, that)).on('focusout' + NS, proxy(that._blur, that)).on('keydown' + NS, that, proxy(that._keyDown, that));
             },
             _blur: function () {
                 var that = this;

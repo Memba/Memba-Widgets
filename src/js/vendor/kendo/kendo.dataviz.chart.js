@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -703,6 +703,7 @@
         var OUTSIDE_END = 'outsideEnd';
         var MOUSEWHEEL = 'DOMMouseScroll mousewheel';
         var MOUSEWHEEL_DELAY = 150;
+        var MOUSEWHEEL_ZOOM_RATE = 0.3;
         var constants = {
             INITIAL_ANIMATION_DURATION: INITIAL_ANIMATION_DURATION,
             FADEIN: FADEIN,
@@ -780,6 +781,7 @@
             OUTSIDE_END: OUTSIDE_END,
             MOUSEWHEEL: MOUSEWHEEL,
             MOUSEWHEEL_DELAY: MOUSEWHEEL_DELAY,
+            MOUSEWHEEL_ZOOM_RATE: MOUSEWHEEL_ZOOM_RATE,
             SHOW_TOOLTIP: SHOW_TOOLTIP,
             HIDE_TOOLTIP: HIDE_TOOLTIP,
             EQUALLY_SPACED_SERIES: EQUALLY_SPACED_SERIES,
@@ -7393,9 +7395,10 @@
         var MousewheelZoom = Class.extend({
             init: function (chart, options) {
                 this.chart = chart;
-                this.options = deepExtend({}, this.options, options);
+                this.options = deepExtend({ rate: 0.3 }, this.options, options);
             },
-            updateRanges: function (delta) {
+            updateRanges: function (delta, coords) {
+                var this$1 = this;
                 var lock = (this.options.lock || '').toLowerCase();
                 var axisRanges = [];
                 var axes = this.chart._plotArea.axes;
@@ -7403,7 +7406,7 @@
                     var axis = axes[idx];
                     var vertical = axis.options.vertical;
                     if (!(lock === X && !vertical) && !(lock === Y && vertical) && axis.zoomRange) {
-                        var range = axis.zoomRange(-delta);
+                        var range = axis.zoomRange(-delta * this$1.options.rate, coords);
                         if (range) {
                             axisRanges.push({
                                 axis: axis,
@@ -8275,6 +8278,36 @@
                 if (zDir !== LEFT) {
                     range.to = limitValue(limitValue(to + delta, range.from + 1, max), min, max);
                 }
+                if (range.from !== oldRange.from || range.to !== oldRange.to) {
+                    this.set(range.from, range.to);
+                    return true;
+                }
+            },
+            zoom: function (delta, coords) {
+                var options = this.options;
+                var min = this._index(options.min);
+                var max = this._index(options.max);
+                var from = this._index(options.from);
+                var to = this._index(options.to);
+                var range = {
+                    from: from,
+                    to: to
+                };
+                var oldRange = deepExtend({}, range);
+                var ref = this.categoryAxis.options;
+                var reverse = ref.reverse;
+                var origin = X + (reverse ? '2' : '1');
+                var lineBox = this.categoryAxis.lineBox();
+                var relative = Math.abs(lineBox[origin] - coords[X]);
+                var size = lineBox.width();
+                var position = round(relative / size, 2);
+                var minDelta = round(position * delta);
+                var maxDelta = round((1 - position) * delta);
+                if (this._state) {
+                    range = this._state.range;
+                }
+                range.from = limitValue(limitValue(from - minDelta, 0, to - 1), min, max);
+                range.to = limitValue(limitValue(to + maxDelta, range.from + 1, max), min, max);
                 if (range.from !== oldRange.from || range.to !== oldRange.to) {
                     this.set(range.from, range.to);
                     return true;
@@ -11871,10 +11904,11 @@
                             originalEvent: e
                         };
                         if (this._zooming || !this.trigger(ZOOM_START, args)) {
+                            var coords = this._eventCoordinates(e);
                             if (!this._zooming) {
                                 this._zooming = true;
                             }
-                            var ranges = args.axisRanges = mousewheelZoom.updateRanges(scaleDelta);
+                            var ranges = args.axisRanges = mousewheelZoom.updateRanges(scaleDelta, coords);
                             if (ranges && !this.trigger(ZOOM, args)) {
                                 mousewheelZoom.zoom();
                             }
@@ -12001,6 +12035,11 @@
                     }
                 }
             },
+            _mousewheelZoomRate: function () {
+                var zoomable = this.options.zoomable;
+                var mousewheel = (zoomable || {}).mousewheel || {};
+                return valueOrDefault(mousewheel.rate, MOUSEWHEEL_ZOOM_RATE);
+            },
             _mousewheel: function (e) {
                 var this$1 = this;
                 var delta = dataviz.mousewheelDelta(e);
@@ -12025,7 +12064,7 @@
                         if (this._mwTimeout) {
                             clearTimeout(this._mwTimeout);
                         }
-                        args.axisRanges = mousewheelZoom.updateRanges(delta);
+                        args.axisRanges = mousewheelZoom.updateRanges(delta, coords);
                         if (args.axisRanges && !this.trigger(ZOOM, args)) {
                             mousewheelZoom.zoom();
                         }
@@ -12054,7 +12093,7 @@
                             var currentAxis = axes[i];
                             var axisName = currentAxis.options.name;
                             if (axisName) {
-                                ranges[axisName] = currentAxis.scaleRange(-totalDelta);
+                                ranges[axisName] = currentAxis.scaleRange(-totalDelta * this$1._mousewheelZoomRate(), coords);
                             }
                         }
                         this.trigger(ZOOM, {

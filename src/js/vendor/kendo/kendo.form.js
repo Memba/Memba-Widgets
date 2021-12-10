@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -223,7 +223,11 @@
                     type = typeof fieldInfo.editor === 'string' ? fieldInfo.editor : kendo.type(fieldValue ? kendo.parseDate(fieldValue.toString()) || fieldValue : fieldValue);
                     editor = kendo.isFunction(fieldInfo.editor) ? fieldInfo.editor : ui.Editable.fn.options.editors[type] ? '' : fieldInfo.editor;
                     if (!that._isHidden(fieldInfo.editor)) {
-                        attributes = { 'aria-labelledby': fieldInfo.id || fieldInfo.field + '-form-label' };
+                        if (fieldInfo.label) {
+                            attributes = { 'aria-labelledby': fieldInfo.id || fieldInfo.field + '-form-label' };
+                        } else if (!fieldInfo.attributes || !fieldInfo.attributes['aria-label']) {
+                            attributes = { 'aria-label': fieldInfo.name || fieldInfo.field };
+                        }
                     }
                     fieldInfo = extend(true, {}, fieldInfo, {
                         id: fieldInfo.id || fieldInfo.field,

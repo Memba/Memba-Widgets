@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2549,6 +2549,9 @@
                 var x = this._canInsertRef();
                 if (x) {
                     var ref = sheet.selection()._ref.simplify().clone().relative(0, 0, 3);
+                    if (sheet.isMerged(ref)) {
+                        ref = ref.topLeft;
+                    }
                     if (sheet !== this.activeSheet) {
                         ref = ref.setSheet(sheet.name(), true);
                     }
@@ -6657,6 +6660,9 @@
             } else {
                 if (val instanceof Ref) {
                     val = val.absolute(f.row, f.col);
+                    if (val instanceof RangeRef && this.ss.isMerged(val)) {
+                        val = val.topLeft;
+                    }
                     if (!val.sheet) {
                         val.sheet = f.sheet;
                     }
@@ -8559,7 +8565,8 @@
                 'unhideColumn',
                 'select',
                 'dataBinding',
-                'dataBound'
+                'dataBound',
+                'progress'
             ],
             _reinit: function (rowCount, columnCount, rowHeight, columnWidth, headerHeight, headerWidth, defaultCellStyle) {
                 defaultCellStyle = defaultCellStyle || {};
@@ -9976,6 +9983,15 @@
             usesImage: function (img) {
                 for (var i = this._drawings.length; --i >= 0;) {
                     if (this._drawings[i].image === img) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            isMerged: function (ref) {
+                var merged = this._mergedCells;
+                for (var i = merged.length; --i >= 0;) {
+                    if (merged[i].eq(ref)) {
                         return true;
                     }
                 }
@@ -13184,7 +13200,8 @@
                 'select',
                 'changeFormat',
                 'dataBinding',
-                'dataBound'
+                'dataBound',
+                'progress'
             ],
             _sheetChanging: function (e) {
                 if (this.trigger('changing', e)) {
@@ -13268,6 +13285,12 @@
             },
             _sheetDataBound: function (e) {
                 this.trigger('dataBound', { sheet: e.sender });
+            },
+            _sheetProgress: function (e) {
+                var that = this;
+                setTimeout(function () {
+                    that.trigger('progress', { toggle: e.toggle });
+                });
             },
             _sheetCommandRequest: function (e) {
                 this.trigger('commandRequest', e);
@@ -13391,6 +13414,7 @@
                 sheet.bind('commandRequest', this._sheetCommandRequest.bind(this));
                 sheet.bind('dataBinding', this._sheetDataBinding.bind(this));
                 sheet.bind('dataBound', this._sheetDataBound.bind(this));
+                sheet.bind('progress', this._sheetProgress.bind(this));
             },
             sheets: function () {
                 return this._sheets.slice();
@@ -13973,6 +13997,10 @@
                 return [{ value: val == null ? new kendo.spreadsheet.calc.runtime.CalcError('NAME') : val }];
             }
             return [];
+        },
+        isMerged: function (ref) {
+            var sheet = this.workbook.sheetByName(ref.sheet);
+            return sheet.isMerged(ref);
         },
         nameValue: function (ref, fsheet, frow, fcol) {
             var val;
@@ -29445,11 +29473,22 @@
                 var dataSource = options.dataSource;
                 dataSource = Array.isArray(dataSource) ? { data: dataSource } : dataSource;
                 if (this.dataSource && this._changeHandler) {
-                    this.dataSource.unbind('change', this._changeHandler);
+                    this.dataSource.unbind('change', this._changeHandler).unbind('progress', this._progressHandler).unbind('error', this._errorHandler);
                 } else {
                     this._changeHandler = this._change.bind(this);
+                    this._progressHandler = this._requestStart.bind(this);
+                    this._errorHandler = this._error.bind(this);
                 }
-                this.dataSource = kendo.data.DataSource.create(dataSource).bind('change', this._changeHandler);
+                this.dataSource = kendo.data.DataSource.create(dataSource).bind('change', this._changeHandler).bind('progress', this._progressHandler).bind('error', this._errorHandler);
+            },
+            _error: function () {
+                this._progress(false);
+            },
+            _requestStart: function () {
+                this._progress(true);
+            },
+            _progress: function (toggle) {
+                this.sheet.trigger('progress', { toggle: toggle });
             },
             _change: function () {
                 if (this._skipRebind) {
@@ -29477,10 +29516,11 @@
                     }
                 }.bind(this));
                 this._boundRowsCount = data.length;
+                this._progress(false);
                 this.sheet.trigger('dataBound');
             },
             destroy: function () {
-                this.dataSource.unbind('change', this._changeHandler);
+                this.dataSource.unbind('change', this._changeHandler).unbind('progress', this._progressHandler).unbind('error', this._errorHandler);
                 this.sheet.unbind('change', this._sheetChangeHandler).unbind('deleteRow', this._sheetDeleteRowHandler).unbind('insertRow', this._sheetInsertRowHandler);
             },
             options: { columns: [] }
@@ -31881,6 +31921,9 @@
             _workbookDataBound: function (e) {
                 this.trigger('dataBound', e);
             },
+            _workbookProgress: function (e) {
+                kendo.ui.progress(this.element, e.toggle);
+            },
             _bindWorkbookEvents: function () {
                 this._workbook.bind('cut', this._workbookCut.bind(this));
                 this._workbook.bind('copy', this._workbookCopy.bind(this));
@@ -31906,6 +31949,7 @@
                 this._workbook.bind('changeFormat', this._workbookChangeFormat.bind(this));
                 this._workbook.bind('dataBinding', this._workbookDataBinding.bind(this));
                 this._workbook.bind('dataBound', this._workbookDataBound.bind(this));
+                this._workbook.bind('progress', this._workbookProgress.bind(this));
             },
             destroy: function () {
                 kendo.ui.Widget.fn.destroy.call(this);

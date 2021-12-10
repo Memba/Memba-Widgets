@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2169,7 +2169,7 @@
                 var status = this.element.find('.k-status');
                 var content = $(this.content).add(this.lockedContent);
                 if (!status.length) {
-                    status = $('<div class=\'k-status\' />').appendTo(this.element);
+                    status = $('<div class=\'k-status\' role=\'alert\' aria-live=\'polite\' />').appendTo(this.element);
                 }
                 this._contentTree.render([]);
                 if (this._hasLockedColumns) {
@@ -3493,7 +3493,7 @@
                 if (this.options.toolbar) {
                     layout = '<div class=\'#= toolbar # #= gridToolbar #\'></div>' + layout;
                 }
-                element.append(kendo.template(layout)(classNames) + '<div class=\'k-status\'></div>');
+                element.append(kendo.template(layout)(classNames) + '<div class=\'k-status\' role=\'alert\' aria-live=\'polite\'></div>');
                 this.toolbar = element.find(DOT + classNames.gridToolbar);
                 var header = element.find(DOT + classNames.gridHeader).find('thead').addBack().filter('thead');
                 this.thead = header.last();
@@ -4381,6 +4381,7 @@
                             iconClass.push(classNames.refresh);
                         } else if (!model.loaded() && model.expanded) {
                             iconClass.push(classNames.loading);
+                            attr['aria-busy'] = true;
                         }
                         children.push(kendoDomElement('span', { className: iconClass.join(' ') }));
                         attr.style['white-space'] = 'nowrap';

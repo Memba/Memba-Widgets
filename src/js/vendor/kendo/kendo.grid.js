@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -294,7 +294,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, ObservableObject = kendo.data.ObservableObject, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = Array.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, contains = $.contains, math = Math, DOT = '.', PROGRESS = 'progress', ERROR = 'error', HIERARCHY_CELL_CLASS = 'k-hierarchy-cell', DATA_CELL = ':not(.k-group-cell):not([' + kendo.attr('virtual') + ']):not(.k-hierarchy-cell:not(:has(.k-icon.k-i-collapse,.k-icon.k-i-expand))):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-detail-cell):not(.k-hierarchy-cell):visible', ITEMROW = 'tr:not(.k-grouping-row):not(.k-detail-row):not(.k-footer-template):not(.k-group-footer):visible', COLGROUP = 'col:not(.k-group-col, .k-hierarchy-col)', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', WRAPPER = '.k-grid.k-widget', NS = '.kendoGrid', CONTENTRLOCKEDCONTAINER = 'k-grid-content-locked', GROUPCELLCLASS = 'k-group-cell', EDIT = 'edit', BEFOREEDIT = 'beforeEdit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', FILTERMENUOPEN = 'filterMenuOpen', COLUMNMENUOPEN = 'columnMenuOpen', CELLCLOSE = 'cellClose', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', ITEM_CHANGE = 'itemchange', PAGE = 'page', PAGING = 'paging', SCROLL = 'scroll', SYNC = 'sync', LOAD_START = 'loadStart', LOAD_END = 'loadEnd', FOCUSED = 'k-state-focused', FOCUSABLE = ':kendoFocusable', SELECTED = 'k-state-selected', CHECKBOX = 'k-checkbox', CHECKBOXINPUT = 'input[data-role=\'checkbox\'].' + CHECKBOX, NORECORDSCLASS = 'k-grid-norecords', LINK_CLASS = 'k-link', ICON_CLASS = 'k-icon', ORDER_CLASS = 'k-sort-order', SORTED_CLASS = 'k-sorted', HEADER_COLUMN_MENU_CLASS = 'k-header-column-menu', FILTER_MENU_CLASS = 'k-grid-filter', STICKY_CELL_CLASS = 'k-grid-content-sticky', STICKY_HEADER_CLASS = 'k-grid-header-sticky', STICKY_FOOTER_CLASS = 'k-grid-footer-sticky', STICKY_HEADER_NO_BORDER_CLASS = 'k-grid-no-left-border', RESIZE = 'resize', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', COLUMNSTICK = 'columnStick', COLUMNUNSTICK = 'columnUnstick', NAVIGATE = 'navigate', CLICK = 'click', MOUSEDOWN = 'mousedown', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', BOTTOM = 'bottom', CONTAINER_FOR = 'container-for', FIELD = 'field', INPUT = 'input', INCELL = 'incell', INLINE = 'inline', UNIQUE_ID = 'uid', MINCOLSPANVALUE = 1, COLSPAN = 'colSpan', OVERFLOW = 'overflow', HIDDEN = 'hidden', SORT = 'sort', GROUP_SORT = 'group-sort', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', COLLAPSE = 'Collapse', EXPAND = 'Expand', ARIALABEL = 'aria-label', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', leftRegExp = new RegExp('(\\s*left\\s*:\\s*\\d*px;?)*', 'ig'), rightRegExp = new RegExp('(\\s*right\\s*:\\s*\\d*px;?)*', 'ig'), nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '# if (iconClass) {#' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass#"></span>#=text#</a>' + '# } else { #' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#">#=text#</a>' + '# } #', SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">', SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">', isRtl = false, browser = kendo.support.browser;
+        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, ObservableObject = kendo.data.ObservableObject, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = Array.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, contains = $.contains, math = Math, DOT = '.', PROGRESS = 'progress', ERROR = 'error', HIERARCHY_CELL_CLASS = 'k-hierarchy-cell', DATA_CELL = ':not(.k-group-cell):not([' + kendo.attr('virtual') + ']):not(.k-hierarchy-cell:not(:has(.k-icon.k-i-collapse,.k-icon.k-i-expand))):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-detail-cell):not(.k-hierarchy-cell):visible', ITEMROW = 'tr:not(.k-grouping-row):not(.k-detail-row):not(.k-footer-template):not(.k-group-footer):visible', COLGROUP = 'col:not(.k-group-col, .k-hierarchy-col)', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', WRAPPER = '.k-grid.k-widget', NS = '.kendoGrid', CONTENTRLOCKEDCONTAINER = 'k-grid-content-locked', GROUPCELLCLASS = 'k-group-cell', EDIT = 'edit', BEFOREEDIT = 'beforeEdit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', FILTERMENUOPEN = 'filterMenuOpen', COLUMNMENUOPEN = 'columnMenuOpen', CELLCLOSE = 'cellClose', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', ITEM_CHANGE = 'itemchange', PAGE = 'page', PAGING = 'paging', SCROLL = 'scroll', SYNC = 'sync', LOAD_START = 'loadStart', LOAD_END = 'loadEnd', FOCUSED = 'k-state-focused', FOCUSABLE = ':kendoFocusable', SELECTED = 'k-state-selected', CHECKBOX = 'k-checkbox', CHECKBOXINPUT = 'input[data-role=\'checkbox\'].' + CHECKBOX, NORECORDSCLASS = 'k-grid-norecords', LINK_CLASS = 'k-link', ICON_CLASS = 'k-icon', ORDER_CLASS = 'k-sort-order', SORTED_CLASS = 'k-sorted', HEADER_COLUMN_MENU_CLASS = 'k-header-column-menu', FILTER_MENU_CLASS = 'k-grid-filter', STICKY_CELL_CLASS = 'k-grid-content-sticky', STICKY_HEADER_CLASS = 'k-grid-header-sticky', STICKY_FOOTER_CLASS = 'k-grid-footer-sticky', STICKY_HEADER_NO_BORDER_CLASS = 'k-grid-no-left-border', RESIZE = 'resize', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', COLUMNSTICK = 'columnStick', COLUMNUNSTICK = 'columnUnstick', ROWREORDER = 'rowReorder', NAVIGATE = 'navigate', CLICK = 'click', MOUSEDOWN = 'mousedown', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', BOTTOM = 'bottom', CONTAINER_FOR = 'container-for', FIELD = 'field', INPUT = 'input', INCELL = 'incell', INLINE = 'inline', UNIQUE_ID = 'uid', MINCOLSPANVALUE = 1, COLSPAN = 'colSpan', OVERFLOW = 'overflow', HIDDEN = 'hidden', SORT = 'sort', GROUP_SORT = 'group-sort', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', COLLAPSE = 'Collapse', EXPAND = 'Expand', ARIALABEL = 'aria-label', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', leftRegExp = new RegExp('(\\s*left\\s*:\\s*\\d*px;?)*', 'ig'), rightRegExp = new RegExp('(\\s*right\\s*:\\s*\\d*px;?)*', 'ig'), nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '# if (iconClass) {#' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass#"></span>#=text#</a>' + '# } else { #' + '<a role="button" class="k-button k-button-icontext #=className#" #=attr# href="\\#">#=text#</a>' + '# } #', SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">', SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">', DRAGHANDLECOLUMNTMPL = '<span class="k-icon k-i-reorder"></span>', isRtl = false, browser = kendo.support.browser;
         var isIE11 = browser.msie && browser.version === 11;
         var isMac = /Mac OS/.test(navigator.userAgent);
         var classNames = {
@@ -1597,6 +1597,7 @@
                 COLUMNUNLOCK,
                 COLUMNSTICK,
                 COLUMNUNSTICK,
+                ROWREORDER,
                 NAVIGATE,
                 'page',
                 'sort',
@@ -1691,7 +1692,9 @@
                     noRecords: NORECORDS,
                     expandCollapseColumnHeader: '',
                     groupHeader: 'Press ctrl + space to group',
-                    ungroupHeader: 'Press ctrl + space to ungroup'
+                    ungroupHeader: 'Press ctrl + space to ungroup',
+                    itemsSelected: 'items selected',
+                    dragHandleLabel: 'Drag row'
                 },
                 width: null
             },
@@ -1725,8 +1728,11 @@
                 }
                 that.pager = null;
                 that._destroyGroupable();
-                if (that.options.reorderable) {
+                if (that.options.reorderable === true || that.options.reorderable && that.options.reorderable.columns) {
                     that.wrapper.data('kendoReorderable').destroy();
+                }
+                if (that._hasReorderableRows()) {
+                    that.tbody.data('kendoReorderable').destroy();
                 }
                 if (that.selectable && that.selectable.element) {
                     that.selectable.destroy();
@@ -1792,6 +1798,10 @@
                     that._draggableInstance.destroy();
                 }
                 that._draggableInstance = null;
+                if (that._draggableRowsInstance && that._draggableRowsInstance.element) {
+                    that._draggableRowsInstance.destroy();
+                }
+                that._draggableRowsInstance = null;
                 element.off(NS);
                 kendo.destroy(that.wrapper);
                 that.rowTemplate = that.altRowTemplate = that.lockedRowTemplate = that.lockedAltRowTemplate = that.detailTemplate = that.footerTemplate = that.groupFooterTemplate = that.lockedGroupFooterTemplate = that.noRecordsTemplate = null;
@@ -2239,8 +2249,8 @@
                 }
             },
             _draggable: function () {
-                var that = this;
-                if (that.options.reorderable) {
+                var that = this, reorderable = that.options.reorderable;
+                if (reorderable === true || reorderable && reorderable.columns) {
                     if (that._draggableInstance) {
                         that._draggableInstance.destroy();
                     }
@@ -2276,13 +2286,14 @@
                 }
             },
             _reorderable: function () {
-                var that = this;
-                if (that.options.reorderable) {
+                var that = this, reorderable = that.options.reorderable;
+                if (reorderable === true || reorderable && reorderable.columns) {
                     if (that.wrapper.data('kendoReorderable')) {
                         that.wrapper.data('kendoReorderable').destroy();
                     }
                     that.wrapper.kendoReorderable({
                         draggable: that._draggableInstance,
+                        dropFilter: HEADERCELLS,
                         dragOverContainers: function (sourceIndex, targetIndex) {
                             var columns = flatColumnsInDomOrder(that.columns);
                             return columns[sourceIndex].lockable !== false && targetParentContainerIndex(columns, that.columns, sourceIndex, targetIndex) > -1;
@@ -2417,6 +2428,106 @@
             },
             _autoFitLeafColumn: function (leafIndex) {
                 this.autoFitColumn(leafColumns(this.columns)[leafIndex]);
+            },
+            _hasReorderableRows: function () {
+                return this._hasDragHandleColumn || this.options.reorderable && this.options.reorderable.rows;
+            },
+            _draggableRows: function () {
+                var that = this, selectable = that._checkBoxSelection || that.options.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell;
+                if (that._draggableRowsInstance) {
+                    that._draggableRowsInstance.destroy();
+                }
+                that._draggableRowsInstance = that.tbody.kendoDraggable({
+                    group: 'row-draggable',
+                    autoScroll: true,
+                    filter: (selectable ? ' > .k-state-selected' : ' > ' + ITEMROW) + (that._hasDragHandleColumn ? ' > .k-drag-cell' : ''),
+                    hint: function (target) {
+                        var hint = $('<div class="k-reorder-clue k-drag-clue"><span class="k-icon k-drag-status k-i-cancel"></span></div>');
+                        if (selectable && that.select().length > 1) {
+                            hint.append('<span>' + that.select().length + ' ' + that.options.messages.itemsSelected + '</span>');
+                        } else {
+                            var clone = target.closest(ITEMROW).clone();
+                            clone.find('td.k-command-cell').remove();
+                            clone.find('td').each(function (index, elm) {
+                                hint.append('<span>' + elm.innerText + '&nbsp;</span>');
+                            });
+                        }
+                        return hint;
+                    }
+                }).data('kendoDraggable');
+            },
+            _reorderableRows: function () {
+                var that = this, selectable = that._checkBoxSelection || that.options.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell;
+                if (that.tbody.data('kendoReorderable')) {
+                    that.tbody.data('kendoReorderable').destroy();
+                }
+                that.tbody.kendoReorderable({
+                    smartPosition: false,
+                    draggable: that._draggableRowsInstance,
+                    dragOverContainers: function (sourceIndex, targetIndex) {
+                        var result = true, target = $(ITEMROW, that.content).eq(targetIndex);
+                        if (selectable) {
+                            result = !target.is('.k-state-selected');
+                        }
+                        return result;
+                    },
+                    inSameContainer: function (e) {
+                        if (selectable) {
+                            return !$(e.target).is('.k-state-selected');
+                        }
+                        return true;
+                    },
+                    dropFilter: ITEMROW,
+                    allowIcon: 'k-i-insert-middle',
+                    orientation: 'vertical',
+                    reorderDropCue: $('<div class="k-drop-hint k-drop-hint-h"><div class="k-drop-hint-start"></div><div class="k-drop-hint-line"></div></div>'),
+                    positionDropCue: function (reorderDropCue, dropTarget) {
+                        var firstCellLeft = kendo.getOffset(dropTarget.children(DATA_CELL).eq(0)).left;
+                        reorderDropCue.css({
+                            transform: 'translate(0,-50%)',
+                            left: firstCellLeft
+                        });
+                    },
+                    externalDraggable: function (e) {
+                        var draggable = e.draggable;
+                        if (draggable) {
+                            return draggable;
+                        }
+                    },
+                    change: function (e) {
+                        that._triggerRowRorder(e);
+                    }
+                });
+            },
+            _triggerRowRorder: function (e) {
+                var that = this, args = {
+                        newIndex: e.position === 'after' ? e.newIndex + 1 : e.newIndex,
+                        oldIndex: e.oldIndex
+                    }, row = e.element, selectable = that._checkBoxSelection || that.options.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell;
+                if (selectable && that.select().length > 1) {
+                    args = extend(args, { rows: that.select() });
+                } else {
+                    args = extend(args, { row: row });
+                }
+                if (!that.trigger(ROWREORDER, args)) {
+                    that.reorderRows(selectable ? that.select() : row, args.newIndex);
+                }
+            },
+            reorderRows: function (rows, index) {
+                var that = this, dataSource = that.dataSource, rowsLength = that.tbody.children(ITEMROW).length, targetItem = that.dataItem(that.tbody.children(ITEMROW).eq(index)), items = rows.toArray().map(function (row) {
+                        return that.dataItem(row);
+                    });
+                if (!targetItem) {
+                    targetItem = that.dataItem(that.tbody.children(ITEMROW).eq(rowsLength - 1));
+                    index = dataSource.indexOf(targetItem) + 1;
+                } else {
+                    index = dataSource.indexOf(targetItem);
+                }
+                if (index >= 0) {
+                    that._rowDropping = true;
+                    dataSource.pushMove(index, items);
+                    that._rowDropping = false;
+                }
             },
             autoFitColumns: function (columns) {
                 var that = this;
@@ -5200,10 +5311,10 @@
                 }
                 var handled = false;
                 if (canHandle && e.keyCode == keys.UP) {
-                    handled = this._moveUp(current, e.shiftKey);
+                    handled = this._moveUp(current, e.shiftKey, e.ctrlKey);
                 }
                 if (canHandle && e.keyCode == keys.DOWN) {
-                    handled = this._moveDown(current, e.shiftKey);
+                    handled = this._moveDown(current, e.shiftKey, e.ctrlKey);
                 }
                 if (canHandle && e.keyCode == (isRtl ? keys.LEFT : keys.RIGHT)) {
                     handled = this._moveRight(current, e.altKey, e.shiftKey, e.ctrlKey, e.currentTarget);
@@ -5308,13 +5419,27 @@
                 }
                 return true;
             },
-            _moveUp: function (current, shiftKey) {
+            _moveUp: function (current, shiftKey, ctrlKey) {
                 var container = current.parent().parent();
-                var next;
+                var next, cellIndex, index, oldIndex;
                 if (shiftKey) {
                     next = current.parent();
                     next = next.prevAll(ITEMROW).first();
                     next = current.parent().is(ITEMROW) ? next.children().eq(current.index()) : next.children(DATA_CELL).last();
+                } else if (ctrlKey && current.parent().is(ITEMROW) && this._hasReorderableRows()) {
+                    cellIndex = current.index();
+                    next = current.parent();
+                    next = next.prevAll(ITEMROW).first();
+                    index = this.tbody.children(ITEMROW).index(next);
+                    oldIndex = this.tbody.children(ITEMROW).index(current.parent());
+                    if (index >= 0 && !this.trigger(ROWREORDER, {
+                            oldIndex: oldIndex,
+                            newIndex: index,
+                            row: current.parent()
+                        })) {
+                        this.reorderRows(current.parent(), index);
+                        next = this.tbody.children(ITEMROW).eq(index).children().eq(cellIndex);
+                    }
                 } else {
                     next = this._prevVerticalCell(container, current);
                     if (!next[0]) {
@@ -5331,13 +5456,27 @@
                 this._lastCellIndex = tmp;
                 return true;
             },
-            _moveDown: function (current, shiftKey) {
+            _moveDown: function (current, shiftKey, ctrlKey) {
                 var container = current.parent().parent();
-                var next;
+                var next, cellIndex, index, oldIndex;
                 if (shiftKey) {
                     next = current.parent();
                     next = next.nextAll(ITEMROW).first();
                     next = current.parent().is(ITEMROW) ? next.children().eq(current.index()) : next.children(DATA_CELL).first();
+                } else if (ctrlKey && current.parent().is(ITEMROW) && this._hasReorderableRows()) {
+                    cellIndex = current.index();
+                    next = current.parent();
+                    next = next.nextAll(ITEMROW).first();
+                    index = this.tbody.children(ITEMROW).index(next);
+                    oldIndex = this.tbody.children(ITEMROW).index(current.parent());
+                    if (index >= 0 && !this.trigger(ROWREORDER, {
+                            oldIndex: oldIndex,
+                            newIndex: index,
+                            row: current.parent()
+                        })) {
+                        this.reorderRows(current.parent(), index + 1);
+                        next = this.tbody.children(ITEMROW).eq(index).children().eq(cellIndex);
+                    }
                 } else {
                     next = this._nextVerticalCell(container, current);
                     if (!next[0]) {
@@ -6763,7 +6902,7 @@
                 }
             },
             _columns: function (columns) {
-                var that = this, table = that.table, encoded, cols = table.find('col'), lockedCols, headerRows = that.element.find('thead tr'), dataSource = that.options.dataSource;
+                var that = this, table = that.table, encoded, cols = table.find('col'), lockedCols, headerRows = that.element.find('thead tr'), dataSource = that.options.dataSource, draggableColumns;
                 columns = columns.length ? columns : map(table.find('th:not(.k-group-cell):not(.k-hierarchy-cell)'), function (th, idx) {
                     th = $(th);
                     var sortable = th.attr(kendo.attr('sortable')), filterable = th.attr(kendo.attr('filterable')), type = th.attr(kendo.attr('type')), groupable = th.attr(kendo.attr('groupable')), field = th.attr(kendo.attr('field')), title = th.attr(kendo.attr('title')), menu = th.attr(kendo.attr('menu'));
@@ -6804,6 +6943,15 @@
                     that._checkBoxSelection = true;
                     that.wrapper.on(CLICK + NS, 'tbody > tr ' + CHECKBOXINPUT, proxy(that._checkboxClick, that));
                     that.wrapper.on(CLICK + NS, 'thead > tr ' + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
+                }
+                draggableColumns = $.grep(leafColumns(that.columns), function (col) {
+                    return col.draggable;
+                });
+                if (draggableColumns.length) {
+                    that._hasDragHandleColumn = true;
+                    for (var i = 0; i < draggableColumns.length; i++) {
+                        draggableColumns[i].headerAttributes = $.extend({ 'aria-label': that.options.messages.dragHandleLabel }, draggableColumns[i].headerAttributes);
+                    }
                 }
                 that._foreignKeyBindings(that.columns);
             },
@@ -6934,8 +7082,24 @@
                                 column.attributes['class'] = 'k-command-cell';
                             }
                         }
+                        if (column.draggable) {
+                            column.attributes = column.attributes || {};
+                            if (typeof column.attributes['class'] !== 'undefined') {
+                                column.attributes['class'] += ' k-drag-cell k-touch-action-none';
+                            } else {
+                                column.attributes['class'] = 'k-drag-cell k-touch-action-none';
+                            }
+                            if (typeof column.attributes['aria-label'] === 'undefined') {
+                                column.attributes['aria-label'] = that.options.messages.dragHandleLabel;
+                            }
+                            if (typeof column.attributes.style !== 'undefined') {
+                                column.attributes.style += ' cursor: move;';
+                            } else {
+                                column.attributes.style = 'cursor: move;';
+                            }
+                        }
                         rowTemplate += '<td' + stringifyAttributes(column.attributes);
-                        if (navigatable) {
+                        if (navigatable && !column.draggable) {
                             rowTemplate += ' aria-describedby=\'' + column.headerAttributes.id + '\'';
                         }
                         if (column.colSpan) {
@@ -6990,6 +7154,9 @@
                 }
                 if (column.selectable) {
                     return SELECTCOLUMNTMPL;
+                }
+                if (column.draggable) {
+                    return DRAGHANDLECOLUMNTMPL;
                 }
                 html += that._dirtyIndicatorTemplate(field, paramName);
                 if (type === FUNCTION) {
@@ -7388,6 +7555,16 @@
                             html += kendo.attr('index') + '=\'' + index + '\'';
                         }
                         text = th.headerTemplate ? text : kendo.template(SELECTCOLUMNHEADERTMPL)({});
+                        html += '>' + text + '</th>';
+                    } else if (th.draggable) {
+                        html += '<th class=\'k-header k-drag-cell\' scope=\'col\'' + stringifyAttributes(th.headerAttributes);
+                        if (rowSpan && !columns[idx].colSpan) {
+                            html += ' rowspan=\'' + rowSpan + '\'';
+                        }
+                        if (index > -1) {
+                            html += kendo.attr('index') + '=\'' + index + '\'';
+                        }
+                        text = th.headerTemplate ? text : '';
                         html += '>' + text + '</th>';
                     } else if (th.command) {
                         html += '<th scope=\'col\'' + stringifyAttributes(th.headerAttributes);
@@ -8058,7 +8235,7 @@
                         }
                     }
                 }
-                if (level === 0 && that.options.scrollable.endless && this._isLocked()) {
+                if (level === 0 && that.options.scrollable.endless && this._isLocked() || !that.options.scrollable.endless && this._isLocked()) {
                     that._syncLockedContentHeight();
                 }
             },
@@ -8541,7 +8718,7 @@
                         that.content.trigger('scroll');
                     }
                 }
-                if (!that._endlessFetchInProgress) {
+                if (!that._endlessFetchInProgress && !that._rowDropping) {
                     that._restoreCurrent(currentIndex, isCurrentInHeader);
                 }
                 if (that.touchScroller) {
@@ -8558,6 +8735,10 @@
                 }
                 if (that.options.persistSelection && (that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell || that._checkBoxSelection) && (that.items().length || that.dataSource._isGroupPaged())) {
                     that._restoreSelection();
+                }
+                if (that._hasReorderableRows()) {
+                    that._draggableRows();
+                    that._reorderableRows();
                 }
                 that.trigger(DATABOUND);
             },

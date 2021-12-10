@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -204,7 +204,7 @@
                 if (!that.scrollView.options.navigatable) {
                     return;
                 }
-                that.element.attr(TABINDEX, 0).attr('role', 'listbox');
+                that.element.attr(TABINDEX, 0).attr('aria-label', that.scrollView.options.messages.pagerLabel).attr('role', 'listbox');
                 that._ariaTemplate = kendo.template(pageable.ARIATemplate || 'Item #=data.index#');
                 that.element.on(KEYDOWN + NS, that, proxy(that._keyDown, that));
                 that.element.on(FOCUS + NS, proxy(that._focus, that));
@@ -873,7 +873,8 @@
                 emptyTemplate: '',
                 messages: {
                     previousButtonLabel: 'Previous',
-                    nextButtonLabel: 'Next'
+                    nextButtonLabel: 'Next',
+                    pagerLabel: 'ScrollView pager'
                 }
             },
             events: [

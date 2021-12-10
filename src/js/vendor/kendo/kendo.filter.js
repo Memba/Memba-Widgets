@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -38,10 +38,10 @@
         ]
     };
     var editors = {
-        'number': '<input type=\'text\' title=\'#=field#\' data-#=ns#role=\'numerictextbox\' data-#=ns#bind=\'value: value\'/>',
-        'string': '<input type=\'text\' title=\'#=field#\' class=\'k-textbox\' data-#=ns#bind=\'value: value\'/>',
-        'boolean': '<input class=\'k-checkbox\' data-role=\'checkbox\' data-#=ns#bind=\'checked: value\' type=\'checkbox\'>',
-        'date': '<input type=\'text\' title=\'#=field#\' data-#=ns#role=\'datepicker\' data-#=ns#bind=\'value: value\'/>'
+        'number': '<input type=\'text\' id=\'#=id#\' aria-label=\'#=field#\' title=\'#=field#\' data-#=ns#role=\'numerictextbox\' data-#=ns#bind=\'value: value\'/>',
+        'string': '<input type=\'text\' id=\'#=id#\' aria-label=\'#=field#\' title=\'#=field#\' class=\'k-textbox\' data-#=ns#bind=\'value: value\'/>',
+        'boolean': '<input class=\'k-checkbox\' id=\'#=id#\' aria-label=\'#=field#\' data-role=\'checkbox\' data-#=ns#bind=\'checked: value\' type=\'checkbox\'>',
+        'date': '<input type=\'text\' id=\'#=id#\' aria-label=\'#=field#\' title=\'#=field#\' data-#=ns#role=\'datepicker\' data-#=ns#bind=\'value: value\'/>'
     };
     var operatorsTemplate = '<select data-#=ns#bind=\'value: operator\' title=\'#=operatorsLabel#\' data-#=ns#role=\'dropdownlist\'>' + '#for(var op in operators){#' + '<option value=\'#=op#\'>#=operators[op].text || operators[op]#</option>' + '#}#' + '</select>';
     var logicTemplate = '<div data-#=ns#bind=\'value: logic\' data-#=ns#role=\'filterbuttongroup\'>' + '#for(var op in operators){#' + '<span value=\'#=op#\'>#=operators[op]#</span>' + '#}#' + '</div>';
@@ -278,7 +278,8 @@
                 } else {
                     $(kendo.template(field.editor)({
                         ns: kendo.ns,
-                        field: field.name
+                        field: field.name,
+                        id: kendo.guid()
                     })).appendTo(container);
                 }
             },

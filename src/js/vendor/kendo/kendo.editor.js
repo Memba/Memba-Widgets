@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2021.3.1109 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -307,7 +307,9 @@
             associateIds: 'Associate using Ids',
             copyFormat: 'Copy format',
             applyFormat: 'Apply format',
-            borderNone: 'None'
+            borderNone: 'None',
+            undo: 'Undo',
+            redo: 'Redo'
         };
         var supportedBrowser = !os || os.ios && os.flatVersion >= 500 || !os.ios && typeof document.documentElement.contentEditable != 'undefined';
         var toolGroups = {
@@ -1070,7 +1072,10 @@
                         value: 'h6'
                     }
                 ],
-                tools: [].concat.call(['formatting'], toolGroups.basic, toolGroups.alignment, toolGroups.formatPainter, toolGroups.lists, toolGroups.indenting, toolGroups.links, ['insertImage'], toolGroups.tables)
+                tools: [].concat.call(['formatting'], toolGroups.basic, [
+                    'undo',
+                    'redo'
+                ], toolGroups.alignment, toolGroups.formatPainter, toolGroups.lists, toolGroups.indenting, toolGroups.links, ['insertImage'], toolGroups.tables)
             },
             destroy: function () {
                 var editor = this;
@@ -1281,20 +1286,7 @@
                 command.exec();
             }
         });
-        Editor.defaultTools = {
-            undo: {
-                options: {
-                    key: 'Z',
-                    ctrl: true
-                }
-            },
-            redo: {
-                options: {
-                    key: 'Y',
-                    ctrl: true
-                }
-            }
-        };
+        Editor.defaultTools = {};
         kendo.ui.plugin(Editor);
         var Tool = Class.extend({
             init: function (options) {
@@ -1315,7 +1307,39 @@
         Tool.exec = function (editor, name, value) {
             editor.exec(name, { value: value });
         };
+        var UndoTool = Tool.extend({
+            command: $.noop,
+            update: function (ui, nodes, undoRedoStack) {
+                var that = this, name = that.options.name;
+                switch (name) {
+                case 'undo':
+                    ui.attr('disabled', !undoRedoStack.canUndo());
+                    break;
+                case 'redo':
+                    ui.attr('disabled', !undoRedoStack.canRedo());
+                    break;
+                default:
+                    break;
+                }
+            }
+        });
         EditorUtils.registerTool('separator', new Tool({ template: new ToolTemplate({ template: EditorUtils.separatorTemplate }) }));
+        EditorUtils.registerTool('undo', new UndoTool({
+            key: 'Z',
+            ctrl: true,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Undo'
+            })
+        }));
+        EditorUtils.registerTool('redo', new UndoTool({
+            key: 'Y',
+            ctrl: true,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Redo'
+            })
+        }));
         var emptyElementContent = '\uFEFF';
         var emptyTableCellContent = emptyElementContent;
         if (browser.msie || browser.edge) {
@@ -4442,6 +4466,7 @@
             var command = new GenericCommand(startRestorePoint, endRestorePoint);
             command.editor = editor;
             editor.undoRedoStack.push(command);
+            editor.toolbar.refreshTools();
             return endRestorePoint;
         }
         var Command = Class.extend({
@@ -4533,7 +4558,7 @@
         var outerWidth = kendo._outerWidth;
         var outerHeight = kendo._outerHeight;
         var OVERFLOWANCHOR = 'overflowAnchor';
-        var focusable = '.k-tool-group:visible .k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-colorpicker:not(input),' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
+        var focusable = '.k-tool-group:visible .k-tool:not(.k-state-disabled):not([disabled]),' + '.k-tool.k-overflow-anchor:visible,' + '.k-tool-group:visible .k-colorpicker:not(input),' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
         var toolNamesByCssClass = {
             'k-i-sup-script': 'superscript',
             'k-i-sub-script': 'subscript',
@@ -4573,7 +4598,9 @@
             'k-i-cell-split-horizontally': 'splitCellHorizontally',
             'k-i-cell-split-vertically': 'splitCellVertically',
             'k-i-copy-format': 'copyFormat',
-            'k-i-apply-format': 'applyFormat'
+            'k-i-apply-format': 'applyFormat',
+            '.k-i-undo': 'undo',
+            'k-i-redo': 'redo'
         };
         var OverflowAnchorTool = Tool.extend({
             initialize: function (ui, options) {
@@ -4614,6 +4641,10 @@
                     'italic',
                     'underline',
                     'strikethrough'
+                ],
+                undo: [
+                    'undo',
+                    'redo'
                 ],
                 scripts: [
                     'subscript',
@@ -5176,7 +5207,7 @@
                     if (tool) {
                         var ui = $(this);
                         if (tool.update) {
-                            tool.update(ui, nodes);
+                            tool.update(ui, nodes, editor.undoRedoStack);
                         }
                         if (immutables) {
                             that._updateImmutablesState(tool, ui, immutablesContext);

@@ -155,7 +155,7 @@ __.load = function load(value) {
                 */
 
                 // Load culture
-                i18n[locale] = i18n[locale] || {};
+                i18n[locale] = {}; // It is undefined
                 $.extend(true, i18n[locale], module.default);
                 // Log readiness
                 logger.debug({

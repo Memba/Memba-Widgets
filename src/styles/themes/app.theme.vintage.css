@@ -33703,6 +33703,94 @@ kendo-scrollview.k-scrollview-wrap.k-scrollview-light .k-scrollview-nav-wrap,
   color: #dfdcd5;
 }
 
+/*
+// Load partial
+// ----------------
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/custom";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+
+// Dependencies
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/common";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/ripple";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/popup";
+
+// Data management
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pager";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/grid";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/spreadsheet";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listview";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pivotgrid";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/treelist";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scrollview";
+
+// Editors
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/autocomplete";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/colorpicker";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/combobox";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/datetime";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdowngrid";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdownlist";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdowntree";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/editor";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/input";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/multiselect";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/numerictextbox";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/slider";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/upload";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/validator";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/switch";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/maskedtextbox";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listbox";
+
+// Dataviz
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dataviz";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/map";
+
+// Barcodes
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/barcode";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/qrcode";
+
+// Scheduling
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/calendar";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/gantt";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scheduler";
+
+// Media
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mediaplayer";
+
+// Layout
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dialog";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/notification";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/responsivepanel";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/splitter";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/tooltip";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/window";
+
+// Navigation
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/button";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/menu";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/panelbar";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/tabstrip";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/toolbar";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/treeview";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/drawer";
+
+// Interactivity & UX
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/progressbar";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scroller";
+
+// Styling & Content
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/styling";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/badge";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/card";
+
+// Chat
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/chat";
+
+// PDF Viewer
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pdf-viewer";
+*/
 /**
  * Copyright (c) 2013-2021 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
@@ -45073,6 +45161,48 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+/*
+ * Load partial
+ */
+/*
+@import "../../../node_modules/bootstrap/scss/functions";
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/mixins";
+@import "../../../node_modules/bootstrap/scss/root";
+@import "../../../node_modules/bootstrap/scss/reboot";
+@import "../../../node_modules/bootstrap/scss/type";
+@import "../../../node_modules/bootstrap/scss/images";
+@import "../../../node_modules/bootstrap/scss/code";
+@import "../../../node_modules/bootstrap/scss/grid";
+@import "../../../node_modules/bootstrap/scss/tables";
+@import "../../../node_modules/bootstrap/scss/forms";
+@import "../../../node_modules/bootstrap/scss/buttons";
+@import "../../../node_modules/bootstrap/scss/transitions";
+@import "../../../node_modules/bootstrap/scss/dropdown";
+@import "../../../node_modules/bootstrap/scss/button-group";
+@import "../../../node_modules/bootstrap/scss/input-group";
+@import "../../../node_modules/bootstrap/scss/custom-forms";
+@import "../../../node_modules/bootstrap/scss/nav";
+@import "../../../node_modules/bootstrap/scss/navbar";
+@import "../../../node_modules/bootstrap/scss/card";
+@import "../../../node_modules/bootstrap/scss/breadcrumb";
+@import "../../../node_modules/bootstrap/scss/pagination";
+@import "../../../node_modules/bootstrap/scss/badge";
+@import "../../../node_modules/bootstrap/scss/jumbotron";
+@import "../../../node_modules/bootstrap/scss/alert";
+@import "../../../node_modules/bootstrap/scss/progress";
+@import "../../../node_modules/bootstrap/scss/media";
+@import "../../../node_modules/bootstrap/scss/list-group";
+@import "../../../node_modules/bootstrap/scss/close";
+@import "../../../node_modules/bootstrap/scss/toasts";
+@import "../../../node_modules/bootstrap/scss/modal";
+@import "../../../node_modules/bootstrap/scss/tooltip";
+@import "../../../node_modules/bootstrap/scss/popover";
+@import "../../../node_modules/bootstrap/scss/carousel";
+@import "../../../node_modules/bootstrap/scss/spinners";
+@import "../../../node_modules/bootstrap/scss/utilities";
+@import "../../../node_modules/bootstrap/scss/print";
+*/
 /**
  * Fixes
  */

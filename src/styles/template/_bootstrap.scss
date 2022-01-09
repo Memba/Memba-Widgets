@@ -3,14 +3,13 @@
  * Sources at https://github.com/Memba
  */
 
-// Note: This file is for applying Kendo UI themes to Bootstrap components
-// or to fix bootstrap styles so that they match Kendo UI better
-
-// Check https://www.telerik.com/kendo-angular-ui/components/styling/theme-bootstrap/customization/
-// @import '../../../../node_modules/@progress/kendo-theme-default/scss/mixins/colors';
+// Bootstrap 5
+// ~ tilde only works with webpack module resolution
+// @import "~bootstrap/scss/bootstrap";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
 
 /**
- * List Group
+ * Fixes
  */
 
 /*

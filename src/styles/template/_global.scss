@@ -1,0 +1,21 @@
+/**
+ * Copyright (c) 2013-2021 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap");
+
+$font-family-sans-serif: // Safari for macOS and iOS (San Francisco)
+    -apple-system,
+    /* Chrome < 56 for macOS (San Francisco)*/
+    BlinkMacSystemFont,
+    /* Windows*/
+    /* 'Segoe UI',*/
+    /* Android*/
+    "Roboto",
+    /* Basic web fallback*/
+    "Helvetica Neue", arial, sans-serif,
+    /* Emoji fonts*/
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
+$font-size-base: 0.875rem; // 14px
+$line-height-base: 1.3125; // 1.5 * 0.875

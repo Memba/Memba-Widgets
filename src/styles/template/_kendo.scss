@@ -1,0 +1,9 @@
+/**
+ * Copyright (c) 2013-2021 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// Kendo UI
+// ~ tilde only works with webpack module resolution
+// @import "~@progress/kendo-theme-bootstrap/dist/all";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/dist/all";

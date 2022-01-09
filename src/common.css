@@ -128,7 +128,7 @@ main > .k-splitter {
 #player-wrapper [data-role="stage"],
 [data-role="stage"]:focus {
     border-color: #f8cfd7;
-    box-shadow: 0 0 0 0.2rem rgba(231, 96, 123, 0.25);
+    box-shadow: 0 0 0 0.2rem rgb(231 96 123 / 25%);
     outline: 0;
 }
 
@@ -137,7 +137,7 @@ main > .k-splitter {
 }
 
 #right-pane .k-panelbar {
-    border-top: 0;
+    /* border-top: 0; */
 }
 
 #right-pane .k-grid-content.k-auto-scrollable {
@@ -161,7 +161,7 @@ smartquiz.play
     cursor: pointer;
 }
 
-#player-wrapper .nav>.k-icon {
+#player-wrapper .nav > .k-icon {
     font-size: 3em;
 }
 

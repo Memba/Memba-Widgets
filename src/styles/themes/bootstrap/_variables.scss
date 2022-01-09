@@ -3,22 +3,31 @@
  * Sources at https://github.com/Memba
  */
 
-$base-theme: Bootstrap;
-$skin-name: bootstrap;
-$swatch-name: Bootstrap;
 $border-radius: 0.25rem;
-$accent: #007bff;
-$secondary: #e4e7eb;
-$info: #17a2b8;
-$success: #28a745;
+$dark-theme: false;
+$primary: #0d6efd;
+$secondary: #6c757d;
+$info: #0dcaf0;
+$success: #198754;
 $warning: #ffc107;
 $error: #dc3545;
-$body-bg: #fff;
-$body-color: #292b2c;
-$component-bg: #fff;
-$component-color: #292b2c;
-$card-cap-bg: #f7f7f9;
-$card-cap-color: #292b2c;
+$body-text: #212529;
+$body-bg: #ffffff;
+$headings-text: #212529;
+$subtle-text: #6c757d;
+$disabled-text: #8f8f8f;
+$component-text: #212529;
+$component-bg: #ffffff;
+$base-text: #212529;
+$base-bg: #f8f9fa;
+$hovered-text: #16181b;
+$hovered-bg: #e9ecef;
+$selected-text: #ffffff;
+$selected-bg: #0d6efd;
+$button-text: #212529;
+$button-bg: #e4e7eb;
+$link-text: #0d6efd;
+$link-hover-text: #0a58ca;
 $series-a: #0275d8;
 $series-b: #5bc0de;
 $series-c: #5cb85c;

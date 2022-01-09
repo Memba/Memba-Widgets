@@ -1,7 +1,7 @@
-@import './tools';
+@import "variables";
 
 .kj-stage {
-    .kj-element[data-tool='textbox'] {
+    .kj-element[data-tool="textbox"] {
         span.k-maskedtextbox {
             width: auto;
         }

@@ -1,4 +1,4 @@
-@include exports( 'widgets.playbar/layout' ) {
+@include exports( "widgets.playbar/layout" ) {
     .kj-playbar {
         z-index: 1000; // so that the drop down list of numeric buttons displays over other controls
 

@@ -1,4 +1,4 @@
-@include exports( 'widgets.navigation/layout' ) {
+@include exports( "widgets.navigation/layout" ) {
     .kj-navigation {
         height: 100%;
         -webkit-overflow-scrolling: touch;

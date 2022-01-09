@@ -1,4 +1,4 @@
-@include exports( 'widgets.codeeditor/layout' ) {
+@include exports( "widgets.codeeditor/layout" ) {
     .kj-codeeditor {
         display: flex;
         flex-direction: row;

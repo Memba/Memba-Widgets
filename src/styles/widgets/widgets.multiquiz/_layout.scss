@@ -1,4 +1,4 @@
-@include exports( 'widgets.multiquiz/layout' ) {
+@include exports( "widgets.multiquiz/layout" ) {
     //*******************
     // MultiSelect
     //*******************
@@ -110,7 +110,7 @@
                 cursor: pointer;
 
                 &::after {
-                    content: '\0020'; // space
+                    content: "\0020"; // space
                 }
                 // &.k-state-selected {}
             }

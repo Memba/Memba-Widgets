@@ -1,0 +1,9 @@
+@import "../../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/_index.scss";
+
+// Dependencies
+@import "../../dependencies/highlightjs";
+// @import "../../vendor/khan/katex"; // Error in  webpack
+
+// Component
+@import "layout";
+@import "theme";

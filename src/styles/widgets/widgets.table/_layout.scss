@@ -1,4 +1,4 @@
-@include exports( 'widgets.table/layout' ) {
+@include exports( "widgets.table/layout" ) {
     .kj-table {
         overflow: auto;
         position: relative;

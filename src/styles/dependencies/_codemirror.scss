@@ -1,5 +1,6 @@
-@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
-@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/mixins';
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/_index.scss";
+@import "../vendor/codemirror/lib/codemirror.css";
+@import "../vendor/codemirror/addon/lint/lint.css";
 
 /* stylelint-disable selector-class-pattern */
 /* stylelint-disable selector-no-qualifying-type */

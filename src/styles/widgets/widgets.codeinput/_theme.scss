@@ -1,4 +1,4 @@
-@include exports( 'widgets.codeinput/theme' ) {
+@include exports( "widgets.codeinput/theme" ) {
     .kj-codeinput {
         // We need this for the additional more... button to match dropdownlist
         // From @progress/kendo-theme-default/scss/dropdownlist/_theme.scss

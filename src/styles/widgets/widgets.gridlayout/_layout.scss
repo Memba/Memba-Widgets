@@ -1,4 +1,4 @@
-@include exports( 'widgets.gridlayout/layout' ) {
+@include exports( "widgets.gridlayout/layout" ) {
     .m-grid-layout {
         // An area is a column whereto panels can be dropped
         .m-grid-layout-area {

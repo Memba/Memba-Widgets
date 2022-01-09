@@ -1,4 +1,4 @@
-@include exports( 'widgets.audiovideo/layout' ) {
+@include exports( "widgets.audiovideo/layout" ) {
     .kj-audiovideo {
         video {
             // see https://css-tricks.com/data-uris/
@@ -24,13 +24,13 @@
             }
         }
 
-        &[data-mode='audio'] {
+        &[data-mode="audio"] {
             .k-toolbar {
                 border: 0;
             }
         }
 
-        &[data-mode='video'] {
+        &[data-mode="video"] {
             .k-toolbar {
                 border-bottom: 0;
                 border-left: 0;

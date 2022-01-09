@@ -1,6 +1,6 @@
 // TODO: replace png sprites with SVG icons
 
-@include exports( 'widgets.stage/layout' ) {
+@include exports( "widgets.stage/layout" ) {
     .kj-stage {
         font-family: Helvetica, Arial, sans-serif;
         font-size: 40px;
@@ -15,12 +15,12 @@
             }
 
             input:not([type]),
-            input[type='email'],
-            input[type='number'],
-            input[type='password'],
-            input[type='tel'],
-            input[type='url'],
-            input[type='text'] {
+            input[type="email"],
+            input[type="number"],
+            input[type="password"],
+            input[type="tel"],
+            input[type="url"],
+            input[type="text"] {
                 padding-left: 2px !important;
                 padding-right: 2px !important;
             }
@@ -40,7 +40,7 @@
             opacity: 0.5;
 
             .kj-handle {
-                background: url('../images/handler.png') no-repeat left top;
+                background: url("../images/handler.png") no-repeat left top;
                 cursor: pointer;
                 display: block;
                 height: 36px;
@@ -50,25 +50,25 @@
                 z-index: 0;
             }
 
-            .kj-handle[data-action='move'] {
+            .kj-handle[data-action="move"] {
                 background-position: left -144px;
                 left: -9px;
                 top: -10px;
             }
 
-            .kj-handle[data-action='resize'] {
+            .kj-handle[data-action="resize"] {
                 background-position: left -72px;
                 bottom: -10px;
                 right: -13px;
             }
 
-            .kj-handle[data-action='rotate'] {
+            .kj-handle[data-action="rotate"] {
                 background-position: left -36px;
                 right: -13px;
                 top: -10px;
             }
 
-            .kj-handle[data-action='menu'] {
+            .kj-handle[data-action="menu"] {
                 background-position: left -108px;
                 bottom: -10px;
                 left: -9px;

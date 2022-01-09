@@ -1,4 +1,4 @@
-@include exports( 'widgets.quiz/layout' ) {
+@include exports( "widgets.quiz/layout" ) {
     //*******************
     // Drop Down List
     //*******************
@@ -104,7 +104,7 @@
                 cursor: pointer;
 
                 &::after {
-                    content: '\0020'; // space
+                    content: "\0020"; // space
                 }
                 // &.k-state-selected {}
             }

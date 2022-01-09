@@ -1,6 +1,6 @@
-@include exports( 'widgets.markeditor/layout' ) {
+@include exports( "widgets.markeditor/layout" ) {
     .kj-markeditor-toolbar {
-        .k-button-icon[data-tool='headings'] {
+        .k-button-icon[data-tool="headings"] {
             width: auto;
         }
     }

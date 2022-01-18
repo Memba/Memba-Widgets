@@ -355,9 +355,8 @@ const Stream = BaseModel.define({
                     if ($.type(value) !== CONSTANTS.UNDEFINED) {
                         fields.variables.defaultValue[pageIdx] =
                             fields.variables.defaultValue[pageIdx] || {};
-                        fields.variables.defaultValue[pageIdx][
-                            variable
-                        ] = value;
+                        fields.variables.defaultValue[pageIdx][variable] =
+                            value;
                     }
                 }
             });

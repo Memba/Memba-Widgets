@@ -34,7 +34,8 @@ const TOOLS = {
     RX_VALIDATION_LIBRARY: /^\/\/ ([^\s[\n]+)( ([^\n]+))?$/,
     // RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/,
     // RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,
-    RX_VALIDATION_CUSTOM: /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,
+    RX_VALIDATION_CUSTOM:
+        /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/,
     RX_VARIABLE: /\w+/,
     RX_VIDEO: /^(cdn|data):\/\/[\s\S]+.mp4$/i,
 

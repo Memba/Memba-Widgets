@@ -51,7 +51,7 @@ const MathInput = Widget.extend({
      * Events
      * @property events
      */
-    events: [CHANGE],
+    events: [CHANGE], // TODO set the change event
 
     /**
      * Options
@@ -62,9 +62,10 @@ const MathInput = Widget.extend({
         enabled: true,
         // fontsDirectory: '../../../styles/vendor/arnog/fonts',
         fontsDirectory: '../../../styles/vendor/khan/fonts',
+        latex: '\\frac{8}{\\placeholder[answer]{}}=2',
         soundsDirectory: '../../../styles/vendor/arnog/sounds',
-        virtualKeyboardMode: 'onfocus',
         value: '',
+        virtualKeyboardMode: 'onfocus',
     },
 
     /**

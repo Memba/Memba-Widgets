@@ -15,7 +15,6 @@
     ],
     "root": true,
     "rules": {
-        // "indent": "off",
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": "off",

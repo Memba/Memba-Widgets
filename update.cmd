@@ -1,22 +1,22 @@
 REM goto current directory
 cd /d %~dp0
 
-REM Copy babel-polyfill
+REM babel-polyfill
 XCOPY .\node_modules\@babel\polyfill\dist .\test\vendor /C /E /I /R /Y
 
-REM Copy less
+REM less
 REM XCOPY .\node_modules\less\dist .\test\vendor /C /E /I /R /Y
 
-REM Copy common files from Memba-Server
+REM common files from Memba-Server
 REM ATTRIB -R .\src\js\common\pongodb.*.es6
 REM COPY ..\Memba.Server\src\js\common\pongodb.*.es6 .\src\js\common\pongodb.*.es6 /Y
 REM ATTRIB +R .\src\js\common\pongodb.*.es6
 
-REM Copy Memba-WebFonts
+REM Memba-WebFonts
 XCOPY ..\Memba.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*
 
-REM Copy Mathquill
+REM Mathquill
 ATTRIB -R .\src\js\vendor\mathquill\mathquill.js
 COPY ..\..\Explorations\mathquill\build\mathquill.js .\src\js\vendor\mathquill\mathquill.js /Y
 ATTRIB +R .\src\js\vendor\mathquill\mathquill.js

@@ -237,8 +237,9 @@ SystemJS.config({
     },
     meta: {
         'test/vendor/chai-jquery.js': { format: 'cjs' },
+        'test/vendor/fulfill.js': { format: 'esm' },
         'test/vendor/jquery.mockjax.js': { format: 'global' },
-        'test/vendor/jscheck.js': { format: 'global' },
+        'test/vendor/jscheck.js': { format: 'esm' },
         'test/vendor/mocha.js': { format: 'global' },
         'test/vendor/sinon-chai.js': { format: 'cjs' },
     },

@@ -9,22 +9,24 @@
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
-import JSC from 'jscheck';
+// eslint-disable-next-line import/no-named-as-default,import/no-named-as-default-member
+import JSCheck from 'jscheck';
 import deparam from '../../../src/js/common/jquery.deparam.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
+const jsc = JSCheck();
 
 describe('jquery.deparam', () => {
     const data = [
         {
-            a: JSC.string()(),
-            b: JSC.number()(),
-            c: JSC.boolean()(),
-            d: JSC.array(
-                JSC.integer(5, 10),
+            a: jsc.string()(),
+            b: jsc.number()(),
+            c: jsc.boolean()(),
+            d: jsc.array(
+                jsc.integer(5, 10),
                 // With at least 3 chars, there is a low probability of a number to coerce
-                JSC.string(JSC.integer(3, 10), JSC.character())
+                jsc.string(jsc.integer(3, 10), jsc.character())
             )(),
         },
     ];

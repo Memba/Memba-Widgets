@@ -3,7 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-import JSC from 'jscheck';
+// eslint-disable-next-line import/no-named-as-default,import/no-named-as-default-member
+import JSCheck from 'jscheck';
 import ObjectId from '../common/window.objectid.es6';
 import { randomVal } from '../common/window.util.es6';
 import basiclist from '../editors/editors.basiclist.es6';
@@ -11,31 +12,33 @@ import regex from '../editors/editors.regex.es6';
 import tools from '../tools/tools.es6';
 import { BaseTool } from '../tools/tools.base.es6';
 
+const jsc = JSCheck();
+
 // Note: floating numbers generate errors due to changes in the last digit
-const angleGenerator = JSC.integer(0, 359);
+const angleGenerator = jsc.integer(0, 359);
 const boxGenerator = () => {
     const minHeight = 40;
     const maxHeight = 768;
     const minWidth = 60;
     const maxWidth = 1024;
     const ratio = 0.6;
-    const height = JSC.integer(minHeight, Math.ceil(ratio * maxHeight))();
-    const width = JSC.integer(minWidth, Math.ceil(ratio * maxWidth))();
+    const height = jsc.integer(minHeight, Math.ceil(ratio * maxHeight))();
+    const width = jsc.integer(minWidth, Math.ceil(ratio * maxWidth))();
     return {
         height,
-        left: JSC.integer(maxWidth - width)(),
-        top: JSC.integer(maxHeight - height)(),
+        left: jsc.integer(maxWidth - width)(),
+        top: jsc.integer(maxHeight - height)(),
         width,
     };
 };
 const colorGenerator = () =>
-    `#${JSC.string(JSC.integer(6), JSC.one_of('0123456789abcdef'))()}`;
-const quizMode = JSC.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
+    `#${jsc.string(jsc.integer(6), jsc.one_of('0123456789abcdef'))()}`;
+const quizMode = jsc.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
 const styleGenerator = () =>
     `${[
-        `background-color: #${JSC.string(
-            JSC.integer(6),
-            JSC.one_of('0123456789abcdef')
+        `background-color: #${jsc.string(
+            jsc.integer(6),
+            jsc.one_of('0123456789abcdef')
         )()}`,
         'border: solid 1px #000000',
         `color: ${colorGenerator()}`,
@@ -44,22 +47,22 @@ const styleGenerator = () =>
         'font-weight: 800',
         'opacity: 0.5',
     ]
-        .filter(() => JSC.boolean(2 / 3)())
+        .filter(() => jsc.boolean(2 / 3)())
         .join('; ')};`;
-const textGenerator = JSC.string();
+const textGenerator = jsc.string();
 const urlGenerator = (ext) =>
-    `http://www.${JSC.string(
-        JSC.integer(3, 10),
-        JSC.character('a', 'z')
-    )()}.com/${JSC.character('a', 'z')()}${JSC.string(
-        JSC.integer(1, 100),
-        JSC.one_of('abcdefghijklmnopqrstuvwxyz0123456789-/')
-    )()}${JSC.character('a', 'z')()}.${ext}`;
+    `http://www.${jsc.string(
+        jsc.integer(3, 10),
+        jsc.character('a', 'z')
+    )()}.com/${jsc.character('a', 'z')()}${jsc.string(
+        jsc.integer(1, 100),
+        jsc.one_of('abcdefghijklmnopqrstuvwxyz0123456789-/')
+    )()}${jsc.character('a', 'z')()}.${ext}`;
 const imageList = () => [
-    { text: JSC.string()(), url: urlGenerator('png') },
-    { text: JSC.string()(), url: urlGenerator('png') },
-    { text: JSC.string()(), url: urlGenerator('png') },
-    { text: JSC.string()(), url: urlGenerator('png') },
+    { text: jsc.string()(), url: urlGenerator('png') },
+    { text: jsc.string()(), url: urlGenerator('png') },
+    { text: jsc.string()(), url: urlGenerator('png') },
+    { text: jsc.string()(), url: urlGenerator('png') },
 ];
 
 /**
@@ -158,7 +161,7 @@ function getValidationLibrary() {
 function getAudio() {
     return {
         attributes: {
-            autoplay: JSC.boolean()(),
+            autoplay: jsc.boolean()(),
             mp3: urlGenerator('mp3'),
             ogg: urlGenerator('ogg'),
         },
@@ -180,12 +183,12 @@ function getCharGrid() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: [], // TODO
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -227,12 +230,12 @@ function getConnector() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: '', // TODO
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -248,19 +251,19 @@ function getConnector() {
 function getDropZone() {
     return {
         attributes: {
-            center: JSC.boolean()(),
+            center: jsc.boolean()(),
             // empty
             style: styleGenerator(),
             text: textGenerator(),
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: '', // TODO
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -297,12 +300,12 @@ function getHighLighter() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: [], // TODO from text
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -346,12 +349,12 @@ function getImageSet() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: data[0].text,
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -368,7 +371,7 @@ function getLabel() {
     return {
         attributes: {
             style: styleGenerator(),
-            text: JSC.string()().replace(/#/g, '\\#'), // Note: avoids breaking kendo templates
+            text: jsc.string()().replace(/#/g, '\\#'), // Note: avoids breaking kendo templates
         },
         id: new ObjectId().toString(),
         properties: {
@@ -389,7 +392,7 @@ function getLatex() {
     return {
         attributes: {
             formula: '', // TODO
-            inline: JSC.boolean()(),
+            inline: jsc.boolean()(),
             style: styleGenerator(),
         },
         id: new ObjectId().toString(),
@@ -426,24 +429,24 @@ function getLine() {
 function getMathInput() {
     return {
         attributes: {
-            keypad: JSC.boolean()(),
-            basic: JSC.boolean()(),
-            greek: JSC.boolean()(),
-            operators: JSC.boolean()(),
-            expressions: JSC.boolean()(),
-            sets: JSC.boolean()(),
-            matrices: JSC.boolean()(),
-            statistics: JSC.boolean()(),
+            keypad: jsc.boolean()(),
+            basic: jsc.boolean()(),
+            greek: jsc.boolean()(),
+            operators: jsc.boolean()(),
+            expressions: jsc.boolean()(),
+            sets: jsc.boolean()(),
+            matrices: jsc.boolean()(),
+            statistics: jsc.boolean()(),
             style: styleGenerator(),
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: '', // TODO
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -461,7 +464,7 @@ function getMultiQuiz() {
     return {
         attributes: {
             mode: quizMode(),
-            shuffle: JSC.boolean()(),
+            shuffle: jsc.boolean()(),
             groupStyle: styleGenerator(),
             itemStyle: styleGenerator(),
             selectStyle: styleGenerator(),
@@ -469,15 +472,15 @@ function getMultiQuiz() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: data
                 .map((item) => item.text)
-                .filter(JSC.boolean())
+                .filter(jsc.boolean())
                 .join('\n'), // Review
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -493,19 +496,19 @@ function getMultiQuiz() {
 function getNumericBox() {
     return {
         attributes: {
-            decimals: JSC.integer(0, 2)(),
+            decimals: jsc.integer(0, 2)(),
             // max: undefined
-            min: JSC.integer(0, 100)(),
+            min: jsc.integer(0, 100)(),
             style: styleGenerator(),
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: textGenerator(),
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -523,7 +526,7 @@ function getQuiz() {
     return {
         attributes: {
             mode: quizMode(),
-            shuffle: JSC.boolean()(),
+            shuffle: jsc.boolean()(),
             groupStyle: styleGenerator(),
             itemStyle: styleGenerator(),
             selectStyle: styleGenerator(),
@@ -531,12 +534,12 @@ function getQuiz() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: data[0].text,
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -556,12 +559,12 @@ function getSelector() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: '', // TODO
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -577,12 +580,12 @@ function getSelector() {
 function getShape() {
     return {
         attributes: {
-            shape: JSC.one_of(['rectangle', 'ellipsis', 'polygon'])(),
-            angles: JSC.integer(3, 10)(),
+            shape: jsc.one_of(['rectangle', 'ellipsis', 'polygon'])(),
+            angles: jsc.integer(3, 10)(),
             text: textGenerator(),
             fillColor: colorGenerator(),
             strokeColor: colorGenerator(),
-            strockWidth: JSC.integer(3, 10)(),
+            strockWidth: jsc.integer(3, 10)(),
         },
         properties: {
             behavior: 'none',
@@ -624,12 +627,12 @@ function getTextArea() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: textGenerator(),
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -650,12 +653,12 @@ function getTextBox() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: textGenerator(),
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -677,12 +680,12 @@ function getTextGaps() {
         },
         id: new ObjectId().toString(),
         properties: {
-            failure: -JSC.integer(0, 1)(),
+            failure: -jsc.integer(0, 1)(),
             name: randomVal(),
             omit: 0,
             question: textGenerator(),
             solution: textGenerator(),
-            success: JSC.integer(0, 3)(),
+            success: jsc.integer(0, 3)(),
             validation: '// equal',
         },
         rotate: angleGenerator(),
@@ -698,7 +701,7 @@ function getTextGaps() {
 function getVariable() {
     return {
         attributes: {
-            variable: JSC.string(JSC.integer(1, 10), JSC.character('a', 'z'))(),
+            variable: jsc.string(jsc.integer(1, 10), jsc.character('a', 'z'))(),
             expression: 'round(random(0, 100), 2)',
         },
         id: new ObjectId().toString(),
@@ -715,8 +718,8 @@ function getVariable() {
 function getVideo() {
     return {
         attributes: {
-            autoplay: JSC.boolean()(),
-            toolbarHeight: JSC.integer(10, 50)(),
+            autoplay: jsc.boolean()(),
+            toolbarHeight: jsc.integer(10, 50)(),
             mp4: urlGenerator('mp4'),
             ogv: urlGenerator('ogv'),
             wbem: urlGenerator('wbem'),
@@ -761,9 +764,9 @@ function getComponentArray() {
     const { length } = generators;
     if (length) {
         ret = ret.concat(
-            JSC.array(
-                JSC.number(1, Math.min(length, 3)),
-                JSC.one_of(generators)
+            jsc.array(
+                jsc.number(1, Math.min(length, 3)),
+                jsc.one_of(generators)
             )()
         );
     }
@@ -781,7 +784,7 @@ function getPage() {
         id: new ObjectId().toString(),
         instructions: textGenerator(),
         style: styleGenerator(),
-        time: JSC.integer(10, 100)(),
+        time: jsc.integer(10, 100)(),
     };
 }
 
@@ -790,7 +793,7 @@ function getPage() {
  * @function getPageArray
  */
 function getPageArray() {
-    return JSC.array(JSC.number(3, 5), getPage)();
+    return jsc.array(jsc.number(3, 5), getPage)();
 }
 
 /**

@@ -159,7 +159,7 @@ $(() => {
             { template: '<a class="k-button" href="\\#"><span class="k-icon k-i-menu"></span></a>', type: 'contentItem' },
             { width: 5, type: 'spacer' },
             // { template: '<img src="./styles/images/KdjLogoBB.png" alt="Kidoju Logo" style="margin: -0.5rem 0;">', type: 'contentItem' },
-            { template: '<h2 style="padding: 0; margin: 0; font-weight: bolder;">Eduthon</h2>', type: 'contentItem' },
+            { template: '<h2 style="padding: 0; margin: 0; font-weight: bolder;">Kidoju</h2>', type: 'contentItem' },
         ]
     });
 

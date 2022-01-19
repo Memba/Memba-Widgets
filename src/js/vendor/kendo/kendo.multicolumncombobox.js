@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -101,6 +101,14 @@
             }
         });
         ui.plugin(MultiColumnComboBox);
+        kendo.cssProperties.registerPrefix('MultiColumnComboBox', 'k-input-');
+        kendo.cssProperties.registerValues('MultiColumnComboBox', [{
+                prop: 'rounded',
+                values: kendo.cssProperties.roundedValues.concat([[
+                        'full',
+                        'full'
+                    ]])
+            }]);
     }(window.kendo.jQuery));
     return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {

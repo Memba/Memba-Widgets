@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -37,7 +37,8 @@
         var breadcrumbStyles = {
             widget: 'k-widget k-breadcrumb',
             overlay: 'k-breadcrumb-container',
-            textbox: 'k-textbox',
+            textbox: 'k-input-inner',
+            textboxWrapper: 'k-textbox k-input k-input-md k-rounded-md k-input-solid',
             link: 'k-breadcrumb-link',
             item: 'k-breadcrumb-item',
             delimiter: 'k-breadcrumb-delimiter-icon',
@@ -208,13 +209,13 @@
                 $(ev.target).removeClass(breadcrumbStyles.focused);
             },
             _wrapper: function () {
-                var that = this, element = this.element, elementIsInput = element.is('input');
+                var that = this, element = this.element, elementIsInput = element.is('input'), inputWrapper = $('<div class="' + breadcrumbStyles.inputWrapper + '"><span class="' + breadcrumbStyles.textboxWrapper + '"></span></div>');
                 that.wrapper = elementIsInput ? element.wrap($('<nav />')).parent() : element;
                 if (elementIsInput) {
-                    that.element.wrap($('<div />').addClass(breadcrumbStyles.inputWrapper)).addClass(breadcrumbStyles.textbox).parent().hide();
-                    that.inputWrapper = that.wrapper.find(DOT + breadcrumbStyles.inputWrapper);
+                    that.element.wrap(inputWrapper).addClass(breadcrumbStyles.textbox);
+                    that.inputWrapper = that.wrapper.find(DOT + breadcrumbStyles.inputWrapper).hide();
                 } else {
-                    that.inputWrapper = that.wrapper.append($('<div />').addClass(breadcrumbStyles.inputWrapper)).find(DOT + breadcrumbStyles.inputWrapper).hide();
+                    that.inputWrapper = that.wrapper.append(inputWrapper).find(DOT + breadcrumbStyles.inputWrapper).hide();
                 }
                 that.wrapper.addClass(breadcrumbStyles.widget);
                 that.wrapper.attr(ARIA_LABEL, 'Breadcrumb');
@@ -227,7 +228,7 @@
                 } else {
                     that.input = $('<input />');
                 }
-                that.inputWrapper.append(that.input);
+                that.inputWrapper.find(DOT + breadcrumbStyles.textboxWrapper.split(' ')[0]).append(that.input);
                 that.input.addClass(breadcrumbStyles.textbox).attr(ARIA_HIDDEN, true);
                 that.input.on(BLUR + BREADCRUMB, proxy(that._blur, that, false)).on(KEYDOWN + BREADCRUMB, proxy(that._keydown, that));
                 that.wrapper.on(FOCUS + BREADCRUMB, proxy(that._wrapperFocus, that)).on(BLUR + BREADCRUMB, proxy(that._wrapperBlur, that)).on(KEYDOWN + BREADCRUMB, proxy(that._wrapperKeydown, that)).on(CLICK + BREADCRUMB, proxy(that._wrapperClick, that));

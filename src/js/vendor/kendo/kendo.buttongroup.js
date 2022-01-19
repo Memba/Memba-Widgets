@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -49,10 +49,10 @@
         var KWIDGET = 'k-widget';
         var KBUTTONGROUP = 'k-button-group';
         var KBUTTON = 'k-button';
-        var KBUTTONICONTEXT = 'k-button-icontext';
-        var KBUTTONICON = 'k-button-icon';
-        var ACTIVE = 'k-state-active';
-        var DISABLED = 'k-state-disabled';
+        var KBUTTONDEFAULTS = 'k-button-md k-rounded-md k-button-solid k-button-solid-base';
+        var KICONBUTTON = 'k-icon-button';
+        var SELECTED = 'k-selected';
+        var DISABLED = 'k-disabled';
         var SELECT = 'select';
         var CLICK = 'click';
         var KEYDOWN = 'keydown';
@@ -61,9 +61,9 @@
         var MOUSEDOWN = 'mousedown';
         var isIE = kendo.support.browser.msie;
         var templates = {
-            item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '#= text #' + '</span>'),
-            image: template('<img alt="icon" src="#=data.imageUrl#" />'),
-            icon: template('<span class="#=data#"></span>'),
+            item: template('<span ' + '#= item.enabled === false ? "disabled" : "" # ' + '>' + '#= icon(iconClass) #' + '#= image(item) #' + '# if(!!text) { #' + '<span class="k-button-text"> #= text # </span>' + '# } #' + '</span>'),
+            image: template('<img alt="icon" src="#=data.imageUrl#" class="k-button-icon"/>'),
+            icon: template('<span class="k-button-icon #=data#"></span>'),
             empty: template('')
         };
         function createBadge(badgeOptions, item) {
@@ -102,6 +102,7 @@
                 if (!that.options.enable || !that.options.enabled) {
                     that._enable = false;
                     that.element.attr('aria-disabled', true).addClass(DISABLED);
+                    that.element.children().addClass(DISABLED);
                 }
                 that.select(that.options.index);
                 that._attachEvents();
@@ -115,7 +116,7 @@
                 enabled: true
             },
             current: function () {
-                return this.element.find('.' + ACTIVE);
+                return this.element.find('.' + SELECTED);
             },
             _attachEvents: function () {
                 var that = this;
@@ -135,10 +136,10 @@
                         renderedItem.attr(item.attributes);
                     }
                     if (item.selected) {
-                        renderedItem.addClass(ACTIVE);
+                        renderedItem.addClass(SELECTED);
                     }
-                    if (item.iconClass || item.icon || item.imageUrl) {
-                        renderedItem.addClass(item.text ? 'k-button-icontext' : 'k-button-icon');
+                    if ((item.iconClass || item.icon || item.imageUrl) && !item.text) {
+                        renderedItem.addClass(KICONBUTTON);
                     }
                     if (item.badge) {
                         createBadge(item.badge, renderedItem);
@@ -164,8 +165,8 @@
                     this.preventFocus = false;
                     return;
                 }
-                if (element.find('.' + ACTIVE).length) {
-                    element.find('.' + ACTIVE).first().trigger('focus');
+                if (element.find('.' + SELECTED).length) {
+                    element.find('.' + SELECTED).first().trigger('focus');
                 } else {
                     element.children().first().trigger('focus');
                 }
@@ -219,7 +220,7 @@
                 }
                 if (that.options.selection === 'multiple') {
                     ariaPressed = button.attr('aria-pressed') === 'true';
-                    button.attr('aria-pressed', !ariaPressed).toggleClass(ACTIVE);
+                    button.attr('aria-pressed', !ariaPressed).toggleClass(SELECTED);
                     if (that.selectedIndices.indexOf(index) === -1) {
                         that.selectedIndices.push(index);
                     } else {
@@ -227,8 +228,8 @@
                     }
                 } else {
                     that.selectedIndices = [];
-                    that.current().attr('aria-pressed', false).removeClass(ACTIVE);
-                    button.attr('aria-pressed', true).addClass(ACTIVE);
+                    that.current().attr('aria-pressed', false).removeClass(SELECTED);
+                    button.attr('aria-pressed', true).addClass(SELECTED);
                     that.selectedIndices.push(index);
                 }
             },
@@ -259,6 +260,7 @@
                     enable = true;
                 }
                 this.element.attr('aria-disabled', !enable).toggleClass(DISABLED, !enable);
+                this.element.children().toggleClass(DISABLED, !enable);
                 this._enable = this.options.enable = enable;
             },
             destroy: function () {
@@ -274,12 +276,12 @@
                 var badge = kendo.attrValue(button, 'badge');
                 var image = button.find('img').addClass('k-image');
                 var isEmpty = true;
-                button.attr('aria-pressed', false).attr('role', 'button').addClass(KBUTTON);
+                button.attr('aria-pressed', false).attr('role', 'button').addClass(KBUTTON).addClass(KBUTTONDEFAULTS);
                 if (button.is('[disabled]') || button.hasClass(DISABLED)) {
                     button.addClass(DISABLED).attr('aria-disabled', true).removeAttr('disabled');
                 }
-                if (button.is('.' + ACTIVE)) {
-                    button.removeClass(ACTIVE);
+                if (button.is('.' + SELECTED)) {
+                    button.removeClass(SELECTED);
                     if (!button.hasClass(DISABLED) && this.options.selection === 'single' || this.options.selection === 'multiple') {
                         this.select(button[0]);
                     }
@@ -294,8 +296,8 @@
                         isEmpty = false;
                     }
                 });
-                if (image[0] || icon) {
-                    button.addClass(isEmpty ? KBUTTONICON : KBUTTONICONTEXT);
+                if ((image[0] || icon) && isEmpty) {
+                    button.addClass(KICONBUTTON);
                 }
                 if (badge || badge === 0) {
                     createBadge(badge, button);

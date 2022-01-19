@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -238,7 +238,7 @@
                     var ariaLabel = operators[viewModel.operator];
                     dropdown.attr('aria-label', ariaLabel);
                 });
-                this.operatorDropDown.wrapper.attr('aria-label', this._getColumnTitle()).find('.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-i-filter');
+                this.operatorDropDown.wrapper.attr('aria-label', this._getColumnTitle()).find('.k-i-arrow-s').removeClass('k-i-arrow-s').addClass('k-i-filter');
             },
             initSuggestDataSource: function (options) {
                 var suggestDataSource = options.suggestDataSource;
@@ -370,7 +370,7 @@
             },
             _createClearIcon: function () {
                 var that = this;
-                $('<button type=\'button\' class=\'k-button k-button-icon\' title = \'' + that.options.messages.clear + '\'/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-icon k-i-filter-clear\'></span>').on('click', proxy(that.clearFilter, that)).appendTo(that.wrapper);
+                $('<button type=\'button\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button\' title = \'' + that.options.messages.clear + '\'/>').attr('aria-label', that.options.messages.clear).attr(kendo.attr('bind'), 'visible:operatorVisible').html('<span class=\'k-button-icon k-icon k-i-filter-clear\'></span>').on('click', proxy(that.clearFilter, that)).appendTo(that.wrapper);
             },
             clearFilter: function () {
                 this._clearInProgress = true;

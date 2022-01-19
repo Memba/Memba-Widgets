@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -25,7 +25,8 @@
 (function (f, define) {
     define('kendo.treeview', [
         'kendo.data',
-        'kendo.treeview.draganddrop'
+        'kendo.treeview.draganddrop',
+        'html/input'
     ], f);
 }(function () {
     var __meta__ = {
@@ -42,7 +43,7 @@
             }]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = Array.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', KENDOKEYDOWN = 'kendoKeydown', UNDEFINED = 'undefined', KSTATEHOVER = 'k-state-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIACHECKED = 'aria-checked', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', ARIAEXPANDED = 'aria-expanded', DISABLED = 'k-state-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
+        var kendo = window.kendo, ui = kendo.ui, data = kendo.data, extend = $.extend, template = kendo.template, isArray = Array.isArray, Widget = ui.Widget, HierarchicalDataSource = data.HierarchicalDataSource, proxy = $.proxy, keys = kendo.keys, NS = '.kendoTreeView', TEMP_NS = '.kendoTreeViewTemp', SELECT = 'select', CHECK = 'check', NAVIGATE = 'navigate', EXPAND = 'expand', CHANGE = 'change', ERROR = 'error', CHECKED = 'checked', INDETERMINATE = 'indeterminate', COLLAPSE = 'collapse', DRAGSTART = 'dragstart', DRAG = 'drag', DROP = 'drop', DRAGEND = 'dragend', DATABOUND = 'dataBound', CLICK = 'click', KENDOKEYDOWN = 'kendoKeydown', UNDEFINED = 'undefined', KSTATEHOVER = 'k-hover', KTREEVIEW = 'k-treeview', VISIBLE = ':visible', NODE = '.k-item', STRING = 'string', ARIACHECKED = 'aria-checked', ARIASELECTED = 'aria-selected', ARIADISABLED = 'aria-disabled', ARIAEXPANDED = 'aria-expanded', DISABLED = 'k-disabled', TreeView, subGroup, nodeContents, nodeIcon, spriteRe, bindings = {
                 text: 'dataTextField',
                 url: 'dataUrlField',
                 spriteCssClass: 'dataSpriteCssClassField',
@@ -67,7 +68,7 @@
         subGroup = contentChild('.k-group');
         nodeContents = contentChild('.k-group,.k-content');
         nodeIcon = function (node) {
-            return node.children('div').children('.k-icon');
+            return node.children('div').find('.k-treeview-toggle > .k-icon');
         };
         function checkboxes(node) {
             return node.find('.k-checkbox-wrapper:first input[type=checkbox]');
@@ -103,7 +104,7 @@
             }
         }
         function updateNodeHtml(node) {
-            var wrapper = node.children('div'), group = node.children('ul'), toggleButton = wrapper.children('.k-icon'), checkbox = node.children('input[type=checkbox]'), innerWrapper = wrapper.children('.k-in');
+            var wrapper = node.children('div'), group = node.children('ul'), toggleButton = wrapper.find('.k-treeview-toggle > .k-icon'), checkbox = node.children('input[type=checkbox]'), innerWrapper = wrapper.children('.k-in');
             if (node.hasClass('k-treeview')) {
                 return;
             }
@@ -111,7 +112,7 @@
                 wrapper = $('<div />').prependTo(node);
             }
             if (!toggleButton.length && group.length) {
-                toggleButton = $('<span class=\'k-icon\' />').prependTo(wrapper);
+                toggleButton = $('<span class=\'k-treeview-toggle\'><span class=\'k-icon\' /></span>').prependTo(wrapper);
             } else if (!group.length || !group.children().length) {
                 toggleButton.remove();
                 group.remove();
@@ -122,7 +123,7 @@
             if (!innerWrapper.length) {
                 innerWrapper = node.children('a').eq(0).addClass('k-in k-link');
                 if (!innerWrapper.length) {
-                    innerWrapper = $('<span class=\'k-in\' />');
+                    innerWrapper = $('<span class=\'k-treeview-leaf k-in\' />');
                 }
                 innerWrapper.appendTo(wrapper);
                 if (wrapper.length) {
@@ -161,6 +162,7 @@
                     that.wrapper = element;
                     that.root = element.children('ul').eq(0);
                 }
+                that._applyCssClasses();
                 that._tabindex();
                 that.wrapper.attr('role', 'tree');
                 that.wrapper.find('>ul').attr('role', 'none');
@@ -184,15 +186,15 @@
                 kendo.notify(that);
             },
             _attachEvents: function () {
-                var that = this, clickableItems = '.k-in:not(.k-state-selected,.k-state-disabled)', MOUSEENTER = 'mouseenter';
+                var that = this, clickableItems = '.k-in:not(.k-selected,.k-disabled)', MOUSEENTER = 'mouseenter';
                 that._clickHandler = proxy(that._click, that);
-                that.wrapper.on(MOUSEENTER + NS, '.k-in.k-state-selected', function (e) {
+                that.wrapper.on(MOUSEENTER + NS, '.k-in.k-selected', function (e) {
                     e.preventDefault();
                 }).on(MOUSEENTER + NS, clickableItems, function () {
                     $(this).addClass(KSTATEHOVER);
                 }).on('mouseleave' + NS, clickableItems, function () {
                     $(this).removeClass(KSTATEHOVER);
-                }).on(CLICK + NS, clickableItems, that._clickHandler).on('dblclick' + NS, '.k-in:not(.k-state-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, that, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.checkbox-span', proxy(that._checkboxLabelClick, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, '.k-link.k-state-disabled', function (e) {
+                }).on(CLICK + NS, clickableItems, that._clickHandler).on('dblclick' + NS, '.k-in:not(.k-disabled)', proxy(that._toggleButtonClick, that)).on(CLICK + NS, '.k-i-expand,.k-i-collapse', proxy(that._toggleButtonClick, that)).on('keydown' + NS, that, proxy(that._keydown, that)).on('keypress' + NS, proxy(that._keypress, that)).on('focus' + NS, proxy(that._focus, that)).on('blur' + NS, proxy(that._blur, that)).on('mousedown' + NS, '.k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse', proxy(that._mousedown, that)).on('change' + NS, '.k-checkbox-wrapper :checkbox', proxy(that._checkboxChange, that)).on('click' + NS, '.k-request-retry', proxy(that._retryRequest, that)).on('click' + NS, '.k-link.k-disabled', function (e) {
                     e.preventDefault();
                 }).on('click' + NS, function (e) {
                     var target = $(e.target);
@@ -200,14 +202,6 @@
                         that.focus();
                     }
                 });
-            },
-            _checkboxLabelClick: function (e) {
-                var checkbox = $(e.target.previousSibling);
-                if (checkbox.is('[disabled]')) {
-                    return;
-                }
-                checkbox.prop('checked', !checkbox.prop('checked'));
-                checkbox.trigger('change');
             },
             _syncHtmlAndDataSource: function (root, dataSource) {
                 root = root || this.root;
@@ -217,7 +211,7 @@
                     dataItem = data[i];
                     uid = dataItem.uid;
                     item = items.eq(i);
-                    item.attr('role', 'treeitem').attr(uidAttr, uid).attr(ARIASELECTED, item.hasClass('k-state-selected'));
+                    item.attr('role', 'treeitem').attr(uidAttr, uid).attr(ARIASELECTED, item.hasClass('k-selected'));
                     dataItem.expanded = item.attr(expandedAttr) === 'true';
                     if (checkboxesEnabled) {
                         itemCheckbox = checkboxes(item);
@@ -254,7 +248,7 @@
                         reorderable: true,
                         $angular: this.options.$angular,
                         autoScroll: this.options.autoScroll,
-                        filter: 'div:not(.k-state-disabled) .k-in',
+                        filter: 'div:not(.k-disabled) .k-in',
                         allowedContainers: '.k-treeview',
                         itemSelector: '.k-treeview .k-item',
                         hintText: proxy(this._hintText, this),
@@ -358,7 +352,7 @@
                 if (options.template && typeof options.template == STRING) {
                     options.template = template(options.template);
                 } else if (!options.template) {
-                    options.template = templateNoWith('# var text = ' + fieldAccessor('text') + '(data.item); #' + '# if (typeof data.item.encoded != \'undefined\' && data.item.encoded === false) {#' + '#= text #' + '# } else { #' + '#: text #' + '# } #');
+                    options.template = templateNoWith('# var text = ' + fieldAccessor('text') + '(data.item); #' + '# if (typeof data.item.encoded != \'undefined\' && data.item.encoded === false) {#' + '<span class=\'k-treeview-leaf-text\'>#= text #</span>' + '# } else { #' + '<span class=\'k-treeview-leaf-text\'>#: text #</span>' + '# } #');
                 }
                 that._checkboxes();
                 that.templates = {
@@ -373,7 +367,7 @@
                         return result;
                     },
                     wrapperCssClass: function (group, item) {
-                        var result = 'k-item', index = item.index;
+                        var result = 'k-item k-treeview-item', index = item.index;
                         if (group.firstLevel && index === 0) {
                             result += ' k-first';
                         }
@@ -385,27 +379,27 @@
                     cssClass: function (group, item) {
                         var result = '', index = item.index, groupLength = group.length - 1;
                         if (group.firstLevel && index === 0) {
-                            result += 'k-top ';
+                            result += 'k-treeview-top k-top ';
                         }
                         if (index === 0 && index != groupLength) {
-                            result += 'k-top';
+                            result += 'k-treeview-top k-top';
                         } else if (index == groupLength) {
-                            result += 'k-bot';
+                            result += 'k-treeview-bot k-bot';
                         } else {
-                            result += 'k-mid';
+                            result += 'k-treeview-mid k-mid';
                         }
                         return result;
                     },
                     textClass: function (item, isLink) {
-                        var result = 'k-in';
+                        var result = 'k-treeview-leaf k-in';
                         if (isLink) {
                             result += ' k-link';
                         }
                         if (item.enabled === false) {
-                            result += ' k-state-disabled';
+                            result += ' k-disabled';
                         }
                         if (item.selected === true) {
-                            result += ' k-state-selected';
+                            result += ' k-selected';
                         }
                         return result;
                     },
@@ -426,7 +420,7 @@
                         return attributes + (group.expanded !== true ? ' style=\'display:none\'' : '');
                     },
                     groupCssClass: function (group) {
-                        var cssClass = 'k-group';
+                        var cssClass = 'k-group k-treeview-group';
                         if (group.firstLevel) {
                             cssClass += ' k-treeview-lines';
                         }
@@ -435,10 +429,10 @@
                     dragClue: templateNoWith('#= data.treeview.template(data) #'),
                     group: templateNoWith('<ul class=\'#= data.r.groupCssClass(data.group) #\'#= data.r.groupAttributes(data.group) #>' + '#= data.renderItems(data) #' + '</ul>'),
                     itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\'></span>' + '# } #' + '#= data.treeview.template(data) #'),
-                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\'></span>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
+                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'k-treeview-toggle\'>' + '<span class=\'#= r.toggleButtonClass(item) #\'></span>' + '</span>' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
                     item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\'' + kendo.attr('uid') + '=\'#= item.uid #\' ' + '#= r.setAttributes(item.toJSON ? item.toJSON() : item) # ' + '# if (data.treeview.checkboxes) { #' + 'aria-checked=\'#= item.checked ? "true" : "false" #\' ' + '# } #' + 'aria-selected=\'#= item.selected ? "true" : "false" #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + 'aria-expanded=\'#= item.expanded ? "true" : "false" #\' ' + 'data-expanded=\'#= item.expanded ? "true" : "false" #\' ' + '>' + '#= r.itemElement(data) #' + '</li>'),
                     loading: templateNoWith('<div class=\'k-icon k-i-loading\'></div> #: data.messages.loading #'),
-                    retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>')
+                    retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-request-retry\'><span class=\'k-button-text\'>#: data.messages.retry #</span></button>')
                 };
             },
             items: function () {
@@ -530,7 +524,8 @@
                 autoScroll: false,
                 loadOnDemand: true,
                 template: '',
-                dataTextField: null
+                dataTextField: null,
+                size: 'medium'
             },
             _accessors: function () {
                 var that = this, options = that.options, i, field, textField, element = that.element;
@@ -739,13 +734,13 @@
                 }
             },
             _blur: function () {
-                this.current().find('.k-in').first().removeClass('k-state-focused');
+                this.current().find('.k-in').first().removeClass('k-focus');
             },
             _enabled: function (node) {
                 return !node.children('div').children('.k-in').hasClass(DISABLED);
             },
             parent: function (node) {
-                var wrapperRe = /\bk-treeview\b/, itemRe = /\bk-item\b/, result, skipSelf;
+                var wrapperRe = /\bk-treeview\b(?!-)/, itemRe = /\bk-item\b/, result, skipSelf;
                 if (typeof node == STRING) {
                     node = this.element.find(node);
                 }
@@ -838,7 +833,7 @@
                 } else if (key == keys.END) {
                     target = that._previousVisible($());
                 } else if (key == keys.ENTER && !focused.find('.k-in').first().hasClass(DISABLED)) {
-                    if (!focused.find('.k-in').first().hasClass('k-state-selected')) {
+                    if (!focused.find('.k-in').first().hasClass('k-selected')) {
                         if (!that._trigger(SELECT, focused)) {
                             that.select(focused);
                         }
@@ -902,12 +897,12 @@
                 if (shouldNavigate) {
                     e.preventDefault();
                 }
-                if (!node.hasClass('.k-state-selected') && !that._trigger(SELECT, node)) {
+                if (!node.hasClass('.k-selected') && !that._trigger(SELECT, node)) {
                     that.select(node);
                 }
             },
             _wrapper: function () {
-                var that = this, element = that.element, wrapper, root, wrapperClasses = 'k-widget k-treeview';
+                var that = this, element = that.element, wrapper, root, wrapperClasses = 'k-treeview';
                 if (element.is('ul')) {
                     wrapper = element.wrap('<div />').parent();
                     root = element;
@@ -919,7 +914,7 @@
                 that.root = root;
             },
             _getSelectedNode: function () {
-                return this.element.find('.k-state-selected').closest(NODE);
+                return this.element.find('.k-selected').closest(NODE);
             },
             _group: function (item) {
                 var that = this, firstLevel = item.hasClass(KTREEVIEW), group = {
@@ -949,13 +944,15 @@
             _checkboxes: function () {
                 var options = this.options;
                 var checkboxes = options.checkboxes;
-                var defaultTemplate;
+                var defaultTemplate, checkbox;
                 if (checkboxes) {
-                    defaultTemplate = '<input aria-hidden=\'true\' type=\'checkbox\' tabindex=\'-1\' #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #';
+                    checkbox = '<input id=\'_#= item.uid #\' aria-hidden=\'true\' type=\'checkbox\' tabindex=\'-1\'';
                     if (checkboxes.name) {
-                        defaultTemplate += ' name=\'' + checkboxes.name + '\'';
+                        checkbox += ' name=\'' + checkboxes.name + '\'';
                     }
-                    defaultTemplate += ' id=\'_#= item.uid #\' class=\'k-checkbox\' /><span class=\'k-checkbox-label checkbox-span\'></span>';
+                    checkbox += ' />';
+                    defaultTemplate = kendo.html.renderCheckBox($(checkbox), $.extend({}, options, { rounded: 'medium' }));
+                    defaultTemplate = defaultTemplate.replace(/(<input[^\/>]*)/, '$1 #= (item.enabled === false) ? \'disabled\' : \'\' # #= item.checked ? \'checked\' : \'\' #');
                     checkboxes = extend({ template: defaultTemplate }, options.checkboxes);
                     if (typeof checkboxes.template == STRING) {
                         checkboxes.template = template(checkboxes.template);
@@ -971,7 +968,7 @@
                 nodeData = nodeData || {};
                 nodeData.expanded = typeof nodeData.expanded != UNDEFINED ? nodeData.expanded : this._expanded(node);
                 nodeData.index = typeof nodeData.index != UNDEFINED ? nodeData.index : node.index();
-                nodeData.enabled = typeof nodeData.enabled != UNDEFINED ? nodeData.enabled : !wrapper.children('.k-in').hasClass('k-state-disabled');
+                nodeData.enabled = typeof nodeData.enabled != UNDEFINED ? nodeData.enabled : !wrapper.children('.k-in').hasClass('k-disabled');
                 groupData = groupData || {};
                 groupData.firstLevel = typeof groupData.firstLevel != UNDEFINED ? groupData.firstLevel : node.parent().parent().hasClass(KTREEVIEW);
                 groupData.length = typeof groupData.length != UNDEFINED ? groupData.length : node.parent().children().length;
@@ -979,10 +976,10 @@
                 wrapper.removeClass('k-top k-mid k-bot').addClass(templates.cssClass(groupData, nodeData));
                 var textWrap = wrapper.children('.k-in');
                 var isLink = textWrap[0] && textWrap[0].nodeName.toLowerCase() == 'a';
-                textWrap.removeClass('k-in k-link k-state-default k-state-disabled').addClass(templates.textClass(nodeData, isLink));
+                textWrap.removeClass('k-in k-link k-disabled').addClass(templates.textClass(nodeData, isLink));
                 if (group.length || node.attr('data-hasChildren') == 'true') {
-                    wrapper.children('.k-icon').removeClass('k-i-expand k-i-collapse').addClass(templates.toggleButtonClass(nodeData));
-                    group.addClass('k-group');
+                    wrapper.find('.k-treeview-toggle > .k-icon').removeClass('k-i-expand k-i-collapse').addClass(templates.toggleButtonClass(nodeData));
+                    group.addClass('k-group k-treeview-group');
                 }
             },
             _processNodes: function (nodes, callback) {
@@ -1067,7 +1064,8 @@
                 }
                 if (field == 'selected') {
                     item = items[0];
-                    node = that.findByUid(item.uid).find('.k-in').first().removeClass('k-state-hover').toggleClass('k-state-selected', item[field]).end();
+                    node = that.findByUid(item.uid).find('.k-in').first();
+                    node.removeClass('k-hover').toggleClass('k-selected', item[field]).end();
                     if (item[field]) {
                         that.current(node);
                     }
@@ -1327,10 +1325,10 @@
                         if (current[0].id === id) {
                             current.removeAttr('id');
                         }
-                        current.find('.k-in').first().removeClass('k-state-focused');
+                        current.find('.k-in').first().removeClass('k-focus');
                     }
                     current = that._current = $(node, element).closest(NODE);
-                    current.find('.k-in').first().addClass('k-state-focused');
+                    current.find('.k-in').first().addClass('k-focus');
                     id = current[0].id || id;
                     if (id) {
                         that.wrapper.removeAttr('aria-activedescendant');
@@ -1347,16 +1345,16 @@
             select: function (node) {
                 var that = this, element = that.element;
                 if (!arguments.length) {
-                    return element.find('.k-state-selected').closest(NODE);
+                    return element.find('.k-selected').closest(NODE);
                 }
                 node = $(node, element).closest(NODE);
-                element.find('.k-state-selected').each(function () {
+                element.find('.k-selected').each(function () {
                     var dataItem = that.dataItem(this);
                     if (dataItem) {
                         dataItem.set('selected', false);
                         delete dataItem.selected;
                     } else {
-                        $(this).removeClass('k-state-selected');
+                        $(this).removeClass('k-selected');
                     }
                 });
                 if (node.length) {
@@ -1678,6 +1676,7 @@
                 return that.templates.group(options);
             }
         });
+        kendo.cssProperties.registerPrefix('TreeView', 'k-treeview-');
         ui.plugin(TreeView);
     }(window.kendo.jQuery));
     return window.kendo;

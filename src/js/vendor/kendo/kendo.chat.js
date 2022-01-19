@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -36,14 +36,17 @@
         var SEND_ICON = '<svg version="1.1" ixmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve"><path d="M0,14.3c-0.1,0.6,0.3,0.8,0.8,0.6l14.8-6.5c0.5-0.2,0.5-0.6,0-0.8L0.8,1.1C0.3,0.9-0.1,1.1,0,1.7l0.7,4.2C0.8,6.5,1.4,7,1.9,7.1l8.8,0.8c0.6,0.1,0.6,0.1,0,0.2L1.9,8.9C1.4,9,0.8,9.5,0.7,10.1L0,14.3z"/></svg>';
         var TOGGLE_ICON = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>   <path d="M128,240c0-26.4-21.6-48-48-48s-48,21.6-48,48s21.6,48,48,48S128,266.4,128,240z"/>   <path d="M192,240c0,26.4,21.6,48,48,48c26.4,0,48-21.6,48-48s-21.6-48-48-48C213.6,192,192,213.6,192,240z"/>   <path d="M352,240c0,26.4,21.6,48,48,48c26.4,0,48-21.6,48-48s-21.6-48-48-48C373.6,192,352,213.6,352,240z"/></g></svg>';
         var messageBoxStyles = {
-            input: 'k-input',
+            input: 'k-input-inner',
+            inputWrapper: 'k-textbox k-input k-input-lg k-input-solid',
             button: 'k-button',
-            buttonFlat: 'k-flat',
+            buttonFlat: 'k-button-lg k-button-flat k-button-flat-base',
+            iconButton: 'k-icon-button',
             buttonIcon: 'k-button-icon',
             buttonSend: 'k-button-send',
             buttonToggle: 'k-button-toggle',
             iconAdd: 'k-icon k-i-add',
-            hidden: 'k-hidden'
+            hidden: 'k-hidden',
+            inputSuffix: 'k-input-suffix'
         };
         var ChatMessageBox = Widget.extend({
             init: function (element, options) {
@@ -76,11 +79,13 @@
                 var messages = options.messages;
                 var inputId = 'inputId_' + kendo.guid();
                 $('<label>').addClass(styles.hidden).html(messages.placeholder).attr('for', inputId).appendTo(this.element);
-                this.input = $('<input type=\'text\'>').addClass(styles.input).attr('id', inputId).attr('placeholder', messages.placeholder).appendTo(this.element);
+                this.inputWrapper = this.element.addClass(styles.inputWrapper).appendTo(this.element);
+                this.input = $('<input type=\'text\'>').addClass(styles.input).attr('id', inputId).attr('placeholder', messages.placeholder).appendTo(this.inputWrapper);
+                this.inputSuffix = $('<span></span>').addClass(styles.inputSuffix).appendTo(this.inputWrapper);
                 if (options.toolbar && options.toolbar.toggleable && options.toolbar.buttons && options.toolbar.buttons.length) {
-                    $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonToggle).attr('type', 'button').append($(TOGGLE_ICON)).appendTo(this.element).attr('title', messages.toggleButton).attr('aria-label', messages.toggleButton);
+                    $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.iconButton).addClass(styles.buttonToggle).attr('type', 'button').append($(TOGGLE_ICON)).appendTo(this.inputSuffix).attr('title', messages.toggleButton).attr('aria-label', messages.toggleButton);
                 }
-                $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.buttonIcon).addClass(styles.buttonSend).append($(SEND_ICON)).appendTo(this.element).attr('title', messages.sendButton).attr('aria-label', messages.sendButton);
+                $('<button>').addClass(styles.button).addClass(styles.buttonFlat).addClass(styles.iconButton).addClass(styles.buttonSend).append($(SEND_ICON)).appendTo(this.inputSuffix).attr('title', messages.sendButton).attr('aria-label', messages.sendButton);
             },
             _attachEvents: function () {
                 var styles = ChatMessageBox.styles;
@@ -167,14 +172,14 @@
         };
         var toolbarStyles = {
             button: 'k-button',
-            buttonFlat: 'k-flat',
+            buttonDefaults: 'k-button-md k-rounded-md k-button-solid k-button-solid-base',
             buttonList: 'k-button-list',
             scrollButton: 'k-scroll-button',
             scrollButtonLeft: 'k-scroll-button-left',
             scrollButtonRight: 'k-scroll-button-right',
             scrollButtonLeftIcon: 'k-icon k-i-arrow-chevron-left',
             scrollButtonRightIcon: 'k-icon k-i-arrow-chevron-right',
-            buttonIcon: 'k-button-icon'
+            iconButton: 'k-icon-button'
         };
         var ChatToolBar = Widget.extend({
             init: function (element, options) {
@@ -218,10 +223,10 @@
                 if (typeof btnOptions === 'string') {
                     btnOptions = { name: btnOptions };
                 }
-                buttonElm.attr(btnOptions.attr || {}).attr('title', btnOptions.text || btnOptions.name).attr('aria-label', btnOptions.text || btnOptions.name).attr('type', 'button').addClass(btnOptions.name).data(DATA_K_BUTTON_NAME, btnOptions.name).addClass(styles.button);
+                buttonElm.attr(btnOptions.attr || {}).attr('title', btnOptions.text || btnOptions.name).attr('aria-label', btnOptions.text || btnOptions.name).attr('type', 'button').addClass(btnOptions.name).data(DATA_K_BUTTON_NAME, btnOptions.name).addClass(styles.button).addClass(styles.buttonDefaults);
                 if (btnOptions.iconClass) {
-                    buttonElm.addClass(styles.buttonIcon);
-                    buttonElm.prepend('<span class=\'' + btnOptions.iconClass + '\'></span>');
+                    buttonElm.addClass(styles.iconButton);
+                    buttonElm.prepend('<span class=\'k-button-icon ' + btnOptions.iconClass + '\'></span>');
                 }
                 return buttonElm;
             },
@@ -358,7 +363,7 @@
         var SELF_MESSAGE_GROUP_TEMPLATE = kendo.template('<div me class="#=styles.messageGroup# #=styles.self# #= url ? "" : styles.noAvatar #">' + '# if (url) { #' + '<img src="#=url#" alt="#:text#" class="#=styles.avatar#">' + '# } #' + '</div>');
         var TEXT_MESSAGE_TEMPLATE = kendo.template('<div class="#=styles.message#">' + '<time class="#=styles.messageTime#">#= kendo.toString(kendo.parseDate(timestamp), "HH:mm:ss") #</time>' + '<div class="#=styles.bubble#">#:text#</div>' + '</div>');
         var TYPING_INDICATOR_TEMPLATE = kendo.template('<div class="#=styles.messageListContent# #=styles.typingIndicatorBubble#">' + '<p class="#=styles.author#">#:text#</p>' + '<div class="#=styles.message#">' + '<div class="#=styles.bubble#">' + '<div class="#=styles.typingIndicator#">' + '<span></span><span></span><span></span>' + '</div>' + '</div>' + '</div>' + '</div>');
-        var SUGGESTED_ACTIONS_TEMPLATE = kendo.template('<div class="#=styles.suggestedActions#">' + '# for (var i = 0; i < suggestedActions.length; i++) { #' + '<span class="#=styles.suggestedAction#" data-value="#:suggestedActions[i].value#">#:suggestedActions[i].title#</span>' + '# } #' + '</div>');
+        var SUGGESTED_ACTIONS_TEMPLATE = kendo.template('<div class="#=styles.suggestedActions#">' + '# for (var i = 0; i < suggestedActions.length; i++) { #' + '<span role="button" tabindex="0" class="#=styles.suggestedAction#" data-value="#:suggestedActions[i].value#">#:suggestedActions[i].title#</span>' + '# } #' + '</div>');
         var HERO_CARD_TEMPLATE = kendo.template('<div class="#=styles.card# #=styles.cardRich#">' + '# if (typeof images !== "undefined" && images.length > 0) { #' + '<img src="#:images[0].url#" alt="#:images[0].alt#" class="#=styles.cardImage#" />' + '# } #' + '<div class="#=styles.cardBody#">' + '# if (typeof title !== "undefined") { #' + '<h5 class="#=styles.cardTitle#">#:title#</h5>' + '# } #' + '# if (typeof subtitle !== "undefined") { #' + '<h6 class="#=styles.cardSubtitle#">#:subtitle#</h6>' + '# } #' + '# if (typeof text !== "undefined") { #' + '<p>#:text#</p>' + '# } #' + '</div>' + '# if (typeof buttons !== "undefined" && buttons.length > 0) { #' + '<div class="#=styles.cardActions# #=styles.cardActionsVertical#">' + '# for (var i = 0; i < buttons.length; i++) { #' + '<span class="#=styles.cardAction#"><span class="#=styles.button# #=styles.buttonPrimary#" data-value="#:buttons[i].value#">#:buttons[i].title#</span></span>' + '# } #' + '</div>' + '# } #' + '</div>');
         extend(kendo.chat, {
             Templates: {},
@@ -424,8 +429,10 @@
             noAvatar: 'k-no-avatar',
             self: 'k-alt',
             button: 'k-button',
-            iconButton: 'k-button-icon',
-            buttonPrimary: 'k-flat k-primary',
+            buttonDefaults: 'k-button-md k-rounded-md k-button-solid k-button-solid-base',
+            iconButton: 'k-icon-button',
+            buttonIcon: 'k-button-icon',
+            buttonPrimary: 'k-button-md k-rounded-md k-button-flat k-button-flat-primary',
             scrollButtonIcon: 'k-icon',
             scrollButtonIconLeft: 'k-i-arrow-chevron-left',
             scrollButtonIconRight: 'k-i-arrow-chevron-right',
@@ -478,12 +485,13 @@
             },
             _list: function () {
                 var viewStyles = ChatView.styles;
-                this.element.addClass(viewStyles.messageList).attr('aria-live', 'polite');
+                this.element.addClass(viewStyles.messageList).attr('role', 'log').attr('aria-label', this.options.messages.messageListLabel);
                 this.list = $('<div>').addClass(viewStyles.messageListContent).appendTo(this.element);
             },
             _attachEvents: function () {
                 var styles = ChatView.styles;
                 this.element.on('click' + NS, proxy(this._listClick, this)).on('click' + NS, DOT + styles.message, proxy(this._messageClick, this)).on('click' + NS, DOT + styles.suggestedAction, proxy(this._suggestedActionClick, this)).on('click' + NS, DOT + styles.cardAction + SPACE + DOT + styles.button, proxy(this._cardActionClick, this));
+                this.element.on('keydown' + NS, DOT + styles.suggestedAction, proxy(this._suggestedActionKeydown, this));
             },
             _scrollable: function () {
                 var viewStyles = ChatView.styles;
@@ -570,7 +578,7 @@
             },
             _renderScrollButton: function (directionClass) {
                 var viewStyles = ChatView.styles;
-                return $('<button>').addClass(viewStyles.button).addClass(viewStyles.iconButton).append($('<span>').addClass(viewStyles.scrollButtonIcon).addClass(directionClass));
+                return $('<button>').addClass(viewStyles.button).addClass(viewStyles.buttonDefaults).addClass(viewStyles.iconButton).append($('<span>').addClass(viewStyles.buttonIcon).addClass(viewStyles.scrollButtonIcon).addClass(directionClass));
             },
             _removeSuggestedActions: function () {
                 this.list.find(DOT + ChatView.styles.suggestedActions).remove();
@@ -591,6 +599,11 @@
                 var text = $(e.target).data('value') || '';
                 this.trigger('actionClick', { text: text });
                 this._removeSuggestedActions();
+            },
+            _suggestedActionKeydown: function (e) {
+                if (e.keyCode === kendo.keys.SPACEBAR || e.keyCode === kendo.keys.ENTER) {
+                    this._suggestedActionClick(e);
+                }
             },
             _cardActionClick: function (e) {
                 var text = $(e.target).data('value') || '';
@@ -788,6 +801,7 @@
                 },
                 name: 'Chat',
                 messages: {
+                    messageListLabel: 'Message list',
                     placeholder: 'Type a message...',
                     toggleButton: 'Toggle toolbar',
                     sendButton: 'Send message'
@@ -849,7 +863,7 @@
                 var options = this.options;
                 var height = options.height;
                 var width = options.width;
-                var uiElements = '<div class=\'' + chatStyles.viewWrapper + '\'></div>' + '<div class=\'' + chatStyles.messageBoxWrapper + '\'></div>' + '<div class=\'' + chatStyles.toolbarBoxWrapper + '\' role=\'toolbar\' style=\'display:none;\'></div>';
+                var uiElements = '<div class=\'' + chatStyles.viewWrapper + '\'></div>' + '<span class=\'' + chatStyles.messageBoxWrapper + '\'></span>' + '<div class=\'' + chatStyles.toolbarBoxWrapper + '\' role=\'toolbar\' style=\'display:none;\'></div>';
                 this.wrapper = this.element.addClass(chatStyles.wrapper).append(uiElements);
                 if (options.toolbar && options.toolbar.buttons && options.toolbar.buttons.length) {
                     this.wrapper.find(DOT + chatStyles.toolbarBoxWrapper).show();

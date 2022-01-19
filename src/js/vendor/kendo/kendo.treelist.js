@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -199,8 +199,8 @@
         var TABLE = 'table';
         var CHECKBOX = 'k-checkbox';
         var CHECKBOXINPUT = 'input[data-role=\'checkbox\'].' + CHECKBOX;
-        var SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">';
-        var SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + '" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">';
+        var SELECTCOLUMNTMPL = '<input class="' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select row" aria-checked="false" type="checkbox">';
+        var SELECTCOLUMNHEADERTMPL = '<input class="' + CHECKBOX + ' k-checkbox-md k-rounded-md" data-role="checkbox" aria-label="Select all rows" aria-checked="false" type="checkbox">';
         var SELECTED = 'k-state-selected';
         var whitespaceRegExp = '[\\x20\\t\\r\\n\\f]';
         var filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)');
@@ -228,7 +228,6 @@
             selected: 'k-state-selected',
             status: 'k-status',
             link: 'k-link',
-            withIcon: 'k-with-icon',
             filterable: 'k-filterable',
             icon: 'k-icon',
             iconFilter: 'k-i-filter',
@@ -245,7 +244,9 @@
             dropDenied: 'k-i-cancel',
             dragStatus: 'k-drag-status',
             dragClue: 'k-drag-clue',
-            dragClueText: 'k-clue-text'
+            dragClueText: 'k-clue-text',
+            headerCellInner: 'k-cell-inner',
+            columnTitle: 'k-column-title'
         };
         var defaultCommands = {
             create: {
@@ -270,7 +271,7 @@
             },
             update: {
                 imageClass: 'k-i-check',
-                className: 'k-primary k-grid-update',
+                className: 'k-button-solid-primary k-grid-update',
                 methodName: 'saveRow'
             },
             canceledit: {
@@ -300,7 +301,7 @@
                 className: 'k-grid-pdf',
                 methodName: 'saveAsPDF'
             },
-            search: { template: '<span class=\'k-textbox k-grid-search k-display-flex\'>' + '<input autocomplete=\'off\' placeholder=\'' + '#= message #' + '\' title=\'' + '#= message #' + '\' class=\'k-input\' />' + '<span class=\'k-input-icon\'><span class=\'k-icon k-i-search\'></span></span>' + '</span>' }
+            search: { template: '<span class=\'k-spacer\'></span>' + '<span class=\'k-searchbox k-input k-input-md k-rounded-md k-input-solid k-grid-search\'>' + '<span class=\'k-input-icon k-icon k-i-search\'></span>' + '<input autocomplete=\'off\' placeholder=\'' + '#= message #' + '\' title=\'' + '#= message #' + '\' class=\'k-input-inner\' />' + '</span>' }
         };
         var TreeView = kendo.Class.extend({
             init: function (data, options) {
@@ -1723,7 +1724,7 @@
                 }
             },
             _appendButtons: function (form) {
-                form.push(kendoDomElement('div', { 'class': 'k-edit-buttons k-state-default' }, this.options.commandRenderer()));
+                form.push(kendoDomElement('div', { 'class': 'k-edit-buttons' }, this.options.commandRenderer()));
             },
             _attachHandlers: function () {
                 var closeHandler = this._cancelProxy = proxy(this._cancel, this);
@@ -3602,7 +3603,7 @@
                 this._flushCache();
                 that._clearRenderMap();
                 if (options.error) {
-                    this._showStatus(kendo.template('#: messages.requestFailed # ' + '<button class=\'#= buttonClass #\'>#: messages.retry #</button>')({
+                    this._showStatus(kendo.template('#: messages.requestFailed # ' + '<button class=\'#= buttonClass # k-button-md k-rounded-md k-button-solid k-button-solid-base\'><span class=\'k-button-text\'>#: messages.retry #</span></button>')({
                         buttonClass: [
                             classNames.button,
                             classNames.retry
@@ -3837,11 +3838,8 @@
                     } else {
                         headerContent = kendoTextElement(title);
                     }
-                    if (column.sortable) {
-                        children.push(kendoDomElement('a', {
-                            href: '#',
-                            className: classNames.link
-                        }, [headerContent]));
+                    if (this.options.sortable) {
+                        children.push(kendoDomElement('span', { className: classNames.headerCellInner }, [kendoDomElement('span', { className: classNames.link }, [kendoDomElement('span', { className: classNames.columnTitle }, [headerContent])])]));
                     } else {
                         children.push(headerContent);
                     }
@@ -4503,6 +4501,7 @@
                     icon.push(kendoDomElement('span', {
                         className: [
                             'k-icon',
+                            'k-button-icon',
                             command.imageClass
                         ].join(' ')
                     }));
@@ -4514,15 +4513,24 @@
                 }
             },
             _button: function (command, name, icon) {
-                return kendoDomElement('button', {
+                if (command.className && command.className.indexOf('k-primary') > -1) {
+                    command.className = command.className.replace('k-primary', 'k-button-solid-primary');
+                }
+                if (!command.className || command.className.indexOf('k-button-solid-primary') === -1) {
+                    command.className += ' k-button-solid-base';
+                }
+                var button = kendoDomElement('button', {
                     'type': 'button',
                     'data-command': name,
                     className: [
-                        'k-button',
-                        'k-button-icontext',
+                        'k-button k-button-md k-rounded-md k-button-solid',
                         command.className
                     ].join(' ')
-                }, icon.concat([kendoTextElement(command.text || command.name)]));
+                }, icon.concat([kendoDomElement('span', {
+                        type: 'span',
+                        className: 'k-button-text'
+                    }, [kendoTextElement(command.text || command.name)])]));
+                return button;
             },
             _positionResizeHandle: function (e) {
                 var th = $(e.currentTarget);
@@ -4854,7 +4862,8 @@
                     cell.kendoFilterMenu(extend(true, {}, filterable, column.filterable, {
                         dataSource: this.dataSource,
                         init: filterInit,
-                        open: filterOpen
+                        open: filterOpen,
+                        appendTo: DOT + classNames.headerCellInner
                     }));
                 }
             },
@@ -5977,7 +5986,8 @@
                         init: initHandler,
                         open: openHandler,
                         pane: this.pane,
-                        hasLockableColumns: lockedColumns(columns).length > 0 && hasLockableColumns && !hasMultiColumnHeaders
+                        hasLockableColumns: lockedColumns(columns).length > 0 && hasLockableColumns && !hasMultiColumnHeaders,
+                        appendTo: DOT + classNames.headerCellInner
                     };
                     if (options.$angular) {
                         menuOptions.$angular = options.$angular;

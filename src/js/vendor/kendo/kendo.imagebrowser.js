@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -179,7 +179,7 @@
                     selectable: true,
                     autoBind: false,
                     dataBinding: function (e) {
-                        that.toolbar.find('.k-i-close').parent().addClass('k-state-disabled');
+                        that.toolbar.find('.k-i-close').parent().addClass('k-disabled');
                         if (e.action === 'remove' || e.action === 'sync') {
                             e.preventDefault();
                             kendo.ui.progress(that.listView.content, false);

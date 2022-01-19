@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -202,7 +202,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, keys = $.extend({ F10: 121 }, kendo.keys), supportsMedia = 'matchMedia' in window, mobileOS = kendo.support.mobileOS, Widget = kendo.ui.Widget, ObservableObject = kendo.data.ObservableObject, ObservableArray = kendo.data.ObservableArray, Query = kendo.data.Query, isArray = Array.isArray, inArray = $.inArray, isFunction = kendo.isFunction, proxy = $.proxy, extend = $.extend, isPlainObject = $.isPlainObject, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, defaultIndicatorWidth = 3, NS = '.kendoGantt', PERCENTAGE_FORMAT = 'p0', TABINDEX = 'tabIndex', CLICK = 'click', STRING = 'string', ARIA_DESCENDANT = 'aria-activedescendant', ARIA_LABEL = 'aria-label', ACTIVE_CELL = 'gantt_active_cell', DOT = '.', TASK_DELETE_CONFIRM = 'Are you sure you want to delete this task?', DEPENDENCY_DELETE_CONFIRM = 'Are you sure you want to delete this dependency?', TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#" type="button" ' + ARIA_LABEL + '="Toggle"><span class="#=styles.iconToggle#"></span></button>'), BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" type="button" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '><span class="#=iconClass#"></span><span class="k-button-text">#=text#</span></button>', COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#">#=text#</a>', VIEWS_DROPDOWN_TEMPLATE = kendo.template('<select class="k-dropdown #= styles.viewsDropdown #">' + '#for(var view in views){#' + '<option value="#=view#">#=views[view].title#</option>' + '#}#' + '</select>'), HEADER_VIEWS_TEMPLATE = kendo.template('<div class="#=styles.viewsWrapper#">' + '<span class="k-button-group #=styles.views#">' + '#for(var view in views){#' + '<button type="button" class="#=styles.button# #=styles.viewButton#-#= view.toLowerCase() #" data-#=ns#name="#=view#"><span class="k-button-text">#=views[view].title#</span></button>' + '#}#' + '</span>' + '</div>');
+        var kendo = window.kendo, keys = $.extend({ F10: 121 }, kendo.keys), supportsMedia = 'matchMedia' in window, mobileOS = kendo.support.mobileOS, Widget = kendo.ui.Widget, ObservableObject = kendo.data.ObservableObject, ObservableArray = kendo.data.ObservableArray, Query = kendo.data.Query, isArray = Array.isArray, inArray = $.inArray, isFunction = kendo.isFunction, proxy = $.proxy, extend = $.extend, isPlainObject = $.isPlainObject, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, defaultIndicatorWidth = 3, NS = '.kendoGantt', PERCENTAGE_FORMAT = 'p0', TABINDEX = 'tabIndex', CLICK = 'click', STRING = 'string', ARIA_DESCENDANT = 'aria-activedescendant', ARIA_LABEL = 'aria-label', ACTIVE_CELL = 'gantt_active_cell', DOT = '.', TASK_DELETE_CONFIRM = 'Are you sure you want to delete this task?', DEPENDENCY_DELETE_CONFIRM = 'Are you sure you want to delete this dependency?', TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-gantt-toggle" type="button" ' + ARIA_LABEL + '="Toggle"><span class="k-button-icon #=styles.iconToggle#"></span></button>'), BUTTON_TEMPLATE = '<button class="#=styles.button#  #=styles.buttonDefaults# #=className#" type="button" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '>' + '<span class="k-button-icon #=iconClass#"></span>' + '<span class="k-button-text">#=text#</span>' + '</button>', COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#"><span class="k-button-text">#=text#</span></a>', VIEWS_DROPDOWN_TEMPLATE = kendo.template('<select class="k-dropdown k-picker k-dropdown-list #= styles.viewsDropdown #">' + '#for(var view in views){#' + '<option value="#=view#">#=views[view].title#</option>' + '#}#' + '</select>'), HEADER_VIEWS_TEMPLATE = kendo.template('<div class="#=styles.viewsWrapper#">' + '<span class="k-button-group #=styles.views#">' + '#for(var view in views){#' + '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#">' + '<span class="k-button-text">#=views[view].title#</span>' + '</button>' + '#}#' + '</span>' + '</div>');
         var ganttStyles = {
             wrapper: 'k-widget k-gantt',
             plannedTasks: 'k-gantt-planned',
@@ -212,7 +212,7 @@
             list: 'k-gantt-treelist',
             timelineWrapper: 'k-gantt-timeline',
             timeline: 'k-gantt-timeline',
-            splitBarWrapper: 'k-splitbar k-state-default k-splitbar-horizontal k-splitbar-draggable-horizontal',
+            splitBarWrapper: 'k-splitbar k-splitbar-horizontal k-splitbar-draggable-horizontal',
             splitBar: 'k-splitbar',
             splitBarHover: 'k-splitbar-horizontal-hover',
             popupWrapper: 'k-list-container',
@@ -225,10 +225,12 @@
             buttonCancel: 'k-gantt-cancel',
             buttonSave: 'k-gantt-update',
             buttonToggle: 'k-gantt-toggle',
-            primary: 'k-primary',
+            buttonDefaults: 'k-button-md k-rounded-md k-button-solid',
+            primary: 'k-button-solid-primary',
             hovered: 'k-state-hover',
-            selected: 'k-state-selected',
-            focused: 'k-state-focused',
+            selected: 'k-selected',
+            focused: 'k-focus',
+            focusedCell: 'k-state-focused',
             gridHeader: 'k-grid-header',
             gridHeaderWrap: 'k-grid-header-wrap',
             gridContent: 'k-grid-content',
@@ -239,7 +241,7 @@
                 formContainer: 'k-edit-form-container',
                 resourcesFormContainer: 'k-resources-form-container',
                 message: 'k-popup-message',
-                buttonsContainer: 'k-edit-buttons k-state-default',
+                buttonsContainer: 'k-edit-buttons',
                 button: 'k-button',
                 editField: 'k-edit-field',
                 editLabel: 'k-edit-label',
@@ -252,12 +254,12 @@
                 views: 'k-gantt-views',
                 viewsWrapper: 'k-gantt-views-wrapper',
                 viewsDropdown: 'k-views-dropdown',
-                button: 'k-button k-button-icontext',
-                buttonToggle: 'k-button k-button-icon k-gantt-toggle',
+                button: 'k-button',
+                buttonToggle: 'k-gantt-toggle',
+                buttonDefaults: 'k-button-md k-rounded-md k-button-solid',
                 iconPlus: 'k-icon k-i-plus',
                 iconPdf: 'k-icon k-i-file-pdf',
                 iconToggle: 'k-icon k-i-layout-1-by-4',
-                viewButtonDefault: 'k-state-default',
                 viewButton: 'k-view',
                 link: 'k-link',
                 pdfButton: 'k-gantt-pdf',
@@ -313,12 +315,12 @@
                     append: {
                         text: 'Add Task',
                         action: 'add',
-                        className: Gantt.styles.toolbar.appendButton,
+                        className: Gantt.styles.toolbar.appendButton + ' k-button-solid-base',
                         iconClass: Gantt.styles.toolbar.iconPlus
                     },
                     pdf: {
                         text: 'Export to PDF',
-                        className: Gantt.styles.toolbar.pdfButton,
+                        className: Gantt.styles.toolbar.pdfButton + ' k-button-solid-base',
                         iconClass: Gantt.styles.toolbar.iconPdf
                     }
                 };
@@ -757,6 +759,11 @@
                     className: className,
                     styles: Gantt.styles.toolbar
                 };
+                if (!options.className) {
+                    options.className = 'k-button-solid-base';
+                } else if (options.className.indexOf('k-button-solid-primary') === -1) {
+                    options.className += ' k-button-solid-base';
+                }
                 if (!commandName && !(isPlainObject(command) && command.template)) {
                     throw new Error('Custom commands should have name specified');
                 }
@@ -1323,7 +1330,7 @@
             _createPopupButton: function (command) {
                 var commandName = command.name || command.text;
                 var options = {
-                    className: Gantt.styles.popup.button + ' k-gantt-' + (commandName || '').replace(/\s/g, ''),
+                    className: Gantt.styles.popup.button + ' ' + Gantt.styles.buttonDefaults + ' k-gantt-' + (commandName || '').replace(/\s/g, ''),
                     text: commandName,
                     attr: ''
                 };
@@ -1335,6 +1342,11 @@
                         command.className += ' ' + options.className;
                     }
                     options = extend(true, options, command);
+                }
+                if (!options.className) {
+                    options.className = 'k-button-solid-base';
+                } else if (options.className.indexOf('k-button-solid-primary') === -1) {
+                    options.className += ' k-button-solid-base';
                 }
                 return kendo.template(COMMAND_BUTTON_TEMPLATE)(options);
             },
@@ -1940,7 +1952,7 @@
                     var focusableItems = $(that._getToolbarItems());
                     var idx = focusableItems.index(that.toolbar.find(DOT + ganttStyles.focused)[0]);
                     if (idx === -1 && $(e.target).closest(DOT + ganttStyles.toolbar.views).length) {
-                        idx = focusableItems.index(that.toolbar.find('.k-gantt-views > .k-state-selected:visible, .k-views-dropdown:visible')[0]);
+                        idx = focusableItems.index(that.toolbar.find('.k-gantt-views > .k-selected:visible, .k-views-dropdown:visible')[0]);
                     }
                     var itemToFocus = e.shiftKey ? focusableItems[idx - 1] : focusableItems[idx + 1];
                     if (key === keys.F10) {
@@ -2057,16 +2069,16 @@
                 });
             },
             _getToolbarItems: function () {
-                return this.toolbar.find('> .k-button:visible').toArray().concat(this.toolbar.find('.k-views-dropdown:visible').toArray(), this.toolbar.find('.k-gantt-views > .k-state-selected:visible').toArray());
+                return this.toolbar.find('> .k-button:visible').toArray().concat(this.toolbar.find('.k-views-dropdown:visible').toArray(), this.toolbar.find('.k-gantt-views > .k-selected:visible').toArray());
             },
             _current: function (element) {
                 var ganttStyles = Gantt.styles;
                 var activeElement;
                 if (this.current && this.current.length) {
-                    this.current.removeClass(ganttStyles.focused).removeAttr('id');
+                    this.current.removeClass(ganttStyles.focusedCell).removeAttr('id');
                 }
                 if (element && element.length) {
-                    this.current = element.addClass(ganttStyles.focused).attr('id', ACTIVE_CELL);
+                    this.current = element.addClass(ganttStyles.focusedCell).attr('id', ACTIVE_CELL);
                     activeElement = $(kendo._activeElement());
                     if (activeElement.is('table') && this.wrapper.find(activeElement).length > 0) {
                         activeElement.removeAttr(ARIA_DESCENDANT).attr(ARIA_DESCENDANT, ACTIVE_CELL);

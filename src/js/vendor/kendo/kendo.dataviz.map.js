@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -682,7 +682,7 @@
         var proxy = $.proxy;
         var NS = '.kendoNavigator';
         function button(dir) {
-            return kendo.format('<button class="k-button k-navigator-{0}" aria-label="move {0}">' + '<span class="k-icon k-i-arrow-60-{0}"></span>' + '</button>', dir);
+            return kendo.format('<button class="k-button k-button-square k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-{0}" aria-label="move {0}">' + '<span class="k-button-icon k-icon k-i-arrow-60-{0}"></span>' + '</button>', dir);
         }
         var BUTTONS = button('up') + button('right') + button('down') + button('left');
         var Navigator = Widget.extend({
@@ -762,7 +762,7 @@
         var keys = kendo.keys;
         var proxy = $.proxy;
         function button(dir, iconClass) {
-            return kendo.format('<button class="k-button k-button-icon k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-icon {1}"></span></button>', dir, iconClass);
+            return kendo.format('<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-zoom-{0}" title="zoom-{0}" aria-label="zoom-{0}"><span class="k-button-icon k-icon {1}"></span></button>', dir, iconClass);
         }
         var NS = '.kendoZoomControl';
         var BUTTONS = button('in', 'k-i-plus') + button('out', 'k-i-minus');

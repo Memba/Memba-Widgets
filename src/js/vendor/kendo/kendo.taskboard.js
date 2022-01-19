@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -28,10 +28,9 @@
     (function ($, undefined) {
         var kendo = window.kendo, extend = $.extend, proxy = $.proxy, ToolBar = kendo.ui.ToolBar, Item = kendo.toolbar.Item, CLICK = 'click', TOGGLE = 'toggle', CLOSE = 'close', ACTION = 'action', CHANGE = 'change', NS = '.taskBoardToolbar';
         var TaskBoardToolbarStyles = {
-            searchbox: 'k-searchbox',
-            searchInputPrefix: 'k-input-prefix',
-            searchIcon: 'k-icon k-i-search',
-            searchInput: 'k-input'
+            searchbox: 'k-searchbox k-textbox k-input k-input-md k-rounded-md k-input-solid',
+            searchIcon: 'k-input-icon k-icon k-i-search',
+            searchInput: 'k-input-inner'
         };
         var TaskBoardToolBar = ToolBar.extend({
             init: function (element, options) {
@@ -188,10 +187,9 @@
         });
         var SearchTool = Item.extend({
             init: function (options, toolbar) {
-                var that = this, styles = TaskBoardToolBar.styles, element = $('<span class=\'' + styles.searchbox + '\'></span>'), input = $('<input class=\'' + styles.searchInput + '\' autocomplete=\'off\' />'), iconWrapper = $('<span class=\'' + styles.searchInputPrefix + '\'></span>'), icon = $('<span></span>');
+                var that = this, styles = TaskBoardToolBar.styles, element = $('<span class=\'' + styles.searchbox + '\'></span>'), icon = $('<span class=\'' + styles.searchInputIcon + '\'></span>'), input = $('<input class=\'' + styles.searchInput + '\' autocomplete=\'off\' />');
                 that.element = element;
                 that.input = input;
-                that.iconWrapper = iconWrapper;
                 that.icon = icon;
                 that.options = options;
                 that.options.type = 'taskBoardSearch';
@@ -205,8 +203,7 @@
                     placeholder: that.options.text,
                     title: that.options.text
                 });
-                that.iconWrapper.append(icon);
-                that.element.append(iconWrapper).append(that.input);
+                that.element.append(icon).append(that.input);
                 that._bindEvents();
                 that.toolbar.search = that;
             },
@@ -254,12 +251,12 @@
             cardsContainer: 'k-taskboard-column-cards-container',
             columnCards: 'k-taskboard-column-cards',
             actionButton: 'k-taskboard-column-action-button',
-            button: 'k-button k-button-icon k-flat',
+            button: 'k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base',
             card: 'k-taskboard-card',
             cardTitle: 'k-card-title',
             sortableSuffix: '-kendosortable',
-            textbox: 'k-textbox',
-            input: 'k-input',
+            textbox: 'k-textbox k-input k-input-md k-rounded-md k-input-solid',
+            input: 'k-input-inner',
             newColumn: 'k-taskboard-column-new',
             editColumn: 'k-taskboard-column-edit',
             disabled: 'k-state-disabled',
@@ -306,7 +303,7 @@
             },
             template: '<div class="#: styles.headerText # #: styles.ellipsis #">{0}</div>' + '<span class="#: styles.spacer #"></span>' + '#=buttons#',
             editTemplate: '<div class="#: styles.headerText # #: styles.ellipsis #">' + '<span class="#: styles.textbox #">' + '<input class="#: styles.input #" placeholder="#: {0} ? messages.editColumn : messages.newColumn #" #:kendo.attr("command")#="SaveColumnCommand" value="#:{0}#" />' + '</span>' + '</div>' + '<span class="#: styles.spacer #"></span>' + '#=buttons#',
-            actionButton: '<button class="#: styles.actionButton # #: styles.button #" title="#:text#" #:kendo.attr("command")#="#:command#" #if(options){##:kendo.attr("options")#="#:options#"#}#>' + '<i class="#:icon# #:spriteCssClass#"></i>' + '</button>',
+            actionButton: '<button class="#: styles.actionButton # #: styles.button #" title="#:text#" #:kendo.attr("command")#="#:command#" #if(options){##:kendo.attr("options")#="#:options#"#}#>' + '<i class="k-button-icon #:icon# #:spriteCssClass#"></i>' + '</button>',
             builtinButtons: {
                 'editColumn': {
                     name: 'editColumn',
@@ -541,8 +538,8 @@
             link: 'k-link',
             spacer: 'k-spacer',
             button: 'k-button',
-            cardMenuButton: 'k-taskboard-card-menu-button k-button-icon',
-            flatButton: 'k-flat',
+            cardMenuButton: 'k-taskboard-card-menu-button k-icon-button',
+            flatButton: 'k-button-md k-rounded-md k-button-flat k-button-flat-base',
             body: 'k-card-body',
             actionsIcon: 'k-icon k-i-more-vertical',
             moveCursor: 'k-cursor-move',
@@ -561,7 +558,7 @@
             },
             headerTemplate: '<div class="#:styles.header# #:styles.hbox#">' + '<a class="#:styles.title# #:styles.link#" href="\\#" #if(selectable){##:kendo.attr("command")#="SelectCardCommand"#}#>#:{0}#</a>' + '<span class="#:styles.spacer#"></span>' + '#=cardMenuButton#' + '</div>',
             bodyTemplate: '<div class="#:styles.body#"><p>#:{0}#</p></div>',
-            cardMenuButtonTemplate: '<div class="#:styles.headerActions#"><button class="#:styles.button# #:styles.flatButton# #:styles.cardMenuButton#">' + '<span class="#:styles.actionsIcon#"></span>' + '</button></div>',
+            cardMenuButtonTemplate: '<div class="#:styles.headerActions#"><button class="#:styles.button# #:styles.flatButton# #:styles.cardMenuButton#">' + '<span class="k-button-icon #:styles.actionsIcon#"></span>' + '</button></div>',
             _render: function () {
                 var that = this, options = that.options, styles = TaskBoardCard.styles, template = options.template || that._buildTemplate(), element = $('<div class=\'' + styles.element + ' ' + styles.card + ' ' + styles.moveCursor + '\'></div>'), cardMenuButtonTemplate = options.cardMenu ? that.cardMenuButtonTemplate : '', resources = that._resources(that._dataItem), borderDir = options.states.isRtl ? 'borderRightColor' : 'borderLeftColor', categoryColor;
                 element.attr(kendo.attr('uid'), that._dataItem.uid).attr('aria-disabled', !options.states.isDisabled).attr('role', 'listitem').toggleClass(styles.disabled, options.states.isDisabled);
@@ -1098,12 +1095,13 @@
             headerText: 'k-taskboard-pane-header-text',
             spacer: 'k-spacer',
             headerActions: 'k-taskboard-pane-header-actions',
-            button: 'k-button k-button-icon k-flat',
+            flatButton: 'k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base',
             content: 'k-taskboard-pane-content',
             footerActions: 'k-taskboard-pane-actions',
             footerActionButtons: 'k-actions k-hstack k-justify-content-end',
-            footerButton: 'k-button k-button-icontext',
-            primary: 'k-primary'
+            footerButton: 'k-button k-button-md k-rounded-md k-button-solid',
+            baseButton: 'k-button-solid-base',
+            primaryButton: 'k-button-solid-primary'
         };
         var TaskBoardPane = Observable.extend({
             init: function (taskboard, options, dataItem, resources) {
@@ -1116,8 +1114,8 @@
                 that.element.on(CLICK + NS, '[' + kendo.attr('command') + ']', proxy(that._commandClick, that));
                 Observable.fn.init.call(that);
             },
-            headerTemplate: '<div class="#:styles.headerText#">{0}</div>' + '<span class="#:styles.spacer#"></span>' + '<div class="#:styles.headerActions#">' + '<button class="#:styles.button#" title="#:messages.close#" #:kendo.attr("command")#="ClosePaneCommand">' + '<span class="k-icon k-i-close"></span>' + '</button>' + '</div>',
-            buttonTemplate: '<button class="#:styles.footerButton##if(primary){# #:styles.primary##}#" title="#:text#" #:kendo.attr("command")#="#:command#" #:kendo.attr("options")#="#:options#">' + '<span class="#:icon# #:spriteCssClass#"></span>#:text#' + '</button>',
+            headerTemplate: '<div class="#:styles.headerText#">{0}</div>' + '<span class="#:styles.spacer#"></span>' + '<div class="#:styles.headerActions#">' + '<button class="#:styles.flatButton#" title="#:messages.close#" #:kendo.attr("command")#="ClosePaneCommand">' + '<span class="k-button-icon k-icon k-i-close"></span>' + '</button>' + '</div>',
+            buttonTemplate: '<button class="#:styles.footerButton##if(primary){# #:styles.primaryButton# # } else { # #:styles.baseButton# # } #" title="#:text#" #:kendo.attr("command")#="#:command#" #:kendo.attr("options")#="#:options#">' + '<span class="k-button-icon #:icon# #:spriteCssClass#"></span>' + '<span class="k-button-text">#:text#</span>' + '</button>',
             contentTemplate: '',
             builtinButtons: {
                 'edit': {

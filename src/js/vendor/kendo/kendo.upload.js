@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -312,9 +312,11 @@
                 toFocus.addClass(FOCUS_STATE);
                 toFocus.attr(TABINDEX, 0);
             },
-            _arrowKeyNavigation: function (key, focusedItem) {
+            _arrowKeyNavigation: function (e, key, focusedItem) {
                 var that = this, kendoKeys = kendo.keys, toFocus;
                 if (key === kendoKeys.DOWN) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     toFocus = that.wrapper.find('.k-upload-files .k-file').first();
                     if (focusedItem.length > 0) {
                         if (focusedItem.hasClass('k-upload-action')) {
@@ -328,6 +330,8 @@
                         toFocus = that.wrapper.find('.k-clear-selected');
                     }
                 } else if (key === kendoKeys.UP) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     toFocus = that.wrapper.find('.k-upload-files .k-file:last');
                     if (focusedItem.length > 0) {
                         if (focusedItem.hasClass('k-upload-action')) {
@@ -440,9 +444,7 @@
                         kendoKeys.TAB
                     ], key = e.keyCode;
                 if (key === kendoKeys.DOWN || key === kendoKeys.UP || key === kendoKeys.LEFT || key === kendoKeys.RIGHT) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    that._arrowKeyNavigation(key, focusedItem);
+                    that._arrowKeyNavigation(e, key, focusedItem);
                 } else if (focusedItem.length > 0 && focusedItem.hasClass('k-file') && commandKeys.indexOf(key) > -1 && !that.wrapper.hasClass('k-state-disabled')) {
                     if (key === kendoKeys.SPACEBAR) {
                         e.preventDefault();
@@ -679,7 +681,7 @@
                     templateData = that._prepareTemplateData(name, data);
                     template = kendo.template(template);
                     fileEntry = $('<li class=\'k-file\'>' + template(templateData) + '</li>');
-                    fileEntry.find('.k-upload-action').addClass('k-button k-button-icon k-flat');
+                    fileEntry.find('.k-upload-action').addClass('k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base');
                     that.angular('compile', function () {
                         return {
                             elements: fileEntry,
@@ -749,9 +751,9 @@
                 } else {
                     firstActionButton = fileElement.find('.k-upload-action').first();
                     if (!firstActionButton.find('.k-icon').length) {
-                        firstActionButton.addClass('k-button').append('<span class=\'k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
+                        firstActionButton.addClass('k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button').append('<span class=\'k-button-icon k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
                     } else if (firstActionButton.next('.k-upload-action').length) {
-                        firstActionButton.next('.k-upload-action').addClass('k-button').append('<span class=\'k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
+                        firstActionButton.next('.k-upload-action').addClass('k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button').append('<span class=\'k-button-icon k-icon ' + iconsClassDictionary[actionKey] + ' ' + classDictionary[actionKey] + '\' title=\'' + this.localization[actionKey] + '\'' + 'aria-label=\'' + this.localization[actionKey] + '\'></span>').show();
                     }
                 }
             },
@@ -767,13 +769,13 @@
             },
             _renderAction: function (actionClass, actionText, iconClass) {
                 if (actionClass !== '') {
-                    return $('<button type=\'button\' class=\'k-button k-button-icon k-flat k-upload-action\' aria-label=\'' + actionText + '\' tabindex=\'-1\'>' + '<span class=\'k-icon ' + iconClass + ' ' + actionClass + '\' title=\'' + actionText + '\'></span>' + '</button>').on('focus', function () {
+                    return $('<button type=\'button\' class=\'k-button k-icon-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-upload-action\' aria-label=\'' + actionText + '\' tabindex=\'-1\'>' + '<span class=\'k-button-icon k-icon ' + iconClass + ' ' + actionClass + '\' title=\'' + actionText + '\'></span>' + '</button>').on('focus', function () {
                         $(this).addClass(FOCUS_STATE);
                     }).on('blur', function () {
                         $(this).removeClass(FOCUS_STATE);
                     });
                 } else {
-                    return $('<button type=\'button\' class=\'k-button\'>' + actionText + '</button>');
+                    return $('<button type=\'button\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\'>' + '<span class="k-button-text">' + actionText + '</span>' + '</button>');
                 }
             },
             _clearFileAction: function (fileElement) {
@@ -981,7 +983,7 @@
                 var uploadButton = $('.k-upload-selected', that.wrapper);
                 var clearButton = $('.k-clear-selected', that.wrapper);
                 if (uploadButton.length === 0) {
-                    uploadButton = that._renderAction('', this.localization.uploadSelectedFiles).addClass('k-upload-selected').addClass('k-primary');
+                    uploadButton = that._renderAction('', this.localization.uploadSelectedFiles).addClass('k-upload-selected').addClass('k-button-solid-primary').removeClass('k-button-solid-base');
                     clearButton = that._renderAction('', this.localization.clearSelectedFiles).addClass('k-clear-selected');
                 }
                 if (!actionsWrapper.length) {
@@ -1174,7 +1176,7 @@
                 var that = this;
                 var options = that.options;
                 var hasLabel = !!input.attr('id') && $('[for=\'' + input.attr('id') + '\']').length > 0;
-                input.wrap('<div class=\'k-widget k-upload\'><div class=\'k-dropzone\'><div class=\'k-button k-upload-button\'></div></div></div>');
+                input.wrap('<div class=\'k-widget k-upload\'><div class=\'k-dropzone\'><div class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button\'></div></div></div>');
                 if (!options.async.saveUrl) {
                     input.closest('.k-upload').addClass('k-upload-sync');
                 } else {

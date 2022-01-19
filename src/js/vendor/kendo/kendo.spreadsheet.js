@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -10065,14 +10065,15 @@
             sheetsBarScrollable: 'k-tabstrip-scrollable',
             sheetsBarNext: 'k-tabstrip-next',
             sheetsBarPrev: 'k-tabstrip-prev',
-            sheetsBarKItem: 'k-item k-tabstrip-item k-state-default',
+            sheetsBarKItem: 'k-item k-tabstrip-item',
             sheetsBarKActive: 'k-state-active k-state-tab-on-top',
             sheetsBarKTextbox: 'k-textbox',
             sheetsBarKLink: 'k-link',
             sheetsBarKIcon: 'k-icon',
             sheetsBarKFontIcon: 'k-icon',
-            sheetsBarKButton: 'k-button k-button-icon',
-            sheetsBarKButtonBare: 'k-flat',
+            sheetsBarKButton: 'k-button k-icon-button',
+            sheetsBarKButtonDefaults: 'k-button-md k-rounded-md k-button-solid k-button-solid-base',
+            sheetsBarKButtonBare: 'k-button-md k-rounded-md k-button-flat k-button-flat-base',
             sheetsBarKArrowW: 'k-i-arrow-60-left',
             sheetsBarKArrowE: 'k-i-arrow-60-right',
             sheetsBarKReset: 'k-reset k-tabstrip-items',
@@ -10244,8 +10245,8 @@
                 renderScrollButtons = true;
                 if (renderScrollButtons) {
                     var baseButtonClass = classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonBare + EMPTYCHAR;
-                    childrenElements[0] = element('span', { className: baseButtonClass + classNames.sheetsBarPrev }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowW }, [])]);
-                    childrenElements[2] = element('span', { className: baseButtonClass + classNames.sheetsBarNext }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowE }, [])]);
+                    childrenElements[0] = element('span', { className: baseButtonClass + classNames.sheetsBarPrev }, [element('span', { className: 'k-button-icon' + EMPTYCHAR + classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowW }, [])]);
+                    childrenElements[2] = element('span', { className: baseButtonClass + classNames.sheetsBarNext }, [element('span', { className: 'k-button-icon' + EMPTYCHAR + classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowE }, [])]);
                 }
                 itemsWrapper.children = childrenElements;
                 return element('div', { className: classNames.sheetsBarItems }, [itemsWrapper]);
@@ -10342,7 +10343,7 @@
             _addButton: function () {
                 var element = kendo.dom.element;
                 var classNames = SheetsBar.classNames;
-                return element('a', { className: classNames.sheetsBarAdd + EMPTYCHAR + classNames.sheetsBarKButton }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKFontIcon + EMPTYCHAR + classNames.sheetsBarKIconPlus }, [])]);
+                return element('a', { className: classNames.sheetsBarAdd + EMPTYCHAR + classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonDefaults }, [element('span', { className: 'k-button-icon' + EMPTYCHAR + classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKFontIcon + EMPTYCHAR + classNames.sheetsBarKIconPlus }, [])]);
             },
             destroy: function () {
                 this._sortable.destroy();
@@ -15263,7 +15264,7 @@
             filterHeadersWrapper: 'k-filter-wrapper',
             filterRange: 'k-filter-range',
             filterButton: 'k-spreadsheet-filter',
-            filterButtonActive: 'k-state-active',
+            filterButtonSelected: 'k-selected',
             horizontalResize: 'k-horizontal-resize',
             verticalResize: 'k-vertical-resize',
             icon: 'k-icon',
@@ -16610,7 +16611,7 @@
                     });
                     var classes = classNames.filterButton;
                     if (filtered) {
-                        classes += ' ' + classNames.filterButtonActive;
+                        classes += ' ' + classNames.filterButtonSelected;
                     }
                     var button = kendo.dom.element('span', {
                         className: classes,
@@ -16724,7 +16725,7 @@
                         cell.top = rectangle.top;
                         cell.width = rectangle.width;
                         cell.height = rectangle.height;
-                        var btnClass = 'k-button k-spreadsheet-editor-button';
+                        var btnClass = 'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-spreadsheet-editor-button';
                         var isLastColumn = col == columnCount - 1 || self._buttonOutOfVisiblePane(row, col, scroller);
                         if (isLastColumn) {
                             btnClass += ' k-spreadsheet-last-column';
@@ -26203,7 +26204,7 @@
             _customColorPalette: function () {
                 var element = $('<div />', {
                     'class': 'k-spreadsheet-window',
-                    'html': '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-' + kendo.ns + 'bind=\'click: apply\'>' + COLOR_PICKER_MESSAGES.apply + '</button>' + '<button class=\'k-button\' data-' + kendo.ns + 'bind=\'click: close\'>' + COLOR_PICKER_MESSAGES.cancel + '</button>' + '</div>'
+                    'html': '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-' + kendo.ns + 'bind=\'click: apply\'><span class=\'k-button-text\'>' + COLOR_PICKER_MESSAGES.apply + '</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-' + kendo.ns + 'bind=\'click: close\'><span class=\'k-button-text\'>' + COLOR_PICKER_MESSAGES.cancel + '</span></button>' + '</div>'
                 });
                 var dialog = this.dialog = element.appendTo(document.body).kendoWindow({
                     animation: false,
@@ -26236,10 +26237,10 @@
                 kendo.bind(dialog.element.find('.k-action-buttons'), viewModel);
             },
             _resetButton: function () {
-                this.resetButton = $('<a role=\'button\' class=\'k-button k-reset-color\' href=\'#\'>' + '<span class=\'k-icon k-i-reset-color\'></span>' + COLOR_PICKER_MESSAGES.reset + '</a>').appendTo(this.element);
+                this.resetButton = $('<a role=\'button\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-reset-color\' href=\'#\'>' + '<span class=\'k-button-icon k-icon k-i-reset-color\'></span>' + '<span class="k-button-text">' + COLOR_PICKER_MESSAGES.reset + '</span>' + '</a>').appendTo(this.element);
             },
             _customColorButton: function () {
-                this.customColorButton = $('<a role=\'button\' class=\'k-button k-custom-color\' href=\'#\'>' + '<span class=\'k-icon\'></span>' + COLOR_PICKER_MESSAGES.customColor + '</a>').appendTo(this.element);
+                this.customColorButton = $('<a role=\'button\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-custom-color\' href=\'#\'>' + '<span class=\'k-button-icon k-icon\'></span>' + '<span class="k-button-text">' + COLOR_PICKER_MESSAGES.customColor + '</span>' + '</a>').appendTo(this.element);
             },
             resetColor: function () {
                 this.colorPalette.value(null);
@@ -26269,7 +26270,7 @@
             _borderTypePalette: function () {
                 var messages = BORDER_PALETTE_MESSAGES;
                 var buttons = BORDER_TYPES.map(function (type) {
-                    return '<a role="button" title="' + messages[type] + '" aria-label="' + messages[type] + '" href="#" data-border-type="' + type + '" class="k-button k-button-icon">' + '<span class="k-icon k-i-' + kendo.toHyphens(type) + '"></span>' + '</a>';
+                    return '<a role="button" title="' + messages[type] + '" aria-label="' + messages[type] + '" href="#" data-border-type="' + type + '" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button">' + '<span class="k-button-icon k-icon k-i-' + kendo.toHyphens(type) + '"></span>' + '</a>';
                 }).join('');
                 var element = $('<div />', {
                     'class': 'k-spreadsheet-border-type-palette',
@@ -26665,7 +26666,7 @@
                         if (tool) {
                             document.activeElement.blur();
                             if ($(tool).is('.k-upload-button')) {
-                                $(tool).addClass('k-state-focused');
+                                $(tool).addClass('k-focus');
                             }
                             if ($(tool).find('input').length) {
                                 $(tool).find('input').trigger('focus');
@@ -26677,7 +26678,7 @@
                     }
                 });
                 this.element.on('focusout', function () {
-                    $(this).find('.k-toolbar-first-visible').removeClass('k-state-focused');
+                    $(this).find('.k-toolbar-first-visible').removeClass('k-focus');
                 });
                 this.bind({
                     click: handleClick,
@@ -26923,7 +26924,7 @@
         });
         var PopupTool = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
-                this.element = $('<a role=\'button\' href=\'#\' class=\'k-button k-button-icon\'>' + '<span class=\'' + options.spriteCssClass + '\'>' + '</span><span class=\'k-icon k-i-arrow-60-down\'></span>' + '</a>');
+                this.element = $('<a role=\'button\' href=\'#\' class=\'k-button k-button-md k-rounded-md  k-button-rectangle k-button-solid k-button-solid-base\'>' + '<span class=\'k-button-icon k-icon ' + options.spriteCssClass + '\'></span>' + '<span class=\'k-button-text\'><span class=\'k-icon k-i-arrow-s\'></span></span>' + '</a>');
                 this.element.on('click touchend', this.open.bind(this)).attr('data-command', options.command);
                 this.options = options;
                 this.toolbar = toolbar;
@@ -26959,7 +26960,7 @@
                 this._dialogName = options.dialogName;
                 this.toolbar = toolbar;
                 this._title = options.attributes.title;
-                this.element = $('<button type=\'button\' role=\'button\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-download\'></span>' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
+                this.element = $('<button type=\'button\' role=\'button\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button\'>' + '<span class=\'k-button-icon k-icon k-i-download\'></span>' + '</button>').attr('title', this._title).attr('aria-label', this._title).data('instance', this);
                 this.element.on('click', this.open.bind(this)).data('instance', this);
             },
             open: function () {
@@ -27101,7 +27102,7 @@
             },
             update: function (value) {
                 this._value = value || DEFAULT_FONT_SIZE;
-                this.element.find('.k-text').text(this.message + ' (' + this._value + ') ...');
+                this.element.find('.k-button-text').text(this.message + ' (' + this._value + ') ...');
             }
         });
         kendo.toolbar.registerComponent('fontSize', FontSize, FontSizeButton);
@@ -27141,7 +27142,7 @@
             },
             update: function (value) {
                 this._value = value || DEFAULT_FONT_FAMILY;
-                this.element.find('.k-text').text(this.message + ' (' + this._value + ') ...');
+                this.element.find('.k-button-text').text(this.message + ' (' + this._value + ') ...');
             }
         });
         kendo.toolbar.registerComponent('fontFamily', FontFamily, FontFamilyButton);
@@ -27347,19 +27348,19 @@
                 var textAlign = range.textAlign();
                 var verticalAlign = range.verticalAlign();
                 var element = this.popup.element;
-                element.find('.k-button').removeClass('k-state-active');
+                element.find('.k-button').removeClass('k-active');
                 if (textAlign) {
-                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-state-active');
+                    element.find('[data-property=textAlign][data-value=' + textAlign + ']').addClass('k-active');
                 }
                 if (verticalAlign) {
-                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-state-active');
+                    element.find('[data-property=verticalAlign][data-value=' + verticalAlign + ']').addClass('k-active');
                 }
             },
             _commandPalette: function () {
                 var buttons = this.buttons;
                 var element = $('<div />').appendTo(this.popup.element);
                 buttons.forEach(function (options, index) {
-                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icon\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
+                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-property=\'' + options.property + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button\'>' + '<span class=\'k-button-icon k-icon k-i-' + options.iconClass + '\'></span>' + '</a>';
                     if (index !== 0 && buttons[index - 1].property !== options.property) {
                         element.append($('<span class=\'k-separator\' />'));
                     }
@@ -27429,7 +27430,7 @@
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
+                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\'>' + '<span class=\'k-button-icon k-icon k-i-' + options.iconClass + '\'></span>' + '<span class=\'k-button-text\'>' + options.text + '</span>' + '</a>';
                     element.append(button);
                 });
             },
@@ -27492,7 +27493,7 @@
             _commandPalette: function () {
                 var element = $('<div />').appendTo(this.popup.element);
                 this.buttons.forEach(function (options) {
-                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-icontext\'>' + '<span class=\'k-icon k-i-' + options.iconClass + '\'></span>' + options.text + '</a>';
+                    var button = '<a role=\'button\' title=\'' + options.text + '\' data-value=\'' + options.value + '\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\'>' + '<span class=\'k-button-icon k-icon k-i-' + options.iconClass + '\'></span>' + '<span class=\'k-button-text\'>' + options.text + '</span>' + '</a>';
                     element.append(button);
                 });
             },
@@ -27603,7 +27604,7 @@
         var Open = kendo.toolbar.Item.extend({
             init: function (options, toolbar) {
                 this.toolbar = toolbar;
-                this.element = $('<div class=\'k-button k-upload-button k-button-icon\'>' + '<span class=\'k-icon k-i-folder-open\'></span>' + '</div>').data('instance', this);
+                this.element = $('<div class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-upload-button k-icon-button\'>' + '<span class=\'k-button-icon k-icon k-i-folder-open\'></span>' + '</div>').data('instance', this);
                 this._title = options.attributes.title;
                 this._reset();
             },
@@ -27672,7 +27673,7 @@
                         action: 'redo'
                     }
                 ];
-                var buttonTemplate = kendo.template('<a role=\'button\' href=\'\\#\' title=\'#= title #\' data-action=\'#= action #\' class=\'k-button k-button-icon\' aria-label=\'#= title #\'><span class=\'k-icon k-i-#=iconClass#\'></span></a>');
+                var buttonTemplate = kendo.template('<a role=\'button\' href=\'\\#\' title=\'#= title #\' data-action=\'#= action #\' class=\'k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button\' aria-label=\'#= title #\'><span class=\'k-button-icon k-icon k-i-#=iconClass#\'></span></a>');
                 this.quickAccessToolBar = $('<div />', {
                     'class': 'k-spreadsheet-quick-access-toolbar',
                     'html': kendo.render(buttonTemplate, buttons)
@@ -27983,7 +27984,7 @@
             },
             open: function () {
                 this.dialog().open();
-                this.dialog().element.find('.k-primary').trigger('focus');
+                this.dialog().element.find('.k-button-solid-primary').trigger('focus');
             },
             apply: function () {
                 this.close();
@@ -28126,7 +28127,7 @@
             },
             options: {
                 className: 'k-spreadsheet-format-cells',
-                template: '<div class=\'k-edit-form-container\'>' + '<div class=\'k-root-tabs\' data-#:ns#role=\'tabstrip\' ' + 'data-#:ns#text-field=\'name\' ' + 'data-#:ns#bind=\'source: categories, value: categoryFilter\' ' + 'data-#:ns#animation=\'false\'></div>' + '<div class=\'k-spreadsheet-preview\' data-#:ns#bind=\'text: preview\'></div>' + '<script type=\'text/x-kendo-template\' id=\'format-item-template\'>' + '\\#: data.name \\#' + '</script>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-format-filter\' ' + 'data-#:ns#text-field=\'description\' ' + 'data-#:ns#value-field=\'value.name\' ' + 'data-#:ns#bind=\'visible: showCurrencyFilter, value: currency, source: currencies\'></select>' + '<ul data-#:ns#role=\'staticlist\' tabindex=\'0\' ' + 'class=\'k-list k-reset\' ' + 'data-#:ns#template=\'format-item-template\' ' + 'data-#:ns#value-primitive=\'true\' ' + 'data-#:ns#value-field=\'value\' ' + 'data-#:ns#bind=\'source: formats, value: format\'></ul>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: apply\'>#: messages.apply #</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: close\'>#: messages.cancel #</button>' + '</div>' + '</div>'
+                template: '<div class=\'k-edit-form-container\'>' + '<div class=\'k-root-tabs\' data-#:ns#role=\'tabstrip\' ' + 'data-#:ns#text-field=\'name\' ' + 'data-#:ns#bind=\'source: categories, value: categoryFilter\' ' + 'data-#:ns#animation=\'false\'></div>' + '<div class=\'k-spreadsheet-preview\' data-#:ns#bind=\'text: preview\'></div>' + '<script type=\'text/x-kendo-template\' id=\'format-item-template\'>' + '\\#: data.name \\#' + '</script>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-format-filter\' ' + 'data-#:ns#text-field=\'description\' ' + 'data-#:ns#value-field=\'value.name\' ' + 'data-#:ns#bind=\'visible: showCurrencyFilter, value: currency, source: currencies\'></select>' + '<ul data-#:ns#role=\'staticlist\' tabindex=\'0\' ' + 'class=\'k-list k-reset\' ' + 'data-#:ns#template=\'format-item-template\' ' + 'data-#:ns#value-primitive=\'true\' ' + 'data-#:ns#value-field=\'value\' ' + 'data-#:ns#bind=\'source: formats, value: format\'></ul>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: apply\'><span class=\'k-button-text\'>#: messages.apply #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: close\'><span class=\'k-button-text\'>#: messages.cancel #</span></button>' + '</div>' + '</div>'
             },
             _generateFormats: function () {
                 var options = this.options;
@@ -28227,7 +28228,7 @@
                 title: '',
                 messageId: '',
                 text: '',
-                template: '<div class=\'k-spreadsheet-message-content\' data-#:ns#bind=\'text: text\'></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: close\'>' + '#= messages.okText #' + '</button>' + '</div>'
+                template: '<div class=\'k-spreadsheet-message-content\' data-#:ns#bind=\'text: text\'></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: close\'>' + '<span class=\'k-button-text\'>#= messages.okText #</span>' + '</button>' + '</div>'
             },
             open: function () {
                 SpreadsheetDialog.fn.open.call(this);
@@ -28255,7 +28256,7 @@
             options: {
                 className: 'k-spreadsheet-message',
                 messageId: '',
-                template: '<div class=\'k-spreadsheet-message-content\' data-#:ns#bind=\'text: text\'></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: confirm\'>' + '#= messages.okText #' + '</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: cancel\'>' + '#= messages.cancel #' + '</button>' + '</div>'
+                template: '<div class=\'k-spreadsheet-message-content\' data-#:ns#bind=\'text: text\'></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: confirm\'>' + '<span class=\'k-button-text\'>#= messages.okText #</span>' + '</button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: cancel\'>' + '<span class=\'k-button-text\'>#= messages.cancel #</span>' + '</button>' + '</div>'
             },
             open: function () {
                 SpreadsheetDialog.fn.open.call(this);
@@ -28285,7 +28286,7 @@
                 title: '',
                 messageId: '',
                 text: '',
-                template: '<div class=\'k-spreadsheet-message-content\' data-#:ns#bind=\'text: text\'></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: retry\'>' + '#= messages.retry #' + '</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: cancel\'>' + '#= messages.cancel #' + '</button>' + '</div>'
+                template: '<div class=\'k-spreadsheet-message-content\' data-#:ns#bind=\'text: text\'></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: retry\'>' + '<span class=\'k-button-text\'>#= messages.retry #</span>' + '</button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: cancel\'>' + '<span class=\'k-button-text\'>#= messages.cancel #</span>' + '</button>' + '</div>'
             },
             open: function () {
                 SpreadsheetDialog.fn.open.call(this);
@@ -28382,7 +28383,7 @@
             },
             options: {
                 width: 177,
-                template: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: apply\'>#: messages.apply #</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: close\'>#: messages.cancel #</button>' + '</div>'
+                template: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: apply\'><span class=\'k-button-text\'>#: messages.apply #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: close\'><span class=\'k-button-text\'>#: messages.cancel #</span></button>' + '</div>'
             },
             apply: function () {
                 SpreadsheetDialog.fn.apply.call(this);
@@ -28423,7 +28424,7 @@
                 });
                 kendo.bind(this.element.find('.k-action-buttons'), this.viewModel);
             },
-            options: { template: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: apply\'>#: messages.apply #</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: close\'>#: messages.cancel #</button>' + '</div>' },
+            options: { template: '<div></div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: apply\'><span class=\'k-button-text\'>#: messages.apply #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: close\'><span class=\'k-button-text\'>#: messages.cancel #</span></button>' + '</div>' },
             apply: function () {
                 SpreadsheetDialog.fn.apply.call(this);
                 this.trigger('action', {
@@ -28928,7 +28929,7 @@
                 showButton: true,
                 useCustomMessages: false,
                 errorTemplate: '<div class="k-tooltip k-tooltip-error k-validator-tooltip">' + '<span class="k-tooltip-icon k-icon k-i-warning"></span>' + '<span class="k-tooltip-content">#= message #</span>' + '<span class="k-callout k-callout-n"></span>' + '</div>',
-                template: '<div class="k-edit-form-container">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.criteria #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.criteria #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: criterion, source: criteria"></select>' + '</div>' + '<div data-#:ns#bind="visible: isNumber">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: comparer, source: comparers"></select>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.min #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.min #" title="#: messages.validationDialog.labels.min #" placeholder="e.g. 10" class="k-textbox" data-#:ns#bind="value: from, enabled: isNumber" required="required" />' + '</div>' + '<div data-#:ns#bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.max #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.max #" title="#: messages.validationDialog.labels.max #" placeholder="e.g. 100" class="k-textbox" data-#:ns#bind="value: to, enabled: showToForNumber" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isText">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: comparer, source: comparers"></select>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-#:ns#bind="value: from, enabled: isText" required="required" />' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isDate">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: comparer, source: comparers"></select>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.start #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.start #" title="#: messages.validationDialog.labels.start #" class="k-textbox" data-#:ns#bind="value: from, enabled: isDate" required="required" />' + '</div>' + '<div data-#:ns#bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.end #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.end #" title="#: messages.validationDialog.labels.end #" class="k-textbox" data-#:ns#bind="value: to, enabled: showToForDate" required="required" />' + '</div>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isCustom">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-#:ns#bind="value: from, enabled: isCustom" required="required" />' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isList">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-textbox" data-#:ns#bind="value: from, enabled: isList" required="required" />' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isList">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="listShowButton" class="k-checkbox" data-#:ns#bind="checked: showButton"/>' + '<label for="listShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showListButton #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isDate">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="dateShowButton" class="k-checkbox" data-#:ns#bind="checked: showButton"/>' + '<label for="dateShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showCalendarButton #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="invisible: isAny">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.ignoreBlank #" name="ignoreBlank" id="ignoreBlank" class="k-checkbox" data-#:ns#bind="checked: ignoreBlank"/>' + '<label for="ignoreBlank" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.ignoreBlank #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="invisible: isAny">' + '<div class="k-hr"></div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.onInvalidData #:</label></div>' + '<div class="k-edit-field">' + '<input type="radio" title="#: messages.validationDialog.labels.rejectInput #" id="validationTypeReject" name="validationType" value="reject" data-#:ns#bind="checked: type" class="k-radio" />' + '<label for="validationTypeReject" class="k-radio-label">' + '#: messages.validationDialog.labels.rejectInput #' + '</label> ' + '<input type="radio" title="#: messages.validationDialog.labels.showWarning #" id="validationTypeWarning"  name="validationType" value="warning" data-#:ns#bind="checked: type" class="k-radio" />' + '<label for="validationTypeWarning" class="k-radio-label">' + '#: messages.validationDialog.labels.showWarning #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="invisible: isAny" class="hint-wrapper">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.showHint #" name="useCustomMessages" id="useCustomMessages" class="k-checkbox" data-#:ns#bind="checked: useCustomMessages" />' + '<label class="k-checkbox-label" for="useCustomMessages">' + ' #: messages.validationDialog.labels.showHint #' + '</label>' + '</div>' + '<div data-#:ns#bind="visible: useCustomMessages">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintTitle #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintTitle #" placeholder="#: messages.validationDialog.placeholders.typeTitle #" data-#:ns#bind="value: hintTitle" />' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintMessage #:</label></div>' + '<div class="k-edit-field">' + '<input class="k-textbox" title="#: messages.validationDialog.labels.hintMessage #" placeholder="#: messages.validationDialog.placeholders.typeMessage #" data-#:ns#bind="value: hintMessage" />' + '</div>' + '</div>' + '</div>' + '<div class="k-action-buttons">' + '<button class="k-button" data-#:ns#bind="visible: showRemove, click: remove">#: messages.remove #</button>' + '<button class="k-button k-primary" data-#:ns#bind="click: apply">#: messages.apply #</button>' + '<button class="k-button" data-#:ns#bind="click: close">#: messages.cancel #</button>' + '</div>' + '</div>'
+                template: '<div class="k-edit-form-container">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.criteria #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.criteria #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: criterion, source: criteria"></select>' + '</div>' + '<div data-#:ns#bind="visible: isNumber">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: comparer, source: comparers"></select>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.min #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.min #" title="#: messages.validationDialog.labels.min #" placeholder="e.g. 10" class="k-input-inner" data-#:ns#bind="value: from, enabled: isNumber" required="required" /></span>' + '</div>' + '<div data-#:ns#bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.max #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.max #" title="#: messages.validationDialog.labels.max #" placeholder="e.g. 100" class="k-input-inner" data-#:ns#bind="value: to, enabled: showToForNumber" required="required" /></span>' + '</div>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isText">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: comparer, source: comparers"></select>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-input-inner" data-#:ns#bind="value: from, enabled: isText" required="required" /></span>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isDate">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.comparer #:</label></div>' + '<div class="k-edit-field">' + '<select data-#:ns#role="dropdownlist" ' + 'title="#: messages.validationDialog.labels.comparer #"' + 'data-#:ns#text-field="name" ' + 'data-#:ns#value-field="type" ' + 'data-#:ns#bind="value: comparer, source: comparers"></select>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.start #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.start #" title="#: messages.validationDialog.labels.start #" class="k-input-inner" data-#:ns#bind="value: from, enabled: isDate" required="required" /></span>' + '</div>' + '<div data-#:ns#bind="visible: showTo">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.end #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.end #" title="#: messages.validationDialog.labels.end #" class="k-input-inner" data-#:ns#bind="value: to, enabled: showToForDate" required="required" /></span>' + '</div>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isCustom">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-input-inner" data-#:ns#bind="value: from, enabled: isCustom" required="required" /></span>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isList">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.value #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input name="#: messages.validationDialog.labels.value #" title="#: messages.validationDialog.labels.value #" class="k-input-inner" data-#:ns#bind="value: from, enabled: isList" required="required" /></span>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isList">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="listShowButton" class="k-checkbox k-checkbox-md k-rounded-md" data-#:ns#bind="checked: showButton"/>' + '<label for="listShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showListButton #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="visible: isDate">' + '<div class="k-edit-field">' + '<input type="checkbox" name="showButton" id="dateShowButton" class="k-checkbox k-checkbox-md k-rounded-md" data-#:ns#bind="checked: showButton"/>' + '<label for="dateShowButton" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.showCalendarButton #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="invisible: isAny">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.ignoreBlank #" name="ignoreBlank" id="ignoreBlank" class="k-checkbox k-checkbox-md k-rounded-md" data-#:ns#bind="checked: ignoreBlank"/>' + '<label for="ignoreBlank" class="k-checkbox-label">' + ' #: messages.validationDialog.labels.ignoreBlank #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="invisible: isAny">' + '<div class="k-hr"></div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.onInvalidData #:</label></div>' + '<div class="k-edit-field">' + '<input type="radio" title="#: messages.validationDialog.labels.rejectInput #" id="validationTypeReject" name="validationType" value="reject" data-#:ns#bind="checked: type" class="k-radio k-radio-md" />' + '<label for="validationTypeReject" class="k-radio-label">' + '#: messages.validationDialog.labels.rejectInput #' + '</label> ' + '<input type="radio" title="#: messages.validationDialog.labels.showWarning #" id="validationTypeWarning"  name="validationType" value="warning" data-#:ns#bind="checked: type" class="k-radio k-radio-md" />' + '<label for="validationTypeWarning" class="k-radio-label">' + '#: messages.validationDialog.labels.showWarning #' + '</label>' + '</div>' + '</div>' + '<div data-#:ns#bind="invisible: isAny" class="hint-wrapper">' + '<div class="k-edit-field">' + '<input type="checkbox" title="#: messages.validationDialog.labels.showHint #" name="useCustomMessages" id="useCustomMessages" class="k-checkbox k-checkbox-md k-rounded-md" data-#:ns#bind="checked: useCustomMessages" />' + '<label class="k-checkbox-label" for="useCustomMessages">' + ' #: messages.validationDialog.labels.showHint #' + '</label>' + '</div>' + '<div data-#:ns#bind="visible: useCustomMessages">' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintTitle #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" title="#: messages.validationDialog.labels.hintTitle #" placeholder="#: messages.validationDialog.placeholders.typeTitle #" data-#:ns#bind="value: hintTitle" /></span>' + '</div>' + '<div class="k-edit-label"><label>#: messages.validationDialog.labels.hintMessage #:</label></div>' + '<div class="k-edit-field">' + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" title="#: messages.validationDialog.labels.hintMessage #" placeholder="#: messages.validationDialog.placeholders.typeMessage #" data-#:ns#bind="value: hintMessage" /></span>' + '</div>' + '</div>' + '</div>' + '<div class="k-action-buttons">' + '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-#:ns#bind="visible: showRemove, click: remove"><span class="k-button-text">#: messages.remove #</span></button>' + '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" data-#:ns#bind="click: apply"><span class="k-button-text">#: messages.apply #</span></button>' + '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-#:ns#bind="click: close"><span class="k-button-text">#: messages.cancel #</span></button>' + '</div>' + '</div>'
             },
             open: function (range) {
                 var options = this.options;
@@ -29112,7 +29113,7 @@
                     vCenter: true
                 },
                 width: 520,
-                template: '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-textbox\' data-#:ns#bind=\'value: name\' />' + '</div>' + '<div >' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#text-field=\'description\' ' + 'data-#:ns#value-field=\'extension\' ' + 'data-#:ns#bind=\'value: extension, source: fileFormats\'></select>' + '</div>' + '</div>' + '<div class=\'k-export-config\' data-#:ns#bind=\'visible: showPdfOptions\'>' + '<hr class=\'k-hr\' />' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.exportArea #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#text-field=\'text\' ' + 'data-#:ns#value-field=\'area\' ' + 'data-#:ns#bind=\'value: pdf.area, source: pdf.areas\'></select>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.paperSize#:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#text-field=\'text\' ' + 'data-#:ns#value-field=\'value\' ' + 'data-#:ns#bind=\'value: pdf.paperSize, source: pdf.paperSizes\'></select>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.margins #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#value-primitive=\'true\'' + 'data-#:ns#text-field=\'text\' ' + 'data-#:ns#value-field=\'value\' ' + 'data-#:ns#bind=\'value: pdf.margin, source: pdf.margins\'></select>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.orientation #:</label></div>' + '<div class=\'k-edit-field\'>' + '<div class=\'k-button-group\'>' + '<input type=\'radio\' id=\'k-orientation-portrait\' name=\'orientation\' data-#:ns#type=\'boolean\' data-#:ns#bind=\'checked: pdf.landscape\' value=\'false\' />' + '<label class=\'k-button k-button-icon k-group-start k-orientation-button\' for=\'k-orientation-portrait\'><span class=\'k-icon k-i-page-portrait\'></span></label>' + '<input type=\'radio\' id=\'k-orientation-landscape\' name=\'orientation\' data-#:ns#type=\'boolean\' data-#:ns#bind=\'checked: pdf.landscape\' value=\'true\' />' + '<label class=\'k-button k-button-icon k-group-end k-orientation-button\' for=\'k-orientation-landscape\'><span class=\'k-icon k-i-page-landscape\'></span></label>' + '</div>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.print #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'guidelines\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.guidelines\'/><label class=\'k-checkbox-label\' for=\'guidelines\'>#: messages.exportAsDialog.labels.guidelines#</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.scale #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'fitWidth\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.fitWidth\'/><label class=\'k-checkbox-label\' for=\'fitWidth\'>#: messages.exportAsDialog.labels.fit #</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.center #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox\' id=\'hCenter\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.hCenter\'/><label class=\'k-checkbox-label\' for=\'hCenter\'>#: messages.exportAsDialog.labels.horizontally #</label>' + '<input class=\'k-checkbox\' id=\'vCenter\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.vCenter\'/><label class=\'k-checkbox-label\' for=\'vCenter\'>#: messages.exportAsDialog.labels.vertically #</label>' + '</div>' + '<div class=\'k-page-orientation\'>' + '<span class=\'k-icon k-i-page-portrait\' data-#:ns#bind=\'invisible: pdf.landscape\'></span>' + '<span class=\'k-icon k-i-page-landscape\' data-#:ns#bind=\'visible: pdf.landscape\'></span>' + '</div>' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: apply\'>#: messages.save #</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: close\'>#: messages.cancel #</button>' + '</div>'
+                template: '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>' + '<div class=\'k-edit-field\'>' + '<span class=\'k-textbox k-input k-input-md k-rounded-md k-input-solid\'><input class=\'k-input-inner\' data-#:ns#bind=\'value: name\' /></span>' + '</div>' + '<div >' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#text-field=\'description\' ' + 'data-#:ns#value-field=\'extension\' ' + 'data-#:ns#bind=\'value: extension, source: fileFormats\'></select>' + '</div>' + '</div>' + '<div class=\'k-export-config\' data-#:ns#bind=\'visible: showPdfOptions\'>' + '<hr class=\'k-hr\' />' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.exportArea #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#text-field=\'text\' ' + 'data-#:ns#value-field=\'area\' ' + 'data-#:ns#bind=\'value: pdf.area, source: pdf.areas\'></select>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.paperSize#:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#text-field=\'text\' ' + 'data-#:ns#value-field=\'value\' ' + 'data-#:ns#bind=\'value: pdf.paperSize, source: pdf.paperSizes\'></select>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.margins #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-#:ns#role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-#:ns#value-primitive=\'true\'' + 'data-#:ns#text-field=\'text\' ' + 'data-#:ns#value-field=\'value\' ' + 'data-#:ns#bind=\'value: pdf.margin, source: pdf.margins\'></select>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.orientation #:</label></div>' + '<div class=\'k-edit-field\'>' + '<div class=\'k-button-group\'>' + '<input type=\'radio\' id=\'k-orientation-portrait\' name=\'orientation\' data-#:ns#type=\'boolean\' data-#:ns#bind=\'checked: pdf.landscape\' value=\'false\' />' + '<label class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-group-start k-orientation-button\' for=\'k-orientation-portrait\'><span class=\'k-button-icon k-icon k-i-page-portrait\'></span></label>' + '<input type=\'radio\' id=\'k-orientation-landscape\' name=\'orientation\' data-#:ns#type=\'boolean\' data-#:ns#bind=\'checked: pdf.landscape\' value=\'true\' />' + '<label class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-group-end k-orientation-button\' for=\'k-orientation-landscape\'><span class=\'k-button-icon k-icon k-i-page-landscape\'></span></label>' + '</div>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.print #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox k-checkbox-md k-rounded-md\' id=\'guidelines\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.guidelines\'/><label class=\'k-checkbox-label\' for=\'guidelines\'>#: messages.exportAsDialog.labels.guidelines#</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.scale #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox k-checkbox-md k-rounded-md\' id=\'fitWidth\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.fitWidth\'/><label class=\'k-checkbox-label\' for=\'fitWidth\'>#: messages.exportAsDialog.labels.fit #</label>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.center #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-checkbox k-checkbox-md k-rounded-md\' id=\'hCenter\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.hCenter\'/><label class=\'k-checkbox-label\' for=\'hCenter\'>#: messages.exportAsDialog.labels.horizontally #</label>' + '<input class=\'k-checkbox k-checkbox-md k-rounded-md\' id=\'vCenter\' type=\'checkbox\' data-#:ns#bind=\'checked: pdf.vCenter\'/><label class=\'k-checkbox-label\' for=\'vCenter\'>#: messages.exportAsDialog.labels.vertically #</label>' + '</div>' + '<div class=\'k-page-orientation\'>' + '<span class=\'k-icon k-i-page-portrait\' data-#:ns#bind=\'invisible: pdf.landscape\'></span>' + '<span class=\'k-icon k-i-page-landscape\' data-#:ns#bind=\'visible: pdf.landscape\'></span>' + '</div>' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: apply\'><span class=\'k-button-text\'>#: messages.save #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: close\'><span class=\'k-button-text\'>#: messages.cancel #</span></button>' + '</div>'
             },
             apply: function () {
                 SpreadsheetDialog.fn.apply.call(this);
@@ -29138,21 +29139,21 @@
             options: {
                 width: 640,
                 title: 'Errors in import',
-                template: '<div class=\'k-spreadsheet-message-content k-spreadsheet-import-errors\'>' + '<div class=\'k--header-message\'>We encountered #= errors.length # errors while reading this file.  Please be aware that some formulas might be missing, or contain invalid results.</div>' + '<div class=\'k--errors\'>' + '<table>' + '<thead>' + '<tr><th>Context</th><th>Error message</th></tr>' + '</thead>' + '# for (var i = 0; i < errors.length; ++i) { #' + '# var err = errors[i]; #' + '<tr><td>#: err.context #</td><td>#: err.error #</td></tr>' + '# } #' + '</table>' + '</div>' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: close\'>' + '#: messages.okText #' + '</button>' + '</div>'
+                template: '<div class=\'k-spreadsheet-message-content k-spreadsheet-import-errors\'>' + '<div class=\'k--header-message\'>We encountered #= errors.length # errors while reading this file.  Please be aware that some formulas might be missing, or contain invalid results.</div>' + '<div class=\'k--errors\'>' + '<table>' + '<thead>' + '<tr><th>Context</th><th>Error message</th></tr>' + '</thead>' + '# for (var i = 0; i < errors.length; ++i) { #' + '# var err = errors[i]; #' + '<tr><td>#: err.context #</td><td>#: err.error #</td></tr>' + '# } #' + '</table>' + '</div>' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: close\'>' + '<span class=\'k-button-text\'>#: messages.okText #</span>' + '</button>' + '</div>'
             }
         });
         kendo.spreadsheet.dialogs.register('importError', ImportErrorDialog);
         var UseKeyboardDialog = MessageDialog.extend({
             options: {
                 title: TEXT('useKeyboardDialog.title', 'Copying and pasting'),
-                template: '#: messages.useKeyboardDialog.errorMessage #' + '<div>Ctrl+C #: messages.useKeyboardDialog.labels.forCopy #</div>' + '<div>Ctrl+X #: messages.useKeyboardDialog.labels.forCut #</div>' + '<div>Ctrl+V #: messages.useKeyboardDialog.labels.forPaste #</div>' + '<div class="k-action-buttons">' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: close\'>' + '#= messages.okText #' + '</button>' + '</div>'
+                template: '#: messages.useKeyboardDialog.errorMessage #' + '<div>Ctrl+C #: messages.useKeyboardDialog.labels.forCopy #</div>' + '<div>Ctrl+X #: messages.useKeyboardDialog.labels.forCut #</div>' + '<div>Ctrl+V #: messages.useKeyboardDialog.labels.forPaste #</div>' + '<div class="k-action-buttons">' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: close\'>' + '<span class=\'k-button-text\'>#= messages.okText #</span>' + '</button>' + '</div>'
             }
         });
         kendo.spreadsheet.dialogs.register('useKeyboard', UseKeyboardDialog);
         var HyperlinkDialog = SpreadsheetDialog.extend({
             options: {
                 title: TEXT('linkDialog.title', 'Hyperlink'),
-                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-#:ns#bind=\'value: url\' title=\'#: messages.linkDialog.labels.url #\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-left\' data-#:ns#bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-#:ns#bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-#:ns#bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><span class=\'k-textbox k-input k-input-md k-rounded-md k-input-solid\'><input class=\'k-input-inner\' data-#:ns#bind=\'value: url\' title=\'#: messages.linkDialog.labels.url #\' /></span></div>' + '<div class=\'k-action-buttons\'>' + ('<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-left\' data-#:ns#bind=\'click: remove\'><span class=\'k-button-text\'>#= messages.linkDialog.labels.removeLink #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: apply\'><span class=\'k-button-text\'>#= messages.okText #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: cancel\'><span class=\'k-button-text\'>#= messages.cancel #</span></button>') + '</div>',
                 autoFocus: false
             },
             open: function (range) {
@@ -29196,7 +29197,7 @@
         var InsertCommentDialog = SpreadsheetDialog.extend({
             options: {
                 className: 'k-spreadsheet-insert-comment',
-                template: '<div class=\'k-edit-label\'><label>#: messages.insertCommentDialog.labels.comment #:</label></div><div class=\'k-edit-field\'><textarea rows=\'5\' class=\'k-textbox\' data-#:ns#bind=\'value: comment\'></textarea></div><div class=\'k-action-buttons\'>  <button class=\'k-button k-left\' data-#:ns#bind=\'click: remove\'>#: messages.insertCommentDialog.labels.removeComment #</button>  <button class=\'k-button k-primary\' data-#:ns#bind=\'click: apply\'>#: messages.okText #</button>  <button class=\'k-button\' data-#:ns#bind=\'click: cancel\'>#= messages.cancel #</button></div>',
+                template: '<div class=\'k-edit-label\'><label>#: messages.insertCommentDialog.labels.comment #:</label></div><div class=\'k-edit-field\'><span class=\'k-input k-textarea k-input-solid k-input-md k-rounded-md\'><textarea rows=\'5\' class=\'k-input-inner\' data-#:ns#bind=\'value: comment\'></textarea></span></div><div class=\'k-action-buttons\'>  <button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-left\' data-#:ns#bind=\'click: remove\'><span class=\'k-button-text\'>#: messages.insertCommentDialog.labels.removeComment #</span></button>  <button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'click: apply\'><span class=\'k-button-text\'>#: messages.okText #</span></button>  <button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: cancel\'><span class=\'k-button-text\'>#= messages.cancel #</span></button></div>',
                 title: TEXT('insertCommentDialog.title', 'Insert comment'),
                 autoFocus: false,
                 width: 450
@@ -29230,7 +29231,7 @@
         kendo.spreadsheet.dialogs.register('insertComment', InsertCommentDialog);
         var InsertImageDialog = SpreadsheetDialog.extend({
             options: {
-                template: '<div class=\'k-spreadsheet-insert-image-dialog\'>  <label data-#:ns#bind=\'style: { background-image: imageUrl },                    css: { k-spreadsheet-has-image: hasImage, k-state-hovered: isHovered },                    events: { dragenter: dragEnter, dragover: stopEvent, dragleave: dragLeave, drop: drop }\'>    <div data-#:ns#bind=\'text: info\'></div>    <input type=\'file\' data-#:ns#bind=\'events: { change: change }\'           accept=\'image/png, image/jpeg, image/gif\' />  </label></div><div class=\'k-action-buttons\'>  <button class=\'k-button k-primary\' data-#:ns#bind=\'enabled: okEnabled, click: apply\'>#: messages.okText #</button>  <button class=\'k-button\' data-#:ns#bind=\'click: cancel\'>#= messages.cancel #</button></div>',
+                template: '<div class=\'k-spreadsheet-insert-image-dialog\'>  <label data-#:ns#bind=\'style: { background-image: imageUrl },                    css: { k-spreadsheet-has-image: hasImage, k-hover: isHovered },                    events: { dragenter: dragEnter, dragover: stopEvent, dragleave: dragLeave, drop: drop }\'>    <div data-#:ns#bind=\'text: info\'></div>    <input type=\'file\' data-#:ns#bind=\'events: { change: change }\'           accept=\'image/png, image/jpeg, image/gif\' />  </label></div><div class=\'k-action-buttons\'>  <button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-#:ns#bind=\'enabled: okEnabled, click: apply\'><span class=\'k-button-text\'>#: messages.okText #</span></button>  <button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-#:ns#bind=\'click: cancel\'><span class=\'k-button-text\'>#= messages.cancel #</span></button></div>',
                 title: TEXT('insertImageDialog.title', 'Insert image'),
                 width: 'auto'
             },
@@ -29663,10 +29664,10 @@
             }
         });
         var templates = {
-            filterByValue: '<div class=\'' + classNames.detailsSummary + '\'>#= messages.filterByValue #</div>' + '<div class=\'' + classNames.detailsContent + '\'>' + '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'#= messages.search #\' data-#=ns#bind=\'events: { input: filterValues }\' />' + '<span class=\'k-icon k-i-zoom\'></span>' + '</div>' + '<div data-#=ns#bind=\'visible: hasActiveSearch\'><input class=\'k-checkbox\' type=\'checkbox\' data-#=ns#bind=\'checked: appendToSearch\' id=\'_#=guid#\'/><label class=\'k-checkbox-label\' for=\'_#=guid#\'>#= messages.addToCurrent #</label></div>' + '<div class=\'' + classNames.valuesTreeViewWrapper + '\'>' + '<div data-#=ns#role=\'treeview\' ' + 'data-#=ns#checkboxes=\'{ checkChildren: true }\' ' + 'data-#=ns#bind=\'source: valuesDataSource, events: { check: valuesChange, select: valueSelect }\' ' + '></div>' + '</div>' + '</div>',
+            filterByValue: '<div class=\'' + classNames.detailsSummary + '\'>#= messages.filterByValue #</div>' + '<div class=\'' + classNames.detailsContent + '\'>' + '<div class=\'k-searchbox k-input k-input-md k-rounded-md k-input-solid\'>' + '<span class=\'k-input-icon k-icon k-i-search\'></span>' + '<input class=\'k-input-inner\' autocomplete=\'off\' placeholder=\'#= messages.search #\' data-#=ns#bind=\'events: { input: filterValues }\' />' + '</div>' + '<div data-#=ns#bind=\'visible: hasActiveSearch\'><input class=\'k-checkbox k-checkbox-md k-rounded-md\' type=\'checkbox\' data-#=ns#bind=\'checked: appendToSearch\' id=\'_#=guid#\'/><label class=\'k-checkbox-label\' for=\'_#=guid#\'>#= messages.addToCurrent #</label></div>' + '<div class=\'' + classNames.valuesTreeViewWrapper + '\'>' + '<div data-#=ns#role=\'treeview\' ' + 'data-#=ns#checkboxes=\'{ checkChildren: true }\' ' + 'data-#=ns#bind=\'source: valuesDataSource, events: { check: valuesChange, select: valueSelect }\' ' + '></div>' + '</div>' + '</div>',
             filterByCondition: '<div class=\'' + classNames.detailsSummary + '\'>#= messages.filterByCondition #</div>' + '<div class=\'' + classNames.detailsContent + '\'>' + '<div>' + '<select ' + 'data-#=ns#role="dropdownlist"' + 'data-#=ns#bind="value: operator, source: operators, events: { change: operatorChange } "' + 'data-#=ns#value-primitive="false"' + 'data-#=ns#option-label="#=messages.operatorNone#"' + 'data-#=ns#height="auto"' + 'data-#=ns#text-field="text"' + 'data-#=ns#value-field="unique">' + '</select>' + '</div>' + '<div data-#=ns#bind="visible: isString">' + '<input data-filter-type="string" data-#=ns#bind="spreadsheetFilterValue: customFilter.criteria[0].value" class="k-textbox" />' + '</div>' + '<div data-#=ns#bind="visible: isNumber">' + '<input data-filter-type="number" data-#=ns#role="numerictextbox" data-#=ns#bind="spreadsheetFilterValue: customFilter.criteria[0].value" />' + '</div>' + '<div data-#=ns#bind="visible: isDate">' + '<input data-filter-type="date" data-#=ns#role="datepicker" data-#=ns#bind="spreadsheetFilterValue: customFilter.criteria[0].value" />' + '</div>' + '</div>',
             menuItem: '<li data-command=\'#=command#\' data-dir=\'#=dir#\'>' + '<span class=\'k-icon k-i-#=iconClass#\'></span>#=text#' + '</li>',
-            actionButtons: '<button data-#=ns#bind=\'click: apply\' class=\'k-button k-primary\'>#=messages.apply#</button>' + '<button data-#=ns#bind=\'click: clear\' class=\'k-button\'>#=messages.clear#</button>'
+            actionButtons: '<button data-#=ns#bind=\'click: apply\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\'><span class=\'k-button-text\'>#=messages.apply#</span></button>' + '<button data-#=ns#bind=\'click: clear\' class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\'><span class=\'k-button-text\'>#=messages.clear#</span></button>'
         };
         function distinctValues(values) {
             var hash = {};
@@ -31678,7 +31679,7 @@
                     return;
                 } else if (key === keys.F10 && this._view.tabstrip || key === keys.TAB && !e.shiftKey && $(document.activeElement).is(redoTool)) {
                     this._view.tabstrip.toolbars[this._view.tabstrip.element.find('li.k-state-active').text().toLowerCase()].element.find(':not(.k-overflow-anchor):kendoFocusable').first().trigger('focus');
-                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find('li.k-state-active').text().toLowerCase()].element.find('.k-toolbar-first-visible').addClass('k-state-focused');
+                    this._view.tabstrip.toolbars[this._view.tabstrip.element.find('li.k-state-active').text().toLowerCase()].element.find('.k-toolbar-first-visible').addClass('k-focus');
                     e.preventDefault();
                     return;
                 } else if (e.ctrlKey && key === keys.B) {

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -55,7 +55,13 @@
             NS: '.kendoInputGroupBase',
             groupStyles: {},
             destroy: function () {
-                var that = this;
+                var that = this, inputs = this.items();
+                inputs.each(function (i, input) {
+                    var widget = kendo.widgetInstance($(input));
+                    if (widget) {
+                        widget.destroy();
+                    }
+                });
                 that.element.off(that.NS);
                 Widget.fn.destroy.call(that);
             },
@@ -131,23 +137,39 @@
                 return !isNaN(index) && index !== null && index !== true && index !== false && this.wrapper.find(DOT + this.groupStyles.input).length > index;
             },
             _initializeItem: function (item, index) {
-                var itemElement = $(this.wrapper.find(DOT + this.groupStyles.item).get(index) || this.ITEM_TEMPLATE), label = itemElement.find(DOT + this.groupStyles.label), input = itemElement.find(DOT + this.groupStyles.input);
+                var itemElement = $(this.wrapper.find(DOT + this.groupStyles.item).get(index) || this.ITEM_TEMPLATE);
+                this._preInitItem(item, itemElement);
+                this._initItem(item, itemElement);
+                this._postInitItem(item, itemElement);
+            },
+            _preInitItem: function (item, itemElement) {
+                var label = itemElement.find(DOT + this.groupStyles.label), input = itemElement.find(DOT + this.groupStyles.input);
+                if (itemElement.closest(DOT + this.groupStyles.list).length === 0) {
+                    this.element.append(itemElement);
+                }
                 if (item.value !== null && item.value !== undefined) {
                     input.val(item.value);
-                }
-                if (item.name) {
-                    input.attr('name', item.name);
                 }
                 if (item.id) {
                     input.attr('id', item.id);
                     label.attr('for', item.id);
                 }
-                if (item.label) {
-                    if (item.encoded) {
-                        label.text(item.label);
-                    } else {
-                        label.html(item.label);
-                    }
+            },
+            _initItem: function (item, itemElement) {
+                var label = itemElement.find(DOT + this.groupStyles.label), input = itemElement.find(DOT + this.groupStyles.input), options = $.extend({}, item, {
+                        rounded: this.options.inputRounded,
+                        size: this.options.inputSize
+                    });
+                delete options.name;
+                if (!!item.label && label.length > 0) {
+                    label.remove();
+                }
+                input[this.COMPONENT](options);
+            },
+            _postInitItem: function (item, itemElement) {
+                var label = itemElement.find(DOT + this.groupStyles.label), input = itemElement.find(DOT + this.groupStyles.input);
+                if (item.name) {
+                    input.attr('name', item.name);
                 }
                 if (!item.labelAfter) {
                     label.after(input);
@@ -163,9 +185,6 @@
                 }
                 if (item.validation) {
                     input.attr(item.validation);
-                }
-                if (itemElement.closest(DOT + this.groupStyles.list).length === 0) {
-                    this.element.append(itemElement);
                 }
             },
             _iterateMarkupItems: function () {

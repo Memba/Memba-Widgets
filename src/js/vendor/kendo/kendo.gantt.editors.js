@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -227,13 +227,14 @@
                 formContainer: 'k-edit-form-container',
                 resourcesFormContainer: 'k-resources-form-container',
                 message: 'k-popup-message',
-                buttonsContainer: 'k-edit-buttons k-state-default',
+                buttonsContainer: 'k-edit-buttons',
                 button: 'k-button',
+                buttonDefaults: 'k-button-md k-rounded-md k-button-solid k-button-solid-base',
                 editField: 'k-edit-field',
                 editLabel: 'k-edit-label',
                 resourcesField: 'k-gantt-resources'
             },
-            primary: 'k-primary',
+            primary: 'k-button-solid-primary',
             toolbar: { appendButton: 'k-gantt-create' }
         };
         var DATERANGEEDITOR = function (container, options) {
@@ -249,7 +250,7 @@
             $('<span ' + kendo.attr('for') + '="' + options.field + '" class="k-invalid-msg"/>').hide().appendTo(container);
         };
         var RESOURCESEDITOR = function (container, options) {
-            $('<a href="#" class="' + options.styles.button + '">' + options.messages.assignButton + '</a>').on('click', options.click).appendTo(container);
+            $('<a href="#" class="' + options.styles.button + ' ' + options.styles.buttonDefaults + '"><span class="k-button-text">' + options.messages.assignButton + '</span></a>').on('click', options.click).appendTo(container);
         };
         var TaskDropDown = Observable.extend({
             init: function (element, options) {
@@ -564,7 +565,7 @@
                     }
                 }).getKendoWindow();
                 popup.center().open();
-                popup.element.find('.k-primary').trigger('focus');
+                popup.element.find('.k-button-solid-primary').trigger('focus');
             },
             _createPopupEditor: function (task, plannedEditors) {
                 var that = this;

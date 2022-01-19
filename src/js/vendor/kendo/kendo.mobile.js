@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -32,7 +32,14 @@
         description: 'The core of the Kendo framework.'
     };
     (function ($, window, undefined) {
-        var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = Array.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice, noDepricateExtend = function () {
+        var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = Array.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', PREFIX = 'prefix', getterCache = {}, setterCache = {}, slice = [].slice, cssPropertiesNames = [
+                'themeColor',
+                'fillMode',
+                'shape',
+                'size',
+                'rounded',
+                'positionMode'
+            ], noDepricateExtend = function () {
                 var src, copyIsArray, copy, name, options, clone, target = arguments[0] || {}, i = 1, length = arguments.length, deep = false;
                 if (typeof target === 'boolean') {
                     deep = target;
@@ -73,7 +80,7 @@
                 }
                 return target;
             };
-        kendo.version = '2021.3.1207'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2022.1.119'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2215,8 +2222,10 @@
                 target.attr(TABINDEX, !isNaN(tabindex) ? tabindex : 0);
             },
             setOptions: function (options) {
+                this._clearCssClasses(options);
                 this._setEvents(options);
                 $.extend(this.options, options);
+                this._applyCssClasses();
             },
             _setEvents: function (options) {
                 var that = this, idx = 0, length = that.events.length, e;
@@ -2266,6 +2275,74 @@
                 this._muteRebind = true;
                 callback.call(this);
                 this._muteRebind = false;
+            },
+            _applyCssClasses: function (element) {
+                var protoOptions = this.__proto__.options, options = this.options, el = element || this.wrapper || this.element, classes = [], i, prop, validFill, widgetName;
+                if (!kendo.cssProperties.propertyDictionary[protoOptions.name]) {
+                    return;
+                }
+                for (i = 0; i < cssPropertiesNames.length; i++) {
+                    prop = cssPropertiesNames[i];
+                    widgetName = this.options._altname || protoOptions.name;
+                    if (protoOptions.hasOwnProperty(prop)) {
+                        if (prop === 'themeColor') {
+                            validFill = kendo.cssProperties.getValidClass({
+                                widget: widgetName,
+                                propName: 'fillMode',
+                                value: options.fillMode
+                            });
+                            if (validFill && validFill.length) {
+                                classes.push(kendo.cssProperties.getValidClass({
+                                    widget: widgetName,
+                                    propName: prop,
+                                    value: options[prop],
+                                    fill: options.fillMode
+                                }));
+                            }
+                        } else {
+                            classes.push(kendo.cssProperties.getValidClass({
+                                widget: widgetName,
+                                propName: prop,
+                                value: options[prop]
+                            }));
+                        }
+                    }
+                }
+                el.addClass(classes.join(' '));
+            },
+            _clearCssClasses: function (newOptions, element) {
+                var protoOptions = this.__proto__.options, currentOptions = this.options, el = element || this.wrapper || this.element, i, prop, widgetName;
+                if (!kendo.cssProperties.propertyDictionary[protoOptions.name]) {
+                    return;
+                }
+                for (i = 0; i < cssPropertiesNames.length; i++) {
+                    prop = cssPropertiesNames[i];
+                    widgetName = this.options._altname || protoOptions.name;
+                    if (protoOptions.hasOwnProperty(prop) && newOptions.hasOwnProperty(prop)) {
+                        if (prop === 'themeColor') {
+                            el.removeClass(kendo.cssProperties.getValidClass({
+                                widget: widgetName,
+                                propName: prop,
+                                value: currentOptions[prop],
+                                fill: currentOptions.fillMode
+                            }));
+                        } else {
+                            if (prop === 'fillMode') {
+                                el.removeClass(kendo.cssProperties.getValidClass({
+                                    widget: widgetName,
+                                    propName: 'themeColor',
+                                    value: currentOptions.themeColor,
+                                    fill: currentOptions.fillMode
+                                }));
+                            }
+                            el.removeClass(kendo.cssProperties.getValidClass({
+                                widget: widgetName,
+                                propName: prop,
+                                value: currentOptions[prop]
+                            }));
+                        }
+                    }
+                }
             }
         });
         var DataBoundWidget = Widget.extend({
@@ -3723,6 +3800,7 @@
             return '.' + classes.split(' ').join('.');
         };
         var themeColorValues = [
+            'base',
             'primary',
             'secondary',
             'tertiary',
@@ -3740,17 +3818,9 @@
             'outline',
             'flat'
         ];
-        var postitionValues = [
-            'edge',
-            'outside',
-            'inside'
-        ];
         var shapeValues = [
-            'circle',
             'rectangle',
-            'rounded',
-            'dot',
-            'pill'
+            'square'
         ];
         var sizeValues = [
             [
@@ -3766,22 +3836,18 @@
                 'lg'
             ]
         ];
-        var alignValues = [
+        var roundedValues = [
             [
-                'top start',
-                'top-start'
+                'small',
+                'sm'
             ],
             [
-                'top end',
-                'top-end'
+                'medium',
+                'md'
             ],
             [
-                'bottom start',
-                'bottom-start'
-            ],
-            [
-                'bottom end',
-                'bottom-end'
+                'large',
+                'lg'
             ]
         ];
         var positionModeValues = [
@@ -3790,7 +3856,109 @@
             'sticky',
             'absolute'
         ];
-        kendo.propertyToCssClassMap = {};
+        var resizeValues = [
+            'both',
+            'horizontal',
+            'vertical'
+        ];
+        var overflowValues = [
+            'auto',
+            'hidden',
+            'visible',
+            'scroll',
+            'clip'
+        ];
+        kendo.cssProperties = function () {
+            var defaultValues = {}, propertyDictionary = {};
+            function registerPrefix(widget, prefix) {
+                var dict = kendo.cssProperties.propertyDictionary;
+                if (!dict[widget]) {
+                    dict[widget] = {};
+                }
+                dict[widget][PREFIX] = prefix;
+            }
+            function registerValues(widget, args) {
+                var dict = kendo.cssProperties.propertyDictionary, i, j, prop, values, newValues, currentValue;
+                for (i = 0; i < args.length; i++) {
+                    prop = args[i].prop;
+                    newValues = args[i].values;
+                    if (!dict[widget][prop]) {
+                        dict[widget][prop] = {};
+                    }
+                    values = dict[widget][prop];
+                    for (j = 0; j < newValues.length; j++) {
+                        currentValue = newValues[j];
+                        if (isArray(newValues[j])) {
+                            values[currentValue[0]] = currentValue[1];
+                        } else {
+                            values[currentValue] = currentValue;
+                        }
+                    }
+                }
+            }
+            function registerCssClass(propName, value, shorthand) {
+                if (!defaultValues[propName]) {
+                    defaultValues[propName] = {};
+                }
+                defaultValues[propName][value] = shorthand || value;
+            }
+            function registerCssClasses(propName, arr) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (isArray(arr[i])) {
+                        registerCssClass(propName, arr[i][0], arr[i][1]);
+                    } else {
+                        registerCssClass(propName, arr[i]);
+                    }
+                }
+            }
+            function getValidClass(args) {
+                var widget = args.widget, propName = args.propName, value = args.value, fill = args.fill, cssProperties = kendo.cssProperties, defaultValues = cssProperties.defaultValues[propName], widgetProperties = cssProperties.propertyDictionary[widget], widgetValues, validValue, prefix;
+                if (!widgetProperties) {
+                    return '';
+                }
+                widgetValues = widgetProperties[propName];
+                validValue = widgetValues ? widgetValues[value] || defaultValues[value] : defaultValues[value];
+                if (validValue) {
+                    if (propName === 'themeColor') {
+                        prefix = widgetProperties[PREFIX] + fill + '-';
+                    } else if (propName === 'positionMode') {
+                        prefix = 'k-pos-';
+                    } else if (propName === 'rounded') {
+                        prefix = 'k-rounded-';
+                    } else if (propName === 'resize') {
+                        prefix = 'k-resize-';
+                    } else if (propName === 'overflow') {
+                        prefix = 'k-overflow-';
+                    } else {
+                        prefix = widgetProperties[PREFIX];
+                    }
+                    return prefix + validValue;
+                } else {
+                    return '';
+                }
+            }
+            registerCssClasses('themeColor', themeColorValues);
+            registerCssClasses('fillMode', fillValues);
+            registerCssClasses('shape', shapeValues);
+            registerCssClasses('size', sizeValues);
+            registerCssClasses('positionMode', positionModeValues);
+            registerCssClasses('rounded', roundedValues);
+            registerCssClasses('resize', resizeValues);
+            registerCssClasses('overflow', overflowValues);
+            return {
+                positionModeValues: positionModeValues,
+                roundedValues: roundedValues,
+                sizeValues: sizeValues,
+                shapeValues: shapeValues,
+                fillModeValues: fillValues,
+                themeColorValues: themeColorValues,
+                defaultValues: defaultValues,
+                propertyDictionary: propertyDictionary,
+                registerValues: registerValues,
+                getValidClass: getValidClass,
+                registerPrefix: registerPrefix
+            };
+        }();
         kendo.registerCssClass = function (propName, value, shorthand) {
             if (!kendo.propertyToCssClassMap[propName]) {
                 kendo.propertyToCssClassMap[propName] = {};
@@ -3812,12 +3980,11 @@
                 return prefix + validValue;
             }
         };
+        kendo.propertyToCssClassMap = {};
         kendo.registerCssClasses('themeColor', themeColorValues);
         kendo.registerCssClasses('fill', fillValues);
-        kendo.registerCssClasses('postition', postitionValues);
         kendo.registerCssClasses('shape', shapeValues);
         kendo.registerCssClasses('size', sizeValues);
-        kendo.registerCssClasses('align', alignValues);
         kendo.registerCssClasses('positionMode', positionModeValues);
         kendo.whenAll = function (array) {
             var resolveValues = arguments.length == 1 && Array.isArray(array) ? array : Array.prototype.slice.call(arguments), length = resolveValues.length, remaining = length, deferred = $.Deferred(), i = 0, failed = 0, rejectContexts = Array(length), rejectValues = Array(length), resolveContexts = Array(length), value;
@@ -12561,7 +12728,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', VALIDATIONSUMMARY = 'k-validation-summary', INVALIDLABEL = 'k-text-error', MESSAGEBOX = 'k-messagebox k-messagebox-error', ARIAINVALID = 'aria-invalid', ARIADESCRIBEDBY = 'aria-describedby', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', VALIDATE = 'validate', CHANGE = 'change', VALIDATE_INPUT = 'validateInput', proxy = $.proxy, patternMatcher = function (value, pattern) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', VALIDATIONSUMMARY = 'k-validation-summary', INVALIDLABEL = 'k-text-error', MESSAGEBOX = 'k-messagebox k-messagebox-error', INPUTINNER = '.k-input-inner', INPUTWRAPPER = '.k-input', ARIAINVALID = 'aria-invalid', ARIADESCRIBEDBY = 'aria-describedby', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', VALIDATE = 'validate', CHANGE = 'change', VALIDATE_INPUT = 'validateInput', proxy = $.proxy, patternMatcher = function (value, pattern) {
                 if (typeof pattern === 'string') {
                     pattern = new RegExp('^(?:' + pattern + ')$');
                 }
@@ -12860,7 +13027,7 @@
                     })).addClass('k-hidden'), messageText = !valid ? that._extractMessage(input, result.key) : '', messageLabel = !valid ? parseHtml(template({
                         message: decode(messageText),
                         field: fieldName
-                    })) : '', wasValid = !input.attr(ARIAINVALID);
+                    })) : '', wasValid = !input.attr(ARIAINVALID), isInputInner = input.is(INPUTINNER), inputWrapper = input.parent(INPUTWRAPPER);
                 input.removeAttr(ARIAINVALID);
                 if (!valid && !input.data('captcha_validating')) {
                     that._errors[fieldName] = messageText;
@@ -12890,6 +13057,8 @@
                             messageLabel.insertAfter(nextElement);
                         } else if (prevElement && isLabelFor(prevElement, input[0])) {
                             messageLabel.insertAfter(input);
+                        } else if (isInputInner && inputWrapper.length) {
+                            messageLabel.insertAfter(inputWrapper);
                         } else {
                             messageLabel.insertAfter(input);
                         }
@@ -12907,11 +13076,16 @@
                         field: fieldName
                     });
                 }
+                if (isInputInner && inputWrapper.length) {
+                    inputWrapper.toggleClass(INVALIDINPUT, !valid);
+                    inputWrapper.toggleClass(VALIDINPUT, valid);
+                }
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
                 if (kendo.widgetInstance(input)) {
-                    var inputWrap = kendo.widgetInstance(input)._inputWrapper;
-                    var inputLabel = kendo.widgetInstance(input)._inputLabel;
+                    var widget = kendo.widgetInstance(input);
+                    var inputWrap = widget._inputWrapper || widget.wrapper;
+                    var inputLabel = widget._inputLabel;
                     if (inputWrap) {
                         inputWrap.toggleClass(INVALIDINPUT, !valid);
                         inputWrap.toggleClass(VALIDINPUT, valid);
@@ -15712,7 +15886,7 @@
                         that._resizeTimeout = null;
                     }, 50);
                 } else {
-                    if (!that._hovered || that._activated && that.element.hasClass('k-list-container')) {
+                    if (!that._hovered || that._activated && that.element.find('.k-list').length > 0) {
                         that.close();
                     }
                 }

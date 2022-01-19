@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -262,7 +262,7 @@
     (function ($, undefined) {
         var NS = '.kendoPDFViewer', Widget = kendo.ui.Widget, CHANGE = 'change', KEYDOWN = 'keydown', CLICK = kendo.support.click, SHRINKWIDTH = 480, kendoAttr = kendo.attr, proxy = $.proxy, extend = $.extend, DOT = '.', ARIA_DISABLED = 'aria-disabled';
         var pagerStyles = {
-            wrapperClass: 'k-pager-wrap',
+            wrapperClass: 'k-pager-wrap k-button-group',
             iconFirst: 'k-i-arrow-end-left',
             iconLast: 'k-i-arrow-end-right',
             iconPrev: 'k-i-arrow-60-left',
@@ -270,7 +270,7 @@
             first: 'k-pager-first',
             last: 'k-pager-last',
             nav: 'k-pager-nav',
-            disabled: 'k-state-disabled'
+            disabled: 'k-disabled'
         };
         var Pager = Widget.extend({
             init: function (element, options) {
@@ -283,7 +283,7 @@
                 that._attachEvents();
             },
             options: {
-                linkTemplate: '<a href="\\#" aria-label="#=text#" title="#=text#" class="k-button k-button-icon k-flat k-pager-nav #= wrapClass #" data-page="#=pageIdx#"><span class="k-icon #= iconClass #"></span></a>',
+                linkTemplate: '<a href="\\#" aria-label="#=text#" title="#=text#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-pager-nav #= wrapClass #" data-page="#=pageIdx#"><span class="k-button-icon k-icon #= iconClass #"></span></a>',
                 previousNext: true,
                 input: true,
                 page: 1,
@@ -411,7 +411,7 @@
                 if (!shouldShrink) {
                     totalMessage += options.total > 1 ? options.messages.pages : options.messages.page;
                 }
-                inputTemplate = '<input class="k-textbox" aria-label="' + options.page + totalMessage + '">' + totalMessage;
+                inputTemplate = '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" aria-label="' + options.page + totalMessage + '"></span>' + totalMessage;
                 if (pagerInputWrap.length) {
                     pagerInputWrap.html(inputTemplate);
                 } else {
@@ -441,7 +441,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, ACTION = 'action', FLATBUTTONCLASS = 'k-flat', KEYDOWN = 'keydown', CLICK = kendo.support.click, CHANGE = 'change', ZOOMIN = 'zoomin', ZOOMOUT = 'zoomout', Item = kendo.toolbar.Item, ToolBar = kendo.ui.ToolBar, PREDEFINED_ZOOM_VALUES = {
+        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, ACTION = 'action', KEYDOWN = 'keydown', CLICK = kendo.support.click, CHANGE = 'change', ZOOMIN = 'zoomin', ZOOMOUT = 'zoomout', Item = kendo.toolbar.Item, ToolBar = kendo.ui.ToolBar, PREDEFINED_ZOOM_VALUES = {
                 auto: 'auto',
                 actual: 'actual',
                 fitToWidth: 'fitToWidth',
@@ -449,12 +449,12 @@
             }, styles = {
                 zoomOutIcon: 'k-i-zoom-out',
                 zoomInIcon: 'k-i-zoom-in',
-                zoomButtons: 'k-button-icon k-flat',
-                zoomOverflowButtons: 'k-button-icontext k-overflow-button',
+                zoomButtons: 'k-button-flat k-button-flat-base',
+                zoomOverflowButtons: 'k-button-solid k-button-solid-base k-overflow-button',
                 overflowHidden: 'k-overflow-hidden'
             };
-        var ZOOM_BUTTON_TEMPLATE = kendo.template('<a href="\\#" aria-label="#=text#" title="#=text#" data-command="#=command#" class="k-button #=className#"><span class="k-icon #= iconClass #"></span> ${showText ? text : ""}</a>');
-        var ZOOM_COMBOBOX_TEMPLATE = kendo.template('<select title="#=zoomLevel#">' + '#for(var zoomIndex in zoomLevels){#' + '# var zoomLevel = zoomLevels[zoomIndex]; #' + '<option value="#= zoomLevel.percent || (zoomLevel + "%") #">${zoomLevel.text ? zoomLevel.text : zoomLevel + "%"}</option>' + '#}#' + '</select>');
+        var ZOOM_BUTTON_TEMPLATE = kendo.template('<a href="\\#" aria-label="#=text#" title="#=text#" data-command="#=command#" class="k-button k-button-md k-rounded-md # if(!showText) { # k-icon-button # } # #=className#">' + '<span class="k-button-icon k-icon #= iconClass #"></span> ' + '# if(showText) { #' + '<span class="k-button-text">#= text #</span> ' + '# } #' + '</a>');
+        var ZOOM_COMBOBOX_TEMPLATE = kendo.template('<select title="#=zoomLevel#" aria-label="#=zoomLevel#">' + '#for(var zoomIndex in zoomLevels){#' + '# var zoomLevel = zoomLevels[zoomIndex]; #' + '<option value="#= zoomLevel.percent || (zoomLevel + "%") #">${zoomLevel.text ? zoomLevel.text : zoomLevel + "%"}</option>' + '#}#' + '</select>');
         var DefaultTools = {
             pager: {
                 type: 'pager',
@@ -476,7 +476,8 @@
                         400
                     ]
                 },
-                enable: false
+                enable: false,
+                attributes: { 'class': 'k-button-group' }
             },
             toggleSelection: {
                 type: 'buttonGroup',
@@ -572,9 +573,17 @@
                 });
             },
             _keydown: function (e) {
-                var that = this, target = $(e.target), keyCode = e.keyCode, children = that.element.find(':kendoFocusable'), targetIndex = children.index(target), direction = e.shiftKey ? -1 : 1;
-                if (keyCode === kendo.keys.TAB && children[targetIndex + direction]) {
+                var that = this, target = $(e.target), keyCode = e.keyCode, children = that.element.find(':kendoFocusable'), targetIndex = children.index(target), direction = e.shiftKey ? -1 : 1, keys = kendo.keys;
+                if (keyCode === keys.TAB && children[targetIndex + direction]) {
                     children[targetIndex + direction].focus();
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (keyCode === keys.RIGHT && children[targetIndex + 1]) {
+                    children[targetIndex + 1].focus();
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (keyCode === keys.LEFT && children[targetIndex - 1]) {
+                    children[targetIndex - 1].focus();
                     e.preventDefault();
                     e.stopPropagation();
                 }
@@ -700,15 +709,23 @@
                 this._buttonCommand(e.target);
             },
             _keydown: function (e) {
-                var key = e.keyCode, keys = kendo.keys;
-                if (key === keys.ENTER) {
-                    this._buttonCommand(e.target);
+                var target = e.target, keyCode = e.keyCode, keys = kendo.keys, children = this.element.find(':kendoFocusable'), targetIndex = children.index($(target));
+                if (keyCode === keys.ENTER) {
+                    this._buttonCommand(target);
                     e.preventDefault();
+                } else if (keyCode === keys.RIGHT && children[targetIndex + 1]) {
+                    children[targetIndex + 1].focus();
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else if (keyCode === keys.LEFT && children[targetIndex - 1]) {
+                    children[targetIndex - 1].focus();
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
             },
             enable: function (value) {
                 var element = this.element;
-                element.find('.k-button, select').toggleClass('k-state-disabled', !value);
+                element.find('.k-button, select').toggleClass('k-disabled', !value);
                 if (this.combobox) {
                     this.combobox.enable(value);
                 }
@@ -768,10 +785,10 @@
                             attributes: {
                                 'aria-label': messages[toolName],
                                 'title': messages[toolName],
-                                'data-command': toolOptions.command,
-                                'class': FLATBUTTONCLASS
+                                'data-command': toolOptions.command
                             },
-                            overflow: toolOptions.overflow
+                            overflow: toolOptions.overflow,
+                            fillMode: 'flat'
                         };
                     } else {
                         options = { overflow: 'never' };
@@ -1443,7 +1460,7 @@
                 modal: { preventScroll: true },
                 width: '90%',
                 maxWidth: 520,
-                template: '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input class=\'k-textbox\' data-bind=\'value: name\' />' + '</div>' + '<div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'description\' ' + 'data-value-field=\'extension\' ' + 'data-bind=\'value: extension, source: fileFormats\'></select>' + '</div>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.page #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input data-role=\'numerictextbox\' data-format=\'n0\' data-min=\'1\' data-max=\'#: total #\' data-bind=\'value: page\' />' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#: messages.save #</button>' + '<button class=\'k-button\' data-bind=\'click: close\'>#: messages.cancel #</button>' + '</div>'
+                template: '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.fileName #:</label></div>' + '<div class=\'k-edit-field\'>' + '<span class=\'k-textbox k-input k-input-md k-rounded-md k-input-solid\'><input class=\'k-input-inner\' data-bind=\'value: name\' /></span>' + '</div>' + '<div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.saveAsType #:</label></div>' + '<div class=\'k-edit-field\'>' + '<select data-role=\'dropdownlist\' class=\'k-file-format\' ' + 'data-text-field=\'description\' ' + 'data-value-field=\'extension\' ' + 'data-bind=\'value: extension, source: fileFormats\'></select>' + '</div>' + '</div>' + '<div class=\'k-edit-label\'><label>#: messages.exportAsDialog.labels.page #:</label></div>' + '<div class=\'k-edit-field\'>' + '<input data-role=\'numerictextbox\' data-format=\'n0\' data-min=\'1\' data-max=\'#: total #\' data-bind=\'value: page\' />' + '</div>' + '<div class=\'k-action-buttons\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-bind=\'click: apply\'><span class=\'k-button-text\'>#: messages.save #</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-bind=\'click: close\'><span class=\'k-button-text\'>#: messages.cancel #</span></button>' + '</div>'
             },
             _updateModel: function (options) {
                 if (options.pagesCount) {
@@ -1496,7 +1513,7 @@
             },
             options: {
                 resizable: false,
-                template: '<div class=\'k-search-container\'>' + '<button class=\'k-button k-button-icon k-flat k-search-dialog-draghandle\'><span class=\'k-icon k-i-handler-drag\'></span></button>' + '<span class=\'k-textbox\'>' + '<input class=\'k-search-dialog-input\' data-bind=\'value: boundValue, events: { keyup: onKeyup, input: onInput }\' aria-label=\'#: messages.inputLabel #\' title=\'#: messages.inputLabel #\' />' + '<button class=\'k-button k-button-icon k-flat k-match-case-button\' data-bind=\'css: {k-state-selected: matchCase}, click: matchCaseClick\' aria-label=\'#: messages.matchCase #\' title=\'#: messages.matchCase #\'><span class=\'k-icon k-i-convert-lowercase\'></span></button>' + '</span>' + '<span class=\'k-search-matches\'><span data-bind=\'text: matchIndex\'></span> #: messages.of # <span data-bind=\'text: matches\'></span></span>' + '<button class=\'k-button k-button-icon k-flat\' data-bind=\'click: prev\' aria-label=\'#: messages.previous #\' title=\'#: messages.previous #\'><span class=\'k-icon k-i-arrow-up\'></span></button>' + '<button class=\'k-button k-button-icon k-flat\' data-bind=\'click: next\' aria-label=\'#: messages.next #\' title=\'#: messages.next #\'><span class=\'k-icon k-i-arrow-down\'></span></button>' + '<button class=\'k-button k-button-icon k-flat\' data-bind=\'click: close\' aria-label=\'#: messages.close #\' title=\'#: messages.close #\'><span class=\'k-icon k-i-close\'></<span></button>' + '</div>'
+                template: '<div class=\'k-search-container\'>' + '<button class=\'k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-search-dialog-draghandle\'><span class=\'k-button-icon k-icon k-i-handler-drag\'></span></button>' + '<span class=\'k-textbox k-input k-input-md k-rounded-md k-input-solid\'>' + '<input class=\'k-search-dialog-input k-input-inner\' data-bind=\'value: boundValue, events: { keyup: onKeyup, input: onInput }\' aria-label=\'#: messages.inputLabel #\' title=\'#: messages.inputLabel #\' />' + '<span class=\'k-input-suffix\'><button class=\'k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-match-case-button k-match-case-button\' data-bind=\'css: {k-selected: matchCase}, click: matchCaseClick\' aria-label=\'#: messages.matchCase #\' title=\'#: messages.matchCase #\'><span class=\'k-icon k-i-convert-lowercase\'></span></button></span>' + '</span>' + '<span class=\'k-search-matches\'><span data-bind=\'text: matchIndex\'></span> #: messages.of # <span data-bind=\'text: matches\'></span></span>' + '<button class=\'k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button\' data-bind=\'click: prev\' aria-label=\'#: messages.previous #\' title=\'#: messages.previous #\'><span class=\'k-button-icon k-icon k-i-arrow-up\'></span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button\' data-bind=\'click: next\' aria-label=\'#: messages.next #\' title=\'#: messages.next #\'><span class=\'k-button-icon k-icon k-i-arrow-down\'></span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button\' data-bind=\'click: close\' aria-label=\'#: messages.close #\' title=\'#: messages.close #\'><span class=\'k-button-icon k-icon k-i-close\'></<span></button>' + '</div>'
             },
             open: function () {
                 var that = this;

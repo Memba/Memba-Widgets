@@ -31,6 +31,11 @@ SystemJS.config({
     },
     map: {
         jquery: 'src/js/vendor/jquery/jquery-3.6.0.js',
+        'html/button': 'src/js/vendor/kendo/html/button.js',
+        'html/chip': 'src/js/vendor/kendo/html/chip.js',
+        'html/chiplist': 'src/js/vendor/kendo/html/chiplist.js',
+        'html/htmlbase': 'src/js/vendor/kendo/html/htmlbase.js',
+        'html/input': 'src/js/vendor/kendo/html/input.js',
         // http://docs.telerik.com/kendo-ui/third-party/systemjs
         'kendo.culture.en-GB':
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
@@ -39,6 +44,7 @@ SystemJS.config({
         'kendo.actionsheet': 'src/js/vendor/kendo/kendo.actionsheet.js',
         'kendo.appbar': 'src/js/vendor/kendo/kendo.appbar.js',
         'kendo.autocomplete': 'src/js/vendor/kendo/kendo.autocomplete.js',
+        'kendo.avatar': 'src/js/vendor/kendo/kendo.avatar.js',
         'kendo.badge': 'src/js/vendor/kendo/kendo.badge.js',
         'kendo.binder': 'src/js/vendor/kendo/kendo.binder.js',
         'kendo.bottomnavigation':
@@ -49,6 +55,7 @@ SystemJS.config({
         'kendo.calendar': 'src/js/vendor/kendo/kendo.calendar.js',
         'kendo.captcha': 'src/js/vendor/kendo/kendo.captcha.js',
         'kendo.chat': 'src/js/vendor/kendo/kendo.chat.js',
+        'kendo.checkbox': 'src/js/vendor/kendo/kendo.checkbox.js',
         'kendo.checkboxgroup': 'src/js/vendor/kendo/kendo.checkboxgroup.js',
         'kendo.color': 'src/js/vendor/kendo/kendo.color.js',
         // 'kendo.colorpicker': 'src/js/vendor/kendo/kendo.colorpicker.js',
@@ -149,6 +156,7 @@ SystemJS.config({
         'kendo.popover': 'src/js/vendor/kendo/kendo.popover.js',
         'kendo.popup': 'src/js/vendor/kendo/kendo.popup.js',
         'kendo.progressbar': 'src/js/vendor/kendo/kendo.progressbar.js',
+        'kendo.radiobutton': 'src/js/vendor/kendo/kendo.radiobuttonn.js',
         'kendo.radiogroup': 'src/js/vendor/kendo/kendo.radiogroup.js',
         'kendo.rating': 'src/js/vendor/kendo/kendo.rating.js',
         'kendo.reorderable': 'src/js/vendor/kendo/kendo.reorderable.js',
@@ -188,6 +196,7 @@ SystemJS.config({
         'kendo.timeline': 'src/js/vendor/kendo/kendo.timeline.js',
         'kendo.timepicker': 'src/js/vendor/kendo/kendo.timepicker.js',
         'kendo.timezones': 'src/js/vendor/kendo/kendo.timezones.js',
+        'kendo.toggleinputbase': 'src/js/vendor/kendo/kendo.toggleinputbase.js',
         'kendo.toolbar': 'src/js/vendor/kendo/kendo.toolbar.js',
         'kendo.tooltip': 'src/js/vendor/kendo/kendo.tooltip.js',
         'kendo.touch': 'src/js/vendor/kendo/kendo.touch.js',

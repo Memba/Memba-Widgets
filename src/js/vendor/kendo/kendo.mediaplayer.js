@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -226,7 +226,8 @@
                             {
                                 type: 'button',
                                 attributes: { 'class': 'k-play-button' },
-                                icon: 'play'
+                                icon: 'play',
+                                fillMode: 'flat'
                             },
                             {
                                 template: templates.toolBarTime,
@@ -236,7 +237,8 @@
                             {
                                 type: 'button',
                                 attributes: { 'class': 'k-volume-button' },
-                                icon: 'volume-up'
+                                icon: 'volume-up',
+                                fillMode: 'flat'
                             },
                             {
                                 template: templates.volumeSlider,
@@ -249,7 +251,8 @@
                             {
                                 type: 'button',
                                 attributes: { 'class': 'k-fullscreen-button' },
-                                icon: 'full-screen'
+                                icon: 'full-screen',
+                                fillMode: 'flat'
                             }
                         ]
                     });
@@ -277,7 +280,6 @@
                             this._fullscreenButton[0]
                         ]).wrapAll('<div class=\'k-align-right\' />');
                     }
-                    toolBarElement.find('.k-button').addClass('k-flat');
                 }
             },
             _createDropDown: function () {
@@ -305,9 +307,9 @@
                         this._dropDown.setDataSource(media.source);
                         this._dropDown.select(0);
                     }
-                    this._dropDown.wrapper.addClass('k-button k-flat');
+                    this._dropDown.wrapper.addClass('k-button k-button-md k-rounded-md k-button-flat k-button-flat-base');
                     this._dropDown.wrapper.attr('title', this.options.messages.quality).hide();
-                    this._dropDown.wrapper.find('span.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-icon k-i-hd');
+                    this._dropDown.wrapper.find('span.k-i-arrow-s').removeClass('k-i-arrow-s').addClass('k-icon k-i-hd');
                     this._dropDown.list.addClass('k-quality-list');
                 }
             },

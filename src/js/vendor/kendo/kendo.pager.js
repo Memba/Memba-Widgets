@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -114,7 +114,7 @@
                     if (!that._numericSelect) {
                         that._numericSelect = that._numericWrap.find('.k-dropdown');
                         if (that._numericSelect.length === 0) {
-                            that._numericSelect = $('<select class=\'k-dropdown\' />').appendTo(that._numericWrap);
+                            that._numericSelect = $('<select class=\'k-dropdown k-picker k-dropdown-list\' />').appendTo(that._numericWrap);
                         }
                     }
                     if (!that.list) {
@@ -135,7 +135,7 @@
                 }
                 if (options.input) {
                     if (!that.element.find('.k-pager-input').length) {
-                        that.element.append('<span class="k-pager-input k-label">' + options.messages.page + '<input class="k-textbox">' + kendo.format(options.messages.of, totalPages) + '</span>');
+                        that.element.append('<span class="k-pager-input k-label">' + options.messages.page + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" /></span>' + kendo.format(options.messages.of, totalPages) + '</span>');
                     }
                     that.element.on(KEYDOWN + NS, '.k-pager-input input', proxy(that._keydown, that));
                 }
@@ -330,7 +330,7 @@
                     that.element.find('.k-pager-info').html(html);
                 }
                 if (options.input) {
-                    that.element.find('.k-pager-input').html(that.options.messages.page + '<input class="k-textbox" aria-label="' + page + '">' + kendo.format(options.messages.of, totalPages)).find('input').val(page).attr(DISABLED, total < 1).toggleClass('k-state-disabled', total < 1);
+                    that.element.find('.k-pager-input').html(that.options.messages.page + '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" aria-label="' + page + '"></span>' + kendo.format(options.messages.of, totalPages)).find('input').val(page).attr(DISABLED, total < 1).toggleClass('k-state-disabled', total < 1);
                 }
                 if (options.previousNext) {
                     first(that.element, page, totalPages);
@@ -496,6 +496,7 @@
                 }
                 if (handled) {
                     e.preventDefault();
+                    e.stopPropagation();
                 }
             },
             _numericSelectChange: function (e) {

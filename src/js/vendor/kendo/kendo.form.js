@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -69,7 +69,8 @@
                     'radiogroup',
                     'checkboxgroup',
                     'textbox',
-                    'textarea'
+                    'textarea',
+                    'checkbox'
                 ]
             },
             {
@@ -154,7 +155,7 @@
             },
             _fieldTemplate: '<div class=\'#:styles.field# #if (colSpan) { # k-colspan-#:colSpan# # } # #if (hidden) { ##:styles.hidden## } #\'>' + '# if (label && !hidden) { # ' + '<label class=\'#:styles.label#\' for=\'#:id#\' id=\'#:id#-form-label\'>' + '# if (typeof label.encoded != \'undefined\' && label.encoded === false) {#' + '#= label.text || label #' + '# } else { #' + '#: label.text || label #' + '# } #' + '# if (label.optional) { # <span class=\'#:styles.optional#\'>#:optional#</span>  #}#' + '</label>' + '# } #' + '<div class=\'k-form-field-wrap\' data-container-for=\'#:field#\'></div>' + '</div>',
             _groupTemplate: '<fieldset class=\'#:styles.fieldset# #if (colSpan) { #  k-colspan-#:colSpan# # }#\'>' + '<legend class=\'#:styles.legend#\'>#:label.text || label #</legend>' + '</fieldset>',
-            _buttonsTemplate: '<button class=\'k-button k-primary #:styles.submit#\' type=\'submit\'>#:messages.submit#</button>' + '<button class=\'k-button #:styles.clear#\'>#:messages.clear#</button>',
+            _buttonsTemplate: '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary #:styles.submit#\' type=\'submit\'><span class=\'k-button-text\'>#:messages.submit#</span></button>' + '<button class=\'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base #:styles.clear#\'><span class=\'k-button-text\'>#:messages.clear#</span></button>',
             _errorTemplate: '<span class=\'k-form-error\' id=\'#=field#-form-error\'><div>#=message#</div></span>',
             _hintTemplate: '<div class=\'k-form-hint\' id=\'#=id#-form-hint\'><span>#=message#</span></div>',
             _wrapper: function () {

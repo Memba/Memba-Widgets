@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1597,7 +1597,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Comparer = kendo.data.Comparer, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, common = window.kendo.pivotgrid.common, fetchDiscover = common.fetchDiscover, normalizeFilter = kendo.data.Query.normalizeFilter, normalizeSort = kendo.data.Query.normalizeSort, toString = {}.toString, identity = function (o) {
                 return o;
-            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, fetchData = common.fetchData, createDataState = common.createDataState, toColumns = common.toColumns, toRows = common.toRows, toTree = common.toTree, toData = common.toData, headersReducer = common.headersReducer, RESIZE = 'resize', READ = 'read', CHANGE = 'change', ERROR = 'error', REQUESTSTART = 'requestStart', PROGRESS = 'progress', REQUESTEND = 'requestEnd', MEASURES = 'Measures', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div></div>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', HEADERTEMPLATE = '<th data-key="#:key#" class="#:headerClass#" #if (colspan) {#colspan="#:colspan#"#}# #if (rowspan) {#rowspan="#:rowspan#"#}#>' + '#if (expandable) {# <span class="k-icon k-i-arrow-chevron-#:iconClass# k-color-inherit" role="presentation"></span>#}#' + '</th>', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "deny" : "hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
+            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, fetchData = common.fetchData, createDataState = common.createDataState, toColumns = common.toColumns, toRows = common.toRows, toTree = common.toTree, toData = common.toData, headersReducer = common.headersReducer, RESIZE = 'resize', READ = 'read', CHANGE = 'change', ERROR = 'error', REQUESTSTART = 'requestStart', PROGRESS = 'progress', REQUESTEND = 'requestEnd', MEASURES = 'Measures', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div></div>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', HEADERTEMPLATE = '<th data-key="#:key#" class="#:headerClass#" #if (colspan) {#colspan="#:colspan#"#}# #if (rowspan) {#rowspan="#:rowspan#"#}#>' + '#if (expandable) {# <span class="k-icon k-i-arrow-chevron-#:iconClass# k-color-inherit" role="presentation"></span>#}#' + '</th>', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-status-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "deny" : "hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-trend-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table"></div>' + '</td>' + '</tr>' + '</table>';
         var AXIS_ROWS = 'rows';
         var AXIS_COLUMNS = 'columns';
         function normalizeMeasures(measure) {
@@ -4603,23 +4603,34 @@
                 that._refreshHandler = $.proxy(that.refresh, that);
                 that.dataSource.first(CHANGE, that._refreshHandler);
                 if (!options.template) {
-                    that.options.template = '<div data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}' + (that.options.enabled ? '<a class="k-button k-button-icon k-flat"><span class="k-icon k-i-close k-setting-delete"></span></a>' : '') + '</div>';
+                    var actions = '';
+                    if (that.options.enabled) {
+                        actions = '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
+                    }
+                    that.options.template = '' + '<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" data-' + kendo.ns + 'name="${data.name || data}">' + '<span class="k-chip-content">' + '<span class="k-chip-text">${data.name || data}</span>' + '</span>' + '<span class="k-chip-actions">' + actions + '</span>' + '</span>';
                 }
                 that.template = kendo.template(that.options.template);
                 that.emptyTemplate = kendo.template(that.options.emptyTemplate);
                 that._sortable();
-                that.element.on('click' + NS, '.k-button,.k-item', function (e) {
+                that.element.on('click' + NS, '.k-chip, .k-button', function (e) {
                     var target = $(e.target);
+                    var action = target.closest('.k-chip-action');
                     var name = target.closest('[' + kendo.attr('name') + ']').attr(kendo.attr('name'));
                     if (!name) {
                         return;
                     }
-                    if (target.hasClass('k-i-close')) {
+                    if (action.hasClass('k-setting-delete')) {
                         that.remove(name);
-                    } else if (that.options.sortable && target[0] === e.currentTarget) {
+                        return;
+                    }
+                    if (target.closest('.k-chip-actions').length > 0) {
+                        return;
+                    }
+                    if (that.options.sortable) {
+                        var sortDirection = $(e.currentTarget).find('.k-i-sort-asc-sm').length ? 'desc' : 'asc';
                         that.sort({
                             field: name,
-                            dir: target.find('.k-i-sort-asc-sm')[0] ? 'desc' : 'asc'
+                            dir: sortDirection
                         });
                     }
                 });
@@ -5475,36 +5486,33 @@
                 }
             },
             _measureFields: function () {
-                this.measureFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-header k-settings-measures');
+                this.measureFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-settings-measures');
                 this.measuresTarget = this._createSettingTarget(this.measureFields, {
                     setting: 'measures',
                     messages: { empty: this.options.messages.measureFields }
                 });
             },
             _createSettingTarget: function (element, options) {
-                var template = '<span tabindex="0" class="k-button" data-' + kendo.ns + 'name="${data.name}">${data.name}';
+                var template;
                 var sortable = options.sortable;
                 var icons = '';
                 if (sortable) {
                     icons += '#if (data.sortIcon) {#';
-                    icons += '<span class="k-icon ${data.sortIcon}-sm"></span>';
+                    icons += '<span class="k-chip-action"><span class="k-icon ${data.sortIcon}-sm"></span></span>';
                     icons += '#}#';
                 }
                 if (options.filterable || sortable) {
-                    icons += '<span class="k-icon k-i-more-vertical k-setting-fieldmenu"></span>';
+                    icons += '<span class="k-setting-fieldmenu k-chip-action"><span class="k-icon k-i-more-vertical"></span></span>';
                 }
                 if (this.options.reorderable) {
-                    icons += '<span class="k-icon k-i-close k-setting-delete"></span>';
+                    icons += '<span class="k-setting-delete k-chip-action"><span class="k-icon k-i-close"></span></span>';
                 }
-                if (icons) {
-                    template += '<span class="k-field-actions">' + icons + '</span>';
-                }
-                template += '</span>';
+                template = '' + '<span class="k-chip k-chip-md k-rounded-full k-chip-solid k-chip-solid-base" tabindex="0" data-' + kendo.ns + 'name="${data.name}">' + '<span class="k-chip-content">' + '<span class="k-chip-text">${data.name}</span>' + '</span>' + '<span class="k-chip-actions k-field-actions">' + icons + '</span>' + '</span>';
                 return new kendo.ui.PivotSettingTarget(element, $.extend({
+                    dataSource: this.dataSource,
                     template: template,
                     emptyTemplate: '<span class="k-empty">${data}</span>',
-                    enabled: this.options.reorderable,
-                    dataSource: this.dataSource
+                    enabled: this.options.reorderable
                 }, options));
             },
             _initSettingTargets: function () {
@@ -5536,8 +5544,8 @@
                 var rightContainer = layoutTable.find('.k-pivot-table');
                 var gridWrapper = $(DIV).addClass('k-grid k-widget');
                 that._measureFields();
-                that.columnFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-header k-settings-columns');
-                that.rowFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-header k-settings-rows');
+                that.columnFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-settings-columns');
+                that.rowFields = $(DIV).addClass('k-pivot-toolbar k-toolbar k-settings-rows');
                 that.columnsHeader = $('<div class="k-grid-header-wrap" />').wrap('<div class="k-grid-header" />');
                 that.columnsHeader.parent().css('padding-right', kendo.support.scrollbar());
                 that.rowsHeader = $('<div class="k-grid k-widget k-alt"/>');

@@ -22,205 +22,276 @@
                                                                                                                                                                                                        
 
 */
-// Default button
-.k-button {
-    .border-radius();
-    border-color: @button-border-color;
-    color: @button-text-color;
-    background-color: @button-background-color;
-    background-position: 50% 50%;
-    .composite-background(@button-gradient);
-    .box-shadow(@button-shadow);
+// Solid Base
+.k-button-solid-base {
+    .fill(
+        @button-text-color,
+        @button-background-color,
+        @button-border-color
+    );
+    .linear-gradient( @button-gradient );
 
-    &.k-state-default {
-        border-color: @button-border-color;
-    }
-
-    // Hover state
     &:hover,
-    &.k-state-hover {
-        color: @button-hover-text-color;
-        border-color: @button-hover-border-color;
-        background-color: @button-hover-background-color;
-        .composite-background(@button-hover-gradient);
-        .box-shadow(@button-hover-shadow);
+    &.k-hover {
+        .fill(
+            @button-hover-text-color,
+            @button-hover-background-color,
+            @button-hover-border-color
+        );
     }
 
-    // Pressed state
-    &:active,
-    &.k-state-active,
-    &.k-state-selected {
-        color: @button-active-text-color;
-        background-color: @button-active-background;
-        border-color: @button-active-border-color;
-        .composite-background(@button-active-gradient);
-        .box-shadow(@button-active-shadow);
+    &:focus,
+    &.k-focus {
+        .fill( @border: @button-focused-border-color );
+        .box-shadow(@button-focused-shadow);
     }
-    &.k-state-active,
-    &.k-state-selected {
+
+    &:active,
+    &.k-active,
+    &.k-selected {
+        .fill(
+            @button-active-text-color,
+            @button-active-background,
+            @button-active-border-color
+        );
+    }
+
+    &.k-active
+    &.k-selected {
         &:hover {
             color: @primary-hover-text-color;
             border-color: @primary-hover-border-color;
             background-color: @primary-hover-background-color;
         }
     }
-
-    // Focus active
-    &:focus:active {
-        .box-shadow(@button-focused-active-shadow);
-    }
-
-    // Focused state
-    &:focus,
-    &:focus:hover,
-    &.k-state-focused,
-    &.k-state-focused.k-state-disabled,
-    .k-state-disabled &.k-state-focused {
-        border-color: @button-focused-border-color;
-        .box-shadow(@button-focused-shadow);
-    }
-
-    // Disabled state
-    &[disabled],
-    .k-state-disabled &,
-    &.k-state-disabled {
-
-        &,
-        &:hover,
-        &:focus,
-        &:active {
-            color: @button-text-color;
-            border-color: @button-border-color;
-            background-color: @button-background-color;
-            box-shadow: none;
-            .composite-background(@disabled-gradient);
-        }
-    }
 }
 
+// Solid ThemeColors
+each( @theme-colors, {
+    @name: @key;
+    @color: @value;
+    @_button-text: contrast( @color );
+    @_button-bg: @color;
+    @_button-border: shade( @color, 20%);
+    @_button-gradient: rgba( white, .1 ), rgba( white, 0 );
+    @_button-shadow: 0px 0px 4px 0px rgba( @_button-border, .75);
 
+    & when (@name = primary) {
+        .k-button-solid-primary {
+            .fill(
+                @primary-text-color,
+                @primary-background-color,
+                @primary-border-color
+            );
+            .linear-gradient( @primary-gradient );
 
-// Primary buttons
-.k-primary {
-    color: @primary-text-color;
-    border-color: @primary-border-color;
-    background-color: @primary-background-color;
-    .composite-background(@primary-gradient);
-    .box-shadow(@primary-shadow);
+            &:hover,
+            &.k-hover {
+                .fill(
+                    @primary-hover-text-color,
+                    @primary-hover-background-color,
+                    @primary-hover-border-color
+                );
+            }
 
-    &.k-state-default {
-        border-color: @primary-border-color;
+            &:focus,
+            &.k-focus {
+                .fill( @border: @primary-focused-border-color );
+                .box-shadow( @primary-focused-shadow );
+            }
+
+            &:active,
+            &.k-active,
+            &.k-selected {
+                .fill(
+                    @primary-active-text-color,
+                    @primary-active-background-color,
+                    @primary-active-border-color
+                );
+            }
+
+            &.k-active
+            &.k-selected {
+                &:hover {
+                    color: @primary-hover-text-color;
+                    border-color: @primary-hover-border-color;
+                    background-color: @primary-hover-background-color;
+                }
+            }
+        }
     }
 
-    // Hover state
+    & when not (@name = primary) {
+        .k-button-solid-@{name} {
+            .fill(
+                @_button-text,
+                @_button-bg,
+                @_button-border
+            );
+            .linear-gradient( @_button-gradient );
+
+            &:hover,
+            &.k-hover {
+                .fill(
+                    @bg: shade( @color, 10% ),
+                    @border: shade( @color, 30% )
+                );
+            }
+
+            &:focus,
+            &.k-focus {
+                box-shadow: @_button-shadow;
+            }
+
+            &:active,
+            &.k-active,
+            &.k-selected {
+                .fill(
+                    @bg: shade( @color, 20% ),
+                    @border: shade( @color, 40% )
+                );
+            }
+        }
+    }
+});
+
+
+// Outline Base
+.k-button-outline-base {
+    .fill(
+        @normal-text-color,
+        transparent,
+        currentColor
+    );
+
     &:hover,
-    &.k-state-hover {
-        color: @primary-hover-text-color;
-        border-color: @primary-hover-border-color;
-        background-color: @primary-hover-background-color;
-        .composite-background(@primary-hover-gradient);
-        .box-shadow(@primary-hover-shadow);
+    &.k-hover {
+        .fill(
+            contrast( @normal-text-color ),
+            @normal-text-color,
+            @normal-text-color
+        );
     }
 
-    // Pressed
-    &:active,
-    &.k-state-active {
-        color: @primary-active-text-color;
-        border-color: @primary-active-border-color;
-        background-color: @primary-active-background-color;
-        .composite-background(@primary-active-gradient);
-        .box-shadow(@primary-active-shadow);
-    }
-
-    // Focus active
-    &:focus:active:not(.k-state-disabled):not([disabled]) {
-        .box-shadow(@primary-focused-active-shadow);
-    }
-
-    // Focused state
     &:focus,
-    &:focus:hover,
-    &.k-state-focused,
-    &.k-state-focused.k-state-disabled,
-    .k-state-disabled &.k-state-focused {
-        border-color: @primary-focused-border-color;
-        .box-shadow(@primary-focused-shadow);
+    &.k-focus {
+        box-shadow: 0px 0px 4px 0px rgba( @normal-text-color, .75 );
     }
 
+    &:active,
+    &.k-active,
+    &.k-selected {
+        .fill(
+            contrast( @normal-text-color ),
+            @normal-text-color,
+            @normal-text-color
+        );
+    }
+}
 
-    // Disabled
-    &[disabled],
-    .k-state-disabled &,
-    &.k-state-disabled {
+// Outline ThemeColors
+each( @theme-colors, {
+    @name: @key;
+    @color: @value;
 
-        &,
-        &:hover {
-            color: @primary-text-color;
-            border-color: @primary-border-color;
-            background-color: @primary-background-color;
-            box-shadow: none;
-            .composite-background(@primary-gradient);
+    .k-button-outline-@{name} {
+        .fill(
+            @color,
+            transparent,
+            currentColor
+        );
+
+        &:hover,
+        &.k-hover {
+            .fill(
+                contrast( @color ),
+                @color,
+                @color
+            );
+        }
+
+        &:focus,
+        &.k-focus {
+            box-shadow: 0px 0px 4px 0px rgba( @color, .75 );
+        }
+
+        &:active,
+        &.k-active,
+        &.k-selected {
+            .fill(
+                contrast( @color ),
+                @color,
+                @color
+            );
         }
     }
+});
+
+
+// Link Base
+.k-button-link-base {
+    .fill( @text: @normal-text-color );
+
+    &:hover,
+    &.k-hover {
+        .fill( @text: shade( @normal-text-color, 20% ) );
+    }
+
+    &:focus,
+    &.k-focus {
+        box-shadow: 0px 0px 4px 0px rgba( @normal-text-color, .75 );
+    }
+
+    &:active,
+    &.k-active,
+    &.k-selected {
+        .fill( @text: shade( @normal-text-color, 20% ) );
+    }
 }
 
+// Link ThemeColors
+each( @theme-colors, {
+    @name: @key;
+    @color: @value;
 
+    .k-button-link-@{name} {
+        .fill( @text: @color );
 
+        &:hover,
+        &.k-hover {
+            .fill( @text: shade( @color, 20% ) );
+        }
 
-// Button group
-.k-button-group {
+        &:focus,
+        &.k-focus {
+            box-shadow: 0px 0px 4px 0px rgba( @color, .75 );
+        }
 
-    // Border-radius
-    .k-button {
-        .border-radius( 0 );
+        &:active,
+        &.k-active,
+        &.k-selected {
+            .fill( @text: shade( @color, 20% ) );
+        }
     }
+});
 
-    .k-group-start,
-    .k-button:first-child {
-        .border-left-radius();
-    }
-    .k-group-end,
-    .k-button:last-child {
-        .border-right-radius();
-    }
-    .k-group-start.k-group-end,
-    .k-button:first-child:last-child {
-        .border-radius();
-    }
+// Flat
+each( @theme-colors, {
+    @name: @key;
+    @color: @value;
 
-}
+    .k-button-flat-@{name} {
+        .fill( @text: @color );
+    }
+});
+
 // TODO: refactor when k-widgte is gone
 .k-widget.k-button-group {
     background: none;
 }
 
-
 // Split button
 .k-split-button {
-    .border-radius();
-
-    // Border-radius
-    .k-button {
-        .border-radius( 0 );
-    }
-
-    // .k-button,
-    .k-button:first-child {
-        .border-left-radius();
-    }
-    .k-button:last-child {
-        .border-right-radius();
-    }
-
-    // Expanded state
-    &.k-state-border-down > .k-button,
-    &.k-state-border-up > .k-button {
-        color: @button-hover-text-color;
-        background-color: @button-hover-background-color;
-        border-color: @button-hover-border-color;
-        .composite-background(@button-hover-gradient);
-        .box-shadow(none);
-    }
 
     // Focus state
     &:focus {
@@ -240,69 +311,6 @@
     border-color: @widget-border-color;
     background: @header-background-color;
 }
-
-
-
-
-// Flat button and bare
-.k-button.k-flat,
-.k-button.k-bare,
-.k-button.k-button-clear {
-    &.k-primary {
-        &,
-        &:hover,
-        &.k-state-hover,
-        &:active,
-        &.k-state-active,
-        &:hover:active,
-        &:hover.k-state-active {
-            color: @primary-background-color;
-        }
-    }
-}
-
-
-// Clear button
-// .k-button.k-button-clear {
-//     border-color: transparent !important;
-//     color: @button-text-color;
-//     background: none !important;
-//     box-shadow: none !important;
-
-//     &::before {
-//         display: none;
-//     }
-
-//     &::after {
-//         display: block;
-//     }
-
-//     &:hover,
-//     &.k-state-hover,
-//     &:active,
-//     &.k-state-active,
-//     &:focus,
-//     &.k-state-focused {
-//         color: darken(@button-text-color, 13%);
-//     }
-
-//     &:active,
-//     &.k-state-active {
-//         &::after {
-//             background: transparent;
-//         }
-//     }
-
-//     &.k-state-focused,
-//     &.k-state-focused:active {
-//         &::after {
-//             background-color: @button-text-color;
-//             opacity: .1;
-//         }
-//     }
-// }
-
-
 
 // RTL
 .k-rtl {

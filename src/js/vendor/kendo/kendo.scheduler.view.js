@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -984,7 +984,7 @@
                 var options = that.options;
                 if (that._isMobile()) {
                     var html = '<div class="k-scheduler-footer k-toolbar">';
-                    html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
+                    html += '<span class="k-scheduler-today"><a href="#" class="k-link">';
                     html += options.messages.today + '</a></span>';
                     html += '</div>';
                     that.footer = $(html).appendTo(that.element);
@@ -1940,7 +1940,7 @@
                     }
                     allDayTableRows.push(td.join(''));
                 }
-                return $('<div class="k-scheduler-header k-state-default">' + '<div class="k-scheduler-header-wrap">' + table(dateTableRows) + allDayTable(allDayTableRows, 'k-scheduler-header-all-day') + '</div>' + '</div>');
+                return $('<div class="k-scheduler-header">' + '<div class="k-scheduler-header-wrap">' + table(dateTableRows) + allDayTable(allDayTableRows, 'k-scheduler-header-all-day') + '</div>' + '</div>');
             }
         });
         function collidingEvents(elements, start, end) {

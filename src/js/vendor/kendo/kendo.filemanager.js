@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -440,7 +440,7 @@
                 },
                 selectable: kendo.support.mobileOS ? 'row' : 'multiple',
                 template: '<div class=\'k-listview-item\' title=\'#:name##:extension#\'>' + '<div class=\'k-file-preview\'><span class=\'k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'k-file-name file-name\'>#:name##:extension#</div>' + '</div>',
-                editTemplate: '<div class=\'k-listview-item\'>' + '<div class=\'k-file-preview\'><span class=\'k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'k-file-name\'><input type=\'text\' class=\'k-textbox\' data-bind=\'value:name\' name=\'name\' required=\'required\' /></div>' + '</div>',
+                editTemplate: '<div class=\'k-listview-item\'>' + '<div class=\'k-file-preview\'><span class=\'k-file-icon k-icon k-i-#= !isDirectory ? kendo.getFileGroup(extension, true) : \'folder\' #\'></span></div>' + '<div class=\'k-file-name\'><span class=\'k-textbox k-input k-input-md k-rounded-md k-input-solid\'><input type=\'text\' class=\'k-input-inner\' data-bind=\'value:name\' name=\'name\' required=\'required\' /><span></div>' + '</div>',
                 dropFilter: '.k-listview-item',
                 navigatable: true
             },
@@ -623,7 +623,7 @@
                 that.treeView.element.on(KEYDOWN, proxy(that._keydownAction, that));
             },
             _keydownAction: function (ev) {
-                var that = this, target = $(ev.target).find('.k-state-focused').closest('.k-item');
+                var that = this, target = $(ev.target).find('.k-focus').closest('.k-item');
                 that.trigger(KEYDOWNACTION, {
                     target: target,
                     keyCode: ev.keyCode
@@ -644,14 +644,14 @@
             },
             _hold: $.noop,
             getSelected: function () {
-                var that = this, selectedItem = that.treeView.element.find('.k-state-selected').closest('.k-item'), item = that.treeView.dataItem(selectedItem);
+                var that = this, selectedItem = that.treeView.element.find('.k-selected').closest('.k-item'), item = that.treeView.dataItem(selectedItem);
                 return item;
             },
             refresh: function (id) {
                 var that = this, treeView = that.treeView, entry = treeView.dataSource.get(id), node = entry && treeView.findByUid(entry.uid);
                 if (entry && node) {
-                    treeView.element.find('.k-state-selected').removeClass('k-state-selected');
-                    node.find('> div .k-in').removeClass('k-state-hover').addClass('k-state-selected');
+                    treeView.element.find('.k-selected').removeClass('k-selected');
+                    node.find('> div .k-in').removeClass('k-hover').addClass('k-selected');
                 }
             },
             reload: function () {
@@ -1005,23 +1005,28 @@
                     return;
                 }
                 return tools.map(function (tool) {
-                    var isBuiltInTool = $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name, toolOptions, toolRules;
+                    var isBuiltInTool = $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name, toolOptions, toolRules, attributes;
                     tool = isBuiltInTool ? tool.name : tool;
                     toolOptions = $.isPlainObject(tool) ? tool : extend({}, that.defaultTools[tool]);
                     toolRules = toolOptions.rules ? JSON.parse(toolOptions.rules) : {};
+                    attributes = {
+                        'aria-label': messages[toolOptions.name],
+                        'title': messages[toolOptions.name],
+                        'data-command': toolOptions.command,
+                        'data-options': toolOptions.options
+                    };
+                    if (toolOptions.type === 'fileManagerDetailsToggle') {
+                        delete attributes['aria-label'];
+                    }
                     kendo.deepExtend(toolOptions, {
                         id: toolOptions.name + '-' + kendo.guid(),
                         name: toolOptions.name,
                         text: messages[toolOptions.name],
-                        attributes: {
-                            'aria-label': messages[toolOptions.name],
-                            'title': messages[toolOptions.name],
-                            'data-command': toolOptions.command,
-                            'data-options': toolOptions.options
-                        },
+                        attributes: attributes,
                         overflow: toolOptions.overflow
                     });
                     if (toolOptions.type === 'buttonGroup') {
+                        delete toolOptions.attributes['aria-label'];
                         toolOptions.buttons = toolOptions.buttons.map(proxy(that._mapButtonGroups, that));
                     }
                     if (toolOptions.type === 'splitButton') {
@@ -1102,10 +1107,9 @@
         });
         var SearchTool = Item.extend({
             init: function (options, toolbar) {
-                var that = this, element = $('<div class=\'k-filemanager-search-tool k-textbox\'></div>'), input = $('<input class=\'k-input\' autocomplete=\'off\' />'), iconWrapper = $('<span class=\'k-input-icon\'></span>'), icon = $('<span />');
+                var that = this, element = $('<div class=\'k-filemanager-search-tool\'></div>'), input = $('<input class=\'k-input-inner\' autocomplete=\'off\' />'), icon = $('<span class=\'k-input-icon k-icon k-i-search\'/>'), inputWrapper = $('<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid"></span>');
                 that.element = element;
                 that.input = input;
-                that.iconWrapper = iconWrapper;
                 that.icon = icon;
                 that.options = options;
                 that.options.type = 'fileManagerSearch';
@@ -1119,8 +1123,8 @@
                     placeholder: that.options.text,
                     title: that.options.text
                 });
-                that.iconWrapper.append(icon);
-                that.element.append(that.input).append(iconWrapper);
+                inputWrapper.append(icon).append(that.input);
+                that.element.append(inputWrapper);
                 that._bindEvents();
                 that.toolbar.fileManagerSearch = that;
             },
@@ -1160,6 +1164,7 @@
                 that.addOverflowAttr();
                 that.element.append(that.label);
                 that.element.append(that.input);
+                that.input.attr('aria-label', options.text);
                 that.switchInstance = new kendo.ui.Switch(that.input, {
                     change: proxy(that._change, that),
                     messages: {
@@ -1676,7 +1681,10 @@
                         typeField: 'Type',
                         dateModifiedField: 'Date Modified',
                         dateCreatedField: 'Date Created',
-                        items: 'items'
+                        items: 'items',
+                        listLabel: 'FileManager ListView',
+                        gridLabel: 'FileManager Grid',
+                        treeLabel: 'FileManager TreeView'
                     },
                     dialogs: {
                         upload: {
@@ -2136,7 +2144,7 @@
                 that._initResizablePreview();
             },
             view: function (type) {
-                var that = this, element = $('<div></div>'), options = that.options.views[type], explicitOptions = extend(true, {}, {
+                var that = this, element = $('<div aria-label="' + that.options.messages.views[type + 'Label'] + '"></div>'), options = that.options.views[type], explicitOptions = extend(true, {}, {
                         dataSource: that._viewDataSource || that.dataSource,
                         messages: that.options.messages.views,
                         draggable: that.options.draggable

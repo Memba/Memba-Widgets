@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -471,7 +471,7 @@
                     }
                 } else {
                     if (!that._navContainer) {
-                        that._navContainer = $('<span class="k-calendar-nav k-hstack">' + '<a href="#" role="button" class="k-button k-button-icon k-flat k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-icon k-flat k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>').appendTo(that.header);
+                        that._navContainer = $('<span class="k-calendar-nav k-hstack">' + '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' + '</span>').appendTo(that.header);
                         that[PREVARROW] = that._navContainer.find('.k-prev-view');
                         that[NEXTARROW] = that._navContainer.find('.k-next-view');
                     }
@@ -1077,7 +1077,7 @@
                 var buttons;
                 var header = element.find('.k-calendar-header');
                 if (!header.length) {
-                    header = $('<div class="k-calendar-header k-hstack">' + '<a href="#" role="button" class="k-calendar-title k-title k-button k-flat" aria-live="assertive" aria-atomic="true"></a>' + '<span class="k-spacer"></span>' + '<span class="k-calendar-nav k-hstack">' + '<a href="#" role="button" class="k-button k-flat k-button-icon k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-flat k-button-icon k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' + '</span>' + '</div>').prependTo(element);
+                    header = $('<div class="k-calendar-header k-hstack">' + '<a href="#" role="button" class="k-calendar-title k-title k-button k-button-md k-rounded-md k-button-flat k-button-flat-base" aria-live="assertive" aria-atomic="true"></a>' + '<span class="k-spacer"></span>' + '<span class="k-calendar-nav k-hstack">' + '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-prev-view" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' + '<a href="#" role="button" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-next-view" ' + ARIA_LABEL + '="Next"><span class="k-button-icon k-icon k-i-arrow-60-right"></span></a>' + '</span>' + '</div>').prependTo(element);
                 }
                 that.header = header;
                 header.on(MOUSEENTER + ns + ' ' + MOUSELEAVE_NS + ' ' + FOCUS + ns + ' ' + BLUR + ns, '.k-button', mousetoggle).on('click', function () {

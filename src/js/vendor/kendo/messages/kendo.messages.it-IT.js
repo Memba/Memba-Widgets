@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -894,6 +894,7 @@ if (kendo.ui.MultiSelect) {
 if (kendo.ui.Chat) {
     kendo.ui.Chat.prototype.options.messages =
     $.extend(true, kendo.ui.Chat.prototype.options.messages,{
+        "messageListLabel": "Lista di messaggi",
         "placeholder": "Scrivi...",
         "toggleButton": "Apri/chiudi barra degli strumenti",
         "sendButton": "Invia messaggio"

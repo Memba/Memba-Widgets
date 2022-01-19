@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -47,8 +47,9 @@
         var CaptchaStyles = {
             wrapper: 'k-widget k-captcha',
             textbox: 'k-textbox',
-            button: 'k-button',
+            button: 'k-button k-button-md k-rounded-md k-button-solid k-button-solid-base',
             buttonIcon: 'k-button-icon',
+            iconButton: 'k-icon-button',
             resetIcon: 'k-icon k-i-reload',
             audioIcon: 'k-icon k-i-volume-up',
             disabled: 'k-state-disabled',
@@ -135,7 +136,7 @@
                 that.element.css('width', 'auto');
                 that.element.css('height', 'auto');
                 that.textbox = that.element.kendoTextBox().data('kendoTextBox');
-                that._inputWrapper = that.textbox._inputWrapper;
+                that._inputWrapper = that.textbox.wrapper;
                 that.wrapper = that._inputWrapper.wrap(wrapper).parent().parent();
                 that.wrapper[0].style.cssText = cssText;
                 that.imageWrapper = $(imageWrapper);
@@ -165,13 +166,13 @@
             },
             _resetButton: function () {
                 var that = this, messages = that.options.messages, styles = Captcha.styles;
-                that.resetButton = $('<button type="button" title="' + messages.reset + '" class="' + styles.button + ' ' + styles.buttonIcon + '">' + '<span class="' + styles.resetIcon + '"></span>' + '</button>');
+                that.resetButton = $('<button type="button" title="' + messages.reset + '" class="' + styles.button + ' ' + styles.iconButton + '">' + '<span class="' + styles.buttonIcon + ' ' + styles.resetIcon + '"></span>' + '</button>');
                 that.buttonsWrapper.append(that.resetButton);
                 that.resetButton.on(CLICK + NS, proxy(that._resetHandler, that, true));
             },
             _audioButton: function () {
                 var that = this, messages = that.options.messages, styles = Captcha.styles;
-                that.audioButton = $('<button type="button" title="' + messages.audio + '" class="' + styles.button + ' ' + styles.buttonIcon + '">' + '<span class="' + styles.audioIcon + '"></span>' + '</button>');
+                that.audioButton = $('<button type="button" title="' + messages.audio + '" class="' + styles.button + ' ' + styles.iconButton + '">' + '<span class="' + styles.buttonIcon + ' ' + styles.audioIcon + '"></span>' + '</button>');
                 that.buttonsWrapper.append(that.audioButton);
                 that.audioButton.on(CLICK + NS, proxy(that._audioHandler, that));
             },

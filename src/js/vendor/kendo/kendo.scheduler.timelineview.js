@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -1112,16 +1112,16 @@
                     var html = '<div class="k-scheduler-footer k-toolbar">';
                     var command = options.footer.command;
                     if (this._isMobile()) {
-                        html += '<span class="k-state-default k-scheduler-today"><a href="#" class="k-link">';
+                        html += '<span class="k-scheduler-today"><a href="#" class="k-link">';
                         html += options.messages.today + '</a></span>';
                     }
                     if (command && command === 'workDay') {
                         if (this._isMobile()) {
-                            html += '<span class="k-state-default k-scheduler-fullday"><a href="#" class="k-link">';
+                            html += '<span class="k-scheduler-fullday"><a href="#" class="k-link">';
                             html += (options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay) + '</a></span>';
                         } else {
-                            html += '<button type="button" class="k-button k-scheduler-fullday">';
-                            html += '<span class="k-icon k-i-clock"></span>';
+                            html += '<button type="button" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-scheduler-fullday">';
+                            html += '<span class="k-button-icon k-icon k-i-clock"></span>';
                             html += '<span class="k-button-text">';
                             html += options.showWorkHours ? options.messages.showFullDay : options.messages.showWorkDay;
                             html += '</span>';

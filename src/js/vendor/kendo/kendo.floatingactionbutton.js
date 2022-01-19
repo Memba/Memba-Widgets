@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -39,7 +39,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoFloatingActionButton', ui = kendo.ui, keys = kendo.keys, support = kendo.support, proxy = $.proxy, extend = $.extend, DOT = '.', ID = 'id', HIDDEN = 'k-hidden', LEFT = 'left', RIGHT = 'right', TOP = 'top', BOTTOM = 'bottom', CENTER = 'center', START = 'start', AUTO = 'auto', ARIA_DISABLED = 'aria-disabled', ARIA_HASPOPUP = 'aria-haspopup', ARIA_CONTROLS = 'aria-controls', ARIA_EXPANDED = 'aria-expanded', ARIA_LABEL = 'aria-label', ARIA_ROLE = 'role', ROLE_MENU = 'menu', ROLE_MENU_ITEM = 'menuitem', TABINDEX = 'tabindex', CLICK = 'click', EXPAND = 'expand', COLLAPSE = 'collapse', KEYDOWN = 'keydown', HOVEREVENTS = 'mouseenter' + NS + ' mouseleave' + NS;
         var cssClasses = {
-            widget: 'k-widget k-fab',
+            widget: 'k-fab',
             text: 'k-fab-text',
             icon: 'k-fab-icon',
             list: 'k-fab-items',
@@ -80,13 +80,10 @@
                 text: '',
                 items: [],
                 themeColor: 'primary',
-                sizes: {
-                    'small': 'sm',
-                    'medium': 'md',
-                    'large': 'lg'
-                },
+                fillMode: 'solid',
                 size: 'medium',
-                shape: 'pill',
+                shape: 'rectangle',
+                rounded: 'full',
                 align: 'bottom end',
                 alignOffset: {
                     x: 16,
@@ -139,37 +136,20 @@
             },
             _appearance: function () {
                 var that = this, options = that.options;
-                that._themeColor = options.themeColor;
-                that._sizes = options.sizes;
-                that._size = options.size;
-                that._shape = options.shape;
                 that._align = options.align;
-                that._positionMode = options.positionMode;
                 that._visible = options.visible;
                 that._enabled = options.enabled;
                 that._updateClassNames();
             },
             _updateClassNames: function () {
-                var that = this, classNames = [cssClasses.widget], keepClassNames = that.options._classNames, themeColor = that._themeColor, sizes = that._sizes, size = that._size, sizeAbbr = sizes[size] === undefined ? size : sizes[size], shape = that._shape, align = that._align, positionMode = that._positionMode, visible = that._visible, enabled = that._enabled;
+                var that = this, classNames = [cssClasses.widget], keepClassNames = that.options._classNames, align = that._align, visible = that._visible, enabled = that._enabled;
                 that.element.removeClass(function (index, className) {
                     if (className.indexOf('k-') === 0 && keepClassNames.indexOf(className) === -1) {
                         that.element.removeClass(className);
                     }
                 });
-                if (typeof themeColor === 'string' && themeColor !== '') {
-                    classNames.push('k-fab-' + themeColor);
-                }
-                if (typeof size === 'string' && size !== '' && sizeAbbr !== '') {
-                    classNames.push('k-fab-' + sizeAbbr);
-                }
-                if (typeof shape === 'string' && shape !== '') {
-                    classNames.push('k-fab-' + shape);
-                }
                 if (typeof align === 'string' && align.split(' ').length == 2) {
                     classNames.push('k-' + align.replace(' ', '-'));
-                }
-                if (typeof positionMode === 'string' && positionMode !== '') {
-                    classNames.push('k-pos-' + positionMode);
                 }
                 if (visible === false) {
                     classNames.push(HIDDEN);
@@ -178,6 +158,7 @@
                     classNames.push(cssClasses.disabled);
                 }
                 that.element.addClass(classNames.join(' '));
+                that._applyCssClasses();
             },
             _aria: function () {
                 var that = this, element = that.element, popup = that._popup, enabled = that._enabled;
@@ -446,19 +427,17 @@
             },
             themeColor: function (color) {
                 var that = this;
-                if (arguments.length === 0 || color === undefined) {
-                    return that._themeColor;
+                if (color === undefined) {
+                    return that.options.themeColor;
                 }
-                that.options.themeColor = that._themeColor = color;
-                that._updateClassNames();
+                that.setOptions({ themeColor: color });
             },
             shape: function (shape) {
                 var that = this;
-                if (arguments.length === 0 || shape === undefined) {
-                    return that._shape;
+                if (shape === undefined) {
+                    return that.options.shape;
                 }
-                that.options.shape = that._shape = shape;
-                that._updateClassNames();
+                this.setOptions({ shape: shape });
             },
             hide: function () {
                 var that = this;
@@ -512,6 +491,35 @@
                 Widget.fn.destroy.call(that);
             }
         });
+        kendo.cssProperties.registerPrefix('FloatingActionButton', 'k-fab-');
+        kendo.cssProperties.registerValues('FloatingActionButton', [
+            {
+                prop: 'fillMode',
+                values: ['solid']
+            },
+            {
+                prop: 'themeColor',
+                values: [
+                    'primary',
+                    'secondary',
+                    'tertiary',
+                    'info',
+                    'success',
+                    'warning',
+                    'error',
+                    'dark',
+                    'light',
+                    'inverse'
+                ]
+            },
+            {
+                prop: 'rounded',
+                values: kendo.cssProperties.roundedValues.concat([[
+                        'full',
+                        'full'
+                    ]])
+            }
+        ]);
         ui.plugin(FloatingActionButton);
     }(window.kendo.jQuery));
     return window.kendo;

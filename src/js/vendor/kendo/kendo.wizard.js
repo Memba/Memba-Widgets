@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -85,7 +85,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, extend = $.extend, proxy = $.proxy, WIZARD = '.kendoWizard', CLICK = 'click', ACTIVATE = 'activate', SELECT = 'select', RESET = 'reset', SUBMIT = 'submit', PREVIOUS = 'previous', NEXT = 'next', DONE = 'done', ERROR = 'error', CONTENTLOAD = 'contentLoad', FORM_VALIDATE_FAILED = 'formValidateFailed', HIDDEN = 'k-hidden', PRIMARY = 'k-primary', STEPPER_LIST = 'k-step-list', STEPPER_STEP_LINK = 'k-step-link', ARIA_SELECTED = 'aria-selected', ARIA_CONTROLS = 'aria-controls', ARIA_HIDDEN = 'aria-hidden', ARIA_EXPANDED = 'aria-expanded', ARIA_LABEL = 'aria-label', VERTICAL = 'vertical', HORIZONTAL = 'horizontal', BOTTOM = 'bottom', RIGHT = 'right', LEFT = 'left', DOT = '.', SPACE = ' ', DASH = '-', ID = 'id', TABINDEX = 'tabindex', ROLE = 'role', DATA_WIZARD_PREFIX = 'data-wizard-';
+        var kendo = window.kendo, Widget = kendo.ui.Widget, extend = $.extend, proxy = $.proxy, WIZARD = '.kendoWizard', CLICK = 'click', ACTIVATE = 'activate', SELECT = 'select', RESET = 'reset', SUBMIT = 'submit', PREVIOUS = 'previous', NEXT = 'next', DONE = 'done', ERROR = 'error', CONTENTLOAD = 'contentLoad', FORM_VALIDATE_FAILED = 'formValidateFailed', HIDDEN = 'k-hidden', STEPPER_LIST = 'k-step-list', STEPPER_STEP_LINK = 'k-step-link', ARIA_SELECTED = 'aria-selected', ARIA_CONTROLS = 'aria-controls', ARIA_HIDDEN = 'aria-hidden', ARIA_EXPANDED = 'aria-expanded', ARIA_LABEL = 'aria-label', VERTICAL = 'vertical', HORIZONTAL = 'horizontal', BOTTOM = 'bottom', RIGHT = 'right', LEFT = 'left', DOT = '.', SPACE = ' ', DASH = '-', ID = 'id', TABINDEX = 'tabindex', ROLE = 'role', DATA_WIZARD_PREFIX = 'data-wizard-';
         var wizardClasses = {
             wizard: 'k-widget k-wizard',
             horizontalWizard: 'k-wizard-horizontal',
@@ -211,7 +211,7 @@
                 element.attr(ROLE, 'tabpanel').attr(TABINDEX, 0).attr(ID, options.wizardId + DASH + options.index).attr(ARIA_EXPANDED, options.selected).attr(ARIA_LABEL, label);
             },
             _buttonFactory: function (buttonOptions) {
-                var button = $('<button type=\'button\'>').kendoButton().getKendoButton(), buttonElement = button.element;
+                var button = $('<button type=\'button\'>').kendoButton({ themeColor: buttonOptions.primary ? 'primary' : 'base' }).getKendoButton(), buttonElement = button.element;
                 buttonElement.attr(DATA_WIZARD_PREFIX + buttonOptions.name, '');
                 buttonElement.text(buttonOptions.text);
                 if (buttonOptions.click) {
@@ -219,9 +219,6 @@
                 }
                 if (buttonOptions.enabled === false) {
                     button.enable(false);
-                }
-                if (buttonOptions.primary) {
-                    buttonElement.addClass(PRIMARY);
                 }
                 if (buttonOptions.position === LEFT) {
                     this._leftButtonsContainer.append(buttonElement);

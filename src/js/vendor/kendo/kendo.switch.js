@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -34,19 +34,21 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, NS = '.kendoSwitch', Widget = ui.Widget, support = kendo.support, CHANGE = 'change', switchStyles = {
-                widget: 'k-switch k-widget',
-                container: 'k-switch-container',
-                handle: 'k-switch-handle',
+                widget: 'k-switch',
+                track: 'k-switch-track',
+                thumbWrapper: 'k-switch-thumb-wrap',
+                thumb: 'k-switch-thumb',
                 checked: 'k-switch-on',
                 checkedLabel: 'k-switch-label-on',
                 unchecked: 'k-switch-off',
                 uncheckedLabel: 'k-switch-label-off',
-                disabled: 'k-state-disabled',
-                readonly: 'k-state-readonly',
-                active: 'k-state-active'
+                disabled: 'k-disabled',
+                readonly: 'k-readonly',
+                active: 'k-active'
             }, DISABLED = 'disabled', ARIA_DISABLED = 'aria-disabled', READONLY = 'readonly', ARIA_READONLY = 'aria-readonly', ARIA_CHECKED = 'aria-checked', CHECKED = 'checked', CLICK = support.click + NS, TOUCHEND = support.pointers ? 'pointerup' : 'touchend', KEYDOWN = 'keydown' + NS, LABELIDPART = '_label', proxy = $.proxy;
         var SWITCH_TEMPLATE = kendo.template('<span class="#=styles.widget#" role="switch"></span>');
-        var SWITCH_CONTAINER_TEMPLATE = kendo.template('<span class=\'#=styles.container#\'>' + '<span class=\'#=styles.checkedLabel#\'>#=checked#</span>' + '<span class=\'#=styles.uncheckedLabel#\'>#=unchecked#</span>' + '<span class=\'#=styles.handle#\'></span>' + '</span>');
+        var SWITCH_TRACK_TEMPLATE = kendo.template('<span class=\'#=styles.track#\'>' + '<span class=\'#=styles.checkedLabel#\'>#=checked#</span>' + '<span class=\'#=styles.uncheckedLabel#\'>#=unchecked#</span>' + '</span>');
+        var SWITCH_THUMB_TEMPLATE = kendo.template('<span class=\'#=styles.thumbWrapper#\'>' + '<span class=\'#=styles.thumb#\'></span>' + '</span>');
         var Switch = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -62,11 +64,29 @@
                 element.type = 'checkbox';
                 that.wrapper = that.element.wrap(wrapper).parent();
                 that.wrapper[0].style.cssText = that.element[0].style.cssText;
-                that.wrapper.append($(SWITCH_CONTAINER_TEMPLATE({
+                that.element.hide();
+                that.wrapper.append($(SWITCH_TRACK_TEMPLATE({
                     styles: switchStyles,
                     checked: options.messages.checked,
                     unchecked: options.messages.unchecked
-                }))).addClass(element.className).removeClass('input-validation-error');
+                }))).append($(SWITCH_THUMB_TEMPLATE({ styles: switchStyles }))).addClass(element.className).removeClass('input-validation-error');
+                that.options.rounded = that.options.trackRounded;
+                that._applyCssClasses();
+                that._applyRoundedClasses();
+            },
+            _applyRoundedClasses: function (action) {
+                var that = this, options = that.options, trackRounded = kendo.cssProperties.getValidClass({
+                        widget: options.name,
+                        propName: 'rounded',
+                        value: options.trackRounded
+                    }), thumbRounded = kendo.cssProperties.getValidClass({
+                        widget: options.name,
+                        propName: 'rounded',
+                        value: options.thumbRounded
+                    });
+                action = action || 'addClass';
+                that.wrapper.find('.' + switchStyles.track)[action](trackRounded);
+                that.wrapper.find('.' + switchStyles.thumb)[action](thumbRounded);
             },
             _attachEvents: function () {
                 var that = this;
@@ -74,6 +94,8 @@
             },
             setOptions: function (options) {
                 var that = this, messages = options.messages, checkedLabel, uncheckedLabel;
+                that._clearCssClasses(options);
+                that._applyRoundedClasses('removeClass');
                 that.options = $.extend(that.options, options);
                 if (messages && messages.checked !== undefined) {
                     checkedLabel = that.wrapper.find('.' + switchStyles.checkedLabel);
@@ -93,6 +115,9 @@
                     that.readonly(options.readonly);
                 }
                 that.check(options.checked);
+                that.options.rounded = that.options.trackRounded;
+                that._applyCssClasses();
+                that._applyRoundedClasses();
             },
             _initSettings: function () {
                 var that = this, element = that.element[0], options = that.options;
@@ -136,7 +161,11 @@
                 width: null,
                 checked: null,
                 enabled: true,
-                readonly: false
+                readonly: false,
+                size: 'medium',
+                rounded: 'full',
+                trackRounded: 'full',
+                thumbRounded: 'full'
             },
             check: function (checked) {
                 var that = this, element = that.element[0];
@@ -227,6 +256,14 @@
                 }
             }
         });
+        kendo.cssProperties.registerPrefix('Switch', 'k-switch-');
+        kendo.cssProperties.registerValues('Switch', [{
+                prop: 'rounded',
+                values: kendo.cssProperties.roundedValues.concat([[
+                        'full',
+                        'full'
+                    ]])
+            }]);
         ui.plugin(Switch);
     }(window.kendo.jQuery));
     return window.kendo;

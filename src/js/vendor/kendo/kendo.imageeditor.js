@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -294,7 +294,7 @@
             open: function () {
                 var that = this, imageeditor = that.imageeditor, commonMessages = imageeditor.options.messages.common;
                 imageeditor.paneWrapper.append(that.element);
-                that.formWidget = new kendo.ui.Form(that.element, extend(that.formSettings(), { buttonsTemplate: kendo.format('<button class=\'{0} k-button\' data-action=\'cancel\'>{2}</button>' + '<button class=\'{0} {1} k-button k-primary\' data-action=\'confirm\'>{3}</button>', paneStyles.button, paneStyles.confirmButton, commonMessages.cancel, commonMessages.confirm) }));
+                that.formWidget = new kendo.ui.Form(that.element, extend(that.formSettings(), { buttonsTemplate: kendo.format('<button class=\'{0} k-button k-button-md k-rounded-md k-button-solid k-button-solid-base\' data-action=\'cancel\'><span class=\'k-button-text\'>{2}</span></button>' + '<button class=\'{0} {1} k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary\' data-action=\'confirm\'><span class=\'k-button-text\'>{3}</span></button>', paneStyles.button, paneStyles.confirmButton, commonMessages.cancel, commonMessages.confirm) }));
                 that.bindButtonEvents();
                 imageeditor.paneWrapper.show();
                 imageeditor.currentPaneTool = that;
@@ -305,7 +305,7 @@
                 buttons.on(CLICK + NS, that._clickHandler);
             },
             _click: function (ev) {
-                var that = this, target = $(ev.target), action = target.data('action');
+                var that = this, target = $(ev.target).closest('.' + paneStyles.button), action = target.data('action');
                 if (that[action]) {
                     that[action]();
                 }
@@ -458,7 +458,7 @@
                         }
                     ],
                     select: function (ev) {
-                        var value = ev.sender.wrapper.find('.k-state-active').data('value');
+                        var value = ev.sender.wrapper.find('.k-selected').data('value');
                         options.model.set(options.field, value);
                     }
                 }).data('kendoButtonGroup');

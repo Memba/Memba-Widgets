@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -259,7 +259,10 @@ if (kendo.ui.FileManager) {
             typeField: "Type",
             dateModifiedField: "Date Modified",
             dateCreatedField: "Date Created",
-            items: "items"
+            items: "items",
+            listLabel: "FileManager ListView",
+            gridLabel: "FileManager Grid",
+            treeLabel: "FileManager TreeView"
         },
         dialogs: {
             upload: {
@@ -1309,6 +1312,7 @@ if (kendo.ui.MultiSelect) {
 if (kendo.ui.Chat) {
     kendo.ui.Chat.prototype.options.messages =
     $.extend(true, kendo.ui.Chat.prototype.options.messages,{
+        "messageListLabel": "Message list",
         "placeholder": "Type a message...",
         "toggleButton": "Toggle toolbar",
         "sendButton": "Send message"

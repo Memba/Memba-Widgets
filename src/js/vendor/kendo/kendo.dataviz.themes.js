@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -594,6 +594,10 @@
                     'line',
                     'verticalLine'
                 ], 'chart-line-inactive-opacity');
+            }());
+            (function setSizes() {
+                set('diagram.connectionDefaults.selection.handles.width', 8);
+                set('diagram.connectionDefaults.selection.handles.height', 8);
             }());
             (function setFonts() {
                 function font(varName) {

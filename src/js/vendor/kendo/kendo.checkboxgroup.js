@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -25,7 +25,8 @@
 (function (f, define) {
     define('kendo.checkboxgroup', [
         'kendo.core',
-        'kendo.inputgroupbase'
+        'kendo.inputgroupbase',
+        'kendo.checkbox'
     ], f);
 }(function () {
     var __meta__ = {
@@ -35,7 +36,8 @@
         description: 'The CheckBoxGroup component.',
         depends: [
             'core',
-            'inputgroupbase'
+            'inputgroupbase',
+            'checkbox'
         ]
     };
     (function ($, undefined) {
@@ -43,14 +45,17 @@
         var CheckBoxGroup = InputGroupBase.extend({
             options: {
                 name: 'CheckBoxGroup',
-                checkboxName: '',
+                inputName: '',
+                inputRounded: 'medium',
+                inputSize: 'medium',
                 enabled: true,
                 labelPosition: AFTER,
                 layout: VERTICAL,
                 items: []
             },
-            ITEM_TEMPLATE: '<li class="k-checkbox-item">' + '<input type="checkbox" class="k-checkbox" >' + '<label class="k-checkbox-label"></label>' + '</li>',
+            ITEM_TEMPLATE: '<li class="k-checkbox-item">' + '<input type="checkbox" class="k-checkbox" >' + '</li>',
             NS: '.kendoCheckBoxGroup',
+            COMPONENT: 'kendoCheckBox',
             groupStyles: {
                 item: 'k-checkbox-item',
                 input: 'k-checkbox',
@@ -58,7 +63,7 @@
                 list: 'k-checkbox-list',
                 vertical: 'k-list-vertical',
                 horizontal: 'k-list-horizontal',
-                disabled: 'k-state-disabled'
+                disabled: 'k-disabled'
             },
             checkAll: function (shouldCheck) {
                 var that = this, inputs = that.element.find('input'), getValues = function (i, input) {
@@ -126,6 +131,14 @@
                 validationAttributes['data-rule-required'] = 'true';
             }
         });
+        kendo.cssProperties.registerPrefix('CheckBoxGroup', 'k-checkbox-');
+        kendo.cssProperties.registerValues('CheckBoxGroup', [{
+                prop: 'rounded',
+                values: kendo.cssProperties.roundedValues.concat([[
+                        'full',
+                        'full'
+                    ]])
+            }]);
         ui.plugin(CheckBoxGroup);
     }(window.kendo.jQuery));
     return window.kendo;

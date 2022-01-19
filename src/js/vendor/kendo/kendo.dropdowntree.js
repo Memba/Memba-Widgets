@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2021.3.1207 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2021 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -257,7 +257,12 @@
 (function (f, define) {
     define('kendo.dropdowntree', [
         'dropdowntree/treeview',
-        'kendo.popup'
+        'kendo.popup',
+        'kendo.binder',
+        'html/chip',
+        'html/chiplist',
+        'html/button',
+        'html/input'
     ], f);
 }(function () {
     var __meta__ = {
@@ -267,11 +272,12 @@
         description: 'The DropDownTree widget displays a hierarchy of items and allows the selection of single or multiple items.',
         depends: [
             'treeview',
-            'popup'
+            'popup',
+            'binder'
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, TreeView = ui._dropdowntree, ObservableArray = kendo.data.ObservableArray, ObservableObject = kendo.data.ObservableObject, extend = $.extend, activeElement = kendo._activeElement, ns = '.kendoDropDownTree', keys = kendo.keys, support = kendo.support, HIDDENCLASS = 'k-hidden', WIDTH = 'width', browser = support.browser, outerWidth = kendo._outerWidth, DOT = '.', DISABLED = 'disabled', READONLY = 'readonly', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', HOVER = 'k-state-hover', FOCUSED = 'k-state-focused', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', CLICK = 'click', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', quotRegExp = /"/g, proxy = $.proxy, LABELIDPART = '_label';
+        var kendo = window.kendo, ui = kendo.ui, html = kendo.html, Widget = ui.Widget, TreeView = ui._dropdowntree, ObservableArray = kendo.data.ObservableArray, ObservableObject = kendo.data.ObservableObject, extend = $.extend, activeElement = kendo._activeElement, ns = '.kendoDropDownTree', keys = kendo.keys, support = kendo.support, HIDDENCLASS = 'k-hidden', WIDTH = 'width', browser = support.browser, outerWidth = kendo._outerWidth, DOT = '.', DISABLED = 'disabled', READONLY = 'readonly', STATEDISABLED = 'k-disabled', ARIA_DISABLED = 'aria-disabled', HOVER = 'k-hover', FOCUSED = 'k-focus', HOVEREVENTS = 'mouseenter' + ns + ' mouseleave' + ns, TABINDEX = 'tabindex', CLICK = 'click', OPEN = 'open', CLOSE = 'close', CHANGE = 'change', quotRegExp = /"/g, proxy = $.proxy, LABELIDPART = '_label', CHIP = '.k-chip';
         var DropDownTree = kendo.ui.Widget.extend({
             init: function (element, options) {
                 this.ns = ns;
@@ -293,6 +299,7 @@
                 this._setTreeViewOptions(this.options);
                 this._dataSource();
                 this._selection._initWrapper();
+                this._applyCssClasses();
                 this._placeholder(true);
                 this._tabindex();
                 this.wrapper.data(TABINDEX, this.wrapper.attr(TABINDEX));
@@ -343,11 +350,15 @@
                     dataSpriteCssClassField: options.dataSpriteCssClassField,
                     dataTextField: options.dataTextField,
                     dataUrlField: options.dataUrlField,
-                    loadOnDemand: options.loadOnDemand
+                    loadOnDemand: options.loadOnDemand,
+                    size: options.size
                 };
                 this.options.treeview = $.extend({}, treeviewOptions, this.options.treeview);
                 if (options.template) {
                     this.options.treeview.template = options.template;
+                }
+                if (options.size) {
+                    this.options.treeview.size = options.size;
                 }
             },
             _dataSource: function () {
@@ -363,6 +374,7 @@
             },
             _getSelection: function () {
                 if (this._isMultipleSelection()) {
+                    this.options._altname = 'MultiSelectDropDownTree';
                     return new ui.DropDownTree.MultipleSelection(this);
                 } else {
                     return new ui.DropDownTree.SingleSelection(this);
@@ -426,7 +438,10 @@
                 value: null,
                 valueTemplate: null,
                 popup: null,
-                filterLabel: null
+                filterLabel: null,
+                size: 'medium',
+                fillMode: 'solid',
+                rounded: 'medium'
             },
             events: [
                 'open',
@@ -518,7 +533,7 @@
                 Widget.fn.setOptions.call(this, options);
                 this._setTreeViewOptions(options);
                 this._dataSource();
-                if (this.options.treeview) {
+                if (this.options.treeview || options.size) {
                     this.treeview.setOptions(this.options.treeview);
                 }
                 if (options.height && this.tree) {
@@ -550,7 +565,6 @@
                 this.popup.destroy();
                 this.wrapper.off(ns);
                 this._clear.off(ns);
-                this._inputWrapper.off(ns);
                 if (this.filterInput) {
                     this.filterInput.off(ns);
                 }
@@ -610,7 +624,7 @@
                 }
             },
             _aria: function () {
-                var input = this.wrapper.find('span.k-input');
+                var input = this.wrapper.find('span.k-input-inner');
                 this.wrapper.attr({
                     'aria-haspopup': 'tree',
                     'aria-expanded': false,
@@ -681,7 +695,7 @@
                     list.noData = null;
                     return;
                 }
-                list.noData = $('<div class="k-nodata" style="display:none"><div></div></div>').appendTo(list.list);
+                list.noData = $('<div class="k-no-data" style="display: none;"></div>').appendTo(list.list);
                 list.noDataTemplate = typeof template !== 'function' ? kendo.template(template) : template;
             },
             _renderNoData: function () {
@@ -691,7 +705,7 @@
                     return;
                 }
                 this._angularElement(noData, 'cleanup');
-                noData.children().first().html(list.noDataTemplate({ instance: list }));
+                noData.html(list.noDataTemplate({ instance: list }));
                 this._angularElement(noData, 'compile');
             },
             _footer: function () {
@@ -793,13 +807,13 @@
                     this.span.toggleClass('k-readonly', show).text(show ? this.options.placeholder : '');
                 }
                 if (this.span.text().trim().length > 0) {
-                    this.span.attr({
+                    this.span.parent().attr({
                         role: 'option',
                         'aria-selected': true
                     });
                 } else {
-                    this.span.removeAttr('role');
-                    this.span.removeAttr('aria-selected');
+                    this.span.parent().removeAttr('role');
+                    this.span.parent().removeAttr('aria-selected');
                 }
             },
             _currentValue: function (dataItem) {
@@ -1072,7 +1086,7 @@
                     });
                 }
                 if (this.options.clearButton) {
-                    this._clear.insertAfter(this.span);
+                    this._clear.insertAfter(this.tagList || this.span.parent());
                     this.wrapper.addClass('k-dropdowntree-clearable');
                 } else {
                     if (!this.options.clearButton) {
@@ -1123,7 +1137,7 @@
                     that.tree.css('max-height', that.options.height);
                 }
                 that.tree.attr('id', kendo.guid());
-                that.treeview = new TreeView(that.tree, extend({}, that.options.treeview), that);
+                that.treeview = new TreeView(that.tree, extend({ size: that.options.size }, that.options.treeview), that);
                 that.dataSource = that.treeview.dataSource;
                 that.treeview.bind('select', function (e) {
                     that.trigger('select', e);
@@ -1212,15 +1226,14 @@
                 }
             },
             _filterHeader: function () {
-                var icon;
+                var filterTemplate = '<div class="k-list-filter">' + '<span class="k-searchbox k-input k-input-md k-rounded-md k-input-solid" type="text" autocomplete="off">' + '<span class="k-input-icon k-icon k-i-search"></span>' + '</span>' + '</div>';
                 if (this.filterInput) {
                     this.filterInput.off(ns).parent().remove();
                     this.filterInput = null;
                 }
                 if (this._isFilterEnabled()) {
                     this._disableCheckChildren();
-                    icon = '<span class="k-icon k-i-zoom"></span>';
-                    this.filterInput = $('<input class="k-textbox"/>').attr({
+                    this.filterInput = $('<input class="k-input-inner" type="text" />').attr({
                         placeholder: this.element.attr('placeholder'),
                         title: this.element.attr('title'),
                         role: 'searchbox',
@@ -1228,7 +1241,7 @@
                         'aria-autocomplete': 'list'
                     });
                     this.filterInput.on('input', proxy(this._filterChange, this));
-                    $('<span class="k-list-filter" />').insertBefore(this.tree).append(this.filterInput.add(icon));
+                    $(filterTemplate).insertBefore(this.tree).find('.k-searchbox').append(this.filterInput);
                 }
             },
             _filterChange: function () {
@@ -1248,9 +1261,12 @@
                     this.checkAll = null;
                 }
                 if (this._isMultipleSelection() && this.options.checkAll) {
-                    this.checkAll = $('<div class="k-check-all"><input type="checkbox" class="k-checkbox" aria-labelledby="check-all-label"/><span id="check-all-label" class="k-checkbox-label">Check All</span></div>').insertBefore(this.tree);
+                    var checkAllCheckbox = html.renderCheckBox(extend({}, this.options, {
+                        label: 'Check All',
+                        rounded: 'medium'
+                    }));
+                    this.checkAll = $('<div class="k-check-all">' + checkAllCheckbox + '</div>').insertBefore(this.tree);
                     this.checkAll.find('.k-checkbox-label').html(kendo.template(this.options.checkAllTemplate)({ instance: this }));
-                    this.checkAll.find('.k-checkbox-label').on(CLICK + ns, proxy(this._clickCheckAll, this));
                     this.checkAll.find('.k-checkbox').on('change' + ns, proxy(this._changeCheckAll, this)).on('keydown' + ns, proxy(this._keydownCheckAll, this));
                     this._disabledCheckedItems = [];
                     this._disabledUnCheckedItems = [];
@@ -1446,7 +1462,7 @@
                 var disable = options.disable;
                 var readonly = options.readonly;
                 var wrapper = that.wrapper.add(that.filterInput).off(ns);
-                var dropDownWrapper = that._inputWrapper.off(HOVEREVENTS);
+                var dropDownWrapper = that.wrapper.off(HOVEREVENTS);
                 if (that._isMultipleSelection()) {
                     that.tagList.off(CLICK + ns);
                 }
@@ -1457,10 +1473,10 @@
                     wrapper.attr(TABINDEX, wrapper.data(TABINDEX)).attr(ARIA_DISABLED, false).on('keydown' + ns, proxy(that._keydown, that)).on('focusin' + ns, proxy(that._focusinHandler, that)).on('focusout' + ns, proxy(that._focusoutHandler, that));
                     that.wrapper.on(CLICK + ns, proxy(that._wrapperClick, that));
                     if (this._isMultipleSelection()) {
-                        that.tagList.on(CLICK + ns, 'li.k-button', function (e) {
+                        that.tagList.on(CLICK + ns, 'span.k-chip', function (e) {
                             $(e.currentTarget).addClass(FOCUSED);
                         });
-                        that.tagList.on(CLICK + ns, '.k-select', function (e) {
+                        that.tagList.on(CLICK + ns, '.k-i-close', function (e) {
                             that._removeTagClick(e);
                         });
                     }
@@ -1476,7 +1492,7 @@
                 wrapper.attr(ARIA_DISABLED, disable);
             },
             _focusinHandler: function () {
-                this._inputWrapper.addClass(FOCUSED);
+                this.wrapper.addClass(FOCUSED);
                 this._prevent = false;
             },
             _focusoutHandler: function () {
@@ -1485,7 +1501,7 @@
                     this.tagList.find(DOT + FOCUSED).removeClass(FOCUSED);
                 }
                 if (!that._prevent) {
-                    this._inputWrapper.removeClass(FOCUSED);
+                    this.wrapper.removeClass(FOCUSED);
                     that._prevent = true;
                     that.element.trigger('blur');
                 }
@@ -1648,7 +1664,7 @@
                 var focused = this.tagList.find(DOT + FOCUSED);
                 if (focused.length) {
                     var activedescendant = this._activeId;
-                    focused.first().removeClass(FOCUSED).removeAttr('id').prev().addClass(FOCUSED).attr('id', activedescendant);
+                    focused.first().removeClass(FOCUSED).removeAttr('id').prev(CHIP).addClass(FOCUSED).attr('id', activedescendant);
                     this.wrapper.attr('aria-activedescendant', activedescendant);
                 } else {
                     this._focusLastTag();
@@ -1658,7 +1674,7 @@
                 var focused = this.tagList.find(DOT + FOCUSED);
                 if (focused.length) {
                     var activedescendant = this._activeId;
-                    focused.first().removeClass(FOCUSED).removeAttr('id').next().addClass(FOCUSED).attr('id', activedescendant);
+                    focused.first().removeClass(FOCUSED).removeAttr('id').next(CHIP).addClass(FOCUSED).attr('id', activedescendant);
                     this.wrapper.attr('aria-activedescendant', activedescendant);
                 } else {
                     this._focusFirstTag();
@@ -1667,14 +1683,14 @@
             _focusFirstTag: function () {
                 var activedescendant = this._activeId;
                 this._clearDisabledTag();
-                var firstTag = this.tagList.children('li').first().addClass(FOCUSED).attr('id', activedescendant);
+                var firstTag = this.tagList.children(CHIP).first().addClass(FOCUSED).attr('id', activedescendant);
                 this.wrapper.attr('aria-activedescendant', activedescendant);
                 return firstTag;
             },
             _focusLastTag: function () {
                 var activedescendant = this._activeId;
                 this._clearDisabledTag();
-                var lastTag = this.tagList.children('li').last().addClass(FOCUSED).attr('id', activedescendant);
+                var lastTag = this.tagList.children(CHIP).last().addClass(FOCUSED).attr('id', activedescendant);
                 this.wrapper.attr('aria-activedescendant', activedescendant);
                 return lastTag;
             },
@@ -1726,6 +1742,22 @@
             instance[fields[lastIndex]] = value;
         }
         ui.plugin(DropDownTree);
+        kendo.cssProperties.registerPrefix('DropDownTree', 'k-picker-');
+        kendo.cssProperties.registerValues('DropDownTree', [{
+                prop: 'rounded',
+                values: kendo.cssProperties.roundedValues.concat([[
+                        'full',
+                        'full'
+                    ]])
+            }]);
+        kendo.cssProperties.registerPrefix('MultiSelectDropDownTree', 'k-input-');
+        kendo.cssProperties.registerValues('MultiSelectDropDownTree', [{
+                prop: 'rounded',
+                values: kendo.cssProperties.roundedValues.concat([[
+                        'full',
+                        'full'
+                    ]])
+            }]);
         var SingleSelection = kendo.Class.extend({
             init: function (view) {
                 this._dropdowntree = view;
@@ -1741,26 +1773,29 @@
             _wrapper: function () {
                 var dropdowntree = this._dropdowntree, element = dropdowntree.element, DOMelement = element[0], wrapper;
                 wrapper = element.parent();
-                if (!wrapper.is('span.k-widget')) {
+                if (!wrapper.is('span.k-dropdowntree')) {
                     wrapper = element.wrap('<span />').parent();
                     wrapper[0].style.cssText = DOMelement.style.cssText;
                     wrapper[0].title = DOMelement.title;
                 }
-                dropdowntree._focused = dropdowntree.wrapper = wrapper.addClass('k-widget k-dropdowntree').addClass(DOMelement.className).removeClass('input-validation-error').css('display', '').attr({
+                dropdowntree._focused = dropdowntree.wrapper = wrapper.addClass('k-dropdowntree k-picker').addClass(DOMelement.className).removeClass('input-validation-error').removeClass('k-invalid').css('display', '').attr({
                     accesskey: element.attr('accesskey'),
                     unselectable: 'on'
                 });
                 element.hide().removeAttr('accesskey');
             },
             _span: function () {
-                var dropdowntree = this._dropdowntree, wrapper = dropdowntree.wrapper, SELECTOR = 'span.k-input', span;
+                var dropdowntree = this._dropdowntree, wrapper = dropdowntree.wrapper, SELECTOR = 'span.k-input-value-text', span;
                 span = wrapper.find(SELECTOR);
                 if (!span[0]) {
-                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span role="button" unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>').append(dropdowntree.element);
+                    wrapper.append('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>' + html.renderButton('<button unselectable="on" class="k-select k-input-button" aria-label="select" tabindex="-1"></button>', extend({}, dropdowntree.options, {
+                        icon: 'arrow-s',
+                        shape: null,
+                        rounded: null
+                    }))).append(dropdowntree.element);
                     span = wrapper.find(SELECTOR);
                 }
                 dropdowntree.span = span;
-                dropdowntree._inputWrapper = $(wrapper[0].firstChild);
                 dropdowntree._arrow = wrapper.find('.k-select');
                 dropdowntree._arrowIcon = dropdowntree._arrow.find('.k-icon');
             },
@@ -1818,8 +1853,7 @@
                 dropdowntree._tags = new ObservableArray([]);
                 dropdowntree._multipleTags = new ObservableArray([]);
                 this._tagList();
-                dropdowntree.span = $('<span unselectable="on" class="k-input">&nbsp;</span>').insertAfter(dropdowntree.tagList);
-                dropdowntree._inputWrapper = $(dropdowntree.wrapper[0].firstChild);
+                dropdowntree.span = $('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>').appendTo(dropdowntree.tagList).find('.k-input-value-text');
             },
             _preselect: function (data, value) {
                 var dropdowntree = this._dropdowntree;
@@ -1840,29 +1874,37 @@
                 var singleTag = options.messages.singleTag;
                 tagTemplate = tagTemplate ? kendo.template(tagTemplate) : dropdowntree.valueTemplate;
                 dropdowntree.valueTemplate = function (data) {
-                    if (isMultiple) {
-                        return '<li class="k-button ' + (data.enabled === false ? 'k-state-disabled' : '') + '" unselectable="on" role="option" aria-selected="true" ' + (data.enabled === false ? 'aria-disabled="true"' : '') + '>' + '<span unselectable="on">' + tagTemplate(data) + '</span>' + '<span aria-hidden="true" title="' + dropdowntree.options.messages.deleteTag + '" aria-label="' + dropdowntree.options.messages.deleteTag + '" class="k-select">' + '<span class="k-icon k-i-close"></span>' + '</span>' + '</li>';
-                    }
-                    return '<li class="k-button" unselectable="on" role="option">' + '<span unselectable="on" data-bind="text: tags.length"></span>' + '<span unselectable="on">&nbsp;' + singleTag + '</span>' + '</li>';
+                    return html.renderChip('<span unselectable="on" role="option"' + 'class="' + (data.enabled === false ? 'k-disabled' : '') + '"' + (data.enabled === false ? 'aria-disabled="true"' : '') + '>' + (isMultiple ? tagTemplate(data) : '<span unselectable="on" data-bind="text: tags.length"></span>' + '<span unselectable="on">&nbsp;' + singleTag + '</span>') + '</span>', $.extend({}, options, {
+                        fillMode: 'solid',
+                        themeColor: 'base',
+                        rounded: 'medium',
+                        attr: { unselectable: 'on' },
+                        removable: isMultiple,
+                        removeIcon: 'close',
+                        removableAttr: {
+                            unselectable: 'on',
+                            'aria-hidden': true,
+                            'aria-label': dropdowntree.options.messages.deleteTag,
+                            title: dropdowntree.options.messages.deleteTag
+                        }
+                    }));
                 };
             },
             _wrapper: function () {
                 var dropdowntree = this._dropdowntree, element = dropdowntree.element, wrapper = element.parent('span.k-dropdowntree');
                 if (!wrapper[0]) {
-                    wrapper = element.wrap('<div class="k-widget k-dropdowntree" unselectable="on" />').parent();
+                    wrapper = element.wrap('<span class="k-dropdowntree k-input" unselectable="on" />').parent();
                     wrapper[0].style.cssText = element[0].style.cssText;
                     wrapper[0].title = element[0].title;
-                    $('<div class="k-multiselect-wrap k-floatwrap" unselectable="on" />').insertBefore(element);
                 }
                 dropdowntree.wrapper = wrapper.addClass(element[0].className).css('display', '');
-                dropdowntree._innerWrapper = $(wrapper[0].firstChild);
             },
             _tagList: function () {
-                var dropdowntree = this._dropdowntree, tagList = dropdowntree._innerWrapper.children('ul');
+                var dropdowntree = this._dropdowntree, tagList = dropdowntree.wrapper.children('div.k-input-values');
                 if (!tagList[0]) {
                     var isMultiple = dropdowntree.options.tagMode === 'multiple';
                     var tagCollection = isMultiple ? 'tags' : 'multipleTag';
-                    tagList = $('<ul unselectable="on" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" class="k-reset"/>').appendTo(dropdowntree._innerWrapper);
+                    tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" />', $.extend({}, dropdowntree.options))).appendTo(dropdowntree.wrapper);
                 }
                 dropdowntree.tagList = tagList;
                 dropdowntree.tagList.attr('id', kendo.guid() + '_tagList');

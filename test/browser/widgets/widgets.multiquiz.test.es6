@@ -649,8 +649,8 @@ describe('widgets.multiquiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 value.push(viewModel.data[i].text);
                 widget.multiSelect.element.simulate('click');
-                $('div.k-list-container.k-popup')
-                    .find(`li.k-item:eq(${i})`)
+                $('div.k-popup > .k-list')
+                    .find(`li.k-list-item:eq(${i})`)
                     .simulate('click');
                 expect(widget.multiSelect.value()).to.deep.equal(value);
                 // expect(widget.multiSelect.text()).to.deep.equal(value);

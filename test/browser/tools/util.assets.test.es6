@@ -9,12 +9,13 @@
 import '../../../src/js/cultures/all.en.es6';
 
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import ToolAssets from '../../../src/js/tools/util.assets.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
+const jsc = JSCheck();
 
 describe('util.assets', () => {
     describe('ToolAssets', () => {
@@ -50,21 +51,21 @@ describe('util.assets', () => {
 
         describe('scheme2http', () => {
             it('It should convert schemes', () => {
-                const nameGenerator = JSC.string(
-                    JSC.integer(3, 10),
-                    JSC.character('a', 'z')
+                const nameGenerator = jsc.string(
+                    jsc.integer(3, 10),
+                    jsc.character('a', 'z')
                 );
                 const valueGenerator = () =>
                     `http://www.${nameGenerator()}.com`;
-                const schemes = JSC.object(
-                    JSC.array(nameGenerator),
+                const schemes = jsc.object(
+                    jsc.array(nameGenerator),
                     valueGenerator
                 )();
                 const scheme = nameGenerator();
                 const value = valueGenerator();
                 schemes[scheme] = value;
                 const assets = new ToolAssets({ schemes });
-                const uri = JSC.string()();
+                const uri = jsc.string()();
                 const result = assets.scheme2http(`${scheme}://${uri}`);
                 expect(result).to.equal(`${value}/${uri}`);
             });

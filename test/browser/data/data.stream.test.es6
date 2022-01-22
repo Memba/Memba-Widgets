@@ -10,7 +10,7 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
@@ -33,6 +33,7 @@ import { getSpyingTransport } from '../_misc/test.transports.es6';
 const { describe, it, xit } = window;
 const { observable, stringify } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 chai.use(sinonChai);
 
 function loadStream() {
@@ -86,7 +87,7 @@ describe('data.stream', () => {
             });
 
             it('It should initialize from a dummy object', (done) => {
-                const options = JSC.object()();
+                const options = jsc.object()();
                 const prop = Object.keys(options)[0];
                 const stream = new Stream(options);
                 const { pages } = stream;

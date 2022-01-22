@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -28,6 +28,7 @@ const {
     ui: { BasicList, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -130,10 +131,10 @@ describe('widgets.basiclist', () => {
 
         it('value (error)', () => {
             function fn1() {
-                widget.value(JSC.string()());
+                widget.value(jsc.string()());
             }
             function fn2() {
-                widget.value(JSC.integer(100)());
+                widget.value(jsc.integer(100)());
             }
             expect(widget).to.be.an.instanceof(BasicList);
             expect(fn1).to.throw(TypeError);

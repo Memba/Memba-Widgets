@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -30,6 +30,7 @@ const {
     ui: { roles, ToolBox },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -151,10 +152,10 @@ describe('widgets.toolbox', () => {
 
         it('Set/Get the current tool with invalid values', () => {
             function fn1() {
-                widget.value(JSC.integer()());
+                widget.value(jsc.integer()());
             }
             function fn2() {
-                widget.value(JSC.string()());
+                widget.value(jsc.string()());
             }
             expect(widget).to.be.an.instanceof(ToolBox);
             expect(fn1).to.throw(TypeError);

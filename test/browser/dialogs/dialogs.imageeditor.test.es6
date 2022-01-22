@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import openImageEditor from '../../../src/js/dialogs/dialogs.imageeditor.es6';
 import { tryCatch } from '../_misc/test.util.es6';
@@ -23,6 +23,7 @@ import { tryCatch } from '../_misc/test.util.es6';
 const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const SELECTORS = {
@@ -37,7 +38,7 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.imageeditor', () => {
     describe('openImageEditor', () => {
         it('It should open an imageeditor with valid options', (done) => {
-            const title = `">${JSC.string()()}`; // "> Checks XSS
+            const title = `">${jsc.string()()}`; // "> Checks XSS
             const imageUrl = '../../data/images/miscellaneous/Elvis.jpg';
             // Also consider `execute` function to save to AWS S3
             openImageEditor({ title, data: { imageUrl } })

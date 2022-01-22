@@ -9,7 +9,7 @@
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved, max-classes-per-file
 import $ from 'jquery';
 import chai from 'chai';
-// import JSC from 'jscheck';
+// import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import assert from '../../../src/js/common/window.assert.es6';
 

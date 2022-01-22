@@ -11,7 +11,7 @@ import $ from 'jquery';
 import 'kendo.data';
 import 'kendo.binder';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 // import sinon from 'sinon';
 // import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
@@ -33,6 +33,7 @@ const {
 } = window.kendo;
 const { expect } = chai;
 // chai.use(sinonChai);
+const jsc = JSCheck();
 
 function getTestModel() {
     const dfd = $.Deferred();
@@ -213,7 +214,7 @@ describe('data.basetest', () => {
                             }
                         });
                         // Get a random page
-                        const pageIdx = JSC.one_of(indexes)();
+                        const pageIdx = jsc.wun_of(indexes)();
                         // Now grade the test page
                         test.grade(pageIdx)
                             .then(

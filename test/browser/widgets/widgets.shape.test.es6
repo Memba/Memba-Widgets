@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 // import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -28,6 +28,7 @@ const {
     ui: { Shape, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -40,9 +41,9 @@ function getOptions() {
             fill: {
                 color: '#999',
             },
-            opacity: JSC.number(0, 1)(),
+            opacity: jsc.number(0, 1)(),
             scale: 3,
-            shape: JSC.one_of(Object.values(Shape.fn.shapes))(),
+            shape: jsc.wun_of(Object.values(Shape.fn.shapes))(),
             stroke: {
                 width: 0,
             },
@@ -51,7 +52,7 @@ function getOptions() {
             fill: {
                 color: '#999',
             },
-            opacity: JSC.number(0, 1)(),
+            opacity: jsc.number(0, 1)(),
             scale: 4,
             count: 0,
             stroke: {
@@ -61,7 +62,7 @@ function getOptions() {
         },
         shape: {
             // fill: {},
-            opacity: JSC.number(0, 1)(),
+            opacity: jsc.number(0, 1)(),
             stroke: {
                 color: '#999',
                 dashType: 'solid',
@@ -75,7 +76,7 @@ function getOptions() {
             fill: {
                 color: '#999',
             },
-            opacity: JSC.number(0, 1)(),
+            opacity: jsc.number(0, 1)(),
             scale: 3,
             count: 0,
             stroke: {
@@ -87,9 +88,9 @@ function getOptions() {
             fill: {
                 color: '#999',
             },
-            opacity: JSC.number(0, 1)(),
+            opacity: jsc.number(0, 1)(),
             scale: 3,
-            shape: JSC.one_of(Object.values(Shape.fn.shapes))(),
+            shape: jsc.wun_of(Object.values(Shape.fn.shapes))(),
             stroke: {
                 width: 0,
             },

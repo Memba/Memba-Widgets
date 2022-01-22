@@ -7,7 +7,7 @@
 
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import {
     dateReviver,
     escapeRegExp,
@@ -33,6 +33,7 @@ const {
     data: { ObservableArray },
     guid,
 } = window.kendo;
+const jsc = JSCheck();
 
 describe('window.util', () => {
     describe('dateReviver', () => {
@@ -56,36 +57,36 @@ describe('window.util', () => {
 
     describe('isAnyArray', () => {
         it('it should check an array', () => {
-            expect(isAnyArray(JSC.array()())).to.be.true;
+            expect(isAnyArray(jsc.array()())).to.be.true;
         });
 
         it('it should check a Kendo UI ObservableArray', () => {
-            expect(isAnyArray(new ObservableArray(JSC.array()()))).to.be.true;
+            expect(isAnyArray(new ObservableArray(jsc.array()()))).to.be.true;
         });
 
         it('it should not check other value types', () => {
-            expect(isAnyArray(JSC.boolean()())).to.be.false;
-            expect(isAnyArray(JSC.number(1000))).to.be.false;
-            expect(isAnyArray(JSC.string())).to.be.false;
-            expect(isAnyArray(JSC.object()())).to.be.false;
+            expect(isAnyArray(jsc.boolean()())).to.be.false;
+            expect(isAnyArray(jsc.number(1000))).to.be.false;
+            expect(isAnyArray(jsc.string())).to.be.false;
+            expect(isAnyArray(jsc.object()())).to.be.false;
         });
     });
 
     describe('compareBasicArrays', () => {
         it('It should compare string arrays', () => {
-            const a = JSC.array(JSC.integer(10), JSC.string())();
+            const a = jsc.array(jsc.integer(10), jsc.string())();
             const b = new ObservableArray(a);
             expect(compareBasicArrays(a, b)).to.be.true;
         });
 
         it('It should compare number arrays', () => {
-            const a = JSC.array(JSC.integer(10), JSC.number(100))();
+            const a = jsc.array(jsc.integer(10), jsc.number(100))();
             const b = new ObservableArray(a);
             expect(compareBasicArrays(b, a)).to.be.true;
         });
 
         it('It should compare boolean arrays', () => {
-            const a = JSC.array(JSC.integer(10), JSC.boolean())();
+            const a = jsc.array(jsc.integer(10), jsc.boolean())();
             const b = new ObservableArray(a);
             expect(compareBasicArrays(b, a)).to.be.true;
         });
@@ -151,17 +152,17 @@ describe('window.util', () => {
         });
 
         it('It should return false when testing a non-guid', () => {
-            expect(isGuid(JSC.any()())).to.be.false;
+            expect(isGuid(jsc.any()())).to.be.false;
         });
     });
 
     describe('jsonClone', () => {
         it('It should parse dates in JSON documents', () => {
-            // const obj = JSC.object()(); // Deep equal fails
+            // const obj = jsc.object()(); // Deep equal fails
             const obj = {
-                a: JSC.boolean()(),
-                b: JSC.number()(),
-                c: JSC.string()(),
+                a: jsc.boolean()(),
+                b: jsc.number()(),
+                c: jsc.string()(),
                 d: new Date(),
             };
             expect(jsonClone(obj)).to.deep.equal(obj);

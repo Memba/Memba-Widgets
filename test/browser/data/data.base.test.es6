@@ -10,7 +10,7 @@
 // import $ from 'jquery';
 import 'kendo.binder';
 import chai from 'chai';
-// import JSC from 'jscheck';
+// import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';

@@ -9,7 +9,7 @@
 import '../../../src/js/cultures/all.en.es6';
 
 import chai from 'chai';
-// import JSC from 'jscheck';
+// import JSCheck from 'jscheck';
 
 const { describe, xit } = window;
 const { expect } = chai;

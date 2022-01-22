@@ -1,4 +1,6 @@
-(function ($) {
+/* global jQuery */
+
+(function closure1($) {
     let count = 0;
     let oldMessage;
 
@@ -25,7 +27,7 @@
                         800
                     );
             } else {
-                count++;
+                count += 1;
 
                 if (counter.length) {
                     counter.html(count);
@@ -50,65 +52,7 @@
  * Released under the MIT and GPL licenses.
  */
 
-(function ($) {
-    // We override the animation for all of these color styles
-    $.each(
-        [
-            'backgroundColor',
-            'borderBottomColor',
-            'borderLeftColor',
-            'borderRightColor',
-            'borderTopColor',
-            'color',
-            'outlineColor',
-        ],
-        function (i, attr) {
-            $.fx.step[attr] = function (fx) {
-                if (fx.state === 0 || typeof fx.end === typeof '') {
-                    fx.start = getColor(fx.elem, attr);
-                    fx.end = getRGB(fx.end);
-                }
-
-                fx.elem.style[attr] = [
-                    'rgb(',
-                    [
-                        Math.max(
-                            Math.min(
-                                parseInt(
-                                    fx.pos * (fx.end[0] - fx.start[0]) +
-                                        fx.start[0]
-                                ),
-                                255
-                            ),
-                            0
-                        ),
-                        Math.max(
-                            Math.min(
-                                parseInt(
-                                    fx.pos * (fx.end[1] - fx.start[1]) +
-                                        fx.start[1]
-                                ),
-                                255
-                            ),
-                            0
-                        ),
-                        Math.max(
-                            Math.min(
-                                parseInt(
-                                    fx.pos * (fx.end[2] - fx.start[2]) +
-                                        fx.start[2]
-                                ),
-                                255
-                            ),
-                            0
-                        ),
-                    ].join(','),
-                    ')',
-                ].join('');
-            };
-        }
-    );
-
+(function closure2($) {
     // Color Conversion functions from highlightFade
     // By Blair Mitchelmore
     // http://jquery.offput.ca/highlightFade/
@@ -123,14 +67,15 @@
         }
 
         // Look for rgb(num,num,num)
-        result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(
-            color
-        );
+        result =
+            /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(
+                color
+            );
         if (result) {
             return [
-                parseInt(result[1]),
-                parseInt(result[2]),
-                parseInt(result[3]),
+                parseInt(result[1], 10),
+                parseInt(result[2], 10),
+                parseInt(result[3], 10),
             ];
         }
 
@@ -164,24 +109,90 @@
                 break;
             }
 
+            // eslint-disable-next-line no-param-reassign
             attr = 'backgroundColor';
 
+            // eslint-disable-next-line no-param-reassign
             elem = elem.parentNode;
         } while (elem);
 
         return getRGB(color);
     }
 
+    // We override the animation for all of these color styles
+    $.each(
+        [
+            'backgroundColor',
+            'borderBottomColor',
+            'borderLeftColor',
+            'borderRightColor',
+            'borderTopColor',
+            'color',
+            'outlineColor',
+        ],
+        (i, attr) => {
+            // eslint-disable-next-line no-param-reassign
+            $.fx.step[attr] = function step(fx) {
+                if (fx.state === 0 || typeof fx.end === typeof '') {
+                    // eslint-disable-next-line no-param-reassign
+                    fx.start = getColor(fx.elem, attr);
+                    // eslint-disable-next-line no-param-reassign
+                    fx.end = getRGB(fx.end);
+                }
+
+                // eslint-disable-next-line no-param-reassign
+                fx.elem.style[attr] = [
+                    'rgb(',
+                    [
+                        Math.max(
+                            Math.min(
+                                parseInt(
+                                    fx.pos * (fx.end[0] - fx.start[0]) +
+                                        fx.start[0],
+                                    10
+                                ),
+                                255
+                            ),
+                            0
+                        ),
+                        Math.max(
+                            Math.min(
+                                parseInt(
+                                    fx.pos * (fx.end[1] - fx.start[1]) +
+                                        fx.start[1],
+                                    10
+                                ),
+                                255
+                            ),
+                            0
+                        ),
+                        Math.max(
+                            Math.min(
+                                parseInt(
+                                    fx.pos * (fx.end[2] - fx.start[2]) +
+                                        fx.start[2],
+                                    10
+                                ),
+                                255
+                            ),
+                            0
+                        ),
+                    ].join(','),
+                    ')',
+                ].join('');
+            };
+        }
+    );
+
     const { href } = window.location;
     if (href.indexOf('culture') > -1) {
         $('#culture').val(href.replace(/(.*)culture=([^&]*)/, '$2'));
     }
 
-    $('#culture').change(onlocalizationchange);
-
     function onlocalizationchange(e) {
         // var value = $(this).val();
         const value = $(e.currentTarget).val();
+        // eslint-disable-next-line no-shadow
         let { href } = window.location;
         if (href.indexOf('culture') > -1) {
             href = href.replace(/culture=([^&]*)/, `culture=${value}`);
@@ -193,4 +204,6 @@
         }
         window.location.href = href;
     }
+
+    $('#culture').change(onlocalizationchange);
 })(jQuery);

@@ -14,7 +14,7 @@
 import $ from 'jquery';
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
@@ -38,6 +38,7 @@ const { expect } = chai;
 const {
     data: { DataSource, Model },
 } = window.kendo;
+const jsc = JSCheck();
 chai.use(sinonChai);
 
 describe('data.pagecomponent', () => {
@@ -56,7 +57,7 @@ describe('data.pagecomponent', () => {
             it('It should throw when initializing a PageComponent with invalid options', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
-                    const component = new PageComponent(JSC.object()());
+                    const component = new PageComponent(jsc.object()());
                 }
                 expect(test).to.throw(Error);
             });
@@ -75,7 +76,7 @@ describe('data.pagecomponent', () => {
                 function test() {
                     // eslint-disable-next-line no-unused-vars
                     const component = new PageComponent({
-                        tool: JSC.string()(),
+                        tool: jsc.string()(),
                     });
                 }
                 expect(test).to.throw(Error);
@@ -119,7 +120,7 @@ describe('data.pagecomponent', () => {
                     const component = new PageComponent(options);
                     expect(component.fields[component.idField].editable).to.be
                         .false;
-                    component.set(component.idField, JSC.string()());
+                    component.set(component.idField, jsc.string()());
                     // Modification is simply discarded (no error is thrown)
                     expect(component).to.have.property(
                         component.idField,
@@ -133,7 +134,7 @@ describe('data.pagecomponent', () => {
                 function test(options) {
                     const component = new PageComponent(options);
                     expect(component.fields.tool.editable).to.be.false;
-                    component.set('tool', JSC.string()());
+                    component.set('tool', jsc.string()());
                     // Modification is simply discarded (no error is thrown)
                     expect(component).to.have.property('tool', options.tool);
                 }
@@ -268,7 +269,7 @@ describe('data.pagecomponent', () => {
                     const change = sinon.spy();
                     const component = new PageComponent(options);
                     component.bind('change', change);
-                    component.attributes.set('text', JSC.string()());
+                    component.attributes.set('text', jsc.string()());
                     expect(change).to.have.been.calledOnce;
                 }
                 getComponentArray().forEach(test);
@@ -279,7 +280,7 @@ describe('data.pagecomponent', () => {
                     const change = sinon.spy();
                     const component = new PageComponent(options);
                     component.bind('change', change);
-                    component.properties.set('constant', JSC.string()());
+                    component.properties.set('constant', jsc.string()());
                     expect(change).to.have.been.calledOnce;
                 }
                 getComponentArray().forEach(test);
@@ -325,7 +326,7 @@ describe('data.pagecomponent', () => {
             it('It should throw when initializing from a dummy array', () => {
                 function test() {
                     const dataSource = new PageComponentDataSource({
-                        data: JSC.array(JSC.integer(5), JSC.object())(),
+                        data: jsc.array(jsc.integer(5), jsc.object())(),
                     });
                     dataSource.read();
                 }

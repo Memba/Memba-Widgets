@@ -9,7 +9,7 @@
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import Network from '../../../src/js/common/window.network.es6';
@@ -17,12 +17,14 @@ import Network from '../../../src/js/common/window.network.es6';
 const { describe, it } = window;
 const { expect } = chai;
 const FIXTURES = 'fixtures';
+const jsc = JSCheck();
 
 chai.use(sinonChai);
 
 const network = new Network({
     ajax: {
-        url: 'https://www.kidoju.com/api/ping',
+        // url: 'https://www.kidoju.com/api/ping',
+        url: 'https://rest.ensembl.org/info/ping?content-type=application/json',
         timeout: 5000,
     },
     enabled: true,
@@ -79,7 +81,7 @@ describe('window.network', () => {
         });
 
         it('check', (done) => {
-            const on = JSC.boolean()();
+            const on = jsc.boolean()();
             network._setStatus(on);
             network
                 .check()
@@ -91,13 +93,13 @@ describe('window.network', () => {
         });
 
         it('isOffline', () => {
-            const on = JSC.boolean()();
+            const on = jsc.boolean()();
             network._setStatus(on);
             expect(network.isOffline()).to.equal(!on);
         });
 
         it('isOnline', () => {
-            const on = JSC.boolean()();
+            const on = jsc.boolean()();
             network._setStatus(on);
             expect(network.isOnline()).to.equal(on);
         });
@@ -139,7 +141,8 @@ describe('window.network', () => {
             network.setOptions({
                 // @ see http://api.jquery.com/jquery.ajax/
                 ajax: {
-                    url: 'https://www.kidoju.com/api/404',
+                    // url: 'https://www.kidoju.com/api/404',
+                    url: 'https://rest.ensembl.org/info/ping404?content-type=application/json',
                     timeout: 5000,
                 },
                 enabled: true,

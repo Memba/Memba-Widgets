@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 import openTextBoxWizard from '../../../src/js/dialogs/dialogs.textboxwizard.es6';
@@ -23,6 +23,7 @@ import openTextBoxWizard from '../../../src/js/dialogs/dialogs.textboxwizard.es6
 const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const SELECTORS = {
@@ -39,9 +40,9 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.textboxwizard', () => {
     describe('openTextBoxWizard', () => {
         it('It should open a textbox wizard with valid options', (done) => {
-            const title = `">${JSC.string()()}`; // "> Checks XSS
-            const question = JSC.string()();
-            const solution = JSC.string()();
+            const title = `">${jsc.string()()}`; // "> Checks XSS
+            const question = jsc.string()();
+            const solution = jsc.string()();
             openTextBoxWizard({ title })
                 .then(
                     tryCatch(done)((resp) => {

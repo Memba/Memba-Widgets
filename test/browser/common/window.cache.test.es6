@@ -6,7 +6,7 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import {
     localCache,
     sessionCache,
@@ -18,28 +18,29 @@ import LZString from '../../../src/js/vendor/pieroxy/lz-string';
 
 const { before, describe, it, xdescribe } = window;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const INVALID = [
-    { key: JSC.number(1000)(), value: JSC.string()() },
-    { key: JSC.boolean()(), value: JSC.string()() },
-    { key: JSC.object()(), value: JSC.string()() },
+    { key: jsc.number(1000)(), value: jsc.string()() },
+    { key: jsc.boolean()(), value: jsc.string()() },
+    { key: jsc.object()(), value: jsc.string()() },
 ];
 
-const DATA = JSC.array(
+const DATA = jsc.array(
     10, // array of 10 values
-    JSC.object(
+    jsc.object(
         // of type object
-        JSC.array(
-            JSC.integer(1, 10), // with 1 to 10 properties
-            JSC.string() // with string names
+        jsc.array(
+            jsc.integer(1, 10), // with 1 to 10 properties
+            jsc.string() // with string names
         ),
-        JSC.one_of([
+        jsc.wun_of([
             // with any of these values
-            JSC.integer(),
-            JSC.number(),
-            JSC.string(),
-            JSC.boolean(),
-            // JSC.falsy(), <-- breaks deep.equal
+            jsc.integer(),
+            jsc.number(),
+            jsc.string(),
+            jsc.boolean(),
+            // jsc.falsy(), <-- breaks deep.equal
             // Infinity, <-- breaks deep.equal
             // -Infinity, <-- breaks deep.equal
             Math.PI,
@@ -155,7 +156,7 @@ describe('window.cache', () => {
         });
 
         it('It should discard expired items', () => {
-            const key = JSC.string()();
+            const key = jsc.string()();
             const lag = 1 + Math.floor(10000 * Math.random()); // in seconds
             storage.setItem(
                 key,
@@ -172,10 +173,10 @@ describe('window.cache', () => {
         });
 
         it('It should discard tampered items', () => {
-            const key = JSC.string()();
+            const key = jsc.string()();
             const data = {
                 // The signature does not match the object
-                sig: md5(JSC.string()()),
+                sig: md5(jsc.string()()),
                 ttl: 24 * 60 * 60,
                 ts: Date.now(),
                 value: DATA[0],
@@ -289,7 +290,7 @@ describe('window.cache', () => {
         });
 
         it('It should discard expired items', () => {
-            const key = JSC.string()();
+            const key = jsc.string()();
             const lag = 1 + Math.floor(10000 * Math.random()); // in seconds
             storage.setItem(
                 key,
@@ -306,10 +307,10 @@ describe('window.cache', () => {
         });
 
         it('It should discard tampered items', () => {
-            const key = JSC.string()();
+            const key = jsc.string()();
             const data = {
                 // The signature does not match the object
-                sig: md5(JSC.string()()),
+                sig: md5(jsc.string()()),
                 ttl: 24 * 60 * 60,
                 ts: Date.now(),
                 value: DATA[0],

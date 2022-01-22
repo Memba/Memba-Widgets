@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -28,6 +28,7 @@ const {
     ui: { License, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -35,7 +36,7 @@ const ROLE = 'license';
 const WIDGET = 'kendoLicense';
 
 function getValue() {
-    return JSC.one_of([0, 1, 13])();
+    return jsc.wun_of([0, 1, 13])();
 }
 
 function assertIcons(element, value) {
@@ -151,12 +152,12 @@ describe('widgets.license', () => {
         it('value (error)', () => {
             function fn() {
                 widget.value(
-                    JSC.one_of([
-                        JSC.boolean(),
-                        JSC.number(15, 100), // Not 1 to 13
-                        JSC.string(),
-                        JSC.object(),
-                        JSC.array(),
+                    jsc.wun_of([
+                        jsc.boolean(),
+                        jsc.number(15, 100), // Not 1 to 13
+                        jsc.string(),
+                        jsc.object(),
+                        jsc.array(),
                     ])()
                 );
             }

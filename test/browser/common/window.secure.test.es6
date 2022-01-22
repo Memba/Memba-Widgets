@@ -6,15 +6,16 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import SecureStorage from '../../../src/js/common/window.secure.es6';
 
 const { before, describe, it } = window;
 const { expect } = chai;
+const jsc = JSCheck();
 
-const randomName = JSC.string(JSC.integer(5, 15), JSC.character('a', 'z'));
+const randomName = jsc.string(jsc.integer(5, 15), jsc.character('a', 'z'));
 const randomKey = randomName;
-const randomValue = JSC.any();
+const randomValue = jsc.any();
 
 describe('window.secure', () => {
     describe('SecureStorage', () => {

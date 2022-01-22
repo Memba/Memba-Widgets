@@ -11,7 +11,7 @@ import $ from 'jquery';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-// import JSC from 'jscheck';
+// import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     getElementCenter,

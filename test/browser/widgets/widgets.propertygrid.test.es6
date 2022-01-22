@@ -400,7 +400,7 @@ describe('widgets.propertygrid', () => {
             expect(row).to.exist;
             expect(input).to.exist;
             expect(input.attr(attr('bind'))).to.match(
-                new RegExp('^value:[\\s]*sample.subvalue$')
+                /^value:[\s]*sample.subvalue$/
             );
             expect(input).to.have.value(value.sample.subvalue);
             expect(input).to.have.attr('type', 'text');

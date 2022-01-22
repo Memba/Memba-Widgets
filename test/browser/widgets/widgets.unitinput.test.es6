@@ -17,7 +17,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-// import JSC from 'jscheck';
+// import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';

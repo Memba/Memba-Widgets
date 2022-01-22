@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import openStyleEditor from '../../../src/js/dialogs/dialogs.styleeditor.es6';
 import { tryCatch } from '../_misc/test.util.es6';
@@ -23,6 +23,7 @@ import { tryCatch } from '../_misc/test.util.es6';
 const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const SELECTORS = {
@@ -37,7 +38,7 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.styleeditor', () => {
     describe('openStyleEditor', () => {
         it('It should open a style editor with valid options', (done) => {
-            const title = `">${JSC.string()()}`; // "> Checks XSS
+            const title = `">${jsc.string()()}`; // "> Checks XSS
             openStyleEditor({
                 title,
             })

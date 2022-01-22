@@ -6,11 +6,12 @@
 /* eslint-disable no-unused-expressions */
 
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import Style from '../../../src/js/common/window.style.es6';
 
 const { describe, it } = window;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const DATA = [
     {
@@ -27,8 +28,7 @@ const DATA = [
     },
     {
         // Complex
-        str:
-            'background-color: powderblue; border: solid 1px #000000; color: #ff0000; display: flex; height: 100px; opacity: 0.5; width: 100px;',
+        str: 'background-color: powderblue; border: solid 1px #000000; color: #ff0000; display: flex; height: 100px; opacity: 0.5; width: 100px;',
         json: {
             backgroundColor: 'powderblue',
             border: 'solid 1px #000000',
@@ -65,20 +65,20 @@ describe('window.style', () => {
         it('It should throw with invalid data', () => {
             function test() {
                 return new Style(
-                    JSC.one_of([JSC.array(), JSC.boolean(), JSC.number()])()
+                    jsc.wun_of([jsc.array(), jsc.boolean(), jsc.number()])()
                 );
             }
             expect(test).to.throw();
         });
 
         it('It should discard dummy strings', () => {
-            const style = new Style(JSC.string()());
+            const style = new Style(jsc.string()());
             expect(style.toString()).to.equal('');
             expect(style.toJSON()).to.deep.equal({});
         });
 
         it('It should discard dummy objects', () => {
-            const style = new Style(JSC.object()());
+            const style = new Style(jsc.object()());
             expect(style.toString()).to.equal('');
             expect(style.toJSON()).to.deep.equal({});
         });
@@ -87,8 +87,8 @@ describe('window.style', () => {
             function test(item) {
                 const noise = {};
                 noise[
-                    JSC.string(JSC.integer(3, 25), JSC.character('a', 'z'))()
-                ] = JSC.string(JSC.integer(3, 25), JSC.character('a', 'z'))();
+                    jsc.string(jsc.integer(3, 25), jsc.character('a', 'z'))()
+                ] = jsc.string(jsc.integer(3, 25), jsc.character('a', 'z'))();
                 const style = new Style(
                     Object.assign(noise, item.json),
                     item.whitelist

@@ -13,7 +13,7 @@ import '../../../src/js/cultures/all.en.es6';
 import $ from 'jquery';
 import 'kendo.binder';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 // import sinon from 'sinon';
 // import sinonChai from 'sinon-chai';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
@@ -27,6 +27,7 @@ import { tryCatch } from '../_misc/test.util.es6';
 const { describe, it } = window;
 const { Observable } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 const DATA = Object.keys(componentGenerator);
 
 describe('tools', () => {
@@ -50,13 +51,13 @@ describe('tools', () => {
 
     describe('Loading tools', () => {
         it('it should throw when loading a tool that is not designated by a string id', () => {
-            const id = JSC.one_of([
+            const id = jsc.wun_of([
                 undefined,
                 null,
-                JSC.boolean(),
-                JSC.number(),
-                JSC.object(),
-                JSC.array(),
+                jsc.boolean(),
+                jsc.number(),
+                jsc.object(),
+                jsc.array(),
             ])();
             function fn() {
                 tools.load(id);
@@ -65,12 +66,12 @@ describe('tools', () => {
         });
 
         it('it should reject when loading a tool that is designated by an unknown string id', (done) => {
-            const id = JSC.one_of([
+            const id = jsc.wun_of([
                 '_events',
                 '_handlers',
                 'load',
                 TOOLS.ACTIVE,
-                JSC.string()(),
+                jsc.string()(),
             ])();
             expect(tools(id)).not.to.be.an.instanceof(Observable);
             expect(tools(id)).not.to.be.an.instanceof(BaseTool);

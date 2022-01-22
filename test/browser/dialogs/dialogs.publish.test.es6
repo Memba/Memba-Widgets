@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import openPublish from '../../../src/js/dialogs/dialogs.publish.es6';
 import { tryCatch } from '../_misc/test.util.es6';
@@ -23,6 +23,7 @@ import { tryCatch } from '../_misc/test.util.es6';
 const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const SELECTORS = {
@@ -36,7 +37,7 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.publish', () => {
     describe('openPublish', () => {
         it('It should open an publish with valid options', (done) => {
-            const title = `">${JSC.string()()}`; // "> Checks XSS
+            const title = `">${jsc.string()()}`; // "> Checks XSS
             openPublish({
                 title,
             })

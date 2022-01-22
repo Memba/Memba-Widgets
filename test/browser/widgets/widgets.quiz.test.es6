@@ -396,8 +396,8 @@ describe('widgets.quiz', () => {
             for (let i = 0; i < viewModel.data.length; i++) {
                 const value = viewModel.data[i].text;
                 widget.dropDownList.element.simulate('click');
-                $('div.k-list-container.k-popup')
-                    .find(`li.k-item:eq(${i})`)
+                $('div.k-popup > .k-list')
+                    .find(`li.k-list-item:eq(${i})`)
                     .simulate('click');
                 expect(widget.dropDownList.value()).to.equal(value);
                 expect(widget.dropDownList.text()).to.equal(value);

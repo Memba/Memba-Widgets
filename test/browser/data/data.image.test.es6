@@ -7,7 +7,7 @@
 
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
@@ -19,6 +19,7 @@ const { expect } = chai;
 const {
     data: { DataSource, Model, ObservableArray },
 } = window.kendo;
+const jsc = JSCheck();
 chai.use(sinonChai);
 
 const DATA = [
@@ -108,7 +109,7 @@ describe('data.image', () => {
                     tryCatch(done)(() => {
                         const image = dataSource.at(0);
                         expect(image).to.be.an.instanceof(Image);
-                        image.set('text', JSC.string()());
+                        image.set('text', jsc.string()());
                         expect(change).to.have.been.calledTwice;
                     })
                 )

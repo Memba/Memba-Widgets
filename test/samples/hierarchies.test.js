@@ -3,14 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint browser: true, jquery: true, expr: true */
-/* jshint browser: true, jquery: true, expr: true */
-/* global describe, it, before, xdescribe, xit */
+/* global jQuery */
 
-(function (window, $, undefined) {
+// eslint-disable-next-line no-unused-vars,no-shadow-restricted-names
+(function closure(window, $, undefined) {
     const { expect } = window.chai;
     const { kendo } = window;
-    const { kidoju } = window;
 
     const Item = kendo.data.Model.define({
         fields: {
@@ -94,8 +92,8 @@
         },
     });
 
-    describe('Test complex models', function () {
-        it('Test observable composition', function () {
+    describe('Test complex models', () => {
+        it('Test observable composition', () => {
             const viewModel = kendo.observable({
                 obj1: {
                     obj2: {
@@ -110,7 +108,7 @@
 
         // See: http://www.telerik.com/forums/best-way-to-check-that-properties-of-an-observable-are-observable
 
-        it('Test model composition', function () {
+        it('Test model composition', () => {
             const attributes = new Attributes({
                 alt: 'Google',
                 src: 'http://www.google.com/logo.jpg',
@@ -133,7 +131,7 @@
             );
         });
 
-        it('Test submodel definition', function () {
+        it('Test submodel definition', () => {
             const SubItem = Item.define({
                 parts: new kendo.data.ObservableArray([]),
             });
@@ -144,19 +142,19 @@
             expect(subItem).to.be.an.instanceof(kendo.Observable);
         });
 
-        it('Test node initialization', function () {
-            const author = new Author({ dummy: true });
+        xit('Test node initialization', () => {
+            // const author = new Author({ dummy: true });
             $.noop();
         });
 
-        it('Fetch current', function (done) {
+        it('Fetch current', (done) => {
             const viewModel = kendo.observable({
                 data: new kendo.data.DataSource({
                     data: categorizedMovies[0].items,
                 }),
                 current: null,
             });
-            viewModel.data.fetch().then(function () {
+            viewModel.data.fetch().then(() => {
                 const title = 'Another title';
                 viewModel.set('current', viewModel.data.at(0));
                 viewModel.set('current.title', title);
@@ -167,20 +165,21 @@
         });
     });
 
-    describe('Test kendo.data.HierarchicalDataSource', function () {
-        describe('When initializing a HierarchicalDataSource', function () {
-            it('if initialized from an empty array, the count of items should match', function (done) {
-                const hierarchicalDataSource = new kendo.data.HierarchicalDataSource(
-                    { data: categorizedMovies }
-                );
-                hierarchicalDataSource.read().always(function () {
+    describe('Test kendo.data.HierarchicalDataSource', () => {
+        describe('When initializing a HierarchicalDataSource', () => {
+            it('if initialized from an empty array, the count of items should match', (done) => {
+                const hierarchicalDataSource =
+                    new kendo.data.HierarchicalDataSource({
+                        data: categorizedMovies,
+                    });
+                hierarchicalDataSource.read().always(() => {
                     expect(hierarchicalDataSource.total()).to.equal(
                         categorizedMovies.length
                     );
                     hierarchicalDataSource
                         .at(0)
                         .load()
-                        .then(function () {
+                        .then(() => {
                             // expect(hierarchicalDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length);
                             expect(
                                 hierarchicalDataSource.at(0).children.data()
@@ -191,14 +190,13 @@
                 });
             });
 
-            xit('if initialized from multiple service points', function () {
+            xit('if initialized from multiple service points', () => {
                 // http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
 
                 const categories = new kendo.data.HierarchicalDataSource({
                     transport: {
                         read: {
-                            url:
-                                'http://demos.telerik.com/kendo-ui/service/Categories',
+                            url: 'http://demos.telerik.com/kendo-ui/service/Categories',
                             dataType: 'json',
                         },
                     },
@@ -214,8 +212,7 @@
                             children: {
                                 transport: {
                                     read: {
-                                        url:
-                                            'http://demos.telerik.com/kendo-ui/service/Products',
+                                        url: 'http://demos.telerik.com/kendo-ui/service/Products',
                                         dataType: 'json',
                                     },
                                 },
@@ -231,12 +228,12 @@
                     },
                 });
 
-                categories.read.always(function () {
+                categories.read.always(() => {
                     $.noop();
                 });
             });
 
-            xit('if initialized from multiple service points', function (done) {
+            xit('if initialized from multiple service points', (done) => {
                 // http://docs.telerik.com/kendo-ui/framework/hierarchicaldatasource/overview#binding-a-hierarchicaldatasource-to-remote-data-with-multiple-service-end-points
                 const guid = kendo.guid();
 
@@ -261,8 +258,7 @@
                             children: {
                                 transport: {
                                     read: {
-                                        url:
-                                            'http://demos.telerik.com/kendo-ui/service/Products',
+                                        url: 'http://demos.telerik.com/kendo-ui/service/Products',
                                         dataType: 'json',
                                     },
                                 },
@@ -278,26 +274,26 @@
                     },
                 });
 
-                categories.read().always(function () {
+                categories.read().always(() => {
                     categories
                         .at(0)
                         .load()
-                        .always(function () {
-                            const t = categories.children.total();
+                        .always(() => {
+                            // const t = categories.children.total();
                             done();
                         });
                 });
             });
         });
 
-        describe('When initializing a LibraryDataSource', function () {
+        describe('When initializing a LibraryDataSource', () => {
             // See http://www.telerik.com/forums/subclassing-kendo-data-node-and-kendo-data-hierarchicaldatasource
 
-            it('if initialized from a dummy array, items should match', function (done) {
+            it('if initialized from a dummy array, items should match', (done) => {
                 const libraryDataSource = new LibraryDataSource({
                     data: categorizedMovies,
                 });
-                libraryDataSource.read().always(function () {
+                libraryDataSource.read().always(() => {
                     expect(libraryDataSource.total()).to.equal(
                         categorizedMovies.length
                     );
@@ -305,7 +301,7 @@
                     libraryDataSource
                         .at(0)
                         .load()
-                        .then(function () {
+                        .then(() => {
                             // expect(libraryDataSource.at(0).children.total()).to.equal(categorizedMovies[0].items.length); <------------------ Does not work
                             expect(
                                 libraryDataSource.at(0).children.data().length
@@ -316,7 +312,7 @@
                 });
             });
 
-            it('if initialized from transport, items should match', function (done) {
+            it('if initialized from transport, items should match', (done) => {
                 const libraryDataSource = new LibraryDataSource({
                     transport: {
                         read: {
@@ -328,7 +324,7 @@
                 $.when(
                     libraryDataSource.read(),
                     $.getJSON(libraryDataSource.options.transport.read.url)
-                ).then(function (response1, response2) {
+                ).then((response1, response2) => {
                     expect(response2).to.be.an.instanceof(Array);
                     // expect(libraryDataSource.at(0)).to.be.an.instanceof(Author); //<------------------------------------------------ Does not work
                     expect(libraryDataSource.total()).to.equal(
@@ -337,7 +333,7 @@
                     libraryDataSource
                         .at(0)
                         .load()
-                        .then(function () {
+                        .then(() => {
                             // expect(libraryDataSource.at(0).children.total()).to.equal(response2[0][0].items.length);   //<-------------- Does not work
                             done();
                         });

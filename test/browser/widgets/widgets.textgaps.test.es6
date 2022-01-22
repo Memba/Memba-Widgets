@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 // import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -28,6 +28,7 @@ const {
     ui: { roles, TextGaps },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -40,9 +41,9 @@ chai.use(sinonChai);
 function getText(count = 2) {
     let ret = '';
     for (let i = 0; i < count; i++) {
-        ret += `${JSC.string()()}[]`;
+        ret += `${jsc.string()()}[]`;
     }
-    ret += JSC.string()();
+    ret += jsc.string()();
     return ret;
 }
 
@@ -78,7 +79,7 @@ describe('widgets.textgaps', () => {
         });
 
         it('from code with options', () => {
-            const count = JSC.integer(1, 5)();
+            const count = jsc.integer(1, 5)();
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const options = {
                 inputStyle: 'background-color: #ff0',
@@ -110,7 +111,7 @@ describe('widgets.textgaps', () => {
         });
 
         it('from markup with attributes', () => {
-            const count = JSC.integer(1, 5)();
+            const count = jsc.integer(1, 5)();
             const attributes = options2attributes({
                 inputStyle: 'background-color: #ff0',
                 role: ROLE,
@@ -138,7 +139,7 @@ describe('widgets.textgaps', () => {
         let widget;
 
         beforeEach(() => {
-            count = JSC.integer(1, 5)();
+            count = jsc.integer(1, 5)();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = {
                 inputStyle: 'background-color: #ff0',
@@ -156,7 +157,7 @@ describe('widgets.textgaps', () => {
             expect(
                 widget.element.children(`.kj-${ROLE}-input`).last()
             ).to.have.text(text);
-            text = JSC.string()();
+            text = jsc.string()();
             value[count - 1] = text;
             widget.value(value);
             expect(
@@ -184,7 +185,7 @@ describe('widgets.textgaps', () => {
         let widget;
 
         beforeEach(() => {
-            count = JSC.integer(1, 5)();
+            count = jsc.integer(1, 5)();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = {
                 inputStyle: 'background-color: #ff0',
@@ -220,7 +221,7 @@ describe('widgets.textgaps', () => {
         let widget;
 
         beforeEach(() => {
-            count = JSC.integer(1, 5)();
+            count = jsc.integer(1, 5)();
             element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             options = {
                 inputStyle: 'background-color: #ff0',

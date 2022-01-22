@@ -10,7 +10,7 @@ import '../../../src/js/cultures/all.en.es6';
 
 import 'kendo.core';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import __ from '../../../src/js/app/app.i18n.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import TOOLS from '../../../src/js/tools/util.constants.es6';
@@ -36,9 +36,10 @@ import {
 const { describe, it } = window;
 const { format } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
-const key = JSC.string(JSC.integer(1, 15), JSC.character('a', 'z'))();
-const params = JSC.object()();
+const key = jsc.string(jsc.integer(1, 15), jsc.character('a', 'z'))();
+const params = jsc.object()();
 function editor() {
     return CONSTANTS.EMPTY;
 }
@@ -60,7 +61,7 @@ const formulas = {
         JSON.stringify(params)
     )}`,
     anyFunction: 'function (a) {\n\treturn a;\n}',
-    custom: `function validate(value, solution, all) {\n\treturn "${JSC.string()()}";\n}`,
+    custom: `function validate(value, solution, all) {\n\treturn "${jsc.string()()}";\n}`,
 };
 
 describe('util.libraries', () => {

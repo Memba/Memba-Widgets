@@ -16,7 +16,7 @@ import 'kendo.data';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { PageComponent } from '../../../src/js/data/data.pagecomponent.es6';
 import openCodeEditor from '../../../src/js/dialogs/dialogs.codeeditor.es6';
@@ -33,6 +33,7 @@ const {
     destroy,
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const LIBRARY = getValidationLibrary();
@@ -56,7 +57,7 @@ describe('dialogs.codeeditor', () => {
     (window.__karma__ ? xdescribe : describe)('openCodeEditor', () => {
         it('It should open a cde editor with valid options', (done) => {
             const textbox = getTextBox();
-            const title = `">${JSC.string()()}`; // "> Checks XSS
+            const title = `">${jsc.string()()}`; // "> Checks XSS
             openCodeEditor({
                 title,
                 data: {

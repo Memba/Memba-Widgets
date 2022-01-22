@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 import openPrompt from '../../../src/js/dialogs/dialogs.prompt.es6';
@@ -23,6 +23,7 @@ import openPrompt from '../../../src/js/dialogs/dialogs.prompt.es6';
 const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const SELECTORS = {
@@ -38,9 +39,9 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.prompt', () => {
     describe('openPrompt', () => {
         it('It should open a prompt with valid options', (done) => {
-            const title = `">${JSC.string()()}`; // "> Checks XSS
-            const message = `">${JSC.string()()}`; // "> Checks XSS
-            const input = JSC.string()();
+            const title = `">${jsc.string()()}`; // "> Checks XSS
+            const message = `">${jsc.string()()}`; // "> Checks XSS
+            const input = jsc.string()();
             openPrompt({
                 title,
                 message,

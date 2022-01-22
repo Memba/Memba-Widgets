@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-// import JSC from 'jscheck';
+// import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -74,11 +74,10 @@ describe('widgets.styleeditor', () => {
             expect(widget.wrapper.outerHeight()).to.equal(
                 widget.options.height
             );
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
+                .exist;
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
                 .to.exist;
-            expect(
-                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
-            ).to.exist;
         });
 
         it('from code with options', () => {
@@ -100,11 +99,10 @@ describe('widgets.styleeditor', () => {
             expect(element).to.have.class('k-grid');
             expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget.wrapper.outerHeight()).to.equal(options.height);
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
+                .exist;
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
                 .to.exist;
-            expect(
-                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
-            ).to.exist;
         });
 
         it('from markup', () => {
@@ -130,11 +128,10 @@ describe('widgets.styleeditor', () => {
             expect(widget.wrapper.outerHeight()).to.equal(
                 widget.options.height
             );
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
+                .exist;
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
                 .to.exist;
-            expect(
-                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
-            ).to.exist;
         });
 
         it('from markup with attributes', () => {
@@ -162,11 +159,10 @@ describe('widgets.styleeditor', () => {
             expect(widget.wrapper.outerHeight()).to.equal(
                 widget.options.height
             );
-            expect(element.find('div.k-grid-toolbar > a.k-button.k-grid-add'))
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-add')).to
+                .exist;
+            expect(element.find('div.k-grid-toolbar > .k-button.k-grid-delete'))
                 .to.exist;
-            expect(
-                element.find('div.k-grid-toolbar > a.k-button.k-grid-delete')
-            ).to.exist;
         });
     });
 
@@ -268,7 +264,7 @@ describe('widgets.styleeditor', () => {
             const rows = widget.grid.tbody.find('tr[role="row"]').length;
             // Click add button
             element
-                .find('div.k-grid-toolbar > a.k-button.k-grid-add')
+                .find('div.k-grid-toolbar > .k-button.k-grid-add')
                 .simulate('click');
             // Wait for the click to process (since jQuery 3.2.1)
             setTimeout(() => {
@@ -327,7 +323,7 @@ describe('widgets.styleeditor', () => {
                         // Click delete button
                         element
                             .find(
-                                'div.k-grid-toolbar > a.k-button.k-grid-delete'
+                                'div.k-grid-toolbar > .k-button.k-grid-delete'
                             )
                             .simulate('click');
                         // remove next row

@@ -7,7 +7,7 @@
 
 import 'kendo.core';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import {
     error2xhr,
@@ -20,6 +20,7 @@ import {
 const { describe, it, xit } = window;
 const { ns } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 describe('data.util', () => {
     describe('dataSourceErrorHandler', () => {
@@ -115,7 +116,7 @@ describe('data.util', () => {
 
     describe('getAttributeBinding', () => {
         it('it should return a text binding', () => {
-            const field = JSC.string()();
+            const field = jsc.string()();
             const value = `text: ${field}`;
             const binding = {};
             binding[`data-${ns}bind`] = value;
@@ -123,7 +124,7 @@ describe('data.util', () => {
         });
 
         it('it should return a value binding', () => {
-            const field = JSC.string()();
+            const field = jsc.string()();
             const value = `value: ${field}`;
             const binding = {};
             binding[`data-${ns}bind`] = value;
@@ -131,8 +132,8 @@ describe('data.util', () => {
         });
 
         it('it should return a value binding with optional source binding', () => {
-            const field = JSC.string()();
-            const source = JSC.string()();
+            const field = jsc.string()();
+            const source = jsc.string()();
             const value = `value: ${field}, source: ${source}`;
             const binding = {};
             binding[`data-${ns}bind`] = value;
@@ -152,7 +153,7 @@ describe('data.util', () => {
             expect(normalized).to.have.property('data').that.is.a('function');
             expect(normalized).to.have.property('errors', 'error');
             expect(normalized).to.have.property('total', 'total');
-            const obj = JSC.object()();
+            const obj = jsc.object()();
             const res = { data: [obj], total: 1 };
             expect(normalized.data(obj) === obj).to.be.true;
             expect(normalized.data(res) === res.data).to.be.true;

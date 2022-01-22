@@ -7,7 +7,7 @@
 
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { /* assertBaseModel, */ tryCatch } from '../_misc/test.util.es6';
@@ -20,6 +20,7 @@ const { expect } = chai;
 const {
     data: { DataSource, Model, ObservableArray },
 } = window.kendo;
+const jsc = JSCheck();
 chai.use(sinonChai);
 
 const DATA = [
@@ -92,19 +93,19 @@ describe('data.asset', () => {
 
     describe('Asset.typeFormatter', () => {
         const TYPES = [
-            { uri: `${JSC.string()()}.bin`, mime: 'application/octet-stream' },
-            { uri: `${JSC.string()()}.BAK`, mime: 'application/octet-stream' },
+            { uri: `${jsc.string()()}.bin`, mime: 'application/octet-stream' },
+            { uri: `${jsc.string()()}.BAK`, mime: 'application/octet-stream' },
             { uri: 'GIF', mime: 'image/gif' },
-            { uri: `${JSC.string()()}.jpg`, mime: 'image/jpeg' },
-            { uri: `${JSC.string()()}.JPEG`, mime: 'image/jpeg' },
-            { uri: `${JSC.string()()}.mp3`, mime: 'audio/mpeg' },
-            { uri: `${JSC.string()()}.MP4`, mime: 'video/mp4' },
-            { uri: `${JSC.string()()}.ogg`, mime: 'audio/ogg' },
-            { uri: `${JSC.string()()}.oGv`, mime: 'video/ogg' },
-            { uri: `${JSC.string()()}.PnG`, mime: 'image/png' },
-            { uri: `${JSC.string()()}.svg`, mime: 'image/svg+xml' },
-            { uri: `${JSC.string()()}.Wav`, mime: 'audio/wav' },
-            { uri: `${JSC.string()()}.webm`, mime: 'video/webm' },
+            { uri: `${jsc.string()()}.jpg`, mime: 'image/jpeg' },
+            { uri: `${jsc.string()()}.JPEG`, mime: 'image/jpeg' },
+            { uri: `${jsc.string()()}.mp3`, mime: 'audio/mpeg' },
+            { uri: `${jsc.string()()}.MP4`, mime: 'video/mp4' },
+            { uri: `${jsc.string()()}.ogg`, mime: 'audio/ogg' },
+            { uri: `${jsc.string()()}.oGv`, mime: 'video/ogg' },
+            { uri: `${jsc.string()()}.PnG`, mime: 'image/png' },
+            { uri: `${jsc.string()()}.svg`, mime: 'image/svg+xml' },
+            { uri: `${jsc.string()()}.Wav`, mime: 'audio/wav' },
+            { uri: `${jsc.string()()}.webm`, mime: 'video/webm' },
         ];
 
         it('It should format a type', () => {
@@ -116,8 +117,8 @@ describe('data.asset', () => {
     });
 
     describe('Asset.scheme2http', () => {
-        const URI1 = JSC.string()();
-        const URI2 = JSC.string()();
+        const URI1 = jsc.string()();
+        const URI2 = jsc.string()();
         const URIS = [
             {
                 uri: `cdn://${URI1}`,
@@ -209,7 +210,7 @@ describe('data.asset', () => {
                     tryCatch(done)(() => {
                         const image = dataSource.at(0);
                         expect(image).to.be.an.instanceof(Asset);
-                        image.set('text', JSC.string()());
+                        image.set('text', jsc.string()());
                         expect(change).to.have.been.calledTwice;
                     })
                 )

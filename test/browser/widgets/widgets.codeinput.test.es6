@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -33,6 +33,7 @@ const {
     ui: { CodeInput, DropDownList, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -44,8 +45,8 @@ chai.use(sinonChai);
 
 const LIBRARY = getValidationLibrary();
 const CUSTOM = LIBRARY[0];
-const EQUAL = LIBRARY[1]; // TODO make it DEFAULT and use JSC.integer()
-const ANY = LIBRARY[4]; // TODO use JSC.integer()
+const EQUAL = LIBRARY[1]; // TODO make it DEFAULT and use jsc.integer()
+const ANY = LIBRARY[4]; // TODO use jsc.integer()
 const SOLUTION = '0';
 
 describe('widgets.codeinput', () => {
@@ -235,12 +236,12 @@ describe('widgets.codeinput', () => {
         it('value', () => {
             function fn() {
                 widget.value(
-                    JSC.one_of([
-                        JSC.boolean(),
-                        JSC.number(),
-                        // JSC.string(),
-                        JSC.object(),
-                        JSC.array(),
+                    jsc.wun_of([
+                        jsc.boolean(),
+                        jsc.number(),
+                        // jsc.string(),
+                        jsc.object(),
+                        jsc.array(),
                     ])()
                 );
             }

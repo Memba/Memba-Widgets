@@ -10,7 +10,7 @@
 import $ from 'jquery';
 import 'kendo.data';
 import chai from 'chai';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import ObjectId from '../../../src/js/common/window.objectid.es6';
@@ -37,6 +37,7 @@ const { expect } = chai;
 const {
     data: { DataSource, Model },
 } = window.kendo;
+const jsc = JSCheck();
 chai.use(sinonChai);
 
 describe('data.page', () => {
@@ -64,7 +65,7 @@ describe('data.page', () => {
 
             it('It should throw when initializing with invalid components', () => {
                 const options = {
-                    components: [JSC.object()()],
+                    components: [jsc.object()()],
                 };
                 const page = new Page(options);
                 const { components } = page;
@@ -81,7 +82,7 @@ describe('data.page', () => {
             });
 
             it('It should initialize from a dummy object', (done) => {
-                const options = JSC.object()();
+                const options = jsc.object()();
                 const prop = Object.keys(options)[0];
                 const page = new Page(options);
                 const { components } = page;
@@ -171,7 +172,7 @@ describe('data.page', () => {
                 const options = getPage();
                 const page = new Page(options);
                 expect(page.fields[page.idField].editable).to.be.false;
-                page.set(page.idField, JSC.string()());
+                page.set(page.idField, jsc.string()());
                 // Modification is simply discarded (no error is thrown)
                 expect(page).to.have.property(page.idField, options.id);
             });
@@ -313,7 +314,7 @@ describe('data.page', () => {
                                 if (component.get('tool') === 'label') {
                                     component.attributes.set(
                                         'text',
-                                        JSC.string()()
+                                        jsc.string()()
                                     );
                                     hasLabel = true;
                                 }

@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -39,6 +39,7 @@ const {
     ui: { CodeEditor, DropDownList, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
@@ -53,7 +54,7 @@ const LIBRARY = getValidationLibrary();
 const EQUAL = LIBRARY[1];
 // const KEY = LIBRARY[4].key;
 // const FORMULA = LIBRARY[4].formula;
-const SOLUTIONS = [JSC.string()(), JSC.string()(), JSC.string()()];
+const SOLUTIONS = [jsc.string()(), jsc.string()(), jsc.string()()];
 const FORMULAS = [
     'function test(a, b) { return a + b; }',
     'function validate(value, solution) {\n\treturn true;\n}',
@@ -247,12 +248,12 @@ describe('widgets.codeeditor', () => {
         it('value', () => {
             function fn() {
                 widget.value(
-                    JSC.one_of([
-                        JSC.boolean(),
-                        JSC.number(),
-                        JSC.string(),
-                        JSC.object(),
-                        JSC.array(),
+                    jsc.wun_of([
+                        jsc.boolean(),
+                        jsc.number(),
+                        jsc.string(),
+                        jsc.object(),
+                        jsc.array(),
                     ])()
                 );
             }

@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import { tryCatch } from '../_misc/test.util.es6';
 import {
@@ -27,6 +27,7 @@ import {
 const { afterEach, describe, it } = window;
 const { destroy } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const TYPES = [
@@ -47,14 +48,14 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.alert', () => {
     describe('openAlert', () => {
         it('It should open an alert with valid options', (done) => {
-            const TYPE = JSC.one_of(TYPES)();
+            const TYPE = jsc.wun_of(TYPES)();
             const type = TYPE.name;
-            const message = JSC.string()();
-            const action = JSC.string(
-                JSC.integer(1, 8),
-                JSC.character('a', 'z')
+            const message = jsc.string()();
+            const action = jsc.string(
+                jsc.integer(1, 8),
+                jsc.character('a', 'z')
             )();
-            const text = JSC.string()();
+            const text = jsc.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openAlert({
                 type,
@@ -75,12 +76,12 @@ describe('dialogs.alert', () => {
         });
 
         it('It should htmlEncode', (done) => {
-            const TYPE = JSC.one_of(TYPES)();
+            const TYPE = jsc.wun_of(TYPES)();
             const type = TYPE.name;
             const message = '"><script>alert("XSS");</script><"';
-            const action = JSC.string(
-                JSC.integer(1, 8),
-                JSC.character('a', 'z')
+            const action = jsc.string(
+                jsc.integer(1, 8),
+                jsc.character('a', 'z')
             )();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             const text = '"><script>alert("Hello");</script><"';
@@ -103,9 +104,9 @@ describe('dialogs.alert', () => {
 
     describe('openOKCancelAlert', () => {
         it('It should respond ok when pressed', (done) => {
-            const TYPE = JSC.one_of(TYPES)();
+            const TYPE = jsc.wun_of(TYPES)();
             const type = TYPE.name;
-            const message = JSC.string()();
+            const message = jsc.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openOKCancelAlert({ type, message })
                 .then(
@@ -120,9 +121,9 @@ describe('dialogs.alert', () => {
         });
 
         it('It should respond cancel when pressed', (done) => {
-            const TYPE = JSC.one_of(TYPES)();
+            const TYPE = jsc.wun_of(TYPES)();
             const type = TYPE.name;
-            const message = JSC.string()();
+            const message = jsc.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openOKCancelAlert({ type, message })
                 .then(
@@ -139,9 +140,9 @@ describe('dialogs.alert', () => {
 
     describe('openYesNoAlert', () => {
         it('It should respond yes when pressed', (done) => {
-            const TYPE = JSC.one_of(TYPES)();
+            const TYPE = jsc.wun_of(TYPES)();
             const type = TYPE.name;
-            const message = JSC.string()();
+            const message = jsc.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openYesNoAlert({ type, message })
                 .then(
@@ -156,9 +157,9 @@ describe('dialogs.alert', () => {
         });
 
         it('It should respond no when pressed', (done) => {
-            const TYPE = JSC.one_of(TYPES)();
+            const TYPE = jsc.wun_of(TYPES)();
             const type = TYPE.name;
-            const message = JSC.string()();
+            const message = jsc.string()();
             expect(['error', 'info', 'success', 'warning']).to.include(type);
             openYesNoAlert({ type, message })
                 .then(

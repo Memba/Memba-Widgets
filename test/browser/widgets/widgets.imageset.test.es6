@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -29,30 +29,31 @@ const {
     ui: { ImageSet, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}/>`;
 const ROLE = 'imageset';
 const WIDGET = 'kendoImageSet';
 
-const VALUE = JSC.string()();
+const VALUE = jsc.string()();
 const ROOT = 'https://www.example.com/';
 const DATA = [
     {
         text: VALUE,
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
+        url: `${ROOT}${jsc.string(8, jsc.character('a', 'z'))()}.png`,
     },
     {
-        text: JSC.string()(),
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
+        text: jsc.string()(),
+        url: `${ROOT}${jsc.string(8, jsc.character('a', 'z'))()}.png`,
     },
     {
-        text: JSC.string()(),
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
+        text: jsc.string()(),
+        url: `${ROOT}${jsc.string(8, jsc.character('a', 'z'))()}.png`,
     },
     {
-        text: JSC.string()(),
-        url: `${ROOT}${JSC.string(8, JSC.character('a', 'z'))()}.png`,
+        text: jsc.string()(),
+        url: `${ROOT}${jsc.string(8, jsc.character('a', 'z'))()}.png`,
     },
 ];
 

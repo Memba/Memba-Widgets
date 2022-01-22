@@ -12,7 +12,7 @@ import 'jquery.simulate';
 import 'kendo.binder';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import { options2attributes } from '../_misc/test.util.es6';
@@ -29,6 +29,7 @@ const {
     ui: { BitFlags, roles },
 } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.INPUT}>`;
@@ -36,14 +37,14 @@ const ROLE = 'bitflags';
 const WIDGET = 'kendoBitFlags';
 
 const DATA = [
-    { text: JSC.string()(), value: 1 },
-    { text: JSC.string()(), value: 2 },
-    { text: JSC.string()(), value: 4 },
-    { text: JSC.string()(), value: 8 },
-    { text: JSC.string()(), value: 16 },
-    { text: JSC.string()(), value: 32 },
-    { text: JSC.string()(), value: 64 },
-    { text: JSC.string()(), value: 128 },
+    { text: jsc.string()(), value: 1 },
+    { text: jsc.string()(), value: 2 },
+    { text: jsc.string()(), value: 4 },
+    { text: jsc.string()(), value: 8 },
+    { text: jsc.string()(), value: 16 },
+    { text: jsc.string()(), value: 32 },
+    { text: jsc.string()(), value: 64 },
+    { text: jsc.string()(), value: 128 },
 ];
 
 chai.use((c, u) => chaiJquery(c, u, $));
@@ -86,8 +87,8 @@ describe('widgets.bitflags', () => {
                 dataValueField: 'value',
                 autoBind: false,
                 // dataSource: DATA,
-                placeholder: JSC.string()(),
-                // value: JSC.integer(0, 255)()
+                placeholder: jsc.string()(),
+                // value: jsc.integer(0, 255)()
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
@@ -107,9 +108,9 @@ describe('widgets.bitflags', () => {
                 valueField: 'value',
                 autoBind: false,
                 dataSource: DATA,
-                placeholder: JSC.string()(),
+                placeholder: jsc.string()(),
                 // readonly: true,
-                value: JSC.integer(0, 255)(),
+                value: jsc.integer(0, 255)(),
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(BitFlags);
@@ -146,7 +147,7 @@ describe('widgets.bitflags', () => {
             const attributes = options2attributes({
                 source: JSON.stringify(DATA),
                 role: ROLE,
-                value: JSC.integer(0, 255)(),
+                value: jsc.integer(0, 255)(),
             });
             const element = $(ELEMENT)
                 .attr(attributes)

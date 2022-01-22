@@ -15,7 +15,7 @@ import 'kendo.core';
 import 'jquery.simulate';
 import chai from 'chai';
 import chaiJquery from 'chai-jquery';
-import JSC from 'jscheck';
+import JSCheck from 'jscheck';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
 import openAssetManager from '../../../src/js/dialogs/dialogs.assetmanager.es6';
 import { tryCatch } from '../_misc/test.util.es6';
@@ -24,6 +24,7 @@ import ASSETS from '../../../src/js/helpers/helpers.assets.es6';
 const { afterEach, describe, it } = window;
 const { destroy, format } = window.kendo;
 const { expect } = chai;
+const jsc = JSCheck();
 
 // const FIXTURES = 'fixtures';
 const SELECTORS = {
@@ -39,7 +40,7 @@ chai.use((c, u) => chaiJquery(c, u, $));
 describe('dialogs.assetmanager', () => {
     describe('openAssetManager', () => {
         it('It should open an assetmanager with valid options', (done) => {
-            const title = `">${JSC.string()()}`; // "> Checks XSS
+            const title = `">${jsc.string()()}`; // "> Checks XSS
             const assets = {
                 collections: [
                     ASSETS.G_COLLECTION,
@@ -50,7 +51,7 @@ describe('dialogs.assetmanager', () => {
                 extensions: ASSETS.IMAGE_EXT,
                 schemes: ASSETS.SCHEMES,
             };
-            const image = JSC.one_of([
+            const image = jsc.wun_of([
                 '3d_glasses.svg',
                 'add.svg',
                 'address_book.svg',

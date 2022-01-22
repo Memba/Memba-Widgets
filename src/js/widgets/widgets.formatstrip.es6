@@ -169,35 +169,36 @@ const Style = Class.extend({
      * @param value
      */
     equals(value) {
-        if ($.type(value) === CONSTANTS.STRING) {
-            value = new Style(value);
+        let val = value;
+        if ($.type(val) === CONSTANTS.STRING) {
+            val = new Style(val);
         }
         return (
-            this.backgroundColor === value.backgroundColor &&
-            this.borderColor === value.borderColor &&
-            this.borderStyle === value.borderStyle &&
-            this.borderWidth === value.borderWidth &&
-            this.borderBottomColor === value.borderBottomColor &&
-            this.borderBottomStyle === value.borderBottomStyle &&
-            this.borderBottomWidth === value.borderBottomWidth &&
-            this.borderLeftColor === value.borderLeftColor &&
-            this.borderLeftStyle === value.borderLeftStyle &&
-            this.borderLeftWidth === value.borderLeftWidth &&
-            this.borderRightColor === value.borderRightColor &&
-            this.borderRightStyle === value.borderRightStyle &&
-            this.borderRightWidth === value.borderRightWidth &&
-            this.borderTopColor === value.borderTopColor &&
-            this.borderTopStyle === value.borderTopStyle &&
-            this.borderTopWidth === value.borderTopWidth &&
-            this.color === value.color &&
-            this.fontFamily === value.fontFamily &&
-            this.fontSize === value.fontSize &&
-            this.fontStyle === value.fontStyle &&
-            this.fontWeight === value.fontWeight &&
-            this.textAlign === value.textAlign &&
-            this.textDecoration === value.textDecoration &&
-            this.verticalAlign === value.verticalAlign &&
-            this.whiteSpace === value.whiteSpace
+            this.backgroundColor === val.backgroundColor &&
+            this.borderColor === val.borderColor &&
+            this.borderStyle === val.borderStyle &&
+            this.borderWidth === val.borderWidth &&
+            this.borderBottomColor === val.borderBottomColor &&
+            this.borderBottomStyle === val.borderBottomStyle &&
+            this.borderBottomWidth === val.borderBottomWidth &&
+            this.borderLeftColor === val.borderLeftColor &&
+            this.borderLeftStyle === val.borderLeftStyle &&
+            this.borderLeftWidth === val.borderLeftWidth &&
+            this.borderRightColor === val.borderRightColor &&
+            this.borderRightStyle === val.borderRightStyle &&
+            this.borderRightWidth === val.borderRightWidth &&
+            this.borderTopColor === val.borderTopColor &&
+            this.borderTopStyle === val.borderTopStyle &&
+            this.borderTopWidth === val.borderTopWidth &&
+            this.color === val.color &&
+            this.fontFamily === val.fontFamily &&
+            this.fontSize === val.fontSize &&
+            this.fontStyle === val.fontStyle &&
+            this.fontWeight === val.fontWeight &&
+            this.textAlign === val.textAlign &&
+            this.textDecoration === val.textDecoration &&
+            this.verticalAlign === val.verticalAlign &&
+            this.whiteSpace === val.whiteSpace
         );
     },
 
@@ -282,6 +283,7 @@ const FormatBar = ToolBar.extend({
      * @param value
      */
     value(value) {
+        let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
             assert.instanceof(
                 Style,
@@ -292,7 +294,7 @@ const FormatBar = ToolBar.extend({
                     'Style'
                 )
             );
-            return this._value.toString();
+            ret = this._value.toString();
         }
         if (
             $.type(value) === CONSTANTS.STRING ||
@@ -301,10 +303,11 @@ const FormatBar = ToolBar.extend({
             this._value = new Style(value);
             this.refresh();
         } else {
-            return new TypeError(
+            throw new TypeError(
                 '`value` is expected to be a nullable string or undefined'
             );
         }
+        return ret;
     },
 
     /**
@@ -532,61 +535,79 @@ const FormatBar = ToolBar.extend({
      */
     _getValue(property) {
         const that = this;
+        let ret;
         switch (property) {
             case 'noBorders':
-                return {
+                ret = {
                     color: '',
                     size: 0,
                 };
+                break;
             case 'outsideBorders':
-                return {
+                ret = {
                     color: this._value.borderColor,
                     size: parseInt(this._value.borderWidth, 10),
                 };
+                break;
             case 'bottomBorder':
-                return {
+                ret = {
                     color: this._value.borderBottomColor,
                     size: parseInt(this._value.borderBottomWidth, 10),
                 };
+                break;
             case 'leftBorder':
-                return {
+                ret = {
                     color: this._value.borderLeftColor,
                     size: parseInt(this._value.borderLeftWidth, 10),
                 };
+                break;
             case 'rightBorder':
-                return {
+                ret = {
                     color: this._value.borderRightColor,
                     size: parseInt(this._value.borderRightWidth, 10),
                 };
+                break;
             case 'topBorder':
-                return {
+                ret = {
                     color: this._value.borderTopColor,
                     size: parseInt(this._value.borderTopWidth, 10),
                 };
+                break;
             case 'background':
-                return this._value.backgroundColor;
+                ret = this._value.backgroundColor;
+                break;
             case 'bold':
-                return this._value.fontWeight === 'bold';
+                ret = this._value.fontWeight === 'bold';
+                break;
             case 'color':
-                return this._value.color;
+                ret = this._value.color;
+                break;
             case 'fontFamily':
-                return this._value.fontFamily || FONT_FAMILY_DEFAULT;
+                ret = this._value.fontFamily || FONT_FAMILY_DEFAULT;
+                break;
             case 'fontSize':
-                return parseInt(this._value.fontSize, 10) || FONT_SIZE_DEFAULT;
+                ret = parseInt(this._value.fontSize, 10) || FONT_SIZE_DEFAULT;
+                break;
             case 'italic':
-                return this._value.fontStyle === 'italic';
+                ret = this._value.fontStyle === 'italic';
+                break;
             case 'textAlign':
-                return this._value.textAlign || TEXT_ALIGN_DEFAULT;
+                ret = this._value.textAlign || TEXT_ALIGN_DEFAULT;
+                break;
             case 'underline':
-                return this._value.textDecoration === 'underline';
+                ret = this._value.textDecoration === 'underline';
+                break;
             case 'verticalAlign':
-                return this._value.verticalAlign === 'middle'
-                    ? 'center'
-                    : this._value.verticalAlign || VERTICAL_ALIGN_DEFAULT;
+                ret =
+                    this._value.verticalAlign === 'middle'
+                        ? 'center'
+                        : this._value.verticalAlign || VERTICAL_ALIGN_DEFAULT;
+                break;
             case 'wrap':
-                return this._value.whiteSpace !== 'nowrap';
+                ret = this._value.whiteSpace !== 'nowrap';
+                break;
             case 'alignment':
-                return {
+                ret = {
                     textAlign() {
                         return that._value.textAlign || TEXT_ALIGN_DEFAULT;
                     },
@@ -597,8 +618,10 @@ const FormatBar = ToolBar.extend({
                                   VERTICAL_ALIGN_DEFAULT;
                     },
                 };
+                break;
             default:
         }
+        return ret;
     },
 
     _tools() {
@@ -616,7 +639,6 @@ const FormatBar = ToolBar.extend({
 
     /**
      * Refresh
-     * @param e
      */
     refresh() {
         const tools = this._tools();
@@ -664,19 +686,9 @@ const FormatBar = ToolBar.extend({
      * @param item
      * @param enabled
      */
-    enable(item, enabled) {
+    enable(item, enabled = true) {
         const that = this;
-        if (
-            $.type(item) === CONSTANTS.UNDEFINED &&
-            $.type(enabled) === CONSTANTS.UNDEFINED
-        ) {
-            item = true;
-        }
-        if (
-            $.type(item) === CONSTANTS.BOOLEAN &&
-            $.type(enabled) === CONSTANTS.UNDEFINED
-        ) {
-            enabled = item;
+        if ($.type(item) === CONSTANTS.UNDEFINED) {
             const tools = that.element.find(`[${attr(CONSTANTS.UID)}]`);
             $.each(tools, (index, tool) => {
                 that.enable(tool, enabled);
@@ -692,9 +704,8 @@ const FormatBar = ToolBar.extend({
             ToolBar.fn.enable.call(that, tool, enabled);
             if (tool.hasClass('k-dropdown')) {
                 const dropDownList = tool.find(roleSelector('dropdownlist'));
-                const dropDownListWidget = dropDownList.data(
-                    'kendoDropDownList'
-                );
+                const dropDownListWidget =
+                    dropDownList.data('kendoDropDownList');
                 dropDownListWidget.enable(enabled);
             } else if (tool.hasClass('k-combobox')) {
                 const comboBox = tool.find(roleSelector('combobox'));
@@ -776,8 +787,9 @@ const FormatStrip = Widget.extend({
      */
     value(value) {
         const that = this;
+        let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            return that._value;
+            ret = that._value;
         }
         if (
             value instanceof PageComponent ||
@@ -792,6 +804,7 @@ const FormatStrip = Widget.extend({
                 '`value` should be undefined, null or a PageComponent.'
             );
         }
+        return ret;
     },
 
     /**
@@ -838,21 +851,21 @@ const FormatStrip = Widget.extend({
                 )
             );
             const { attributes } = _tools(tool);
-            for (const attr in attributes) {
+            Object.keys(attributes).forEach((key) => {
                 if (
-                    Object.prototype.hasOwnProperty.call(attributes, attr) &&
-                    attributes[attr] instanceof StyleAdapter
+                    Object.prototype.hasOwnProperty.call(attributes, key) &&
+                    attributes[key] instanceof StyleAdapter
                 ) {
-                    const styleAdapter = attributes[attr];
+                    const styleAdapter = attributes[key];
                     tabs.push({
                         text: styleAdapter.title,
                         content: format(
                             FORMATBAR_DATABIND,
-                            `attributes.${attr}`
+                            `attributes.${key}`
                         ),
                     });
                 }
-            }
+            });
         }
         if (!tabs.length) {
             tabs.push({
@@ -887,7 +900,6 @@ const FormatStrip = Widget.extend({
 
     /**
      * Refresh
-     * @param e
      */
     refresh() {
         const that = this;
@@ -913,7 +925,7 @@ const FormatStrip = Widget.extend({
 
     /**
      * Function called by the enabled/disabled bindings
-     * @param enabled
+     * @param enable
      */
     enable(enable) {
         const that = this;

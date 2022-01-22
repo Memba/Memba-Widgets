@@ -73,9 +73,7 @@ const GridLayout = Widget.extend({
      * @method setOptions
      * @param options
      */
-    setOptions(options) {
-        // this.enable(options.enabled);
-    },
+    // setOptions(options) { // this.enable(options.enabled); },
 
     /**
      * _render

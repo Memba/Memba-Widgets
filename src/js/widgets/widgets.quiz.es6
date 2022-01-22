@@ -418,10 +418,6 @@ const Quiz = DataBoundWidget.extend({
      */
     _toggleSelection() {
         switch (this.options.mode) {
-            case MODES.BUTTON:
-            default:
-                this._toggleButtons();
-                break;
             case MODES.DROPDOWN:
                 this._toggleDropDownList();
                 break;
@@ -433,6 +429,10 @@ const Quiz = DataBoundWidget.extend({
                 break;
             case MODES.RADIO:
                 this._toggleRadios();
+                break;
+            case MODES.BUTTON:
+            default:
+                this._toggleButtons();
                 break;
         }
     },
@@ -640,12 +640,6 @@ const Quiz = DataBoundWidget.extend({
             element.empty();
             $(items).each((index, item) => {
                 switch (options.mode) {
-                    case MODES.BUTTON:
-                    default:
-                        $(this._buttonTemplate(item))
-                            .css(this._itemStyle.toJSON())
-                            .appendTo(element);
-                        break;
                     case MODES.IMAGE:
                         $(this._imageTemplate(item))
                             .css(this._itemStyle.toJSON())
@@ -658,6 +652,12 @@ const Quiz = DataBoundWidget.extend({
                         break;
                     case MODES.RADIO:
                         $(this._radioTemplate(item))
+                            .css(this._itemStyle.toJSON())
+                            .appendTo(element);
+                        break;
+                    case MODES.BUTTON:
+                    default:
+                        $(this._buttonTemplate(item))
                             .css(this._itemStyle.toJSON())
                             .appendTo(element);
                         break;
@@ -680,10 +680,6 @@ const Quiz = DataBoundWidget.extend({
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
         switch (this.options.mode) {
-            case MODES.BUTTON:
-            default:
-                this._enableButtons(enabled);
-                break;
             case MODES.DROPDOWN:
                 this._enableDropDownList(enabled);
                 break;
@@ -695,6 +691,10 @@ const Quiz = DataBoundWidget.extend({
                 break;
             case MODES.RADIO:
                 this._enableRadios(enabled);
+                break;
+            case MODES.BUTTON:
+            default:
+                this._enableButtons(enabled);
                 break;
         }
     },

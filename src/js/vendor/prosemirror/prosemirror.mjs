@@ -347,7 +347,7 @@ Fragment.prototype.descendants = function descendants (f) {
   this.nodesBetween(0, this.size, f);
 };
 
-// :: (number, number, ?string, ?string | ?(leafNode: Node) -> string) → string
+// :: (number, number, ?string, ?union<string, (leafNode: Node) → string>) → string
 // Extract the text between `from` and `to`. See the same method on
 // [`Node`](#model.Node.textBetween).
 Fragment.prototype.textBetween = function textBetween (from, to, blockSeparator, leafText) {
@@ -1324,7 +1324,7 @@ Node$1.prototype.nodesBetween = function nodesBetween (from, to, f, startPos) {
   this.content.nodesBetween(from, to, f, startPos, this);
 };
 
-// :: ((node: Node, pos: number, parent: Node) → ?bool)
+// :: ((node: Node, pos: number, parent: Node, index: number) → ?bool)
 // Call the given callback for every descendant node. Doesn't
 // descend into a node when the callback returns `false`.
 Node$1.prototype.descendants = function descendants (f) {
@@ -1336,10 +1336,10 @@ Node$1.prototype.descendants = function descendants (f) {
 // children.
 prototypeAccessors$3$1.textContent.get = function () { return this.textBetween(0, this.content.size, "") };
 
-// :: (number, number, ?string, ?string | ?(leafNode: Node) -> string) → string
+// :: (number, number, ?string, ?union<string, ?(leafNode: Node) -> string>) → string
 // Get all text between positions `from` and `to`. When
-// `blockSeparator` is given, it will be inserted whenever a new
-// block node is started. When `leafText` is given, it'll be
+// `blockSeparator` is given, it will be inserted to separate text
+// from different block nodes. When `leafText` is given, it'll be
 // inserted for every non-text leaf node encountered.
 Node$1.prototype.textBetween = function textBetween (from, to, blockSeparator, leafText) {
   return this.content.textBetween(from, to, blockSeparator, leafText)
@@ -2171,7 +2171,7 @@ var NodeType$1 = function NodeType(name, schema, spec) {
   this.isText = name == "text";
 };
 
-var prototypeAccessors$5$1 = { isInline: { configurable: true },isTextblock: { configurable: true },isLeaf: { configurable: true },isAtom: { configurable: true } };
+var prototypeAccessors$5$1 = { isInline: { configurable: true },isTextblock: { configurable: true },isLeaf: { configurable: true },isAtom: { configurable: true },whitespace: { configurable: true } };
 
 // :: bool
 // True if this is an inline type.
@@ -2190,6 +2190,10 @@ prototypeAccessors$5$1.isLeaf.get = function () { return this.contentMatch == Co
 // True when this node is an atom, i.e. when it does not have
 // directly editable content.
 prototypeAccessors$5$1.isAtom.get = function () { return this.isLeaf || this.spec.atom };
+
+// :: union<"pre", "normal">
+// The node type's [whitespace](#view.NodeSpec.whitespace) option.
+prototypeAccessors$5$1.whitespace.get = function () { return this.spec.whitespace || (this.spec.code ? "pre" : "normal") };
 
 // :: () → bool
 // Tells you whether this node type has any required attributes.
@@ -2451,6 +2455,17 @@ MarkType.prototype.excludes = function excludes (other) {
 //   Can be used to indicate that this node contains code, which
 //   causes some commands to behave differently.
 //
+//   whitespace:: ?union<"pre", "normal">
+//   Controls way whitespace in this a node is parsed. The default is
+//   `"normal"`, which causes the [DOM parser](#model.DOMParser) to
+//   collapse whitespace in normal mode, and normalize it (replacing
+//   newlines and such with spaces) otherwise. `"pre"` causes the
+//   parser to preserve spaces inside the node. When this option isn't
+//   given, but [`code`](#model.NodeSpec.code) is true, `whitespace`
+//   will default to `"pre"`. Note that this option doesn't influence
+//   the way the node is rendered—that should be handled by `toDOM`
+//   and/or styling.
+//
 //   defining:: ?bool
 //   Determines whether this node is considered an important parent
 //   node during replace operations (such as paste). Non-defining (the
@@ -2551,7 +2566,7 @@ MarkType.prototype.excludes = function excludes (other) {
 // type](#model.MarkType) objects for the nodes and marks that may
 // occur in conforming documents, and provides functionality for
 // creating and deserializing such documents.
-var Schema = function Schema(spec) {
+var Schema$1 = function Schema(spec) {
   // :: SchemaSpec
   // The [spec](#model.SchemaSpec) on which the schema is based,
   // with the added guarantee that its `nodes` and `marks`
@@ -2609,7 +2624,7 @@ var Schema = function Schema(spec) {
 // `NodeType` instance. Attributes will be extended
 // with defaults, `content` may be a `Fragment`,
 // `null`, a `Node`, or an array of nodes.
-Schema.prototype.node = function node (type, attrs, content, marks) {
+Schema$1.prototype.node = function node (type, attrs, content, marks) {
   if (typeof type == "string")
     { type = this.nodeType(type); }
   else if (!(type instanceof NodeType$1))
@@ -2623,14 +2638,14 @@ Schema.prototype.node = function node (type, attrs, content, marks) {
 // :: (string, ?[Mark]) → Node
 // Create a text node in the schema. Empty text nodes are not
 // allowed.
-Schema.prototype.text = function text (text$1, marks) {
+Schema$1.prototype.text = function text (text$1, marks) {
   var type = this.nodes.text;
   return new TextNode(type, type.defaultAttrs, text$1, Mark.setFrom(marks))
 };
 
 // :: (union<string, MarkType>, ?Object) → Mark
 // Create a mark with the given type and attributes.
-Schema.prototype.mark = function mark (type, attrs) {
+Schema$1.prototype.mark = function mark (type, attrs) {
   if (typeof type == "string") { type = this.marks[type]; }
   return type.create(attrs)
 };
@@ -2638,18 +2653,18 @@ Schema.prototype.mark = function mark (type, attrs) {
 // :: (Object) → Node
 // Deserialize a node from its JSON representation. This method is
 // bound.
-Schema.prototype.nodeFromJSON = function nodeFromJSON (json) {
+Schema$1.prototype.nodeFromJSON = function nodeFromJSON (json) {
   return Node$1.fromJSON(this, json)
 };
 
 // :: (Object) → Mark
 // Deserialize a mark from its JSON representation. This method is
 // bound.
-Schema.prototype.markFromJSON = function markFromJSON (json) {
+Schema$1.prototype.markFromJSON = function markFromJSON (json) {
   return Mark.fromJSON(this, json)
 };
 
-Schema.prototype.nodeType = function nodeType (name) {
+Schema$1.prototype.nodeType = function nodeType (name) {
   var found = this.nodes[name];
   if (!found) { throw new RangeError("Unknown node type: " + name) }
   return found
@@ -2968,8 +2983,10 @@ var listTags = {ol: true, ul: true};
 // Using a bitfield for node context options
 var OPT_PRESERVE_WS = 1, OPT_PRESERVE_WS_FULL = 2, OPT_OPEN_LEFT = 4;
 
-function wsOptionsFor(preserveWhitespace) {
-  return (preserveWhitespace ? OPT_PRESERVE_WS : 0) | (preserveWhitespace === "full" ? OPT_PRESERVE_WS_FULL : 0)
+function wsOptionsFor(type, preserveWhitespace, base) {
+  if (preserveWhitespace != null) { return (preserveWhitespace ? OPT_PRESERVE_WS : 0) |
+    (preserveWhitespace === "full" ? OPT_PRESERVE_WS_FULL : 0) }
+  return type && type.whitespace == "pre" ? OPT_PRESERVE_WS | OPT_PRESERVE_WS_FULL : base & ~OPT_OPEN_LEFT
 }
 
 var NodeContext = function NodeContext(type, attrs, marks, pendingMarks, solid, match, options) {
@@ -3051,7 +3068,7 @@ var ParseContext = function ParseContext(parser, options, open) {
   this.options = options;
   this.isOpen = open;
   var topNode = options.topNode, topContext;
-  var topOptions = wsOptionsFor(options.preserveWhitespace) | (open ? OPT_OPEN_LEFT : 0);
+  var topOptions = wsOptionsFor(null, options.preserveWhitespace, 0) | (open ? OPT_OPEN_LEFT : 0);
   if (topNode)
     { topContext = new NodeContext(topNode.type, topNode.attrs, Mark.none, Mark.none, true,
                                  options.topMatch || topNode.type.contentMatch, topOptions); }
@@ -3297,7 +3314,7 @@ ParseContext.prototype.enterInner = function enterInner (type, attrs, solid, pre
   var top = this.top;
   top.applyPending(type);
   top.match = top.match && top.match.matchType(type, attrs);
-  var options = preserveWS == null ? top.options & ~OPT_OPEN_LEFT : wsOptionsFor(preserveWS);
+  var options = wsOptionsFor(type, preserveWS, top.options);
   if ((top.options & OPT_OPEN_LEFT) && top.content.length == 0) { options |= OPT_OPEN_LEFT; }
   this.nodes.push(new NodeContext(type, attrs, top.activeMarks, top.pendingMarks, solid, null, options));
   this.open++;
@@ -3724,7 +3741,7 @@ var model = /*#__PURE__*/Object.freeze({
   NodeType: NodeType$1,
   ReplaceError: ReplaceError,
   ResolvedPos: ResolvedPos,
-  Schema: Schema,
+  Schema: Schema$1,
   Slice: Slice
 });
 
@@ -9305,6 +9322,11 @@ var WidgetViewDesc = /*@__PURE__*/(function (ViewDesc) {
     return mutation.type != "selection" || this.widget.spec.ignoreSelection
   };
 
+  WidgetViewDesc.prototype.destroy = function destroy () {
+    this.widget.type.destroy(this.dom);
+    ViewDesc.prototype.destroy.call(this);
+  };
+
   prototypeAccessors$1.domAtom.get = function () { return true };
 
   Object.defineProperties( WidgetViewDesc.prototype, prototypeAccessors$1 );
@@ -9469,7 +9491,7 @@ var NodeViewDesc = /*@__PURE__*/(function (ViewDesc) {
     // attrs in the dom, that won't be picked up. Not entirely sure
     // whether this is a problem
     var rule = {node: this.node.type.name, attrs: this.node.attrs};
-    if (this.node.type.spec.code) { rule.preserveWhitespace = "full"; }
+    if (this.node.type.whitespace == "pre") { rule.preserveWhitespace = "full"; }
     if (this.contentDOM && !this.contentLost) { rule.contentElement = this.contentDOM; }
     else { rule.getContent = function () { return this$1$1.contentDOM ? Fragment.empty : this$1$1.node.content; }; }
     return rule
@@ -9880,6 +9902,8 @@ function patchAttributes(dom, prev, cur) {
       { dom.classList.remove(prevList[i]); } }
     for (var i$1 = 0; i$1 < curList.length; i$1++) { if (prevList.indexOf(curList[i$1]) == -1)
       { dom.classList.add(curList[i$1]); } }
+    if (dom.classList.length == 0)
+      { dom.removeAttribute("class"); }
   }
   if (prev.style != cur.style) {
     if (prev.style) {
@@ -9924,7 +9948,7 @@ var ViewTreeUpdater = function ViewTreeUpdater(top, lockedNode) {
   // Tracks whether anything was changed
   this.changed = false;
 
-  this.preMatch = preMatch(top.node.content, top.children);
+  this.preMatch = preMatch(top.node.content, top);
 };
 
 // Destroy and remove the children between the given indices in
@@ -9985,17 +10009,16 @@ ViewTreeUpdater.prototype.syncToMarks = function syncToMarks (marks, inline, vie
 // Try to find a node desc matching the given data. Skip over it and
 // return true when successful.
 ViewTreeUpdater.prototype.findNodeMatch = function findNodeMatch (node, outerDeco, innerDeco, index) {
-  var children = this.top.children, found = -1;
-  if (index >= this.preMatch.index) {
-    for (var i = this.index; i < children.length; i++) { if (children[i].matchesNode(node, outerDeco, innerDeco)) {
-      found = i;
-      break
-    } }
+  var found = -1, targetDesc;
+  if (index >= this.preMatch.index &&
+      (targetDesc = this.preMatch.matches[index - this.preMatch.index]).parent == this.top &&
+      targetDesc.matchesNode(node, outerDeco, innerDeco)) {
+    found = this.top.children.indexOf(targetDesc, this.index);
   } else {
-    for (var i$1 = this.index, e = Math.min(children.length, i$1 + 1); i$1 < e; i$1++) {
-      var child = children[i$1];
+    for (var i = this.index, e = Math.min(this.top.children.length, i + 5); i < e; i++) {
+      var child = this.top.children[i];
       if (child.matchesNode(node, outerDeco, innerDeco) && !this.preMatch.matched.has(child)) {
-        found = i$1;
+        found = i;
         break
       }
     }
@@ -10104,22 +10127,44 @@ ViewTreeUpdater.prototype.addHackNode = function addHackNode (nodeName) {
   }
 };
 
-// : (Fragment, [ViewDesc]) → {index: number, matched: Map<ViewDesc, number>}
+// : (Fragment, [ViewDesc]) → {index: number, matched: Map<ViewDesc, number>, matches: ViewDesc[]}
 // Iterate from the end of the fragment and array of descs to find
 // directly matching ones, in order to avoid overeagerly reusing those
 // for other nodes. Returns the fragment index of the first node that
 // is part of the sequence of matched nodes at the end of the
 // fragment.
-function preMatch(frag, descs) {
-  var fI = frag.childCount, dI = descs.length, matched = new Map;
-  for (; fI > 0 && dI > 0; dI--) {
-    var desc = descs[dI - 1], node = desc.node;
+function preMatch(frag, parentDesc) {
+  var curDesc = parentDesc, descI = curDesc.children.length;
+  var fI = frag.childCount, matched = new Map, matches = [];
+  outer: while (fI > 0) {
+    var desc = (void 0);
+    for (;;) {
+      if (descI) {
+        var next = curDesc.children[descI - 1];
+        if (next instanceof MarkViewDesc) {
+          curDesc = next;
+          descI = next.children.length;
+        } else {
+          desc = next;
+          descI--;
+          break
+        }
+      } else if (curDesc == parentDesc) {
+        break outer
+      } else {
+        // FIXME
+        descI = curDesc.parent.children.indexOf(curDesc);
+        curDesc = curDesc.parent;
+      }
+    }
+    var node = desc.node;
     if (!node) { continue }
     if (node != frag.child(fI - 1)) { break }
     --fI;
     matched.set(desc, fI);
+    matches.push(desc);
   }
-  return {index: fI, matched: matched}
+  return {index: fI, matched: matched, matches: matches.reverse()}
 }
 
 function compareSide(a, b) { return a.type.side - b.type.side }
@@ -10233,8 +10278,8 @@ function findTextInFragment(frag, text, from, to) {
       if (!next.isText) { break }
       str += next.text;
     }
-    if (pos >= from) {
-      var found = str.lastIndexOf(text, to - childStart);
+    if (pos >= from && childStart < to) {
+      var found = str.lastIndexOf(text, to - childStart - 1);
       if (found >= 0 && found + text.length + childStart >= from)
         { return childStart + found }
     }
@@ -10305,9 +10350,13 @@ function selectionToDOM(view, force) {
   if (!editorOwnsSelection(view)) { return }
 
   if (!force && view.mouseDown && view.mouseDown.allowDefault) {
-    view.mouseDown.delayedSelectionSync = true;
-    view.domObserver.setCurSelection();
-    return
+    var domSel = view.root.getSelection(), curSel = view.domObserver.currentSelection;
+    if (domSel.anchorNode && isEquivalentPosition(domSel.anchorNode, domSel.anchorOffset,
+                                                  curSel.anchorNode, curSel.anchorOffset)) {
+      view.mouseDown.delayedSelectionSync = true;
+      view.domObserver.setCurSelection();
+      return
+    }
   }
 
   view.domObserver.disconnectSelection();
@@ -10772,7 +10821,7 @@ function parseBetween(view, from_, to_) {
     topOpen: true,
     from: fromOffset,
     to: toOffset,
-    preserveWhitespace: $from.parent.type.spec.code ? "full" : true,
+    preserveWhitespace: $from.parent.type.whitespace == "pre" ? "full" : true,
     editableContent: true,
     findPositions: find,
     ruleFromNode: ruleFromNode,
@@ -11150,7 +11199,14 @@ function parseFromClipboard(view, text, html, plainText, $context) {
   var sliceData = contextNode && /^(\d+) (\d+) (.*)/.exec(contextNode.getAttribute("data-pm-slice"));
   if (!slice) {
     var parser = view.someProp("clipboardParser") || view.someProp("domParser") || DOMParser.fromSchema(view.state.schema);
-    slice = parser.parseSlice(dom, {preserveWhitespace: !!(asText || sliceData), context: $context});
+    slice = parser.parseSlice(dom, {
+      preserveWhitespace: !!(asText || sliceData),
+      context: $context,
+      ruleFromNode: function ruleFromNode(dom) {
+        if (dom.nodeName == "BR" && !dom.nextSibling &&
+            dom.parentNode && !inlineParents.test(dom.parentNode.nodeName)) { return {ignore: true} }
+      }
+    });
   }
   if (sliceData) {
     slice = addContext(closeSlice(slice, +sliceData[1], +sliceData[2]), sliceData[3]);
@@ -11169,6 +11225,8 @@ function parseFromClipboard(view, text, html, plainText, $context) {
   view.someProp("transformPasted", function (f) { slice = f(slice); });
   return slice
 }
+
+var inlineParents = /^(a|abbr|acronym|b|cite|code|del|em|i|ins|kbd|label|output|q|ruby|s|samp|span|strong|sub|sup|time|u|tt|var)$/i;
 
 // Takes a slice parsed with parseSlice, which means there hasn't been
 // any content-expression checking done on the top nodes, tries to
@@ -11650,9 +11708,14 @@ function dispatchEvent(view, event) {
 editHandlers.keydown = function (view, event) {
   view.shiftKey = event.keyCode == 16 || event.shiftKey;
   if (inOrNearComposition(view, event)) { return }
-  if (event.keyCode != 229) { view.domObserver.forceFlush(); }
   view.lastKeyCode = event.keyCode;
   view.lastKeyCodeTime = Date.now();
+  // Suppress enter key events on Chrome Android, because those tend
+  // to be part of a confused sequence of composition events fired,
+  // and handling them eagerly tends to corrupt the input.
+  if (result.android && result.chrome && event.keyCode == 13) { return }
+  if (event.keyCode != 229) { view.domObserver.forceFlush(); }
+
   // On iOS, if we preventDefault enter key presses, the virtual
   // keyboard gets confused. So the hack here is to set a flag that
   // makes the DOM change code recognize that what just happens should
@@ -12037,6 +12100,7 @@ function timestampFromCustomEvent() {
 }
 
 function endComposition(view, forceUpdate) {
+  if (result.android && view.domObserver.flushingSoon >= 0) { return }
   view.domObserver.forceFlush();
   clearComposition(view);
   if (forceUpdate || view.docView.dirty) {
@@ -12127,6 +12191,11 @@ function doPaste(view, text, html, e) {
 }
 
 editHandlers.paste = function (view, e) {
+  // Handling paste from JavaScript during composition is very poorly
+  // handled by browsers, so as a dodgy but preferable kludge, we just
+  // let the browser do its native thing there, except on Android,
+  // where the editor is almost always composing.
+  if (view.composing && !result.android) { return }
   var data = brokenClipboardAPI ? null : e.clipboardData;
   if (data && doPaste(view, data.getData("text/plain"), data.getData("text/html"), e)) { e.preventDefault(); }
   else { capturePaste(view, e); }
@@ -12258,6 +12327,7 @@ handlers.beforeinput = function (view, event) {
   // Very specific hack to deal with backspace sometimes failing on
   // Chrome Android when after an uneditable node.
   if (result.chrome && result.android && event.inputType == "deleteContentBackward") {
+    view.domObserver.flushSoon();
     var domChangeCount = view.domChangeCount;
     setTimeout(function () {
       if (view.domChangeCount != domChangeCount) { return } // Event already had some effect
@@ -12303,6 +12373,10 @@ WidgetType.prototype.eq = function eq (other) {
     (other instanceof WidgetType &&
      (this.spec.key && this.spec.key == other.spec.key ||
       this.toDOM == other.toDOM && compareObjs(this.spec, other.spec)))
+};
+
+WidgetType.prototype.destroy = function destroy (node) {
+  if (this.spec.destroy) { this.spec.destroy(node); }
 };
 
 var InlineType = function InlineType(attrs, spec) {
@@ -12432,6 +12506,10 @@ Decoration.prototype.map = function map (mapping, offset, oldOffset) {
 //   key are interchangeable—if widgets differ in, for example,
 //   the behavior of some event handler, they should get
 //   different keys.
+//
+//   destroy:: ?(node: dom.Node)
+//   Called when the widget decoration is removed as a result of
+//   mapping
 Decoration.widget = function widget (pos, toDOM, spec) {
   return new Decoration(pos, pos, new WidgetType(toDOM, spec))
 };
@@ -13027,7 +13105,7 @@ var EditorView = function EditorView(place, props) {
   this.updatePluginViews();
 };
 
-var prototypeAccessors$2 = { props: { configurable: true },root: { configurable: true } };
+var prototypeAccessors$2 = { props: { configurable: true },root: { configurable: true },isDestroyed: { configurable: true } };
 
 // composing:: boolean
 // Holds `true` when a
@@ -13335,6 +13413,14 @@ EditorView.prototype.destroy = function destroy () {
   }
   this.docView.destroy();
   this.docView = null;
+};
+
+// :: boolean
+// This is true when the view has been
+// [destroyed](#view.EditorView.destroy) (and thus should not be
+// used anymore).
+prototypeAccessors$2.isDestroyed.get = function () {
+  return this.docView == null
 };
 
 // Used for testing.
@@ -14338,7 +14424,7 @@ function add(obj, props) {
 // `"paragraph (ordered_list | bullet_list)*"`. `listGroup` can be
 // given to assign a group name to the list node types, for example
 // `"block"`.
-function addListNodes(nodes, itemContent, listGroup) {
+function addListNodes$1(nodes, itemContent, listGroup) {
   return nodes.append({
     ordered_list: add(orderedList, {content: "list_item+", group: listGroup}),
     bullet_list: add(bulletList, {content: "list_item+", group: listGroup}),
@@ -14526,7 +14612,7 @@ function sinkListItem(itemType) {
 
 var schemaList = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  addListNodes: addListNodes,
+  addListNodes: addListNodes$1,
   bulletList: bulletList,
   liftListItem: liftListItem,
   listItem: listItem,
@@ -20502,6 +20588,7 @@ var parse_link_destination = function parseLinkDestination(str, pos, max) {
     while (pos < max) {
       code = str.charCodeAt(pos);
       if (code === 0x0A /* \n */) { return result; }
+      if (code === 0x3C /* < */) { return result; }
       if (code === 0x3E /* > */) {
         result.pos = pos + 1;
         result.str = unescapeAll$2(str.slice(start + 1, pos));
@@ -20532,12 +20619,14 @@ var parse_link_destination = function parseLinkDestination(str, pos, max) {
     if (code < 0x20 || code === 0x7F) { break; }
 
     if (code === 0x5C /* \ */ && pos + 1 < max) {
+      if (str.charCodeAt(pos + 1) === 0x20) { break; }
       pos += 2;
       continue;
     }
 
     if (code === 0x28 /* ( */) {
       level++;
+      if (level > 32) { return result; }
     }
 
     if (code === 0x29 /* ) */) {
@@ -20591,6 +20680,8 @@ var parse_link_title = function parseLinkTitle(str, pos, max) {
       result.lines = lines;
       result.str = unescapeAll$1(str.slice(start + 1, pos));
       result.ok = true;
+      return result;
+    } else if (code === 0x28 /* ( */ && marker === 0x29 /* ) */) {
       return result;
     } else if (code === 0x0A) {
       lines++;
@@ -20652,14 +20743,17 @@ default_rules.fence = function (tokens, idx, options, env, slf) {
   var token = tokens[idx],
       info = token.info ? unescapeAll(token.info).trim() : '',
       langName = '',
-      highlighted, i, tmpAttrs, tmpToken;
+      langAttrs = '',
+      highlighted, i, arr, tmpAttrs, tmpToken;
 
   if (info) {
-    langName = info.split(/\s+/g)[0];
+    arr = info.split(/(\s+)/g);
+    langName = arr[0];
+    langAttrs = arr.slice(2).join('');
   }
 
   if (options.highlight) {
-    highlighted = options.highlight(token.content, langName) || escapeHtml(token.content);
+    highlighted = options.highlight(token.content, langName, langAttrs) || escapeHtml(token.content);
   } else {
     highlighted = escapeHtml(token.content);
   }
@@ -20669,7 +20763,7 @@ default_rules.fence = function (tokens, idx, options, env, slf) {
   }
 
   // If language exists, inject class gently, without modifying original token.
-  // May be, one day we will add .clone() for token and simplify this part, but
+  // May be, one day we will add .deepClone() for token and simplify this part, but
   // now we prefer to keep things local.
   if (info) {
     i        = token.attrIndex('class');
@@ -20678,6 +20772,7 @@ default_rules.fence = function (tokens, idx, options, env, slf) {
     if (i < 0) {
       tmpAttrs.push([ 'class', options.langPrefix + langName ]);
     } else {
+      tmpAttrs[i] = tmpAttrs[i].slice();
       tmpAttrs[i][1] += ' ' + options.langPrefix + langName;
     }
 
@@ -20865,7 +20960,7 @@ Renderer$1.prototype.renderToken = function renderToken(tokens, idx, options) {
 
 /**
  * Renderer.renderInline(tokens, options, env) -> String
- * - tokens (Array): list on block tokens to renter
+ * - tokens (Array): list on block tokens to render
  * - options (Object): params of parser instance
  * - env (Object): additional data from parsed input (references, for example)
  *
@@ -20892,7 +20987,7 @@ Renderer$1.prototype.renderInline = function (tokens, options, env) {
 
 /** internal
  * Renderer.renderInlineAsText(tokens, options, env) -> String
- * - tokens (Array): list on block tokens to renter
+ * - tokens (Array): list on block tokens to render
  * - options (Object): params of parser instance
  * - env (Object): additional data from parsed input (references, for example)
  *
@@ -20908,6 +21003,8 @@ Renderer$1.prototype.renderInlineAsText = function (tokens, options, env) {
       result += tokens[i].content;
     } else if (tokens[i].type === 'image') {
       result += this.renderInlineAsText(tokens[i].children, options, env);
+    } else if (tokens[i].type === 'softbreak') {
+      result += '\n';
     }
   }
 
@@ -20917,7 +21014,7 @@ Renderer$1.prototype.renderInlineAsText = function (tokens, options, env) {
 
 /**
  * Renderer.render(tokens, options, env) -> String
- * - tokens (Array): list on block tokens to renter
+ * - tokens (Array): list on block tokens to render
  * - options (Object): params of parser instance
  * - env (Object): additional data from parsed input (references, for example)
  *
@@ -21525,10 +21622,10 @@ function replace_rare(inlineTokens) {
           .replace(/\.{2,}/g, '…').replace(/([?!])…/g, '$1..')
           .replace(/([?!]){4,}/g, '$1$1$1').replace(/,{2,}/g, ',')
           // em-dash
-          .replace(/(^|[^-])---([^-]|$)/mg, '$1\u2014$2')
+          .replace(/(^|[^-])---(?=[^-]|$)/mg, '$1\u2014')
           // en-dash
-          .replace(/(^|\s)--(\s|$)/mg, '$1\u2013$2')
-          .replace(/(^|[^-\s])--([^-\s]|$)/mg, '$1\u2013$2');
+          .replace(/(^|\s)--(?=\s|$)/mg, '$1\u2013')
+          .replace(/(^|[^-\s])--(?=[^-\s]|$)/mg, '$1\u2013');
       }
     }
 
@@ -21620,7 +21717,7 @@ function process_inlines(tokens, state) {
       } else {
         for (j = i - 1; j >= 0; j--) {
           if (tokens[j].type === 'softbreak' || tokens[j].type === 'hardbreak') { break; } // lastChar defaults to 0x20
-          if (tokens[j].type !== 'text') { continue; }
+          if (!tokens[j].content) { continue; } // should skip all tokens except 'text', 'html_inline' or 'code_inline'
 
           lastChar = tokens[j].content.charCodeAt(tokens[j].content.length - 1);
           break;
@@ -21637,7 +21734,7 @@ function process_inlines(tokens, state) {
       } else {
         for (j = i + 1; j < tokens.length; j++) {
           if (tokens[j].type === 'softbreak' || tokens[j].type === 'hardbreak') { break; } // nextChar defaults to 0x20
-          if (tokens[j].type !== 'text') { continue; }
+          if (!tokens[j].content) { continue; } // should skip all tokens except 'text', 'html_inline' or 'code_inline'
 
           nextChar = tokens[j].content.charCodeAt(0);
           break;
@@ -21674,8 +21771,14 @@ function process_inlines(tokens, state) {
       }
 
       if (canOpen && canClose) {
-        // treat this as the middle of the word
-        canOpen = false;
+        // Replace quotes in the middle of punctuation sequence, but not
+        // in the middle of the words, i.e.:
+        //
+        // 1. foo " bar " baz - not replaced
+        // 2. foo-"-bar-"-baz - replaced
+        // 3. foo"bar"baz     - not replaced
+        //
+        canOpen = isLastPunctChar;
         canClose = isNextPunctChar;
       }
 
@@ -21835,7 +21938,11 @@ function Token$3(type, tag, nesting) {
   /**
    * Token#info -> String
    *
-   * fence infostring
+   * Additional information:
+   *
+   * - Info string for "fence" tokens
+   * - The value "auto" for autolink "link_open" and "link_close" tokens
+   * - The string value of the item marker for ordered-list "list_item_open" tokens
    **/
   this.info     = '';
 
@@ -22026,7 +22133,7 @@ var isSpace$a = utils$1.isSpace;
 
 
 function getLine(state, line) {
-  var pos = state.bMarks[line] + state.blkIndent,
+  var pos = state.bMarks[line] + state.tShift[line],
       max = state.eMarks[line];
 
   return state.src.substr(pos, max - pos);
@@ -22037,56 +22144,42 @@ function escapedSplit(str) {
       pos = 0,
       max = str.length,
       ch,
-      escapes = 0,
+      isEscaped = false,
       lastPos = 0,
-      backTicked = false,
-      lastBackTick = 0;
+      current = '';
 
   ch  = str.charCodeAt(pos);
 
   while (pos < max) {
-    if (ch === 0x60/* ` */) {
-      if (backTicked) {
-        // make \` close code sequence, but not open it;
-        // the reason is: `\` is correct code block
-        backTicked = false;
-        lastBackTick = pos;
-      } else if (escapes % 2 === 0) {
-        backTicked = true;
-        lastBackTick = pos;
+    if (ch === 0x7c/* | */) {
+      if (!isEscaped) {
+        // pipe separating cells, '|'
+        result.push(current + str.substring(lastPos, pos));
+        current = '';
+        lastPos = pos + 1;
+      } else {
+        // escaped pipe, '\|'
+        current += str.substring(lastPos, pos - 1);
+        lastPos = pos;
       }
-    } else if (ch === 0x7c/* | */ && (escapes % 2 === 0) && !backTicked) {
-      result.push(str.substring(lastPos, pos));
-      lastPos = pos + 1;
     }
 
-    if (ch === 0x5c/* \ */) {
-      escapes++;
-    } else {
-      escapes = 0;
-    }
-
+    isEscaped = (ch === 0x5c/* \ */);
     pos++;
-
-    // If there was an un-closed backtick, go back to just after
-    // the last backtick, but as if it was a normal character
-    if (pos === max && backTicked) {
-      backTicked = false;
-      pos = lastBackTick + 1;
-    }
 
     ch = str.charCodeAt(pos);
   }
 
-  result.push(str.substring(lastPos));
+  result.push(current + str.substring(lastPos));
 
   return result;
 }
 
 
 var table = function table(state, startLine, endLine, silent) {
-  var ch, lineText, pos, i, nextLine, columns, columnCount, token,
-      aligns, t, tableLines, tbodyLines;
+  var ch, lineText, pos, i, l, nextLine, columns, columnCount, token,
+      aligns, t, tableLines, tbodyLines, oldParentType, terminate,
+      terminatorRules, firstCh, secondCh;
 
   // should have at least two lines
   if (startLine + 2 > endLine) { return false; }
@@ -22105,8 +22198,19 @@ var table = function table(state, startLine, endLine, silent) {
   pos = state.bMarks[nextLine] + state.tShift[nextLine];
   if (pos >= state.eMarks[nextLine]) { return false; }
 
-  ch = state.src.charCodeAt(pos++);
-  if (ch !== 0x7C/* | */ && ch !== 0x2D/* - */ && ch !== 0x3A/* : */) { return false; }
+  firstCh = state.src.charCodeAt(pos++);
+  if (firstCh !== 0x7C/* | */ && firstCh !== 0x2D/* - */ && firstCh !== 0x3A/* : */) { return false; }
+
+  if (pos >= state.eMarks[nextLine]) { return false; }
+
+  secondCh = state.src.charCodeAt(pos++);
+  if (secondCh !== 0x7C/* | */ && secondCh !== 0x2D/* - */ && secondCh !== 0x3A/* : */ && !isSpace$a(secondCh)) {
+    return false;
+  }
+
+  // if first character is '-', then second character must not be a space
+  // (due to parsing ambiguity with list)
+  if (firstCh === 0x2D/* - */ && isSpace$a(secondCh)) { return false; }
 
   while (pos < state.eMarks[nextLine]) {
     ch = state.src.charCodeAt(pos);
@@ -22145,14 +22249,23 @@ var table = function table(state, startLine, endLine, silent) {
   lineText = getLine(state, startLine).trim();
   if (lineText.indexOf('|') === -1) { return false; }
   if (state.sCount[startLine] - state.blkIndent >= 4) { return false; }
-  columns = escapedSplit(lineText.replace(/^\||\|$/g, ''));
+  columns = escapedSplit(lineText);
+  if (columns.length && columns[0] === '') { columns.shift(); }
+  if (columns.length && columns[columns.length - 1] === '') { columns.pop(); }
 
   // header row will define an amount of columns in the entire table,
-  // and align row shouldn't be smaller than that (the rest of the rows can)
+  // and align row should be exactly the same (the rest of the rows can differ)
   columnCount = columns.length;
-  if (columnCount > aligns.length) { return false; }
+  if (columnCount === 0 || columnCount !== aligns.length) { return false; }
 
   if (silent) { return true; }
+
+  oldParentType = state.parentType;
+  state.parentType = 'table';
+
+  // use 'blockquote' lists for termination because it's
+  // the most similar to tables
+  terminatorRules = state.md.block.ruler.getRules('blockquote');
 
   token     = state.push('table_open', 'table', 1);
   token.map = tableLines = [ startLine, 0 ];
@@ -22165,14 +22278,12 @@ var table = function table(state, startLine, endLine, silent) {
 
   for (i = 0; i < columns.length; i++) {
     token          = state.push('th_open', 'th', 1);
-    token.map      = [ startLine, startLine + 1 ];
     if (aligns[i]) {
       token.attrs  = [ [ 'style', 'text-align:' + aligns[i] ] ];
     }
 
     token          = state.push('inline', '', 0);
     token.content  = columns[i].trim();
-    token.map      = [ startLine, startLine + 1 ];
     token.children = [];
 
     token          = state.push('th_close', 'th', -1);
@@ -22181,18 +22292,33 @@ var table = function table(state, startLine, endLine, silent) {
   token     = state.push('tr_close', 'tr', -1);
   token     = state.push('thead_close', 'thead', -1);
 
-  token     = state.push('tbody_open', 'tbody', 1);
-  token.map = tbodyLines = [ startLine + 2, 0 ];
-
   for (nextLine = startLine + 2; nextLine < endLine; nextLine++) {
     if (state.sCount[nextLine] < state.blkIndent) { break; }
 
-    lineText = getLine(state, nextLine).trim();
-    if (lineText.indexOf('|') === -1) { break; }
-    if (state.sCount[nextLine] - state.blkIndent >= 4) { break; }
-    columns = escapedSplit(lineText.replace(/^\||\|$/g, ''));
+    terminate = false;
+    for (i = 0, l = terminatorRules.length; i < l; i++) {
+      if (terminatorRules[i](state, nextLine, endLine, true)) {
+        terminate = true;
+        break;
+      }
+    }
 
-    token = state.push('tr_open', 'tr', 1);
+    if (terminate) { break; }
+    lineText = getLine(state, nextLine).trim();
+    if (!lineText) { break; }
+    if (state.sCount[nextLine] - state.blkIndent >= 4) { break; }
+    columns = escapedSplit(lineText);
+    if (columns.length && columns[0] === '') { columns.shift(); }
+    if (columns.length && columns[columns.length - 1] === '') { columns.pop(); }
+
+    if (nextLine === startLine + 2) {
+      token     = state.push('tbody_open', 'tbody', 1);
+      token.map = tbodyLines = [ startLine + 2, 0 ];
+    }
+
+    token     = state.push('tr_open', 'tr', 1);
+    token.map = [ nextLine, nextLine + 1 ];
+
     for (i = 0; i < columnCount; i++) {
       token          = state.push('td_open', 'td', 1);
       if (aligns[i]) {
@@ -22207,10 +22333,16 @@ var table = function table(state, startLine, endLine, silent) {
     }
     token = state.push('tr_close', 'tr', -1);
   }
-  token = state.push('tbody_close', 'tbody', -1);
-  token = state.push('table_close', 'table', -1);
 
-  tableLines[1] = tbodyLines[1] = nextLine;
+  if (tbodyLines) {
+    token = state.push('tbody_close', 'tbody', -1);
+    tbodyLines[1] = nextLine;
+  }
+
+  token = state.push('table_close', 'table', -1);
+  tableLines[1] = nextLine;
+
+  state.parentType = oldParentType;
   state.line = nextLine;
   return true;
 };
@@ -22239,7 +22371,7 @@ var code = function code(state, startLine, endLine/*, silent*/) {
   state.line = last;
 
   token         = state.push('code_block', 'code', 0);
-  token.content = state.getLines(startLine, last, 4 + state.blkIndent, true);
+  token.content = state.getLines(startLine, last, 4 + state.blkIndent, false) + '\n';
   token.map     = [ startLine, state.line ];
 
   return true;
@@ -22362,7 +22494,7 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
       terminate,
       terminatorRules,
       token,
-      wasOutdented,
+      isOutdented,
       oldLineMax = state.lineMax,
       pos = state.bMarks[startLine] + state.tShift[startLine],
       max = state.eMarks[startLine];
@@ -22377,8 +22509,8 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
   // so no point trying to find the end of it in silent mode
   if (silent) { return true; }
 
-  // skip spaces after ">" and re-calculate offset
-  initial = offset = state.sCount[startLine] + pos - (state.bMarks[startLine] + state.tShift[startLine]);
+  // set offset past spaces and ">"
+  initial = offset = state.sCount[startLine] + 1;
 
   // skip one optional space after '>'
   if (state.src.charCodeAt(pos) === 0x20 /* space */) {
@@ -22443,7 +22575,6 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
 
   oldParentType = state.parentType;
   state.parentType = 'blockquote';
-  wasOutdented = false;
 
   // Search the end of the block
   //
@@ -22472,7 +22603,7 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
     //    > current blockquote
     // 2. checking this line
     // ```
-    if (state.sCount[nextLine] < state.blkIndent) { wasOutdented = true; }
+    isOutdented = state.sCount[nextLine] < state.blkIndent;
 
     pos = state.bMarks[nextLine] + state.tShift[nextLine];
     max = state.eMarks[nextLine];
@@ -22482,11 +22613,11 @@ var blockquote = function blockquote(state, startLine, endLine, silent) {
       break;
     }
 
-    if (state.src.charCodeAt(pos++) === 0x3E/* > */ && !wasOutdented) {
+    if (state.src.charCodeAt(pos++) === 0x3E/* > */ && !isOutdented) {
       // This line is inside the blockquote.
 
-      // skip spaces after ">" and re-calculate offset
-      initial = offset = state.sCount[nextLine] + pos - (state.bMarks[nextLine] + state.tShift[nextLine]);
+      // set offset past spaces and ">"
+      initial = offset = state.sCount[nextLine] + 1;
 
       // skip one optional space after '>'
       if (state.src.charCodeAt(pos) === 0x20 /* space */) {
@@ -22813,7 +22944,7 @@ var list = function list(state, startLine, endLine, silent) {
     // This code can fail if plugins use blkIndent as well as lists,
     // but I hope the spec gets fixed long before that happens.
     //
-    if (state.tShift[startLine] >= state.blkIndent) {
+    if (state.sCount[startLine] >= state.blkIndent) {
       isTerminatingParagraph = true;
     }
   }
@@ -22822,7 +22953,7 @@ var list = function list(state, startLine, endLine, silent) {
   if ((posAfterMarker = skipOrderedListMarker(state, startLine)) >= 0) {
     isOrdered = true;
     start = state.bMarks[startLine] + state.tShift[startLine];
-    markerValue = Number(state.src.substr(start, posAfterMarker - start - 1));
+    markerValue = Number(state.src.slice(start, posAfterMarker - 1));
 
     // If we're starting a new ordered list right after
     // a paragraph, it should start with 1.
@@ -22915,6 +23046,9 @@ var list = function list(state, startLine, endLine, silent) {
     token        = state.push('list_item_open', 'li', 1);
     token.markup = String.fromCharCode(markerCharCode);
     token.map    = itemLines = [ startLine, 0 ];
+    if (isOrdered) {
+      token.info = state.src.slice(start, posAfterMarker - 1);
+    }
 
     // change current state, then restore it after parser subcall
     oldTight = state.tight;
@@ -22991,6 +23125,7 @@ var list = function list(state, startLine, endLine, silent) {
     if (isOrdered) {
       posAfterMarker = skipOrderedListMarker(state, nextLine);
       if (posAfterMarker < 0) { break; }
+      start = state.bMarks[nextLine] + state.tShift[nextLine];
     } else {
       posAfterMarker = skipBulletListMarker(state, nextLine);
       if (posAfterMarker < 0) { break; }
@@ -23212,6 +23347,168 @@ var reference = function reference(state, startLine, _endLine, silent) {
   return true;
 };
 
+var html_blocks = [
+  'address',
+  'article',
+  'aside',
+  'base',
+  'basefont',
+  'blockquote',
+  'body',
+  'caption',
+  'center',
+  'col',
+  'colgroup',
+  'dd',
+  'details',
+  'dialog',
+  'dir',
+  'div',
+  'dl',
+  'dt',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'frame',
+  'frameset',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'head',
+  'header',
+  'hr',
+  'html',
+  'iframe',
+  'legend',
+  'li',
+  'link',
+  'main',
+  'menu',
+  'menuitem',
+  'nav',
+  'noframes',
+  'ol',
+  'optgroup',
+  'option',
+  'p',
+  'param',
+  'section',
+  'source',
+  'summary',
+  'table',
+  'tbody',
+  'td',
+  'tfoot',
+  'th',
+  'thead',
+  'title',
+  'tr',
+  'track',
+  'ul'
+];
+
+var html_re = {};
+
+var attr_name     = '[a-zA-Z_:][a-zA-Z0-9:._-]*';
+
+var unquoted      = '[^"\'=<>`\\x00-\\x20]+';
+var single_quoted = "'[^']*'";
+var double_quoted = '"[^"]*"';
+
+var attr_value  = '(?:' + unquoted + '|' + single_quoted + '|' + double_quoted + ')';
+
+var attribute   = '(?:\\s+' + attr_name + '(?:\\s*=\\s*' + attr_value + ')?)';
+
+var open_tag    = '<[A-Za-z][A-Za-z0-9\\-]*' + attribute + '*\\s*\\/?>';
+
+var close_tag   = '<\\/[A-Za-z][A-Za-z0-9\\-]*\\s*>';
+var comment     = '<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->';
+var processing  = '<[?][\\s\\S]*?[?]>';
+var declaration = '<![A-Z]+\\s+[^>]*>';
+var cdata       = '<!\\[CDATA\\[[\\s\\S]*?\\]\\]>';
+
+var HTML_TAG_RE$1 = new RegExp('^(?:' + open_tag + '|' + close_tag + '|' + comment +
+                        '|' + processing + '|' + declaration + '|' + cdata + ')');
+var HTML_OPEN_CLOSE_TAG_RE$1 = new RegExp('^(?:' + open_tag + '|' + close_tag + ')');
+
+html_re.HTML_TAG_RE = HTML_TAG_RE$1;
+html_re.HTML_OPEN_CLOSE_TAG_RE = HTML_OPEN_CLOSE_TAG_RE$1;
+
+var block_names = html_blocks;
+var HTML_OPEN_CLOSE_TAG_RE = html_re.HTML_OPEN_CLOSE_TAG_RE;
+
+// An array of opening and corresponding closing sequences for html tags,
+// last argument defines whether it can terminate a paragraph or not
+//
+var HTML_SEQUENCES = [
+  [ /^<(script|pre|style|textarea)(?=(\s|>|$))/i, /<\/(script|pre|style|textarea)>/i, true ],
+  [ /^<!--/,        /-->/,   true ],
+  [ /^<\?/,         /\?>/,   true ],
+  [ /^<![A-Z]/,     />/,     true ],
+  [ /^<!\[CDATA\[/, /\]\]>/, true ],
+  [ new RegExp('^</?(' + block_names.join('|') + ')(?=(\\s|/?>|$))', 'i'), /^$/, true ],
+  [ new RegExp(HTML_OPEN_CLOSE_TAG_RE.source + '\\s*$'),  /^$/, false ]
+];
+
+
+var html_block = function html_block(state, startLine, endLine, silent) {
+  var i, nextLine, token, lineText,
+      pos = state.bMarks[startLine] + state.tShift[startLine],
+      max = state.eMarks[startLine];
+
+  // if it's indented more than 3 spaces, it should be a code block
+  if (state.sCount[startLine] - state.blkIndent >= 4) { return false; }
+
+  if (!state.md.options.html) { return false; }
+
+  if (state.src.charCodeAt(pos) !== 0x3C/* < */) { return false; }
+
+  lineText = state.src.slice(pos, max);
+
+  for (i = 0; i < HTML_SEQUENCES.length; i++) {
+    if (HTML_SEQUENCES[i][0].test(lineText)) { break; }
+  }
+
+  if (i === HTML_SEQUENCES.length) { return false; }
+
+  if (silent) {
+    // true if this sequence can be a terminator, false otherwise
+    return HTML_SEQUENCES[i][2];
+  }
+
+  nextLine = startLine + 1;
+
+  // If we are here - we detected HTML block.
+  // Let's roll down till block end.
+  if (!HTML_SEQUENCES[i][1].test(lineText)) {
+    for (; nextLine < endLine; nextLine++) {
+      if (state.sCount[nextLine] < state.blkIndent) { break; }
+
+      pos = state.bMarks[nextLine] + state.tShift[nextLine];
+      max = state.eMarks[nextLine];
+      lineText = state.src.slice(pos, max);
+
+      if (HTML_SEQUENCES[i][1].test(lineText)) {
+        if (lineText.length !== 0) { nextLine++; }
+        break;
+      }
+    }
+  }
+
+  state.line = nextLine;
+
+  token         = state.push('html_block', '', 0);
+  token.map     = [ startLine, nextLine ];
+  token.content = state.getLines(startLine, nextLine, state.blkIndent, true);
+
+  return true;
+};
+
 var isSpace$5 = utils$1.isSpace;
 
 
@@ -23339,169 +23636,6 @@ var lheading = function lheading(state, startLine, endLine/*, silent*/) {
   token.markup   = String.fromCharCode(marker);
 
   state.parentType = oldParentType;
-
-  return true;
-};
-
-var html_blocks = [
-  'address',
-  'article',
-  'aside',
-  'base',
-  'basefont',
-  'blockquote',
-  'body',
-  'caption',
-  'center',
-  'col',
-  'colgroup',
-  'dd',
-  'details',
-  'dialog',
-  'dir',
-  'div',
-  'dl',
-  'dt',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'frame',
-  'frameset',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'head',
-  'header',
-  'hr',
-  'html',
-  'iframe',
-  'legend',
-  'li',
-  'link',
-  'main',
-  'menu',
-  'menuitem',
-  'meta',
-  'nav',
-  'noframes',
-  'ol',
-  'optgroup',
-  'option',
-  'p',
-  'param',
-  'section',
-  'source',
-  'summary',
-  'table',
-  'tbody',
-  'td',
-  'tfoot',
-  'th',
-  'thead',
-  'title',
-  'tr',
-  'track',
-  'ul'
-];
-
-var html_re = {};
-
-var attr_name     = '[a-zA-Z_:][a-zA-Z0-9:._-]*';
-
-var unquoted      = '[^"\'=<>`\\x00-\\x20]+';
-var single_quoted = "'[^']*'";
-var double_quoted = '"[^"]*"';
-
-var attr_value  = '(?:' + unquoted + '|' + single_quoted + '|' + double_quoted + ')';
-
-var attribute   = '(?:\\s+' + attr_name + '(?:\\s*=\\s*' + attr_value + ')?)';
-
-var open_tag    = '<[A-Za-z][A-Za-z0-9\\-]*' + attribute + '*\\s*\\/?>';
-
-var close_tag   = '<\\/[A-Za-z][A-Za-z0-9\\-]*\\s*>';
-var comment     = '<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->';
-var processing  = '<[?].*?[?]>';
-var declaration = '<![A-Z]+\\s+[^>]*>';
-var cdata       = '<!\\[CDATA\\[[\\s\\S]*?\\]\\]>';
-
-var HTML_TAG_RE$1 = new RegExp('^(?:' + open_tag + '|' + close_tag + '|' + comment +
-                        '|' + processing + '|' + declaration + '|' + cdata + ')');
-var HTML_OPEN_CLOSE_TAG_RE$1 = new RegExp('^(?:' + open_tag + '|' + close_tag + ')');
-
-html_re.HTML_TAG_RE = HTML_TAG_RE$1;
-html_re.HTML_OPEN_CLOSE_TAG_RE = HTML_OPEN_CLOSE_TAG_RE$1;
-
-var block_names = html_blocks;
-var HTML_OPEN_CLOSE_TAG_RE = html_re.HTML_OPEN_CLOSE_TAG_RE;
-
-// An array of opening and corresponding closing sequences for html tags,
-// last argument defines whether it can terminate a paragraph or not
-//
-var HTML_SEQUENCES = [
-  [ /^<(script|pre|style)(?=(\s|>|$))/i, /<\/(script|pre|style)>/i, true ],
-  [ /^<!--/,        /-->/,   true ],
-  [ /^<\?/,         /\?>/,   true ],
-  [ /^<![A-Z]/,     />/,     true ],
-  [ /^<!\[CDATA\[/, /\]\]>/, true ],
-  [ new RegExp('^</?(' + block_names.join('|') + ')(?=(\\s|/?>|$))', 'i'), /^$/, true ],
-  [ new RegExp(HTML_OPEN_CLOSE_TAG_RE.source + '\\s*$'),  /^$/, false ]
-];
-
-
-var html_block = function html_block(state, startLine, endLine, silent) {
-  var i, nextLine, token, lineText,
-      pos = state.bMarks[startLine] + state.tShift[startLine],
-      max = state.eMarks[startLine];
-
-  // if it's indented more than 3 spaces, it should be a code block
-  if (state.sCount[startLine] - state.blkIndent >= 4) { return false; }
-
-  if (!state.md.options.html) { return false; }
-
-  if (state.src.charCodeAt(pos) !== 0x3C/* < */) { return false; }
-
-  lineText = state.src.slice(pos, max);
-
-  for (i = 0; i < HTML_SEQUENCES.length; i++) {
-    if (HTML_SEQUENCES[i][0].test(lineText)) { break; }
-  }
-
-  if (i === HTML_SEQUENCES.length) { return false; }
-
-  if (silent) {
-    // true if this sequence can be a terminator, false otherwise
-    return HTML_SEQUENCES[i][2];
-  }
-
-  nextLine = startLine + 1;
-
-  // If we are here - we detected HTML block.
-  // Let's roll down till block end.
-  if (!HTML_SEQUENCES[i][1].test(lineText)) {
-    for (; nextLine < endLine; nextLine++) {
-      if (state.sCount[nextLine] < state.blkIndent) { break; }
-
-      pos = state.bMarks[nextLine] + state.tShift[nextLine];
-      max = state.eMarks[nextLine];
-      lineText = state.src.slice(pos, max);
-
-      if (HTML_SEQUENCES[i][1].test(lineText)) {
-        if (lineText.length !== 0) { nextLine++; }
-        break;
-      }
-    }
-  }
-
-  state.line = nextLine;
-
-  token         = state.push('html_block', '', 0);
-  token.map     = [ startLine, nextLine ];
-  token.content = state.getLines(startLine, nextLine, state.blkIndent, true);
 
   return true;
 };
@@ -23802,9 +23936,9 @@ var _rules$1 = [
   [ 'hr',         hr,         [ 'paragraph', 'reference', 'blockquote', 'list' ] ],
   [ 'list',       list,       [ 'paragraph', 'reference', 'blockquote' ] ],
   [ 'reference',  reference ],
+  [ 'html_block', html_block, [ 'paragraph', 'reference', 'blockquote' ] ],
   [ 'heading',    heading,    [ 'paragraph', 'reference', 'blockquote' ] ],
   [ 'lheading',   lheading ],
-  [ 'html_block', html_block, [ 'paragraph', 'reference', 'blockquote' ] ],
   [ 'paragraph',  paragraph ]
 ];
 
@@ -23962,7 +24096,7 @@ var isSpace$3 = utils$1.isSpace;
 
 
 var newline = function newline(state, silent) {
-  var pmax, max, pos = state.pos;
+  var pmax, max, ws, pos = state.pos;
 
   if (state.src.charCodeAt(pos) !== 0x0A/* \n */) { return false; }
 
@@ -23976,7 +24110,11 @@ var newline = function newline(state, silent) {
   if (!silent) {
     if (pmax >= 0 && state.pending.charCodeAt(pmax) === 0x20) {
       if (pmax >= 1 && state.pending.charCodeAt(pmax - 1) === 0x20) {
-        state.pending = state.pending.replace(/ +$/, '');
+        // Find whitespaces tail of pending chars.
+        ws = pmax - 1;
+        while (ws >= 1 && state.pending.charCodeAt(ws - 1) === 0x20) { ws--; }
+
+        state.pending = state.pending.slice(0, ws);
         state.push('hardbreak', 'br', 0);
       } else {
         state.pending = state.pending.slice(0, -1);
@@ -24047,7 +24185,7 @@ var _escape = function escape(state, silent) {
 };
 
 var backticks = function backtick(state, silent) {
-  var start, max, marker, matchStart, matchEnd, token,
+  var start, max, marker, token, matchStart, matchEnd, openerLength, closerLength,
       pos = state.pos,
       ch = state.src.charCodeAt(pos);
 
@@ -24057,20 +24195,33 @@ var backticks = function backtick(state, silent) {
   pos++;
   max = state.posMax;
 
+  // scan marker length
   while (pos < max && state.src.charCodeAt(pos) === 0x60/* ` */) { pos++; }
 
   marker = state.src.slice(start, pos);
+  openerLength = marker.length;
+
+  if (state.backticksScanned && (state.backticks[openerLength] || 0) <= start) {
+    if (!silent) { state.pending += marker; }
+    state.pos += openerLength;
+    return true;
+  }
 
   matchStart = matchEnd = pos;
 
+  // Nothing found in the cache, scan until the end of the line (or until marker is found)
   while ((matchStart = state.src.indexOf('`', matchEnd)) !== -1) {
     matchEnd = matchStart + 1;
 
+    // scan marker length
     while (matchEnd < max && state.src.charCodeAt(matchEnd) === 0x60/* ` */) { matchEnd++; }
 
-    if (matchEnd - matchStart === marker.length) {
+    closerLength = matchEnd - matchStart;
+
+    if (closerLength === openerLength) {
+      // Found matching closer length.
       if (!silent) {
-        token         = state.push('code_inline', 'code', 0);
+        token     = state.push('code_inline', 'code', 0);
         token.markup  = marker;
         token.content = state.src.slice(pos, matchStart)
           .replace(/\n/g, ' ')
@@ -24079,10 +24230,16 @@ var backticks = function backtick(state, silent) {
       state.pos = matchEnd;
       return true;
     }
+
+    // Some different length found, put it in cache as upper limit of where closer can be found
+    state.backticks[closerLength] = matchStart;
   }
 
+  // Scanned through the end, didn't find anything
+  state.backticksScanned = true;
+
   if (!silent) { state.pending += marker; }
-  state.pos += marker.length;
+  state.pos += openerLength;
   return true;
 };
 
@@ -24117,8 +24274,7 @@ strikethrough.tokenize = function strikethrough(state, silent) {
 
     state.delimiters.push({
       marker: marker,
-      length: 0, // disable "rule of 3" length checks meant for emphasis
-      jump:   i,
+      length: 0,     // disable "rule of 3" length checks meant for emphasis
       token:  state.tokens.length - 1,
       end:    -1,
       open:   scanned.can_open,
@@ -24243,15 +24399,6 @@ emphasis.tokenize = function emphasis(state, silent) {
       //
       length: scanned.length,
 
-      // An amount of characters before this one that's equivalent to
-      // current one. In plain English: if this delimiter does not open
-      // an emphasis, neither do previous `jump` characters.
-      //
-      // Used to skip sequences like "*****" in one step, for 1st asterisk
-      // value will be 0, for 2nd it's 1 and so on.
-      //
-      jump:   i,
-
       // A position of the token this delimiter corresponds to.
       //
       token:  state.tokens.length - 1,
@@ -24305,9 +24452,11 @@ function postProcess(state, delimiters) {
     //
     isStrong = i > 0 &&
                delimiters[i - 1].end === startDelim.end + 1 &&
+               // check that first two markers match and adjacent
+               delimiters[i - 1].marker === startDelim.marker &&
                delimiters[i - 1].token === startDelim.token - 1 &&
-               delimiters[startDelim.end + 1].token === endDelim.token + 1 &&
-               delimiters[i - 1].marker === startDelim.marker;
+               // check that last two markers are adjacent (we can safely assume they match)
+               delimiters[startDelim.end + 1].token === endDelim.token + 1;
 
     ch = String.fromCharCode(startDelim.marker);
 
@@ -24363,9 +24512,9 @@ var link = function link(state, silent) {
       pos,
       res,
       ref,
-      title,
       token,
       href = '',
+      title = '',
       oldPos = state.pos,
       max = state.posMax,
       start = state.pos,
@@ -24408,31 +24557,29 @@ var link = function link(state, silent) {
       } else {
         href = '';
       }
-    }
-
-    // [link](  <href>  "title"  )
-    //                ^^ skipping these spaces
-    start = pos;
-    for (; pos < max; pos++) {
-      code = state.src.charCodeAt(pos);
-      if (!isSpace$1(code) && code !== 0x0A) { break; }
-    }
-
-    // [link](  <href>  "title"  )
-    //                  ^^^^^^^ parsing link title
-    res = state.md.helpers.parseLinkTitle(state.src, pos, state.posMax);
-    if (pos < max && start !== pos && res.ok) {
-      title = res.str;
-      pos = res.pos;
 
       // [link](  <href>  "title"  )
-      //                         ^^ skipping these spaces
+      //                ^^ skipping these spaces
+      start = pos;
       for (; pos < max; pos++) {
         code = state.src.charCodeAt(pos);
         if (!isSpace$1(code) && code !== 0x0A) { break; }
       }
-    } else {
-      title = '';
+
+      // [link](  <href>  "title"  )
+      //                  ^^^^^^^ parsing link title
+      res = state.md.helpers.parseLinkTitle(state.src, pos, state.posMax);
+      if (pos < max && start !== pos && res.ok) {
+        title = res.str;
+        pos = res.pos;
+
+        // [link](  <href>  "title"  )
+        //                         ^^ skipping these spaces
+        for (; pos < max; pos++) {
+          code = state.src.charCodeAt(pos);
+          if (!isSpace$1(code) && code !== 0x0A) { break; }
+        }
+      }
     }
 
     if (pos >= max || state.src.charCodeAt(pos) !== 0x29/* ) */) {
@@ -24647,24 +24794,31 @@ var image = function image(state, silent) {
 };
 
 /*eslint max-len:0*/
-var EMAIL_RE    = /^<([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/;
-var AUTOLINK_RE = /^<([a-zA-Z][a-zA-Z0-9+.\-]{1,31}):([^<>\x00-\x20]*)>/;
+var EMAIL_RE    = /^([a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$/;
+var AUTOLINK_RE = /^([a-zA-Z][a-zA-Z0-9+.\-]{1,31}):([^<>\x00-\x20]*)$/;
 
 
 var autolink = function autolink(state, silent) {
-  var tail, linkMatch, emailMatch, url, fullUrl, token,
+  var url, fullUrl, token, ch, start, max,
       pos = state.pos;
 
   if (state.src.charCodeAt(pos) !== 0x3C/* < */) { return false; }
 
-  tail = state.src.slice(pos);
+  start = state.pos;
+  max = state.posMax;
 
-  if (tail.indexOf('>') < 0) { return false; }
+  for (;;) {
+    if (++pos >= max) { return false; }
 
-  if (AUTOLINK_RE.test(tail)) {
-    linkMatch = tail.match(AUTOLINK_RE);
+    ch = state.src.charCodeAt(pos);
 
-    url = linkMatch[0].slice(1, -1);
+    if (ch === 0x3C /* < */) { return false; }
+    if (ch === 0x3E /* > */) { break; }
+  }
+
+  url = state.src.slice(start + 1, pos);
+
+  if (AUTOLINK_RE.test(url)) {
     fullUrl = state.md.normalizeLink(url);
     if (!state.md.validateLink(fullUrl)) { return false; }
 
@@ -24682,14 +24836,11 @@ var autolink = function autolink(state, silent) {
       token.info    = 'auto';
     }
 
-    state.pos += linkMatch[0].length;
+    state.pos += url.length + 2;
     return true;
   }
 
-  if (EMAIL_RE.test(tail)) {
-    emailMatch = tail.match(EMAIL_RE);
-
-    url = emailMatch[0].slice(1, -1);
+  if (EMAIL_RE.test(url)) {
     fullUrl = state.md.normalizeLink('mailto:' + url);
     if (!state.md.validateLink(fullUrl)) { return false; }
 
@@ -24707,7 +24858,7 @@ var autolink = function autolink(state, silent) {
       token.info    = 'auto';
     }
 
-    state.pos += emailMatch[0].length;
+    state.pos += url.length + 2;
     return true;
   }
 
@@ -24808,8 +24959,27 @@ function processDelimiters(state, delimiters) {
       openersBottom = {},
       max = delimiters.length;
 
+  if (!max) { return; }
+
+  // headerIdx is the first delimiter of the current (where closer is) delimiter run
+  var headerIdx = 0;
+  var lastTokenIdx = -2; // needs any value lower than -1
+  var jumps = [];
+
   for (closerIdx = 0; closerIdx < max; closerIdx++) {
     closer = delimiters[closerIdx];
+
+    jumps.push(0);
+
+    // markers belong to same delimiter run if:
+    //  - they have adjacent tokens
+    //  - AND markers are the same
+    //
+    if (delimiters[headerIdx].marker !== closer.marker || lastTokenIdx !== closer.token - 1) {
+      headerIdx = closerIdx;
+    }
+
+    lastTokenIdx = closer.token;
 
     // Length is only used for emphasis-specific "rule of 3",
     // if it's not defined (in strikethrough or 3rd party plugins),
@@ -24820,26 +24990,25 @@ function processDelimiters(state, delimiters) {
     if (!closer.close) { continue; }
 
     // Previously calculated lower bounds (previous fails)
-    // for each marker and each delimiter length modulo 3.
+    // for each marker, each delimiter length modulo 3,
+    // and for whether this closer can be an opener;
+    // https://github.com/commonmark/cmark/commit/34250e12ccebdc6372b8b49c44fab57c72443460
     if (!openersBottom.hasOwnProperty(closer.marker)) {
-      openersBottom[closer.marker] = [ -1, -1, -1 ];
+      openersBottom[closer.marker] = [ -1, -1, -1, -1, -1, -1 ];
     }
 
-    minOpenerIdx = openersBottom[closer.marker][closer.length % 3];
-    newMinOpenerIdx = -1;
+    minOpenerIdx = openersBottom[closer.marker][(closer.open ? 3 : 0) + (closer.length % 3)];
 
-    openerIdx = closerIdx - closer.jump - 1;
+    openerIdx = headerIdx - jumps[headerIdx] - 1;
 
-    for (; openerIdx > minOpenerIdx; openerIdx -= opener.jump + 1) {
+    newMinOpenerIdx = openerIdx;
+
+    for (; openerIdx > minOpenerIdx; openerIdx -= jumps[openerIdx] + 1) {
       opener = delimiters[openerIdx];
 
       if (opener.marker !== closer.marker) { continue; }
 
-      if (newMinOpenerIdx === -1) { newMinOpenerIdx = openerIdx; }
-
-      if (opener.open &&
-          opener.end < 0 &&
-          opener.level === closer.level) {
+      if (opener.open && opener.end < 0) {
 
         isOddMatch = false;
 
@@ -24864,15 +25033,19 @@ function processDelimiters(state, delimiters) {
           // sure algorithm has linear complexity (see *_*_*_*_*_... case).
           //
           lastJump = openerIdx > 0 && !delimiters[openerIdx - 1].open ?
-            delimiters[openerIdx - 1].jump + 1 :
+            jumps[openerIdx - 1] + 1 :
             0;
 
-          closer.jump  = closerIdx - openerIdx + lastJump;
+          jumps[closerIdx] = closerIdx - openerIdx + lastJump;
+          jumps[openerIdx] = lastJump;
+
           closer.open  = false;
           opener.end   = closerIdx;
-          opener.jump  = lastJump;
           opener.close = false;
           newMinOpenerIdx = -1;
+          // treat next token as start of run,
+          // it optimizes skips in **<...>**a**<...>** pathological case
+          lastTokenIdx = -2;
           break;
         }
       }
@@ -24886,7 +25059,7 @@ function processDelimiters(state, delimiters) {
       // See details here:
       // https://github.com/commonmark/cmark/issues/178#issuecomment-270417442
       //
-      openersBottom[closer.marker][(closer.length || 0) % 3] = newMinOpenerIdx;
+      openersBottom[closer.marker][(closer.open ? 3 : 0) + ((closer.length || 0) % 3)] = newMinOpenerIdx;
     }
   }
 }
@@ -24965,6 +25138,10 @@ function StateInline(src, md, env, outTokens) {
 
   // Stack of delimiter lists for upper level tags
   this._prev_delimiters = [];
+
+  // backtick length => last seen position
+  this.backticks = {};
+  this.backticksScanned = false;
 }
 
 
@@ -25308,19 +25485,20 @@ var re = function (opts) {
     '(?:' +
       '[/?#]' +
         '(?:' +
-          '(?!' + re.src_ZCc + '|' + text_separators + '|[()[\\]{}.,"\'?!\\-]).|' +
+          '(?!' + re.src_ZCc + '|' + text_separators + '|[()[\\]{}.,"\'?!\\-;]).|' +
           '\\[(?:(?!' + re.src_ZCc + '|\\]).)*\\]|' +
           '\\((?:(?!' + re.src_ZCc + '|[)]).)*\\)|' +
           '\\{(?:(?!' + re.src_ZCc + '|[}]).)*\\}|' +
           '\\"(?:(?!' + re.src_ZCc + '|["]).)+\\"|' +
           "\\'(?:(?!" + re.src_ZCc + "|[']).)+\\'|" +
           "\\'(?=" + re.src_pseudo_letter + '|[-]).|' +  // allow `I'm_king` if no pair found
-          '\\.{2,4}[a-zA-Z0-9%/]|' + // github has ... in commit range links,
-                                     // google has .... in links (issue #66)
+          '\\.{2,}[a-zA-Z0-9%/&]|' + // google has many dots in "google search" links (#66, #81).
+                                     // github has ... in commit range links,
                                      // Restrict to
                                      // - english
                                      // - percent-encoded
                                      // - parts of file path
+                                     // - params separator
                                      // until more examples found.
           '\\.(?!' + re.src_ZCc + '|[.]).|' +
           (opts && opts['---'] ?
@@ -25328,8 +25506,9 @@ var re = function (opts) {
             :
             '\\-+|'
           ) +
-          '\\,(?!' + re.src_ZCc + ').|' +      // allow `,,,` in paths
-          '\\!(?!' + re.src_ZCc + '|[!]).|' +
+          ',(?!' + re.src_ZCc + ').|' +       // allow `,,,` in paths
+          ';(?!' + re.src_ZCc + ').|' +       // allow `;` if not followed by space-like char
+          '\\!+(?!' + re.src_ZCc + '|[!]).|' +  // allow `!!!` in paths, but not at the end
           '\\?(?!' + re.src_ZCc + '|[?]).' +
         ')+' +
       '|\\/' +
@@ -26709,7 +26888,7 @@ var punycode     = require$$8;
 
 
 var config = {
-  'default': _default,
+  default: _default,
   zero: zero,
   commonmark: commonmark
 };
@@ -26775,7 +26954,8 @@ function normalizeLinkText(url) {
     }
   }
 
-  return mdurl.decode(mdurl.format(parsed));
+  // add '%' to exclude list because of https://github.com/markdown-it/markdown-it/issues/720
+  return mdurl.decode(mdurl.format(parsed), mdurl.decode.defaultChars + '%');
 }
 
 
@@ -26881,7 +27061,7 @@ function normalizeLinkText(url) {
  *   highlight: function (str, lang) {
  *     if (lang && hljs.getLanguage(lang)) {
  *       try {
- *         return hljs.highlight(lang, str, true).value;
+ *         return hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
  *       } catch (__) {}
  *     }
  *
@@ -26901,7 +27081,7 @@ function normalizeLinkText(url) {
  *     if (lang && hljs.getLanguage(lang)) {
  *       try {
  *         return '<pre class="hljs"><code>' +
- *                hljs.highlight(lang, str, true).value +
+ *                hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
  *                '</code></pre>';
  *       } catch (__) {}
  *     }
@@ -27071,7 +27251,7 @@ MarkdownIt.prototype.set = function (options) {
  * MarkdownIt.configure(presets)
  *
  * Batch load of all options and compenent settings. This is internal method,
- * and you probably will not need it. But if you with - see available presets
+ * and you probably will not need it. But if you will - see available presets
  * and data structure [here](https://github.com/markdown-it/markdown-it/tree/master/lib/presets)
  *
  * We strongly recommend to use presets instead of direct config loads. That
@@ -27197,7 +27377,7 @@ MarkdownIt.prototype.use = function (plugin /*, params, ... */) {
  * - src (String): source string
  * - env (Object): environment sandbox
  *
- * Parse input string and returns list of block tokens (special token type
+ * Parse input string and return list of block tokens (special token type
  * "inline" will contain list of inline tokens). You should not call this
  * method directly, until you write custom renderer (for example, to produce
  * AST).
@@ -27277,7 +27457,7 @@ var lib = MarkdownIt;
 var markdownIt = lib;
 
 // ::Schema Document schema for the data model used by CommonMark.
-var schema$1 = new Schema({
+var schema$1 = new Schema$1({
   nodes: {
     doc: {
       content: "block+"
@@ -27554,8 +27734,8 @@ function tokenHandlers(schema, tokens) {
       if (noCloseToken(spec, type)) {
         handlers[type] = noOp;
       } else {
-        handlers[type + '_open'] = noOp;
-        handlers[type + '_close'] = noOp;
+        handlers[type + "_open"] = noOp;
+        handlers[type + "_close"] = noOp;
       }
     } else {
       throw new RangeError("Unrecognized parsing spec " + JSON.stringify(spec))
@@ -27594,7 +27774,7 @@ MarkdownParser.prototype.parse = function parse (text) {
   var state = new MarkdownParseState(this.schema, this.tokenHandlers), doc;
   state.parseTokens(this.tokenizer.parse(text, {}));
   do { doc = state.closeNode(); } while (state.stack.length)
-  return doc
+  return doc || this.schema.topNodeType.createAndFill()
 };
 
 function listIsTight(tokens, i) {
@@ -27697,8 +27877,8 @@ var defaultMarkdownSerializer = new MarkdownSerializer({
   },
 
   image: function image(state, node) {
-    state.write("![" + state.esc(node.attrs.alt || "") + "](" + state.esc(node.attrs.src) +
-                (node.attrs.title ? " " + state.quote(node.attrs.title) : "") + ")");
+    state.write("![" + state.esc(node.attrs.alt || "") + "](" + node.attrs.src +
+                (node.attrs.title ? ' "' + node.attrs.title.replace(/"/g, '\\"') + '"' : "") + ")");
   },
   hard_break: function hard_break(state, node, parent, index) {
     for (var i = index + 1; i < parent.childCount; i++)
@@ -27719,7 +27899,7 @@ var defaultMarkdownSerializer = new MarkdownSerializer({
     },
     close: function close(state, mark, parent, index) {
       return isPlainURL(mark, parent, index, -1) ? ">"
-        : "](" + state.esc(mark.attrs.href) + (mark.attrs.title ? " " + state.quote(mark.attrs.title) : "") + ")"
+        : "](" + mark.attrs.href + (mark.attrs.title ? ' "' + mark.attrs.title.replace(/"/g, '\\"') + '"' : "") + ")"
     }
   },
   code: {open: function open(_state, _mark, parent, index) { return backticksFor(parent.child(index), -1) },
@@ -27975,7 +28155,7 @@ MarkdownSerializerState.prototype.renderList = function renderList (node, delim,
 // content. If `startOfLine` is true, also escape characters that
 // have special meaning only at the start of the line.
 MarkdownSerializerState.prototype.esc = function esc (str, startOfLine) {
-  str = str.replace(/[`*\\~\[\]]/g, "\\$&");
+  str = str.replace(/[`*\\~\[\]_]/g, "\\$&");
   if (startOfLine) { str = str.replace(/^[:#\-*+>]/, "\\$&").replace(/^(\s*\d+)\./, "$1\\."); }
   return str
 };
@@ -28183,7 +28363,7 @@ var marks = {
 //
 // To reuse elements from this schema, extend or read from its
 // `spec.nodes` and `spec.marks` [properties](#model.Schema.spec).
-var schema = new Schema({nodes: nodes, marks: marks});
+var schema = new Schema$1({nodes: nodes, marks: marks});
 
 var schemaBasic = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -28210,5 +28390,10 @@ var pm = {
     transform: transform,
     view: view,
 };
+
+new Schema({
+    nodes: addListNodes(baseSchema.spec.nodes, "paragraph block*", "block"),
+    marks: baseSchema.spec.marks
+});
 
 export { pm as default };

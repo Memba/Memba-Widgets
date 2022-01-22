@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: false */
+/* eslint-disable no-param-reassign */
 
 /**
  * Note: this is not using the AMD pattern because it is loaded in a web worker without dependencies
@@ -37,16 +37,8 @@
  * - MRA codex
  */
 
-/* This function has too many statements. */
-/* jshint -W071 */
-
-/* This function's cyclomatic complexity is too high. */
-/* jshint -W074 */
-
-(function (global, undefined) {
-
-    'use strict';
-
+// eslint-disable-next-line no-shadow-restricted-names
+(function closure(global, undefined) {
     // List global properties
     /*
     for (var prop in global) {
@@ -157,28 +149,43 @@
      * @param word
      * @constructor
      */
-    global.soundex = function (word) {
-        word = (word + '').toUpperCase();
+    global.soundex = function soundex(word) {
+        word = `${word}`.toUpperCase();
         if (!word) {
             return '';
         }
-        var sdx = [0, 0, 0, 0];
-        var m = {
-            B : 1, F : 1, P : 1, V : 1,
-            C : 2, G : 2, J : 2, K : 2, Q : 2, S : 2, X : 2, Z : 2,
-            D : 3, T : 3,
-            L : 4,
-            M : 5, N : 5,
-            R : 6
+        const sdx = [0, 0, 0, 0];
+        const m = {
+            B: 1,
+            F: 1,
+            P: 1,
+            V: 1,
+            C: 2,
+            G: 2,
+            J: 2,
+            K: 2,
+            Q: 2,
+            S: 2,
+            X: 2,
+            Z: 2,
+            D: 3,
+            T: 3,
+            L: 4,
+            M: 5,
+            N: 5,
+            R: 6,
         };
-        var i = 0;
-        var j;
-        var s = 0;
-        var c;
-        var p;
+        let i = 0;
+        let j;
+        let s = 0;
+        let c;
+        let p;
+        // eslint-disable-next-line no-cond-assign,no-plusplus
         while ((c = word.charAt(i++)) && s < 4) {
-            if (j = m[c]) {
+            // eslint-disable-next-line no-cond-assign
+            if ((j = m[c])) {
                 if (j !== p) {
+                    // eslint-disable-next-line no-plusplus,no-multi-assign
                     sdx[s++] = p = j;
                 }
             } else {
@@ -197,19 +204,19 @@
      * @param word
      * @param maxPhonemes
      */
-    global.metaphone = function (word, maxPhonemes) {
-        var type = typeof word;
+    global.metaphone = function metaphone(word, maxPhonemes) {
+        const type = typeof word;
 
-        if (type === 'undefined' || type === 'object' && word !== null) {
+        if (type === 'undefined' || (type === 'object' && word !== null)) {
             // weird!
             return null;
         }
 
         // infinity and NaN values are treated as strings
         if (type === 'number') {
-            if (isNaN(word)) {
+            if (Number.isNaN(word)) {
                 word = 'NAN';
-            } else if (!isFinite(word)) {
+            } else if (!Number.isFinite(word)) {
                 word = 'INF';
             }
         }
@@ -223,33 +230,33 @@
         // alpha depends on locale, so this var might need an update
         // or should be turned into a regex
         // for now assuming pure a-z
-        var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        var vowel = 'AEIOU';
-        var soft = 'EIY';
-        var leadingNonAlpha = new RegExp('^[^' + alpha + ']+');
+        const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const vowel = 'AEIOU';
+        const soft = 'EIY';
+        const leadingNonAlpha = new RegExp(`^[^${alpha}]+`);
 
         word = typeof word === 'string' ? word : '';
-        word = word.toUpperCase()
-            .replace(leadingNonAlpha, '');
+        word = word.toUpperCase().replace(leadingNonAlpha, '');
 
         if (!word) {
             return '';
         }
 
-        var is = function (p, c) {
+        // const is = function(p, c) {
+        function is(p, c) {
             return c !== '' && p.indexOf(c) !== -1;
-        };
+        }
 
-        var i = 0;
-        var cc = word.charAt(0); // current char. Short name, because it's used all over the function
-        var nc = word.charAt(1); // next char
-        var nnc; // after next char
-        var pc; // previous char
-        var l = word.length;
-        var meta = '';
+        let i = 0;
+        let cc = word.charAt(0); // current char. Short name, because it's used all over the function
+        let nc = word.charAt(1); // next char
+        let nnc; // after next char
+        let pc; // previous char
+        const l = word.length;
+        let meta = '';
         // traditional is an internal param that could be exposed
         // for now let it be a local var
-        var traditional = true;
+        const traditional = true;
 
         switch (cc) {
             case 'A':
@@ -282,17 +289,23 @@
             case 'O':
             case 'U':
                 meta += cc;
-                i++;
+                i += 1;
                 break;
+            default:
         }
 
-        for (; i < l && (maxPhonemes === 0 || meta.length < maxPhonemes); i += 1) {
+        for (
+            ;
+            i < l && (maxPhonemes === 0 || meta.length < maxPhonemes);
+            i += 1
+        ) {
             cc = word.charAt(i);
             nc = word.charAt(i + 1);
             pc = word.charAt(i - 1);
             nnc = word.charAt(i + 2);
 
             if (cc === pc && cc !== 'C') {
+                // eslint-disable-next-line no-continue
                 continue;
             }
 
@@ -310,7 +323,10 @@
                             meta += 'S';
                         }
                     } else if (nc === 'H') {
-                        meta += !traditional && (nnc === 'R' || pc === 'S') ? 'K' : 'X';
+                        meta +=
+                            !traditional && (nnc === 'R' || pc === 'S')
+                                ? 'K'
+                                : 'X';
                         i += 1;
                     } else {
                         meta += 'K';
@@ -326,7 +342,12 @@
                     break;
                 case 'G':
                     if (nc === 'H') {
-                        if (!(is('BDH', word.charAt(i - 3)) || word.charAt(i - 4) === 'H')) {
+                        if (
+                            !(
+                                is('BDH', word.charAt(i - 3)) ||
+                                word.charAt(i - 4) === 'H'
+                            )
+                        ) {
                             meta += 'F';
                             i += 1;
                         }
@@ -362,7 +383,10 @@
                     } else if (nc === 'H') {
                         meta += 'X';
                         i += 1;
-                    } else if (!traditional && word.substr(i + 1, 3) === 'CHW') {
+                    } else if (
+                        !traditional &&
+                        word.substr(i + 1, 3) === 'CHW'
+                    ) {
                         meta += 'X';
                         i += 2;
                     } else {
@@ -402,6 +426,7 @@
                 case 'R':
                     meta += cc;
                     break;
+                default:
             }
         }
         return meta;
@@ -414,8 +439,8 @@
      * @param word
      * @returns {*}
      */
-    global.removeDiacritics = function (word) {
-        var diacriticsMap = {
+    global.removeDiacritics = function removeDiacritics(word) {
+        const diacriticsMap = {
             A: /[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g,
             AA: /[\uA732]/g,
             AE: /[\u00C6\u01FC\u01E2]/g,
@@ -500,12 +525,12 @@
             w: /[\u0077\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73]/g,
             x: /[\u0078\u24E7\uFF58\u1E8B\u1E8D]/g,
             y: /[\u0079\u24E8\uFF59\u1EF3\u00FD\u0177\u1EF9\u0233\u1E8F\u00FF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF]/g,
-            z: /[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]/g
+            z: /[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]/g,
         };
-        for (var c in diacriticsMap) {
+        Object.keys(diacriticsMap).forEach((c) => {
             // Iterate through each character in the map and perform a replace
             word = word.replace(diacriticsMap[c], c);
-        }
+        });
         return word;
     };
 
@@ -514,7 +539,8 @@
      * @see http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
      * Use as in [1, 2, 3].equals([1, 2, 3])
      */
-    Array.prototype.equals = function (array) {
+    // eslint-disable-next-line no-extend-native
+    Array.prototype.equals = function equals(array) {
         // if the other array is a falsy value, return
         if (!array) {
             return false;
@@ -525,7 +551,7 @@
             return false;
         }
 
-        for (var i = 0, length = this.length; i < length; i++) {
+        for (let i = 0, { length } = this; i < length; i++) {
             // Check if we have nested arrays
             if (this[i] instanceof Array && array[i] instanceof Array) {
                 // recurse into the nested arrays
@@ -540,23 +566,27 @@
         return true;
     };
     // Hide method from for-in loops
+    // eslint-disable-next-line no-extend-native
     Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
 
     /**
      * Formula (abstracting Khan KAS)
      */
-    global.Formula = function (expression) {
-        if (!(this instanceof global.Formula)) {
-            return new global.Formula(expression);
+    global.Formula = function formula(expression) {
+        let ret;
+        if (this instanceof global.Formula) {
+            try {
+                this._expression = expression;
+                this._ast = global.KAS.parse(expression).expr;
+            } catch (ex) {
+                const error = new Error(`Error parsing \`${expression}\``);
+                error.originalError = ex;
+                throw error;
+            }
+        } else {
+            ret = new global.Formula(expression);
         }
-        try {
-            this._expression = expression;
-            this._ast = global.KAS.parse(expression).expr;
-        } catch (ex) {
-            var error = new Error('Error parsing `' + expression + '`');
-            error.originalError = ex;
-            throw error;
-        }
+        return ret;
     };
 
     /**
@@ -564,23 +594,20 @@
      * @param expression
      * @returns {boolean}
      */
-    global.Formula.prototype.equals = function (expression) {
-        var ret = false;
-        var ast;
+    global.Formula.prototype.equals = function equals(expression) {
+        let ret = false;
+        let ast;
         try {
             ast = global.KAS.parse(expression).expr;
         } catch (ex) {
-            var error = new Error('Error parsing `' + expression + '`');
+            const error = new Error(`Error parsing \`${expression}\``);
             error.originalError = ex;
             throw error;
         }
         try {
             ret = global.KAS.compare(this._ast, ast).equal;
+            // eslint-disable-next-line no-empty
         } catch (ex) {}
         return ret;
     };
-
-}(this)); // this is WorkerGlobalScope (beware Karma though!)
-
-/* jshint +W074 */
-/* jshint +W071 */
+})(this); // this is WorkerGlobalScope (beware Karma though!)

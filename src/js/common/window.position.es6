@@ -12,12 +12,8 @@ import 'kendo.core';
 import assert from './window.assert.es6';
 import CONSTANTS from './window.constants.es6';
 
-const {
-    _outerHeight,
-    _outerWidth,
-    getComputedStyles,
-    getOffset,
-} = window.kendo;
+const { _outerHeight, _outerWidth, getComputedStyles, getOffset } =
+    window.kendo;
 const Matrix = window.WebKitCSSMatrix || window.DOMMatrix;
 
 /**

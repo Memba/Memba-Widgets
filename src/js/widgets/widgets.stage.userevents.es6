@@ -47,7 +47,8 @@ const StageUserEvents = UserEvents.extend({
         // Do not use the stage widget to avoid circular dependencies
         // This is similar to getAnimationProperty in kendo.fx.js
         // See also https://www.michael1e.com/get-scale-value-css-javascript/
-        const matrix3dRegExp = /matrix3?d?\s*\(.*,\s*([\d.-]+)\w*?,\s*([\d.-]+)\w*?,\s*([\d.-]+)\w*?,\s*([\d.-]+)\w*?/i;
+        const matrix3dRegExp =
+            /matrix3?d?\s*\(.*,\s*([\d.-]+)\w*?,\s*([\d.-]+)\w*?,\s*([\d.-]+)\w*?,\s*([\d.-]+)\w*?/i;
         const transform = this.stage.parent().css('transform');
         const match = transform.match(matrix3dRegExp) || [0, 0, 1, 0, 0];
         return parseFloat(match[2]);

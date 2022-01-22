@@ -179,13 +179,12 @@ const MultiQuiz = DataBoundWidget.extend({
         if (Array.isArray(value) || value instanceof ObservableArray) {
             if (dataSource instanceof ImageDataSource) {
                 // finder is used to satisfy jshint which would otherwise complain about making functions within loops
-                const finder = (text) => {
-                    return dataSource
+                const finder = (text) =>
+                    dataSource
                         .data()
                         .find(
                             (dataItem) => dataItem[options.textField] === text
                         );
-                };
                 // Only retain values that have a match in dataSource
                 for (let i = value.length - 1; i >= 0; i--) {
                     if (!finder(value[i])) {

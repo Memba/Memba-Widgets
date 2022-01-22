@@ -456,13 +456,11 @@ const res = {
                 defaultValue: [
                     {
                         text: 'Option 1',
-                        url:
-                            'cdn://images/o_collection/svg/office/hand_count_one.svg',
+                        url: 'cdn://images/o_collection/svg/office/hand_count_one.svg',
                     },
                     {
                         text: 'Option 2',
-                        url:
-                            'cdn://images/o_collection/svg/office/hand_point_up.svg',
+                        url: 'cdn://images/o_collection/svg/office/hand_point_up.svg',
                     },
                 ],
                 help: 'Enter the answers to choose from',

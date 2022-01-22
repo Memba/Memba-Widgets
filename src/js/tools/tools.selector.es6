@@ -146,9 +146,8 @@ const SelectorTool = BaseTool.extend({
     /**
      * Improved display of value in score grid
      * Note: search for getScoreArray in kidoju.data
-     * @param testItem
      */
-    getHtmlValue(testItem) {
+    getHtmlValue(/* testItem */) {
         return 'N/A'; // TODO
     },
 

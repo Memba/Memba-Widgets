@@ -178,8 +178,7 @@ const GOOGLE_SEARCH = {
                     // Check API key at https://console.developers.google.com/apis/credentials?project=www-kidoju-com&authuser=1
                     alt: 'json',
                     cx: '003237092945897440411:olzsejrw28u',
-                    fields:
-                        'searchInformation(totalResults),items(image/byteSize,link,mime)', // https://developers.google.com/custom-search/json-api/v1/performance
+                    fields: 'searchInformation(totalResults),items(image/byteSize,link,mime)', // https://developers.google.com/custom-search/json-api/v1/performance
                     hl: 'en',
                     imgSize: 'medium',
                     key: 'AIzaSyCCkr7BnLgpQnocAAbPtKgXOYOl1nLW3PI',

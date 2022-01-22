@@ -30,8 +30,7 @@ const res = {
 
     /* dialogs.chargrid */
     chargrid: {
-        layout:
-            '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out empty cells.</p>',
+        layout: '<h3>Design the grid layout</h3><p>Any character you enter in the grid is locked and cannot be changed in play mode.</p><p>Use `{0}` to blank out empty cells.</p>',
         solution:
             '<h3>Enter the solution</h3><p>Use any whitelisted character, i.e. `{0}`.</p>',
         title: 'Character Grid',
@@ -78,8 +77,7 @@ const res = {
         text: 'Option 1',
         title: 'New quiz',
         validation: {
-            grid:
-                'At least one option and one checked solution are required. Also options cannot be left empty.',
+            grid: 'At least one option and one checked solution are required. Also options cannot be left empty.',
             question: 'A question is required.',
         },
     },

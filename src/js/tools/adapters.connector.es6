@@ -80,9 +80,8 @@ const ConnectorAdapter = BaseAdapter.extend({
                         settings.model.parent() instanceof Observable &&
                         settings.model.parent().selectedPage instanceof Page
                     ) {
-                        const {
-                            components,
-                        } = settings.model.parent().selectedPage;
+                        const { components } =
+                            settings.model.parent().selectedPage;
                         $.each(components.data(), (index, component) => {
                             if (
                                 component.tool === 'connector' &&

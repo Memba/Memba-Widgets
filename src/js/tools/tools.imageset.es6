@@ -153,12 +153,10 @@ const ImageSetTool = BaseTool.extend({
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         $.extend(component, {
             data$() {
-                const data = component.get('attributes.data').map((item) => {
-                    return {
-                        text: item.text,
-                        url: assets.image.scheme2http(item.url),
-                    };
-                });
+                const data = component.get('attributes.data').map((item) => ({
+                    text: item.text,
+                    url: assets.image.scheme2http(item.url),
+                }));
                 return JSON.stringify(data);
             },
         });

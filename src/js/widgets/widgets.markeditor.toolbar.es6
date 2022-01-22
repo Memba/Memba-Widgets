@@ -703,10 +703,8 @@ toolbar.registerComponent('markHeadings', HeadingsTool, HeadingsButton);
  ******************************************************************************** */
 
 const DIALOG_MESSAGES = {
-    cancel:
-        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel',
-    okText:
-        '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
+    cancel: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel',
+    okText: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
     headingsDialog: {
         title: 'Headings',
         buttons: {

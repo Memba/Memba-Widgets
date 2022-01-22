@@ -156,8 +156,7 @@ const MultiInput = Widget.extend({
         const id = element.attr(CONSTANTS.ID);
         // Add wrapper
         this.wrapper = element.wrap(`<${CONSTANTS.DIV}/>`).parent().attr({
-            class:
-                'k-widget k-multiselect k-multiselect-clearable kj-multiinput',
+            class: 'k-widget k-multiselect k-multiselect-clearable kj-multiinput',
             unselectable: 'on',
         });
         // Add inner wrapper

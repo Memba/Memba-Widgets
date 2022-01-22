@@ -70,10 +70,8 @@ const PropertyGrid = Widget.extend({
         validation: null,
         size: ['35%', '65%'],
         templates: {
-            row:
-                '<tr role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
-            altRow:
-                '<tr class="k-alt" role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
+            row: '<tr role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
+            altRow: '<tr class="k-alt" role="row"><td role="gridcell">#: title ## if (help) { #<span class="k-icon k-i-help" title="#: help #"/># } #</td><td role="gridcell"/></tr>',
         },
         messages: {
             property: 'Property',

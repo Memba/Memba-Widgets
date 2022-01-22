@@ -269,11 +269,10 @@ const Shape = Widget.extend({
 
     /**
      * Get text
-     * @param size
      * @returns {*}
      * @private
      */
-    _getText(size) {
+    _getText(/* size */) {
         // TODO https://www.telerik.com/forums/centering-text-in-rectangle-group
         const {
             options: { text },

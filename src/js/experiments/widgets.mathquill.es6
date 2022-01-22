@@ -117,7 +117,12 @@ const MathQuill = Widget.extend({
             // arg deg det dim exp gcd hom inf ker lg lim ln log max min sup limsup liminf injlim projlim Pr
             // sin cos tan arcsin arccos arctan sinh cosh tanh sec cosec cotan csc cot coth ctg // why coth but not sech and csch, LaTeX?
             substituteTextarea() {
-                return document.createElement('textarea');
+                // @see https://docs.mathquill.com/en/latest/Config/#substitutetextarea
+                // const ret = document.createElement('textarea');
+                debugger;
+                const ret = document.createElement('span');
+                ret.tabIndex = 0;
+                return ret;
             },
             mouseEvents: true, // TODO
         },
@@ -310,6 +315,8 @@ const MathQuill = Widget.extend({
      */
     _initHandlers() {
         const { element, mathFields } = this;
+
+        debugger;
 
         // Set config handlers on each field
         for (let i = 0, { length } = mathFields; i < length; i++) {

@@ -624,15 +624,15 @@ const AudioVideo = Widget.extend({
         );
         const action = $(e.currentTarget).attr(attr(CONSTANTS.ACTION));
         switch (action) {
-            case ACTIONS.PLAY:
-            default:
-                this.togglePlayPause();
-                break;
             case ACTIONS.VOLUME:
                 this.toggleMute();
                 break;
             case ACTIONS.FULL_SCREEN:
                 this.toggleFullScreen();
+                break;
+            case ACTIONS.PLAY:
+            default:
+                this.togglePlayPause();
                 break;
         }
     },
@@ -864,14 +864,8 @@ const AudioVideo = Widget.extend({
      * @see especially http://docs.telerik.com/kendo-ui/api/javascript/ui/slider#methods-resize
      */
     resize() {
-        const {
-            element,
-            media,
-            options,
-            seekerSlider,
-            toolbar,
-            volumeSlider,
-        } = this;
+        const { element, media, options, seekerSlider, toolbar, volumeSlider } =
+            this;
         if (
             media instanceof $ &&
             toolbar instanceof $ &&

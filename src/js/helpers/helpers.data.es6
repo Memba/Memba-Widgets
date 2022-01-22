@@ -32,13 +32,16 @@ const boxGenerator = () => {
     };
 };
 const colorGenerator = () =>
-    `#${jsc.string(jsc.integer(6), jsc.one_of('0123456789abcdef'))()}`;
-const quizMode = jsc.one_of(['button', 'dropdown', 'image', 'link', 'radio']);
+    `#${jsc.string(
+        jsc.integer(6),
+        jsc.wun_of('0123456789abcdef'.split(''))
+    )()}`;
+const quizMode = jsc.wun_of(['button', 'dropdown', 'image', 'link', 'radio']);
 const styleGenerator = () =>
     `${[
         `background-color: #${jsc.string(
             jsc.integer(6),
-            jsc.one_of('0123456789abcdef')
+            jsc.wun_of('0123456789abcdef'.split(''))
         )()}`,
         'border: solid 1px #000000',
         `color: ${colorGenerator()}`,
@@ -56,7 +59,7 @@ const urlGenerator = (ext) =>
         jsc.character('a', 'z')
     )()}.com/${jsc.character('a', 'z')()}${jsc.string(
         jsc.integer(1, 100),
-        jsc.one_of('abcdefghijklmnopqrstuvwxyz0123456789-/')
+        jsc.wun_of('abcdefghijklmnopqrstuvwxyz0123456789-/'.split(''))
     )()}${jsc.character('a', 'z')()}.${ext}`;
 const imageList = () => [
     { text: jsc.string()(), url: urlGenerator('png') },
@@ -580,7 +583,7 @@ function getSelector() {
 function getShape() {
     return {
         attributes: {
-            shape: jsc.one_of(['rectangle', 'ellipsis', 'polygon'])(),
+            shape: jsc.wun_of(['rectangle', 'ellipsis', 'polygon'])(),
             angles: jsc.integer(3, 10)(),
             text: textGenerator(),
             fillColor: colorGenerator(),
@@ -765,8 +768,8 @@ function getComponentArray() {
     if (length) {
         ret = ret.concat(
             jsc.array(
-                jsc.number(1, Math.min(length, 3)),
-                jsc.one_of(generators)
+                jsc.integer(1, Math.min(length, 3)),
+                jsc.wun_of(generators)
             )()
         );
     }
@@ -793,7 +796,7 @@ function getPage() {
  * @function getPageArray
  */
 function getPageArray() {
-    return jsc.array(jsc.number(3, 5), getPage)();
+    return jsc.array(jsc.integer(3, 5), getPage)();
 }
 
 /**

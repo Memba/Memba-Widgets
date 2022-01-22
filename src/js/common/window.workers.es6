@@ -250,6 +250,7 @@ export default class WorkerPool {
     _next() {
         const { tasks, ttl, workers } = this;
         const _next = this._next.bind(this);
+
         function terminate(thread, task) {
             if (workers[thread] instanceof Worker) {
                 // Unterminated errored workers make further workers unstable in FF
@@ -258,6 +259,7 @@ export default class WorkerPool {
             workers[thread] = undefined;
             URL.revokeObjectURL(task.blobURL);
         }
+
         // Check pending tasks
         if (tasks.length > 0) {
             // Check available workers

@@ -58,7 +58,8 @@
 
                     .k-notification {
                         margin: 0;
-                        padding: $button-padding-y $button-padding-x;
+                        // padding: $button-padding-y $button-padding-x;
+                        padding: $notification-padding-y $notification-padding-x;
                     }
                 }
             }

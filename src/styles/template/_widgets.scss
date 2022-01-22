@@ -4,37 +4,37 @@
  */
 
 // Our widgets styles
-@import "../widgets/widgets.assetmanager";
-@import "../widgets/widgets.audiovideo";
-@import "../widgets/widgets.basiclist"; // --> widgets.array
-@import "../widgets/widgets.bitflags";
-@import "../widgets/widgets.codeinput";
-@import "../widgets/widgets.codeeditor";
-@import "../widgets/widgets.explorer";
-// @import "../widgets/widgets.floating";
-@import "../widgets/widgets.formatstrip";
-@import "../widgets/widgets.gridlayout";
-@import "../widgets/widgets.highlighter";
-@import "../widgets/widgets.imagelist";
-@import "../widgets/widgets.latex";
-@import "../widgets/widgets.license";
-@import "../widgets/widgets.markdown";
-@import "../widgets/widgets.markeditor";
-@import "../widgets/widgets.mathinput";
-@import "../widgets/widgets.multiinput";
-@import "../widgets/widgets.multiquiz";
-@import "../widgets/widgets.navigation";
-@import "../widgets/widgets.playbar";
-@import "../widgets/widgets.propertygrid";
-@import "../widgets/widgets.quiz";
-@import "../widgets/widgets.social";
-@import "../widgets/widgets.splitbutton";
-@import "../widgets/widgets.stage";
-@import "../widgets/widgets.styleeditor";
-@import "../widgets/widgets.table";
-@import "../widgets/widgets.textgaps";
-@import "../widgets/widgets.unitinput";
-// @import "../widgets/widgets.vectordrawing";
+@import "../widgets/widgets.assetmanager/_index.scss";
+@import "../widgets/widgets.audiovideo/_index.scss";
+@import "../widgets/widgets.basiclist/_index.scss"; // --> widgets.array
+@import "../widgets/widgets.bitflags/_index.scss";
+@import "../widgets/widgets.codeinput/_index.scss";
+@import "../widgets/widgets.codeeditor/_index.scss";
+@import "../widgets/widgets.explorer/_index.scss";
+// @import "../widgets/widgets.floating/_index.scss";
+@import "../widgets/widgets.formatstrip/_index.scss";
+@import "../widgets/widgets.gridlayout/_index.scss";
+@import "../widgets/widgets.highlighter/_index.scss";
+@import "../widgets/widgets.imagelist/_index.scss";
+@import "../widgets/widgets.latex/_index.scss";
+@import "../widgets/widgets.license/_index.scss";
+@import "../widgets/widgets.markdown/_index.scss";
+@import "../widgets/widgets.markeditor/_index.scss";
+@import "../widgets/widgets.mathinput/_index.scss";
+@import "../widgets/widgets.multiinput/_index.scss";
+@import "../widgets/widgets.multiquiz/_index.scss";
+@import "../widgets/widgets.navigation/_index.scss";
+@import "../widgets/widgets.playbar/_index.scss";
+@import "../widgets/widgets.propertygrid/_index.scss";
+@import "../widgets/widgets.quiz/_index.scss";
+@import "../widgets/widgets.social/_index.scss";
+@import "../widgets/widgets.splitbutton/_index.scss";
+@import "../widgets/widgets.stage/_index.scss";
+@import "../widgets/widgets.styleeditor/_index.scss";
+@import "../widgets/widgets.table/_index.scss";
+@import "../widgets/widgets.textgaps/_index.scss";
+@import "../widgets/widgets.unitinput/_index.scss";
+// @import "../widgets/widgets.vectordrawing/_index.scss";
 
 // Our dialog styles
-@import "../dialogs/widgets.basedialog";
+@import "../dialogs/widgets.basedialog/_index.scss";

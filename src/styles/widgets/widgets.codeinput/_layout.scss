@@ -30,8 +30,8 @@
                     display: flex;
                     flex: 0 0 auto;
                     justify-content: center;
-                    padding: $picker-select-padding-y $picker-select-padding-x;
-                    width: if( $use-picker-select-width, $button-inner-calc-size, null );
+                    // TODO padding: $picker-select-padding-y $picker-select-padding-x;
+                    // TODO width: if( $use-picker-select-width, $button-inner-calc-size, null );
                     text-align: center;
 
                     // .k-icon {}

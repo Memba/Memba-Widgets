@@ -7,6 +7,8 @@
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.button';
+import 'kendo.textbox';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getAttributeBinding } from '../data/data.util.es6';
@@ -42,9 +44,9 @@ function input(container, options) {
                 attributes.type
             ) > -1
         ) {
-            attributes.class = attributes.class || 'k-textbox';
+            attributes[attr(CONSTANTS.ROLE)] = 'textbox';
         } else if (['button', 'reset'].indexOf(attributes.type) > -1) {
-            attributes.class = attributes.class || 'k-button';
+            attributes[attr(CONSTANTS.ROLE)] = 'button';
         }
     }
     return $(`<${CONSTANTS.INPUT}/>`)

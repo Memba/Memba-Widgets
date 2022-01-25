@@ -7,9 +7,12 @@
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.textarea';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getAttributeBinding } from '../data/data.util.es6';
+
+const { attr } = window.kendo;
 
 /**
  * TextArea
@@ -34,14 +37,14 @@ function textarea(container, options) {
         ...options.attributes,
         ...getAttributeBinding(CONSTANTS.BIND, `value: ${options.field}`),
     };
-    attributes.class = attributes.class || 'k-textbox';
+    if ($.type(attributes[attr(CONSTANTS.ROLE)]) === CONSTANTS.UNDEFINED) {
+        attributes[attr(CONSTANTS.ROLE)] = 'textarea';
+    }
+    attributes[attr(CONSTANTS.RESIZE)] = 'vertical';
     return $(`<${CONSTANTS.TEXTAREA}/>`)
         .attr(attributes)
         .attr('name', options.field)
-        .css({
-            resize: 'vertical',
-            width: '100%',
-        })
+        .css({ width: '100%' })
         .appendTo(container);
 }
 

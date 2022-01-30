@@ -29,16 +29,16 @@ const {
 
 const logger = new Logger('widgets.audiovideo');
 const NS = '.kendoAudioVideo';
-const WIDGET_CLASS = 'k-widget kj-audiovideo';
-const TOOLBAR_CLASS = 'k-widget k-toolbar kj-audiovideo-toolbar';
-const BUTTON_TMPL = `<a href="#" class="k-button k-button-icon" data-${ns}${CONSTANTS.ACTION}="{0}" tabindex="0" title="{1}"><span class="k-icon {2}"></span></a>`;
+const WIDGET_CLASS = 'k-widget m-audiovideo';
+const TOOLBAR_CLASS = 'k-widget k-toolbar m-audiovideo-toolbar';
+const BUTTON_TMPL = `<a href="#" class="k-button k-button-md k-button-square k-rounded-full k-button-solid k-button-solid-base k-icon-button" data-${ns}${CONSTANTS.ACTION}="{0}" tabindex="0" title="{1}"><span class="k-icon {2} k-button-icon"></span></a>`;
 const BUTTON_SELECTOR = `a.k-button[${attr(CONSTANTS.ACTION)}="{0}"]`;
 const ICON_SELECTOR = 'span.k-icon';
-const SEEKER_CLASS = 'kj-audiovideo-seeker';
+const SEEKER_CLASS = 'm-audiovideo-seeker';
 const SEEKER_SELECTOR = `div.${SEEKER_CLASS}`;
-const TIME_CLASS = 'kj-audiovideo-time';
+const TIME_CLASS = 'm-audiovideo-time';
 const TIME_SELECTOR = `span.${TIME_CLASS}`;
-const VOLUME_CLASS = 'kj-audiovideo-volume';
+const VOLUME_CLASS = 'm-audiovideo-volume';
 const VOLUME_SELECTOR = `div.${VOLUME_CLASS}`;
 const MEDIA_EVENTS = {
     LOADEDMETADATA: 'loadedmetadata',

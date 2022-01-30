@@ -1,5 +1,5 @@
 @include exports( "widgets.audiovideo/layout" ) {
-    .kj-audiovideo {
+    .m-audiovideo {
         video {
             // see https://css-tricks.com/data-uris/
             background-color: #000;
@@ -16,10 +16,8 @@
             .k-button {
                 border-radius: 50%;
 
-                &.k-button-icon {
-                    .k-icon {
-                        font-size: inherit;
-                    }
+                .k-icon {
+                    font-size: inherit;
                 }
             }
         }

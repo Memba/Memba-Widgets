@@ -75,7 +75,7 @@ describe('widgets.assetmanager', () => {
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             /*
             expect(widget)
                 .to.have.property('dataSource')
@@ -118,7 +118,7 @@ describe('widgets.assetmanager', () => {
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AssetManager);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             /*
             expect(widget)
                 .to.have.property('dataSource')

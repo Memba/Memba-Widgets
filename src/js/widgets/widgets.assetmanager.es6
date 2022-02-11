@@ -55,8 +55,8 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.assetmanager');
 const NS = '.kendoAssetManager';
-const WIDGET_CLASS = 'k-widget kj-assetmanager';
-const WINDOW_SELECTOR = '.kj-assetmanager-window';
+const WIDGET_CLASS = 'k-widget m-assetmanager';
+const WINDOW_SELECTOR = '.m-assetmanager-window';
 const TOOLBAR_TMPL =
     '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
     '<div class="k-toolbar-wrap">' +
@@ -1622,7 +1622,7 @@ const AssetManager = Widget.extend({
             // Create dialog
             windowWidget = $(
                 format(
-                    '<div class="{0} kj-no-padding kj-hidden-overflow"></div>',
+                    '<div class="{0} m-no-padding m-hidden-overflow"></div>',
                     WINDOW_SELECTOR.substr(1)
                 )
             )

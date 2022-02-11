@@ -1,5 +1,5 @@
 @include exports( "widgets.assetmanager/layout" ) {
-    .kj-assetmanager {
+    .m-assetmanager {
         .k-tabstrip.k-tabstrip-left {
             border: none;
 
@@ -94,12 +94,12 @@
         }
     }
     // Any editor window that the asset manager opens
-    .kj-assetmanager-window.k-content {
+    .m-assetmanager-window.k-content {
         &.kj-no-padding {
             padding: 0;
         }
 
-        &.kj-hidden-overflow {
+        &.m-hidden-overflow {
             overflow: hidden;
         }
     }

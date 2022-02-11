@@ -80,7 +80,7 @@ describe('widgets.audiovideo', () => {
             const widget = element[WIDGET]().data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
@@ -101,7 +101,7 @@ describe('widgets.audiovideo', () => {
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
@@ -128,7 +128,7 @@ describe('widgets.audiovideo', () => {
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
@@ -157,7 +157,7 @@ describe('widgets.audiovideo', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
@@ -182,7 +182,7 @@ describe('widgets.audiovideo', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
@@ -213,7 +213,7 @@ describe('widgets.audiovideo', () => {
             const widget = element.data(WIDGET);
             expect(widget).to.be.an.instanceof(AudioVideo);
             expect(element).to.have.class('k-widget');
-            expect(element).to.have.class(`kj-${ROLE}`);
+            expect(element).to.have.class(`m-${ROLE}`);
             expect(widget).to.have.property('media').that.is.an.instanceof($);
             expect(widget).to.have.property('toolbar').that.is.an.instanceof($);
             expect(widget)
@@ -378,7 +378,7 @@ describe('widgets.audiovideo', () => {
             expect(element.data(WIDGET)).to.be.undefined;
             expect(element).to.be.empty;
             expect(element).not.to.have.class('k-widget');
-            expect(element).not.to.have.class(`kj-${ROLE}`);
+            expect(element).not.to.have.class(`m-${ROLE}`);
         });
     });
 

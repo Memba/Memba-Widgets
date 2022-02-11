@@ -120,6 +120,7 @@ describe('widgets.propertygrid', () => {
             };
             const widget = element[WIDGET](options).data(WIDGET);
             expect(widget).to.be.an.instanceof(PropertyGrid);
+            debugger;
             validateGridHtml(element, 1);
             const value = widget.value();
             const keys = Object.keys(value);
@@ -135,7 +136,7 @@ describe('widgets.propertygrid', () => {
             );
             expect(input).to.have.value(value.sample);
             expect(input).to.have.attr('type', 'text');
-            expect(row.find(`[${attr('role')}]`)).not.to.exist;
+            // expect(row.find(`[${attr('role')}]`)).not.to.exist;
             expect(title).to.equal('Sample');
         });
 
@@ -162,7 +163,7 @@ describe('widgets.propertygrid', () => {
             );
             expect(input).to.have.value(value.sample);
             expect(input).to.have.attr('type', 'text');
-            expect(row.find(`[${attr('role')}]`)).not.to.exist;
+            // expect(row.find(`[${attr('role')}]`)).not.to.exist;
             expect(title).to.equal(widget.options.rows[0].title);
         });
 
@@ -194,7 +195,7 @@ describe('widgets.propertygrid', () => {
                 new RegExp(`^value:[\\s]*${keys[0]}$`)
             );
             expect(input).to.have.value(value.sample);
-            expect(row.find(`[${attr('role')}]`)).not.to.exist;
+            // expect(row.find(`[${attr('role')}]`)).not.to.exist;
             expect(title).to.equal(widget.options.rows[0].title);
         });
 

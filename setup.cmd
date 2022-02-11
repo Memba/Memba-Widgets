@@ -30,6 +30,8 @@ REM ncu
 call npm install -g npm-check-updates
 
 REM sass
+call npm install -g node-sass
+call npm install -g node-sass-package-importer
 call npm install -g sass
 
 REM selenium

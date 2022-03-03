@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -471,6 +471,7 @@ $.extend(true, kendo.ui.Gantt.prototype.options.messages,{
     "days": "days"
   },
   "save": "Save",
+  "selectView": "Select view",
   "views": {
     "day": "Day",
     "end": "End",
@@ -766,6 +767,8 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "deleteWindowTitle": "Delete event",
   "ariaSlotLabel": "Selected from {0:t} to {1:t}",
   "ariaEventLabel": "{0} on {1:D} at {2:t}",
+  "refresh": "Refresh",
+  "selectView": "Select view",
   "editable": {
     "confirmation": "Are you sure you want to delete this event?"
   },

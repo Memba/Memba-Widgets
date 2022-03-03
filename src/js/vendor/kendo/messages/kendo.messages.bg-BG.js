@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -458,6 +458,7 @@ $.extend(true, kendo.ui.Gantt.prototype.options.messages,{
     "days": "дни"
   },
   "save": "Запази",
+  "selectView": "Избери изглед",
   "views": {
     "day": "Ден",
     "end": "Край",
@@ -1094,7 +1095,9 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "deleteWindowTitle": "Изтрий събитие",
   "showFullDay": "Покажи цял ден",
   "showWorkDay": "Покажи работни часове",
-  "search": "Намери..."
+  "search": "Намери...",
+  "refresh": "Обнови",
+  "selectView": "Избери изглед"
 });
 }
 

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2022.1.119 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -459,12 +459,14 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "day": "Giorno",
     "month": "Mese",
     "week": "Settimana",
-    "workWeek": "Work Week"
+    "workWeek": "Settimana lavorativa"
   },
   "deleteWindowTitle": "Rimuovi evento",
   "showFullDay": "Mostra il giorno completo",
   "showWorkDay": "Mostra solo le ore lavorative",
-  "search": "Cerca..."
+  "search": "Cerca...",
+  "refresh": "Aggorna",
+  "selectView": "Seleziona vista"
 });
 }
 

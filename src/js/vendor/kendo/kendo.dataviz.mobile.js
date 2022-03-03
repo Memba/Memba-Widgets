@@ -1,25 +1,25 @@
-/** 
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function(f, define){
@@ -5194,7 +5194,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.fx',[ "./kendo.core" ], f);
+    define('kendo.fx',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -6786,7 +6786,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.router',[ "./kendo.core" ], f);
+    define('kendo.router',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -7327,7 +7327,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.data.odata',[ "./kendo.core" ], f);
+    define('kendo.data.odata',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -7882,7 +7882,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.data.xml',[ "./kendo.core" ], f);
+    define('kendo.data.xml',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -8149,7 +8149,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.data',[ "./kendo.core", "./kendo.data.odata", "./kendo.data.xml" ], f);
+    define('kendo.data',[ "kendo.core", "kendo.data.odata", "kendo.data.xml" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -14708,7 +14708,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.binder',[ "./kendo.core", "./kendo.data" ], f);
+    define('kendo.binder',[ "kendo.core", "kendo.data" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -16840,9 +16840,9 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.view',[
-        "./kendo.core",
-        "./kendo.binder",
-        "./kendo.fx"
+        "kendo.core",
+        "kendo.binder",
+        "kendo.fx"
     ], f);
 })(function(){
 
@@ -17054,7 +17054,7 @@ var __meta__ = { // jshint ignore:line
                     content = that.content;
                 }
             }
-            
+
             if (typeof content === "string") {
                 content = content.replace(/^\s+|\s+$/g, '');
                 if (that._evalTemplate) {
@@ -17568,7 +17568,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.data.signalr',[ "./kendo.data" ], f);
+    define('kendo.data.signalr',[ "kendo.data" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -17700,7 +17700,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.userevents',[ "./kendo.core" ], f);
+    define('kendo.userevents',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -18359,7 +18359,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.draganddrop',[ "./kendo.core", "./kendo.userevents" ], f);
+    define('kendo.draganddrop',[ "kendo.core", "kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -19491,7 +19491,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.scroller',[ "./kendo.fx", "./kendo.draganddrop" ], f);
+    define('kendo.mobile.scroller',[ "kendo.fx", "kendo.draganddrop" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -20201,7 +20201,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.popup',[ "./kendo.core" ], f);
+    define('kendo.popup',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -21060,7 +21060,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.tooltip',[ "./kendo.core", "./kendo.popup", "./kendo.fx" ], f);
+    define('kendo.tooltip',[ "kendo.core", "kendo.popup", "kendo.fx" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -21661,7 +21661,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('drawing/util',['../kendo.core'], f);
+    define('drawing/util',['kendo.core'], f);
 })(function(){
 
 (function($) {
@@ -21711,7 +21711,7 @@ return window.kendo;
  * run `src-modules/sync.sh` in this repository.
  */
 (function(f, define){
-    define('kendo.color',[ "./kendo.core" ], f);
+    define('kendo.color',[ "kendo.core" ], f);
 })(function(){
 
     var __meta__ = { // jshint ignore:line
@@ -22295,7 +22295,7 @@ kendo.deepExtend(kendo, {
  */
 (function(f, define){
     define('util/text-metrics',[
-        "../kendo.core"
+        "kendo.core"
     ], f);
 })(function(){
 
@@ -22497,7 +22497,7 @@ kendo.deepExtend(kendo.util, {
  * run `src-modules/sync.sh` in this repository.
  */
 (function(f, define){
-    define('drawing/kendo-drawing',[ "./util", "../kendo.color", '../util/text-metrics' ], f);
+    define('drawing/kendo-drawing',[ "./util", "kendo.color", '../util/text-metrics' ], f);
 })(function(){
 
 (function ($) {
@@ -33552,7 +33552,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('drawing/surface-tooltip',[ "../kendo.popup", "./kendo-drawing" ], f);
+    define('drawing/surface-tooltip',[ "kendo.popup", "./kendo-drawing" ], f);
 })(function(){
 
 (function ($) {
@@ -34114,8 +34114,8 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
  */
 (function(f, define){
     define('dataviz/core/kendo-core',[
-        "../../kendo.core",
-        "../../kendo.drawing"
+        "kendo.core",
+        "kendo.drawing"
     ], f);
 })(function(){
 
@@ -42264,7 +42264,7 @@ var __meta__ = { // jshint ignore:line
  * run `src-modules/sync.sh` in this repository.
  */
 (function(f, define){
-     define('dataviz/themes/chart-base-theme',[ "../../kendo.dataviz.core" ], f);
+     define('dataviz/themes/chart-base-theme',[ "kendo.dataviz.core" ], f);
 })(function(){
 
 (function () {
@@ -42614,7 +42614,7 @@ kendo.deepExtend(kendo.dataviz, {
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-     define('dataviz/themes/auto-theme',[ "../../kendo.dataviz.core" ], f);
+     define('dataviz/themes/auto-theme',[ "kendo.dataviz.core" ], f);
 })(function(){
 
 (function($) {
@@ -46671,7 +46671,7 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.dataviz.themes',[
-        "./kendo.dataviz.core",
+        "kendo.dataviz.core",
         "./dataviz/themes/chart-base-theme",
         "./dataviz/themes/auto-theme",
         "./dataviz/themes/themes"
@@ -46697,10 +46697,10 @@ var __meta__ = { // jshint ignore:line
  */
 (function(f, define){
     define('dataviz/chart/kendo-chart',[
-        "../../kendo.core",
-        "../../kendo.color",
-        "../../kendo.drawing",
-        "../../kendo.dataviz.core"
+        "kendo.core",
+        "kendo.color",
+        "kendo.drawing",
+        "kendo.dataviz.core"
     ], f);
 })(function(){
 
@@ -62106,11 +62106,11 @@ kendo.deepExtend(kendo.dataviz, {
 (function(f, define){
     define('dataviz/chart/chart',[
         "./kendo-chart",
-        "../../kendo.data",
-        "../../kendo.dataviz.core",
-        "../../kendo.dataviz.themes",
-        "../../kendo.drawing",
-        "../../kendo.userevents"
+        "kendo.data",
+        "kendo.dataviz.core",
+        "kendo.dataviz.themes",
+        "kendo.drawing",
+        "kendo.userevents"
     ], f);
 })(function(){
 
@@ -63547,10 +63547,10 @@ return window.kendo;
  */
 (function(f, define){
     define('dataviz/gauge/kendo-gauges',[
-        "../../kendo.core",
-        "../../kendo.color",
-        "../../kendo.drawing",
-        "../../kendo.dataviz.core"
+        "kendo.core",
+        "kendo.color",
+        "kendo.drawing",
+        "kendo.dataviz.core"
     ], f);
 })(function(){
 
@@ -66133,7 +66133,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dataviz.gauge',[ "./dataviz/gauge/main", "./kendo.dataviz.themes" ], f);
+    define('kendo.dataviz.gauge',[ "./dataviz/gauge/main", "kendo.dataviz.themes" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -66149,7 +66149,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dataviz.barcode',[ "./kendo.dataviz.core", "./kendo.drawing" ], f);
+    define('kendo.dataviz.barcode',[ "kendo.dataviz.core", "kendo.drawing" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -67947,7 +67947,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dataviz.qrcode',[ "./kendo.dataviz.core", "./kendo.drawing" ], f);
+    define('kendo.dataviz.qrcode',[ "kendo.dataviz.core", "kendo.drawing" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -69215,7 +69215,7 @@ return window.kendo;
  */
 (function(f, define){
     define('dataviz/stock/kendo-stock-chart',[
-        "../../kendo.dataviz.chart"
+        "kendo.dataviz.chart"
     ], f);
 })(function(){
 
@@ -70372,7 +70372,7 @@ var __meta__ = { // jshint ignore:line
  */
 (function(f, define){
     define('dataviz/sparkline/kendo-sparkline',[
-        "../../kendo.dataviz.chart"
+        "kendo.dataviz.chart"
     ], f);
 })(function(){
 
@@ -70807,7 +70807,7 @@ var __meta__ = { // jshint ignore:line
 
 (function(f, define) {
     define('util/main',[
-        "../kendo.core"
+        "kendo.core"
     ], f);
 })(function() {
 
@@ -70961,7 +70961,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/location',[ "../../kendo.drawing", "../../util/main" ], f);
+    define('dataviz/map/location',[ "kendo.drawing", "../../util/main" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -71277,7 +71277,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/attribution',[ "../../kendo.drawing" ], f);
+    define('dataviz/map/attribution',[ "kendo.drawing" ], f);
 })(function(){
 
 (function() {
@@ -71401,7 +71401,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/navigator',[ "../../kendo.core" ], f);
+    define('dataviz/map/navigator',[ "kendo.core" ], f);
 })(function(){
 
 (function ($) {
@@ -71511,7 +71511,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('dataviz/map/zoom',[ "../../kendo.core" ], f);
+    define('dataviz/map/zoom',[ "kendo.core" ], f);
 })(function(){
 
 (function ($) {
@@ -71608,7 +71608,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/crs',[ "./location", "../../kendo.drawing" ], f);
+    define('dataviz/map/crs',[ "./location", "kendo.drawing" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -74193,8 +74193,8 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.dataviz.map',[
-        "./kendo.data", "./kendo.userevents", "./kendo.tooltip", "./kendo.mobile.scroller", "./kendo.draganddrop",
-        "./kendo.dataviz.core",
+        "kendo.data", "kendo.userevents", "kendo.tooltip", "kendo.mobile.scroller", "kendo.draganddrop",
+        "kendo.dataviz.core",
 
         "./dataviz/map/location",
         "./dataviz/map/attribution",
@@ -74224,7 +74224,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/diagram/utils',[ "../../kendo.core" ], f);
+    define('dataviz/diagram/utils',[ "kendo.core" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -74737,7 +74737,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/diagram/math',[ "./utils", "../../kendo.dataviz.core" ], f);
+    define('dataviz/diagram/math',[ "./utils", "kendo.dataviz.core" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -77837,7 +77837,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/diagram/svg',[ "../../kendo.drawing", "./math" ], f);
+    define('dataviz/diagram/svg',[ "kendo.drawing", "./math" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -79342,7 +79342,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function (f, define) {
-    define('dataviz/diagram/services',[ "../../kendo.drawing", "./svg" ], f);
+    define('dataviz/diagram/services',[ "kendo.drawing", "./svg" ], f);
 })(function () {
 
     (function ($, undefined) {
@@ -85495,7 +85495,7 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.html.base',[
-        "./kendo.core"
+        "kendo.core"
     ], f);
 })(function(){
 
@@ -85574,7 +85574,7 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.html.button',[
-        "./kendo.html.base"
+        "kendo.html.base"
     ], f);
 })(function(){
 
@@ -85725,7 +85725,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.toolbar',[ "./kendo.core", "./kendo.userevents", "./kendo.popup", "./kendo.html.button" ], f);
+    define('kendo.toolbar',[ "kendo.core", "kendo.userevents", "kendo.popup", "kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -87612,7 +87612,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.toggleinputbase',[ "./kendo.core" ], f);
+    define('kendo.toggleinputbase',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -87750,7 +87750,7 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.html.input',[
-        "./kendo.html.base"
+        "kendo.html.base"
     ], f);
 })(function(){
 
@@ -87897,7 +87897,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.checkbox',[ "./kendo.toggleinputbase", "./kendo.html.input" ], f);
+    define('kendo.checkbox',[ "kendo.toggleinputbase", "kendo.html.input" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -87952,7 +87952,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define) {
-    define('kendo.list',[ "./kendo.data", "./kendo.popup" ], f);
+    define('kendo.list',[ "kendo.data", "kendo.popup" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -90881,7 +90881,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.virtuallist',[ "./kendo.data" ], f);
+    define('kendo.virtuallist',[ "kendo.data" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -92729,7 +92729,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dropdownlist',[ "./kendo.list", "./kendo.mobile.scroller", "./kendo.virtuallist", "./kendo.html.button" ], f);
+    define('kendo.dropdownlist',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist", "kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -94225,7 +94225,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.selectable',[ "./kendo.core", "./kendo.userevents" ], f);
+    define('kendo.selectable',[ "kendo.core", "kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -94739,7 +94739,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.calendar',[ "./kendo.core", "./kendo.selectable" ], f);
+    define('kendo.calendar',[ "kendo.core", "kendo.selectable" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -96822,7 +96822,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dateinput',[ "./kendo.core" ], f);
+    define('kendo.dateinput',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -97684,7 +97684,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.datepicker',[ "./kendo.calendar", "./kendo.popup",  "./kendo.dateinput", "./kendo.html.button"], f);
+    define('kendo.datepicker',[ "kendo.calendar", "kendo.popup",  "kendo.dateinput", "kendo.html.button"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -98523,7 +98523,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function (f, define) {
-    define('kendo.floatinglabel',["./kendo.core"], f);
+    define('kendo.floatinglabel',["kendo.core"], f);
 })(function () {
 
 var __meta__ = {// jshint ignore:line
@@ -98640,7 +98640,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.numerictextbox',[ "./kendo.core", "./kendo.userevents", "./kendo.floatinglabel", "./kendo.html.button" ], f);
+    define('kendo.numerictextbox',[ "kendo.core", "kendo.userevents", "kendo.floatinglabel", "kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -99626,7 +99626,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.validator',[ "./kendo.core" ], f);
+    define('kendo.validator',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -100421,7 +100421,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)();  });
 
 (function(f, define){
-    define('kendo.editable',[ "./kendo.checkbox", "./kendo.dropdownlist", "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.validator", "./kendo.binder" ], f);
+    define('kendo.editable',[ "kendo.checkbox", "kendo.dropdownlist", "kendo.datepicker", "kendo.numerictextbox", "kendo.validator", "kendo.binder" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -100914,7 +100914,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.window',[ "./kendo.draganddrop", "./kendo.popup"], f);
+    define('kendo.window',[ "kendo.draganddrop", "kendo.popup"], f);
 })(function(){
 
     var __meta__ = { // jshint ignore:line
@@ -103083,12 +103083,12 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function (f, define) {
-    define('dataviz/diagram/dom',["../../kendo.data", "../../kendo.draganddrop", "../../kendo.toolbar",
-           "../../kendo.editable",
-           "../../kendo.window",
-           "../../kendo.dropdownlist",
-           "../../kendo.dataviz.core",
-           "../../kendo.dataviz.themes",
+    define('dataviz/diagram/dom',["kendo.data", "kendo.draganddrop", "kendo.toolbar",
+           "kendo.editable",
+           "kendo.window",
+           "kendo.dropdownlist",
+           "kendo.dataviz.core",
+           "kendo.dataviz.themes",
            "./svg",
            "./services",
            "./layout" ], f);
@@ -108357,8 +108357,8 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.dataviz.diagram',[
-        "./kendo.data", "./kendo.draganddrop", "./kendo.userevents", "./kendo.mobile.scroller",
-        "./kendo.drawing",
+        "kendo.data", "kendo.draganddrop", "kendo.userevents", "kendo.mobile.scroller",
+        "kendo.drawing",
 
        "./dataviz/diagram/utils",
        "./dataviz/diagram/math",
@@ -108393,7 +108393,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dataviz.treemap',[ "./kendo.data", "./kendo.userevents", "./kendo.dataviz.themes" ], f);
+    define('kendo.dataviz.treemap',[ "kendo.data", "kendo.userevents", "kendo.dataviz.themes" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -109447,7 +109447,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.angular',[ "./kendo.core" ], f);
+    define('kendo.angular',[ "kendo.core" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -110937,33 +110937,33 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.dataviz',[
-        "./kendo.core",
-        "./kendo.fx",
-        "./kendo.router",
-        "./kendo.view",
-        "./kendo.data.odata",
-        "./kendo.data.xml",
-        "./kendo.data",
-        "./kendo.data.signalr",
-        "./kendo.binder",
-        "./kendo.userevents",
-        "./kendo.draganddrop",
-        "./kendo.mobile.scroller",
-        "./kendo.popup",
-        "./kendo.tooltip",
-        "./kendo.drawing",
-        "./kendo.dataviz.core",
-        "./kendo.dataviz.themes",
-        "./kendo.dataviz.chart",
-        "./kendo.dataviz.gauge",
-        "./kendo.dataviz.barcode",
-        "./kendo.dataviz.qrcode",
-        "./kendo.dataviz.stock",
-        "./kendo.dataviz.sparkline",
-        "./kendo.dataviz.map",
-        "./kendo.dataviz.diagram",
-        "./kendo.dataviz.treemap",
-        "./kendo.angular"
+        "kendo.core",
+        "kendo.fx",
+        "kendo.router",
+        "kendo.view",
+        "kendo.data.odata",
+        "kendo.data.xml",
+        "kendo.data",
+        "kendo.data.signalr",
+        "kendo.binder",
+        "kendo.userevents",
+        "kendo.draganddrop",
+        "kendo.mobile.scroller",
+        "kendo.popup",
+        "kendo.tooltip",
+        "kendo.drawing",
+        "kendo.dataviz.core",
+        "kendo.dataviz.themes",
+        "kendo.dataviz.chart",
+        "kendo.dataviz.gauge",
+        "kendo.dataviz.barcode",
+        "kendo.dataviz.qrcode",
+        "kendo.dataviz.stock",
+        "kendo.dataviz.sparkline",
+        "kendo.dataviz.map",
+        "kendo.dataviz.diagram",
+        "kendo.dataviz.treemap",
+        "kendo.angular"
     ], f);
 })(function(){
     "bundle all";
@@ -110971,7 +110971,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.touch',[ "./kendo.core", "./kendo.userevents" ], f);
+    define('kendo.touch',[ "kendo.core", "kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -111142,7 +111142,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.view',[ "./kendo.core", "./kendo.fx", "./kendo.mobile.scroller", "./kendo.view" ], f);
+    define('kendo.mobile.view',[ "kendo.core", "kendo.fx", "kendo.mobile.scroller", "kendo.view" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -111860,7 +111860,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.loader',[ "./kendo.core" ], f);
+    define('kendo.mobile.loader',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -111959,7 +111959,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.pane',[ "./kendo.mobile.view", "./kendo.mobile.loader" ], f);
+    define('kendo.mobile.pane',[ "kendo.mobile.view", "kendo.mobile.loader" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -112330,7 +112330,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.popover',[ "./kendo.popup", "./kendo.mobile.pane" ], f);
+    define('kendo.mobile.popover',[ "kendo.popup", "kendo.mobile.pane" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -112607,7 +112607,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.shim',[ "./kendo.popup" ], f);
+    define('kendo.mobile.shim',[ "kendo.popup" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -112740,7 +112740,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.modalview',[ "./kendo.mobile.shim", "./kendo.mobile.view" ], f);
+    define('kendo.mobile.modalview',[ "kendo.mobile.shim", "kendo.mobile.view" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -112872,7 +112872,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.drawer',[ "./kendo.mobile.view", "./kendo.userevents" ], f);
+    define('kendo.mobile.drawer',[ "kendo.mobile.view", "kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -113198,7 +113198,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.splitview',[ "./kendo.mobile.pane" ], f);
+    define('kendo.mobile.splitview',[ "kendo.mobile.pane" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -113348,7 +113348,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.application',[ "./kendo.mobile.pane", "./kendo.router" ], f);
+    define('kendo.mobile.application',[ "kendo.mobile.pane", "kendo.router" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -113853,7 +113853,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.actionsheet',[ "./kendo.mobile.popover", "./kendo.mobile.shim" ], f);
+    define('kendo.mobile.actionsheet',[ "kendo.mobile.popover", "kendo.mobile.shim" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -114023,7 +114023,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.button',[ "./kendo.userevents" ], f);
+    define('kendo.mobile.button',[ "kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -114292,7 +114292,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.buttongroup',[ "./kendo.core" ], f);
+    define('kendo.mobile.buttongroup',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -114449,7 +114449,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.collapsible',[ "./kendo.core" ], f);
+    define('kendo.mobile.collapsible',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -114639,7 +114639,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.listview',[ "./kendo.data", "./kendo.userevents", "./kendo.mobile.button" ], f);
+    define('kendo.mobile.listview',[ "kendo.data", "kendo.userevents", "kendo.mobile.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -115966,7 +115966,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.navbar',[ "./kendo.core" ], f);
+    define('kendo.mobile.navbar',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -116048,7 +116048,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.scrollview',[ "./kendo.fx", "./kendo.data", "./kendo.draganddrop" ], f);
+    define('kendo.mobile.scrollview',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -116959,7 +116959,7 @@ return window.kendo;
 
 /* jshint multistr: true */
 (function(f, define){
-    define('kendo.mobile.switch',[ "./kendo.fx", "./kendo.userevents" ], f);
+    define('kendo.mobile.switch',[ "kendo.fx", "kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -117224,7 +117224,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.mobile.tabstrip',[ "./kendo.core" ], f);
+    define('kendo.mobile.tabstrip',[ "kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -117405,40 +117405,40 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.mobile',[
-        "./kendo.core",
-        "./kendo.fx",
-        "./kendo.data.odata",
-        "./kendo.data.xml",
-        "./kendo.data",
-        "./kendo.data.signalr",
-        "./kendo.binder",
-        "./kendo.validator",
-        "./kendo.router",
-        "./kendo.view",
-        "./kendo.userevents",
-        "./kendo.draganddrop",
-        "./kendo.popup",
-        "./kendo.touch",
-        "./kendo.mobile.popover",
-        "./kendo.mobile.loader",
-        "./kendo.mobile.scroller",
-        "./kendo.mobile.shim",
-        "./kendo.mobile.view",
-        "./kendo.mobile.modalview",
-        "./kendo.mobile.drawer",
-        "./kendo.mobile.splitview",
-        "./kendo.mobile.pane",
-        "./kendo.mobile.application",
-        "./kendo.mobile.actionsheet",
-        "./kendo.mobile.button",
-        "./kendo.mobile.buttongroup",
-        "./kendo.mobile.collapsible",
-        "./kendo.mobile.listview",
-        "./kendo.mobile.navbar",
-        "./kendo.mobile.scrollview",
-        "./kendo.mobile.switch",
-        "./kendo.mobile.tabstrip",
-        "./kendo.angular"
+        "kendo.core",
+        "kendo.fx",
+        "kendo.data.odata",
+        "kendo.data.xml",
+        "kendo.data",
+        "kendo.data.signalr",
+        "kendo.binder",
+        "kendo.validator",
+        "kendo.router",
+        "kendo.view",
+        "kendo.userevents",
+        "kendo.draganddrop",
+        "kendo.popup",
+        "kendo.touch",
+        "kendo.mobile.popover",
+        "kendo.mobile.loader",
+        "kendo.mobile.scroller",
+        "kendo.mobile.shim",
+        "kendo.mobile.view",
+        "kendo.mobile.modalview",
+        "kendo.mobile.drawer",
+        "kendo.mobile.splitview",
+        "kendo.mobile.pane",
+        "kendo.mobile.application",
+        "kendo.mobile.actionsheet",
+        "kendo.mobile.button",
+        "kendo.mobile.buttongroup",
+        "kendo.mobile.collapsible",
+        "kendo.mobile.listview",
+        "kendo.mobile.navbar",
+        "kendo.mobile.scrollview",
+        "kendo.mobile.switch",
+        "kendo.mobile.tabstrip",
+        "kendo.angular"
     ], f);
 })(function(){
     "bundle all";
@@ -117446,7 +117446,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dataviz.mobile',[ "./kendo.dataviz", "./kendo.mobile" ], f);
+    define('kendo.dataviz.mobile',[ "kendo.dataviz", "kendo.mobile" ], f);
 })(function(){
     "bundle all";
     return window.kendo;

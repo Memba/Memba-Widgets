@@ -1,29 +1,29 @@
-/** 
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function(f, define){
-    define('kendo.circularprogressbar',[ "./kendo.dataviz", "./kendo.dataviz.themes" ], f);
+    define('kendo.circularprogressbar',[ "kendo.dataviz", "kendo.dataviz.themes" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -348,9 +348,9 @@ var __meta__ = { // jshint ignore:line
 
         _slotAngle: function(value) {
             var result;
-    
+
             result = ((value - MINVALUE) / (MAXVALUE) * 360) + 90;
-    
+
             return result + GEO_ARC_ADJUST_ANGLE;
         },
 
@@ -359,20 +359,20 @@ var __meta__ = { // jshint ignore:line
             var colors = options.colors;
             var color = options.color;
             var currentValue = dataviz.isNumber(value) ? value : 0;
-    
+
             if (colors) {
                 for (var idx = 0; idx < colors.length; idx++) {
                     var range = colors[idx];
                     var rangeColor = range.color;
                     var from = range.from; if (from === void 0) { from = 0; }
                     var to = range.to; if (to === void 0) { to = 100; }
-    
+
                     if (from <= currentValue && currentValue <= to) {
                         return rangeColor;
                     }
                 }
             }
-    
+
             return color;
         },
 
@@ -384,7 +384,7 @@ var __meta__ = { // jshint ignore:line
                 startAngle: 270,
                 endAngle: endAngle
             });
-    
+
             return new Arc(rangeGeom, {
                 stroke: {
                     width: rangeSize,
@@ -397,30 +397,30 @@ var __meta__ = { // jshint ignore:line
         _centerTemplatePosition: function(width, height) {
             var size = this._getSize();
             var center = this._getCenter();
-    
+
             var left = center.x - width / 2;
             var top = center.y - height / 2;
             var right;
             var bottom;
-    
+
             if (width < size.width) {
                 right = left + width;
-    
+
                 left = Math.max(left, 0);
-    
+
                 if (right > size.width) {
                     left -= right - size.width;
                 }
             }
-    
+
             if (height < size.height) {
                 bottom = top + height;
-    
+
                 if (bottom > size.height) {
                     top -= bottom - size.height;
                 }
             }
-    
+
             return {
                 left: left,
                 top: top

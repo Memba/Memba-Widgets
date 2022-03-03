@@ -1,29 +1,29 @@
-/** 
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function (f, define) {
-    define('filemanager/commands',["../kendo.core"], f);
+    define('filemanager/commands',["kendo.core"], f);
 })(function () {
 
     (function ($, undefined) {
@@ -400,7 +400,7 @@
 
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
 (function(f, define){
-    define('filemanager/view',["../kendo.listview", "../kendo.treeview"], f);
+    define('filemanager/view',["kendo.listview", "kendo.treeview"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1175,7 +1175,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('filemanager/toolbar',["../kendo.toolbar", "../kendo.switch"], f);
+    define('filemanager/toolbar',["kendo.toolbar", "kendo.switch"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1511,7 +1511,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('filemanager/data',["../kendo.data"], f);
+    define('filemanager/data',["kendo.data"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1746,7 +1746,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('filemanager/contextmenu',["../kendo.menu"], f);
+    define('filemanager/contextmenu',["kendo.menu"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1883,10 +1883,10 @@ return window.kendo;
         "./filemanager/data",
         "./filemanager/contextmenu",
 
-        "./kendo.breadcrumb",
-        "./kendo.upload",
-        "./kendo.dialog",
-        "./kendo.resizable"
+        "kendo.breadcrumb",
+        "kendo.upload",
+        "kendo.dialog",
+        "kendo.resizable"
     ], f);
 })(function(){
 

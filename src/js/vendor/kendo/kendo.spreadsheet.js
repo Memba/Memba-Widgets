@@ -1,29 +1,29 @@
-/** 
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function(f, define){
-    define('util/undoredostack',[ "../kendo.core" ], f);
+    define('util/undoredostack',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -79,7 +79,7 @@
  */
 (function(f, define){
     define('util/text-metrics',[
-        "../kendo.core"
+        "kendo.core"
     ], f);
 })(function(){
 
@@ -276,7 +276,7 @@ kendo.deepExtend(kendo.util, {
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define) {
     define('util/main',[
-        "../kendo.core"
+        "kendo.core"
     ], f);
 })(function() {
 
@@ -430,7 +430,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('util/parse-xml',[ "../kendo.core", "./main" ], f);
+    define('util/parse-xml',[ "kendo.core", "./main" ], f);
 })(function(){
     "use strict";
 
@@ -752,11 +752,11 @@ return window.kendo;
 
 (function(f, define){
     define('spreadsheet/commands',[
-        "../kendo.core",
-        "../kendo.binder",
-        "../kendo.window",
-        "../kendo.list",
-        "../kendo.tabstrip"
+        "kendo.core",
+        "kendo.binder",
+        "kendo.window",
+        "kendo.list",
+        "kendo.tabstrip"
     ], f);
 })(function(){
 
@@ -2105,7 +2105,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/formulabar',[ "../kendo.core" ], f);
+    define('spreadsheet/formulabar',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -2144,7 +2144,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/formulainput',[ "../kendo.core" ], f);
+    define('spreadsheet/formulainput',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo, window) {
@@ -2955,7 +2955,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/eventlistener',[ "../kendo.core" ], f);
+    define('spreadsheet/eventlistener',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -3148,7 +3148,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/rangelist',[ "../kendo.core" ], f);
+    define('spreadsheet/rangelist',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -3667,7 +3667,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/propertybag',[ "../kendo.core" ], f);
+    define('spreadsheet/propertybag',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -3977,7 +3977,7 @@ return window.kendo;
 // -*- fill-column: 100 -*-
 
 (function(f, define){
-    define('spreadsheet/references',["../kendo.core"], f);
+    define('spreadsheet/references',["kendo.core"], f);
 })(function(){
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
@@ -4935,7 +4935,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/autofillcalculator',[ "../kendo.core" ], f);
+    define('spreadsheet/autofillcalculator',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -5023,7 +5023,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/navigator',[ "../kendo.core",  "./autofillcalculator" ], f);
+    define('spreadsheet/navigator',[ "kendo.core",  "./autofillcalculator" ], f);
 })(function(){
 
 (function(kendo) {
@@ -5710,7 +5710,7 @@ return window.kendo;
 
 
 (function(f, define){
-    define('spreadsheet/axismanager',[ "../kendo.core" ], f);
+    define('spreadsheet/axismanager',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -5983,7 +5983,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/clipboard',[ "../kendo.core" ], f);
+    define('spreadsheet/clipboard',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -6319,7 +6319,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/range',[ "../kendo.core", "../util/text-metrics", "../util/main" ], f);
+    define('spreadsheet/range',[ "kendo.core", "../util/text-metrics", "../util/main" ], f);
 })(function(){
 
 (function(kendo) {
@@ -9385,7 +9385,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sheet',[ "../kendo.core", "../kendo.color", "./runtime", "./validation", "./references" ], f);
+    define('spreadsheet/sheet',[ "kendo.core", "kendo.color", "./runtime", "./validation", "./references" ], f);
 })(function(){
 
 (function(kendo) {
@@ -11382,7 +11382,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sheetsbar',[ "../kendo.core", "../kendo.sortable" ], f);
+    define('spreadsheet/sheetsbar',[ "kendo.core", "kendo.sortable" ], f);
 })(function(){
 
     (function(kendo) {
@@ -13460,7 +13460,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/excel-reader',[ "../kendo.core", "../kendo.color", "../util/parse-xml", "./calc" ], f);
+    define('spreadsheet/excel-reader',[ "kendo.core", "kendo.color", "../util/parse-xml", "./calc" ], f);
 })(function(){
     "use strict";
 
@@ -14804,7 +14804,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/workbook',[ "../kendo.core", "./runtime", "./references", "./excel-reader" ], f);
+    define('spreadsheet/workbook',[ "kendo.core", "./runtime", "./references", "./excel-reader" ], f);
 })(function(){
 
 (function(kendo) {
@@ -15791,7 +15791,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/formulacontext',[ '../kendo.core' ], f);
+    define('spreadsheet/formulacontext',[ 'kendo.core' ], f);
 })(function() {
 
     /* jshint eqnull:true */
@@ -16038,7 +16038,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/controller',[ "../kendo.core" ], f);
+    define('spreadsheet/controller',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -17346,7 +17346,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/view',[ "../kendo.core", "../kendo.menu", "./sheetsbar", "../util/main" ], f);
+    define('spreadsheet/view',[ "kendo.core", "kendo.menu", "./sheetsbar", "../util/main" ], f);
 })(function(){
 
 (function(kendo) {
@@ -19331,7 +19331,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/customeditors',[ "../kendo.core", "../kendo.popup", "../kendo.calendar", "../kendo.listview", "./sheet" ], f);
+    define('spreadsheet/customeditors',[ "kendo.core", "kendo.popup", "kendo.calendar", "kendo.listview", "./sheet" ], f);
 })(function(){
 
 (function(kendo) {
@@ -19533,7 +19533,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/grid',[ "../kendo.core", "./references" ], f);
+    define('spreadsheet/grid',[ "kendo.core", "./references" ], f);
 })(function(){
 
 (function(kendo) {
@@ -19836,7 +19836,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/axis',[ "../kendo.core" ], f);
+    define('spreadsheet/axis',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -20265,7 +20265,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/filter',[ "../kendo.core", "../kendo.data" ], f);
+    define('spreadsheet/filter',[ "kendo.core", "kendo.data" ], f);
 })(function(){
 (function(kendo) {
 
@@ -20711,7 +20711,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sorter',[ "../kendo.core" ], f);
+    define('spreadsheet/sorter',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -20833,7 +20833,7 @@ return window.kendo;
 // -*- fill-column: 100 -*-
 
 (function(f, define){
-    define('spreadsheet/numformat',[ "./calc", "../kendo.dom", "../util/main" ], f);
+    define('spreadsheet/numformat',[ "./calc", "kendo.dom", "../util/main" ], f);
 })(function(){
     "use strict";
 
@@ -26182,7 +26182,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/borderpalette',[ "../kendo.core", "../kendo.colorpicker", "../kendo.popup" ], f);
+    define('spreadsheet/borderpalette',[ "kendo.core", "kendo.colorpicker", "kendo.popup" ], f);
 })(function(){
 
     (function(kendo) {
@@ -26451,7 +26451,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/toolbar',[ "../kendo.toolbar", "../kendo.colorpicker", "../kendo.combobox", "../kendo.dropdownlist", "../kendo.popup", "./borderpalette" ], f);
+    define('spreadsheet/toolbar',[ "kendo.toolbar", "kendo.colorpicker", "kendo.combobox", "kendo.dropdownlist", "kendo.popup", "./borderpalette" ], f);
 })(function(){
 
 (function(kendo) {
@@ -27743,7 +27743,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/dialogs',[ "../kendo.core", "../kendo.binder", "../kendo.validator" ], f);
+    define('spreadsheet/dialogs',[ "kendo.core", "kendo.binder", "kendo.validator" ], f);
 })(function(){
 
 (function(kendo) {
@@ -29748,7 +29748,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sheetbinder',[ "../kendo.core", "../kendo.data", "./sheet" ], f);
+    define('spreadsheet/sheetbinder',[ "kendo.core", "kendo.data", "./sheet" ], f);
 })(function(){
 
 (function(kendo) {
@@ -29990,7 +29990,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/filtermenu',[ "../kendo.core", "../kendo.popup", "../kendo.treeview", "../kendo.numerictextbox", "../kendo.datepicker", "../kendo.datetimepicker" ], f);
+    define('spreadsheet/filtermenu',[ "kendo.core", "kendo.popup", "kendo.treeview", "kendo.numerictextbox", "kendo.datepicker", "kendo.datetimepicker" ], f);
 })(function(){
 
     (function(kendo) {
@@ -30751,7 +30751,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/editor',[ "../kendo.core" ], f);
+    define('spreadsheet/editor',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -31274,7 +31274,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/nameeditor',[ "../kendo.core" ], f);
+    define('spreadsheet/nameeditor',[ "kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -31386,7 +31386,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/print',[ "../kendo.pdf", "./sheet", "./range", "./references", "./numformat", "../util/text-metrics" ], f);
+    define('spreadsheet/print',[ "kendo.pdf", "./sheet", "./range", "./references", "./numformat", "../util/text-metrics" ], f);
 })(function(){
     "use strict";
 
@@ -32407,9 +32407,9 @@ return window.kendo;
         "./util/undoredostack",
         "./util/text-metrics",
         "./util/parse-xml",
-        "./kendo.excel",
-        "./kendo.progressbar",
-        "./kendo.pdf",
+        "kendo.excel",
+        "kendo.progressbar",
+        "kendo.pdf",
         "./spreadsheet/commands",
         "./spreadsheet/formulabar",
         "./spreadsheet/formulainput",

@@ -31,11 +31,6 @@ SystemJS.config({
     },
     map: {
         jquery: 'src/js/vendor/jquery/jquery-3.6.0.js',
-        'html/button': 'src/js/vendor/kendo/html/button.js',
-        'html/chip': 'src/js/vendor/kendo/html/chip.js',
-        'html/chiplist': 'src/js/vendor/kendo/html/chiplist.js',
-        'html/htmlbase': 'src/js/vendor/kendo/html/htmlbase.js',
-        'html/input': 'src/js/vendor/kendo/html/input.js',
         // http://docs.telerik.com/kendo-ui/third-party/systemjs
         'kendo.culture.en-GB':
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
@@ -57,6 +52,8 @@ SystemJS.config({
         'kendo.chat': 'src/js/vendor/kendo/kendo.chat.js',
         'kendo.checkbox': 'src/js/vendor/kendo/kendo.checkbox.js',
         'kendo.checkboxgroup': 'src/js/vendor/kendo/kendo.checkboxgroup.js',
+        'kendo.circularprogressbar':
+            'src/js/vendor/kendo/kendo.circularprogressbar.js',
         'kendo.color': 'src/js/vendor/kendo/kendo.color.js',
         // 'kendo.colorpicker': 'src/js/vendor/kendo/kendo.colorpicker.js',
         'kendo.columnmenu': 'src/js/vendor/kendo/kendo.columnmenu.js',
@@ -100,6 +97,11 @@ SystemJS.config({
         'kendo.gantt.timeline': 'src/js/vendor/kendo/kendo.gantt.timeline.js',
         // 'kendo.grid': 'src/js/vendor/kendo/kendo.grid.js',
         'kendo.groupable': 'src/js/vendor/kendo/kendo.groupable.js',
+        'kendo.html.base': 'src/js/vendor/kendo/kendo.html.base.js',
+        'kendo.html.button': 'src/js/vendor/kendo/kendo.html.button.js',
+        'kendo.html.chip': 'src/js/vendor/kendo/kendo.html.chip.js',
+        'kendo.html.chiplist': 'src/js/vendor/kendo/kendo.html.chiplist.js',
+        'kendo.html.input': 'src/js/vendor/kendo/kendo.html.input.js',
         'kendo.imagebrowser': 'src/js/vendor/kendo/kendo.imagebrowser.js',
         // 'kendo.imageeditor': 'src/js/vendor/kendo/kendo.imageeditor.js',
         'kendo.inputgroupbase': 'src/js/vendor/kendo/kendo.inputgroupbase.js',
@@ -149,6 +151,7 @@ SystemJS.config({
         'kendo.panelbar': 'src/js/vendor/kendo/kendo.panelbar.js',
         // 'kendo.pdf': 'src/js/vendor/kendo/kendo.pdf.js',
         'kendo.pdfviewer': 'src/js/vendor/kendo/kendo.pdfviewer.js',
+        'kendo.pivot.common': 'src/js/vendor/kendo/kendo.pivot.common.js',
         'kendo.pivot.configurator':
             'src/js/vendor/kendo/kendo.pivot.configurator.js',
         'kendo.pivot.fieldmenu': 'src/js/vendor/kendo/kendo.pivot.fieldmenu.js',

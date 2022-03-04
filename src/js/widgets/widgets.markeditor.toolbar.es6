@@ -55,7 +55,7 @@ const {
     },
 } = window.kendo;
 const logger = new Logger('widgets.markeditor.toolbar');
-const NO_PADDING_CLASS = 'kj-no-padding';
+const NO_PADDING_CLASS = 'k-p-0';
 const TOOLBAR = [
     'undo',
     'redo',

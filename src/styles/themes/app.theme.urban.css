@@ -30635,9 +30635,6 @@ progress {
       .m-assetmanager .k-tabstrip.k-tabstrip-left > div.k-content .k-filebrowser .k-pager-wrap.k-floatwrap {
         border-top: 0; }
 
-.m-assetmanager-window.k-content.kj-no-padding {
-  padding: 0; }
-
 .m-assetmanager-window.k-content.m-hidden-overflow {
   overflow: hidden; }
 
@@ -32739,17 +32736,15 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .k-spreadsheet-window.kj-markeditor-window {
   padding-left: 0;
   padding-right: 0; }
-  .k-spreadsheet-window.kj-markeditor-window.kj-no-padding {
-    padding: 0; }
-    .k-spreadsheet-window.kj-markeditor-window.kj-no-padding .kj-markeditor-preview .k-splitter .k-widget.kj-markeditor {
-      border: 0; }
-    .k-spreadsheet-window.kj-markeditor-window.kj-no-padding .kj-markeditor-preview .k-splitter .kj-markdown {
-      margin: 0.5em; }
-    .k-spreadsheet-window.kj-markeditor-window.kj-no-padding .kj-markeditor-preview .k-action-buttons {
-      border: 0;
-      bottom: 0;
-      margin: 0;
-      position: static; }
+  .k-spreadsheet-window.kj-markeditor-window .kj-markeditor-preview .k-splitter .k-widget.kj-markeditor {
+    border: 0; }
+  .k-spreadsheet-window.kj-markeditor-window .kj-markeditor-preview .k-splitter .kj-markdown {
+    margin: 0.5em; }
+  .k-spreadsheet-window.kj-markeditor-window .kj-markeditor-preview .k-action-buttons {
+    border: 0;
+    bottom: 0;
+    margin: 0;
+    position: static; }
   .k-spreadsheet-window.kj-markeditor-window .kj-mathinput-toolbar {
     margin-bottom: 0.75em;
     margin-left: -0.75em;

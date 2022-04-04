@@ -295,8 +295,7 @@ const FormatBar = ToolBar.extend({
                 )
             );
             ret = this._value.toString();
-        }
-        if (
+        } else if (
             $.type(value) === CONSTANTS.STRING ||
             $.type(value) === CONSTANTS.NULL
         ) {

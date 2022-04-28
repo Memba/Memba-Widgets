@@ -3802,6 +3802,7 @@ var MapResult = function MapResult(pos, deleted, recover) {
 var StepMap = function StepMap(ranges, inverted) {
   if ( inverted === void 0 ) { inverted = false; }
 
+  if (!ranges.length && StepMap.empty) { return StepMap.empty }
   this.ranges = ranges;
   this.inverted = inverted;
 };
@@ -3886,6 +3887,8 @@ StepMap.offset = function offset (n) {
   return n == 0 ? StepMap.empty : new StepMap(n < 0 ? [0, -n, 0] : [0, 0, n])
 };
 
+// :: StepMap
+// A StepMap that contains no changed ranges.
 StepMap.empty = new StepMap([]);
 
 // :: class extends Mappable
@@ -4465,8 +4468,14 @@ function findWrappingInside(range, type) {
 // probably be computed with [`findWrapping`](#transform.findWrapping).
 Transform.prototype.wrap = function(range, wrappers) {
   var content = Fragment.empty;
-  for (var i = wrappers.length - 1; i >= 0; i--)
-    { content = Fragment.from(wrappers[i].type.create(wrappers[i].attrs, content)); }
+  for (var i = wrappers.length - 1; i >= 0; i--) {
+    if (content.size) {
+      var match = wrappers[i].type.contentMatch.matchFragment(content);
+      if (!match || !match.validEnd)
+        { throw new RangeError("Wrapper type given to Transform.wrap does not form valid content of its parent wrapper") }
+    }
+    content = Fragment.from(wrappers[i].type.create(wrappers[i].attrs, content));
+  }
 
   var start = range.start, end = range.end;
   return this.step(new ReplaceAroundStep(start, end, start, end, new Slice(content, 0, 0), wrappers.length, true))
@@ -5173,7 +5182,7 @@ Fitter.prototype.placeNodes = function placeNodes (ref) {
 };
 
 Fitter.prototype.mustMoveInline = function mustMoveInline () {
-  if (!this.$to.parent.isTextblock || this.$to.end() == this.$to.pos) { return -1 }
+  if (!this.$to.parent.isTextblock) { return -1 }
   var top = this.frontier[this.depth], level;
   if (!top.type.isTextblock || !contentAfterFits(this.$to, this.$to.depth, top.type, top.match, false) ||
       (this.$to.depth == this.depth && (level = this.findCloseLevel(this.$to)) && level.depth == this.depth)) { return -1 }
@@ -5274,6 +5283,10 @@ function invalidMarks(type, fragment, start) {
   return false
 }
 
+function definesContent(type) {
+  return type.spec.defining || type.spec.definingForContent
+}
+
 // :: (number, number, Slice) → this
 // Replace a range of the document with a given slice, using `from`,
 // `to`, and the slice's [`openStart`](#model.Slice.openStart) property
@@ -5281,9 +5294,9 @@ function invalidMarks(type, fragment, start) {
 // grow the replaced area or close open nodes in the slice in order to
 // get a fit that is more in line with WYSIWYG expectations, by
 // dropping fully covered parent nodes of the replaced region when
-// they are marked [non-defining](#model.NodeSpec.defining), or
+// they are marked [non-defining as context](#model.NodeSpec.definingAsContext), or
 // including an open parent node from the slice that _is_ marked as
-// [defining](#model.NodeSpec.defining).
+// [defining its content](#model.NodeSpec.definingForContent).
 //
 // This is the method, for example, to handle paste. The similar
 // [`replace`](#transform.Transform.replace) method is a more
@@ -5310,7 +5323,7 @@ Transform.prototype.replaceRange = function(from, to, slice) {
   // cross a defining node.
   for (var d = $from.depth, pos = $from.pos - 1; d > 0; d--, pos--) {
     var spec = $from.node(d).type.spec;
-    if (spec.defining || spec.isolating) { break }
+    if (spec.defining || spec.definingAsContext || spec.isolating) { break }
     if (targetDepths.indexOf(d) > -1) { preferredTarget = d; }
     else if ($from.before(d) == pos) { targetDepths.splice(1, 0, -d); }
   }
@@ -5325,14 +5338,14 @@ Transform.prototype.replaceRange = function(from, to, slice) {
     if (i == slice.openStart) { break }
     content = node.content;
   }
-  // Back up if the node directly above openStart, or the node above
-  // that separated only by a non-defining textblock node, is defining.
-  if (preferredDepth > 0 && leftNodes[preferredDepth - 1].type.spec.defining &&
-      $from.node(preferredTargetIndex).type != leftNodes[preferredDepth - 1].type)
-    { preferredDepth -= 1; }
-  else if (preferredDepth >= 2 && leftNodes[preferredDepth - 1].isTextblock && leftNodes[preferredDepth - 2].type.spec.defining &&
-           $from.node(preferredTargetIndex).type != leftNodes[preferredDepth - 2].type)
-    { preferredDepth -= 2; }
+
+  // Back up preferredDepth to cover defining textblocks directly
+  // above it, possibly skipping a non-defining textblock.
+  for (var d$1 = preferredDepth - 1; d$1 >= 0; d$1--) {
+    var type = leftNodes[d$1].type, def = definesContent(type);
+    if (def && $from.node(preferredTargetIndex).type != type) { preferredDepth = d$1; }
+    else if (def || !type.isTextblock) { break }
+  }
 
   for (var j = slice.openStart; j >= 0; j--) {
     var openDepth = (j + preferredDepth + 1) % (slice.openStart + 1);
@@ -6597,7 +6610,7 @@ var state = /*#__PURE__*/Object.freeze({
 
 // declare global: navigator
 
-var mac$2 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
+var mac$2 = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false;
 
 function normalizeKeyName(name) {
   var parts = name.split(/-(?!$)/), result = parts[parts.length - 1];
@@ -6669,7 +6682,7 @@ function keymap(bindings) {
 
 // :: (Object) → (view: EditorView, event: dom.Event) → bool
 // Given a set of bindings (using the same format as
-// [`keymap`](#keymap.keymap), return a [keydown
+// [`keymap`](#keymap.keymap)), return a [keydown
 // handler](#view.EditorProps.handleKeyDown) that handles them.
 function keydownHandler(bindings) {
   var map = normalize$1(bindings);
@@ -7306,7 +7319,18 @@ function history(config) {
       }
     },
 
-    config: config
+    config: config,
+
+    props: {
+      handleDOMEvents: {
+        beforeinput: function beforeinput(view, e) {
+          var handled = e.inputType == "historyUndo" ? undo(view.state, view.dispatch) :
+              e.inputType == "historyRedo" ? redo(view.state, view.dispatch) : false;
+          if (handled) { e.preventDefault(); }
+          return handled
+        }
+      }
+    }
   })
 }
 
@@ -7395,13 +7419,16 @@ function joinBackward(state, dispatch, view) {
   // selectable, delete the node below and select the one above.
   if ($cursor.parent.content.size == 0 &&
       (textblockAt(before, "end") || NodeSelection.isSelectable(before))) {
-    if (dispatch) {
-      var tr = state.tr.deleteRange($cursor.before(), $cursor.after());
-      tr.setSelection(textblockAt(before, "end") ? Selection.findFrom(tr.doc.resolve(tr.mapping.map($cut.pos, -1)), -1)
-                      : NodeSelection.create(tr.doc, $cut.pos - before.nodeSize));
-      dispatch(tr.scrollIntoView());
+    var delStep = replaceStep(state.doc, $cursor.before(), $cursor.after(), Slice.empty);
+    if (delStep.slice.size < delStep.to - delStep.from) {
+      if (dispatch) {
+        var tr = state.tr.step(delStep);
+        tr.setSelection(textblockAt(before, "end") ? Selection.findFrom(tr.doc.resolve(tr.mapping.map($cut.pos, -1)), -1)
+                        : NodeSelection.create(tr.doc, $cut.pos - before.nodeSize));
+        dispatch(tr.scrollIntoView());
+      }
+      return true
     }
-    return true
   }
 
   // If the node before is an atom, delete it
@@ -7413,9 +7440,11 @@ function joinBackward(state, dispatch, view) {
   return false
 }
 
-function textblockAt(node, side) {
-  for (; node; node = (side == "start" ? node.firstChild : node.lastChild))
-    { if (node.isTextblock) { return true } }
+function textblockAt(node, side, only) {
+  for (; node; node = (side == "start" ? node.firstChild : node.lastChild)) {
+    if (node.isTextblock) { return true }
+    if (only && node.childCount != 1) { return false }
+  }
   return false
 }
 
@@ -7478,13 +7507,16 @@ function joinForward(state, dispatch, view) {
   // selectable, delete the node above and select the one below.
   if ($cursor.parent.content.size == 0 &&
       (textblockAt(after, "start") || NodeSelection.isSelectable(after))) {
-    if (dispatch) {
-      var tr = state.tr.deleteRange($cursor.before(), $cursor.after());
-      tr.setSelection(textblockAt(after, "start") ? Selection.findFrom(tr.doc.resolve(tr.mapping.map($cut.pos)), 1)
-                      : NodeSelection.create(tr.doc, tr.mapping.map($cut.pos)));
-      dispatch(tr.scrollIntoView());
+    var delStep = replaceStep(state.doc, $cursor.before(), $cursor.after(), Slice.empty);
+    if (delStep.slice.size < delStep.to - delStep.from) {
+      if (dispatch) {
+        var tr = state.tr.step(delStep);
+        tr.setSelection(textblockAt(after, "start") ? Selection.findFrom(tr.doc.resolve(tr.mapping.map($cut.pos)), 1)
+                        : NodeSelection.create(tr.doc, tr.mapping.map($cut.pos)));
+        dispatch(tr.scrollIntoView());
+      }
+      return true
     }
-    return true
   }
 
   // If the next node is an atom, delete it
@@ -7779,19 +7811,21 @@ function deleteBarrier(state, $cut, dispatch) {
     return true
   }
 
-  if (canDelAfter && after.isTextblock && textblockAt(before, "end")) {
+  if (canDelAfter && textblockAt(after, "start", true) && textblockAt(before, "end")) {
     var at = before, wrap$1 = [];
     for (;;) {
       wrap$1.push(at);
       if (at.isTextblock) { break }
       at = at.lastChild;
     }
-    if (at.canReplace(at.childCount, at.childCount, after.content)) {
+    var afterText = after, afterDepth = 1;
+    for (; !afterText.isTextblock; afterText = afterText.firstChild) { afterDepth++; }
+    if (at.canReplace(at.childCount, at.childCount, afterText.content)) {
       if (dispatch) {
         var end$1 = Fragment.empty;
         for (var i$1 = wrap$1.length - 1; i$1 >= 0; i$1--) { end$1 = Fragment.from(wrap$1[i$1].copy(end$1)); }
         var tr$1 = state.tr.step(new ReplaceAroundStep($cut.pos - wrap$1.length, $cut.pos + after.nodeSize,
-                                                     $cut.pos + 1, $cut.pos + after.nodeSize - 1,
+                                                     $cut.pos + afterDepth, $cut.pos + after.nodeSize - afterDepth,
                                                      new Slice(end$1, wrap$1.length, 0), 0, true));
         dispatch(tr$1.scrollIntoView());
       }
@@ -7801,6 +7835,30 @@ function deleteBarrier(state, $cut, dispatch) {
 
   return false
 }
+
+function selectTextblockSide(side) {
+  return function(state, dispatch) {
+    var sel = state.selection, $pos = side < 0 ? sel.$from : sel.$to;
+    var depth = $pos.depth;
+    while ($pos.node(depth).isInline) {
+      if (!depth) { return false }
+      depth--;
+    }
+    if (!$pos.node(depth).isTextblock) { return false }
+    if (dispatch)
+      { dispatch(state.tr.setSelection(TextSelection.create(
+        state.doc, side < 0 ? $pos.start(depth) : $pos.end(depth)))); }
+    return true
+  }
+}
+
+// :: (EditorState, ?(tr: Transaction)) → bool
+// Moves the cursor to the start of current text block.
+var selectTextblockStart = selectTextblockSide(-1);
+
+// :: (EditorState, ?(tr: Transaction)) → bool
+// Moves the cursor to the end of current text block.
+var selectTextblockEnd = selectTextblockSide(1);
 
 // Parameterized commands
 
@@ -7965,7 +8023,7 @@ function autoJoin(command, isJoinable) {
     var types = isJoinable;
     isJoinable = function (node) { return types.indexOf(node.type.name) > -1; };
   }
-  return function (state, dispatch) { return command(state, dispatch && wrapDispatchForJoin(dispatch, isJoinable)); }
+  return function (state, dispatch, view) { return command(state, dispatch && wrapDispatchForJoin(dispatch, isJoinable), view); }
 }
 
 // :: (...[(EditorState, ?(tr: Transaction), ?EditorView) → bool]) → (EditorState, ?(tr: Transaction), ?EditorView) → bool
@@ -8003,6 +8061,7 @@ var pcBaseKeymap = {
   "Mod-Enter": exitCode,
   "Backspace": backspace,
   "Mod-Backspace": backspace,
+  "Shift-Backspace": backspace,
   "Delete": del,
   "Mod-Delete": del,
   "Mod-a": selectAll
@@ -8019,12 +8078,17 @@ var macBaseKeymap = {
   "Ctrl-d": pcBaseKeymap["Delete"],
   "Ctrl-Alt-Backspace": pcBaseKeymap["Mod-Delete"],
   "Alt-Delete": pcBaseKeymap["Mod-Delete"],
-  "Alt-d": pcBaseKeymap["Mod-Delete"]
+  "Alt-d": pcBaseKeymap["Mod-Delete"],
+  "Ctrl-a": selectTextblockStart,
+  "Ctrl-e": selectTextblockEnd
 };
 for (var key in pcBaseKeymap) { macBaseKeymap[key] = pcBaseKeymap[key]; }
 
+pcBaseKeymap.Home = selectTextblockStart;
+pcBaseKeymap.End = selectTextblockEnd;
+
 // declare global: os, navigator
-var mac$1 = typeof navigator != "undefined" ? /Mac/.test(navigator.platform)
+var mac$1 = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform)
           : typeof os != "undefined" ? os.platform() == "darwin" : false;
 
 // :: Object
@@ -8054,6 +8118,8 @@ var commands = /*#__PURE__*/Object.freeze({
   selectNodeBackward: selectNodeBackward,
   selectNodeForward: selectNodeForward,
   selectParentNode: selectParentNode,
+  selectTextblockEnd: selectTextblockEnd,
+  selectTextblockStart: selectTextblockStart,
   setBlockType: setBlockType,
   splitBlock: splitBlock,
   splitBlockKeepMarks: splitBlockKeepMarks,
@@ -8065,6 +8131,11 @@ var commands = /*#__PURE__*/Object.freeze({
 // Create a plugin that, when added to a ProseMirror instance,
 // causes a decoration to show up at the drop position when something
 // is dragged over the editor.
+//
+// Nodes may add a `disableDropCursor` property to their spec to
+// control the showing of a drop cursor inside them. This may be a
+// boolean or a function, which will be called with a view and a
+// position, and should return a boolean.
 //
 //   options::- These options are supported:
 //
@@ -8179,7 +8250,12 @@ DropCursorView.prototype.scheduleRemoval = function scheduleRemoval (timeout) {
 DropCursorView.prototype.dragover = function dragover (event) {
   if (!this.editorView.editable) { return }
   var pos = this.editorView.posAtCoords({left: event.clientX, top: event.clientY});
-  if (pos) {
+
+  var node = pos && pos.inside >= 0 && this.editorView.state.doc.nodeAt(pos.inside);
+  var disableDropCursor = node && node.type.spec.disableDropCursor;
+  var disabled = typeof disableDropCursor == "function" ? disableDropCursor(this.editorView, pos) : disableDropCursor;
+
+  if (pos && !disabled) {
     var target = pos.pos;
     if (this.editorView.dragging && this.editorView.dragging.slice) {
       target = dropPoint(this.editorView.state.doc, target, this.editorView.dragging.slice);
@@ -8265,7 +8341,8 @@ function scanFor(node, off, targetNode, targetOff, dir) {
     if (node == targetNode && off == targetOff) { return true }
     if (off == (dir < 0 ? 0 : nodeSize(node))) {
       var parent = node.parentNode;
-      if (parent.nodeType != 1 || hasBlockDesc(node) || atomElements.test(node.nodeName) || node.contentEditable == "false")
+      if (!parent || parent.nodeType != 1 || hasBlockDesc(node) || atomElements.test(node.nodeName) ||
+          node.contentEditable == "false")
         { return false }
       off = domIndex(node) + (dir < 0 ? 0 : 1);
       node = parent;
@@ -9252,7 +9329,8 @@ ViewDesc.prototype.markDirty = function markDirty (from, to) {
         else { child.markDirty(from - startInside, to - startInside); }
         return
       } else {
-        child.dirty = child.dom == child.contentDOM && child.dom.parentNode == this.contentDOM ? CONTENT_DIRTY : NODE_DIRTY;
+        child.dirty = child.dom == child.contentDOM && child.dom.parentNode == this.contentDOM && !child.children.length
+          ? CONTENT_DIRTY : NODE_DIRTY;
       }
     }
     offset = end;
@@ -9390,7 +9468,10 @@ var MarkViewDesc = /*@__PURE__*/(function (ViewDesc) {
     return new MarkViewDesc(parent, mark, spec.dom, spec.contentDOM || spec.dom)
   };
 
-  MarkViewDesc.prototype.parseRule = function parseRule () { return {mark: this.mark.type.name, attrs: this.mark.attrs, contentElement: this.contentDOM} };
+  MarkViewDesc.prototype.parseRule = function parseRule () {
+    if ((this.dirty & NODE_DIRTY) || this.mark.type.spec.reparseInView) { return null }
+    return {mark: this.mark.type.name, attrs: this.mark.attrs, contentElement: this.contentDOM}
+  };
 
   MarkViewDesc.prototype.matchesMark = function matchesMark (mark) { return this.dirty != NODE_DIRTY && this.mark.eq(mark) };
 
@@ -9492,8 +9573,23 @@ var NodeViewDesc = /*@__PURE__*/(function (ViewDesc) {
     // whether this is a problem
     var rule = {node: this.node.type.name, attrs: this.node.attrs};
     if (this.node.type.whitespace == "pre") { rule.preserveWhitespace = "full"; }
-    if (this.contentDOM && !this.contentLost) { rule.contentElement = this.contentDOM; }
-    else { rule.getContent = function () { return this$1$1.contentDOM ? Fragment.empty : this$1$1.node.content; }; }
+    if (!this.contentDOM) {
+      rule.getContent = function () { return this$1$1.node.content; };
+    } else if (!this.contentLost) {
+      rule.contentElement = this.contentDOM;
+    } else {
+      // Chrome likes to randomly recreate parent nodes when
+      // backspacing things. When that happens, this tries to find the
+      // new parent.
+      for (var i = this.children.length - 1; i >= 0; i--) {
+        var child = this.children[i];
+        if (this.dom.contains(child.dom.parentNode)) {
+          rule.contentElement = child.dom.parentNode;
+          break
+        }
+      }
+      if (!rule.contentElement) { rule.getContent = function () { return Fragment.empty; }; }
+    }
     return rule
   };
 
@@ -10102,27 +10198,35 @@ ViewTreeUpdater.prototype.placeWidget = function placeWidget (widget, view, pos)
 // Make sure a textblock looks and behaves correctly in
 // contentEditable.
 ViewTreeUpdater.prototype.addTextblockHacks = function addTextblockHacks () {
-  var lastChild = this.top.children[this.index - 1];
-  while (lastChild instanceof MarkViewDesc) { lastChild = lastChild.children[lastChild.children.length - 1]; }
+  var lastChild = this.top.children[this.index - 1], parent = this.top;
+  while (lastChild instanceof MarkViewDesc) {
+    parent = lastChild;
+    lastChild = parent.children[parent.children.length - 1];
+  }
 
   if (!lastChild || // Empty textblock
       !(lastChild instanceof TextViewDesc) ||
       /\n$/.test(lastChild.node.text)) {
     // Avoid bugs in Safari's cursor drawing (#1165) and Chrome's mouse selection (#1152)
     if ((result.safari || result.chrome) && lastChild && lastChild.dom.contentEditable == "false")
-      { this.addHackNode("IMG"); }
-    this.addHackNode("BR");
+      { this.addHackNode("IMG", parent); }
+    this.addHackNode("BR", this.top);
   }
 };
 
-ViewTreeUpdater.prototype.addHackNode = function addHackNode (nodeName) {
-  if (this.index < this.top.children.length && this.top.children[this.index].matchesHack(nodeName)) {
+ViewTreeUpdater.prototype.addHackNode = function addHackNode (nodeName, parent) {
+  if (parent == this.top && this.index < parent.children.length && parent.children[this.index].matchesHack(nodeName)) {
     this.index++;
   } else {
     var dom = document.createElement(nodeName);
-    if (nodeName == "IMG") { dom.className = "ProseMirror-separator"; }
+    if (nodeName == "IMG") {
+      dom.className = "ProseMirror-separator";
+      dom.alt = "";
+    }
     if (nodeName == "BR") { dom.className = "ProseMirror-trailingBreak"; }
-    this.top.children.splice(this.index++, 0, new TrailingHackViewDesc(this.top, nothing, dom, null));
+    var hack = new TrailingHackViewDesc(this.top, nothing, dom, null);
+    if (parent != this.top) { parent.children.push(hack); }
+    else { parent.children.splice(this.index++, 0, hack); }
     this.changed = true;
   }
 };
@@ -10278,10 +10382,13 @@ function findTextInFragment(frag, text, from, to) {
       if (!next.isText) { break }
       str += next.text;
     }
-    if (pos >= from && childStart < to) {
-      var found = str.lastIndexOf(text, to - childStart - 1);
+    if (pos >= from) {
+      var found = childStart < to ? str.lastIndexOf(text, to - childStart - 1) : -1;
       if (found >= 0 && found + text.length + childStart >= from)
         { return childStart + found }
+      if (from == to && str.length >= (to + text.length) - childStart &&
+          str.slice(to - childStart, to - childStart + text.length) == text)
+        { return to }
     }
   }
   return -1
@@ -10349,7 +10456,10 @@ function selectionToDOM(view, force) {
 
   if (!editorOwnsSelection(view)) { return }
 
-  if (!force && view.mouseDown && view.mouseDown.allowDefault) {
+  // The delayed drag selection causes issues with Cell Selections
+  // in Safari. And the drag selection delay is to workarond issues
+  // which only present in Chrome.
+  if (!force && view.mouseDown && view.mouseDown.allowDefault && result.chrome) {
     var domSel = view.root.getSelection(), curSel = view.domObserver.currentSelection;
     if (domSel.anchorNode && isEquivalentPosition(domSel.anchorNode, domSel.anchorOffset,
                                                   curSel.anchorNode, curSel.anchorOffset)) {
@@ -10875,6 +10985,7 @@ function readDOMChange(view, from, to, typeOver, addedNodes) {
 
   var sel = view.state.selection;
   var parse = parseBetween(view, from, to);
+
   // Chrome sometimes leaves the cursor before the inserted text when
   // composing after a cursor wrapper. This moves it forward.
   if (result.chrome && view.cursorWrapper && parse.sel && parse.sel.anchor == view.cursorWrapper.deco.from) {
@@ -10896,15 +11007,17 @@ function readDOMChange(view, from, to, typeOver, addedNodes) {
   view.lastKeyCode = null;
 
   var change = findDiff(compare.content, parse.doc.content, parse.from, preferredPos, preferredSide);
+  if ((result.ios && view.lastIOSEnter > Date.now() - 225 || result.android) &&
+      addedNodes.some(function (n) { return n.nodeName == "DIV" || n.nodeName == "P"; }) &&
+      (!change || change.endA >= change.endB) &&
+      view.someProp("handleKeyDown", function (f) { return f(view, keyEvent(13, "Enter")); })) {
+    view.lastIOSEnter = 0;
+    return
+  }
   if (!change) {
     if (typeOver && sel instanceof TextSelection && !sel.empty && sel.$head.sameParent(sel.$anchor) &&
         !view.composing && !(parse.sel && parse.sel.anchor != parse.sel.head)) {
       change = {start: sel.from, endA: sel.to, endB: sel.to};
-    } else if ((result.ios && view.lastIOSEnter > Date.now() - 225 || result.android) &&
-               addedNodes.some(function (n) { return n.nodeName == "DIV" || n.nodeName == "P"; }) &&
-               view.someProp("handleKeyDown", function (f) { return f(view, keyEvent(13, "Enter")); })) {
-      view.lastIOSEnter = 0;
-      return
     } else {
       if (parse.sel) {
         var sel$1 = resolveSelection(view, view.state.doc, parse.sel);
@@ -10920,9 +11033,11 @@ function readDOMChange(view, from, to, typeOver, addedNodes) {
   if (view.state.selection.from < view.state.selection.to &&
       change.start == change.endB &&
       view.state.selection instanceof TextSelection) {
-    if (change.start > view.state.selection.from && change.start <= view.state.selection.from + 2) {
+    if (change.start > view.state.selection.from && change.start <= view.state.selection.from + 2 &&
+        view.state.selection.from >= parse.from) {
       change.start = view.state.selection.from;
-    } else if (change.endA < view.state.selection.to && change.endA >= view.state.selection.to - 2) {
+    } else if (change.endA < view.state.selection.to && change.endA >= view.state.selection.to - 2 &&
+               view.state.selection.to <= parse.to) {
       change.endB += (view.state.selection.to - change.endA);
       change.endA = view.state.selection.to;
     }
@@ -11522,7 +11637,7 @@ DOMObserver.prototype.flush = function flush () {
   }
 
   var sel = this.view.root.getSelection();
-  var newSel = !this.suppressingSelectionUpdates && !this.currentSelection.eq(sel) && hasSelection(this.view) && !this.ignoreSelectionChange(sel);
+  var newSel = !this.suppressingSelectionUpdates && !this.currentSelection.eq(sel) && hasFocusAndSelection(this.view) && !this.ignoreSelectionChange(sel);
 
   var from = -1, to = -1, typeOver = false, added = [];
   if (this.view.editable) {
@@ -11552,7 +11667,7 @@ DOMObserver.prototype.flush = function flush () {
       checkCSS(this.view);
     }
     this.handleDOMChange(from, to, typeOver, added);
-    if (this.view.docView.dirty) { this.view.updateState(this.view.state); }
+    if (this.view.docView && this.view.docView.dirty) { this.view.updateState(this.view.state); }
     else if (!this.currentSelection.eq(sel)) { selectionToDOM(this.view); }
     this.currentSelection.set(sel);
   }
@@ -12103,7 +12218,7 @@ function endComposition(view, forceUpdate) {
   if (result.android && view.domObserver.flushingSoon >= 0) { return }
   view.domObserver.forceFlush();
   clearComposition(view);
-  if (forceUpdate || view.docView.dirty) {
+  if (forceUpdate || view.docView && view.docView.dirty) {
     var sel = selectionFromDOM(view);
     if (sel && !sel.eq(view.state.selection)) { view.dispatch(view.state.tr.setSelection(sel)); }
     else { view.updateState(view.state); }
@@ -12861,9 +12976,10 @@ function mapChildren(oldChildren, newLocal, mapping, node, offset, oldOffset, op
   var shift = function (oldStart, oldEnd, newStart, newEnd) {
     for (var i = 0; i < children.length; i += 3) {
       var end = children[i + 1], dSize = (void 0);
-      if (end == -1 || oldStart > end + oldOffset) { continue }
-      if (oldEnd >= children[i] + oldOffset) {
-        children[i + 1] = -1;
+      if (end < 0 || oldStart > end + oldOffset) { continue }
+      var start = children[i] + oldOffset;
+      if (oldEnd >= start) {
+        children[i + 1] = oldStart <= start ? -2 : -1;
       } else if (newStart >= offset && (dSize = (newEnd - newStart) - (oldEnd - oldStart))) {
         children[i] += dSize;
         children[i + 1] += dSize;
@@ -12875,7 +12991,12 @@ function mapChildren(oldChildren, newLocal, mapping, node, offset, oldOffset, op
   // Find the child nodes that still correspond to a single node,
   // recursively call mapInner on them and update their positions.
   var mustRebuild = false;
-  for (var i$1 = 0; i$1 < children.length; i$1 += 3) { if (children[i$1 + 1] == -1) { // Touched nodes
+  for (var i$1 = 0; i$1 < children.length; i$1 += 3) { if (children[i$1 + 1] < 0) { // Touched nodes
+    if (children[i$1 + 1] == -2) {
+      mustRebuild = true;
+      children[i$1 + 1] = -1;
+      continue
+    }
     var from = mapping.map(oldChildren[i$1] + oldOffset), fromLocal = from - offset;
     if (fromLocal < 0 || fromLocal >= node.content.size) {
       mustRebuild = true;
@@ -13109,7 +13230,7 @@ var prototypeAccessors$2 = { props: { configurable: true },root: { configurable:
 
 // composing:: boolean
 // Holds `true` when a
-// [composition](https://developer.mozilla.org/en-US/docs/Mozilla/IME_handling_guide)
+// [composition](https://w3c.github.io/uievents/#events-compositionevents)
 // is active.
 
 // :: DirectEditorProps
@@ -13471,6 +13592,7 @@ function updateCursorWrapper(view) {
     var dom = document.createElement("img");
     dom.className = "ProseMirror-separator";
     dom.setAttribute("mark-placeholder", "true");
+    dom.setAttribute("alt", "");
     view.cursorWrapper = {dom: dom, deco: Decoration.widget(view.state.selection.head, dom, {raw: true, marks: view.markCursor})};
   } else {
     view.cursorWrapper = null;
@@ -13621,11 +13743,14 @@ GapBookmark.prototype.resolve = function resolve (doc) {
 
 function closedBefore($pos) {
   for (var d = $pos.depth; d >= 0; d--) {
-    var index = $pos.index(d);
+    var index = $pos.index(d), parent = $pos.node(d);
     // At the start of this parent, look at next one
-    if (index == 0) { continue }
+    if (index == 0) {
+      if (parent.type.spec.isolating) { return true }
+      continue
+    }
     // See if the node before (or its first ancestor) is closed
-    for (var before = $pos.node(d).child(index - 1);; before = before.lastChild) {
+    for (var before = parent.child(index - 1);; before = before.lastChild) {
       if ((before.childCount == 0 && !before.inlineContent) || before.isAtom || before.type.spec.isolating) { return true }
       if (before.inlineContent) { return false }
     }
@@ -13637,7 +13762,10 @@ function closedBefore($pos) {
 function closedAfter($pos) {
   for (var d = $pos.depth; d >= 0; d--) {
     var index = $pos.indexAfter(d), parent = $pos.node(d);
-    if (index == parent.childCount) { continue }
+    if (index == parent.childCount) {
+      if (parent.type.spec.isolating) { return true }
+      continue
+    }
     for (var after = parent.child(index);; after = after.firstChild) {
       if ((after.childCount == 0 && !after.inlineContent) || after.isAtom || after.type.spec.isolating) { return true }
       if (after.inlineContent) { return false }
@@ -13664,7 +13792,8 @@ var gapCursor = function() {
       },
 
       handleClick: handleClick,
-      handleKeyDown: handleKeyDown
+      handleKeyDown: handleKeyDown,
+      handleDOMEvents: {beforeinput: beforeinput}
     }
   })
 };
@@ -13702,6 +13831,26 @@ function handleClick(view, pos, event) {
   if (inside > -1 && NodeSelection.isSelectable(view.state.doc.nodeAt(inside))) { return false }
   view.dispatch(view.state.tr.setSelection(new GapCursor($pos)));
   return true
+}
+
+// This is a hack that, when a composition starts while a gap cursor
+// is active, quickly creates an inline context for the composition to
+// happen in, to avoid it being aborted by the DOM selection being
+// moved into a valid position.
+function beforeinput(view, event) {
+  if (event.inputType != "insertCompositionText" || !(view.state.selection instanceof GapCursor)) { return false }
+
+  var ref = view.state.selection;
+  var $from = ref.$from;
+  var insert = $from.parent.contentMatchAt($from.index()).findWrapping(view.state.schema.nodes.text);
+  if (!insert) { return false }
+
+  var frag = Fragment.empty;
+  for (var i = insert.length - 1; i >= 0; i--) { frag = Fragment.from(insert[i].createAndFill(null, frag)); }
+  var tr = view.state.tr.replace($from.pos, $from.pos, new Slice(frag, 0, 0));
+  tr.setSelection(TextSelection.near(tr.doc.resolve($from.pos + 1)));
+  view.dispatch(tr);
+  return false
 }
 
 function drawGapCursor(state) {
@@ -14503,15 +14652,24 @@ function splitListItem(itemType) {
       if ($from.depth == 2 || $from.node(-3).type != itemType ||
           $from.index(-2) != $from.node(-2).childCount - 1) { return false }
       if (dispatch) {
-        var wrap = Fragment.empty, keepItem = $from.index(-1) > 0;
+        var wrap = Fragment.empty;
+        var depthBefore = $from.index(-1) ? 1 : $from.index(-2) ? 2 : 3;
         // Build a fragment containing empty versions of the structure
         // from the outer list item to the parent node of the cursor
-        for (var d = $from.depth - (keepItem ? 1 : 2); d >= $from.depth - 3; d--)
+        for (var d = $from.depth - depthBefore; d >= $from.depth - 3; d--)
           { wrap = Fragment.from($from.node(d).copy(wrap)); }
+        var depthAfter = $from.indexAfter(-1) < $from.node(-2).childCount ? 1
+            : $from.indexAfter(-2) < $from.node(-3).childCount ? 2 : 3;
         // Add a second list item with an empty default start node
         wrap = wrap.append(Fragment.from(itemType.createAndFill()));
-        var tr$1 = state.tr.replace($from.before(keepItem ? null : -1), $from.after(-3), new Slice(wrap, keepItem ? 3 : 2, 2));
-        tr$1.setSelection(state.selection.constructor.near(tr$1.doc.resolve($from.pos + (keepItem ? 3 : 2))));
+        var start = $from.before($from.depth - (depthBefore - 1));
+        var tr$1 = state.tr.replace(start, $from.after(-depthAfter), new Slice(wrap, 4 - depthBefore, 0));
+        var sel = -1;
+        tr$1.doc.nodesBetween(start, tr$1.doc.content.size, function (node, pos) {
+          if (sel > -1) { return false }
+          if (node.isTextblock && node.content.size == 0) { sel = pos + 1; }
+        });
+        if (sel > -1) { tr$1.setSelection(state.selection.constructor.near(tr$1.doc.resolve(sel))); }
         dispatch(tr$1.scrollIntoView());
       }
       return true
@@ -14564,6 +14722,7 @@ function liftOutOfList(state, dispatch, range) {
     tr.delete(pos - 1, pos + 1);
   }
   var $start = tr.doc.resolve(range.start), item = $start.nodeAfter;
+  if (tr.mapping.map(range.end) != range.start + $start.nodeAfter.nodeSize) { return false }
   var atStart = range.startIndex == 0, atEnd = range.endIndex == list.childCount;
   var parent = $start.node(-1), indexBefore = $start.index(-1);
   if (!parent.canReplace(indexBefore + (atStart ? 0 : 1), indexBefore + 1,
@@ -15386,9 +15545,19 @@ var exampleSetup$1 = /*#__PURE__*/Object.freeze({
   exampleSetup: exampleSetup
 });
 
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
 function getAugmentedNamespace(n) {
-	if (n.__esModule) return n;
-	var a = Object.defineProperty({}, '__esModule', {value: true});
+  var f = n.default;
+	if (typeof f == "function") {
+		var a = function () {
+			return f.apply(this, arguments);
+		};
+		a.prototype = f.prototype;
+  } else a = {};
+  Object.defineProperty(a, '__esModule', {value: true});
 	Object.keys(n).forEach(function (k) {
 		var d = Object.getOwnPropertyDescriptor(n, k);
 		Object.defineProperty(a, k, d.get ? d : {
@@ -15401,7 +15570,11 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
+var markdownIt = {exports: {}};
+
 var utils$1 = {};
+
+var entities$1 = {exports: {}};
 
 var Aacute = "Á";
 var aacute = "á";
@@ -19654,8 +19827,11 @@ var require$$0 = {
 	zwnj: zwnj
 };
 
-/*eslint quotes:0*/
-var entities$1 = require$$0;
+(function (module) {
+
+	/*eslint quotes:0*/
+	module.exports = require$$0;
+} (entities$1));
 
 var regex$4=/[!-#%-\*,-\/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4E\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD803[\uDF55-\uDF59]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC8\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDF3C-\uDF3E]|\uD806[\uDC3B\uDE3F-\uDE46\uDE9A-\uDE9C\uDE9E-\uDEA2]|\uD807[\uDC41-\uDC45\uDC70\uDC71\uDEF7\uDEF8]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD81B[\uDE97-\uDE9A]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F]/;
 
@@ -20194,336 +20370,376 @@ mdurl$1.parse  = parse;
 
 var uc_micro = {};
 
-var regex$3=/[\0-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+var regex$3;
+var hasRequiredRegex$3;
 
-var regex$2=/[\0-\x1F\x7F-\x9F]/;
+function requireRegex$3 () {
+	if (hasRequiredRegex$3) { return regex$3; }
+	hasRequiredRegex$3 = 1;
+	regex$3=/[\0-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+	return regex$3;
+}
 
-var regex$1=/[\xAD\u0600-\u0605\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F]/;
+var regex$2;
+var hasRequiredRegex$2;
 
-var regex=/[ \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/;
+function requireRegex$2 () {
+	if (hasRequiredRegex$2) { return regex$2; }
+	hasRequiredRegex$2 = 1;
+	regex$2=/[\0-\x1F\x7F-\x9F]/;
+	return regex$2;
+}
 
-uc_micro.Any = regex$3;
-uc_micro.Cc  = regex$2;
-uc_micro.Cf  = regex$1;
-uc_micro.P   = regex$4;
-uc_micro.Z   = regex;
+var regex$1;
+var hasRequiredRegex$1;
+
+function requireRegex$1 () {
+	if (hasRequiredRegex$1) { return regex$1; }
+	hasRequiredRegex$1 = 1;
+	regex$1=/[\xAD\u0600-\u0605\u061C\u06DD\u070F\u08E2\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\uFFF9-\uFFFB]|\uD804[\uDCBD\uDCCD]|\uD82F[\uDCA0-\uDCA3]|\uD834[\uDD73-\uDD7A]|\uDB40[\uDC01\uDC20-\uDC7F]/;
+	return regex$1;
+}
+
+var regex;
+var hasRequiredRegex;
+
+function requireRegex () {
+	if (hasRequiredRegex) { return regex; }
+	hasRequiredRegex = 1;
+	regex=/[ \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/;
+	return regex;
+}
+
+var hasRequiredUc_micro;
+
+function requireUc_micro () {
+	if (hasRequiredUc_micro) { return uc_micro; }
+	hasRequiredUc_micro = 1;
+
+	uc_micro.Any = requireRegex$3();
+	uc_micro.Cc  = requireRegex$2();
+	uc_micro.Cf  = requireRegex$1();
+	uc_micro.P   = regex$4;
+	uc_micro.Z   = requireRegex();
+	return uc_micro;
+}
 
 (function (exports) {
 
 
-function _class(obj) { return Object.prototype.toString.call(obj); }
+	function _class(obj) { return Object.prototype.toString.call(obj); }
 
-function isString(obj) { return _class(obj) === '[object String]'; }
+	function isString(obj) { return _class(obj) === '[object String]'; }
 
-var _hasOwnProperty = Object.prototype.hasOwnProperty;
+	var _hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function has(object, key) {
-  return _hasOwnProperty.call(object, key);
-}
+	function has(object, key) {
+	  return _hasOwnProperty.call(object, key);
+	}
 
-// Merge objects
-//
-function assign(obj /*from1, from2, from3, ...*/) {
-  var sources = Array.prototype.slice.call(arguments, 1);
+	// Merge objects
+	//
+	function assign(obj /*from1, from2, from3, ...*/) {
+	  var sources = Array.prototype.slice.call(arguments, 1);
 
-  sources.forEach(function (source) {
-    if (!source) { return; }
+	  sources.forEach(function (source) {
+	    if (!source) { return; }
 
-    if (typeof source !== 'object') {
-      throw new TypeError(source + 'must be object');
-    }
+	    if (typeof source !== 'object') {
+	      throw new TypeError(source + 'must be object');
+	    }
 
-    Object.keys(source).forEach(function (key) {
-      obj[key] = source[key];
-    });
-  });
+	    Object.keys(source).forEach(function (key) {
+	      obj[key] = source[key];
+	    });
+	  });
 
-  return obj;
-}
+	  return obj;
+	}
 
-// Remove element from array and put another array at those position.
-// Useful for some operations with tokens
-function arrayReplaceAt(src, pos, newElements) {
-  return [].concat(src.slice(0, pos), newElements, src.slice(pos + 1));
-}
+	// Remove element from array and put another array at those position.
+	// Useful for some operations with tokens
+	function arrayReplaceAt(src, pos, newElements) {
+	  return [].concat(src.slice(0, pos), newElements, src.slice(pos + 1));
+	}
 
-////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////
 
-function isValidEntityCode(c) {
-  /*eslint no-bitwise:0*/
-  // broken sequence
-  if (c >= 0xD800 && c <= 0xDFFF) { return false; }
-  // never used
-  if (c >= 0xFDD0 && c <= 0xFDEF) { return false; }
-  if ((c & 0xFFFF) === 0xFFFF || (c & 0xFFFF) === 0xFFFE) { return false; }
-  // control codes
-  if (c >= 0x00 && c <= 0x08) { return false; }
-  if (c === 0x0B) { return false; }
-  if (c >= 0x0E && c <= 0x1F) { return false; }
-  if (c >= 0x7F && c <= 0x9F) { return false; }
-  // out of range
-  if (c > 0x10FFFF) { return false; }
-  return true;
-}
+	function isValidEntityCode(c) {
+	  /*eslint no-bitwise:0*/
+	  // broken sequence
+	  if (c >= 0xD800 && c <= 0xDFFF) { return false; }
+	  // never used
+	  if (c >= 0xFDD0 && c <= 0xFDEF) { return false; }
+	  if ((c & 0xFFFF) === 0xFFFF || (c & 0xFFFF) === 0xFFFE) { return false; }
+	  // control codes
+	  if (c >= 0x00 && c <= 0x08) { return false; }
+	  if (c === 0x0B) { return false; }
+	  if (c >= 0x0E && c <= 0x1F) { return false; }
+	  if (c >= 0x7F && c <= 0x9F) { return false; }
+	  // out of range
+	  if (c > 0x10FFFF) { return false; }
+	  return true;
+	}
 
-function fromCodePoint(c) {
-  /*eslint no-bitwise:0*/
-  if (c > 0xffff) {
-    c -= 0x10000;
-    var surrogate1 = 0xd800 + (c >> 10),
-        surrogate2 = 0xdc00 + (c & 0x3ff);
+	function fromCodePoint(c) {
+	  /*eslint no-bitwise:0*/
+	  if (c > 0xffff) {
+	    c -= 0x10000;
+	    var surrogate1 = 0xd800 + (c >> 10),
+	        surrogate2 = 0xdc00 + (c & 0x3ff);
 
-    return String.fromCharCode(surrogate1, surrogate2);
-  }
-  return String.fromCharCode(c);
-}
-
-
-var UNESCAPE_MD_RE  = /\\([!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~])/g;
-var ENTITY_RE       = /&([a-z#][a-z0-9]{1,31});/gi;
-var UNESCAPE_ALL_RE = new RegExp(UNESCAPE_MD_RE.source + '|' + ENTITY_RE.source, 'gi');
-
-var DIGITAL_ENTITY_TEST_RE = /^#((?:x[a-f0-9]{1,8}|[0-9]{1,8}))/i;
-
-var entities = entities$1;
-
-function replaceEntityPattern(match, name) {
-  var code = 0;
-
-  if (has(entities, name)) {
-    return entities[name];
-  }
-
-  if (name.charCodeAt(0) === 0x23/* # */ && DIGITAL_ENTITY_TEST_RE.test(name)) {
-    code = name[1].toLowerCase() === 'x' ?
-      parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
-
-    if (isValidEntityCode(code)) {
-      return fromCodePoint(code);
-    }
-  }
-
-  return match;
-}
-
-/*function replaceEntities(str) {
-  if (str.indexOf('&') < 0) { return str; }
-
-  return str.replace(ENTITY_RE, replaceEntityPattern);
-}*/
-
-function unescapeMd(str) {
-  if (str.indexOf('\\') < 0) { return str; }
-  return str.replace(UNESCAPE_MD_RE, '$1');
-}
-
-function unescapeAll(str) {
-  if (str.indexOf('\\') < 0 && str.indexOf('&') < 0) { return str; }
-
-  return str.replace(UNESCAPE_ALL_RE, function (match, escaped, entity) {
-    if (escaped) { return escaped; }
-    return replaceEntityPattern(match, entity);
-  });
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-var HTML_ESCAPE_TEST_RE = /[&<>"]/;
-var HTML_ESCAPE_REPLACE_RE = /[&<>"]/g;
-var HTML_REPLACEMENTS = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;'
-};
-
-function replaceUnsafeChar(ch) {
-  return HTML_REPLACEMENTS[ch];
-}
-
-function escapeHtml(str) {
-  if (HTML_ESCAPE_TEST_RE.test(str)) {
-    return str.replace(HTML_ESCAPE_REPLACE_RE, replaceUnsafeChar);
-  }
-  return str;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-var REGEXP_ESCAPE_RE = /[.?*+^$[\]\\(){}|-]/g;
-
-function escapeRE(str) {
-  return str.replace(REGEXP_ESCAPE_RE, '\\$&');
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-function isSpace(code) {
-  switch (code) {
-    case 0x09:
-    case 0x20:
-      return true;
-  }
-  return false;
-}
-
-// Zs (unicode class) || [\t\f\v\r\n]
-function isWhiteSpace(code) {
-  if (code >= 0x2000 && code <= 0x200A) { return true; }
-  switch (code) {
-    case 0x09: // \t
-    case 0x0A: // \n
-    case 0x0B: // \v
-    case 0x0C: // \f
-    case 0x0D: // \r
-    case 0x20:
-    case 0xA0:
-    case 0x1680:
-    case 0x202F:
-    case 0x205F:
-    case 0x3000:
-      return true;
-  }
-  return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-/*eslint-disable max-len*/
-var UNICODE_PUNCT_RE = regex$4;
-
-// Currently without astral characters support.
-function isPunctChar(ch) {
-  return UNICODE_PUNCT_RE.test(ch);
-}
+	    return String.fromCharCode(surrogate1, surrogate2);
+	  }
+	  return String.fromCharCode(c);
+	}
 
 
-// Markdown ASCII punctuation characters.
-//
-// !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, :, ;, <, =, >, ?, @, [, \, ], ^, _, `, {, |, }, or ~
-// http://spec.commonmark.org/0.15/#ascii-punctuation-character
-//
-// Don't confuse with unicode punctuation !!! It lacks some chars in ascii range.
-//
-function isMdAsciiPunct(ch) {
-  switch (ch) {
-    case 0x21/* ! */:
-    case 0x22/* " */:
-    case 0x23/* # */:
-    case 0x24/* $ */:
-    case 0x25/* % */:
-    case 0x26/* & */:
-    case 0x27/* ' */:
-    case 0x28/* ( */:
-    case 0x29/* ) */:
-    case 0x2A/* * */:
-    case 0x2B/* + */:
-    case 0x2C/* , */:
-    case 0x2D/* - */:
-    case 0x2E/* . */:
-    case 0x2F/* / */:
-    case 0x3A/* : */:
-    case 0x3B/* ; */:
-    case 0x3C/* < */:
-    case 0x3D/* = */:
-    case 0x3E/* > */:
-    case 0x3F/* ? */:
-    case 0x40/* @ */:
-    case 0x5B/* [ */:
-    case 0x5C/* \ */:
-    case 0x5D/* ] */:
-    case 0x5E/* ^ */:
-    case 0x5F/* _ */:
-    case 0x60/* ` */:
-    case 0x7B/* { */:
-    case 0x7C/* | */:
-    case 0x7D/* } */:
-    case 0x7E/* ~ */:
-      return true;
-    default:
-      return false;
-  }
-}
+	var UNESCAPE_MD_RE  = /\\([!"#$%&'()*+,\-.\/:;<=>?@[\\\]^_`{|}~])/g;
+	var ENTITY_RE       = /&([a-z#][a-z0-9]{1,31});/gi;
+	var UNESCAPE_ALL_RE = new RegExp(UNESCAPE_MD_RE.source + '|' + ENTITY_RE.source, 'gi');
 
-// Hepler to unify [reference labels].
-//
-function normalizeReference(str) {
-  // Trim and collapse whitespace
-  //
-  str = str.trim().replace(/\s+/g, ' ');
+	var DIGITAL_ENTITY_TEST_RE = /^#((?:x[a-f0-9]{1,8}|[0-9]{1,8}))/i;
 
-  // In node v10 'ẞ'.toLowerCase() === 'Ṿ', which is presumed to be a bug
-  // fixed in v12 (couldn't find any details).
-  //
-  // So treat this one as a special case
-  // (remove this when node v10 is no longer supported).
-  //
-  if ('ẞ'.toLowerCase() === 'Ṿ') {
-    str = str.replace(/ẞ/g, 'ß');
-  }
+	var entities = entities$1.exports;
 
-  // .toLowerCase().toUpperCase() should get rid of all differences
-  // between letter variants.
-  //
-  // Simple .toLowerCase() doesn't normalize 125 code points correctly,
-  // and .toUpperCase doesn't normalize 6 of them (list of exceptions:
-  // İ, ϴ, ẞ, Ω, K, Å - those are already uppercased, but have differently
-  // uppercased versions).
-  //
-  // Here's an example showing how it happens. Lets take greek letter omega:
-  // uppercase U+0398 (Θ), U+03f4 (ϴ) and lowercase U+03b8 (θ), U+03d1 (ϑ)
-  //
-  // Unicode entries:
-  // 0398;GREEK CAPITAL LETTER THETA;Lu;0;L;;;;;N;;;;03B8;
-  // 03B8;GREEK SMALL LETTER THETA;Ll;0;L;;;;;N;;;0398;;0398
-  // 03D1;GREEK THETA SYMBOL;Ll;0;L;<compat> 03B8;;;;N;GREEK SMALL LETTER SCRIPT THETA;;0398;;0398
-  // 03F4;GREEK CAPITAL THETA SYMBOL;Lu;0;L;<compat> 0398;;;;N;;;;03B8;
-  //
-  // Case-insensitive comparison should treat all of them as equivalent.
-  //
-  // But .toLowerCase() doesn't change ϑ (it's already lowercase),
-  // and .toUpperCase() doesn't change ϴ (already uppercase).
-  //
-  // Applying first lower then upper case normalizes any character:
-  // '\u0398\u03f4\u03b8\u03d1'.toLowerCase().toUpperCase() === '\u0398\u0398\u0398\u0398'
-  //
-  // Note: this is equivalent to unicode case folding; unicode normalization
-  // is a different step that is not required here.
-  //
-  // Final result should be uppercased, because it's later stored in an object
-  // (this avoid a conflict with Object.prototype members,
-  // most notably, `__proto__`)
-  //
-  return str.toLowerCase().toUpperCase();
-}
+	function replaceEntityPattern(match, name) {
+	  var code = 0;
 
-////////////////////////////////////////////////////////////////////////////////
+	  if (has(entities, name)) {
+	    return entities[name];
+	  }
 
-// Re-export libraries commonly used in both markdown-it and its plugins,
-// so plugins won't have to depend on them explicitly, which reduces their
-// bundled size (e.g. a browser build).
-//
-exports.lib                 = {};
-exports.lib.mdurl           = mdurl$1;
-exports.lib.ucmicro         = uc_micro;
+	  if (name.charCodeAt(0) === 0x23/* # */ && DIGITAL_ENTITY_TEST_RE.test(name)) {
+	    code = name[1].toLowerCase() === 'x' ?
+	      parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
 
-exports.assign              = assign;
-exports.isString            = isString;
-exports.has                 = has;
-exports.unescapeMd          = unescapeMd;
-exports.unescapeAll         = unescapeAll;
-exports.isValidEntityCode   = isValidEntityCode;
-exports.fromCodePoint       = fromCodePoint;
-// exports.replaceEntities     = replaceEntities;
-exports.escapeHtml          = escapeHtml;
-exports.arrayReplaceAt      = arrayReplaceAt;
-exports.isSpace             = isSpace;
-exports.isWhiteSpace        = isWhiteSpace;
-exports.isMdAsciiPunct      = isMdAsciiPunct;
-exports.isPunctChar         = isPunctChar;
-exports.escapeRE            = escapeRE;
-exports.normalizeReference  = normalizeReference;
-}(utils$1));
+	    if (isValidEntityCode(code)) {
+	      return fromCodePoint(code);
+	    }
+	  }
+
+	  return match;
+	}
+
+	/*function replaceEntities(str) {
+	  if (str.indexOf('&') < 0) { return str; }
+
+	  return str.replace(ENTITY_RE, replaceEntityPattern);
+	}*/
+
+	function unescapeMd(str) {
+	  if (str.indexOf('\\') < 0) { return str; }
+	  return str.replace(UNESCAPE_MD_RE, '$1');
+	}
+
+	function unescapeAll(str) {
+	  if (str.indexOf('\\') < 0 && str.indexOf('&') < 0) { return str; }
+
+	  return str.replace(UNESCAPE_ALL_RE, function (match, escaped, entity) {
+	    if (escaped) { return escaped; }
+	    return replaceEntityPattern(match, entity);
+	  });
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	var HTML_ESCAPE_TEST_RE = /[&<>"]/;
+	var HTML_ESCAPE_REPLACE_RE = /[&<>"]/g;
+	var HTML_REPLACEMENTS = {
+	  '&': '&amp;',
+	  '<': '&lt;',
+	  '>': '&gt;',
+	  '"': '&quot;'
+	};
+
+	function replaceUnsafeChar(ch) {
+	  return HTML_REPLACEMENTS[ch];
+	}
+
+	function escapeHtml(str) {
+	  if (HTML_ESCAPE_TEST_RE.test(str)) {
+	    return str.replace(HTML_ESCAPE_REPLACE_RE, replaceUnsafeChar);
+	  }
+	  return str;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	var REGEXP_ESCAPE_RE = /[.?*+^$[\]\\(){}|-]/g;
+
+	function escapeRE(str) {
+	  return str.replace(REGEXP_ESCAPE_RE, '\\$&');
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	function isSpace(code) {
+	  switch (code) {
+	    case 0x09:
+	    case 0x20:
+	      return true;
+	  }
+	  return false;
+	}
+
+	// Zs (unicode class) || [\t\f\v\r\n]
+	function isWhiteSpace(code) {
+	  if (code >= 0x2000 && code <= 0x200A) { return true; }
+	  switch (code) {
+	    case 0x09: // \t
+	    case 0x0A: // \n
+	    case 0x0B: // \v
+	    case 0x0C: // \f
+	    case 0x0D: // \r
+	    case 0x20:
+	    case 0xA0:
+	    case 0x1680:
+	    case 0x202F:
+	    case 0x205F:
+	    case 0x3000:
+	      return true;
+	  }
+	  return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	/*eslint-disable max-len*/
+	var UNICODE_PUNCT_RE = regex$4;
+
+	// Currently without astral characters support.
+	function isPunctChar(ch) {
+	  return UNICODE_PUNCT_RE.test(ch);
+	}
+
+
+	// Markdown ASCII punctuation characters.
+	//
+	// !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, :, ;, <, =, >, ?, @, [, \, ], ^, _, `, {, |, }, or ~
+	// http://spec.commonmark.org/0.15/#ascii-punctuation-character
+	//
+	// Don't confuse with unicode punctuation !!! It lacks some chars in ascii range.
+	//
+	function isMdAsciiPunct(ch) {
+	  switch (ch) {
+	    case 0x21/* ! */:
+	    case 0x22/* " */:
+	    case 0x23/* # */:
+	    case 0x24/* $ */:
+	    case 0x25/* % */:
+	    case 0x26/* & */:
+	    case 0x27/* ' */:
+	    case 0x28/* ( */:
+	    case 0x29/* ) */:
+	    case 0x2A/* * */:
+	    case 0x2B/* + */:
+	    case 0x2C/* , */:
+	    case 0x2D/* - */:
+	    case 0x2E/* . */:
+	    case 0x2F/* / */:
+	    case 0x3A/* : */:
+	    case 0x3B/* ; */:
+	    case 0x3C/* < */:
+	    case 0x3D/* = */:
+	    case 0x3E/* > */:
+	    case 0x3F/* ? */:
+	    case 0x40/* @ */:
+	    case 0x5B/* [ */:
+	    case 0x5C/* \ */:
+	    case 0x5D/* ] */:
+	    case 0x5E/* ^ */:
+	    case 0x5F/* _ */:
+	    case 0x60/* ` */:
+	    case 0x7B/* { */:
+	    case 0x7C/* | */:
+	    case 0x7D/* } */:
+	    case 0x7E/* ~ */:
+	      return true;
+	    default:
+	      return false;
+	  }
+	}
+
+	// Hepler to unify [reference labels].
+	//
+	function normalizeReference(str) {
+	  // Trim and collapse whitespace
+	  //
+	  str = str.trim().replace(/\s+/g, ' ');
+
+	  // In node v10 'ẞ'.toLowerCase() === 'Ṿ', which is presumed to be a bug
+	  // fixed in v12 (couldn't find any details).
+	  //
+	  // So treat this one as a special case
+	  // (remove this when node v10 is no longer supported).
+	  //
+	  if ('ẞ'.toLowerCase() === 'Ṿ') {
+	    str = str.replace(/ẞ/g, 'ß');
+	  }
+
+	  // .toLowerCase().toUpperCase() should get rid of all differences
+	  // between letter variants.
+	  //
+	  // Simple .toLowerCase() doesn't normalize 125 code points correctly,
+	  // and .toUpperCase doesn't normalize 6 of them (list of exceptions:
+	  // İ, ϴ, ẞ, Ω, K, Å - those are already uppercased, but have differently
+	  // uppercased versions).
+	  //
+	  // Here's an example showing how it happens. Lets take greek letter omega:
+	  // uppercase U+0398 (Θ), U+03f4 (ϴ) and lowercase U+03b8 (θ), U+03d1 (ϑ)
+	  //
+	  // Unicode entries:
+	  // 0398;GREEK CAPITAL LETTER THETA;Lu;0;L;;;;;N;;;;03B8;
+	  // 03B8;GREEK SMALL LETTER THETA;Ll;0;L;;;;;N;;;0398;;0398
+	  // 03D1;GREEK THETA SYMBOL;Ll;0;L;<compat> 03B8;;;;N;GREEK SMALL LETTER SCRIPT THETA;;0398;;0398
+	  // 03F4;GREEK CAPITAL THETA SYMBOL;Lu;0;L;<compat> 0398;;;;N;;;;03B8;
+	  //
+	  // Case-insensitive comparison should treat all of them as equivalent.
+	  //
+	  // But .toLowerCase() doesn't change ϑ (it's already lowercase),
+	  // and .toUpperCase() doesn't change ϴ (already uppercase).
+	  //
+	  // Applying first lower then upper case normalizes any character:
+	  // '\u0398\u03f4\u03b8\u03d1'.toLowerCase().toUpperCase() === '\u0398\u0398\u0398\u0398'
+	  //
+	  // Note: this is equivalent to unicode case folding; unicode normalization
+	  // is a different step that is not required here.
+	  //
+	  // Final result should be uppercased, because it's later stored in an object
+	  // (this avoid a conflict with Object.prototype members,
+	  // most notably, `__proto__`)
+	  //
+	  return str.toLowerCase().toUpperCase();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	// Re-export libraries commonly used in both markdown-it and its plugins,
+	// so plugins won't have to depend on them explicitly, which reduces their
+	// bundled size (e.g. a browser build).
+	//
+	exports.lib                 = {};
+	exports.lib.mdurl           = mdurl$1;
+	exports.lib.ucmicro         = requireUc_micro();
+
+	exports.assign              = assign;
+	exports.isString            = isString;
+	exports.has                 = has;
+	exports.unescapeMd          = unescapeMd;
+	exports.unescapeAll         = unescapeAll;
+	exports.isValidEntityCode   = isValidEntityCode;
+	exports.fromCodePoint       = fromCodePoint;
+	// exports.replaceEntities     = replaceEntities;
+	exports.escapeHtml          = escapeHtml;
+	exports.arrayReplaceAt      = arrayReplaceAt;
+	exports.isSpace             = isSpace;
+	exports.isWhiteSpace        = isWhiteSpace;
+	exports.isMdAsciiPunct      = isMdAsciiPunct;
+	exports.isPunctChar         = isPunctChar;
+	exports.escapeRE            = escapeRE;
+	exports.normalizeReference  = normalizeReference;
+} (utils$1));
 
 var helpers$1 = {};
 
@@ -24908,7 +25124,7 @@ var html_inline = function html_inline(state, silent) {
   return true;
 };
 
-var entities          = entities$1;
+var entities          = entities$1.exports;
 var has               = utils$1.has;
 var isValidEntityCode = utils$1.isValidEntityCode;
 var fromCodePoint     = utils$1.fromCodePoint;
@@ -25437,184 +25653,194 @@ ParserInline$1.prototype.State = state_inline;
 
 var parser_inline = ParserInline$1;
 
-var re = function (opts) {
-  var re = {};
+var re;
+var hasRequiredRe;
 
-  // Use direct extract instead of `regenerate` to reduse browserified size
-  re.src_Any = regex$3.source;
-  re.src_Cc  = regex$2.source;
-  re.src_Z   = regex.source;
-  re.src_P   = regex$4.source;
-
-  // \p{\Z\P\Cc\CF} (white spaces + control + format + punctuation)
-  re.src_ZPCc = [ re.src_Z, re.src_P, re.src_Cc ].join('|');
-
-  // \p{\Z\Cc} (white spaces + control)
-  re.src_ZCc = [ re.src_Z, re.src_Cc ].join('|');
-
-  // Experimental. List of chars, completely prohibited in links
-  // because can separate it from other part of text
-  var text_separators = '[><\uff5c]';
-
-  // All possible word characters (everything without punctuation, spaces & controls)
-  // Defined via punctuation & spaces to save space
-  // Should be something like \p{\L\N\S\M} (\w but without `_`)
-  re.src_pseudo_letter       = '(?:(?!' + text_separators + '|' + re.src_ZPCc + ')' + re.src_Any + ')';
-  // The same as abothe but without [0-9]
-  // var src_pseudo_letter_non_d = '(?:(?![0-9]|' + src_ZPCc + ')' + src_Any + ')';
-
-  ////////////////////////////////////////////////////////////////////////////////
-
-  re.src_ip4 =
-
-    '(?:(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
-
-  // Prohibit any of "@/[]()" in user/pass to avoid wrong domain fetch.
-  re.src_auth    = '(?:(?:(?!' + re.src_ZCc + '|[@/\\[\\]()]).)+@)?';
-
-  re.src_port =
-
-    '(?::(?:6(?:[0-4]\\d{3}|5(?:[0-4]\\d{2}|5(?:[0-2]\\d|3[0-5])))|[1-5]?\\d{1,4}))?';
-
-  re.src_host_terminator =
-
-    '(?=$|' + text_separators + '|' + re.src_ZPCc + ')(?!-|_|:\\d|\\.-|\\.(?!$|' + re.src_ZPCc + '))';
-
-  re.src_path =
-
-    '(?:' +
-      '[/?#]' +
-        '(?:' +
-          '(?!' + re.src_ZCc + '|' + text_separators + '|[()[\\]{}.,"\'?!\\-;]).|' +
-          '\\[(?:(?!' + re.src_ZCc + '|\\]).)*\\]|' +
-          '\\((?:(?!' + re.src_ZCc + '|[)]).)*\\)|' +
-          '\\{(?:(?!' + re.src_ZCc + '|[}]).)*\\}|' +
-          '\\"(?:(?!' + re.src_ZCc + '|["]).)+\\"|' +
-          "\\'(?:(?!" + re.src_ZCc + "|[']).)+\\'|" +
-          "\\'(?=" + re.src_pseudo_letter + '|[-]).|' +  // allow `I'm_king` if no pair found
-          '\\.{2,}[a-zA-Z0-9%/&]|' + // google has many dots in "google search" links (#66, #81).
-                                     // github has ... in commit range links,
-                                     // Restrict to
-                                     // - english
-                                     // - percent-encoded
-                                     // - parts of file path
-                                     // - params separator
-                                     // until more examples found.
-          '\\.(?!' + re.src_ZCc + '|[.]).|' +
-          (opts && opts['---'] ?
-            '\\-(?!--(?:[^-]|$))(?:-*)|' // `---` => long dash, terminate
-            :
-            '\\-+|'
-          ) +
-          ',(?!' + re.src_ZCc + ').|' +       // allow `,,,` in paths
-          ';(?!' + re.src_ZCc + ').|' +       // allow `;` if not followed by space-like char
-          '\\!+(?!' + re.src_ZCc + '|[!]).|' +  // allow `!!!` in paths, but not at the end
-          '\\?(?!' + re.src_ZCc + '|[?]).' +
-        ')+' +
-      '|\\/' +
-    ')?';
-
-  // Allow anything in markdown spec, forbid quote (") at the first position
-  // because emails enclosed in quotes are far more common
-  re.src_email_name =
-
-    '[\\-;:&=\\+\\$,\\.a-zA-Z0-9_][\\-;:&=\\+\\$,\\"\\.a-zA-Z0-9_]*';
-
-  re.src_xn =
-
-    'xn--[a-z0-9\\-]{1,59}';
-
-  // More to read about domain names
-  // http://serverfault.com/questions/638260/
-
-  re.src_domain_root =
-
-    // Allow letters & digits (http://test1)
-    '(?:' +
-      re.src_xn +
-      '|' +
-      re.src_pseudo_letter + '{1,63}' +
-    ')';
-
-  re.src_domain =
-
-    '(?:' +
-      re.src_xn +
-      '|' +
-      '(?:' + re.src_pseudo_letter + ')' +
-      '|' +
-      '(?:' + re.src_pseudo_letter + '(?:-|' + re.src_pseudo_letter + '){0,61}' + re.src_pseudo_letter + ')' +
-    ')';
-
-  re.src_host =
-
-    '(?:' +
-    // Don't need IP check, because digits are already allowed in normal domain names
-    //   src_ip4 +
-    // '|' +
-      '(?:(?:(?:' + re.src_domain + ')\\.)*' + re.src_domain/*_root*/ + ')' +
-    ')';
-
-  re.tpl_host_fuzzy =
-
-    '(?:' +
-      re.src_ip4 +
-    '|' +
-      '(?:(?:(?:' + re.src_domain + ')\\.)+(?:%TLDS%))' +
-    ')';
-
-  re.tpl_host_no_ip_fuzzy =
-
-    '(?:(?:(?:' + re.src_domain + ')\\.)+(?:%TLDS%))';
-
-  re.src_host_strict =
-
-    re.src_host + re.src_host_terminator;
-
-  re.tpl_host_fuzzy_strict =
-
-    re.tpl_host_fuzzy + re.src_host_terminator;
-
-  re.src_host_port_strict =
-
-    re.src_host + re.src_port + re.src_host_terminator;
-
-  re.tpl_host_port_fuzzy_strict =
-
-    re.tpl_host_fuzzy + re.src_port + re.src_host_terminator;
-
-  re.tpl_host_port_no_ip_fuzzy_strict =
-
-    re.tpl_host_no_ip_fuzzy + re.src_port + re.src_host_terminator;
+function requireRe () {
+	if (hasRequiredRe) { return re; }
+	hasRequiredRe = 1;
 
 
-  ////////////////////////////////////////////////////////////////////////////////
-  // Main rules
+	re = function (opts) {
+	  var re = {};
 
-  // Rude test fuzzy links by host, for quick deny
-  re.tpl_host_fuzzy_test =
+	  // Use direct extract instead of `regenerate` to reduse browserified size
+	  re.src_Any = requireRegex$3().source;
+	  re.src_Cc  = requireRegex$2().source;
+	  re.src_Z   = requireRegex().source;
+	  re.src_P   = regex$4.source;
 
-    'localhost|www\\.|\\.\\d{1,3}\\.|(?:\\.(?:%TLDS%)(?:' + re.src_ZPCc + '|>|$))';
+	  // \p{\Z\P\Cc\CF} (white spaces + control + format + punctuation)
+	  re.src_ZPCc = [ re.src_Z, re.src_P, re.src_Cc ].join('|');
 
-  re.tpl_email_fuzzy =
+	  // \p{\Z\Cc} (white spaces + control)
+	  re.src_ZCc = [ re.src_Z, re.src_Cc ].join('|');
 
-      '(^|' + text_separators + '|"|\\(|' + re.src_ZCc + ')' +
-      '(' + re.src_email_name + '@' + re.tpl_host_fuzzy_strict + ')';
+	  // Experimental. List of chars, completely prohibited in links
+	  // because can separate it from other part of text
+	  var text_separators = '[><\uff5c]';
 
-  re.tpl_link_fuzzy =
-      // Fuzzy link can't be prepended with .:/\- and non punctuation.
-      // but can start with > (markdown blockquote)
-      '(^|(?![.:/\\-_@])(?:[$+<=>^`|\uff5c]|' + re.src_ZPCc + '))' +
-      '((?![$+<=>^`|\uff5c])' + re.tpl_host_port_fuzzy_strict + re.src_path + ')';
+	  // All possible word characters (everything without punctuation, spaces & controls)
+	  // Defined via punctuation & spaces to save space
+	  // Should be something like \p{\L\N\S\M} (\w but without `_`)
+	  re.src_pseudo_letter       = '(?:(?!' + text_separators + '|' + re.src_ZPCc + ')' + re.src_Any + ')';
+	  // The same as abothe but without [0-9]
+	  // var src_pseudo_letter_non_d = '(?:(?![0-9]|' + src_ZPCc + ')' + src_Any + ')';
 
-  re.tpl_link_no_ip_fuzzy =
-      // Fuzzy link can't be prepended with .:/\- and non punctuation.
-      // but can start with > (markdown blockquote)
-      '(^|(?![.:/\\-_@])(?:[$+<=>^`|\uff5c]|' + re.src_ZPCc + '))' +
-      '((?![$+<=>^`|\uff5c])' + re.tpl_host_port_no_ip_fuzzy_strict + re.src_path + ')';
+	  ////////////////////////////////////////////////////////////////////////////////
 
-  return re;
-};
+	  re.src_ip4 =
+
+	    '(?:(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
+
+	  // Prohibit any of "@/[]()" in user/pass to avoid wrong domain fetch.
+	  re.src_auth    = '(?:(?:(?!' + re.src_ZCc + '|[@/\\[\\]()]).)+@)?';
+
+	  re.src_port =
+
+	    '(?::(?:6(?:[0-4]\\d{3}|5(?:[0-4]\\d{2}|5(?:[0-2]\\d|3[0-5])))|[1-5]?\\d{1,4}))?';
+
+	  re.src_host_terminator =
+
+	    '(?=$|' + text_separators + '|' + re.src_ZPCc + ')(?!-|_|:\\d|\\.-|\\.(?!$|' + re.src_ZPCc + '))';
+
+	  re.src_path =
+
+	    '(?:' +
+	      '[/?#]' +
+	        '(?:' +
+	          '(?!' + re.src_ZCc + '|' + text_separators + '|[()[\\]{}.,"\'?!\\-;]).|' +
+	          '\\[(?:(?!' + re.src_ZCc + '|\\]).)*\\]|' +
+	          '\\((?:(?!' + re.src_ZCc + '|[)]).)*\\)|' +
+	          '\\{(?:(?!' + re.src_ZCc + '|[}]).)*\\}|' +
+	          '\\"(?:(?!' + re.src_ZCc + '|["]).)+\\"|' +
+	          "\\'(?:(?!" + re.src_ZCc + "|[']).)+\\'|" +
+	          "\\'(?=" + re.src_pseudo_letter + '|[-]).|' +  // allow `I'm_king` if no pair found
+	          '\\.{2,}[a-zA-Z0-9%/&]|' + // google has many dots in "google search" links (#66, #81).
+	                                     // github has ... in commit range links,
+	                                     // Restrict to
+	                                     // - english
+	                                     // - percent-encoded
+	                                     // - parts of file path
+	                                     // - params separator
+	                                     // until more examples found.
+	          '\\.(?!' + re.src_ZCc + '|[.]).|' +
+	          (opts && opts['---'] ?
+	            '\\-(?!--(?:[^-]|$))(?:-*)|' // `---` => long dash, terminate
+	            :
+	            '\\-+|'
+	          ) +
+	          ',(?!' + re.src_ZCc + ').|' +       // allow `,,,` in paths
+	          ';(?!' + re.src_ZCc + ').|' +       // allow `;` if not followed by space-like char
+	          '\\!+(?!' + re.src_ZCc + '|[!]).|' +  // allow `!!!` in paths, but not at the end
+	          '\\?(?!' + re.src_ZCc + '|[?]).' +
+	        ')+' +
+	      '|\\/' +
+	    ')?';
+
+	  // Allow anything in markdown spec, forbid quote (") at the first position
+	  // because emails enclosed in quotes are far more common
+	  re.src_email_name =
+
+	    '[\\-;:&=\\+\\$,\\.a-zA-Z0-9_][\\-;:&=\\+\\$,\\"\\.a-zA-Z0-9_]*';
+
+	  re.src_xn =
+
+	    'xn--[a-z0-9\\-]{1,59}';
+
+	  // More to read about domain names
+	  // http://serverfault.com/questions/638260/
+
+	  re.src_domain_root =
+
+	    // Allow letters & digits (http://test1)
+	    '(?:' +
+	      re.src_xn +
+	      '|' +
+	      re.src_pseudo_letter + '{1,63}' +
+	    ')';
+
+	  re.src_domain =
+
+	    '(?:' +
+	      re.src_xn +
+	      '|' +
+	      '(?:' + re.src_pseudo_letter + ')' +
+	      '|' +
+	      '(?:' + re.src_pseudo_letter + '(?:-|' + re.src_pseudo_letter + '){0,61}' + re.src_pseudo_letter + ')' +
+	    ')';
+
+	  re.src_host =
+
+	    '(?:' +
+	    // Don't need IP check, because digits are already allowed in normal domain names
+	    //   src_ip4 +
+	    // '|' +
+	      '(?:(?:(?:' + re.src_domain + ')\\.)*' + re.src_domain/*_root*/ + ')' +
+	    ')';
+
+	  re.tpl_host_fuzzy =
+
+	    '(?:' +
+	      re.src_ip4 +
+	    '|' +
+	      '(?:(?:(?:' + re.src_domain + ')\\.)+(?:%TLDS%))' +
+	    ')';
+
+	  re.tpl_host_no_ip_fuzzy =
+
+	    '(?:(?:(?:' + re.src_domain + ')\\.)+(?:%TLDS%))';
+
+	  re.src_host_strict =
+
+	    re.src_host + re.src_host_terminator;
+
+	  re.tpl_host_fuzzy_strict =
+
+	    re.tpl_host_fuzzy + re.src_host_terminator;
+
+	  re.src_host_port_strict =
+
+	    re.src_host + re.src_port + re.src_host_terminator;
+
+	  re.tpl_host_port_fuzzy_strict =
+
+	    re.tpl_host_fuzzy + re.src_port + re.src_host_terminator;
+
+	  re.tpl_host_port_no_ip_fuzzy_strict =
+
+	    re.tpl_host_no_ip_fuzzy + re.src_port + re.src_host_terminator;
+
+
+	  ////////////////////////////////////////////////////////////////////////////////
+	  // Main rules
+
+	  // Rude test fuzzy links by host, for quick deny
+	  re.tpl_host_fuzzy_test =
+
+	    'localhost|www\\.|\\.\\d{1,3}\\.|(?:\\.(?:%TLDS%)(?:' + re.src_ZPCc + '|>|$))';
+
+	  re.tpl_email_fuzzy =
+
+	      '(^|' + text_separators + '|"|\\(|' + re.src_ZCc + ')' +
+	      '(' + re.src_email_name + '@' + re.tpl_host_fuzzy_strict + ')';
+
+	  re.tpl_link_fuzzy =
+	      // Fuzzy link can't be prepended with .:/\- and non punctuation.
+	      // but can start with > (markdown blockquote)
+	      '(^|(?![.:/\\-_@])(?:[$+<=>^`|\uff5c]|' + re.src_ZPCc + '))' +
+	      '((?![$+<=>^`|\uff5c])' + re.tpl_host_port_fuzzy_strict + re.src_path + ')';
+
+	  re.tpl_link_no_ip_fuzzy =
+	      // Fuzzy link can't be prepended with .:/\- and non punctuation.
+	      // but can start with > (markdown blockquote)
+	      '(^|(?![.:/\\-_@])(?:[$+<=>^`|\uff5c]|' + re.src_ZPCc + '))' +
+	      '((?![$+<=>^`|\uff5c])' + re.tpl_host_port_no_ip_fuzzy_strict + re.src_path + ')';
+
+	  return re;
+	};
+	return re;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers
@@ -25765,7 +25991,7 @@ function createNormalizer() {
 function compile(self) {
 
   // Load & clone RE patterns.
-  var re$1 = self.re = re(self.__opts__);
+  var re = self.re = requireRe()(self.__opts__);
 
   // Define dynamic patterns
   var tlds = self.__tlds__.slice();
@@ -25775,16 +26001,16 @@ function compile(self) {
   if (!self.__tlds_replaced__) {
     tlds.push(tlds_2ch_src_re);
   }
-  tlds.push(re$1.src_xn);
+  tlds.push(re.src_xn);
 
-  re$1.src_tlds = tlds.join('|');
+  re.src_tlds = tlds.join('|');
 
-  function untpl(tpl) { return tpl.replace('%TLDS%', re$1.src_tlds); }
+  function untpl(tpl) { return tpl.replace('%TLDS%', re.src_tlds); }
 
-  re$1.email_fuzzy      = RegExp(untpl(re$1.tpl_email_fuzzy), 'i');
-  re$1.link_fuzzy       = RegExp(untpl(re$1.tpl_link_fuzzy), 'i');
-  re$1.link_no_ip_fuzzy = RegExp(untpl(re$1.tpl_link_no_ip_fuzzy), 'i');
-  re$1.host_fuzzy_test  = RegExp(untpl(re$1.tpl_host_fuzzy_test), 'i');
+  re.email_fuzzy      = RegExp(untpl(re.tpl_email_fuzzy), 'i');
+  re.link_fuzzy       = RegExp(untpl(re.tpl_link_fuzzy), 'i');
+  re.link_no_ip_fuzzy = RegExp(untpl(re.tpl_link_no_ip_fuzzy), 'i');
+  re.host_fuzzy_test  = RegExp(untpl(re.tpl_host_fuzzy_test), 'i');
 
   //
   // Compile each schema
@@ -25869,8 +26095,8 @@ function compile(self) {
                       .map(escapeRE)
                       .join('|');
   // (?!_) cause 1.5x slowdown
-  self.re.schema_test   = RegExp('(^|(?!_)(?:[><\uff5c]|' + re$1.src_ZPCc + '))(' + slist + ')', 'i');
-  self.re.schema_search = RegExp('(^|(?!_)(?:[><\uff5c]|' + re$1.src_ZPCc + '))(' + slist + ')', 'ig');
+  self.re.schema_test   = RegExp('(^|(?!_)(?:[><\uff5c]|' + re.src_ZPCc + '))(' + slist + ')', 'i');
+  self.re.schema_search = RegExp('(^|(?!_)(?:[><\uff5c]|' + re.src_ZPCc + '))(' + slist + ')', 'ig');
 
   self.re.pretest = RegExp(
     '(' + self.re.schema_test.source + ')|(' + self.re.host_fuzzy_test.source + ')|@',
@@ -27454,7 +27680,13 @@ MarkdownIt.prototype.renderInline = function (src, env) {
 
 var lib = MarkdownIt;
 
-var markdownIt = lib;
+(function (module) {
+
+
+	module.exports = lib;
+} (markdownIt));
+
+var markdownit = /*@__PURE__*/getDefaultExportFromCjs(markdownIt.exports);
 
 // ::Schema Document schema for the data model used by CommonMark.
 var schema$1 = new Schema$1({
@@ -27786,7 +28018,7 @@ function listIsTight(tokens, i) {
 // :: MarkdownParser
 // A parser parsing unextended [CommonMark](http://commonmark.org/),
 // without inline HTML, and producing a document in the basic schema.
-var defaultMarkdownParser = new MarkdownParser(schema$1, markdownIt("commonmark", {html: false}), {
+var defaultMarkdownParser = new MarkdownParser(schema$1, markdownit("commonmark", {html: false}), {
   blockquote: {block: "blockquote"},
   paragraph: {block: "paragraph"},
   list_item: {block: "list_item"},
@@ -27817,18 +28049,20 @@ var defaultMarkdownParser = new MarkdownParser(schema$1, markdownIt("commonmark"
 
 // ::- A specification for serializing a ProseMirror document as
 // Markdown/CommonMark text.
-var MarkdownSerializer = function MarkdownSerializer(nodes, marks) {
+var MarkdownSerializer = function MarkdownSerializer(nodes, marks, options) {
   // :: Object<(MarkdownSerializerState, Node)> The node serializer
   // functions for this serializer.
   this.nodes = nodes;
   // :: Object The mark serializer info.
   this.marks = marks;
+  this.options = options || {};
 };
 
 // :: (Node, ?Object) → string
 // Serialize the content of the given node to
 // [CommonMark](http://commonmark.org/).
 MarkdownSerializer.prototype.serialize = function serialize (content, options) {
+  options = Object.assign(this.options, options);
   var state = new MarkdownSerializerState(this.nodes, this.marks, options);
   state.renderContent(content);
   return state.out
@@ -28155,8 +28389,12 @@ MarkdownSerializerState.prototype.renderList = function renderList (node, delim,
 // content. If `startOfLine` is true, also escape characters that
 // have special meaning only at the start of the line.
 MarkdownSerializerState.prototype.esc = function esc (str, startOfLine) {
-  str = str.replace(/[`*\\~\[\]_]/g, "\\$&");
+  str = str.replace(
+    /[`*\\~\[\]_]/g, 
+    function (m, i) { return m == "_" && i > 0 && i + 1 < str.length && str[i-1].match(/\w/) && str[i+1].match(/\w/) ?m : "\\" + m; }
+  );
   if (startOfLine) { str = str.replace(/^[:#\-*+>]/, "\\$&").replace(/^(\s*\d+)\./, "$1\\."); }
+  if (this.options.escapeExtraCharacters) { str = str.replace(this.options.escapeExtraCharacters, "\\$&"); }
   return str
 };
 

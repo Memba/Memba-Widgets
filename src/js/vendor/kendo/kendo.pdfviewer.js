@@ -1,29 +1,29 @@
-/** 
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function(f, define){
-    define('pdfviewer/pdfjs',["../kendo.core"], f);
+    define('pdfviewer/pdfjs',["kendo.core"], f);
 })(function(){
 
 (function ($, undefined) {
@@ -217,7 +217,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('pdfviewer/processors/dpl-processor',["../../kendo.core"], f);
+    define('pdfviewer/processors/dpl-processor',["kendo.core"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -331,7 +331,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('pdfviewer/pager',["../kendo.core"], f);
+    define('pdfviewer/pager',["kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
@@ -594,7 +594,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-  define('pdfviewer/toolbar',["../kendo.toolbar", "../kendo.combobox", "./pager"], f);
+  define('pdfviewer/toolbar',["kendo.toolbar", "kendo.combobox", "./pager"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1130,7 +1130,7 @@ return window.kendo;
 return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('pdfviewer/page',["../kendo.drawing"], f);
+    define('pdfviewer/page',["kendo.drawing"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1452,7 +1452,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('pdfviewer/search',["../kendo.core"], f);
+    define('pdfviewer/search',["kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1670,7 +1670,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-  define('pdfviewer/dialogs',["../kendo.dialog", "../kendo.window", "../kendo.binder", "../kendo.numerictextbox", "../kendo.dropdownlist"], f);
+  define('pdfviewer/dialogs',["kendo.dialog", "kendo.window", "kendo.binder", "kendo.numerictextbox", "kendo.dropdownlist"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1897,7 +1897,7 @@ return window.kendo;
 return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-  define('pdfviewer/commands',["../kendo.upload"], f);
+  define('pdfviewer/commands',["kendo.upload"], f);
 })(function(){
 
 (function($, undefined) {
@@ -2472,7 +2472,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
     define('kendo.pdfviewer',[
-        "./kendo.mobile.scroller",
+        "kendo.mobile.scroller",
         "./pdfviewer/processors/pdfjs-processor",
         "./pdfviewer/processors/dpl-processor",
         "./pdfviewer/toolbar",

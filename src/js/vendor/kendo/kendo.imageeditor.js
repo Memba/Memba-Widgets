@@ -1,29 +1,29 @@
-/** 
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function(f, define){
-    define('imageeditor/toolbar',["../kendo.toolbar", "../kendo.dropdownlist"], f);
+    define('imageeditor/toolbar',["kendo.toolbar", "kendo.dropdownlist"], f);
 })(function(){
 
 (function($, undefined) {
@@ -239,7 +239,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function (f, define) {
-    define('imageeditor/pane',["../kendo.core", "../kendo.form", "../kendo.buttongroup", "../kendo.draganddrop"], f);
+    define('imageeditor/pane',["kendo.core", "kendo.form", "kendo.buttongroup", "kendo.draganddrop"], f);
 })(function () {
 
     (function ($, undefined) {
@@ -860,7 +860,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
 (function (f, define) {
-    define('imageeditor/commands',["./pane", "../kendo.upload"], f);
+    define('imageeditor/commands',["./pane", "kendo.upload"], f);
 })(function () {
 
     (function ($, undefined) {

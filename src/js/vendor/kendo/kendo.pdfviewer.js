@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('pdfviewer/pdfjs',["kendo.core"], f);
+    define('pdfviewer/pdfjs',["../kendo.core"], f);
 })(function(){
 
 (function ($, undefined) {
@@ -217,7 +217,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('pdfviewer/processors/dpl-processor',["kendo.core"], f);
+    define('pdfviewer/processors/dpl-processor',["../../kendo.core"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -331,7 +331,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('pdfviewer/pager',["kendo.core"], f);
+    define('pdfviewer/pager',["../kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
@@ -342,7 +342,6 @@ return window.kendo;
         CLICK = kendo.support.click,
         SHRINKWIDTH = 480,
         kendoAttr = kendo.attr,
-        proxy = $.proxy,
         extend = $.extend,
         DOT = ".",
         ARIA_DISABLED = "aria-disabled";
@@ -447,7 +446,7 @@ return window.kendo;
         _attachEvents: function () {
             var that = this;
 
-            that.element.on(CLICK + NS, DOT + pagerStyles.nav, proxy(that._click, that));
+            that.element.on(CLICK + NS, DOT + pagerStyles.nav, that._click.bind(that));
             that.element.on(KEYDOWN + NS, DOT + pagerStyles.nav, function (e) {
                 if (e.keyCode === kendo.keys.ENTER)
                 {
@@ -457,7 +456,7 @@ return window.kendo;
             });
 
             if (that.input) {
-                that.input.on(KEYDOWN + NS, proxy(that._keydown, that));
+                that.input.on(KEYDOWN + NS, that._keydown.bind(that));
             }
         },
 
@@ -528,7 +527,7 @@ return window.kendo;
                 if (prevTotal != options.total) {
                     that._renderInput();
                     that.input
-                            .on(KEYDOWN + NS, proxy(that._keydown, that));
+                            .on(KEYDOWN + NS, that._keydown.bind(that));
                 }
                 else {
                     that.input.val(options.total > 0 ? options.page : 1);
@@ -595,13 +594,12 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-  define('pdfviewer/toolbar',["kendo.toolbar", "kendo.combobox", "./pager"], f);
+  define('pdfviewer/toolbar',["../kendo.toolbar", "../kendo.combobox", "./pager"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
-        proxy = $.proxy,
         ACTION = "action",
         KEYDOWN = "keydown",
         CLICK = kendo.support.click,
@@ -727,11 +725,11 @@ return window.kendo;
             this.toolbar = toolbar;
 
             this.toolbar.pager = new kendo.pdfviewer.Pager(pagerElement, extend({}, options, {
-                change: proxy(this._change, this)
+                change: this._change.bind(this)
             }));
 
             this.element = pagerElement;
-            this.element.on(KEYDOWN, proxy(this._keydown, this));
+            this.element.on(KEYDOWN, this._keydown.bind(this));
 
             this.attributes();
             this.addUidAttr();
@@ -1132,7 +1130,7 @@ return window.kendo;
 return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('pdfviewer/page',["kendo.drawing"], f);
+    define('pdfviewer/page',["../kendo.drawing"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1454,7 +1452,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('pdfviewer/search',["kendo.core"], f);
+    define('pdfviewer/search',["../kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1672,7 +1670,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-  define('pdfviewer/dialogs',["kendo.dialog", "kendo.window", "kendo.binder", "kendo.numerictextbox", "kendo.dropdownlist"], f);
+  define('pdfviewer/dialogs',["../kendo.dialog", "../kendo.window", "../kendo.binder", "../kendo.numerictextbox", "../kendo.dropdownlist"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1899,12 +1897,11 @@ return window.kendo;
 return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-  define('pdfviewer/commands',["kendo.upload"], f);
+  define('pdfviewer/commands',["../kendo.upload"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
-        proxy = $.proxy,
         extend = $.extend,
         parseJSON = JSON.parse,
         progress = kendo.ui.progress,
@@ -1931,10 +1928,10 @@ return window.kendo;
         },
         _initUpload: function () {
             var uploadOptions = {
-                select: proxy(this._onSelect, this),
-                success: proxy(this._onSuccess, this),
-                error: proxy(this._onError, this),
-                complete: proxy(this._onComplete, this),
+                select: this._onSelect.bind(this),
+                success: this._onSuccess.bind(this),
+                error: this._onError.bind(this),
+                complete: this._onComplete.bind(this),
                 showFileList: false,
                 multiple: false,
                 validation: {
@@ -2100,10 +2097,10 @@ return window.kendo;
                         left: that.viewer.pageContainer.offset().left
                     },
                     messages: that.viewer.options.messages.dialogs.search,
-                    open: proxy(that._open, that),
-                    next: proxy(that._next, that),
-                    prev: proxy(that._prev, that),
-                    close: proxy(that._close, that)
+                    open: that._open.bind(that),
+                    next: that._next.bind(that),
+                    prev: that._prev.bind(that),
+                    close: that._close.bind(that)
                 });
             }
 
@@ -2117,9 +2114,9 @@ return window.kendo;
         _open: function () {
             var that = this;
 
-            that.changeHandler = proxy(that._change, that);
-            that.zoomStartHandler = proxy(that._closeDialog, that);
-            that.openFileHandler = proxy(that._closeDialog, that);
+            that.changeHandler = that._change.bind(that);
+            that.zoomStartHandler = that._closeDialog.bind(that);
+            that.openFileHandler = that._closeDialog.bind(that);
 
             if(!that.viewer._searchDOM) {
                 that.viewer._initSearchDOM();
@@ -2368,7 +2365,7 @@ return window.kendo;
 
             progress(that.viewer.pageContainer, true);
             that._renderPrintContainer();
-            that._loadAllPages().then(proxy(that.processAfterRender,that));
+            that._loadAllPages().then(that.processAfterRender.bind(that));
         },
         _renderPrintContainer: function () {
             this.printContainer = $("<div></div>");
@@ -2475,7 +2472,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
     define('kendo.pdfviewer',[
-        "kendo.mobile.scroller",
+        "./kendo.mobile.scroller",
         "./pdfviewer/processors/pdfjs-processor",
         "./pdfviewer/processors/dpl-processor",
         "./pdfviewer/toolbar",
@@ -2498,7 +2495,6 @@ var __meta__ = { // jshint ignore:line
     var NS = ".kendoPDFViewer",
         kendo = window.kendo,
         ui = kendo.ui,
-        proxy = $.proxy,
         extend = $.extend,
         drawing = kendo.drawing,
         keys = $.extend({PLUS: 187, MINUS: 189, ZERO: 48, NUMPAD_ZERO: 96 }, kendo.keys),
@@ -2672,8 +2668,8 @@ var __meta__ = { // jshint ignore:line
                     .width(options.width)
                     .height(options.height)
                     .addClass(styles.viewer)
-                    .on(FOCUS, proxy(that._focus, that))
-                    .on(KEYDOWN, proxy(that._keydown, that));
+                    .on(FOCUS, that._focus.bind(that))
+                    .on(KEYDOWN, that._keydown.bind(that));
 
             that._allowResize = that.options.scale === null;
             that._autoZoomScale = ZOOM_SCALE;
@@ -2924,7 +2920,7 @@ var __meta__ = { // jshint ignore:line
             });
 
             that._scroller.scrollElement.addClass(styles.enablePanning);
-            that._scroller.bind(SCROLL, proxy(that._scroll, this));
+            that._scroller.bind(SCROLL, that._scroll.bind(this));
         },
 
         _scroll: function (e) {

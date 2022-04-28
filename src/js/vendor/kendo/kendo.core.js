@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
         extend = $.extend,
         each = $.each,
         isArray = Array.isArray,
-        proxy = $.proxy,
         noop = $.noop,
         math = Math,
         Template,
@@ -57,6 +56,9 @@ var __meta__ = { // jshint ignore:line
         BOOLEAN = "boolean",
         UNDEFINED = "undefined",
         PREFIX = "prefix",
+        ARIA_LABELLEDBY = "aria-labelledby",
+        ARIA_LABEL = "aria-label",
+        LABELIDPART = "_label",
         getterCache = {},
         setterCache = {},
         slice = [].slice,
@@ -136,7 +138,7 @@ var __meta__ = { // jshint ignore:line
             return target;
         };
 
-    kendo.version = "2022.1.301".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.1.412".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -1785,6 +1787,7 @@ function pad(number, digits, end) {
             element.wrap(
                          $("<div/>")
                          .addClass("k-animation-container")
+                         .attr("role", "region")
                          .css({
                              width: width,
                              height: height
@@ -2766,9 +2769,9 @@ function pad(number, digits, end) {
         Observable: Observable,
         Class: Class,
         Template: Template,
-        template: proxy(Template.compile, Template),
-        render: proxy(Template.render, Template),
-        stringify: proxy(JSON.stringify, JSON),
+        template: Template.compile.bind(Template),
+        render: Template.render.bind(Template),
+        stringify: JSON.stringify.bind(JSON),
         eventTarget: eventTarget,
         htmlEncode: htmlEncode,
         unescape: unescape,
@@ -3049,6 +3052,29 @@ function pad(number, digits, end) {
             el.addClass(classes.join(" "));
         },
 
+        _ariaLabel: function(target) {
+            var that = this,
+                inputElm = that.element,
+                inputId = inputElm.attr("id"),
+                labelElm = $("label[for=\"" + inputId + "\"]"),
+                ariaLabel = inputElm.attr(ARIA_LABEL),
+                ariaLabelledBy = inputElm.attr(ARIA_LABELLEDBY),
+                labelId;
+
+            if (target[0] === inputElm[0]) {
+                return;
+            }
+
+            if (ariaLabel) {
+                target.attr(ARIA_LABEL, ariaLabel);
+            } else if (ariaLabelledBy) {
+                target.attr(ARIA_LABELLEDBY, ariaLabelledBy);
+            } else if (labelElm.length) {
+                labelId = labelElm.attr("id") || that._generateLabelId(labelElm, inputId || kendo.guid());
+                target.attr(ARIA_LABELLEDBY, labelId);
+            }
+        },
+
         _clearCssClasses: function(newOptions, element) {
             var protoOptions = this.__proto__.options, // jshint ignore:line
                 currentOptions = this.options,
@@ -3089,7 +3115,15 @@ function pad(number, digits, end) {
                     }
                 }
             }
-        }
+        },
+
+        _generateLabelId: function(label, inputId){
+            var labelId = inputId + LABELIDPART;
+
+            label.attr("id", labelId);
+
+            return labelId;
+        },
     });
 
     var DataBoundWidget = Widget.extend({
@@ -4605,7 +4639,7 @@ function pad(number, digits, end) {
     };
 
     kendo.cycleForm = function(form) {
-        var firstElement = form.find("input, .k-widget").first();
+        var firstElement = form.find("input, .k-widget, .k-dropdownlist, .k-combobox").first();
         var lastElement = form.find("button, .k-button").last();
 
         function focus(el) {

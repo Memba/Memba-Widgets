@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.dropdownlist',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist", "kendo.html.button" ], f);
+    define('kendo.dropdownlist',[ "./kendo.list", "./kendo.mobile.scroller", "./kendo.virtuallist", "./kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -70,7 +70,6 @@ var __meta__ = { // jshint ignore:line
         STATE_FILTER = "filter",
         STATE_ACCEPT = "accept",
         MSG_INVALID_OPTION_LABEL = "The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel",
-        proxy = $.proxy,
         OPEN = "open",
         CLOSE = "close";
 
@@ -86,9 +85,9 @@ var __meta__ = { // jshint ignore:line
             Select.fn.init.call(that, element, options);
 
             options = that.options;
-            element = that.element.on("focus" + ns, proxy(that._focusHandler, that));
+            element = that.element.on("focus" + ns, that._focusHandler.bind(that));
 
-            that._focusInputHandler = $.proxy(that._focusInput, that);
+            that._focusInputHandler = that._focusInput.bind(that);
 
             that.optionLabel = $();
             that._optionLabel();
@@ -120,7 +119,9 @@ var __meta__ = { // jshint ignore:line
             that._aria();
 
             //should read changed value of closed dropdownlist
-            that.wrapper.attr("aria-live", "polite");
+            if (kendo.support.browser.chrome) {
+                that.wrapper.attr("aria-live", "polite");
+            }
 
             that._enable();
 
@@ -136,7 +137,7 @@ var __meta__ = { // jshint ignore:line
 
             that.requireValueMapper(that.options);
             that._initList();
-            that.listView.one("dataBound", proxy(that._attachAriaActiveDescendant, that));
+            that.listView.one("dataBound", that._attachAriaActiveDescendant.bind(that));
 
             that._cascade();
 
@@ -441,6 +442,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var listView = that.listView;
             var dataSource = that.dataSource;
+            var valueFn = function() { that.value(value); };
 
             if (value === undefined) {
                 value = that._accessor() || that.listView.value()[0];
@@ -460,7 +462,7 @@ var __meta__ = { // jshint ignore:line
                     dataSource.unbind(CHANGE, that._valueSetter);
                 }
 
-                that._valueSetter = proxy(function() { that.value(value); }, that);
+                that._valueSetter = valueFn.bind(that);
 
                 dataSource.one(CHANGE, that._valueSetter);
                 return;
@@ -513,12 +515,12 @@ var __meta__ = { // jshint ignore:line
             that.optionLabelTemplate = template;
 
             if (!that.hasOptionLabel()) {
-                that.optionLabel = $('<div class="k-list-optionlabel"></div>').prependTo(that.list);
+                that.optionLabel = $('<div role="option" class="k-list-optionlabel"></div>').prependTo(that.list);
             }
 
             that.optionLabel.html(template(optionLabel))
                             .off()
-                            .on(CLICKEVENTS, proxy(that._click, that))
+                            .on(CLICKEVENTS, that._click.bind(that))
                             .on(HOVEREVENTS, that._toggleHover);
 
             that.angular("compile", function() {
@@ -639,11 +641,11 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var wrapper = that.wrapper;
 
-            wrapper.on("focusin" + nsFocusEvent, proxy(that._focusinHandler, that))
-                   .on("focusout" + nsFocusEvent, proxy(that._focusoutHandler, that));
+            wrapper.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
+                   .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
             if(that.filterInput) {
-                that.filterInput.on("focusin" + nsFocusEvent, proxy(that._focusinHandler, that))
-                   .on("focusout" + nsFocusEvent, proxy(that._focusoutHandler, that));
+                that.filterInput.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
+                   .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
             }
         },
 
@@ -707,16 +709,16 @@ var __meta__ = { // jshint ignore:line
                     .attr(TABINDEX, wrapper.data(TABINDEX))
                     .attr(ARIA_DISABLED, false)
                     .attr(ARIA_READONLY, false)
-                    .on("keydown" + ns, that, proxy(that._keydown, that))
-                    .on(kendo.support.mousedown + ns, proxy(that._wrapperMousedown, that))
-                    .on("paste" + ns, proxy(that._filterPaste, that));
+                    .on("keydown" + ns, that, that._keydown.bind(that))
+                    .on(kendo.support.mousedown + ns, that._wrapperMousedown.bind(that))
+                    .on("paste" + ns, that._filterPaste.bind(that));
 
-                that.wrapper.on("click" + ns, proxy(that._wrapperClick, that));
+                that.wrapper.on("click" + ns, that._wrapperClick.bind(that));
 
                 if (!that.filterInput) {
-                    wrapper.on("keypress" + ns, proxy(that._keypress, that));
+                    wrapper.on("keypress" + ns, that._keypress.bind(that));
                 } else {
-                    wrapper.on("input" + ns, proxy(that._search, that));
+                    wrapper.on("input" + ns, that._search.bind(that));
                 }
 
             } else if (disable) {
@@ -927,7 +929,7 @@ var __meta__ = { // jshint ignore:line
 
         _popup: function() {
             Select.fn._popup.call(this);
-            this.popup.one("open", proxy(this._popupOpen, this));
+            this.popup.one("open", this._popupOpen.bind(this));
         },
 
         _getElementDataItem: function(element) {
@@ -1290,7 +1292,7 @@ var __meta__ = { // jshint ignore:line
             span = wrapper.find(SELECTOR);
 
             if (!span[0]) {
-                arrowBtn = html.renderButton('<button type="button" tabindex="-1" unselectable="on" class="k-select k-input-button" aria-label="select"></button>', {
+                arrowBtn = html.renderButton('<button type="button" tabindex="-1" unselectable="on" class="k-input-button" aria-label="select"></button>', {
                     icon: "arrow-s",
                     size: options.size,
                     fillMode: options.fillMode,
@@ -1308,7 +1310,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             that.span = span;
-            that._arrow = wrapper.find(".k-select");
+            that._arrow = wrapper.find(".k-input-button");
             that._arrowIcon = that._arrow.find(".k-icon");
         },
 
@@ -1327,7 +1329,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             that._focused = that.wrapper = wrapper
-                .addClass("k-picker k-dropdown k-widget")
+                .addClass("k-picker k-dropdownlist")
                 .addClass(DOMelement.className)
                 .removeClass('input-validation-error')
                 .css("display", "")
@@ -1354,6 +1356,10 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", true);
                 this.ul.attr("aria-hidden", false);
+
+                if (kendo.support.browser.chrome) {
+                    this.wrapper.removeAttr("aria-live");
+                }
             }
         },
 
@@ -1363,6 +1369,10 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", false);
                 this.ul.attr("aria-hidden", true);
+
+                if (kendo.support.browser.chrome) {
+                    this.wrapper.attr("aria-live", "polite");
+                }
             }
         },
 
@@ -1372,7 +1382,7 @@ var __meta__ = { // jshint ignore:line
 
 
             if (!template) {
-                template = $.proxy(kendo.template('#:this._text(data)#', { useWithBlock: false }), that);
+                template = kendo.template('#:this._text(data)#', { useWithBlock: false }).bind(that);
             } else {
                 template = kendo.template(template);
             }

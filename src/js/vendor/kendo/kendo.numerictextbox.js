@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.numerictextbox',[ "kendo.core", "kendo.userevents", "kendo.floatinglabel", "kendo.html.button" ], f);
+    define('kendo.numerictextbox',[ "./kendo.core", "./kendo.userevents", "./kendo.floatinglabel", "./kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -68,7 +68,6 @@ var __meta__ = { // jshint ignore:line
         ARIA_DISABLED = "aria-disabled",
         INTEGER_REGEXP = /^(-)?(\d*)$/,
         NULL = null,
-        proxy = $.proxy,
         isPlainObject = $.isPlainObject,
         extend = $.extend;
 
@@ -83,7 +82,7 @@ var __meta__ = { // jshint ignore:line
 
              options = that.options;
              element = that.element
-                           .on("focusout" + ns, proxy(that._focusout, that))
+                           .on("focusout" + ns, that._focusout.bind(that))
                            .attr("role", "spinbutton");
 
              options.placeholder = options.placeholder || element.attr("placeholder");
@@ -115,7 +114,7 @@ var __meta__ = { // jshint ignore:line
              that._input();
 
              if (!kendo.support.mobileOS) {
-                 that._text.on(FOCUS + ns, proxy(that._click, that));
+                 that._text.on(FOCUS + ns, that._click.bind(that));
              } else {
                  that._text.on(TOUCHEND + ns + " " + FOCUS + ns, function() {
                      if (kendo.support.browser.edge) {
@@ -161,7 +160,7 @@ var __meta__ = { // jshint ignore:line
              });
 
              that._label();
-             that._ariaLabel();
+             that._ariaLabel(that._text);
              that._applyCssClasses();
 
              kendo.notify(that);
@@ -239,13 +238,13 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 that.element
-                    .on("keydown" + ns, proxy(that._keydown, that))
-                    .on("keyup" + ns, proxy(that._keyup, that))
-                    .on("paste" + ns, proxy(that._paste, that))
-                    .on("input" + ns, proxy(that._inputHandler, that));
+                    .on("keydown" + ns, that._keydown.bind(that))
+                    .on("keyup" + ns, that._keyup.bind(that))
+                    .on("paste" + ns, that._paste.bind(that))
+                    .on("input" + ns, that._inputHandler.bind(that));
 
                 if (that._inputLabel) {
-                    that._inputLabel.on("click" + ns, proxy(that.focus, that));
+                    that._inputLabel.on("click" + ns, that.focus.bind(that));
                 }
 
             } else {
@@ -556,7 +555,9 @@ var __meta__ = { // jshint ignore:line
             text = inputs.first();
 
             if (text.length < 2) {
-                text = $('<input type="text"/>').insertBefore(element);
+                text = $('<input type="text"/>')
+                        .attr(kendo.attr("validate"), false)
+                        .insertBefore(element);
             }
 
             try {
@@ -628,7 +629,7 @@ var __meta__ = { // jshint ignore:line
                 this._numPadDot = false;
             }
 
-            if (this._isPasted) {
+            if (this._isPasted && this._parse(value)) {
                 value = this._parse(value)
                     .toString()
                     .replace(POINT, numberFormat[POINT]);
@@ -653,7 +654,7 @@ var __meta__ = { // jshint ignore:line
 
             that._addInvalidState();
             clearTimeout(that._invalidStateTimeout);
-            that._invalidStateTimeout = setTimeout(proxy(that._removeInvalidState, that), 100);
+            that._invalidStateTimeout = setTimeout(that._removeInvalidState.bind(that), 100);
         },
 
         _addInvalidState: function () {
@@ -745,32 +746,6 @@ var __meta__ = { // jshint ignore:line
                 .attr("aria-value" + option, value);
 
             element.attr(option, value);
-        },
-
-        _ariaLabel: function(){
-            var that = this;
-            var text = that._text;
-            var inputElm = that.element;
-            var id = inputElm.attr("id");
-            var labelElm = $("label[for=\'" + id  + "\']");
-            var ariaLabel = inputElm.attr("aria-label");
-            var ariaLabelledBy = inputElm.attr("aria-labelledby");
-            var labelId;
-
-            if (ariaLabel) {
-                text.attr("aria-label", ariaLabel);
-            } else if (ariaLabelledBy){
-                text.attr("aria-labelledby", ariaLabelledBy);
-            } else if (labelElm.length){
-                labelId = labelElm.attr("id");
-                if (labelId) {
-                    text.attr("aria-labelledby", labelId);
-                } else {
-                    labelId = kendo.guid();
-                    labelElm.attr("id", labelId);
-                    text.attr("aria-labelledby", labelId);
-                }
-            }
         },
 
         _spin: function(step, timeout) {
@@ -927,7 +902,7 @@ var __meta__ = { // jshint ignore:line
                 that._inputLabel = $("<label class='" + LABELCLASSES + "' for='" + id + "'>" + labelText + "</label>'").insertBefore(that.wrapper);
 
                 if ((that.element.attr("disabled") === undefined) && (that.element.attr("readonly") === undefined)) {
-                    that._inputLabel.on("click" + ns, proxy(that.focus, that));
+                    that._inputLabel.on("click" + ns, that.focus.bind(that));
                 }
             }
         },

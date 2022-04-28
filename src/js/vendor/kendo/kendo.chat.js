@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('chat/messageBox',[ "kendo.core" ], f);
+    define('chat/messageBox',[ "../kendo.core" ], f);
 })(function(){
 
 (function($, undefined) {
@@ -31,7 +31,6 @@
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var extend = $.extend;
-    var proxy = $.proxy;
     var DOT = ".";
     var NS = ".kendoChat";
     var keys = kendo.keys;
@@ -141,15 +140,15 @@
             var styles = ChatMessageBox.styles;
 
             this.input
-                .on("keydown" + NS, proxy(this._keydown, this))
-                .on("input" + NS, proxy(this._input, this))
-                .on("focusout" + NS, proxy(this._inputFocusout, this));
+                .on("keydown" + NS, this._keydown.bind(this))
+                .on("input" + NS, this._input.bind(this))
+                .on("focusout" + NS, this._inputFocusout.bind(this));
 
             this.element
-                .on("click" + NS, DOT + styles.buttonSend, proxy(this._buttonClick, this));
+                .on("click" + NS, DOT + styles.buttonSend, this._buttonClick.bind(this));
 
             this.element
-                .on("click" + NS, DOT + styles.buttonToggle, proxy(this._toggleToolbar, this));
+                .on("click" + NS, DOT + styles.buttonToggle, this._toggleToolbar.bind(this));
         },
 
         _input: function() {
@@ -231,7 +230,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('chat/toolbar',[ "kendo.core" ], f);
+    define('chat/toolbar',[ "../kendo.core" ], f);
 })(function(){
 
 (function($, undefined) {
@@ -239,7 +238,6 @@ return window.kendo;
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var extend = $.extend;
-    var proxy = $.proxy;
     var DOT = ".";
     var NS = ".kendoChat";
 
@@ -295,7 +293,7 @@ return window.kendo;
                 this.toggle(true);
             }
 
-            this.element.on("click" + NS, proxy(this._onClick, this));
+            this.element.on("click" + NS, this._onClick.bind(this));
         },
 
         events: [
@@ -393,7 +391,7 @@ return window.kendo;
             this.element.append(this.scrollButtonRight);
             this._refreshScrollButtons();
 
-            this.element.on("keydown" + NS, proxy(this._refreshScrollButtons, this));
+            this.element.on("keydown" + NS, this._refreshScrollButtons.bind(this));
         },
 
         _scroll: function (commandName) {
@@ -483,8 +481,8 @@ return window.kendo;
                 animation = extend(true, {}, NO_ANIMATION);
             }
 
-            animation.expand.complete = proxy(this._animationComplete, this);
-            animation.collapse.complete = proxy(this._animationComplete, this);
+            animation.expand.complete = this._animationComplete.bind(this);
+            animation.collapse.complete = this._animationComplete.bind(this);
 
             if(this.element.is(VISIBLE)) {
                 this.element.kendoStop().kendoAnimate(animation.collapse);
@@ -505,7 +503,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('chat/view',[ "kendo.core", "kendo.draganddrop"  ], f);
+    define('chat/view',[ "../kendo.core", "../kendo.draganddrop"  ], f);
 })(function(){
 
 (function($, undefined) {
@@ -513,7 +511,6 @@ return window.kendo;
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var extend = $.extend;
-    var proxy = $.proxy;
     var DOT = ".";
     var SPACE = " ";
     var NS = ".kendoChat";
@@ -742,19 +739,19 @@ return window.kendo;
             var styles = ChatView.styles;
 
             this.element
-                .on("click" + NS, proxy(this._listClick, this))
-                .on("click" + NS, DOT + styles.message, proxy(this._messageClick, this))
-                .on("click" + NS, DOT + styles.suggestedAction, proxy(this._suggestedActionClick, this))
-                .on("click" + NS, DOT + styles.cardAction + SPACE + DOT + styles.button, proxy(this._cardActionClick, this));
+                .on("click" + NS, this._listClick.bind(this))
+                .on("click" + NS, DOT + styles.message, this._messageClick.bind(this))
+                .on("click" + NS, DOT + styles.suggestedAction, this._suggestedActionClick.bind(this))
+                .on("click" + NS, DOT + styles.cardAction + SPACE + DOT + styles.button, this._cardActionClick.bind(this));
 
-            this.element.on("keydown" + NS, DOT + styles.suggestedAction, proxy(this._suggestedActionKeydown, this));
+            this.element.on("keydown" + NS, DOT + styles.suggestedAction, this._suggestedActionKeydown.bind(this));
         },
 
         _scrollable: function() {
             var viewStyles = ChatView.styles;
 
             this.element
-                .on("click" + NS, DOT + viewStyles.cardDeckScrollWrap + SPACE + DOT + viewStyles.button, proxy(this._scrollButtonClick, this));
+                .on("click" + NS, DOT + viewStyles.cardDeckScrollWrap + SPACE + DOT + viewStyles.button, this._scrollButtonClick.bind(this));
         },
 
         _scrollButtonClick: function(e) {

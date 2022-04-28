@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.autocomplete',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist" ], f);
+    define('kendo.autocomplete',[ "./kendo.list", "./kendo.mobile.scroller", "./kendo.virtuallist" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -67,8 +67,7 @@ var __meta__ = { // jshint ignore:line
         AUTOCOMPLETEVALUE = "off",
         HOVER = "k-hover",
         ns = ".kendoAutoComplete",
-        HOVEREVENTS = "mouseenter" + ns + " mouseleave" + ns,
-        proxy = $.proxy;
+        HOVEREVENTS = "mouseenter" + ns + " mouseleave" + ns;
 
     function indexOfWordAtCaret(caretIdx, text, separator) {
         return separator ? text.substring(0, caretIdx).split(separator).length - 1 : 0;
@@ -121,10 +120,10 @@ var __meta__ = { // jshint ignore:line
 
             element
                 .addClass("k-input-inner")
-                .on("keydown" + ns, proxy(that._keydown, that))
-                .on("keypress" + ns, proxy(that._keypress, that))
-                .on("input" + ns, proxy(that._search, that))
-                .on("paste" + ns, proxy(that._search, that))
+                .on("keydown" + ns, that._keydown.bind(that))
+                .on("keypress" + ns, that._keypress.bind(that))
+                .on("input" + ns, that._search.bind(that))
+                .on("paste" + ns, that._search.bind(that))
                 .on("focus" + ns, function () {
                     that._prev = that._accessor();
                     that._oldText = that._prev;
@@ -143,7 +142,7 @@ var __meta__ = { // jshint ignore:line
                     "aria-expanded": false
                 });
 
-            that._clear.on("click" + ns + " touchend" + ns, proxy(that._clearValue, that));
+            that._clear.on("click" + ns + " touchend" + ns, that._clearValue.bind(that));
             that._enable();
 
             that._old = that._accessor();
@@ -166,7 +165,7 @@ var __meta__ = { // jshint ignore:line
 
             that.listView.bind("click", function(e) { e.preventDefault(); });
 
-            that._resetFocusItemHandler = $.proxy(that._resetFocusItem, that);
+            that._resetFocusItemHandler = that._resetFocusItem.bind(that);
 
             kendo.notify(that);
             that._toggleCloseVisibility();
@@ -207,8 +206,8 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource && that._refreshHandler) {
                 that._unbindDataSource();
             } else {
-                that._progressHandler = proxy(that._showBusy, that);
-                that._errorHandler = proxy(that._hideBusy, that);
+                that._progressHandler = that._showBusy.bind(that);
+                that._errorHandler = that._hideBusy.bind(that);
             }
 
             that.dataSource = DataSource.create(that.options.dataSource)
@@ -345,7 +344,7 @@ var __meta__ = { // jshint ignore:line
                     ignoreCase: ignoreCase
                 });
 
-                that.one("close", $.proxy(that._unifySeparators, that));
+                that.one("close", that._unifySeparators.bind(that));
             }
             that._toggleCloseVisibility();
         },
@@ -798,7 +797,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _loader: function() {
-            this._loading = $('<span class="k-icon k-i-loading ' + HIDDENCLASS + '"></span>').insertAfter(this.element);
+            this._loading = $('<span class="k-icon k-i-loading k-input-loading-icon ' + HIDDENCLASS + '"></span>').insertAfter(this.element);
         },
 
         _clearButton: function() {

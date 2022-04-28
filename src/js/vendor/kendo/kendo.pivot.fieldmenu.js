@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define) {
-    define('kendo.pivot.fieldmenu',[ "kendo.pivotgrid", "kendo.menu", "kendo.window", "kendo.treeview", "kendo.dropdownlist" ], f);
+    define('kendo.pivot.fieldmenu',[ "./kendo.pivotgrid", "./kendo.menu", "./kendo.window", "./kendo.treeview", "./kendo.dropdownlist" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -40,7 +40,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo;
     var ui = kendo.ui;
     var MENU = "kendoContextMenu";
-    var proxy = $.proxy;
     var NS = ".kendoPivotFieldMenu";
     var Widget = ui.Widget;
     var FILTER_ITEM = "k-filter-item";
@@ -167,8 +166,8 @@ var __meta__ = { // jshint ignore:line
                 orientation: "vertical",
                 showOn: "click",
                 closeOnClick: false,
-                open: proxy(this._menuOpen, this),
-                close: proxy(this._closeMenu, this),
+                open: this._menuOpen.bind(this),
+                close: this._closeMenu.bind(this),
                 copyAnchorStyles: false
             }).data(MENU);
 
@@ -180,7 +179,7 @@ var __meta__ = { // jshint ignore:line
                 that._createTreeView(that.wrapper.find(".k-treeview"));
             }
 
-            that._clickHandler = $.proxy(that._click, that);
+            that._clickHandler = that._click.bind(that);
             that.wrapper.on("click", ".k-item:not([role='treeitem'])", that._clickHandler);
         },
 
@@ -260,8 +259,8 @@ var __meta__ = { // jshint ignore:line
         },
 
         _attachFilterHandlers: function() {
-            this._applyIncludesProxy = proxy(this._applyIncludes, this);
-            this._resetIncludesProxy = proxy(this._resetIncludes, this);
+            this._applyIncludesProxy = this._applyIncludes.bind(this);
+            this._resetIncludesProxy = this._resetIncludes.bind(this);
 
             this.menu.element
                 .on("click" + NS, ".k-button-includes-reset", this._resetIncludesProxy)
@@ -307,7 +306,7 @@ var __meta__ = { // jshint ignore:line
 
         _initFilterForm: function() {
             var filterForm = this.menu.element.find(".kendo-grid-filter-menu-container");
-            var filterProxy = proxy(this._filter, this);
+            var filterProxy = this._filter.bind(this);
 
             this._filterOperator = new kendo.ui.DropDownList(filterForm.find("select"), { popup: { appendTo: document.body } });
             this._filterValue = filterForm.find("input.k-input-inner");
@@ -316,7 +315,7 @@ var __meta__ = { // jshint ignore:line
 
             filterForm
                 .on("click" + NS, ".k-button-filter", filterProxy)
-                .on("click" + NS, ".k-button-filter-clear", proxy(this._reset, this));
+                .on("click" + NS, ".k-button-filter-clear", this._reset.bind(this));
         },
 
         _updateFilterAriaLabel: function() {
@@ -523,8 +522,8 @@ var __meta__ = { // jshint ignore:line
                 orientation: "vertical",
                 showOn: "click",
                 closeOnClick: false,
-                open: proxy(this._menuOpen, this),
-                select: proxy(this._select, this),
+                open: this._menuOpen.bind(this),
+                select: this._select.bind(this),
                 copyAnchorStyles: false
             }).data(MENU);
 
@@ -537,7 +536,7 @@ var __meta__ = { // jshint ignore:line
 
         _initFilterForm: function() {
             var filterForm = this.menu.element.find("." + FILTER_ITEM);
-            var filterProxy = proxy(this._filter, this);
+            var filterProxy = this._filter.bind(this);
 
             this._filterOperator = new kendo.ui.DropDownList(filterForm.find("select"));
             this._filterValue = filterForm.find("input.k-input-inner");
@@ -546,7 +545,7 @@ var __meta__ = { // jshint ignore:line
             filterForm
                 .on("submit" + NS, filterProxy)
                 .on("click" + NS, ".k-button-filter", filterProxy)
-                .on("click" + NS, ".k-button-clear", proxy(this._reset, this));
+                .on("click" + NS, ".k-button-clear", this._reset.bind(this));
         },
 
         _setFilterForm: function(expression) {
@@ -660,14 +659,14 @@ var __meta__ = { // jshint ignore:line
             this.includeWindow = $(kendo.template(WINDOWTEMPLATE)({
                 messages: messages
             }))
-            .on("click" + NS, ".k-button-ok", proxy(this._applyIncludes, this))
-            .on("click" + NS, ".k-button-cancel", proxy(this._closeWindow, this));
+            .on("click" + NS, ".k-button-ok", this._applyIncludes.bind(this))
+            .on("click" + NS, ".k-button-cancel", this._closeWindow.bind(this));
 
             this.includeWindow = new ui.Window(this.includeWindow, {
                 title: messages.title,
                 visible: false,
                 resizable: false,
-                open: proxy(this._windowOpen, this)
+                open: this._windowOpen.bind(this)
             });
         },
 

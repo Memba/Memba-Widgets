@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.timepicker',[ "kendo.popup", "kendo.dateinput", "kendo.html.button"], f);
+    define('kendo.timepicker',[ "./kendo.popup", "./kendo.dateinput", "./kendo.html.button"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -71,7 +71,6 @@ var __meta__ = { // jshint ignore:line
         ID = "id",
         isArray = Array.isArray,
         extend = $.extend,
-        proxy = $.proxy,
         DATE = Date,
         dateFormatRegExp = /d{1,2}|E{1,6}|e{1,6}|c{3,6}|c{1}|M{1,5}|L{1,5}|y{1,4}|H{1,2}|h{1,2}|k{1,2}|K{1,2}|m{1,2}|a{1,5}|s{1,2}|S{1,3}|z{1,4}|Z{1,5}|x{1,5}|X{1,5}|G{1,5}|q{1,5}|Q{1,5}|"[^"]*"|'[^']*'/g,
         LITERAL = "literal",
@@ -170,8 +169,7 @@ var __meta__ = { // jshint ignore:line
             that.ul.attr(ID, that._timeViewID);
         }
 
-        that._heightHandler = proxy(that._height, that);
-        that._ariaLabel();
+        that._heightHandler = that._height.bind(that);
         that._popup();
     };
 
@@ -196,37 +194,11 @@ var __meta__ = { // jshint ignore:line
             }
 
             this.ul = this.list.find(".k-time-list-container");
-            this.list.on("click"+ns, ".k-time-header button.k-time-now", proxy(this._nowClickHandler, this));
-            this.list.on("click"+ns, ".k-time-footer button.k-time-cancel", proxy(this._cancelClickHandler, this));
-            this.list.on("click"+ns, ".k-time-footer button.k-time-accept", proxy(this._setClickHandler, this));
-            this.list.on("mouseover"+ns, ".k-time-list-wrapper", proxy(this._mouseOverHandler, this));
-            this.list.on("keydown"+ns, proxy(this._scrollerKeyDownHandler, this));
-        },
-
-        _ariaLabel: function(){
-            var that = this;
-            var inputElm = $("#"+that.options.id);
-            var ul = that.ul;
-            var id = inputElm.attr("id");
-            var labelElm = $("label[for=\'" + id  + "\']");
-            var ariaLabel = inputElm.attr("aria-label");
-            var ariaLabelledBy = inputElm.attr("aria-labelledby");
-            var labelId;
-
-            if (ariaLabel) {
-                ul.attr("aria-label", ariaLabel);
-            } else if (ariaLabelledBy){
-                ul.attr("aria-labelledby", ariaLabelledBy);
-            } else if (labelElm.length){
-                labelId = labelElm.attr("id");
-                if (labelId) {
-                    ul.attr("aria-labelledby", labelId);
-                } else {
-                    labelId = kendo.guid();
-                    labelElm.attr("id", labelId);
-                    ul.attr("aria-labelledby", labelId);
-                }
-            }
+            this.list.on("click"+ns, ".k-time-header button.k-time-now", this._nowClickHandler.bind(this));
+            this.list.on("click"+ns, ".k-time-footer button.k-time-cancel", this._cancelClickHandler.bind(this));
+            this.list.on("click"+ns, ".k-time-footer button.k-time-accept", this._setClickHandler.bind(this));
+            this.list.on("mouseover"+ns, ".k-time-list-wrapper", this._mouseOverHandler.bind(this));
+            this.list.on("keydown"+ns, this._scrollerKeyDownHandler.bind(this));
         },
 
         _scrollerKeyDownHandler: function (e) {
@@ -284,7 +256,7 @@ var __meta__ = { // jshint ignore:line
                 .css({
                     overflow: support.kineticScrollNeeded ? "" : "auto"
                 })
-                .on(CLICK, LI, proxy(that._click, that))
+                .on(CLICK, LI, that._click.bind(that))
                 .on("mouseenter" + ns, LI, function () {
                     $(this).addClass(HOVER);
                 })
@@ -746,8 +718,8 @@ var __meta__ = { // jshint ignore:line
                     height: list.find("ul").height() + bottomOffset
                 });
                 list.off(ns)
-                    .on("click" + ns, ".k-item", proxy(this._itemClickHandler, this))
-                    .on("scroll" + ns, proxy(this._listScrollHandler, this));
+                    .on("click" + ns, ".k-item", this._itemClickHandler.bind(this))
+                    .on("scroll" + ns, this._listScrollHandler.bind(this));
             }
         },
 
@@ -1349,6 +1321,10 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         element.attr(ARIA_EXPANDED, true);
                         ul.attr(ARIA_HIDDEN, false);
+
+                        if (timeView.current()) {
+                            element.attr(ARIA_ACTIVEDESCENDANT, timeView._optionID);
+                        }
                     }
                 },
                 close: function(e) {
@@ -1357,6 +1333,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         element.attr(ARIA_EXPANDED, false);
                         ul.attr(ARIA_HIDDEN, true);
+                        element[0].removeAttribute(ARIA_ACTIVEDESCENDANT);
                     }
                 },
                 active: function(current) {
@@ -1371,6 +1348,8 @@ var __meta__ = { // jshint ignore:line
                 maxSet: +options.max != +TODAY
             }));
             ul = timeView.ul;
+
+            that._ariaLabel(ul);
 
             that._icon();
             that._reset();
@@ -1524,8 +1503,8 @@ var __meta__ = { // jshint ignore:line
                 }
                 element.attr(ARIA_DISABLED, false)
                        .attr(ARIA_READONLY, false)
-                       .on("keydown" + ns, proxy(that._keydown, that))
-                       .on("focusout" + ns, proxy(that._blur, that))
+                       .on("keydown" + ns, that._keydown.bind(that))
+                       .on("focusout" + ns, that._blur.bind(that))
                        .on("focus" + ns, function() {
                            that.wrapper.addClass(FOCUSED);
                        });
@@ -1533,7 +1512,7 @@ var __meta__ = { // jshint ignore:line
                 if (that._dateInput) {
                     that._dateInput._bindInput();
                 }
-               arrow.on(CLICK, proxy(that._click, that))
+               arrow.on(CLICK, that._click.bind(that))
                    .on(MOUSEDOWN, preventDefault);
             } else {
                 wrapper

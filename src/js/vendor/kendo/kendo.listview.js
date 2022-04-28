@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.listview',[ "kendo.data", "kendo.editable", "kendo.selectable", "kendo.pager" ], f);
+    define('kendo.listview',[ "./kendo.data", "./kendo.editable", "./kendo.selectable", "./kendo.pager" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -74,6 +74,8 @@ var __meta__ = { // jshint ignore:line
         ARIA_POSINSET = "aria-posinset",
         ARIA_ROLE = "role",
         ARIA_LABEL = "aria-label",
+        ARIA_MULTISELECTABLE = "aria-multiselectable",
+        ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
         EDIT = "edit",
         REMOVE = "remove",
         SAVE = "save",
@@ -81,7 +83,6 @@ var __meta__ = { // jshint ignore:line
         CLICK = "click",
         TOUCHSTART = "touchstart",
         NS = ".kendoListView",
-        proxy = $.proxy,
         activeElement = kendo._activeElement,
         progress = kendo.ui.progress,
         DataSource = kendo.data.DataSource;
@@ -100,6 +101,8 @@ var __meta__ = { // jshint ignore:line
 
             if (element[0].id) {
                 that._itemId = element[0].id + "_lv_active";
+            } else {
+                that._itemId = kendo.guid() + "_lv_active";
             }
 
             that._element();
@@ -234,9 +237,9 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource && that._refreshHandler) {
                 that._unbindDataSource();
             } else {
-                that._refreshHandler = proxy(that.refresh, that);
-                that._progressHandler = proxy(that._progress, that);
-                that._errorHandler = proxy(that._error, that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._progress.bind(that);
+                that._errorHandler = that._error.bind(that);
             }
 
             that.dataSource = DataSource.create(dataSource)
@@ -260,11 +263,6 @@ var __meta__ = { // jshint ignore:line
 
             this.element.addClass("k-widget k-listview");
 
-            if (options.navigatable || options.selectable) {
-                this.element.attr(ARIA_ROLE, "listbox");
-            } else {
-                this.element.attr(ARIA_ROLE, "list");
-            }
 
             if (options.contentElement) {
                 this.content = $(document.createElement(options.contentElement)).appendTo(this.element);
@@ -437,10 +435,7 @@ var __meta__ = { // jshint ignore:line
 
             items = that.items().not(".k-loading-mask");
 
-            if (!view.length) {
-                that.element.removeAttr(ARIA_ROLE);
-                that.element.removeAttr(ARIA_LABEL);
-            }
+            that._ariaAttributes(view.length);
 
             for (idx = index, length = view.length; idx < length; idx++) {
                 item = items.eq(idx);
@@ -448,7 +443,7 @@ var __meta__ = { // jshint ignore:line
                 item.addClass(ITEM_CLASS);
 
                 item.attr(kendo.attr("uid"), view[idx].uid)
-                    .attr("role", role);
+                    .attr(ARIA_ROLE, role);
 
                 if (that.options.selectable) {
                     item.attr("aria-selected", "false");
@@ -470,6 +465,11 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
+            if (that.element.attr(ARIA_ACTIVEDESCENDANT) &&
+                that.element.find("#" + that.element.attr(ARIA_ACTIVEDESCENDANT)).length === 0) {
+                    that.element.removeAttr(ARIA_ACTIVEDESCENDANT);
+            }
+
             that._setContentHeight();
             that._angularItems("compile");
 
@@ -477,6 +477,32 @@ var __meta__ = { // jshint ignore:line
             that._endlessFetchInProgress = null;
 
             that.trigger(DATABOUND, { action: e.action || "rebind", items: e.items, index: e.index });
+        },
+
+        _ariaAttributes: function(length) {
+            var el = this.element,
+                options = this.options,
+                selectable = options.selectable;
+
+            if (length === 0) {
+                el.removeAttr(ARIA_ROLE);
+                el.removeAttr(ARIA_MULTISELECTABLE);
+
+                if (el.attr(ARIA_LABEL)) {
+                    this._ariaLabelValue = el.attr(ARIA_LABEL);
+                    el.removeAttr(ARIA_LABEL);
+                }
+            } else {
+                el.attr(ARIA_ROLE, (selectable || options.navigatable) ? "listbox" : "list");
+
+                if (selectable && kendo.ui.Selectable.parseOptions(selectable).multiple) {
+                    el.attr(ARIA_MULTISELECTABLE, true);
+                }
+
+                if (this._ariaLabelValue) {
+                    el.attr(ARIA_LABEL, this._ariaLabelValue);
+                }
+            }
         },
 
         _pageable: function() {
@@ -541,10 +567,6 @@ var __meta__ = { // jshint ignore:line
                         that.trigger(CHANGE);
                     }
                 });
-
-                if(multi) {
-                    that.element.attr("aria-multiselectable", true);
-                }
 
                 if (navigatable) {
                     that.element.on("keydown" + NS, function(e) {
@@ -632,7 +654,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 current.removeClass(FOCUSED);
-                element.removeAttr("aria-activedescendant");
+                element.removeAttr(ARIA_ACTIVEDESCENDANT);
             }
 
             if (candidate && candidate[0]) {
@@ -640,7 +662,7 @@ var __meta__ = { // jshint ignore:line
 
                 that._scrollTo(candidate[0]);
 
-                element.attr("aria-activedescendant", id);
+                element.attr(ARIA_ACTIVEDESCENDANT, id);
                 candidate.addClass(FOCUSED).attr("id", id);
             }
 
@@ -815,7 +837,7 @@ var __meta__ = { // jshint ignore:line
                         }
                     });
 
-                element.on(MOUSEDOWN + NS + " " + TOUCHSTART + NS, that.options.contentElement ? ".k-listview-content " + FOCUSSELECTOR : FOCUSSELECTOR, proxy(clickCallback, that));
+                element.on(MOUSEDOWN + NS + " " + TOUCHSTART + NS, that.options.contentElement ? ".k-listview-content " + FOCUSSELECTOR : FOCUSSELECTOR, clickCallback.bind(that));
             }
         },
 
@@ -883,7 +905,7 @@ var __meta__ = { // jshint ignore:line
                 editable.element.replaceWith(template(data));
                 item = that.items().eq(index);
                 item.attr(kendo.attr("uid"), data.uid);
-                item.attr("role", role);
+                item.attr(ARIA_ROLE, role);
 
                 if (that._hasBindingTarget()) {
                     kendo.bind(item, data);
@@ -948,6 +970,10 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!that.trigger(REMOVE, { model: data, item: item })) {
+                if (item.attr("id") === that.element.attr(ARIA_ACTIVEDESCENDANT)) {
+                    that.element.removeAttr(ARIA_ACTIVEDESCENDANT);
+                }
+
                 item.hide();
                 dataSource.remove(data);
                 dataSource.sync();

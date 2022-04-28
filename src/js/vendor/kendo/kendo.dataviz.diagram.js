@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('dataviz/diagram/utils',[ "kendo.core" ], f);
+    define('dataviz/diagram/utils',[ "../../kendo.core" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -536,7 +536,7 @@
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/diagram/math',[ "./utils", "kendo.dataviz.core" ], f);
+    define('dataviz/diagram/math',[ "./utils", "../../kendo.dataviz.core" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -3636,7 +3636,7 @@
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/diagram/svg',[ "kendo.drawing", "./math" ], f);
+    define('dataviz/diagram/svg',[ "../../kendo.drawing", "./math" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -5141,7 +5141,7 @@
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function (f, define) {
-    define('dataviz/diagram/services',[ "kendo.drawing", "./svg" ], f);
+    define('dataviz/diagram/services',[ "../../kendo.drawing", "./svg" ], f);
 })(function () {
 
     (function ($, undefined) {
@@ -5162,8 +5162,7 @@
             Movable = kendo.ui.Movable,
             util = kendo.drawing.util,
             defined = util.defined,
-            inArray = $.inArray,
-            proxy = $.proxy;
+            inArray = $.inArray;
 
         // Constants ==============================================================
         var Cursors = {
@@ -5751,7 +5750,7 @@
                     velocityMultiplier: VELOCITY_MULTIPLIER,
                     mousewheelScrolling: false,
                     zoom: false,
-                    scroll: proxy(tool._move, tool)
+                    scroll: tool._move.bind(tool)
                 }).data("kendoMobileScroller");
 
                 if (canvas.translate) {
@@ -6952,7 +6951,7 @@
                         for (y = -1; y <= 1; y++) {
                             if ((x !== 0) || (y !== 0)) { // (0, 0) element, (-1, -1) top-left, (+1, +1) bottom-right
                                 item = new Rectangle(handles);
-                                item.drawingElement._hover = proxy(this._hover, this);
+                                item.drawingElement._hover = this._hover.bind(this);
                                 this.map.push({ x: x, y: y, visual: item });
                                 this.visual.append(item);
                             }
@@ -11293,12 +11292,12 @@
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function (f, define) {
-    define('dataviz/diagram/dom',["kendo.data", "kendo.draganddrop", "kendo.toolbar",
-           "kendo.editable",
-           "kendo.window",
-           "kendo.dropdownlist",
-           "kendo.dataviz.core",
-           "kendo.dataviz.themes",
+    define('dataviz/diagram/dom',["../../kendo.data", "../../kendo.draganddrop", "../../kendo.toolbar",
+           "../../kendo.editable",
+           "../../kendo.window",
+           "../../kendo.dropdownlist",
+           "../../kendo.dataviz.core",
+           "../../kendo.dataviz.themes",
            "./svg",
            "./services",
            "./layout" ], f);
@@ -11312,7 +11311,6 @@
             diagram = dataviz.diagram,
             Widget = kendo.ui.Widget,
             Class = kendo.Class,
-            proxy = $.proxy,
             deepExtend = kendo.deepExtend,
             outerWidth = kendo._outerWidth,
             outerHeight = kendo._outerHeight,
@@ -13258,7 +13256,7 @@
                     if (tools && tools.length) {
                         this.toolBar = new DiagramToolBar(this, {
                             tools: tools || {},
-                            click: proxy(this._toolBarClick, this),
+                            click: this._toolBarClick.bind(this),
                             modal: false
                         });
 
@@ -13330,7 +13328,7 @@
                     editors = editable.shapeEditors;
                     template = editable.shapeTemplate;
                 } else if (editorType == "connection") {
-                    var connectionSelectorHandler = proxy(connectionSelector, this);
+                    var connectionSelectorHandler = connectionSelector.bind(this);
                     editors = deepExtend({}, { from: connectionSelectorHandler, to: connectionSelectorHandler }, editable.connectionEditors);
                     template = editable.connectionTemplate;
                 } else {
@@ -13338,8 +13336,8 @@
                 }
 
                 this.editor = new PopupEditor(this.element, {
-                    update: proxy(this._update, this),
-                    cancel: proxy(this._cancel, this),
+                    update: this._update.bind(this),
+                    cancel: this._cancel.bind(this),
                     model: dataItem,
                     type: editorType,
                     target: this,
@@ -13469,39 +13467,39 @@
                 var that = this;
                 var element = that.element;
 
-                element.on(MOUSEWHEEL_NS, proxy(that._wheel, that))
-                .on("keydown" + NS, proxy(that._keydown, that));
+                element.on(MOUSEWHEEL_NS, that._wheel.bind(that))
+                .on("keydown" + NS, that._keydown.bind(that));
 
                 that._userEvents = new kendo.UserEvents(this.scrollable, {
                     multiTouch: true,
                     fastTap: true,
-                    tap: proxy(that._tap, that),
-                    start: proxy(that._dragStart, that),
-                    move: proxy(that._drag, that),
-                    end: proxy(that._dragEnd, that),
-                    gesturestart: proxy(that._gestureStart, that),
-                    gesturechange: proxy(that._gestureChange, that),
-                    gestureend: proxy(that._gestureEnd, that),
-                    doubleTap: proxy(that._doubleTap, that),
+                    tap: that._tap.bind(that),
+                    start: that._dragStart.bind(that),
+                    move: that._drag.bind(that),
+                    end: that._dragEnd.bind(that),
+                    gesturestart: that._gestureStart.bind(that),
+                    gesturechange: that._gestureChange.bind(that),
+                    gestureend: that._gestureEnd.bind(that),
+                    doubleTap: that._doubleTap.bind(that),
                     supportDoubleTap: true
                 });
 
                 that.toolService = new ToolService(that);
 
                 this.scrollable
-                    .on("mouseover" + NS, proxy(that._mouseover, that))
-                    .on("mouseout" + NS, proxy(that._mouseout, that))
-                    .on("mousemove" + NS, proxy(that._mouseMove, that))
-                    .on("mousedown" + NS, proxy(that._mouseDown, that))
-                    .on("mouseup" + NS, proxy(that._mouseUp, that));
+                    .on("mouseover" + NS, that._mouseover.bind(that))
+                    .on("mouseout" + NS, that._mouseout.bind(that))
+                    .on("mousemove" + NS, that._mouseMove.bind(that))
+                    .on("mousedown" + NS, that._mouseDown.bind(that))
+                    .on("mouseup" + NS, that._mouseUp.bind(that));
 
-                this._syncHandler = proxy(that._syncChanges, that);
+                this._syncHandler = that._syncChanges.bind(that);
 
-                that._resizeHandler = proxy(that.resize, that, false);
+                that._resizeHandler = that.resize.bind(that, false);
                 kendo.onResize(that._resizeHandler);
 
-                this.bind(ZOOM_START, proxy(that._destroyToolBar, that));
-                this.bind(PAN, proxy(that._destroyToolBar, that));
+                this.bind(ZOOM_START, that._destroyToolBar.bind(that));
+                this.bind(PAN, that._destroyToolBar.bind(that));
             },
 
             _dragStart: function (e) {
@@ -15085,7 +15083,7 @@
                             var point;
                             this.singleToolBar = new DiagramToolBar(diagram, {
                                 tools: tools,
-                                click: proxy(this._toolBarClick, this),
+                                click: this._toolBarClick.bind(this),
                                 modal: true,
                                 popupZIndex: parseInt(diagram.element.closest(".k-window").css("zIndex"), 10) + 10
                             });
@@ -15180,9 +15178,9 @@
                             .unbind("requestStart", this._shapesRequestStartHandler)
                             .unbind("error", this._shapesErrorHandler);
                     } else {
-                        this._shapesRefreshHandler = proxy(this._refreshShapes, this);
-                        this._shapesRequestStartHandler = proxy(this._shapesRequestStart, this);
-                        this._shapesErrorHandler = proxy(this._error, this);
+                        this._shapesRefreshHandler = this._refreshShapes.bind(this);
+                        this._shapesRequestStartHandler = this._shapesRequestStart.bind(this);
+                        this._shapesErrorHandler = this._error.bind(this);
                     }
 
                     this.dataSource = kendo.data.DataSource.create(ds)
@@ -15206,9 +15204,9 @@
                             .unbind("requestStart", this._connectionsRequestStartHandler)
                             .unbind("error", this._connectionsErrorHandler);
                     } else {
-                        this._connectionsRefreshHandler = proxy(this._refreshConnections, this);
-                        this._connectionsRequestStartHandler = proxy(this._connectionsRequestStart, this);
-                        this._connectionsErrorHandler = proxy(this._connectionsError, this);
+                        this._connectionsRefreshHandler = this._refreshConnections.bind(this);
+                        this._connectionsRequestStartHandler = this._connectionsRequestStart.bind(this);
+                        this._connectionsErrorHandler = this._connectionsError.bind(this);
                     }
 
                     this.connectionsDataSource = kendo.data.DataSource.create(ds)
@@ -15452,8 +15450,8 @@
                     that._unbindDataSource();
                 }
 
-                that._refreshHandler = proxy(that._refreshSource, that);
-                that._errorHandler = proxy(that._error, that);
+                that._refreshHandler = that._refreshSource.bind(that);
+                that._errorHandler = that._error.bind(that);
 
                 that.dataSource = HierarchicalDataSource.create(dataSource)
                     .bind(CHANGE, that._refreshHandler)
@@ -15699,7 +15697,7 @@
                 this.element = $("<div/>");
                 this._toolBar = this.element
                     .kendoToolBar({
-                        click: proxy(this.click, this),
+                        click: this.click.bind(this),
                         resizable: false
                     }).getKendoToolBar();
 
@@ -16134,10 +16132,10 @@
             },
 
             _attachButtonEvents: function() {
-                this._cancelClickHandler = proxy(this._cancelClick, this);
+                this._cancelClickHandler = this._cancelClick.bind(this);
                 this.window.element.on(CLICK + NS, "a.k-diagram-cancel", this._cancelClickHandler);
 
-                this._updateClickHandler = proxy(this._updateClick, this);
+                this._updateClickHandler = this._updateClick.bind(this);
                 this.window.element.on(CLICK + NS, "a.k-diagram-update", this._updateClickHandler);
             },
 
@@ -16156,7 +16154,7 @@
             },
 
             close: function() {
-                this.window.bind("deactivate", proxy(this.destroy, this)).close();
+                this.window.bind("deactivate", this.destroy.bind(this)).close();
             },
 
             destroy: function() {
@@ -16392,7 +16390,7 @@
             ROOT_SIZE: 1000,
 
             init: function(diagram) {
-                var boundsChangeHandler = proxy(this._boundsChange, this);
+                var boundsChangeHandler = this._boundsChange.bind(this);
                 diagram.bind(ITEMBOUNDSCHANGE, boundsChangeHandler);
                 diagram.bind(ITEMROTATE, boundsChangeHandler);
                 this.initRoots();
@@ -16567,8 +16565,8 @@
 
 (function(f, define){
     define('kendo.dataviz.diagram',[
-        "kendo.data", "kendo.draganddrop", "kendo.userevents", "kendo.mobile.scroller",
-        "kendo.drawing",
+        "./kendo.data", "./kendo.draganddrop", "./kendo.userevents", "./kendo.mobile.scroller",
+        "./kendo.drawing",
 
        "./dataviz/diagram/utils",
        "./dataviz/diagram/math",

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('drawing/util',['kendo.core'], f);
+    define('drawing/util',['../kendo.core'], f);
 })(function(){
 
 (function($) {
@@ -74,7 +74,7 @@ return window.kendo;
  */
 (function(f, define){
     define('util/text-metrics',[
-        "kendo.core"
+        "../kendo.core"
     ], f);
 })(function(){
 
@@ -276,7 +276,7 @@ kendo.deepExtend(kendo.util, {
  * run `src-modules/sync.sh` in this repository.
  */
 (function(f, define){
-    define('drawing/kendo-drawing',[ "./util", "kendo.color", '../util/text-metrics' ], f);
+    define('drawing/kendo-drawing',[ "./util", "../kendo.color", '../util/text-metrics' ], f);
 })(function(){
 
 (function ($) {
@@ -11331,7 +11331,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('drawing/surface-tooltip',[ "kendo.popup", "./kendo-drawing" ], f);
+    define('drawing/surface-tooltip',[ "../kendo.popup", "./kendo-drawing" ], f);
 })(function(){
 
 (function ($) {
@@ -11345,7 +11345,6 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
     var eventCoordinates = utils.eventCoordinates;
     var outerWidth = kendo._outerWidth;
     var outerHeight = kendo._outerHeight;
-    var proxy = $.proxy;
 
     var TOOLTIP_TEMPLATE = '<div class="k-tooltip">' +
             '<div class="k-tooltip-content"></div>' +
@@ -11367,7 +11366,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                 collision: "fit fit"
             };
 
-            this._openPopupHandler = $.proxy(this._openPopup, this);
+            this._openPopupHandler = this._openPopup.bind(this);
 
             this.surface = surface;
             this._bindEvents();
@@ -11383,10 +11382,10 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         },
 
         _bindEvents: function() {
-            this._showHandler = proxy(this._showEvent, this);
-            this._surfaceLeaveHandler = proxy(this._surfaceLeave, this);
-            this._mouseleaveHandler = proxy(this._mouseleave, this);
-            this._mousemoveHandler = proxy(this._mousemove, this);
+            this._showHandler = this._showEvent.bind(this);
+            this._surfaceLeaveHandler = this._surfaceLeave.bind(this);
+            this._mouseleaveHandler = this._mouseleave.bind(this);
+            this._mousemoveHandler = this._mousemove.bind(this);
 
             this.surface.bind("click", this._showHandler);
             this.surface.bind("mouseenter", this._showHandler);
@@ -11395,8 +11394,8 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
             this.surface.element.on("mouseleave" + NS, this._surfaceLeaveHandler);
 
-            this.element.on("click" + NS, ".k-tooltip-button", proxy(this._hideClick, this));
-            this.element.on("mouseleave" + NS, proxy(this._tooltipLeave, this));
+            this.element.on("click" + NS, ".k-tooltip-button", this._hideClick.bind(this));
+            this.element.on("mouseleave" + NS, this._tooltipLeave.bind(this));
         },
 
         getPopup: function() {
@@ -11690,14 +11689,13 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
     define('drawing/surface',[ "./kendo-drawing", "./surface-tooltip" ], f);
 })(function(){
 
-(function ($) {
+(function ($) {  // jshint ignore:line
 
     var kendo = window.kendo;
     var draw = kendo.drawing;
     var DrawingSurface = draw.Surface;
     var Widget = kendo.ui.Widget;
     var deepExtend = kendo.deepExtend;
-    var proxy = $.proxy;
 
     kendo.support.svg = DrawingSurface.support.svg;
     kendo.support.canvas = DrawingSurface.support.canvas;
@@ -11713,7 +11711,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                 this.translate = translate;
             }
 
-            this._triggerInstanceHandler = proxy(this._triggerInstanceEvent, this);
+            this._triggerInstanceHandler = this._triggerInstanceEvent.bind(this);
             this._bindHandler("click");
             this._bindHandler("mouseenter");
             this._bindHandler("mouseleave");

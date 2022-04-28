@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.gantt.timeline',[ "kendo.dom", "kendo.touch", "kendo.draganddrop" ], f);
+    define('kendo.gantt.timeline',[ "./kendo.dom", "./kendo.touch", "./kendo.draganddrop" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -45,7 +45,6 @@ var __meta__ = { // jshint ignore:line
     var outerWidth = kendo._outerWidth;
     var outerHeight = kendo._outerHeight;
     var extend = $.extend;
-    var proxy = $.proxy;
     var isRtl = false;
     var keys = kendo.keys;
     var Query = kendo.data.Query;
@@ -1978,7 +1977,7 @@ var __meta__ = { // jshint ignore:line
 
             if (markerOptions !== false && markerOptions.updateInterval !== undefined) {
                 this._renderCurrentTime();
-                this._currentTimeUpdateTimer = setInterval(proxy(this._renderCurrentTime, this), markerOptions.updateInterval);
+                this._currentTimeUpdateTimer = setInterval(this._renderCurrentTime.bind(this), markerOptions.updateInterval);
             }
         }
     });

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define) {
-    define('kendo.treeview',[ "kendo.data", "kendo.treeview.draganddrop", "kendo.html.input" ], f);
+    define('kendo.treeview',[ "./kendo.data", "./kendo.treeview.draganddrop", "./kendo.html.input" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -50,7 +50,6 @@ var __meta__ = { // jshint ignore:line
         isArray = Array.isArray,
         Widget = ui.Widget,
         HierarchicalDataSource = data.HierarchicalDataSource,
-        proxy = $.proxy,
         keys = kendo.keys,
         NS = ".kendoTreeView",
         TEMP_NS = ".kendoTreeViewTemp",
@@ -68,6 +67,8 @@ var __meta__ = { // jshint ignore:line
         DROP = "drop",
         DRAGEND = "dragend",
         DATABOUND = "dataBound",
+        ITEMSLOADED = "itemsLoaded",
+        LOADCOMPLETED = "loadCompleted",
         CLICK = "click",
         KENDOKEYDOWN = "kendoKeydown",
         UNDEFINED = "undefined",
@@ -274,7 +275,7 @@ var __meta__ = { // jshint ignore:line
             if (!inferred) {
                 if (options.autoBind) {
                     that._progress(true);
-                    that.dataSource.fetch();
+                    that.dataSource.fetch(this._attemptLoadCompleted.bind(this));
                 }
             } else {
                 that._syncHtmlAndDataSource();
@@ -286,6 +287,8 @@ var __meta__ = { // jshint ignore:line
 
             if (that.element[0].id) {
                 that._ariaId = kendo.format("{0}_tv_active", that.element[0].id);
+            } else {
+                that._ariaId = kendo.guid() + "_tv_active";
             }
 
             kendo.notify(that);
@@ -296,22 +299,22 @@ var __meta__ = { // jshint ignore:line
                 clickableItems = ".k-in:not(.k-selected,.k-disabled)",
                 MOUSEENTER = "mouseenter";
 
-            that._clickHandler = proxy(that._click, that);
+            that._clickHandler = that._click.bind(that);
 
             that.wrapper
                 .on(MOUSEENTER + NS, ".k-in.k-selected", function(e) { e.preventDefault(); })
                 .on(MOUSEENTER + NS, clickableItems, function() { $(this).addClass(KSTATEHOVER); })
                 .on("mouseleave" + NS, clickableItems, function() { $(this).removeClass(KSTATEHOVER); })
                 .on(CLICK + NS, clickableItems, that._clickHandler)
-                .on("dblclick" + NS, ".k-in:not(.k-disabled)", proxy(that._toggleButtonClick, that))
-                .on(CLICK + NS, ".k-i-expand,.k-i-collapse", proxy(that._toggleButtonClick, that))
-                .on("keydown" + NS, that, proxy(that._keydown, that))
-                .on("keypress" + NS, proxy(that._keypress, that))
-                .on("focus" + NS, proxy(that._focus, that))
-                .on("blur" + NS, proxy(that._blur, that))
-                .on("mousedown" + NS, ".k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse", proxy(that._mousedown, that))
-                .on("change" + NS, ".k-checkbox-wrapper :checkbox", proxy(that._checkboxChange, that))
-                .on("click" + NS, ".k-request-retry", proxy(that._retryRequest, that))
+                .on("dblclick" + NS, ".k-in:not(.k-disabled)", that._toggleButtonClick.bind(that))
+                .on(CLICK + NS, ".k-i-expand,.k-i-collapse", that._toggleButtonClick.bind(that))
+                .on("keydown" + NS, that, that._keydown.bind(that))
+                .on("keypress" + NS, that._keypress.bind(that))
+                .on("focus" + NS, that._focus.bind(that))
+                .on("blur" + NS, that._blur.bind(that))
+                .on("mousedown" + NS, ".k-in,.k-checkbox-wrapper :checkbox,.k-i-expand,.k-i-collapse", that._mousedown.bind(that))
+                .on("change" + NS, ".k-checkbox-wrapper :checkbox", that._checkboxChange.bind(that))
+                .on("click" + NS, ".k-request-retry", that._retryRequest.bind(that))
                 .on("click" + NS, ".k-link.k-disabled", function(e) { e.preventDefault(); })
                 .on("click" + NS, function(e) {
                     var target = $(e.target);
@@ -392,7 +395,7 @@ var __meta__ = { // jshint ignore:line
                     filter: "div:not(.k-disabled) .k-in",
                     allowedContainers: ".k-treeview",
                     itemSelector: ".k-treeview .k-item",
-                    hintText: proxy(this._hintText, this),
+                    hintText: this._hintText.bind(this),
                     contains: function(source, destination) {
                         return $.contains(source, destination);
                     },
@@ -400,12 +403,12 @@ var __meta__ = { // jshint ignore:line
                         return item;
                     },
                     itemFromTarget: function(target) {
-                        var item = target.closest(".k-top,.k-mid,.k-bot");
+                        var item = target.closest(".k-treeview-top,.k-treeview-mid,.k-treeview-bot");
                         return {
                             item: item,
                             content: target.closest(".k-in"),
-                            first: item.hasClass("k-top"),
-                            last: item.hasClass("k-bot")
+                            first: item.hasClass("k-treeview-top"),
+                            last: item.hasClass("k-treeview-bot")
                         };
                     },
                     dropPositionFrom: function(dropHint) {
@@ -456,6 +459,9 @@ var __meta__ = { // jshint ignore:line
                                 widget.updateIndeterminate();
                             }
 
+                            widget.current(source);
+                            widget.element.focus();
+
                             widget.trigger(DRAGEND, {
                                 originalEvent: options.originalEvent,
                                 sourceNode: source && source[0],
@@ -502,7 +508,7 @@ var __meta__ = { // jshint ignore:line
         _templates: function() {
             var that = this,
                 options = that.options,
-                fieldAccessor = proxy(that._fieldAccessor, that);
+                fieldAccessor = that._fieldAccessor.bind(that);
 
             if (options.template && typeof options.template == STRING) {
                 options.template = template(options.template);
@@ -552,15 +558,15 @@ var __meta__ = { // jshint ignore:line
                         groupLength = group.length - 1;
 
                     if (group.firstLevel && index === 0) {
-                        result += "k-treeview-top k-top ";
+                        result += "k-treeview-top ";
                     }
 
                     if (index === 0 && index != groupLength) {
-                        result += "k-treeview-top k-top";
+                        result += "k-treeview-top";
                     } else if (index == groupLength) {
-                        result += "k-treeview-bot k-bot";
+                        result += "k-treeview-bot";
                     } else {
-                        result += "k-treeview-mid k-mid";
+                        result += "k-treeview-mid";
                     }
 
                     return result;
@@ -696,20 +702,50 @@ var __meta__ = { // jshint ignore:line
             this._dataSource();
 
             if (options.checkboxes && options.checkboxes.checkChildren) {
-                this.dataSource.one("change", $.proxy(this.updateIndeterminate, this, null));
+                this.dataSource.one("change", this.updateIndeterminate.bind(this, null));
             }
 
             if (this.options.autoBind) {
-                this.dataSource.fetch();
+                this.dataSource.fetch(this._attemptLoadCompleted.bind(this));
             }
         },
 
         _bindDataSource: function() {
-            this._refreshHandler = proxy(this.refresh, this);
-            this._errorHandler = proxy(this._error, this);
+            var that = this;
+            that._refreshHandler = that.refresh.bind(that);
+            that._errorHandler = that._error.bind(that);
+            that._loadCompletedHandler = that._loadCompleted.bind(that);
+            that._loadedNodes = [];
 
-            this.dataSource.bind(CHANGE, this._refreshHandler);
-            this.dataSource.bind(ERROR, this._errorHandler);
+            that.dataSource.bind(CHANGE, that._refreshHandler);
+            that.dataSource.bind(ERROR, that._errorHandler);
+
+            that.dataSource.bind(ITEMSLOADED, that._loadCompletedHandler);
+        },
+
+        _loadCompleted: function (e) {
+            var that = this;
+            that._loadedNodes = that._loadedNodes.concat(e.nodes);
+
+            if(!that.dataSource.loading() && that.options.loadOnDemand === false) {
+                that.trigger(LOADCOMPLETED, {nodes: that._loadedNodes});
+                that._loadedNodes = [];
+            }
+        },
+
+        _attemptLoadCompleted: function () { // If there are no items to be loaded ensure event is triggered on dataBound
+            var that = this,
+                items = that.dataSource.view();
+
+            if (that.options.loadOnDemand === false) {
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].hasChildren) {
+                        return;
+                    }
+                }
+
+                that.trigger(LOADCOMPLETED, {nodes: []});
+            }
         },
 
         _unbindDataSource: function() {
@@ -718,6 +754,7 @@ var __meta__ = { // jshint ignore:line
             if (dataSource) {
                 dataSource.unbind(CHANGE, this._refreshHandler);
                 dataSource.unbind(ERROR, this._errorHandler);
+                dataSource.unbind(ITEMSLOADED, this._loadCompletedHandler);
             }
         },
 
@@ -767,6 +804,7 @@ var __meta__ = { // jshint ignore:line
             DRAGEND,
 
             DATABOUND,
+            LOADCOMPLETED,
 
             EXPAND,
             COLLAPSE,
@@ -1459,7 +1497,7 @@ var __meta__ = { // jshint ignore:line
                 .addClass(templates.wrapperCssClass(groupData, nodeData));
 
             // div
-            wrapper.removeClass("k-top k-mid k-bot")
+            wrapper.removeClass("k-treeview-top k-treeview-mid k-treeview-bot")
                    .addClass(templates.cssClass(groupData, nodeData));
 
             // span / a
@@ -1851,6 +1889,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             this.wrapper.find(">ul").attr("role", "none");
+
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
             if (this.dataSource.filter() && this.options.checkboxes.checkChildren) {
                 this.updateIndeterminate(parentNode);
@@ -1876,7 +1915,7 @@ var __meta__ = { // jshint ignore:line
         _retryRequest: function(e) {
             e.preventDefault();
 
-            this.dataSource.fetch();
+            this.dataSource.fetch(this._attemptLoadCompleted.bind(this));
         },
 
         expand: function(nodes) {
@@ -1907,29 +1946,16 @@ var __meta__ = { // jshint ignore:line
         current: function(node) {
             var that = this,
                 current = that._current,
-                element = that.element,
-                id = that._ariaId;
+                element = that.element;
 
             if (arguments.length > 0 && node && node.length) {
                 if (current) {
-                    if (current[0].id === id) {
-                        current.removeAttr("id");
-                    }
-
                     current.find(".k-in").first().removeClass("k-focus");
                 }
 
                 current = that._current = $(node, element).closest(NODE);
-
                 current.find(".k-in").first().addClass("k-focus");
-
-                id = current[0].id || id;
-
-                if (id) {
-                    that.wrapper.removeAttr("aria-activedescendant");
-                    current.attr("id", id);
-                    that.wrapper.attr("aria-activedescendant", id);
-                }
+                that._updateActiveDescendant();
 
                 return;
             }
@@ -1939,6 +1965,20 @@ var __meta__ = { // jshint ignore:line
             }
 
             return current;
+        },
+
+        _updateActiveDescendant: function() {
+            var current = this._current,
+                id = current[0].id || this._ariaId,
+                prev = this.element.find("#" + this._ariaId);
+
+            if (prev.length > 0) {
+                prev.removeAttr("id");
+            }
+
+            this.wrapper.removeAttr("aria-activedescendant");
+            current.attr("id", id);
+            this.wrapper.attr("aria-activedescendant", id);
         },
 
         select: function(node) {
@@ -2234,6 +2274,10 @@ var __meta__ = { // jshint ignore:line
                 prevSibling, nextSibling;
 
             node = $(node, that.element);
+
+            if (node.attr("id") === that.element.attr("aria-activedescendant")) {
+                that.element.removeAttr("aria-activedescendant");
+            }
 
             this.angular("cleanup", function() {
                 return { elements: node.get() };

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.popover',[ "kendo.tooltip" ], f);
+    define('kendo.popover',[ "./kendo.tooltip" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -45,7 +45,6 @@ var __meta__ = { // jshint ignore:line
         Popup = kendo.ui.Popup,
         TooltipBase = kendo.ui.TooltipBase,
         extend = $.extend,
-        proxy = $.proxy,
         DOCUMENT = $(document),
         NS = ".kendoPopover",
         ARROWWIDTH = 28,
@@ -123,15 +122,15 @@ var __meta__ = { // jshint ignore:line
             that.dimensions = DIMENSIONS[axis];
             that._saveTitle = $.noop;
 
-            that._documentKeyDownHandler = proxy(that._documentKeyDown, that);
-            that._actionsHandler = proxy(that._actionsClick, that);
+            that._documentKeyDownHandler = that._documentKeyDown.bind(that);
+            that._actionsHandler = that._actionsClick.bind(that);
 
             if (that.options.toggleOnClick && that._isShownOnClick()) {
-                that.element.on((kendo.support.touch ? kendo.support.mousedown: that.options.showOn)  + NS, that.options.filter, proxy(that._showAction, that));
+                that.element.on((kendo.support.touch ? kendo.support.mousedown: that.options.showOn)  + NS, that.options.filter, that._showAction.bind(that));
             }
 
             if (!that._isShownOnClick()) {
-                that.element.on(EVENTSCOUNTERPART[that.options.showOn], that.options.filter, proxy(that._dismissAction, that));
+                that.element.on(EVENTSCOUNTERPART[that.options.showOn], that.options.filter, that._dismissAction.bind(that));
             }
         },
 
@@ -322,7 +321,7 @@ var __meta__ = { // jshint ignore:line
             });
 
             if (that._isShownOnMouseEnter()) {
-                wrapper.on("mouseleave" + NS, proxy(that._dismissAction, that));
+                wrapper.on("mouseleave" + NS, that._dismissAction.bind(that));
             }
 
             that.arrow = wrapper.find(".k-popover-callout");

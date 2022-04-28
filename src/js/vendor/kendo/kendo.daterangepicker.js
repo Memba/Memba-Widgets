@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.daterangepicker',[ "kendo.core", "kendo.multiviewcalendar",  "kendo.datepicker"], f);
+    define('kendo.daterangepicker',[ "./kendo.core", "./kendo.multiviewcalendar",  "./kendo.datepicker"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -62,7 +62,6 @@ var __meta__ = { // jshint ignore:line
         CLICK = "click" + ns,
         MOUSEDOWN = "mousedown" + ns,
         UP = support.mouseAndTouchPresent ? kendo.applyEventMap("up", ns.slice(1)) : CLICK,
-        proxy = $.proxy,
         parse = kendo.parseDate;
 
     var DateRangeView = function(options) {
@@ -93,7 +92,7 @@ var __meta__ = { // jshint ignore:line
             that._range = that._range || options.range || {};
 
             div.on(MOUSEDOWN, preventDefault)
-               .on(CLICK, "td:has(.k-link)", proxy(that._click, that));
+               .on(CLICK, "td:has(.k-link)", that._click.bind(that));
 
             that.calendar.selectRange(that._range);
         }
@@ -235,7 +234,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }));
             div = that.dateView.div;
-            that._ariaTemplate = proxy(template(this.options.ARIATemplate), that);
+            that._ariaTemplate = template(this.options.ARIATemplate).bind(that);
             that._reset();
             that.wrapper
                 .attr({
@@ -246,8 +245,8 @@ var __meta__ = { // jshint ignore:line
                 });
 
             that._inputs
-                .on(UP + ns, proxy(that._click, that))
-                .on("keydown" + ns, proxy(that._keydown, that));
+                .on(UP + ns, that._click.bind(that))
+                .on("keydown" + ns, that._keydown.bind(that));
 
             that._initializeDateInputs();
 
@@ -421,16 +420,16 @@ var __meta__ = { // jshint ignore:line
                 that.wrapper.empty();
                 that._buildHTML();
                 that._inputs
-                    .on(UP + ns, proxy(that._click, that))
-                    .on("keydown" + ns, proxy(that._keydown, that));
+                    .on(UP + ns, that._click.bind(that))
+                    .on("keydown" + ns, that._keydown.bind(that));
             }
             that._startDateInput = that._startInput.kendoDateInput(extend(true, inputOptions, { value: range.start })).getKendoDateInput();
             that._endDateInput = that._endInput.kendoDateInput(extend(true, inputOptions, { value: range.end })).getKendoDateInput();
 
-            that._startChangeHandler = proxy(that._startChange, that);
+            that._startChangeHandler = that._startChange.bind(that);
             that._startDateInput.bind(CHANGE, that._startChangeHandler);
 
-            that._endChangeHandler = proxy(that._endChange, that);
+            that._endChangeHandler = that._endChange.bind(that);
             that._endDateInput.bind(CHANGE, that._endChangeHandler);
 
         },

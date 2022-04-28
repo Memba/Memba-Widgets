@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.filtercell',[ "kendo.autocomplete", "kendo.datepicker", "kendo.numerictextbox", "kendo.combobox", "kendo.dropdownlist" ], f);
+    define('kendo.filtercell',[ "./kendo.autocomplete", "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.combobox", "./kendo.dropdownlist" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -45,7 +45,6 @@ var __meta__ = { // jshint ignore:line
         STRING = "string",
         EQ = "Is equal to",
         NEQ = "Is not equal to",
-        proxy = $.proxy,
         nonValueOperators = ["isnull", "isnotnull", "isempty", "isnotempty", "isnullorempty", "isnotnullorempty"];
 
     function isNonValueFilter(filter) {
@@ -173,7 +172,7 @@ var __meta__ = { // jshint ignore:line
 
                 if (field) {
                     if (field.parse) {
-                        that._parse = proxy(field.parse, field);
+                        that._parse = field.parse.bind(field);
                     }
                 }
             }
@@ -189,7 +188,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
             that._prevOperator = options.operator;
-            viewModel.bind(CHANGE, proxy(that.updateDsFilter, that));
+            viewModel.bind(CHANGE, that.updateDsFilter.bind(that));
 
             if (type == STRING) {
                 that.initSuggestDataSource(options);
@@ -232,7 +231,7 @@ var __meta__ = { // jshint ignore:line
 
             that._refreshUI();
 
-            that._refreshHandler = proxy(that._refreshUI, that);
+            that._refreshHandler = that._refreshUI.bind(that);
 
             that.dataSource.bind(CHANGE, that._refreshHandler);
 
@@ -495,7 +494,7 @@ var __meta__ = { // jshint ignore:line
                 .attr("aria-label", that.options.messages.clear)
                 .attr(kendo.attr("bind"), "visible:operatorVisible")
                 .html("<span class='k-button-icon k-icon k-i-filter-clear'></span>")
-                .on("click", proxy(that.clearFilter, that))
+                .on("click", that.clearFilter.bind(that))
                 .appendTo(that.wrapper);
         },
 

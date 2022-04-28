@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.switch',[ "kendo.core" ], f);
+    define('kendo.switch',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -63,8 +63,7 @@ var __meta__ = { // jshint ignore:line
         CLICK = support.click + NS,
         TOUCHEND = support.pointers ? "pointerup" : "touchend",
         KEYDOWN = "keydown" + NS,
-        LABELIDPART = "_label",
-        proxy = $.proxy;
+        LABELIDPART = "_label";
 
     var SWITCH_TEMPLATE = kendo.template('<span class="#=styles.widget#" role="switch"></span>');
 
@@ -150,9 +149,9 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.wrapper
-                .on(CLICK, proxy(that._click, that))
-                .on(TOUCHEND, proxy(that._touchEnd, that))
-                .on(KEYDOWN, proxy(that._keydown, that));
+                .on(CLICK, that._click.bind(that))
+                .on(TOUCHEND, that._touchEnd.bind(that))
+                .on(KEYDOWN, that._keydown.bind(that));
         },
 
         setOptions: function (options) {
@@ -299,7 +298,9 @@ var __meta__ = { // jshint ignore:line
         // alias for check, NG support
         value: function(value) {
             if (typeof value === "string") {
-            value = (value === "true");
+                value = (value === "true");
+            } else if (value === null){
+                value = false;
             }
             return this.check.apply(this, [value]);
         },

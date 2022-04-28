@@ -1,30 +1,30 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define) {
     define('util/main',[
-        "kendo.core"
+        "../kendo.core"
     ], f);
 })(function() {
 
@@ -178,7 +178,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/location',[ "kendo.drawing", "../../util/main" ], f);
+    define('dataviz/map/location',[ "../../kendo.drawing", "../../util/main" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -494,7 +494,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/attribution',[ "kendo.drawing" ], f);
+    define('dataviz/map/attribution',[ "../../kendo.drawing" ], f);
 })(function(){
 
 (function() {
@@ -618,21 +618,20 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/navigator',[ "kendo.core" ], f);
+    define('dataviz/map/navigator',[ "../../kendo.core" ], f);
 })(function(){
 
 (function ($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
-    var proxy = $.proxy;
 
     var NS = ".kendoNavigator";
 
     // Helper functions =======================================================
     function button(dir) {
        return kendo.format(
-           '<button class="k-button k-button-square k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-{0}" aria-label="move {0}">' +
+           '<button class="k-button k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-{0}" aria-label="move {0}">' +
                '<span class="k-button-icon k-icon k-i-arrow-60-{0}"></span>' +
            '</button>', dir);
     }
@@ -646,13 +645,13 @@ return window.kendo;
 
             this.element.addClass("k-widget k-navigator")
                         .append(BUTTONS)
-                        .on("click" + NS, ".k-button", proxy(this, "_click"));
+                        .on("click" + NS, ".k-button", this._click.bind(this));
 
             var parentElement = this.element.parent().closest("[" + kendo.attr("role") + "]");
             this._keyroot = parentElement.length > 0 ? parentElement : this.element;
             this._tabindex(this._keyroot);
 
-            this._keydown = proxy(this._keydown, this);
+            this._keydown = this._keydown.bind(this);
             this._keyroot.on("keydown", this._keydown);
         },
 
@@ -728,14 +727,13 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('dataviz/map/zoom',[ "kendo.core" ], f);
+    define('dataviz/map/zoom',[ "../../kendo.core" ], f);
 })(function(){
 
 (function ($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
-    var proxy = $.proxy;
 
     // Helper functions =======================================================
     function button(dir, iconClass) {
@@ -760,14 +758,14 @@ return window.kendo;
 
             this.element.addClass("k-widget k-zoom-control k-button-group k-group-horizontal")
                         .append(BUTTONS)
-                        .on("click" + NS, ".k-button", proxy(this, "_click"));
+                        .on("click" + NS, ".k-button", this._click.bind(this));
 
             var parentElement = this.element.parent().closest("[" + kendo.attr("role") + "]");
             this._keyroot = parentElement.length > 0 ? parentElement : this.element;
 
             this._tabindex(this._keyroot);
 
-            this._keydown = proxy(this._keydown, this);
+            this._keydown = this._keydown.bind(this);
             this._keyroot.on("keydown", this._keydown);
         },
 
@@ -825,7 +823,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/crs',[ "./location", "kendo.drawing" ], f);
+    define('dataviz/map/crs',[ "./location", "../../kendo.drawing" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -1079,9 +1077,7 @@ return window.kendo;
 
 (function ($, undefined) {
     // Imports ================================================================
-    var proxy = $.proxy,
-
-        kendo = window.kendo,
+    var kendo = window.kendo,
         Class = kendo.Class,
 
         dataviz = kendo.dataviz,
@@ -1105,10 +1101,10 @@ return window.kendo;
                })
                .appendTo(map.scrollElement);
 
-            this._beforeReset = proxy(this._beforeReset, this);
-            this._reset = proxy(this._reset, this);
-            this._resize = proxy(this._resize, this);
-            this._panEnd = proxy(this._panEnd, this);
+            this._beforeReset = this._beforeReset.bind(this);
+            this._reset = this._reset.bind(this);
+            this._resize = this._resize.bind(this);
+            this._panEnd = this._panEnd.bind(this);
             this._activate();
 
             this._updateAttribution();
@@ -1208,9 +1204,7 @@ return window.kendo;
 
 (function ($, undefined) {
     // Imports ================================================================
-    var proxy = $.proxy,
-
-        kendo = window.kendo,
+    var kendo = window.kendo,
         Class = kendo.Class,
         DataSource = kendo.data.DataSource,
 
@@ -1233,7 +1227,7 @@ return window.kendo;
     var ShapeLayer = Layer.extend({
         init: function(map, options) {
 
-            this._pan = proxy(this._pan, this);
+            this._pan = this._pan.bind(this);
 
             Layer.fn.init.call(this, map, options);
 
@@ -1308,7 +1302,7 @@ return window.kendo;
 
         _initDataSource: function() {
             var dsOptions = this.options.dataSource;
-            this._dataChange = proxy(this._dataChange, this);
+            this._dataChange = this._dataChange.bind(this);
             this.dataSource = DataSource
                 .create(dsOptions)
                 .bind("change", this._dataChange);
@@ -1788,8 +1782,6 @@ return window.kendo;
     // Imports ================================================================
     var math = Math,
 
-        proxy = $.proxy,
-
         kendo = window.kendo,
         Class = kendo.Class,
         template = kendo.template,
@@ -1859,7 +1851,7 @@ return window.kendo;
             if (!kendo.support.mobileOS) {
                 if (!this._pan) {
                     this._pan = kendo.throttle(
-                        proxy(this._render, this),
+                        this._render.bind(this),
                         100
                     );
                 }
@@ -2079,13 +2071,13 @@ return window.kendo;
         createElement: function() {
             this.element = $("<img style='position: absolute; display: block;' alt='" + this.options.tileTitle + "' />")
                             .css({ width: this.options.size, height: this.options.size })
-                            .on("error", proxy(function(e) {
+                            .on("error", (function(e) {
                                 if (this.errorUrl()) {
                                     e.target.setAttribute("src", this.errorUrl());
                                 } else {
                                     e.target.removeAttribute("src");
                                 }
-                            }, this));
+                            }).bind(this));
         },
 
         show: function() {
@@ -2275,7 +2267,7 @@ return window.kendo;
 
             TileLayer.fn.init.call(this, map, options);
 
-            this._onMetadata = $.proxy(this._onMetadata, this);
+            this._onMetadata = this._onMetadata.bind(this);
             this._fetchMetadata();
         },
 
@@ -2439,7 +2431,6 @@ return window.kendo;
     var doc = document,
         math = Math,
         indexOf = $.inArray,
-        proxy = $.proxy,
 
         kendo = window.kendo,
         Class = kendo.Class,
@@ -2458,7 +2449,7 @@ return window.kendo;
         init: function(map, options) {
             Layer.fn.init.call(this, map, options);
 
-            this._markerClick = proxy(this._markerClick, this);
+            this._markerClick = this._markerClick.bind(this);
             this.element.on("click", ".k-marker", this._markerClick);
 
             this.items = [];
@@ -2561,7 +2552,7 @@ return window.kendo;
 
         _initDataSource: function() {
             var dsOptions = this.options.dataSource;
-            this._dataChange = proxy(this._dataChange, this);
+            this._dataChange = this._dataChange.bind(this);
             this.dataSource = DataSource
                 .create(dsOptions)
                 .bind("change", this._dataChange);
@@ -2729,8 +2720,6 @@ return window.kendo;
         min = math.min,
         pow = math.pow,
 
-        proxy = $.proxy,
-
         kendo = window.kendo,
         Widget = kendo.ui.Widget,
         deepExtend = kendo.deepExtend,
@@ -2787,7 +2776,7 @@ return window.kendo;
             this._initLayers();
             this._reset();
 
-            this._mousewheel = proxy(this._mousewheel, this);
+            this._mousewheel = this._mousewheel.bind(this);
             this.element.on(MOUSEWHEEL, this._mousewheel);
         },
 
@@ -3127,10 +3116,10 @@ return window.kendo;
             var element = this._createControlElement(options, "topLeft");
             var navigator = this.navigator = new ui.Navigator(element, options);
 
-            this._navigatorPan = proxy(this._navigatorPan, this);
+            this._navigatorPan = this._navigatorPan.bind(this);
             navigator.bind("pan", this._navigatorPan);
 
-            this._navigatorCenter = proxy(this._navigatorCenter, this);
+            this._navigatorCenter = this._navigatorCenter.bind(this);
             navigator.bind("center", this._navigatorCenter);
         },
 
@@ -3161,7 +3150,7 @@ return window.kendo;
             var element = this._createControlElement(options, "topLeft");
             var zoomControl = this.zoomControl = new ui.ZoomControl(element, options);
 
-            this._zoomControlChange = proxy(this._zoomControlChange, this);
+            this._zoomControlChange = this._zoomControlChange.bind(this);
             zoomControl.bind("change", this._zoomControlChange);
         },
 
@@ -3184,12 +3173,12 @@ return window.kendo;
                     supportDoubleTap: true
                 });
 
-            scroller.bind("scroll", proxy(this._scroll, this));
-            scroller.bind("scrollEnd", proxy(this._scrollEnd, this));
-            scroller.userEvents.bind("gesturestart", proxy(this._scaleStart, this));
-            scroller.userEvents.bind("gestureend", proxy(this._scale, this));
-            scroller.userEvents.bind("doubleTap", proxy(this._doubleTap, this));
-            scroller.userEvents.bind("tap", proxy(this._tap, this));
+            scroller.bind("scroll", this._scroll.bind(this));
+            scroller.bind("scrollEnd", this._scrollEnd.bind(this));
+            scroller.userEvents.bind("gesturestart", this._scaleStart.bind(this));
+            scroller.userEvents.bind("gestureend", this._scale.bind(this));
+            scroller.userEvents.bind("doubleTap", this._doubleTap.bind(this));
+            scroller.userEvents.bind("tap", this._tap.bind(this));
 
             this.scrollElement = scroller.scrollElement;
         },
@@ -3410,8 +3399,8 @@ return window.kendo;
 
 (function(f, define){
     define('kendo.dataviz.map',[
-        "kendo.data", "kendo.userevents", "kendo.tooltip", "kendo.mobile.scroller", "kendo.draganddrop",
-        "kendo.dataviz.core",
+        "./kendo.data", "./kendo.userevents", "./kendo.tooltip", "./kendo.mobile.scroller", "./kendo.draganddrop",
+        "./kendo.dataviz.core",
 
         "./dataviz/map/location",
         "./dataviz/map/attribution",

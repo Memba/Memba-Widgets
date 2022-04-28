@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.filter',[ "kendo.core", "kendo.buttongroup"], f);
+    define('kendo.filter',[ "./kendo.core", "./kendo.buttongroup"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -156,8 +156,7 @@ var expressionItemTemplate =
         CHANGE = "change",
         NS = ".kendoFilter",
         EQ = "Is equal to",
-        NEQ = "Is not equal to",
-        proxy = $.proxy;
+        NEQ = "Is not equal to";
 
     var FilterButtonGroup = ButtonGroup.extend({
         init: function(element, options) {
@@ -197,7 +196,7 @@ var expressionItemTemplate =
             that.operators = $.extend(that.options.operators, options.operators);
 
             that._getFieldsInfo();
-            that._modelChangeHandler = proxy(that._modelChange, that);
+            that._modelChangeHandler = that._modelChange.bind(that);
             that._renderMain();
             if (options.expression) {
                 that._addExpressionTree(that.filterModel);

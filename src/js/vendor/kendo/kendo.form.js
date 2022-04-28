@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.form',[ "kendo.editable" ], f);
+    define('kendo.form',[ "./kendo.editable" ], f);
 })(function(){
 
     var __meta__ = { // jshint ignore:line
@@ -61,7 +61,6 @@
             NS = ".kendoForm",
             Widget = ui.Widget,
             extend = $.extend,
-            proxy = $.proxy,
             VALIDATE = "validate",
             VALIDATEFIELD = "validateField",
             VALIDATEINPUT = "validateInput",
@@ -593,15 +592,15 @@
                     validator = that.validator;
 
                 validator
-                    .bind(VALIDATEINPUT, proxy(that._validateField, that))
-                    .bind(VALIDATE, proxy(that._validate, that));
+                    .bind(VALIDATEINPUT, that._validateField.bind(that))
+                    .bind(VALIDATE, that._validate.bind(that));
 
                 that.wrapper
-                    .on(SUBMIT + NS, proxy(that._submit, that))
-                    .on(CLEAR + NS, proxy(that._clear, that))
-                    .on(CLICK + NS, DOT + formStyles.clear, proxy(that._clear, that));
+                    .on(SUBMIT + NS, that._submit.bind(that))
+                    .on(CLEAR + NS, that._clear.bind(that))
+                    .on(CLICK + NS, DOT + formStyles.clear, that._clear.bind(that));
 
-                that._model.bind(CHANGE, proxy(that._change, that));
+                that._model.bind(CHANGE, that._change.bind(that));
             },
 
             _validateField: function(ev) {

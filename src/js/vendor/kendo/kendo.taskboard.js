@@ -1,35 +1,34 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('taskboard/toolbar',["kendo.toolbar"], f);
+    define('taskboard/toolbar',["../kendo.toolbar"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
-        proxy = $.proxy,
         ToolBar = kendo.ui.ToolBar,
         Item = kendo.toolbar.Item,
 
@@ -70,10 +69,10 @@
         _attachEvents: function() {
             var that = this;
 
-            that.bind(TOGGLE, proxy(that._click, that));
-            that.bind(CLOSE, proxy(that._click, that));
-            that.bind(CLICK, proxy(that._click, that));
-            that.bind(CHANGE, proxy(that._change, that));
+            that.bind(TOGGLE, that._click.bind(that));
+            that.bind(CLOSE, that._click.bind(that));
+            that.bind(CLICK, that._click.bind(that));
+            that.bind(CHANGE, that._change.bind(that));
         },
 
         _extendOptions: function(options) {
@@ -121,11 +120,11 @@
                 });
 
                 if(toolOptions.type === "buttonGroup") {
-                    toolOptions.buttons = toolOptions.buttons.map(proxy(that._mapButtonGroups, that));
+                    toolOptions.buttons = toolOptions.buttons.map(that._mapButtonGroups.bind(that));
                 }
 
                 if(toolOptions.type === "splitButton") {
-                    toolOptions.menuButtons = toolOptions.menuButtons.map(proxy(that._mapMenuButtons, that));
+                    toolOptions.menuButtons = toolOptions.menuButtons.map(that._mapMenuButtons.bind(that));
                 }
 
                 return toolOptions;
@@ -283,7 +282,7 @@
             }
         },
         _bindEvents: function(){
-            this._inputHandler = proxy(this._input, this);
+            this._inputHandler = this._input.bind(this);
             this.input.on("input" + NS, this._inputHandler);
         },
         _input: function (ev) {
@@ -311,7 +310,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('taskboard/column',["kendo.sortable"], f);
+    define('taskboard/column',["../kendo.sortable"], f);
 })(function(){
 
 (function($, undefined) {
@@ -319,7 +318,6 @@ return window.kendo;
         ui = kendo.ui,
         Observable = kendo.Observable,
         extend = $.extend,
-        proxy = $.proxy,
 
         DOT = ".",
         NS = DOT + "kendoTaskBoardColumn",
@@ -591,11 +589,11 @@ return window.kendo;
 
             that.header.on(CLICK + NS,
                 DOT + TaskBoardColumn.styles.actionButton,
-                proxy(that._actionClick, that));
+                that._actionClick.bind(that));
 
             that.header.on(BLUR + NS,
                 DOT + TaskBoardColumn.styles.input,
-                proxy(that._textboxBlur, that));
+                that._textboxBlur.bind(that));
 
             that.header.on("keyup" + NS,
                 DOT + TaskBoardColumn.styles.input,
@@ -609,7 +607,7 @@ return window.kendo;
             if (that.container) {
                 that.container.on(CLICK + NS,
                     DOT + TaskBoardColumn.styles.card + " [" + kendo.attr("command") + "]",
-                    proxy(that._actionClick, that));
+                    that._actionClick.bind(that));
 
                 that.container.on(CLICK + NS,
                     DOT + TaskBoardColumn.styles.card + " a." + TaskBoardColumn.styles.cardTitle,
@@ -647,14 +645,14 @@ return window.kendo;
                             height: element[0].offsetHeight
                         });
                 },
-                move: proxy(that._move, that),
-                start: proxy(that._start, that),
-                end: proxy(that._end, that),
-                change: proxy(that._change, that)
+                move: that._move.bind(that),
+                start: that._start.bind(that),
+                end: that._end.bind(that),
+                change: that._change.bind(that)
             });
 
             that.sortable.draggable.userEvents.unbind("select");
-            that.sortable.draggable.userEvents.bind("select", proxy(that._select, that));
+            that.sortable.draggable.userEvents.bind("select", that._select.bind(that));
         },
 
         _select: function (ev) {
@@ -750,7 +748,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('taskboard/card',["kendo.core"], f);
+    define('taskboard/card',["../kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
@@ -922,13 +920,12 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('taskboard/cardmenu',["kendo.menu"], f);
+    define('taskboard/cardmenu',["../kendo.menu"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
-        proxy = $.proxy,
         template = kendo.template,
         ContextMenu = kendo.ui.ContextMenu,
 
@@ -943,9 +940,9 @@ return window.kendo;
             that._overrideTemplates();
             that._extendItems();
 
-            that.bind("select", proxy(that._onSelect, that));
-            that.bind("open", proxy(that._onOpen, that));
-            that.bind("activate", proxy(that._focus, that));
+            that.bind("select", that._onSelect.bind(that));
+            that.bind("open", that._onOpen.bind(that));
+            that.bind("activate", that._focus.bind(that));
         },
 
         _overrideTemplates: function(){
@@ -1088,7 +1085,7 @@ return window.kendo;
 
     }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function (f, define) {
-    define('taskboard/commands',["kendo.dialog"], f);
+    define('taskboard/commands',["../kendo.dialog"], f);
 })(function () {
 
     (function ($, undefined) {
@@ -1558,14 +1555,13 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
 (function(f, define){
-    define('taskboard/pane',["kendo.form"], f);
+    define('taskboard/pane',["../kendo.form"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
         Observable = kendo.Observable,
-        proxy = $.proxy,
 
         Form = kendo.ui.Form,
 
@@ -1605,7 +1601,7 @@ return window.kendo;
 
             that.element.on(CLICK + NS,
                 "["+kendo.attr("command")+"]",
-                proxy(that._commandClick, that));
+                that._commandClick.bind(that));
 
             Observable.fn.init.call(that);
         },
@@ -1940,14 +1936,13 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('taskboard/keyboard',["kendo.core"], f);
+    define('taskboard/keyboard',["../kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         Observable = kendo.Observable,
 
-        proxy = $.proxy,
         extend = $.extend,
 
         DOT = ".",
@@ -1993,7 +1988,7 @@ return window.kendo;
 
         _attachEvents: function () {
             var that = this,
-                handler = proxy(that._handler, that);
+                handler = that._handler.bind(that);
 
             that.element.on(KEYDOWN + NS, handler);
         },
@@ -2098,7 +2093,7 @@ return window.kendo;
         "./taskboard/pane",
         "./taskboard/keyboard",
 
-        "kendo.data"
+        "./kendo.data"
     ], f);
 })(function () {
 
@@ -2131,7 +2126,6 @@ return window.kendo;
             DataSource = kendo.data.DataSource,
             extend = $.extend,
             ui = kendo.ui,
-            proxy = $.proxy,
             isArray = Array.isArray,
             isPlainObject = $.isPlainObject,
 
@@ -2294,7 +2288,7 @@ return window.kendo;
                 }
 
                 $.when.apply(null, fetchPromises)
-                    .then(proxy(that.dataSource.read, that.dataSource));
+                    .then(that.dataSource.read.bind(that.dataSource));
             },
 
             dataItem: function (cardElm) {
@@ -2762,8 +2756,8 @@ return window.kendo;
                     that.columnsDataSource.unbind(CHANGE, that._columnsChangeHandler);
                     that.columnsDataSource.unbind(CHANGE, that._columnsErrorHandler);
                 } else {
-                    that._columnsChangeHandler = proxy(that._columnsDataSourceChange, that);
-                    that._columnsErrorHandler = proxy(that._error, that);
+                    that._columnsChangeHandler = that._columnsDataSourceChange.bind(that);
+                    that._columnsErrorHandler = that._error.bind(that);
                 }
 
                 that.columnsDataSource = DataSource.create(columnsDataSource)
@@ -2802,10 +2796,10 @@ return window.kendo;
                     column = that._columns[status] = new ui.taskboard.Column(columnSettings, data);
                     that.columnsContainer.append(column.element);
                     column.bind(ACTION, that.executeCommand.bind(that));
-                    column.bind(MOVE, proxy(that._move, that));
-                    column.bind(MOVE_END, proxy(that._moveEnd, that));
-                    column.bind(MOVE_START, proxy(that._moveStart, that));
-                    column.bind(CHANGE, proxy(that._changeOrder, that));
+                    column.bind(MOVE, that._move.bind(that));
+                    column.bind(MOVE_END, that._moveEnd.bind(that));
+                    column.bind(MOVE_START, that._moveStart.bind(that));
+                    column.bind(CHANGE, that._changeOrder.bind(that));
                     that._tabindex(column.element);
                 }
 
@@ -2867,8 +2861,8 @@ return window.kendo;
                     that.dataSource.unbind(CHANGE, that._changeHandler);
                     that.dataSource.unbind(ERROR, that._errorHandler);
                 } else {
-                    that._changeHandler = proxy(that._change, that);
-                    that._errorHandler = proxy(that._error, that);
+                    that._changeHandler = that._change.bind(that);
+                    that._errorHandler = that._error.bind(that);
                 }
 
                 that.dataSource = DataSource.create(dataSource)

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.captcha',["kendo.core", "kendo.slider", "kendo.textbox", "kendo.skeletoncontainer"], f);
+    define('kendo.captcha',["./kendo.core", "./kendo.slider", "./kendo.textbox", "./kendo.skeletoncontainer"], f);
 })(function () {
 
     var __meta__ = { // jshint ignore:line
@@ -37,7 +37,6 @@
     (function ($, undefined) {
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
-            proxy = $.proxy,
             extend = $.extend,
             ajax = $.ajax,
             isFunction = kendo.isFunction,
@@ -229,7 +228,7 @@
 
                 that.buttonsWrapper.append(that.resetButton);
 
-                that.resetButton.on(CLICK + NS, proxy(that._resetHandler, that, true));
+                that.resetButton.on(CLICK + NS, that._resetHandler.bind(that, true));
             },
 
             _audioButton: function () {
@@ -243,14 +242,14 @@
 
                 that.buttonsWrapper.append(that.audioButton);
 
-                that.audioButton.on(CLICK + NS, proxy(that._audioHandler, that));
+                that.audioButton.on(CLICK + NS, that._audioHandler.bind(that));
             },
 
             _resetHandler: function (focusResetButton) {
                 var that = this,
                     handler = that.options.handler,
                     deferred = $.Deferred(),
-                    success = proxy(that._resetCaptcha, that, deferred);
+                    success = that._resetCaptcha.bind(that, deferred);
 
                 delete that._isValid;
                 that._toggleSuccessMessage(false);
@@ -281,7 +280,7 @@
                 var that = this,
                     handler = that.options.audioHandler,
                     deferred = $.Deferred(),
-                    success = proxy(that._playAudio, that, deferred),
+                    success = that._playAudio.bind(that, deferred),
                     data = {};
 
                 data[that._captchaIdField] = that.idInput.val();
@@ -300,7 +299,7 @@
                 var that = this,
                     handler = that.options.validationHandler,
                     deferred = $.Deferred(),
-                    success = proxy(that._validate, that, deferred),
+                    success = that._validate.bind(that, deferred),
                     data = {};
 
                 delete that._isValid;
@@ -320,8 +319,8 @@
 
             _callHandler: function(type, handler, success, data){
                 var that = this,
-                    error = proxy(that._error, that, type),
-                    requestEnd = proxy(that._requestEnd, that, type),
+                    error = that._error.bind(that, type),
+                    requestEnd = that._requestEnd.bind(that, type),
                     args;
 
                 if (isFunction(handler)) {
@@ -380,7 +379,7 @@
                         });
                     }
 
-                    $(that.audioElement).on("ended" + NS + " error" + NS, proxy(that._audioEnded, that, deferred));
+                    $(that.audioElement).on("ended" + NS + " error" + NS, that._audioEnded.bind(that, deferred));
 
                     that.audioElement.play();
                 } else if(that._canPlayWithPlugin()) {

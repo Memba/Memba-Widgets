@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.scrollview',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
+    define('kendo.scrollview',[ "./kendo.fx", "./kendo.data", "./kendo.draganddrop" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -37,7 +37,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
-        proxy = $.proxy,
         Transition = kendo.effects.Transition,
         Pane = kendo.ui.Pane,
         keys = kendo.keys,
@@ -185,11 +184,11 @@ var __meta__ = { // jshint ignore:line
             navigationWrapElement.append(element);
             scrollView._navigationContainer.append(navigationWrapElement);
 
-            this._changeProxy = proxy(that, "_change");
-            this._refreshProxy = proxy(that, "_refresh");
+            this._changeProxy = that._change.bind(that);
+            this._refreshProxy = that._refresh.bind(that);
             scrollView.bind(CHANGE, this._changeProxy);
             scrollView.bind(REFRESH, this._refreshProxy);
-            element.on(CLICK+NS, "li.k-link", proxy(this._click, scrollView));
+            element.on(CLICK+NS, "li.k-link", this._click.bind(scrollView));
 
             $.extend(that, { element: element, scrollView: scrollView });
 
@@ -296,9 +295,9 @@ var __meta__ = { // jshint ignore:line
 
             that._ariaTemplate = kendo.template(pageable.ARIATemplate || "Item #=data.index#");
 
-            that.element.on(KEYDOWN+NS, that, proxy(that._keyDown, that));
-            that.element.on(FOCUS+NS, proxy(that._focus, that));
-            that.element.on(FOCUSOUT+NS, proxy(that._blur, that));
+            that.element.on(KEYDOWN+NS, that, that._keyDown.bind(that));
+            that.element.on(FOCUS+NS, that._focus.bind(that));
+            that.element.on(FOCUSOUT+NS, that._blur.bind(that));
         },
 
         _refresh: function(e) {
@@ -670,8 +669,8 @@ var __meta__ = { // jshint ignore:line
         _dataReader: function() {
             this.dataReader = new ScrollViewDataReader(this.dataSource);
 
-            this._pageProxy = proxy(this, "_onPage");
-            this._resetProxy = proxy(this, "_onReset");
+            this._pageProxy = this._onPage.bind(this);
+            this._resetProxy = this._onReset.bind(this);
 
             this.dataReader.bind({
                 "page": this._pageProxy,
@@ -690,14 +689,14 @@ var __meta__ = { // jshint ignore:line
                 template = "#=this.template(data)#";
             }
 
-            this.template = proxy(kendo.template(template), templateProxy);
+            this.template = kendo.template(template).bind(templateProxy);
 
             if (typeof emptyTemplate === FUNCTION) {
                 emptyTemplateProxy.emptyTemplate = emptyTemplate;
                 emptyTemplate = "#=this.emptyTemplate(data)#";
             }
 
-            this.emptyTemplate = proxy(kendo.template(emptyTemplate), emptyTemplateProxy);
+            this.emptyTemplate = kendo.template(emptyTemplate).bind(emptyTemplateProxy);
         },
 
         _initPages: function() {
@@ -1046,7 +1045,7 @@ var __meta__ = { // jshint ignore:line
                     element.addClass(className("scrollview-overlay"));
                 }
             } else {
-                this._changeProxy = proxy(that, "_toggleNavigation");
+                this._changeProxy = that._toggleNavigation.bind(that);
                 this.bind(CHANGE, this._changeProxy);
             }
 
@@ -1057,10 +1056,10 @@ var __meta__ = { // jshint ignore:line
 
             that.pane = new ElasticPane(that.inner, {
                 duration: this.options.duration,
-                transitionEnd: proxy(this, "_transitionEnd"),
-                dragStart: proxy(this, "_dragStart"),
-                dragEnd: proxy(this, "_dragEnd"),
-                change: proxy(this, REFRESH)
+                transitionEnd: this._transitionEnd.bind(this),
+                dragStart: this._dragStart.bind(this),
+                dragEnd: this._dragEnd.bind(this),
+                change: this[REFRESH].bind(this)
             });
 
             that.bind("resize", function() {
@@ -1338,8 +1337,8 @@ var __meta__ = { // jshint ignore:line
             var navigationContainer = that._navigationContainer = $("<div class='k-scrollview-elements'></div>");
 
             if (that.options.navigatable) {
-                prevArrow = $('<a class="k-scrollview-prev" aria-label="' + messages.previousButtonLabel + '"><span class="k-icon k-i-arrowhead-w"></span></a>');
-                nextArrow = $('<a class="k-scrollview-next" aria-label="' + messages.nextButtonLabel + '"><span class="k-icon k-i-arrowhead-e"></span></a>');
+                prevArrow = $('<a class="k-scrollview-prev" role="button" aria-label="' + messages.previousButtonLabel + '"><span class="k-icon k-i-arrowhead-w"></span></a>');
+                nextArrow = $('<a class="k-scrollview-next" role="button" aria-label="' + messages.nextButtonLabel + '"><span class="k-icon k-i-arrowhead-e"></span></a>');
             } else {
                 prevArrow = $('<a class="k-scrollview-prev"><span class="k-icon k-i-arrowhead-w"></span></a>');
                 nextArrow = $('<a class="k-scrollview-next"><span class="k-icon k-i-arrowhead-e"></span></a>');
@@ -1357,8 +1356,8 @@ var __meta__ = { // jshint ignore:line
                 that.element.append(that.ariaLiveEl);
             }
 
-            navigationContainer.on(CLICK+NS, "a.k-scrollview-prev", proxy(that.prev, that));
-            navigationContainer.on(CLICK+NS, "a.k-scrollview-next", proxy(that.next, that));
+            navigationContainer.on(CLICK+NS, "a.k-scrollview-prev", that.prev.bind(that));
+            navigationContainer.on(CLICK+NS, "a.k-scrollview-next", that.next.bind(that));
         },
 
         _navigatable: function () {
@@ -1386,9 +1385,9 @@ var __meta__ = { // jshint ignore:line
                 .attr("aria-roledescription", "carousel")
                 .attr(TABINDEX, 0);
 
-            that.itemsWrapper.on(KEYDOWN + NS, that, proxy(that._keyDown, that));
-            that.itemsWrapper.on(FOCUS + NS, proxy(that._focus, that));
-            that.itemsWrapper.on(FOCUSOUT + NS, proxy(that._blur, that));
+            that.itemsWrapper.on(KEYDOWN + NS, that, that._keyDown.bind(that));
+            that.itemsWrapper.on(FOCUS + NS, that._focus.bind(that));
+            that.itemsWrapper.on(FOCUSOUT + NS, that._blur.bind(that));
         },
 
         _focus: function () {

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.upload',[ "kendo.core" ], f);
+    define('kendo.upload',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -89,19 +89,19 @@ var __meta__ = { // jshint ignore:line
 
             var ns = that._ns = NS + "-" + kendo.guid();
             activeInput.closest("form")
-                .on("submit" + ns, $.proxy(that._onParentFormSubmit, that))
-                .on("reset" + ns, $.proxy(that._onParentFormReset, that));
+                .on("submit" + ns, that._onParentFormSubmit.bind(that))
+                .on("reset" + ns, that._onParentFormReset.bind(that));
 
             that._initUploadModule();
 
             that._toggleDropZone();
 
             that.wrapper
-                .on("click", ".k-upload-action", $.proxy(that._onFileAction, that))
-                .on("click", ".k-clear-selected", $.proxy(that._onClearSelected, that))
-                .on("click", ".k-upload-selected", $.proxy(that._onUploadSelected, that))
-                .on("keydown", $.proxy(that._onKeyDown, that))
-                .on("focusout", $.proxy(that._focusout, that));
+                .on("click", ".k-upload-action", that._onFileAction.bind(that))
+                .on("click", ".k-clear-selected", that._onClearSelected.bind(that))
+                .on("click", ".k-upload-selected", that._onUploadSelected.bind(that))
+                .on("keydown", that._onKeyDown.bind(that))
+                .on("focusout", that._focusout.bind(that));
 
             if(that.element.val()) {
                 that._onInputChange({ target: that.element });
@@ -427,7 +427,7 @@ var __meta__ = { // jshint ignore:line
                 .on("blur" + NS, function() {
                     $(this).parent().removeClass(FOCUS_STATE);
                 })
-                .on("change" + NS, $.proxy(that._onInputChange, that));
+                .on("change" + NS, that._onInputChange.bind(that));
         },
 
         _adjustFocusState: function(focusedItem, toFocus) {
@@ -1464,7 +1464,7 @@ var __meta__ = { // jshint ignore:line
                     }
                     e.preventDefault();
                  })
-                .on("drop" + ns, $.proxy(that._onDrop, that));
+                .on("drop" + ns, that._onDrop.bind(that));
 
             if (!dropZone.find(".k-dropzone-hint").length) {
                 dropZone.append($("<em class='k-dropzone-hint'>" + that.localization.dropFilesHere + "</em>"));
@@ -1501,7 +1501,7 @@ var __meta__ = { // jshint ignore:line
                         }
                         e.preventDefault();
                     })
-                    .on("drop" + ns, $.proxy(that._onDrop, that));
+                    .on("drop" + ns, that._onDrop.bind(that));
 
             bindDragEventWrappers(dropZone, ns,
                 function(e) {
@@ -1785,7 +1785,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 iframe
-                    .one("load", $.proxy(this.onIframeLoad, this));
+                    .one("load", this.onIframeLoad.bind(this));
 
                 form[0].submit();
             } else {

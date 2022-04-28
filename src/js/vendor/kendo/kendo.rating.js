@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.rating',[ "kendo.core", "kendo.dom" ], f);
+    define('kendo.rating',[ "./kendo.core", "./kendo.dom" ], f);
 })(function(){
 
     var __meta__ = { // jshint ignore:line
@@ -40,7 +40,6 @@
             NS = ".kendoRating",
             Widget = ui.Widget,
             extend = $.extend,
-            proxy = $.proxy,
             keys = kendo.keys,
             parseFloat = kendo.parseFloat,
             CHANGE = "change",
@@ -353,18 +352,18 @@
                     isHalfPrecision = that.options.precision == ratingPrecision.half;
 
                 that.wrapper
-                    .on(FOCUS, proxy(that._focus, that))
-                    .on(BLUR, proxy(that._blur, that))
-                    .on(KEYDOWN, proxy(that._keydown, that));
+                    .on(FOCUS, that._focus.bind(that))
+                    .on(BLUR, that._blur.bind(that))
+                    .on(KEYDOWN, that._keydown.bind(that));
 
                 that.container
-                    .on(CLICK, DOT + KITEM, proxy(that._click, that))
-                    .on(MOUSEENTER, DOT + KITEM, proxy(that._mouseenter, that))
-                    .on(MOUSELEAVE, DOT + KITEM, proxy(that._mouseleave, that))
-                    .on(MOUSEDOWN, proxy(that._mousedown, that));
+                    .on(CLICK, DOT + KITEM, that._click.bind(that))
+                    .on(MOUSEENTER, DOT + KITEM, that._mouseenter.bind(that))
+                    .on(MOUSELEAVE, DOT + KITEM, that._mouseleave.bind(that))
+                    .on(MOUSEDOWN, that._mousedown.bind(that));
 
                 if (isHalfPrecision) {
-                    that.container.on(MOUSEMOVE, DOT + KITEM,  proxy(that._mousemove, that));
+                    that.container.on(MOUSEMOVE, DOT + KITEM,  that._mousemove.bind(that));
                 }
             },
 

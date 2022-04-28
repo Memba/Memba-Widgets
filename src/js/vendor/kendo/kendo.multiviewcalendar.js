@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.multiviewcalendar',[ "kendo.core", "kendo.selectable", "kendo.calendar" ], f);
+    define('kendo.multiviewcalendar',[ "./kendo.core", "./kendo.selectable", "./kendo.calendar" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -85,7 +85,6 @@ var __meta__ = { // jshint ignore:line
         INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
         ARIA_DISABLED = "aria-disabled",
         ARIA_LABEL = "aria-label",
-        proxy = $.proxy,
         DATE = Date,
         views = {
             month: 0,
@@ -106,7 +105,7 @@ var __meta__ = { // jshint ignore:line
                 global: true,
                 allowSelection: true,
                 filter: that.options.filter,
-                tap: proxy(that._tap, that),
+                tap: that._tap.bind(that),
                 touchAction: "none"
             });
         },
@@ -362,8 +361,8 @@ var __meta__ = { // jshint ignore:line
 
             id = element
                 .addClass("k-widget k-calendar k-calendar-range" + (options.weekNumber ? " k-week-number" : ""))
-                .on(KEYDOWN + ns, "table.k-content", proxy(that._move, that))
-                .on(BLUR + ns, "table", proxy(that._blur, that))
+                .on(KEYDOWN + ns, "table.k-content", that._move.bind(that))
+                .on(BLUR + ns, "table", that._blur.bind(that))
                 .on(CLICK + ns, CELLSELECTORVALID, function(e) {
                     var link = e.currentTarget.firstChild;
 
@@ -373,7 +372,7 @@ var __meta__ = { // jshint ignore:line
 
                     that._click($(link));
                 })
-                .on(MOUSEENTER + ns, CELLSELECTORVALID, proxy(that._mouseEnter, that))
+                .on(MOUSEENTER + ns, CELLSELECTORVALID, that._mouseEnter.bind(that))
                 .on(MOUSELEAVE_NS, CELLSELECTORVALID, function() {
                     $(this).removeClass(HOVER);
                 })
@@ -1033,7 +1032,7 @@ var __meta__ = { // jshint ignore:line
                 that.rangeSelectable = new RangeSelectable(that.wrapper, {
                     calendar: that,
                     filter: "table.k-month " + CELLSELECTORVALID,
-                    change: proxy(that._rangeSelection, that)
+                    change: that._rangeSelection.bind(that)
                 });
             } else {
                 that.selectable = new Selectable(that.wrapper, {
@@ -1042,9 +1041,9 @@ var __meta__ = { // jshint ignore:line
                     inputSelectors: "input,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
                     multiple: Selectable.parseOptions(selectable).multiple,
                     filter: "table.k-content " + CELLSELECTORVALID,
-                    change: proxy(that._selection, that),
-                    relatedTarget: proxy(that._onRelatedTarget, that),
-                    unselect: proxy(that._unselecting, that)
+                    change: that._selection.bind(that),
+                    relatedTarget: that._onRelatedTarget.bind(that),
+                    unselect: that._unselecting.bind(that)
                 });
             }
         },
@@ -1469,7 +1468,7 @@ var __meta__ = { // jshint ignore:line
                 if (toggle && !isTodayDisabled) {
                     link.addClass(TODAY)
                     .removeClass(DISABLED)
-                    .on(CLICK + ns, proxy(that._todayClick, that));
+                    .on(CLICK + ns, that._todayClick.bind(that));
                 } else {
                     link.removeClass(TODAY)
                     .addClass(DISABLED)

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.scheduler.monthview',[ "kendo.scheduler.view" ], f);
+    define('kendo.scheduler.monthview',[ "./kendo.scheduler.view" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -1012,11 +1012,11 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (typeof eventHeight === "number") {
-                table.addClass("k-scheduler-table-auto");
-
                 rowHeight = this._calcSlotHeight(eventsPerDay);
 
                 table.find("tr").height( rowHeight );
+
+                table.addClass("k-scheduler-table-auto");
             }
         },
 
@@ -1309,7 +1309,10 @@ var __meta__ = { // jshint ignore:line
         },
 
         _positionMobileEvent: function(slotRange, element, group) {
-            var startSlot = slotRange.start;
+            var startSlot = slotRange.start,
+                tableEl = this.table.find(".k-scheduler-content .k-scheduler-table")[0],
+                contentEl = this.table.find(".k-scheduler-content")[0],
+                offsetLeft;
 
             if (slotRange.start.offsetLeft > slotRange.end.offsetLeft) {
                startSlot = slotRange.end;
@@ -1330,10 +1333,16 @@ var __meta__ = { // jshint ignore:line
             var container = slot.container;
 
             if (!container) {
+                if (this._isRtl && contentEl.clientWidth < contentEl.scrollWidth) {
+                    // RTL mobile rendering with horizontal scroll
+                    offsetLeft = startSlot.offsetLeft - (tableEl.clientWidth - contentEl.clientWidth) + "px";
+                } else {
+                    offsetLeft = startSlot.offsetLeft + "px";
+                }
 
                 container = $(kendo.format('<div class="k-events-container" style="top:{0};left:{1};width:{2}"></div>',
                     startSlot.offsetTop + startSlot.firstChildTop + startSlot.firstChildHeight + "px",
-                    startSlot.offsetLeft + "px",
+                    offsetLeft,
                     startSlot.offsetWidth + "px"
                 ));
 

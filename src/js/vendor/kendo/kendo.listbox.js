@@ -1,30 +1,30 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 /* jshint eqnull: true */
 (function(f, define) {
-    define('kendo.listbox',[ "kendo.draganddrop", "kendo.data", "kendo.selectable" ], f);
+    define('kendo.listbox',[ "./kendo.draganddrop", "./kendo.data", "./kendo.selectable" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -48,7 +48,6 @@ var __meta__ = { // jshint ignore:line
 
     var extend = $.extend;
     var noop = $.noop;
-    var proxy = $.proxy;
 
     var DASH = "-";
     var DOT = ".";
@@ -138,7 +137,7 @@ var __meta__ = { // jshint ignore:line
 
             that._wrapper();
             that._list();
-            that._ariaLabel();
+            that._ariaLabel(that._getList());
             element = that.element.attr("multiple", "multiple").hide();
 
             if (element[0] && !that.options.dataSource) {
@@ -286,9 +285,9 @@ var __meta__ = { // jshint ignore:line
             var options = that.options;
 
             if (options.navigatable) {
-                that._getList().on(CLICK, ENABLED_ITEM_SELECTOR, proxy(that._click, that))
-                            .on(KEYDOWN, proxy(that._keyDown, that))
-                            .on(BLUR, proxy(that._blur, that));
+                that._getList().on(CLICK, ENABLED_ITEM_SELECTOR, that._click.bind(that))
+                            .on(KEYDOWN, that._keyDown.bind(that))
+                            .on(BLUR, that._blur.bind(that));
             }
         },
 
@@ -500,10 +499,10 @@ var __meta__ = { // jshint ignore:line
                 that._draggable = new kendo.ui.Draggable(that.wrapper, {
                     filter: draggable.filter ? draggable.filter : DEFAULT_FILTER,
                     hint: kendo.isFunction(hint) ? hint : $(hint),
-                    dragstart: proxy(that._dragstart, that),
-                    dragcancel: proxy(that._clear, that),
-                    drag: proxy(that._drag, that),
-                    dragend: proxy(that._dragend, that)
+                    dragstart: that._dragstart.bind(that),
+                    dragcancel: that._clear.bind(that),
+                    drag: that._drag.bind(that),
+                    dragend: that._dragend.bind(that)
                 });
             }
         },
@@ -938,7 +937,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var dataSource = that.dataSource;
 
-            that._dataChangeHandler = proxy(that.refresh, that);
+            that._dataChangeHandler = that.refresh.bind(that);
 
             if (dataSource) {
                 dataSource.bind(CHANGE, that._dataChangeHandler);
@@ -984,32 +983,6 @@ var __meta__ = { // jshint ignore:line
 
             if (that.options.navigatable) {
                 that._getList().attr(TABINDEX, that._getTabIndex());
-            }
-        },
-
-        _ariaLabel: function() {
-            var that = this;
-            var inputElm = that.element;
-            var ul = that._getList();
-            var id = inputElm.attr("id");
-            var labelElm = $("label[for=\'" + id + "\']");
-            var ariaLabel = inputElm.attr("aria-label");
-            var ariaLabelledBy = inputElm.attr("aria-labelledby");
-            var labelId;
-
-            if (ariaLabel) {
-                ul.attr("aria-label", ariaLabel);
-            } else if (ariaLabelledBy) {
-                ul.attr("aria-labelledby", ariaLabelledBy);
-            } else if (labelElm.length) {
-                labelId = labelElm.attr("id");
-                if (labelId) {
-                    ul.attr("aria-labelledby", labelId);
-                } else {
-                    labelId = kendo.guid();
-                    labelElm.attr("id", labelId);
-                    ul.attr("aria-labelledby", labelId);
-                }
             }
         },
 
@@ -1113,7 +1086,7 @@ var __meta__ = { // jshint ignore:line
                 selectedClass: "k-selected",
                 multiple: selectableOptions.multiple,
                 filter: ENABLED_ITEM_SELECTOR,
-                change: proxy(that._onSelect, that)
+                change: that._onSelect.bind(that)
             });
         },
 
@@ -1561,7 +1534,7 @@ var __meta__ = { // jshint ignore:line
         _attachEventHandlers: function() {
             var that = this;
 
-            that.element.on(CLICK, TOOL_SELECTOR, proxy(that._onToolClick, that));
+            that.element.on(CLICK, TOOL_SELECTOR, that._onToolClick.bind(that));
         },
 
         _detachEventHandlers: function() {
@@ -1646,7 +1619,7 @@ var __meta__ = { // jshint ignore:line
     });
 
     function isInputElement(element) {
-        return $(element).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,label.k-checkbox-label,.k-input,.k-multiselect-wrap,.k-picker-wrap,.k-picker-wrap>.k-selected-color,.k-tool-icon,.k-dropdown");
+        return $(element).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,label.k-checkbox-label,.k-input,.k-multiselect-wrap,.k-picker-wrap,.k-picker-wrap>.k-selected-color,.k-tool-icon,.k-dropdownlist");
     }
 
 })(window.kendo.jQuery);

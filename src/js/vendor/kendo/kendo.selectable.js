@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.selectable',[ "kendo.core", "kendo.userevents" ], f);
+    define('kendo.selectable',[ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -37,7 +37,6 @@ var __meta__ = { // jshint ignore:line
 (function ($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
-        proxy = $.proxy,
         abs = Math.abs,
         ARIASELECTED = "aria-selected",
         SELECTED = "k-state-selected",
@@ -84,16 +83,16 @@ var __meta__ = { // jshint ignore:line
                 global: true,
                 allowSelection: true,
                 filter: (!supportEventDelegation ? "." + SELECTABLE + " " : "") + that.options.filter,
-                tap: proxy(that._tap, that),
+                tap: that._tap.bind(that),
                 touchAction: multiple ? "none" : "pan-x pan-y"
             });
 
             if (multiple) {
                 that.userEvents
-                   .bind("start", proxy(that._start, that))
-                   .bind("move", proxy(that._move, that))
-                   .bind("end", proxy(that._end, that))
-                   .bind("select", proxy(that._select, that));
+                   .bind("start", that._start.bind(that))
+                   .bind("move", that._move.bind(that))
+                   .bind("end", that._end.bind(that))
+                   .bind("select", that._select.bind(that));
             }
         },
 
@@ -325,7 +324,7 @@ var __meta__ = { // jshint ignore:line
 
         value: function(val, e) {
             var that = this,
-                selectElement = proxy(that._selectElement, that);
+                selectElement = that._selectElement.bind(that);
 
             if(val) {
                 val.each(function() {

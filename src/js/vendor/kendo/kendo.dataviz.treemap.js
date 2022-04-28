@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.dataviz.treemap',[ "kendo.data", "kendo.userevents", "kendo.dataviz.themes" ], f);
+    define('kendo.dataviz.treemap',[ "./kendo.data", "./kendo.userevents", "./kendo.dataviz.themes" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -37,7 +37,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var math = Math,
 
-        proxy = $.proxy,
         isArray = Array.isArray,
 
         kendo = window.kendo,
@@ -106,10 +105,10 @@ var __meta__ = { // jshint ignore:line
 
         _attachEvents: function() {
             this.element
-                .on(MOUSEOVER_NS, proxy(this._mouseover, this))
-                .on(MOUSELEAVE_NS, proxy(this._mouseleave, this));
+                .on(MOUSEOVER_NS, this._mouseover.bind(this))
+                .on(MOUSELEAVE_NS, this._mouseleave.bind(this));
 
-            this._resizeHandler = proxy(this.resize, this, false);
+            this._resizeHandler = this.resize.bind(this, false);
             kendo.onResize(this._resizeHandler);
         },
 
@@ -131,7 +130,7 @@ var __meta__ = { // jshint ignore:line
                 options = that.options,
                 dataSource = options.dataSource;
 
-            that._dataChangeHandler = proxy(that._onDataChange, that);
+            that._dataChangeHandler = that._onDataChange.bind(that);
 
             that.dataSource = HierarchicalDataSource
                 .create(dataSource)

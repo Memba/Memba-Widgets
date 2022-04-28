@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.toolbar',[ "kendo.core", "kendo.userevents", "kendo.popup", "kendo.html.button" ], f);
+    define('kendo.toolbar',[ "./kendo.core", "./kendo.userevents", "./kendo.popup", "./kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -38,7 +38,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         Class = kendo.Class,
         Widget = kendo.ui.Widget,
-        proxy = $.proxy,
         isFunction = kendo.isFunction,
         keys = kendo.keys,
         outerWidth = kendo._outerWidth,
@@ -489,6 +488,10 @@ var __meta__ = { // jshint ignore:line
 
                 element.addClass(BUTTON_GROUP);
 
+                if (options.hidden) {
+                    this.hide();
+                }
+
                 this.element.data({
                     type: "buttonGroup",
                     buttonGroup: this
@@ -596,7 +599,7 @@ var __meta__ = { // jshint ignore:line
                 this.toolbar = toolbar;
 
                 this.mainButton = new ToolBarButton($.extend({}, options, { hidden: false }), toolbar);
-                this.arrowButton = $('<a class="' + KBUTTON + EMPTY + BUTTON_DEFAULTS + EMPTY + ICON_BUTTON + EMPTY + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? "km-icon km-arrowdown" : "k-icon k-i-arrow-s") + '"></span></a>');
+                this.arrowButton = $('<a class="' + KBUTTON + EMPTY + BUTTON_DEFAULTS + EMPTY + ICON_BUTTON + EMPTY + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? "km-icon km-arrowdown" : "k-icon k-button-icon k-i-arrow-s") + '"></span></a>');
                 this.popupElement = $('<ul class="' + LIST_CONTAINER + EMPTY + MENU_GROUP + '"></ul>');
 
                 this.mainButton.element
@@ -911,6 +914,10 @@ var __meta__ = { // jshint ignore:line
                 this.addIdAttr();
                 this.addOverflowAttr();
 
+                if (options.hidden) {
+                    this.hide();
+                }
+
                 element.data({
                     type: TEMPLATE,
                     template: this
@@ -1059,7 +1066,7 @@ var __meta__ = { // jshint ignore:line
                         threshold: 5,
                         allowSelection: true,
                         filter: DOT + OVERFLOW_ANCHOR,
-                        tap: proxy(that._toggleOverflow, that)
+                        tap: that._toggleOverflow.bind(that)
                     });
 
                     that._resizeHandler = kendo.onResize(function() {
@@ -1086,7 +1093,7 @@ var __meta__ = { // jshint ignore:line
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] a." + KBUTTON + COMMA + EMPTY +
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + MENU_LINK + COMMA + EMPTY +
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + OVERFLOW_BUTTON,
-                    tap: proxy(that._buttonClick, that),
+                    tap: that._buttonClick.bind(that),
                     press: toggleActive,
                     release: toggleActive
                 });
@@ -1572,7 +1579,7 @@ var __meta__ = { // jshint ignore:line
                             element[0].focus();
                         }
                     })
-                    .on(KEYDOWN + ns, proxy(that._keydown, that));
+                    .on(KEYDOWN + ns, that._keydown.bind(that));
             },
 
             _keydown: function(e) {
@@ -1671,7 +1678,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (keyCode === keys.HOME) {
-                    if (target.is(".k-dropdown") || target.is("input")) {
+                    if (target.is(".k-dropdownlist") || target.is("input")) {
                         return;
                     }
 
@@ -1682,7 +1689,7 @@ var __meta__ = { // jshint ignore:line
                     }
                     e.preventDefault();
                 } else if (keyCode === keys.END) {
-                    if (target.is(".k-dropdown") || target.is("input")) {
+                    if (target.is(".k-dropdownlist") || target.is("input")) {
                         return;
                     }
                     if (this.overflowAnchor && $(this.overflowAnchor).css("visibility") != "hidden") {
@@ -1691,10 +1698,10 @@ var __meta__ = { // jshint ignore:line
                         items.last().trigger(FOCUS);
                     }
                     e.preventDefault();
-                } else if (keyCode === keys.RIGHT && !this._preventNextFocus && !target.is("input, select, .k-dropdown, .k-colorpicker") && this._getNextElement(e.target, 1 * direction)) {
+                } else if (keyCode === keys.RIGHT && !this._preventNextFocus && !target.is("input, select, .k-dropdownlist, .k-colorpicker") && this._getNextElement(e.target, 1 * direction)) {
                     this._getNextElement(e.target, 1 * direction).focus();
                     e.preventDefault();
-                } else if (keyCode === keys.LEFT && !this._preventNextFocus && !target.is("input, select, .k-dropdown, .k-colorpicker") && this._getNextElement(e.target, -1 * direction)) {
+                } else if (keyCode === keys.LEFT && !this._preventNextFocus && !target.is("input, select, .k-dropdownlist, .k-colorpicker") && this._getNextElement(e.target, -1 * direction)) {
                     this._getNextElement(e.target, -1 * direction).focus();
                     e.preventDefault();
                 }

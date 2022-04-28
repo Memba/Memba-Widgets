@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.columnmenu',[ "kendo.popup", "kendo.filtermenu", "kendo.menu", "kendo.expansionpanel" ], f);
+    define('kendo.columnmenu',[ "./kendo.popup", "./kendo.filtermenu", "./kendo.menu", "./kendo.expansionpanel" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -37,7 +37,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
-        proxy = $.proxy,
         extend = $.extend,
         grep = $.grep,
         map = $.map,
@@ -168,7 +167,7 @@ var __meta__ = { // jshint ignore:line
 
             that.wrapper = $('<div class="k-column-menu"/>');
 
-            that._refreshHandler = proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
 
             that.dataSource.bind(CHANGE, that._refreshHandler);
         },
@@ -278,9 +277,9 @@ var __meta__ = { // jshint ignore:line
             that.popup = that.wrapper[POPUP]({
                 anchor: that.link,
                 copyAnchorStyles: false,
-                open: proxy(that._open, that),
-                activate: proxy(that._activate, that),
-                deactivate: proxy(that._deactivate, that),
+                open: that._open.bind(that),
+                activate: that._activate.bind(that),
+                deactivate: that._deactivate.bind(that),
                 close: function(e) {
                     if (that.menu) {
                         that.menu._closing = e.sender.element;
@@ -323,7 +322,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             link.attr("tabindex", -1)
-                .on("click" + NS, proxy(that._click, that));
+                .on("click" + NS, that._click.bind(that));
 
             return link;
         },
@@ -796,9 +795,9 @@ var __meta__ = { // jshint ignore:line
                 that.refresh();
 
                 if (that._isModernComponentType()) {
-                    that.wrapper.on("click" + NS, ".k-sort-asc, .k-sort-desc", proxy(that._sortHandler, that));
+                    that.wrapper.on("click" + NS, ".k-sort-asc, .k-sort-desc", that._sortHandler.bind(that));
                 } else {
-                    that.menu.bind(SELECT, proxy(that._sortHandler, that));
+                    that.menu.bind(SELECT, that._sortHandler.bind(that));
                 }
             }
         },
@@ -876,11 +875,11 @@ var __meta__ = { // jshint ignore:line
 
                 that._updateColumnsMenu();
 
-                that._updateColumnsMenuHandler = proxy(that._updateColumnsMenu, that);
+                that._updateColumnsMenuHandler = that._updateColumnsMenu.bind(that);
 
                 that.owner.bind(["columnHide", "columnShow"], that._updateColumnsMenuHandler);
 
-                that._updateColumnsLockedStateHandler = proxy(that._updateColumnsLockedState, that);
+                that._updateColumnsLockedStateHandler = that._updateColumnsLockedState.bind(that);
 
                 that.owner.bind(["columnUnlock", "columnLock" ], that._updateColumnsLockedStateHandler);
 
@@ -888,7 +887,7 @@ var __meta__ = { // jshint ignore:line
                     that.wrapper.on("click" + NS, '.k-columns-item .k-button:not(.k-button-solid-primary)', function () {
                         that._updateColumnsMenu();
                     });
-                    that.wrapper.on("click" + NS, '.k-columns-item .k-button.k-button-solid-primary', proxy(that._applyColumnVisibility, that));
+                    that.wrapper.on("click" + NS, '.k-columns-item .k-button.k-button-solid-primary', that._applyColumnVisibility.bind(that));
                     that.wrapper.on("click" + NS, '.k-columns-item .k-checkbox', function () {
                         that._updateColumnsMenu(true);
                     });
@@ -1143,9 +1142,9 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (that._isModernComponentType()) {
-                that.wrapper.on("click" + NS, ".k-lock, .k-unlock", proxy(that._lockableHandler, that));
+                that.wrapper.on("click" + NS, ".k-lock, .k-unlock", that._lockableHandler.bind(that));
             } else {
-                that.menu.bind(SELECT, proxy(that._lockableHandler, that));
+                that.menu.bind(SELECT, that._lockableHandler.bind(that));
             }
         },
 
@@ -1170,9 +1169,9 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (that._isModernComponentType()) {
-                that.wrapper.on("click" + NS, ".k-stick, .k-unstick", proxy(that._stickableHandler, that));
+                that.wrapper.on("click" + NS, ".k-stick, .k-unstick", that._stickableHandler.bind(that));
             } else {
-                that.menu.bind(SELECT, proxy(that._stickableHandler, that));
+                that.menu.bind(SELECT, that._stickableHandler.bind(that));
             }
         },
 

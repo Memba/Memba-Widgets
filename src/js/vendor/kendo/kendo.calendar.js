@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.calendar',[ "kendo.core", "kendo.selectable" ], f);
+    define('kendo.calendar',[ "./kendo.core", "./kendo.selectable" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -89,7 +89,6 @@ var __meta__ = { // jshint ignore:line
         ARIA_DISABLED = "aria-disabled",
         ARIA_SELECTED = "aria-selected",
         ARIA_LABEL = "aria-label",
-        proxy = $.proxy,
         extend = $.extend,
         DATE = Date,
         views = {
@@ -150,7 +149,7 @@ var __meta__ = { // jshint ignore:line
             id = element
                 .addClass("k-widget k-calendar " + (options.weekNumber ? " k-week-number" : ""))
                 .on(MOUSEENTER_WITH_NS + " " + MOUSELEAVE, CELLSELECTOR, mousetoggle)
-                .on(KEYDOWN_NS, "table.k-content", proxy(that._move, that))
+                .on(KEYDOWN_NS, "table.k-content", that._move.bind(that))
                 .on(CLICK + " touchend", CELLSELECTOR, function(e) {
                     var link = e.currentTarget.firstChild,
                         value = toDateObject(link);
@@ -608,8 +607,8 @@ var __meta__ = { // jshint ignore:line
                 inputSelectors: "input,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
                 multiple: selectableOptions.multiple,
                 filter: "table.k-month:eq(0) " + CELLSELECTORVALID,
-                change: proxy(that._onSelect, that),
-                relatedTarget: proxy(that._onRelatedTarget, that)
+                change: that._onSelect.bind(that),
+                relatedTarget: that._onRelatedTarget.bind(that)
             });
         },
 
@@ -1212,7 +1211,7 @@ var __meta__ = { // jshint ignore:line
                 that._active = that.options.focusOnNav !== false;
                 that.navigateToFuture();
             });
-            element.find('[' + kendo.attr("action") + '="today"]').on(CLICK + " touchend" + ns, proxy(that._todayClick, that));
+            element.find('[' + kendo.attr("action") + '="today"]').on(CLICK + " touchend" + ns, that._todayClick.bind(that));
 
         },
 
@@ -1297,7 +1296,7 @@ var __meta__ = { // jshint ignore:line
                 if (toggle && !isTodayDisabled) {
                     link.addClass(todayClass)
                     .removeClass(DISABLED)
-                    .on(CLICK, proxy(that._todayClick, that));
+                    .on(CLICK, that._todayClick.bind(that));
                 } else {
                     link.removeClass(todayClass)
                     .addClass(DISABLED)

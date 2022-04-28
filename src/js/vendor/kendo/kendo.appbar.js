@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.appbar',[ "kendo.core"], f);
+    define('kendo.appbar',[ "./kendo.core"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -39,8 +39,7 @@ var spacerTemplate = "<span class='k-appbar-spacer'></span>";
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
-        RESIZE = "resize",
-        proxy = $.proxy;
+        RESIZE = "resize";
 
     var AppBar = Widget.extend( {
         init: function(element, options) {
@@ -141,7 +140,7 @@ var spacerTemplate = "<span class='k-appbar-spacer'></span>";
         _attachEvents: function () {
             var that = this;
 
-            that.resizeHandler = proxy(that._resize, that);
+            that.resizeHandler = that._resize.bind(that);
 
             kendo.onResize(that.resizeHandler);
         }

@@ -1,34 +1,33 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('orgchart/data',["kendo.data", "kendo.treelist"], f);
+    define('orgchart/data',["../kendo.data", "../kendo.treelist"], f);
 })(function(){
 
 (function($, undefined) {
     var extend = $.extend,
-        proxy = $.proxy,
 
         data = kendo.data,
         Query = data.Query,
@@ -267,7 +266,7 @@
         },
 
         read: function(data) {
-            return DataSource.fn.read.call(this, data).then(proxy(this._loadExpanded, this, data));
+            return DataSource.fn.read.call(this, data).then(this._loadExpanded.bind(this, data));
         },
 
         toggleChildren: function(item, expand) {
@@ -355,7 +354,7 @@
     });
 
     OrgChartDataSource.create = function(options) {
-        if ($.isArray(options)) {
+        if (Array.isArray(options)) {
             options = { data: options };
         } else if (options instanceof ObservableArray) {
             options = { data: options.toJSON() };
@@ -379,14 +378,13 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('orgchart/view',["kendo.core"], f);
+    define('orgchart/view',["../kendo.core"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         keys = kendo.keys,
         extend = $.extend,
-        proxy = $.proxy,
 
         NS = ".kendoOrgChartView",
 
@@ -601,11 +599,11 @@ return window.kendo;
         _attachEvents: function() {
             var itemsSelector = DOT + ORGCHART_STYLES.card + COMMA + DOT + ORGCHART_STYLES.nodesGroupContainer;
 
-            this.element.on(KEYDOWN + NS, itemsSelector, proxy(this._onKeyDown, this))
-                .on(CLICK + NS, itemsSelector, proxy(this._onSelect, this))
-                .on(CLICK + NS, DOT + ORGCHART_STYLES.button, proxy(this._onButtonClick, this))
-                .on(FOCUS + NS, itemsSelector, proxy(this._onFocus, this))
-                .on(BLUR + NS, DOT + ORGCHART_STYLES.focused, proxy(this._onBlur, this));
+            this.element.on(KEYDOWN + NS, itemsSelector, this._onKeyDown.bind(this))
+                .on(CLICK + NS, itemsSelector, this._onSelect.bind(this))
+                .on(CLICK + NS, DOT + ORGCHART_STYLES.button, this._onButtonClick.bind(this))
+                .on(FOCUS + NS, itemsSelector, this._onFocus.bind(this))
+                .on(BLUR + NS, DOT + ORGCHART_STYLES.focused, this._onBlur.bind(this));
         },
 
         _cacheFocused: function() {
@@ -816,7 +814,7 @@ return window.kendo;
             }
 
             for(i = 0; i < items.length; i++) {
-                that.dataSource.toggleChildren(items[i], shouldExpand).then(proxy(this.refresh, this));
+                that.dataSource.toggleChildren(items[i], shouldExpand).then(this.refresh.bind(this));
             }
         },
 
@@ -967,7 +965,7 @@ return window.kendo;
                 return;
             }
 
-            this.dataSource.toggleChildren(this._dataItem($item), false).then(proxy(this.refresh, this));
+            this.dataSource.toggleChildren(this._dataItem($item), false).then(this.refresh.bind(this));
         },
 
         expand: function(item) {
@@ -977,7 +975,7 @@ return window.kendo;
                 return;
             }
 
-            this.dataSource.toggleChildren(this._dataItem($item), true).then(proxy(this.refresh, this));
+            this.dataSource.toggleChildren(this._dataItem($item), true).then(this.refresh.bind(this));
         },
 
         _calculateItemWidth: function() {
@@ -1338,7 +1336,7 @@ return window.kendo;
             dataItems = this._dataItems($group);
 
             for(i = 0; i < dataItems.length; i++) {
-                this.dataSource.toggleChildren(dataItems[i], false).then(proxy(this.refresh, this));
+                this.dataSource.toggleChildren(dataItems[i], false).then(this.refresh.bind(this));
             }
         },
 
@@ -1353,7 +1351,7 @@ return window.kendo;
             dataItems = this._dataItems($group);
 
             for(i = 0; i < dataItems.length; i++) {
-                this.dataSource.toggleChildren(dataItems[i], true).then(proxy(this.refresh, this));
+                this.dataSource.toggleChildren(dataItems[i], true).then(this.refresh.bind(this));
             }
         },
 
@@ -1865,7 +1863,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('kendo.orgchart',[ "./orgchart/data", "./orgchart/view", "kendo.menu", "kendo.dialog", "kendo.form", "kendo.upload", "kendo.window" ], f);
+    define('kendo.orgchart',[ "./orgchart/data", "./orgchart/view", "./kendo.menu", "./kendo.dialog", "./kendo.form", "./kendo.upload", "./kendo.window" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -1883,7 +1881,6 @@ var __meta__ = { // jshint ignore:line
         ContextMenu = kendo.ui.ContextMenu,
 
         extend = $.extend,
-        proxy = $.proxy,
         isArray = Array.isArray,
 
         NS = ".kendoOrgChart",
@@ -2276,10 +2273,10 @@ var __meta__ = { // jshint ignore:line
                 ds.unbind(REQUEST_START, this._requestStartHandler);
             }
 
-            this._dataSourceChangeHandler = proxy(this._onDataSourceChange, this);
-            this._errorHandler = proxy(this._onDataSourceError, this);
-            this._progressHandler = proxy(this._progress, this);
-            this._requestStartHandler = proxy(this._onDataSourceRequestStart, this);
+            this._dataSourceChangeHandler = this._onDataSourceChange.bind(this);
+            this._errorHandler = this._onDataSourceError.bind(this);
+            this._progressHandler = this._progress.bind(this);
+            this._requestStartHandler = this._onDataSourceRequestStart.bind(this);
 
             ds = this.dataSource = OrgChartDataSource.create(dsOptions);
 
@@ -2441,7 +2438,7 @@ var __meta__ = { // jshint ignore:line
                 }, {
                     field: "avatar",
                     label: messages.uploadAvatar,
-                    editor: proxy(this._uploadEditor, this, item)
+                    editor: this._uploadEditor.bind(this, item)
                 }]);
             }
 
@@ -2611,10 +2608,10 @@ var __meta__ = { // jshint ignore:line
                 this.view = new kendo.orgChart.SingleView(this.container, this.options);
             }
 
-            this.view.bind(SELECT, proxy(this._triggerSelect, this));
-            this.view.bind(EXPAND, proxy(this._triggerExpand, this));
-            this.view.bind(COLLAPSE, proxy(this._triggerCollapse, this));
-            this.view.bind(MENU, proxy(this._openMenu, this));
+            this.view.bind(SELECT, this._triggerSelect.bind(this));
+            this.view.bind(EXPAND, this._triggerExpand.bind(this));
+            this.view.bind(COLLAPSE, this._triggerCollapse.bind(this));
+            this.view.bind(MENU, this._openMenu.bind(this));
 
         },
 

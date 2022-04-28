@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.validator',[ "kendo.core" ], f);
+    define('kendo.validator',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -63,7 +63,7 @@ var __meta__ = { // jshint ignore:line
         VALIDATE = "validate",
         CHANGE = "change",
         VALIDATE_INPUT = "validateInput",
-        proxy = $.proxy,
+
         patternMatcher = function(value, pattern) {
             if (typeof pattern === "string") {
                 pattern = new RegExp('^(?:' + pattern + ')$');
@@ -361,7 +361,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (that.element.is(FORM)) {
-                that.element.on("submit" + NS, proxy(that._submit, that));
+                that.element.on("submit" + NS, that._submit.bind(that));
             }
 
             if (that.options.validateOnBlur) {
@@ -436,6 +436,7 @@ var __meta__ = { // jshint ignore:line
                 template = that._errorTemplate,
                 result = that._checkValidity(input),
                 valid = result.valid,
+                widgetInstance,
                 className = "." + INVALIDMSG,
                 fieldName = (input.attr(NAME) || ""),
                 lbl = that._findMessageContainer(fieldName).add(input.next(className).filter(function() {
@@ -469,7 +470,7 @@ var __meta__ = { // jshint ignore:line
                 if (lbl.length !== 0) {
                     lbl.replaceWith(messageLabel);
                 } else {
-                    var widgetInstance = kendo.widgetInstance(input);
+                    widgetInstance = kendo.widgetInstance(input);
                     var parentElement = input.parent().get(0);
                     var nextElement = input.next().get(0);
                     var prevElement = input.prev().get(0);
@@ -514,16 +515,13 @@ var __meta__ = { // jshint ignore:line
                 this.trigger(VALIDATE_INPUT, { valid: valid, input: input, error: messageText, field: fieldName });
             }
 
-            if (isInputInner && inputWrapper.length) {
-                inputWrapper.toggleClass(INVALIDINPUT, !valid);
-                inputWrapper.toggleClass(VALIDINPUT, valid);
+            widgetInstance = kendo.widgetInstance(input);
+            if (!widgetInstance || !(widgetInstance._inputWrapper || widgetInstance.wrapper)) {
+                input.toggleClass(INVALIDINPUT, !valid);
+                input.toggleClass(VALIDINPUT, valid);
             }
 
-            input.toggleClass(INVALIDINPUT, !valid);
-            input.toggleClass(VALIDINPUT, valid);
-
-
-            if (kendo.widgetInstance(input)) {
+            if (widgetInstance) {
                 var widget = kendo.widgetInstance(input);
                 var inputWrap = widget._inputWrapper || widget.wrapper;
                 var inputLabel = widget._inputLabel;
@@ -755,7 +753,7 @@ var __meta__ = { // jshint ignore:line
             container.addClass([VALIDATIONSUMMARY, MESSAGEBOX].join(" "));
             container.attr("role", "alert");
 
-            container.on("click" + NS, proxy(that._summaryClick, that));
+            container.on("click" + NS, that._summaryClick.bind(that));
 
             return container;
         },

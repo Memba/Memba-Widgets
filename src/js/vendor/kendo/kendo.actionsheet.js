@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.actionsheet',["kendo.core", "kendo.popup"], f);
+    define('kendo.actionsheet',["./kendo.core", "./kendo.popup"], f);
 })(function () {
 
 var __meta__ = {// jshint ignore:line
@@ -52,7 +52,6 @@ var __meta__ = {// jshint ignore:line
     var STATEDISABLED = "k-state-disabled";
     var HIDDEN = "k-hidden";
     var extend = $.extend;
-    var proxy = $.proxy;
     var template = kendo.template;
     var CLICK = "click";
     var KEYDOWN = "keydown";
@@ -130,8 +129,8 @@ var __meta__ = {// jshint ignore:line
             that._footer();
 
             that.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
-            that._mousedownProxy = proxy(that._mousedown, that);
-            that.wrapper.on(KEYDOWN + ns, that, proxy(that._keydown, that));
+            that._mousedownProxy = that._mousedown.bind(that);
+            that.wrapper.on(KEYDOWN + ns, that, that._keydown.bind(that));
         },
 
         events: [
@@ -182,7 +181,7 @@ var __meta__ = {// jshint ignore:line
                     anchor: that.wrapper
                 }));
 
-            that.popup.bind(ACTIVATE, proxy(that._openHandler, that));
+            that.popup.bind(ACTIVATE, that._openHandler.bind(that));
         },
 
         _header: function () {
@@ -230,7 +229,7 @@ var __meta__ = {// jshint ignore:line
                 container.append(itemElement);
 
                 if (item.click) {
-                    itemElement.on(CLICK + ns, proxy(item.click, that));
+                    itemElement.on(CLICK + ns, item.click.bind(that));
                 }
             }
         },

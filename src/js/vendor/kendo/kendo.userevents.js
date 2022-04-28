@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.userevents',[ "kendo.core" ], f);
+    define('kendo.userevents',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -208,7 +208,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         press: function() {
-            this._holdTimeout = setTimeout($.proxy(this, "_hold"), this.userEvents.minHold);
+            this._holdTimeout = setTimeout(this._hold.bind(this), this.userEvents.minHold);
             this._trigger(PRESS, this.pressEvent);
         },
 
@@ -410,7 +410,7 @@ var __meta__ = { // jshint ignore:line
 
             if (that.captureUpIfMoved && support.eventCapture) {
                 var surfaceElement = that.surface[0],
-                    preventIfMovingProxy = $.proxy(that.preventIfMoving, that);
+                    preventIfMovingProxy = that.preventIfMoving.bind(that);
 
                 withEachUpEvent(function(eventName) {
                     surfaceElement.addEventListener(eventName, preventIfMovingProxy, true);

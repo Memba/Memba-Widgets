@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.filebrowser',[ "kendo.listview", "kendo.dropdownlist", "kendo.upload", "kendo.breadcrumb" ], f);
+    define('kendo.filebrowser',[ "./kendo.listview", "./kendo.dropdownlist", "./kendo.upload", "./kendo.breadcrumb" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         isPlainObject = $.isPlainObject,
-        proxy = $.proxy,
         extend = $.extend,
         placeholderSupported = kendo.support.placeholder,
         isFunction = kendo.isFunction,
@@ -220,10 +219,10 @@ var __meta__ = { // jshint ignore:line
             that.element.addClass("k-filebrowser");
 
             that.element
-                .on(CLICK + NS, ".k-filebrowser-toolbar button:not(.k-disabled):has(.k-i-close)", proxy(that._deleteClick, that))
-                .on(CLICK + NS, ".k-filebrowser-toolbar button:not(.k-disabled):has(.k-i-folder-add)", proxy(that._addClick, that))
-                .on("keydown" + NS, ".k-listview-item.k-state-selected input", proxy(that._directoryKeyDown, that))
-                .on("blur" + NS, ".k-listview-item.k-state-selected input", proxy(that._directoryBlur, that));
+                .on(CLICK + NS, ".k-filebrowser-toolbar button:not(.k-disabled):has(.k-i-close)", that._deleteClick.bind(that))
+                .on(CLICK + NS, ".k-filebrowser-toolbar button:not(.k-disabled):has(.k-i-folder-add)", that._addClick.bind(that))
+                .on("keydown" + NS, ".k-listview-item.k-state-selected input", that._directoryKeyDown.bind(that))
+                .on("blur" + NS, ".k-listview-item.k-state-selected input", that._directoryBlur.bind(that));
 
             that._dataSource();
 
@@ -320,7 +319,7 @@ var __meta__ = { // jshint ignore:line
                         saveUrl: that.options.transport.uploadUrl,
                         autoUpload: true
                     },
-                    upload: proxy(that._fileUpload, that),
+                    upload: that._fileUpload.bind(that),
                     error: function(e) {
                         that._error({ xhr: e.XMLHttpRequest, status: "error" });
                     }
@@ -357,10 +356,10 @@ var __meta__ = { // jshint ignore:line
 
             if (that.options.transport.uploadUrl) {
                 bindDragEventWrappers($(document.documentElement),
-                    $.proxy(that._dropEnter, that),
-                    $.proxy(that._dropLeave, that)
+                    that._dropEnter.bind(that),
+                    that._dropLeave.bind(that)
                 );
-                that._scrollHandler = proxy(that._positionDropzone, that);
+                that._scrollHandler = that._positionDropzone.bind(that);
             }
         },
 
@@ -637,7 +636,7 @@ var __meta__ = { // jshint ignore:line
 
             that.list = $('<div class="k-filemanager-listview" />')
                 .appendTo(that.element)
-                .on("dblclick" + NS, ".k-listview-item", proxy(that._dblClick, that));
+                .on("dblclick" + NS, ".k-listview-item", that._dblClick.bind(that));
 
             that.listView = new kendo.ui.ListView(that.list, {
                 layout: "flex",
@@ -665,7 +664,7 @@ var __meta__ = { // jshint ignore:line
                         this.content.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
                     }
                 },
-                change: proxy(that._listViewChange, that)
+                change: that._listViewChange.bind(that)
             });
         },
 
@@ -710,7 +709,7 @@ var __meta__ = { // jshint ignore:line
                 };
 
             if (isPlainObject(transport)) {
-                transport.path = proxy(that.path, that);
+                transport.path = that.path.bind(that);
                 dataSource.transport = transport;
             }
 
@@ -723,7 +722,7 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource && that._errorHandler) {
                 that.dataSource.unbind(ERROR, that._errorHandler);
             } else {
-                that._errorHandler = proxy(that._error, that);
+                that._errorHandler = that._error.bind(that);
             }
 
             that.dataSource = kendo.data.DataSource.create(dataSource)
@@ -795,7 +794,7 @@ var __meta__ = { // jshint ignore:line
             html += "#}#";
             html += '</div>';
 
-            return proxy(kendo.template(html), { sizeFormatter: sizeFormatter } );
+            return kendo.template(html).bind({ sizeFormatter: sizeFormatter });
         },
 
         _itemTmpl: function() {
@@ -811,7 +810,7 @@ var __meta__ = { // jshint ignore:line
             html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-file-size">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
             html += '</div>';
 
-            return proxy(kendo.template(html), { sizeFormatter: sizeFormatter } );
+            return kendo.template(html).bind({ sizeFormatter: sizeFormatter });
         },
 
         path: function(value) {
@@ -847,15 +846,15 @@ var __meta__ = { // jshint ignore:line
             that._wrapper();
 
             that.element
-                .on("keydown" + SEARCHBOXNS, proxy(that._keydown, that))
-                .on("change" + SEARCHBOXNS, proxy(that._updateValue, that));
+                .on("keydown" + SEARCHBOXNS, that._keydown.bind(that))
+                .on("change" + SEARCHBOXNS, that._updateValue.bind(that));
 
             that.wrapper
-                .on(CLICK + SEARCHBOXNS, "a", proxy(that._click, that));
+                .on(CLICK + SEARCHBOXNS, "a", that._click.bind(that));
 
             if (!placeholderSupported) {
-                that.element.on("focus" + SEARCHBOXNS, proxy(that._focus, that))
-                    .on("blur" + SEARCHBOXNS, proxy(that._blur, that));
+                that.element.on("focus" + SEARCHBOXNS, that._focus.bind(that))
+                    .on("blur" + SEARCHBOXNS, that._blur.bind(that));
             }
         },
 

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.groupable',[ "kendo.core", "kendo.draganddrop" ], f);
+    define('kendo.groupable',[ "./kendo.core", "./kendo.draganddrop" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -41,7 +41,6 @@ var __meta__ = { // jshint ignore:line
         kendoAttr = kendo.attr,
         extend = $.extend,
         each = $.each,
-        proxy = $.proxy,
         isRtl = false,
 
         DIR = "dir",
@@ -77,7 +76,7 @@ var __meta__ = { // jshint ignore:line
         init: function(element, options) {
             var that = this,
                 group = kendo.guid(),
-                intializePositions = proxy(that._intializePositions, that),
+                intializePositions = that._intializePositions.bind(that),
                 draggable,
                 horizontalCuePosition,
                 dropCuePositions = that._dropCuePositions = [];
@@ -144,7 +143,7 @@ var __meta__ = { // jshint ignore:line
                     filter: "div.k-group-indicator",
                     hint: hint,
                     group: draggable.options.group,
-                    dragcancel: proxy(that._dragCancel, that),
+                    dragcancel: that._dragCancel.bind(that),
                     dragstart: function(e) {
                         var element = e.currentTarget,
                             marginLeft = parseInt(element.css("marginLeft"), 10),
@@ -158,7 +157,7 @@ var __meta__ = { // jshint ignore:line
                     dragend: function() {
                         that._dragEnd(this);
                     },
-                    drag: proxy(that._drag, that)
+                    drag: that._drag.bind(that)
                 })
                 .on("click" + NS, ".k-button", function(e) {
                     e.preventDefault();
@@ -178,7 +177,7 @@ var __meta__ = { // jshint ignore:line
                 dragend: function() {
                     that._dragEnd(this);
                 },
-                dragcancel: proxy(that._dragCancel, that),
+                dragcancel: that._dragCancel.bind(that),
                 dragstart: function(e) {
                     var element, marginRight, left;
 
@@ -196,7 +195,7 @@ var __meta__ = { // jshint ignore:line
                         left = 0;
                     }
                 },
-                drag: proxy(that._drag, that)
+                drag: that._drag.bind(that)
             });
 
             that.dataSource = that.options.dataSource;
@@ -204,7 +203,7 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource && that._refreshHandler) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             } else {
-                that._refreshHandler = proxy(that.refresh, that);
+                that._refreshHandler = that.refresh.bind(that);
             }
 
             if(that.dataSource) {

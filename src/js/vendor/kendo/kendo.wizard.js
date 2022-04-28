@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.wizard',[ "kendo.stepper", "kendo.button", "kendo.form" ], f);
+    define('kendo.wizard',[ "./kendo.stepper", "./kendo.button", "./kendo.form" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -59,7 +59,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         extend = $.extend,
-        proxy = $.proxy,
 
         WIZARD = ".kendoWizard",
 
@@ -291,7 +290,7 @@ var __meta__ = { // jshint ignore:line
 
             this._buttons = [];
 
-            this.options.buttons.map(proxy(this._buttonFactory, this));
+            this.options.buttons.map(this._buttonFactory.bind(this));
 
             if(this.options.pager) {
                 this._pager();
@@ -390,7 +389,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            this.options.buttons = buttonsOptions.map(proxy(this._iterateButton, this));
+            this.options.buttons = buttonsOptions.map(this._iterateButton.bind(this));
         },
 
         _render: function() {
@@ -655,19 +654,19 @@ var __meta__ = { // jshint ignore:line
                     that._doneClicked = true;
                 };
 
-            that.stepper.bind(SELECT, proxy(that._stepperSelectHandler, that));
+            that.stepper.bind(SELECT, that._stepperSelectHandler.bind(that));
 
             that.wrapper
-                .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + RESET + "]", proxy(that._resetClickHandler, that))
-                .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + PREVIOUS + "]", proxy(that._previousClickHandler, that))
-                .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + NEXT + "]", proxy(that._nextClickHandler, that));
+                .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + RESET + "]", that._resetClickHandler.bind(that))
+                .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + PREVIOUS + "]", that._previousClickHandler.bind(that))
+                .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + NEXT + "]", that._nextClickHandler.bind(that));
 
             if(that.wrapper.is("form")) {
                 that.wrapper.on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + DONE + "]", clickBeforeSubmit);
-                that.wrapper.on(SUBMIT + WIZARD, proxy(that._doneHandler, that));
+                that.wrapper.on(SUBMIT + WIZARD, that._doneHandler.bind(that));
             } else {
                 that.wrapper.on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + DONE + "]", clickBeforeSubmit);
-                that.wrapper.on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + DONE + "]", proxy(that._doneHandler, that));
+                that.wrapper.on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + DONE + "]", that._doneHandler.bind(that));
             }
         },
 

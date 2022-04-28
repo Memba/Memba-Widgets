@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.datetimepicker',[ "kendo.datepicker", "kendo.timepicker", "kendo.html.button"], f);
+    define('kendo.datetimepicker',[ "./kendo.datepicker", "./kendo.timepicker", "./kendo.html.button"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -309,7 +309,7 @@ var __meta__ = { // jshint ignore:line
                     element[0].removeAttribute(ARIA_DISABLED, false);
                     element[0].removeAttribute(ARIA_READONLY, false);
                 }
-                element.on("keydown" + ns, $.proxy(that._keydown, that))
+                element.on("keydown" + ns, that._keydown.bind(that))
                        .on("focus" + ns, function() {
                            that.wrapper.addClass(FOCUSED);
                        })
@@ -397,15 +397,21 @@ var __meta__ = { // jshint ignore:line
         },
 
         close: function(view) {
-            if (this.options.singlePopup) {
-                this.popup.close();
+            var that = this;
+
+            if (that.options.singlePopup) {
+                that.popup.close();
             } else {
                 if (view !== "time") {
                     view = "date";
                 }
 
-                this[view + "View"].close();
+                that[view + "View"].close();
             }
+
+            setTimeout(function() {
+                that.element.removeAttr("aria-activedescendant");
+            });
         },
 
         open: function(view) {
@@ -926,14 +932,14 @@ var __meta__ = { // jshint ignore:line
             icons = that.wrapper.find("button.k-input-button");
 
             if (!icons[0]) {
-                that._dateIcon = $(html.renderButton('<button unselectable="on" tabindex="-1" class="k-select k-input-button" aria-label="' + options.dateButtonText + '"></button>', {
+                that._dateIcon = $(html.renderButton('<button unselectable="on" tabindex="-1" class="k-input-button" aria-label="' + options.dateButtonText + '"></button>', {
                     icon: "calendar",
                     size: options.size,
                     fillMode: options.fillMode,
                     shape: null,
                     rounded: null
                 })).insertAfter(element);
-                that._timeIcon = $(html.renderButton('<button unselectable="on" tabindex="-1" class="k-select k-input-button" aria-label="' + options.timeButtonText + '"></button>', {
+                that._timeIcon = $(html.renderButton('<button unselectable="on" tabindex="-1" class="k-input-button" aria-label="' + options.timeButtonText + '"></button>', {
                     icon: "clock",
                     size: options.size,
                     fillMode: options.fillMode,
@@ -1002,7 +1008,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _template: function() {
-            this._ariaTemplate = $.proxy(kendo.template(this.options.ARIATemplate), this);
+            this._ariaTemplate = kendo.template(this.options.ARIATemplate).bind(this);
         },
 
         _createDateInput: function(options) {
@@ -1070,9 +1076,9 @@ var __meta__ = { // jshint ignore:line
                 }
             }));
 
-            div.on(CLICK + ns, ".k-datetime-buttongroup .k-button", $.proxy(that._groupChangeClick, that));
-            div.on(CLICK + ns, ".k-datetime-footer button.k-time-cancel", $.proxy(that._cancelClickHandler, that));
-            div.on(CLICK + ns, ".k-datetime-footer button.k-time-accept", $.proxy(that._setClickHandler, that));
+            div.on(CLICK + ns, ".k-datetime-buttongroup .k-button", that._groupChangeClick.bind(that));
+            div.on(CLICK + ns, ".k-datetime-footer button.k-time-cancel", that._cancelClickHandler.bind(that));
+            div.on(CLICK + ns, ".k-datetime-footer button.k-time-accept", that._setClickHandler.bind(that));
         },
 
         _groupChangeClick: function(e) {

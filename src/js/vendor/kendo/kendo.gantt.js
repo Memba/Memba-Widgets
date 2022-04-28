@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.gantt',["kendo.data", "kendo.resizable", "kendo.switch", "kendo.gantt.data", "kendo.gantt.editors", "kendo.gantt.list", "kendo.gantt.timeline", "kendo.pdf"], f);
+    define('kendo.gantt',["./kendo.data", "./kendo.resizable", "./kendo.switch", "./kendo.gantt.data", "./kendo.gantt.editors", "./kendo.gantt.list", "./kendo.gantt.timeline", "./kendo.pdf"], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -47,7 +47,6 @@ var __meta__ = { // jshint ignore:line
         isArray = Array.isArray,
         inArray = $.inArray,
         isFunction = kendo.isFunction,
-        proxy = $.proxy,
         extend = $.extend,
         isPlainObject = $.isPlainObject,
         outerWidth = kendo._outerWidth,
@@ -500,7 +499,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _attachEvents: function() {
-            this._resizeHandler = proxy(this.resize, this, false);
+            this._resizeHandler = this.resize.bind(this, false);
             $(window).on("resize" + NS, this._resizeHandler);
 
             if (supportsMedia && this._mediaQuery.matches === true) {
@@ -586,7 +585,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!isFunction(actions)) {
                 actions = (typeof actions === STRING ? actions : this._actions(actions));
-                actions = proxy(kendo.template(actions), this);
+                actions = kendo.template(actions).bind(this);
             }
 
             toggleButton = $(TOGGLE_BUTTON_TEMPLATE({ styles: ganttStyles.toolbar }));
@@ -620,7 +619,7 @@ var __meta__ = { // jshint ignore:line
             this.toolbar = toolbar;
 
             if (supportsMedia) {
-                this._mediaQueryHandler = proxy(mediaQueryHandler, this);
+                this._mediaQueryHandler = mediaQueryHandler.bind(this);
                 this._mediaQuery = window.matchMedia("(max-width: 480px)");
                 this._mediaQuery.addListener(this._mediaQueryHandler);
             }
@@ -968,7 +967,7 @@ var __meta__ = { // jshint ignore:line
                 column = columns[i];
 
                 if (column.field === this.resources.field && typeof column.editor !== "function") {
-                    column.editor = proxy(this._createResourceEditor, this);
+                    column.editor = this._createResourceEditor.bind(this);
                 }
             }
         },
@@ -1355,9 +1354,9 @@ var __meta__ = { // jshint ignore:line
                     .unbind("progress", this._progressHandler)
                     .unbind("error", this._errorHandler);
             } else {
-                this._refreshHandler = proxy(this.refresh, this);
-                this._progressHandler = proxy(this._requestStart, this);
-                this._errorHandler = proxy(this._error, this);
+                this._refreshHandler = this.refresh.bind(this);
+                this._progressHandler = this._requestStart.bind(this);
+                this._errorHandler = this._error.bind(this);
             }
 
             this.dataSource = kendo.data.GanttDataSource.create(dataSource)
@@ -1375,8 +1374,8 @@ var __meta__ = { // jshint ignore:line
                     .unbind("change", this._dependencyRefreshHandler)
                     .unbind("error", this._dependencyErrorHandler);
             } else {
-                this._dependencyRefreshHandler = proxy(this.refreshDependencies, this);
-                this._dependencyErrorHandler = proxy(this._error, this);
+                this._dependencyRefreshHandler = this.refreshDependencies.bind(this);
+                this._dependencyErrorHandler = this._error.bind(this);
             }
 
             this.dependencies = kendo.data.GanttDependencyDataSource.create(dataSource)
@@ -1408,7 +1407,7 @@ var __meta__ = { // jshint ignore:line
                 this.assignments.dataSource
                     .unbind("change", this._assignmentsRefreshHandler);
             } else {
-                this._assignmentsRefreshHandler = proxy(this.refresh, this);
+                this._assignmentsRefreshHandler = this.refresh.bind(this);
             }
 
             this.assignments = {
@@ -1432,9 +1431,9 @@ var __meta__ = { // jshint ignore:line
                 target: this,
                 resources: {
                     field: this.resources.field,
-                    editor: proxy(this._createResourceEditor, this)
+                    editor: this._createResourceEditor.bind(this)
                 },
-                createButton: proxy(this._createPopupButton, this)
+                createButton: this._createPopupButton.bind(this)
             }));
 
             editor
@@ -1491,7 +1490,7 @@ var __meta__ = { // jshint ignore:line
                     { name: "update", text: messages.save, className: Gantt.styles.primary },
                     { name: "cancel", text: messages.cancel }
                 ],
-                createButton: proxy(this._createPopupButton, this),
+                createButton: this._createPopupButton.bind(this),
                 save: function(e) {
                     that._updateAssignments(e.model.get("id"), e.model.get(resourcesField));
                 }
@@ -2487,7 +2486,7 @@ var __meta__ = { // jshint ignore:line
             var toggeSwitchWrap = $("<span class='k-gantt-planned-wrap'><label>" + switchLabel + "</label></span>");
             var plannedToggle = new kendo.ui.Switch($("<input id='planned-switch' class='k-gantt-planned-switch'>"), {
                 checked: that.options.showPlannedTasks,
-                change: proxy(that._togglePlannedTasks, that),
+                change: that._togglePlannedTasks.bind(that),
                 messages: {
                     checked: "",
                     unchecked: ""

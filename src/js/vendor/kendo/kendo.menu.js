@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.menu',[ "kendo.popup", "kendo.data" ], f);
+    define('kendo.menu',[ "./kendo.popup", "./kendo.data" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -46,7 +46,6 @@ var __meta__ = { // jshint ignore:line
         DELAY = 30,
         SCROLLSPEED = 50,
         extend = $.extend,
-        proxy = $.proxy,
         each = $.each,
         template = kendo.template,
         keys = kendo.keys,
@@ -107,6 +106,7 @@ var __meta__ = { // jshint ignore:line
         STRING = "string",
         DATABOUND = "dataBound",
         ARIA_EXPANDED = "aria-expanded",
+        ROLE = "role",
 
         bindings = {
             text: "dataTextField",
@@ -297,7 +297,7 @@ var __meta__ = { // jshint ignore:line
             .attr("aria-disabled", true);
 
         if (!item.filter("[role]").length) {
-            item.attr("role", "menuitem");
+            item.attr(ROLE, "menuitem");
         }
 
         if (!item.children(LINK_SELECTOR).length) {
@@ -529,7 +529,7 @@ var __meta__ = { // jshint ignore:line
                 that.clicked = false;
             }
 
-            element.attr("role", "menubar");
+            element.attr(ROLE, "menubar");
 
             if (element[0].id) {
                 that._ariaId = kendo.format("{0}_mn_active", element[0].id);
@@ -592,32 +592,32 @@ var __meta__ = { // jshint ignore:line
             var options = that.options;
             var overflowWrapper = that._overflowWrapper();
 
-            that._checkActiveProxy = proxy(that._checkActiveElement, that);
+            that._checkActiveProxy = that._checkActiveElement.bind(that);
 
-            (overflowWrapper || element).on(POINTERDOWN, itemSelector, proxy(that._focusHandler, that))
+            (overflowWrapper || element).on(POINTERDOWN, itemSelector, that._focusHandler.bind(that))
                    .on(CLICK + NS, disabledSelector, false)
-                   .on(CLICK + NS, itemSelector, proxy(that._click , that))
-                   .on(POINTERDOWN + " " + MOUSEDOWN + NS, ".k-content", proxy(that._preventClose, that))
-                   .on(MOUSEENTER + NS, availableItemsSelector, proxy(that._mouseenter, that))
-                   .on(MOUSELEAVE + NS, availableItemsSelector, proxy(that._mouseleave, that))
-                   .on(MOUSEDOWN + NS, availableItemsSelector, proxy(that._mousedown, that))
+                   .on(CLICK + NS, itemSelector, that._click.bind(that))
+                   .on(POINTERDOWN + " " + MOUSEDOWN + NS, ".k-content", that._preventClose.bind(that))
+                   .on(MOUSEENTER + NS, availableItemsSelector, that._mouseenter.bind(that))
+                   .on(MOUSELEAVE + NS, availableItemsSelector, that._mouseleave.bind(that))
+                   .on(MOUSEDOWN + NS, availableItemsSelector, that._mousedown.bind(that))
                    .on(TOUCHSTART + NS + " " + MOUSEENTER + NS + " " + MOUSELEAVE + NS + " " +
-                       MOUSEDOWN + NS + " " + CLICK + NS, linkSelector, proxy(that._toggleHover, that));
+                       MOUSEDOWN + NS + " " + CLICK + NS, linkSelector, that._toggleHover.bind(that));
 
-            element.on("keydown" + NS, proxy(that._keydown, that))
-                   .on("focus" + NS, proxy(that._focus, that))
-                   .on("focus" + NS, ".k-content", proxy(that._focus, that))
-                   .on("blur" + NS, proxy(that._removeHoverItem, that))
+            element.on("keydown" + NS, that._keydown.bind(that))
+                   .on("focus" + NS, that._focus.bind(that))
+                   .on("focus" + NS, ".k-content", that._focus.bind(that))
+                   .on("blur" + NS, that._removeHoverItem.bind(that))
                    .on("blur" + NS, "[tabindex]", that._checkActiveProxy);
 
             if (overflowWrapper) {
                 overflowWrapper
-                    .on(MOUSELEAVE + NS, popupSelector, proxy(that._mouseleavePopup, that))
-                    .on(MOUSEENTER + NS, popupSelector, proxy(that._mouseenterPopup, that));
+                    .on(MOUSELEAVE + NS, popupSelector, that._mouseleavePopup.bind(that))
+                    .on(MOUSEENTER + NS, popupSelector, that._mouseenterPopup.bind(that));
             }
 
             if (options.openOnClick) {
-                that._documentClickHandler = proxy(that._documentClick, that);
+                that._documentClickHandler = that._documentClick.bind(that);
                 $(document).on("click", that._documentClickHandler);
             }
         },
@@ -644,7 +644,7 @@ var __meta__ = { // jshint ignore:line
 
             if (options.scrollable) {
                 that._openedPopups = {};
-                that._scrollWrapper = that.element.wrap("<div class='k-menu-scroll-wrapper " + options.orientation + "'></div>").parent();
+                that._scrollWrapper = that.element.wrap("<div class='k-menu-scroll-wrapper k-" + options.orientation + "'></div>").parent();
                 if (isHorizontal) {
                     removeSpacesBetweenItems(that.element);
                 }
@@ -970,7 +970,7 @@ var __meta__ = { // jshint ignore:line
 
                 groups = items.find("> ul")
                                 .addClass("k-menu-group k-menu-group-md")
-                                .attr("role", "menu");
+                                .attr(ROLE, "menu");
 
                 items = items.filter("li");
 
@@ -1144,7 +1144,7 @@ var __meta__ = { // jshint ignore:line
                                     open: extend(true, { effects: openEffects }, options.animation.open),
                                     close: options.animation.close
                                 },
-                                open: proxy(that._popupOpen, that),
+                                open: that._popupOpen.bind(that),
                                 close: function (e) {
                                     that._closing = e.sender.element;
                                     var li = e.sender.wrapper.parent();
@@ -1174,6 +1174,8 @@ var __meta__ = { // jshint ignore:line
                                     }
                                 }
                             }).data(KENDOPOPUP);
+
+                            ul.closest(animationContainerSelector).removeAttr(ROLE);
                         } else {
                             popup = ul.data(KENDOPOPUP);
                             popup.options.origin = directions.origin;
@@ -1439,7 +1441,7 @@ var __meta__ = { // jshint ignore:line
                        return !kendo.support.matchesSelector.call(this, nonContentGroupsSelector);
                    })
                    .addClass("k-group k-menu-group k-menu-group-md")
-                   .attr("role", "menu")
+                   .attr(ROLE, "menu")
                    .hide()
                    .attr("aria-hidden", element.is(":visible"))
                    .parent("li")
@@ -1498,9 +1500,9 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (that.options.openOnClick === true && that.clicked || touch) {
-                element.siblings().each(proxy(function (_, sibling) {
+                element.siblings().each(function (_, sibling) {
                     that.close(sibling, true);
-                }, that));
+                });
             }
         },
 
@@ -1509,9 +1511,9 @@ var __meta__ = { // jshint ignore:line
             var element = $(e.currentTarget);
             // needs to close subMenuItems
             if (that.options.openOnClick.subMenuItems && !that._isRootItem(element) || touch) {
-                element.siblings().each(proxy(function (_, sibling) {
+                element.siblings().each(function (_, sibling) {
                     that.close(sibling, true);
-                }, that));
+                });
             }
         },
 
@@ -1848,6 +1850,8 @@ var __meta__ = { // jshint ignore:line
                     if (hasChildren && !hoverItem.hasClass(DISABLEDSTATE)) {
                         that.open(hoverItem);
                         that._moveHover(hoverItem, that._childPopupElement(hoverItem).children().first());
+                    } else if (hoverItem.is("li") && hoverItem.attr("role") === "menuitemcheckbox") {
+                        hoverItem.find(".k-checkbox").attr("checked", true);
                     } else {
                         that._moveHoverToRoot(hoverItem, that._findRootParent(hoverItem));
                     }
@@ -2160,8 +2164,8 @@ var __meta__ = { // jshint ignore:line
         },
 
         _bindDataSource: function() {
-            this._refreshHandler = proxy(this.refresh, this);
-            this._errorHandler = proxy(this._error, this);
+            this._refreshHandler = this.refresh.bind(this);
+            this._errorHandler = this._error.bind(this);
 
             this.dataSource.bind(CHANGE, this._refreshHandler);
             this.dataSource.bind(ERROR, this._errorHandler);
@@ -2192,8 +2196,8 @@ var __meta__ = { // jshint ignore:line
             var parentElement = node ? that.findByUid(node.uid) : that.element;
             var itemsToUpdate = ev.items;
             var index = ev.index;
-            var updateProxy = $.proxy(that._updateItem, that);
-            var removeProxy = $.proxy(that._removeItem, that);
+            var updateProxy = that._updateItem.bind(that);
+            var removeProxy = that._removeItem.bind(that);
 
             if (action == "add") {
                 that._appendItems(itemsToUpdate, index, parentElement);
@@ -2292,7 +2296,7 @@ var __meta__ = { // jshint ignore:line
         _templates: function () {
             var that = this,
                 options = that.options,
-                fieldAccessor = proxy(that._fieldAccessor, that);
+                fieldAccessor = that._fieldAccessor.bind(that);
 
             if (options.template && typeof options.template == STRING) {
                     options.template = template(options.template);
@@ -2417,7 +2421,7 @@ var __meta__ = { // jshint ignore:line
 
             Menu.fn.init.call(that, element, options);
 
-            that.element.attr("role", "menu");
+            that.element.attr(ROLE, "menu");
 
             that._marker = kendo.guid().substring(0, 8);
 
@@ -2687,9 +2691,9 @@ var __meta__ = { // jshint ignore:line
                 target = that.target;
 
             that._preventProxy = null;
-            that._showProxy = proxy(that._showHandler, that);
-            that._closeProxy = proxy(that._closeHandler, that);
-            that._closeTimeoutProxy = proxy(that.close, that);
+            that._showProxy = that._showHandler.bind(that);
+            that._closeProxy = that._closeHandler.bind(that);
+            that._closeTimeoutProxy = that.close.bind(that);
 
             if (target[0]) {
                 if (kendo.support.mobileOS && options.showOn == "contextmenu") {
@@ -2725,7 +2729,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var overflowWrapper = that._overflowWrapper();
 
-            that._triggerProxy = proxy(that._triggerEvent, that);
+            that._triggerProxy = that._triggerEvent.bind(that);
 
             that.popup = that.element
                             .addClass("k-context-menu")

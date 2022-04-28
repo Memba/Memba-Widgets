@@ -1,25 +1,25 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 /***********************************************************************
@@ -30,10 +30,10 @@
  */
 (function(f, define){
     define('dataviz/chart/kendo-chart',[
-        "kendo.core",
-        "kendo.color",
-        "kendo.drawing",
-        "kendo.dataviz.core"
+        "../../kendo.core",
+        "../../kendo.color",
+        "../../kendo.drawing",
+        "../../kendo.dataviz.core"
     ], f);
 })(function(){
 
@@ -12594,7 +12594,7 @@ var colorScale = function (color, minLightnessOffset) {
     var offset = 1 - minLightnessOffset;
 
     return function (value) {
-        var hsl = baseColor .toHSL();
+        var hsl = baseColor.toHSL();
         var range = 100 - hsl.l;
         var point = offset - value;
         hsl.l += Math.min(point * range, range);
@@ -12876,15 +12876,17 @@ var HeatmapChart = ChartElement.extend({
             for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
                 var ref$1 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
                 var valueFields = ref$1.valueFields;
-                this$1.valueRange.min = Math.min(this$1.valueRange.min, valueFields.value);
-                this$1.valueRange.max = Math.max(this$1.valueRange.max, valueFields.value);
+                if (defined(valueFields.value) && valueFields.value !== null) {
+                    this$1.valueRange.min = Math.min(this$1.valueRange.min, valueFields.value);
+                    this$1.valueRange.max = Math.max(this$1.valueRange.max, valueFields.value);
+                }
             }
         }
     },
 
     addValue: function(value, fields) {
         var point;
-        if (value) {
+        if (value && defined(value.value) && value.value !== null) {
             point = this.createPoint(value, fields);
             if (point) {
                 $.extend(point, fields);
@@ -12952,7 +12954,7 @@ var HeatmapChart = ChartElement.extend({
 
         if (isFunction(series.color)) {
             color = pointOptions.color;
-        } else {
+        } else if (this.valueRange.max !== 0) {
             var scale = colorScale(color);
             color = scale(value.value / this.valueRange.max);
         }
@@ -15439,11 +15441,11 @@ kendo.deepExtend(kendo.dataviz, {
 (function(f, define){
     define('dataviz/chart/chart',[
         "./kendo-chart",
-        "kendo.data",
-        "kendo.dataviz.core",
-        "kendo.dataviz.themes",
-        "kendo.drawing",
-        "kendo.userevents"
+        "../../kendo.data",
+        "../../kendo.dataviz.core",
+        "../../kendo.dataviz.themes",
+        "../../kendo.drawing",
+        "../../kendo.userevents"
     ], f);
 })(function(){
 
@@ -15466,7 +15468,6 @@ kendo.deepExtend(kendo.dataviz, {
     var InstanceObserver = dataviz.InstanceObserver;
     var inArray = dataviz.inArray;
     var services = dataviz.services;
-    var proxy = $.proxy;
     var isArray = Array.isArray;
     var extend = $.extend;
     var template = kendo.template;
@@ -15808,7 +15809,7 @@ kendo.deepExtend(kendo.dataviz, {
         },
 
         _attachEvents: function() {
-             this.element.on(MOUSELEAVE_NS, proxy(this._mouseleave, this));
+             this.element.on(MOUSELEAVE_NS, this._mouseleave.bind(this));
         },
 
         _mouseleave: function(e) {
@@ -15859,7 +15860,7 @@ kendo.deepExtend(kendo.dataviz, {
             var chart = this,
                 dataSource = (userOptions || {}).dataSource;
 
-            chart._dataChangeHandler = proxy(chart._onDataChanged, chart);
+            chart._dataChangeHandler = chart._onDataChanged.bind(chart);
 
             chart.dataSource = DataSource
                 .create(dataSource)
@@ -15952,7 +15953,7 @@ kendo.deepExtend(kendo.dataviz, {
         _initTooltip: function() {
             this._tooltip = this._createTooltip();
 
-            this._tooltip.bind(LEAVE, proxy(this._tooltipleave, this));
+            this._tooltip.bind(LEAVE, this._tooltipleave.bind(this));
         },
 
         _onLegendItemClick: function(e) {
@@ -16331,13 +16332,13 @@ kendo.deepExtend(kendo.dataviz, {
 
             tooltip.element = $(tooltip.template(tooltip.options));
 
-            tooltip.move = proxy(tooltip.move, tooltip);
-            tooltip._mouseleave = proxy(tooltip._mouseleave, tooltip);
+            tooltip.move = tooltip.move.bind(tooltip);
+            tooltip._mouseleave = tooltip._mouseleave.bind(tooltip);
 
             var mobileScrollerSelector = kendo.format("[{0}='content'],[{0}='scroller']", kendo.attr("role"));
             tooltip._mobileScroller = chartElement.closest(mobileScrollerSelector).data("kendoMobileScroller");
             tooltip.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
-            tooltip._closeTooltipHandler = proxy(tooltip._closeTooltip, tooltip);
+            tooltip._closeTooltipHandler = tooltip._closeTooltip.bind(tooltip);
         },
 
         destroy: function() {

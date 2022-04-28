@@ -1,51 +1,51 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
     define('kendo.grid',[
-        "kendo.data",
-        "kendo.columnsorter",
-        "kendo.editable",
-        "kendo.window",
-        "kendo.filtermenu",
-        "kendo.filtercell",
-        "kendo.columnmenu",
-        "kendo.groupable",
-        "kendo.pager",
-        "kendo.selectable",
-        "kendo.sortable",
-        "kendo.reorderable",
-        "kendo.resizable",
-        "kendo.ooxml",
-        "kendo.excel",
-        "kendo.pane",
-        "kendo.progressbar",
-        "kendo.pdf",
-        "kendo.dialog",
-        "kendo.pane",
-        "kendo.switch",
-        "kendo.html.button"
+        "./kendo.data",
+        "./kendo.columnsorter",
+        "./kendo.editable",
+        "./kendo.window",
+        "./kendo.filtermenu",
+        "./kendo.filtercell",
+        "./kendo.columnmenu",
+        "./kendo.groupable",
+        "./kendo.pager",
+        "./kendo.selectable",
+        "./kendo.sortable",
+        "./kendo.reorderable",
+        "./kendo.resizable",
+        "./kendo.ooxml",
+        "./kendo.excel",
+        "./kendo.pane",
+        "./kendo.progressbar",
+        "./kendo.pdf",
+        "./kendo.dialog",
+        "./kendo.pane",
+        "./kendo.switch",
+        "./kendo.html.button"
     ], f);
 })(function(){
 
@@ -138,7 +138,6 @@ var __meta__ = { // jshint ignore:line
         isArray = Array.isArray,
         inArray = $.inArray,
         push = Array.prototype.push,
-        proxy = $.proxy,
         isFunction = kendo.isFunction,
         isEmptyObject = $.isEmptyObject,
         contains = $.contains,
@@ -289,7 +288,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             Widget.fn.init.call(that, element, options);
-            that._refreshHandler = proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
             that.setDataSource(options.dataSource);
             that.wrap();
         },
@@ -302,6 +301,7 @@ var __meta__ = { // jshint ignore:line
             that.dataSource = dataSource;
             that.dataSource.bind(CHANGE, that._refreshHandler);
             that.dataSource.options.useRanges = true;
+            that.dataSource.options.virtual = true;
         },
 
         options: {
@@ -354,7 +354,7 @@ var __meta__ = { // jshint ignore:line
             that.content = element.children().first();
             wrapper = that.wrapper = that.content.wrap('<div class="k-virtual-scrollable-wrap"/>')
                                 .parent()
-                                .on("DOMMouseScroll" + NS + " mousewheel" + NS, proxy(that._wheelScroll, that));
+                                .on("DOMMouseScroll" + NS + " mousewheel" + NS, that._wheelScroll.bind(that));
             that._wrapper();
 
             if (kendo.support.kineticScrollNeeded || kendo.support.touch) {
@@ -377,7 +377,7 @@ var __meta__ = { // jshint ignore:line
                                         .css({
                                             width: scrollbar
                                         }).appendTo(element)
-                                        .on("scroll" + NS, proxy(that._scroll, that));
+                                        .on("scroll" + NS, that._scroll.bind(that));
         },
 
         _wrapper: function() {
@@ -842,7 +842,7 @@ var __meta__ = { // jshint ignore:line
 
             if (isPlainObject(command) && command.click) {
                 commandName = command.name || command.text;
-                container.on(CLICK + NS, ".k-grid-" + (commandName || "").replace(/\s/g, ""), { commandName: commandName }, proxy(command.click, context));
+                container.on(CLICK + NS, ".k-grid-" + (commandName || "").replace(/\s/g, ""), { commandName: commandName }, command.click.bind(context));
             }
         }
     }
@@ -2169,7 +2169,7 @@ var __meta__ = { // jshint ignore:line
                            .unbind(ERROR, that._errorHandler)
                            .unbind(SORT, that._clearSortClasses);
 
-                that._refreshHandler = that._progressHandler = that._errorHandler = that._clearSortClasses = null;
+                that._refreshHandler = that._progressHandler = that._errorHandler = that._sortHandler = null;
             }
 
             element = that.element
@@ -2589,7 +2589,7 @@ var __meta__ = { // jshint ignore:line
                     that._createResizeHandle(th.closest("div"), th);
 
                     if (!that._resizeHandleDocumentClickHandler) {
-                        that._resizeHandleDocumentClickHandler = proxy(that._resizeHandleDocumentClick, that);
+                        that._resizeHandleDocumentClickHandler = that._resizeHandleDocumentClick.bind(that);
                     }
 
                     $(document).on("click", that._resizeHandleDocumentClickHandler);
@@ -3992,7 +3992,7 @@ var __meta__ = { // jshint ignore:line
                 tmpl = kendo.template(that._cellTmpl(column, state), settings);
 
             if (state.count > 0) {
-                tmpl = proxy(tmpl, state.storage);
+                tmpl = tmpl.bind(state.storage);
             }
 
             cell.empty().html(tmpl(dataItem));
@@ -4114,13 +4114,13 @@ var __meta__ = { // jshint ignore:line
 
                 if (container) {
                     if (!this._editCancelClickHandler) {
-                        this._editCancelClickHandler = proxy(this._editCancelClick, this);
+                        this._editCancelClickHandler = this._editCancelClick.bind(this);
                     }
 
                     container.on(CLICK + NS, ".k-grid-cancel", this._editCancelClickHandler);
 
                     if (!this._editUpdateClickHandler) {
-                        this._editUpdateClickHandler = proxy(this._editUpdateClick, this);
+                        this._editUpdateClickHandler = this._editUpdateClick.bind(this);
                     }
 
                     container.on(CLICK + NS, ".k-grid-update", this._editUpdateClickHandler);
@@ -4222,7 +4222,7 @@ var __meta__ = { // jshint ignore:line
                                 tmpl = kendo.template(that._cellTmpl(column, state), settings);
 
                                 if (state.count > 0) {
-                                    tmpl = proxy(tmpl, state.storage);
+                                    tmpl = tmpl.bind(state.storage);
                                 }
 
                                 html += '<div class="k-edit-field k-no-editor">' + tmpl(model) + '</div>';
@@ -4242,7 +4242,7 @@ var __meta__ = { // jshint ignore:line
                                 tmpl = kendo.template(that._cellTmpl(column, state), settings);
 
                                 if (state.count > 0) {
-                                    tmpl = proxy(tmpl, state.storage);
+                                    tmpl = tmpl.bind(state.storage);
                                 }
 
                                 html += '<label class="k-label k-listgroup-form-row k-no-click">';
@@ -4843,7 +4843,7 @@ var __meta__ = { // jshint ignore:line
                 if (!container.length) {
                     if (!isFunction(toolbar)) {
                         toolbar = (typeof toolbar === STRING ? toolbar : that._toolbarTmpl(toolbar).replace(templateHashRegExp, "\\#"));
-                        toolbar = proxy(kendo.template(toolbar), that);
+                        toolbar = kendo.template(toolbar).bind(that);
                     }
 
                     container = $('<div class="k-toolbar k-grid-toolbar" />')
@@ -5245,7 +5245,7 @@ var __meta__ = { // jshint ignore:line
                     filter: filter,
                     aria: true,
                     multiple: multi,
-                    change: function() {
+                    change: function(e) {
                         var selectedValues;
                         if (!cell) {
                             that._persistSelectedRows();
@@ -5262,7 +5262,9 @@ var __meta__ = { // jshint ignore:line
                             }
                         }
 
-                        that.trigger(CHANGE);
+                        if(e.event) {
+                            that.trigger(CHANGE);
+                        }
                     },
                     useAllItems: isLocked && multi && cell,
                     relatedTarget: function(items) {
@@ -5293,6 +5295,7 @@ var __meta__ = { // jshint ignore:line
                     elements.on("keydown" + NS, function(e) {
                         var current = that.current();
                         var target = e.target;
+                        var eventObject = {event: e};
                         if (!current) {
                             return;
                         }
@@ -5322,7 +5325,7 @@ var __meta__ = { // jshint ignore:line
                                 if (!cell) {
                                     that.selectable._lastActive = current;
                                 }
-                                that.selectable.value(current);
+                                that.selectable.value(current, eventObject);
                         } else if(!cell &&
                             ($(target).is("td") || ($(target).is("table") && inArray(target, this._navigatableTables))) &&
                           ((e.shiftKey && e.keyCode == keys.LEFT)||
@@ -5342,10 +5345,10 @@ var __meta__ = { // jshint ignore:line
                                 if(!that.selectable._lastActive) {
                                     that.selectable._lastActive = current;
                                 }
-                                that.selectable.selectRange(that.selectable._firstSelectee(), current);
+                                that.selectable.selectRange(that.selectable._firstSelectee(), current, eventObject);
                             } else {
                                 that.selectable.clear();
-                                that.selectable.value(current);
+                                that.selectable.value(current, eventObject);
                             }
                         }
                     });
@@ -5366,9 +5369,9 @@ var __meta__ = { // jshint ignore:line
                                 e.stopImmediatePropagation();
                             }
                         })
-                        .on("mousedown" + NS, NAVROW + ">" + NAVCELL, proxy(tableClick, grid));
+                        .on("mousedown" + NS, NAVROW + ">" + NAVCELL, tableClick.bind(grid));
                 }
-                grid.copyHandler = proxy(grid.copySelection, grid);
+                grid.copyHandler = grid.copySelection.bind(grid);
                 grid.updateClipBoardState = function () {
                     if (grid.areaClipBoard) {
                         grid.areaClipBoard.val(grid.getTSV()).trigger("focus").select();
@@ -5376,7 +5379,7 @@ var __meta__ = { // jshint ignore:line
                 };
                 grid.bind("change",grid.updateClipBoardState);
                 grid.wrapper.on("keydown", grid.copyHandler);
-                grid.clearAreaHandler = proxy(grid.clearArea, grid);
+                grid.clearAreaHandler = grid.clearArea.bind(grid);
                 grid.wrapper.on("keyup", grid.clearAreaHandler);
             }
         },
@@ -5489,6 +5492,12 @@ var __meta__ = { // jshint ignore:line
                     result.splice(rowsOffset, 0, fields.map(function (field) {
                         return getTitle(field, columns);
                     }));
+
+                    var headerIndex = result.findIndex(function(el) {
+                        return el !== undefined;
+                    });
+
+                    result[headerIndex] = result[headerIndex].slice(cellsOffset);
                 }
 
                 $.each(result.slice(rowsOffset), function (idx, val) {
@@ -5540,7 +5549,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that._detachColumnMediaResizeHandler();
-            that._columnMediaResizeHandler = proxy(that._onColumnMediaResize, that);
+            that._columnMediaResizeHandler = that._onColumnMediaResize.bind(that);
             $(window).on(RESIZE + NS, that._columnMediaResizeHandler);
         },
 
@@ -5672,7 +5681,7 @@ var __meta__ = { // jshint ignore:line
             var any = this.hideMinScreenCols();
 
             if (any) {
-                this.minScreenResizeHandler = proxy(this.hideMinScreenCols, this);
+                this.minScreenResizeHandler = this.hideMinScreenCols.bind(this);
                 $(window).on("resize", this.minScreenResizeHandler);
             }
         },
@@ -6286,8 +6295,6 @@ var __meta__ = { // jshint ignore:line
             } else {
                 that._selectedIds = {};
             }
-
-            that.trigger(CHANGE);
         },
 
         select: function(items) {
@@ -6628,7 +6635,7 @@ var __meta__ = { // jshint ignore:line
             tables.off("mousedown" + NS + " focus" + NS + " focusout" + NS + " keydown" + NS);
 
             headerTables
-                .on("keydown" + NS, proxy(that._openHeaderMenu, that))
+                .on("keydown" + NS, that._openHeaderMenu.bind(that))
                 .find("a.k-link").attr("tabIndex", -1);
 
             //prevent propagation when clicked inside detail grid
@@ -6642,10 +6649,10 @@ var __meta__ = { // jshint ignore:line
 
             tables
                 //handle click on tables, will attempt to focus the table
-                .on((kendo.support.touch ? "touchstart" + NS : "mousedown" + NS), NAVROW + ">" + NAVCELL, proxy(tableClick, that))
-                .on("focus" + NS, proxy(that._tableFocus, that))
-                .on("focusout" + NS, proxy(that._tableBlur, that))
-                .on("keydown" + NS, that, proxy(that._tableKeyDown, that));
+                .on((kendo.support.touch ? "touchstart" + NS : "mousedown" + NS), NAVROW + ">" + NAVCELL, tableClick.bind(that))
+                .on("focus" + NS, that._tableFocus.bind(that))
+                .on("focusout" + NS, that._tableBlur.bind(that))
+                .on("keydown" + NS, that, that._tableKeyDown.bind(that));
         },
 
         _openHeaderMenu: function(e) {
@@ -6836,7 +6843,11 @@ var __meta__ = { // jshint ignore:line
             var container = row.parent();
 
             if (altKey) {
-                this.collapseRow(row);
+                if (row.hasClass("k-grouping-row")) {
+                    this.collapseGroup(row);
+                } else {
+                    this.collapseRow(row);
+                }
             } else if (ctrlKey && current.is(".k-header") && this.options.reorderable) {
                this._moveColumn(current, true);
             } else {
@@ -6878,7 +6889,11 @@ var __meta__ = { // jshint ignore:line
             var container = row.parent();
 
             if (altKey) {
-                this.expandRow(row);
+                if (row.hasClass("k-grouping-row")) {
+                    this.expandGroup(row);
+                } else {
+                    this.expandRow(row);
+                }
              } else if (ctrlKey && current.is(".k-header") && this.options.reorderable) {
                 this._moveColumn(current, false);
             } else {
@@ -7842,7 +7857,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
 
-            that.virtualScrollable.bind(PAGING, proxy(that._onVirtualPaging, that));
+            that.virtualScrollable.bind(PAGING, that._onVirtualPaging.bind(that));
         },
 
         _onVirtualPaging: function() {
@@ -8066,7 +8081,7 @@ var __meta__ = { // jshint ignore:line
 
             if (that.options.scrollable && that.wrapper.is(":visible")) {
                 expander = that.table.parent().children('.' + hiddenDivClass);
-                that._setContentWidthHandler = proxy(that._setContentWidth, that);
+                that._setContentWidthHandler = that._setContentWidth.bind(that);
                 if (!that.dataSource || !that.dataSource.view().length) {
                     if (!expander[0]) {
                         expander = $(hiddenDiv).appendTo(that.table.parent());
@@ -8259,10 +8274,10 @@ var __meta__ = { // jshint ignore:line
                                 .unbind(ERROR, that._errorHandler)
                                 .unbind(SORT, that._sortHandler);
             } else {
-                that._refreshHandler = proxy(that.refresh, that);
-                that._progressHandler = proxy(that._requestStart, that);
-                that._errorHandler = proxy(that._error, that);
-                that._sortHandler = proxy(that._clearSortClasses, that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._requestStart.bind(that);
+                that._errorHandler = that._error.bind(that);
+                that._sortHandler = that._clearSortClasses.bind(that);
             }
 
             that.dataSource = DataSource.create(dataSource)
@@ -8649,6 +8664,15 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
+        _hasFilterMenu: function () {
+            var filterable = this.options.filterable;
+            if (filterable && typeof filterable.mode == STRING && filterable.mode.indexOf("menu") == -1) {
+                return false;
+            }
+
+            return filterable;
+        },
+
         _filterable: function() {
             var that = this,
                 columns = leafColumns(that.columns),
@@ -8676,10 +8700,7 @@ var __meta__ = { // jshint ignore:line
                 filterOpen = function(e) {
                     that.trigger(FILTERMENUOPEN, { field: e.field, container: e.container });
                 },
-                filterable = that.options.filterable;
-                if (filterable && typeof filterable.mode == STRING && filterable.mode.indexOf("menu") == -1) {
-                    filterable = false;
-                }
+                filterable = that._hasFilterMenu();
 
             if (filterable && !that.options.columnMenu) {
                 cells = leafDataCells(that.thead);//that._headerCells();
@@ -8942,8 +8963,8 @@ var __meta__ = { // jshint ignore:line
             if($.grep(leafColumns(that.columns), function (col) { return col.selectable ;}).length) {
                 that._selectedIds = {};
                 that._checkBoxSelection = true;
-                that.wrapper.on(CLICK + NS, "tbody > tr " + CHECKBOXINPUT, proxy(that._checkboxClick, that));
-                that.wrapper.on(CLICK + NS, "thead > tr " + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
+                that.wrapper.on(CLICK + NS, "tbody > tr " + CHECKBOXINPUT, that._checkboxClick.bind(that));
+                that.wrapper.on(CLICK + NS, "thead > tr " + CHECKBOXINPUT, that._headerCheckboxClick.bind(that));
             }
 
             draggableColumns = $.grep(leafColumns(that.columns), function (col) { return col.draggable ;});
@@ -9183,7 +9204,7 @@ var __meta__ = { // jshint ignore:line
             rowTemplate = kendo.template(rowTemplate, settings);
 
             if (state.count > 0) {
-                return proxy(rowTemplate, state.storage);
+                return rowTemplate.bind(state.storage);
             }
 
             return rowTemplate;
@@ -9464,7 +9485,7 @@ var __meta__ = { // jshint ignore:line
             tmpl = kendo.template(kendo.format(wrapper, NORECORDSCLASS, html), settings);
 
             if (state.count > 0) {
-                tmpl = $.proxy(tmpl, state.storage);
+                tmpl = tmpl.bind(state.storage);
             }
 
             return tmpl;
@@ -9524,7 +9545,7 @@ var __meta__ = { // jshint ignore:line
             html = kendo.template(html, settings);
 
             if (count > 0) {
-                return proxy(html, storage);
+                return html.bind(storage);
             }
 
             return html;
@@ -9617,7 +9638,7 @@ var __meta__ = { // jshint ignore:line
             html = kendo.template(html, settings);
 
             if (count > 0) {
-                return proxy(html, storage);
+                return html.bind(storage);
             }
 
             return html;
@@ -9653,7 +9674,7 @@ var __meta__ = { // jshint ignore:line
             html = kendo.template(html, settings);
 
             if (templateFunctionCount > 0) {
-                return proxy(html, templateFunctionStorage);
+                return html.bind(templateFunctionStorage);
             }
 
             return html;
@@ -9789,7 +9810,9 @@ var __meta__ = { // jshint ignore:line
                 html = "",
                 length,
                 title,
+                columnMenu = that.options.columnMenu,
                 sortable = that.options.sortable,
+                filterable = that._hasFilterMenu(),
                 messages = that.options.messages,
                 leafs = leafColumns(that.columns),
                 groups = that.dataSource.group(),
@@ -9845,7 +9868,9 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     html += "<th scope='col' role='columnheader' " + field;
-                    html += " aria-haspopup='true'";
+                    if ((columnMenu && th.field && th.menu !== false) || (filterable && th.filterable !== false && !th.command)) {
+                        html += " aria-haspopup='true'";
+                    }
 
                     if (rowSpan && !columns[idx].colSpan) {
                         html += " rowspan='" + rowSpan + "'";
@@ -10202,7 +10227,7 @@ var __meta__ = { // jshint ignore:line
 
                 that._appendLockedColumnContent();
 
-                that.lockedContent.on("DOMMouseScroll" + NS + " mousewheel" + NS, proxy(that._wheelScroll, that));
+                that.lockedContent.on("DOMMouseScroll" + NS + " mousewheel" + NS, that._wheelScroll.bind(that));
 
                 if (kendo.support.touch) {
                     that._lockedContentUserEvents = new kendo.UserEvents(that.lockedContent, {
@@ -10505,11 +10530,12 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _groupRowHtml: function(group, colspan, level, groupHeaderBuilder, templates, skipColspan, skipLastGroup) {
+        _groupRowHtml: function(group, colspan, level, groupHeaderBuilder, templates, skipColspan, skipLastGroup, isLockedTable) {
             var that = this,
                 html = "",
                 idx,
                 length,
+                isLocked = that.lockedContent != null,
                 field = group.field,
                 column = grep(leafColumns(that.columns), function(column) { return column.field == field; })[0] || { },
                 firstColumn = visibleColumns(that.columns)[0],
@@ -10521,7 +10547,8 @@ var __meta__ = { // jshint ignore:line
                 groupFooterTemplate = templates.groupFooterTemplate,
                 groupHeaderColumnTemplate = templates.groupHeaderColumnTemplate,
                 groupData,
-                expanded = that.dataSource._isGroupPaged() ? that.dataSource._groupsState[group.uid] : true;
+                isGroupPaged = that.dataSource._isGroupPaged(),
+                expanded = isGroupPaged ? that.dataSource._groupsState[group.uid] : true;
 
             if (that.options.editable && group.items && group.items[0] && group.items[0].isNew && group.items[0].isNew()) {
                 expanded = true;
@@ -10533,33 +10560,23 @@ var __meta__ = { // jshint ignore:line
             if (template && !skipColspan) {
                 text  = typeof template === FUNCTION ? template(groupData) : kendo.template(template)(groupData);
             }
+
             if (!that._skipRerenderItemsCount) {
-                if (groupHeaderColumnTemplate) {
-                    if (!group.excludeHeader) {
-                        html += groupHeaderColumnTemplate(extend({}, groupData, {
-                            groupCells: level,
-                            colspan: groups - level,
-                            text: text
-                        }));
-                    } else {
-                        group.excludeHeader = false;
-                    }
-                }
-                else {
-                    if (!group.excludeHeader) {
-                        html += groupHeaderBuilder(colspan, level, text, expanded, group.uid, that.dataSource._isGroupPaged());
-                    } else {
-                        group.excludeHeader = false;
-                    }
+                if(!group.excludeHeader) {
+                    html += groupHtmlBuilder(groupHeaderColumnTemplate, groupHeaderBuilder, colspan, groups - level, groupData, level, text, expanded, group, isGroupPaged);
+                } else if(isLocked) {
+                    group.excludeHeader = isLockedTable ? false : true;
+                } else {
+                    group.excludeHeader = false;
                 }
             } else {
-                groupHeaderBuilder(colspan, level, text, expanded, group.uid, that.dataSource._isGroupPaged());
+                groupHeaderBuilder(colspan, level, text, expanded, group.uid, isGroupPaged);
             }
 
             if (expanded) {
                 if (group.hasSubgroups) {
                     for (idx = 0, length = groupItems.length; idx < length; idx++) {
-                        html += that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan, skipLastGroup && idx === groupItems.length - 1);
+                        html += that._groupRowHtml(groupItems[idx], skipColspan ? colspan : colspan - 1, level + 1, groupHeaderBuilder, templates, skipColspan, skipLastGroup && idx === groupItems.length - 1, isLockedTable);
                     }
                 } else {
                     html += that._rowsHtml(groupItems, templates);
@@ -11180,11 +11197,18 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
+
         _buildSkeleton: function () {
             var visibleColumns = this.virtualCols ? this.virtualCols : visibleLeafColumns(this.columns);
             var pageSize = this.dataSource.pageSize() || this.dataSource.total();
             var loaderHTML = "";
             var colspan;
+            var groups = (this.dataSource.group() || []).length;
+            var columnsCount = visibleColumns.length + groups;
+
+            if (this._hasDetails()) {
+                columnsCount++;
+            }
 
             if (this._hasVirtualColumns()) {
                 colspan = parseInt(this.content.find("tr").first().find("td").first().attr("colspan"), 10);
@@ -11192,7 +11216,7 @@ var __meta__ = { // jshint ignore:line
 
             for (var i = 0; i< pageSize; i++) {
                 loaderHTML += "<tr>";
-                for (var j = 0; j< visibleColumns.length; j++) {
+                for (var j = 0; j < columnsCount; j++) {
                     if (colspan && !j) {
                         loaderHTML += "<td colspan='"+colspan+"'><span class='k-skeleton k-skeleton-text k-skeleton-pulse'></span></td>";
                     } else {
@@ -11427,6 +11451,10 @@ var __meta__ = { // jshint ignore:line
                 that._restoreSelection();
             }
 
+            if (!that.options.persistSelection) {
+                that._selectedIds = {};
+            }
+
             if (that._hasReorderableRows()) {
                 that._draggableRows();
                 that._reorderableRows();
@@ -11618,7 +11646,7 @@ var __meta__ = { // jshint ignore:line
                         that._skippedGroups = [];
                     }
                     skipLastGroup = flatViewLength && idx === data.length - 1 && flatViewLength !== that.dataSource.total();
-                    html += that._groupRowHtml(data[idx], colspan, 0, isLocked ? groupRowLockedContentBuilder : groupRowBuilder, templates, isLocked, skipLastGroup);
+                    html += that._groupRowHtml(data[idx], colspan, 0, isLocked ? groupRowLockedContentBuilder : groupRowBuilder, templates, isLocked, skipLastGroup, false);
                 }
             } else {
                 html += that._rowsHtml(data, templates);
@@ -11713,7 +11741,9 @@ var __meta__ = { // jshint ignore:line
            var html = "",
                idx,
                length,
+               skipLastGroup,
                endlessAppend = null,
+               flatViewLength,
                templates = {
                    rowTemplate: this.lockedRowTemplate,
                    altRowTemplate: this.lockedAltRowTemplate,
@@ -11728,8 +11758,12 @@ var __meta__ = { // jshint ignore:line
 
                if (groups > 0) {
                    colspan = colspan - visibleColumns(leafColumns(nonLockedColumns(this.columns))).length;
+                   if (this.options.scrollable.endless) {
+                     flatViewLength = this.dataSource.flatView().length;
+                   }
                    for (idx = 0, length = data.length; idx < length; idx++) {
-                    html += this._groupRowHtml(data[idx], colspan, 0, groupRowBuilder, templates, false, this.options.scrollable.endless && idx === data.length -1);
+                    skipLastGroup = flatViewLength && idx === data.length - 1 && flatViewLength !== this.dataSource.total();
+                    html += this._groupRowHtml(data[idx], colspan, 0, groupRowBuilder, templates, false, skipLastGroup, true);
                    }
                } else {
                    html = this._rowsHtml(data, templates);
@@ -12146,7 +12180,7 @@ var __meta__ = { // jshint ignore:line
    }
 
    function isInputElement(element) {
-       return $(element).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,label.k-checkbox-label,.k-input,.k-multiselect-wrap,.k-picker-wrap,.k-picker-wrap>.k-selected-color,.k-tool-icon,.k-dropdown");
+       return $(element).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,label.k-checkbox-label,.k-input,.k-multiselect-wrap,.k-picker-wrap,.k-picker-wrap>.k-selected-color,.k-tool-icon,.k-dropdownlist,.k-switch-thumb,.k-switch-track,.k-switch-label-off,.k-switch-label-on");
    }
 
     function tableClick(e) {
@@ -12179,7 +12213,7 @@ var __meta__ = { // jshint ignore:line
         if (isHeader || !isInput) {
             setTimeout(function() {
                 var activeEl = $(kendo._activeElement());
-                if (activeEl.hasClass("k-widget") && !activeEl.hasClass("k-grid-pager")) {
+                if ((activeEl.hasClass("k-widget") || activeEl.hasClass("k-dropdownlist")) && !activeEl.hasClass("k-grid-pager")) {
                     return;
                 }
 
@@ -12260,6 +12294,22 @@ var __meta__ = { // jshint ignore:line
            (cell.hasClass("k-edit-cell") ||
             cell.parent().hasClass("k-grid-edit-row"));
    }
+
+    function groupHtmlBuilder(groupHeaderColumnTemplate, groupHeaderBuilder, colspan, templateColspan, groupData, level, text, expanded, group, isGroupPaged) {
+        var html;
+
+        if (groupHeaderColumnTemplate) {
+            html = groupHeaderColumnTemplate(extend({}, groupData, {
+                groupCells: level,
+                colspan: templateColspan,
+                text: text
+            }));
+        } else {
+            html = groupHeaderBuilder(colspan, level, text, expanded, group.uid, isGroupPaged);
+        }
+
+        return html;
+    }
 
    function groupCellBuilder(headerTemplateIndex) {
     return '<td colspan="#=data.colspan +'+ headerTemplateIndex + '#">' +

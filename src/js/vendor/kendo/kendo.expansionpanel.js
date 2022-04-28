@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.expansionpanel',["kendo.core"], f);
+    define('kendo.expansionpanel',["./kendo.core"], f);
 })(function () {
 
 var __meta__ = {// jshint ignore:line
@@ -56,7 +56,6 @@ var __meta__ = {// jshint ignore:line
         CLICK = "click",
         KEYDOWN = "keydown",
         HEIGHT = "height",
-        proxy = $.proxy,
 
         headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0" aria-controls="#: elementId #">'+
                             '#if(!useBareTemplate){#' +
@@ -89,10 +88,10 @@ var __meta__ = {// jshint ignore:line
             }
 
             that.wrapper
-                .on(CLICK + NS, '[' + headerAttribute + ']', proxy(that._click, that))
-                .on("focusin" + NS, proxy(that._focus, that))
-                .on("focusout" + NS, proxy(that._blur, that))
-                .on(KEYDOWN + NS, proxy(that._keydown, that));
+                .on(CLICK + NS, '[' + headerAttribute + ']', that._click.bind(that))
+                .on("focusin" + NS, that._focus.bind(that))
+                .on("focusout" + NS, that._blur.bind(that))
+                .on(KEYDOWN + NS, that._keydown.bind(that));
 
             that.toggle(that.options.expanded, false);
 
@@ -222,9 +221,9 @@ var __meta__ = {// jshint ignore:line
             if (!expand) {
                 animation = extend(collapse, { hide: true });
 
-                animation.complete = proxy(that._completeHandler, that);
+                animation.complete = that._completeHandler.bind(that);
             } else {
-                animation = extend( { complete:  proxy(that._completeHandler, that) }, animation );
+                animation = extend( { complete:  that._completeHandler.bind(that) }, animation );
             }
 
             if (expand) {

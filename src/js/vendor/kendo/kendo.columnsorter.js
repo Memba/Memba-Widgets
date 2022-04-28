@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.columnsorter',[ "kendo.core" ], f);
+    define('kendo.columnsorter',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -48,7 +48,6 @@ var __meta__ = { // jshint ignore:line
     var sorterNS = ".kendoColumnSorter";
     var TLINK = ".k-link";
     var ARIASORT = "aria-sort";
-    var proxy = $.proxy;
 
     var ColumnSorter = Widget.extend({
         init: function (element, options) {
@@ -57,7 +56,7 @@ var __meta__ = { // jshint ignore:line
 
             Widget.fn.init.call(that, element, options);
 
-            that._refreshHandler = proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
 
             that.dataSource = that.options.dataSource.bind("change", that._refreshHandler);
 
@@ -71,7 +70,7 @@ var __meta__ = { // jshint ignore:line
 
             that.link = link;
 
-            that.element.on("click" + sorterNS, proxy(that._click, that));
+            that.element.on("click" + sorterNS, that._click.bind(that));
         },
 
         options: {

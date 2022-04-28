@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.scheduler',[ "kendo.dropdownlist", "kendo.editable", "kendo.multiselect", "kendo.window", "kendo.datetimepicker", "kendo.scheduler.recurrence", "kendo.scheduler.view", "kendo.scheduler.dayview", "kendo.scheduler.agendaview", "kendo.scheduler.monthview", "kendo.scheduler.timelineview", "kendo.scheduler.yearview", "kendo.dialog", "kendo.pane", "kendo.pdf", "kendo.switch" ], f);
+    define('kendo.scheduler',[ "./kendo.dropdownlist", "./kendo.editable", "./kendo.multiselect", "./kendo.window", "./kendo.datetimepicker", "./kendo.scheduler.recurrence", "./kendo.scheduler.view", "./kendo.scheduler.dayview", "./kendo.scheduler.agendaview", "./kendo.scheduler.monthview", "./kendo.scheduler.timelineview", "./kendo.scheduler.yearview", "./kendo.dialog", "./kendo.pane", "./kendo.pdf", "./kendo.switch" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -93,7 +93,6 @@ var __meta__ = { // jshint ignore:line
         DataSource = kendo.data.DataSource,
         isPlainObject = $.isPlainObject,
         extend = $.extend,
-        proxy = $.proxy,
         toString = Object.prototype.toString,
         isArray = Array.isArray,
         NS = ".kendoScheduler",
@@ -291,10 +290,10 @@ var __meta__ = { // jshint ignore:line
             var text = timezoneButtonText(options.model, options.messages.noTimezone);
             $('<span class="k-timezone-label"></span>').text(text).appendTo(container);
             $('<span class="k-icon k-i-arrow-chevron-right"></span>').appendTo(container);
-            container.closest("li.k-item label").on("click", options.click);
+            container.closest("li.k-item label").on(CLICK, options.click);
         },
         TIMEZONEPOPUP = function(container, options) {
-            $('<a href="#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-bind="invisible:isAllDay"><span class="k-button-text">' + options.messages.timezoneEditorButton + '</span></a>').on("click", options.click).appendTo(container);
+            $('<a href="#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-bind="invisible:isAllDay"><span class="k-button-text">' + options.messages.timezoneEditorButton + '</span></a>').on(CLICK, options.click).appendTo(container);
         },
         MOBILETIMEZONEEDITOR = function(container, options) {
             $('<div class="k-mobiletimezoneeditor" ' + kendo.attr("bind") + '="value:' + options.field +'" />')
@@ -475,8 +474,8 @@ var __meta__ = { // jshint ignore:line
             }
 
             this.timezone = timezone;
-            this.data = wrapDataAccess($.proxy(this.data, this), timezone);
-            this.serialize = wrapDataSerialization($.proxy(this.serialize, this), timezone);
+            this.data = wrapDataAccess(this.data.bind(this), timezone);
+            this.serialize = wrapDataSerialization(this.serialize.bind(this), timezone);
         },
         errors: function(data) {
             return this.reader.errors(data);
@@ -1340,7 +1339,7 @@ var __meta__ = { // jshint ignore:line
             this.options = extend(true, {}, this.options, options);
             this.createButton = this.options.createButton;
 
-            this.toggleDateValidationHandler = proxy(this._toggleDateValidation, this);
+            this.toggleDateValidationHandler = this._toggleDateValidation.bind(this);
         },
 
         _toggleDateValidation: function(e) {
@@ -2080,17 +2079,17 @@ var __meta__ = { // jshint ignore:line
                     }
                 });
 
-                checkbox.on("click", function() {
+                checkbox.on(CLICK, function() {
                     endTimezoneRow.toggle(checkbox.prop("checked"));
                     model.set("endTimezone", "");
                 });
 
-                saveButton.on("click", function(e) {
+                saveButton.on(CLICK, function(e) {
                     e.preventDefault();
                     wnd.close();
                 });
 
-                cancelButton.on("click", function(e) {
+                cancelButton.on(CLICK, function(e) {
                     e.preventDefault();
                     that._revertTimezones(model);
                     wnd.close();
@@ -2414,7 +2413,7 @@ var __meta__ = { // jshint ignore:line
             var endY;
             var timeStamp;
             var wrapper = that.wrapper;
-            var touchMoveHandler = $.proxy(that._touchMove, that);
+            var touchMoveHandler = that._touchMove.bind(that);
 
             wrapper.on(TOUCHSTART + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td, .k-event", function(e) {
                 var content = that.wrapper.find(".k-scheduler-content");
@@ -2491,7 +2490,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
 
-            wrapper.on("keydown" + NS, proxy(that._keydown, that));
+            wrapper.on("keydown" + NS, that._keydown.bind(that));
 
             wrapper.on("keyup" + NS, function(e) {
                 that._ctrlKey = e.ctrlKey;
@@ -2514,7 +2513,7 @@ var __meta__ = { // jshint ignore:line
                 that._mouseDownSelection(e);
             });
 
-            var mouseMoveHandler = $.proxy(that._mouseMove, that);
+            var mouseMoveHandler = that._mouseMove.bind(that);
 
             wrapper.on(MOUSEDOWN + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td", function(e) {
                 var which = e.which;
@@ -3887,6 +3886,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         showDialog: function(options) {
+            this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
             this._editor.showDialog(options);
         },
 
@@ -4046,6 +4046,7 @@ var __meta__ = { // jshint ignore:line
             this._unbindResize();
 
             this._createPopupEditor(model);
+            this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
 
             this._bindResize();
         },
@@ -4176,12 +4177,12 @@ var __meta__ = { // jshint ignore:line
                     target: this,
                     timezone: that.dataSource.reader.timezone,
                     resources: that.resources,
-                    createButton: proxy(this._createButton, this)
+                    createButton: this._createButton.bind(this)
                 }));
             } else {
                 editor = that._editor = new PopupEditor(this.wrapper, extend({}, this.options, {
                     target: this,
-                    createButton: proxy(this._createButton, this),
+                    createButton: this._createButton.bind(this),
                     timezone: that.dataSource.reader.timezone,
                     resources: that.resources
                 }));
@@ -4719,9 +4720,9 @@ var __meta__ = { // jshint ignore:line
                     .unbind(PROGRESS, that._progressHandler)
                     .unbind(ERROR, that._errorHandler);
             } else {
-                that._refreshHandler = proxy(that.refresh, that);
-                that._progressHandler = proxy(that._requestStart, that);
-                that._errorHandler = proxy(that._error, that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._requestStart.bind(that);
+                that._errorHandler = that._error.bind(that);
             }
 
             that.dataSource = kendo.data.SchedulerDataSource.create(dataSource)
@@ -4808,8 +4809,8 @@ var __meta__ = { // jshint ignore:line
             var isResourceGrouped = isGrouped && that.options.group.resources.indexOf(groupName) > -1;
 
             if (!that._resourceRefreshHandler && isResourceGrouped){
-                that._resourceRefreshHandler = proxy(that._refreshResource, that);
-                that._resourceErrorHandler = proxy(that._error, that);
+                that._resourceRefreshHandler = that._refreshResource.bind(that);
+                that._resourceErrorHandler = that._error.bind(that);
             }
 
             if(isResourceGrouped) {
@@ -4933,6 +4934,9 @@ var __meta__ = { // jshint ignore:line
                 var currentDate = new Date();
                 var timezone = that.options.timezone;
 
+                that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
+                button.addClass(FOCUSEDSTATE).attr("tabindex", 0).trigger("focus").attr("tabindex", -1);
+
                 if($(e.target).is("input")) {
                     return;
                 }
@@ -4963,6 +4967,9 @@ var __meta__ = { // jshint ignore:line
             toolbar.on(CLICK + NS, ".k-nav-current", function(e) {
                 e.preventDefault();
 
+                that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
+                $(this).addClass(FOCUSEDSTATE);
+
                 if (!that._isMobile()) {
                     that._showCalendar();
                 }
@@ -4973,7 +4980,8 @@ var __meta__ = { // jshint ignore:line
 
                 var name = $(this).attr(kendo.attr("name"));
 
-                that.toolbar.find(".k-scheduler-views > .k-button").removeClass(FOCUSEDSTATE);
+                that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
+                $(this).addClass(FOCUSEDSTATE).attr("tabindex", 0).trigger("focus").attr("tabindex", -1);
 
                 if (!that.trigger("navigate", { view: name, action: "changeView", date: that.date() })) {
                     that.view(name);

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.dateinput',[ "kendo.core" ], f);
+    define('kendo.dateinput',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -42,7 +42,6 @@ var __meta__ = { // jshint ignore:line
     var Widget = ui.Widget;
     var keys = kendo.keys;
     var ns = ".kendoDateInput";
-    var proxy = $.proxy;
     var objectToString = {}.toString;
 
     var INPUT_EVENT_NAME = (kendo.support.propertyChangeEvent ? "propertychange.kendoDateInput input" : "input") + ns;
@@ -233,11 +232,11 @@ var __meta__ = { // jshint ignore:line
                     that.wrapper.removeClass(FOCUSED);
                     that._change();
                 })
-                .on("paste" + ns, proxy(that._paste, that))
-                .on("keydown" + ns, proxy(that._keydown, that))
-                .on(INPUT_EVENT_NAME, proxy(that._input, that))
-                .on("mouseup" + ns, proxy(that._mouseUp, that))
-                .on("DOMMouseScroll" + ns + " mousewheel" + ns, proxy(that._scroll, that));
+                .on("paste" + ns, that._paste.bind(that))
+                .on("keydown" + ns, that._keydown.bind(that))
+                .on(INPUT_EVENT_NAME, that._input.bind(that))
+                .on("mouseup" + ns, that._mouseUp.bind(that))
+                .on("DOMMouseScroll" + ns + " mousewheel" + ns, that._scroll.bind(that));
         },
 
         _unbindInput: function () {
@@ -353,7 +352,7 @@ var __meta__ = { // jshint ignore:line
 
             that._addInvalidState();
             clearTimeout(that._invalidStateTimeout);
-            that._invalidStateTimeout = setTimeout(proxy(that._removeInvalidState, that), 100);
+            that._invalidStateTimeout = setTimeout(that._removeInvalidState.bind(that), 100);
         },
 
         _addInvalidState: function() {

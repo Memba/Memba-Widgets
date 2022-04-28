@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.timeline',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
+    define('kendo.timeline',[ "./kendo.fx", "./kendo.data", "./kendo.draganddrop" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -40,7 +40,6 @@ var __meta__ = { // jshint ignore:line
         Widget = ui.Widget,
         DataSource = kendo.data.DataSource,
         Transition = kendo.effects.Transition,
-        proxy = $.proxy,
         keys = kendo.keys,
         isArray = Array.isArray,
 
@@ -363,9 +362,9 @@ var __meta__ = { // jshint ignore:line
                     that._vertical();
                 }
 
-                this.element.on("click", ".k-card-actions", function() {
-                    var action = $(event.target);
-                    var dataItemUid = $(event.target).closest(".k-timeline-event").data("uid");
+                this.element.on("click", ".k-card-actions", function(ev) {
+                    var action = $(ev.target);
+                    var dataItemUid = $(ev.target).closest(".k-timeline-event").data("uid");
                     var dataItem = that.dataSource.getByUid(dataItemUid);
 
                     that.trigger("actionClick", { sender: that, element: action, dataItem: dataItem});
@@ -540,7 +539,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 that.pane = new HorizontalPane(that._eventsList, {
-                    transitionEnd: proxy(this, "_transitionEnd"),
+                    transitionEnd: this._transitionEnd.bind(this),
                     eventTemplate: itemTemplate,
                     dataFieldMappings: dataFieldMappings,
                     eventHeight: options.eventHeight
@@ -955,9 +954,11 @@ var __meta__ = { // jshint ignore:line
 
                 that._updateArrows();
 
-                $(window).on("resize" + NS, proxy(this, "_resizeHandler"));
-                that._trackWrap.on("click", ".k-timeline-track-item:not(.k-timeline-flag-wrap)", proxy(this, "_setCurrentEvent"));
-                that._trackWrap.on("click", ".k-timeline-arrow:not(.k-disabled)", proxy(this, "_navigateToView"));
+                that._resizeHandlerBound =  that._resizeHandler.bind(that);
+
+                kendo.jQuery(window).on("resize" + NS, that._resizeHandlerBound);
+                that._trackWrap.on("click", ".k-timeline-track-item:not(.k-timeline-flag-wrap)", that._setCurrentEvent.bind(that));
+                that._trackWrap.on("click", ".k-timeline-arrow:not(.k-disabled)", that._navigateToView.bind(that));
 
                 if (navigatable) {
                     that._trackWrap
@@ -1040,7 +1041,7 @@ var __meta__ = { // jshint ignore:line
                             }
                         });
 
-                    that._ariaLabel();
+                    that._ariaLabel(that._scrollableWrap);
                 }
             },
 
@@ -1065,32 +1066,6 @@ var __meta__ = { // jshint ignore:line
                 that._currentBullet = next;
             },
 
-            _ariaLabel: function(){
-                var that = this;
-                var inputElm = that.element;
-                var ul = that._scrollableWrap;
-                var id = inputElm.attr("id");
-                var labelElm = $("label[for=\'" + id  + "\']");
-                var ariaLabel = inputElm.attr("aria-label");
-                var ariaLabelledBy = inputElm.attr("aria-labelledby");
-                var labelId;
-
-                if (ariaLabel) {
-                    ul.attr("aria-label", ariaLabel);
-                } else if (ariaLabelledBy){
-                    ul.attr("aria-labelledby", ariaLabelledBy);
-                } else if (labelElm.length){
-                    labelId = labelElm.attr("id");
-                    if (labelId) {
-                        ul.attr("aria-labelledby", labelId);
-                    } else {
-                        labelId = kendo.guid();
-                        labelElm.attr("id", labelId);
-                        ul.attr("aria-labelledby", labelId);
-                    }
-                }
-            },
-
             _removeCurrent: function () {
                 if (this._currentBullet) {
                     this._currentBullet
@@ -1110,7 +1085,7 @@ var __meta__ = { // jshint ignore:line
                 if (that.dataSource && that._refresh) {
                     that.dataSource.unbind(CHANGE, that._refresh);
                 } else {
-                    this._refresh = proxy(that, "refresh");
+                    this._refresh = that.refresh.bind(that);
                 }
 
                 this.dataSource = DataSource.create(dataSource);
@@ -1174,12 +1149,16 @@ var __meta__ = { // jshint ignore:line
                     clearTimeout(this.navigateTimeOut);
                 }
 
-                $(window).off("resize" + NS, this._resizeHandler);
+                $(window).off("resize" + NS, this._resizeHandlerBound);
+
+                this._resizeHandlerBound = null;
 
                 this.element.off();
 
                 if(options.orientation != VERTICAL) {
-                    this.pane.destroy();
+                    if (this.pane) {
+                        this.pane.destroy();
+                    }
 
                     this._trackWrap.find("." + SCROLLABLEWRAPCLASS).off();
                     this.element.find(".k-timeline-arrow").off();

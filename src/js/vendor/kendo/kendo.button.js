@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.button',["kendo.core", "kendo.badge", "kendo.html.button"], f);
+    define('kendo.button',["./kendo.core", "./kendo.badge", "./kendo.html.button"], f);
 })(function () {
 
     var __meta__ = { // jshint ignore:line
@@ -39,7 +39,6 @@
             Widget = kendo.ui.Widget,
             html = kendo.html,
             ui = kendo.ui,
-            proxy = $.proxy,
             keys = kendo.keys,
             CLICK = "click",
             MOUSEDOWN = kendo.support.mousedown,
@@ -83,13 +82,13 @@
                 that._badge();
 
                 element
-                    .on(CLICK + NS, proxy(that._click, that))
-                    .on("focus" + NS, proxy(that._focus, that))
-                    .on("blur" + NS, proxy(that._blur, that))
-                    .on("keydown" + NS, proxy(that._keydown, that))
-                    .on("keyup" + NS, proxy(that._removeActive, that))
-                    .on(MOUSEDOWN + NS, proxy(that._addActive, that))
-                    .on(MOUSEUP + NS  + " " + MOUSEOUT + NS, proxy(that._removeActive, that));
+                    .on(CLICK + NS, that._click.bind(that))
+                    .on("focus" + NS, that._focus.bind(that))
+                    .on("blur" + NS, that._blur.bind(that))
+                    .on("keydown" + NS, that._keydown.bind(that))
+                    .on("keyup" + NS, that._removeActive.bind(that))
+                    .on(MOUSEDOWN + NS, that._addActive.bind(that))
+                    .on(MOUSEUP + NS  + " " + MOUSEOUT + NS, that._removeActive.bind(that));
 
                 kendo.notify(that);
             },

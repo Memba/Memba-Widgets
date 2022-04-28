@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
         extend = $.extend,
         each = $.each,
         isArray = Array.isArray,
-        proxy = $.proxy,
         noop = $.noop,
         math = Math,
         Template,
@@ -57,6 +56,9 @@ var __meta__ = { // jshint ignore:line
         BOOLEAN = "boolean",
         UNDEFINED = "undefined",
         PREFIX = "prefix",
+        ARIA_LABELLEDBY = "aria-labelledby",
+        ARIA_LABEL = "aria-label",
+        LABELIDPART = "_label",
         getterCache = {},
         setterCache = {},
         slice = [].slice,
@@ -136,7 +138,7 @@ var __meta__ = { // jshint ignore:line
             return target;
         };
 
-    kendo.version = "2022.1.301".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.1.412".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -1785,6 +1787,7 @@ function pad(number, digits, end) {
             element.wrap(
                          $("<div/>")
                          .addClass("k-animation-container")
+                         .attr("role", "region")
                          .css({
                              width: width,
                              height: height
@@ -2766,9 +2769,9 @@ function pad(number, digits, end) {
         Observable: Observable,
         Class: Class,
         Template: Template,
-        template: proxy(Template.compile, Template),
-        render: proxy(Template.render, Template),
-        stringify: proxy(JSON.stringify, JSON),
+        template: Template.compile.bind(Template),
+        render: Template.render.bind(Template),
+        stringify: JSON.stringify.bind(JSON),
         eventTarget: eventTarget,
         htmlEncode: htmlEncode,
         unescape: unescape,
@@ -3049,6 +3052,29 @@ function pad(number, digits, end) {
             el.addClass(classes.join(" "));
         },
 
+        _ariaLabel: function(target) {
+            var that = this,
+                inputElm = that.element,
+                inputId = inputElm.attr("id"),
+                labelElm = $("label[for=\"" + inputId + "\"]"),
+                ariaLabel = inputElm.attr(ARIA_LABEL),
+                ariaLabelledBy = inputElm.attr(ARIA_LABELLEDBY),
+                labelId;
+
+            if (target[0] === inputElm[0]) {
+                return;
+            }
+
+            if (ariaLabel) {
+                target.attr(ARIA_LABEL, ariaLabel);
+            } else if (ariaLabelledBy) {
+                target.attr(ARIA_LABELLEDBY, ariaLabelledBy);
+            } else if (labelElm.length) {
+                labelId = labelElm.attr("id") || that._generateLabelId(labelElm, inputId || kendo.guid());
+                target.attr(ARIA_LABELLEDBY, labelId);
+            }
+        },
+
         _clearCssClasses: function(newOptions, element) {
             var protoOptions = this.__proto__.options, // jshint ignore:line
                 currentOptions = this.options,
@@ -3089,7 +3115,15 @@ function pad(number, digits, end) {
                     }
                 }
             }
-        }
+        },
+
+        _generateLabelId: function(label, inputId){
+            var labelId = inputId + LABELIDPART;
+
+            label.attr("id", labelId);
+
+            return labelId;
+        },
     });
 
     var DataBoundWidget = Widget.extend({
@@ -4605,7 +4639,7 @@ function pad(number, digits, end) {
     };
 
     kendo.cycleForm = function(form) {
-        var firstElement = form.find("input, .k-widget").first();
+        var firstElement = form.find("input, .k-widget, .k-dropdownlist, .k-combobox").first();
         var lastElement = form.find("button, .k-button").last();
 
         function focus(el) {
@@ -5210,7 +5244,6 @@ var __meta__ = { // jshint ignore:line
         fx = kendo.effects,
         each = $.each,
         extend = $.extend,
-        proxy = $.proxy,
         support = kendo.support,
         browser = support.browser,
         transforms = support.transforms,
@@ -5619,7 +5652,7 @@ var __meta__ = { // jshint ignore:line
 
             that.effects = effects;
 
-            deferred.done($.proxy(that, "complete"));
+            deferred.done(that.complete.bind(that));
 
             element.data("animating", true);
 
@@ -5730,7 +5763,7 @@ var __meta__ = { // jshint ignore:line
             this.restoreCallback();
 
             if (hasZoom && !transforms) {
-                setTimeout($.proxy(this, "restoreCallback"), 0); // Again jQuery callback in IE8-
+                setTimeout(this.restoreCallback.bind(this), 0); // Again jQuery callback in IE8-
             }
 
             for (; idx < length; idx ++) {
@@ -5941,7 +5974,7 @@ var __meta__ = { // jshint ignore:line
                 children = that.children(),
                 childrenLength = children.length;
 
-            deferred.done($.proxy(that, "_complete"));
+            deferred.done(that._complete.bind(that));
 
             element.data("animating", true);
 
@@ -6024,7 +6057,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (hasZoom && !transforms) {
-                setTimeout($.proxy(that, "restoreCallback"), 0); // Again jQuery callback in IE8-
+                setTimeout(that.restoreCallback.bind(that), 0); // Again jQuery callback in IE8-
             }
 
             that.teardown();
@@ -6629,7 +6662,7 @@ var __meta__ = { // jshint ignore:line
 
                 container.addClass(this._containerClass());
 
-                this.completeProxy = $.proxy(this, "complete");
+                this.completeProxy = this.complete.bind(this);
                 container.on(transitions.event, this.completeProxy);
 
                 kendo.animationFrame(function() {
@@ -6654,7 +6687,7 @@ var __meta__ = { // jshint ignore:line
     var Animation = kendo.Class.extend({
         init: function() {
             var that = this;
-            that._tickProxy = proxy(that._tick, that);
+            that._tickProxy = that._tick.bind(that);
             that._started = false;
         },
 
@@ -7026,7 +7059,7 @@ var __meta__ = { // jshint ignore:line
                 locations: [current]
             });
 
-            adapter.change($.proxy(this, "_checkUrl"));
+            adapter.change(this._checkUrl.bind(this));
         },
 
         createAdapter:function(options) {
@@ -8179,10 +8212,9 @@ var __meta__ = { // jshint ignore:line
 /*jshint eqnull: true, loopfunc: true, evil: true */
 (function($, undefined) {
     var extend = $.extend,
-        proxy = $.proxy,
         isPlainObject = $.isPlainObject,
         isEmptyObject = $.isEmptyObject,
-        isArray = $.isArray,
+        isArray = Array.isArray,
         grep = $.grep,
         ajax = $.ajax,
         map,
@@ -8206,6 +8238,8 @@ var __meta__ = { // jshint ignore:line
         REQUESTSTART = "requestStart",
         PROGRESS = "progress",
         REQUESTEND = "requestEnd",
+        ITEMSLOADED = "itemsLoaded",
+        ITEMLOAD = "itemLoad",
         crud = [CREATE, READ, UPDATE, DESTROY],
         identity = function(o) { return o; },
         getter = kendo.getter,
@@ -8234,6 +8268,8 @@ var __meta__ = { // jshint ignore:line
             that.length = array.length;
 
             that.wrapAll(array, that);
+            that._loadPromises = [];
+            that._loadedNodes = [];
         },
 
         at: function(index) {
@@ -8290,17 +8326,39 @@ var __meta__ = { // jshint ignore:line
                 object.parent = parent;
 
                 object.bind(CHANGE, function(e) {
+                    var isGroup = object.hasOwnProperty("hasSubgroups");
                     that.trigger(CHANGE, {
                         field: e.field,
                         node: e.node,
                         index: e.index,
                         items: e.items || [this],
-                        action: e.node ? (e.action || "itemloaded") : "itemchange"
+                        action: e.node || isGroup ? (e.action || "itemloaded") : "itemchange"
+                    });
+                });
+
+                object.bind(ITEMLOAD, function (e) {
+                    that._loadPromises.push(e.promise);
+                    that._loading = true;
+
+                    e.promise.done(function(){
+                        that._loadedNodes.push(e.node);
+                        var index = that._loadPromises.indexOf(e.promise);
+                        that._loadPromises.splice(index, 1);
+
+                        if(!that._loadPromises.length){
+                            that._loading = false;
+                            that.trigger(ITEMSLOADED, {collection: that, nodes: that._loadedNodes});
+                            that._loadedNodes = [];
+                        }
                     });
                 });
             }
 
             return object;
+        },
+
+        loading: function () {
+            return this._loading;
         },
 
         push: function() {
@@ -8559,6 +8617,8 @@ var __meta__ = { // jshint ignore:line
 
     var LazyObservableArray = ObservableArray.extend({
         init: function (data, type, events) {
+            var parentFn = function() { return this; };
+
             Observable.fn.init.call(this);
 
             this.type = type || ObservableObject;
@@ -8572,7 +8632,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             this.length = idx;
-            this._parent = proxy(function() { return this; }, this);
+            this._parent = parentFn.bind(this);
         },
         at: function(index) {
             var item = this[index];
@@ -10078,6 +10138,11 @@ var __meta__ = { // jshint ignore:line
             }
         } else {
             if (skip !== undefined && take !== undefined) {
+                total = query.data.length;
+
+                if (skip + take > total && options.virtual) {
+                    skip -= skip + take - total;
+                }
                 query = query.range(skip, take);
             }
 
@@ -10374,13 +10439,13 @@ var __meta__ = { // jshint ignore:line
                 that.model = model = base.define(that.model);
             }
 
-            var dataFunction = proxy(that.data, that);
+            var dataFunction = that.data.bind(that);
 
             that._dataAccessFunction = dataFunction;
 
             if (that.model) {
-                var groupsFunction = proxy(that.groups, that),
-                    serializeFunction = proxy(that.serialize, that),
+                var groupsFunction = that.groups.bind(that),
+                    serializeFunction = that.serialize.bind(that),
                     originalFieldNames = {},
                     getters = {},
                     serializeGetters = {},
@@ -10792,9 +10857,9 @@ var __meta__ = { // jshint ignore:line
 
             if (isFunction(that.transport.push)) {
                 that.transport.push({
-                    pushCreate: proxy(that._pushCreate, that),
-                    pushUpdate: proxy(that._pushUpdate, that),
-                    pushDestroy: proxy(that._pushDestroy, that)
+                    pushCreate: that._pushCreate.bind(that),
+                    pushUpdate: that._pushUpdate.bind(that),
+                    pushDestroy: that._pushDestroy.bind(that)
                 });
             }
 
@@ -12022,7 +12087,7 @@ var __meta__ = { // jshint ignore:line
                 that._pending = undefined;
                 callback();
             } else {
-                that._pending = { callback: proxy(callback, that), options: options };
+                that._pending = { callback: callback.bind(that), options: options };
             }
         },
 
@@ -12081,7 +12146,7 @@ var __meta__ = { // jshint ignore:line
                 !(that.options.useRanges && that.options.serverPaging)) {
                 that._data.unbind(CHANGE, that._changeHandler);
             } else {
-                that._changeHandler = proxy(that._change, that);
+                that._changeHandler = that._change.bind(that);
             }
 
             return data.bind(CHANGE, that._changeHandler);
@@ -12247,10 +12312,10 @@ var __meta__ = { // jshint ignore:line
                 var group = data[idx];
                 if (group.hasSubgroups) {
                     this._clearEmptyGroups(group.items);
-                } else {
-                    if (group.items && !group.items.length) {
-                        splice.apply(group.parent(), [idx, 1]);
-                    }
+                }
+                
+                if (group.items && !group.items.length && !group.itemCount) {
+                    splice.apply(group.parent(), [idx, 1]);
                 }
             }
         },
@@ -12285,6 +12350,10 @@ var __meta__ = { // jshint ignore:line
                 if(that._take === undefined && that._pageSize !== undefined) {
                     that._take = that._pageSize;
                     options.take = that._take;
+                }
+
+                if(that.options.virtual) {
+                    options.virtual = that.options.virtual;
                 }
 
                 if (options.sort) {
@@ -14018,6 +14087,14 @@ var __meta__ = { // jshint ignore:line
                     }
                 });
 
+                children.bind(ITEMSLOADED, function (e) {
+                    var collection = that.parent();
+
+                    if (collection) {
+                        collection.trigger(ITEMSLOADED, e);
+                    }
+                });
+
                 that._updateChildrenField();
             }
         },
@@ -14071,13 +14148,16 @@ var __meta__ = { // jshint ignore:line
                     method = "read";
                 }
 
-                children.one(CHANGE, proxy(this._childrenLoaded, this));
+                children.one(CHANGE, this._childrenLoaded.bind(this));
 
                 if(this._matchFilter){
                     options.filter = { field: '_matchFilter', operator: 'eq', value: true };
                 }
 
                 promise = children[method](options);
+                if (!this._loaded) {
+                    this.trigger(ITEMLOAD, {promise: promise, node: this});
+                }
             } else {
                 this.loaded(true);
             }
@@ -14143,6 +14223,27 @@ var __meta__ = { // jshint ignore:line
             that._data.bind(ERROR, function(e) {
                 that.trigger(ERROR, e);
             });
+
+            that._data.bind(ITEMSLOADED, function(e) {
+                that.trigger(ITEMSLOADED, e);
+            });
+        },
+
+        loading: function () {
+            if(this._data) {
+                return this._data.loading() || this._childrenLoading();
+            }
+            return false;
+        },
+
+        _childrenLoading: function () {
+            var isLoading = false;
+            this._data.forEach(function (node) {
+                if(node.hasChildren && node.children.loading()) {
+                    isLoading = true;
+                }
+            });
+            return isLoading;
         },
 
         read: function(data) {
@@ -14728,7 +14829,6 @@ var __meta__ = { // jshint ignore:line
         toString = {}.toString,
         binders = {},
         Class = kendo.Class,
-        proxy = $.proxy,
         VALUE = "value",
         SOURCE = "source",
         EVENTS = "events",
@@ -14939,7 +15039,11 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            return proxy(handler, source);
+            if (!handler) {
+                return;
+            }
+
+            return handler.bind(source);
         }
     });
 
@@ -15148,7 +15252,7 @@ var __meta__ = { // jshint ignore:line
         init: function(element, bindings, options) {
             TypedBinder.fn.init.call(this, element, bindings, options);
 
-            this._change = proxy(this.change, this);
+            this._change = this.change.bind(this);
             this.eventName = options.valueUpdate || CHANGE;
 
             $(this.element).on(this.eventName, this._change);
@@ -15336,7 +15440,7 @@ var __meta__ = { // jshint ignore:line
         checked: TypedBinder.extend({
             init: function(element, bindings, options) {
                 TypedBinder.fn.init.call(this, element, bindings, options);
-                this._change = proxy(this.change, this);
+                this._change = this.change.bind(this);
 
                 $(this.element).change(this._change);
             },
@@ -15464,7 +15568,7 @@ var __meta__ = { // jshint ignore:line
             init: function(target, bindings, options) {
                 TypedBinder.fn.init.call(this, target, bindings, options);
 
-                this._change = proxy(this.change, this);
+                this._change = this.change.bind(this);
                 $(this.element).change(this._change);
             },
 
@@ -15609,9 +15713,9 @@ var __meta__ = { // jshint ignore:line
                 Binder.fn.init.call(that, widget.element[0], bindings, options);
 
                 that.widget = widget;
-                that._dataBinding = proxy(that.dataBinding, that);
-                that._dataBound = proxy(that.dataBound, that);
-                that._itemChange = proxy(that.itemChange, that);
+                that._dataBinding = that.dataBinding.bind(that);
+                that._dataBound = that.dataBound.bind(that);
+                that._itemChange = that.itemChange.bind(that);
             },
 
             itemChange: function(e) {
@@ -15762,7 +15866,7 @@ var __meta__ = { // jshint ignore:line
                 Binder.fn.init.call(this, widget.element[0], bindings, options);
 
                 this.widget = widget;
-                this._change = proxy(this.change, this);
+                this._change = this.change.bind(this);
                 this.widget.bind(CHANGE, this._change);
             },
             change: function() {
@@ -15796,7 +15900,7 @@ var __meta__ = { // jshint ignore:line
         start: Binder.extend({
             init: function(widget, bindings, options) {
                 Binder.fn.init.call(this, widget.element[0], bindings, options);
-                this._change = proxy(this.change, this);
+                this._change = this.change.bind(this);
                 this.widget = widget;
                 this.widget.bind(CHANGE, this._change);
             },
@@ -15820,7 +15924,7 @@ var __meta__ = { // jshint ignore:line
         end: Binder.extend({
             init: function(widget, bindings, options) {
                 Binder.fn.init.call(this, widget.element[0], bindings, options);
-                this._change = proxy(this.change, this);
+                this._change = this.change.bind(this);
                 this.widget = widget;
                 this.widget.bind(CHANGE, this._change);
             },
@@ -15914,7 +16018,7 @@ var __meta__ = { // jshint ignore:line
                 Binder.fn.init.call(this, widget.element[0], bindings, options);
 
                 this.widget = widget;
-                this._change = $.proxy(this.change, this);
+                this._change = this.change.bind(this);
                 this.widget.first(CHANGE, this._change);
 
                 var value = this.bindings.value.get();
@@ -16056,7 +16160,7 @@ var __meta__ = { // jshint ignore:line
                     Binder.fn.init.call(this, widget.element[0], bindings, options);
 
                     this.widget = widget;
-                    this._change = $.proxy(this.change, this);
+                    this._change = this.change.bind(this);
                     this.widget.first(CHANGE, this._change);
                     this._initChange = false;
                 },
@@ -16185,7 +16289,7 @@ var __meta__ = { // jshint ignore:line
                     Binder.fn.init.call(this, widget.element[0], bindings, options);
 
                     this.widget = widget;
-                    this._change = $.proxy(this.change, this);
+                    this._change = this.change.bind(this);
                     this.widget.first(CHANGE, this._change);
                     this._initChange = false;
                 },
@@ -17885,7 +17989,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         press: function() {
-            this._holdTimeout = setTimeout($.proxy(this, "_hold"), this.userEvents.minHold);
+            this._holdTimeout = setTimeout(this._hold.bind(this), this.userEvents.minHold);
             this._trigger(PRESS, this.pressEvent);
         },
 
@@ -18087,7 +18191,7 @@ var __meta__ = { // jshint ignore:line
 
             if (that.captureUpIfMoved && support.eventCapture) {
                 var surfaceElement = that.surface[0],
-                    preventIfMovingProxy = $.proxy(that.preventIfMoving, that);
+                    preventIfMovingProxy = that.preventIfMoving.bind(that);
 
                 withEachUpEvent(function(eventName) {
                     surfaceElement.addEventListener(eventName, preventIfMovingProxy, true);
@@ -18379,7 +18483,6 @@ var __meta__ = { // jshint ignore:line
         Widget = kendo.ui.Widget,
         Observable = kendo.Observable,
         UserEvents = kendo.UserEvents,
-        proxy = $.proxy,
         extend = $.extend,
         getOffset = kendo.getOffset,
         draggables = {},
@@ -18469,17 +18572,17 @@ var __meta__ = { // jshint ignore:line
 
             if (domElement.addEventListener) {
                 $.each(kendo.eventMap.down.split(" "), function() {
-                    domElement.addEventListener(this, proxy(that._press, that), true);
+                    domElement.addEventListener(this, that._press.bind(that), true);
                 });
                 $.each(kendo.eventMap.up.split(" "), function() {
-                    domElement.addEventListener(this, proxy(that._release, that), true);
+                    domElement.addEventListener(this, that._release.bind(that), true);
                 });
             } else {
                 $.each(kendo.eventMap.down.split(" "), function() {
-                    domElement.attachEvent(this, proxy(that._press, that));
+                    domElement.attachEvent(this, that._press.bind(that));
                 });
                 $.each(kendo.eventMap.up.split(" "), function() {
-                    domElement.attachEvent(this, proxy(that._release, that));
+                    domElement.attachEvent(this, that._release.bind(that));
                 });
             }
 
@@ -18993,20 +19096,20 @@ var __meta__ = { // jshint ignore:line
                 allowSelection: true,
                 filter: that.options.filter,
                 threshold: that.options.distance,
-                start: proxy(that._start, that),
-                hold: proxy(that._hold, that),
-                move: proxy(that._drag, that),
-                end: proxy(that._end, that),
-                cancel: proxy(that._cancel, that),
-                select: proxy(that._select, that)
+                start: that._start.bind(that),
+                hold: that._hold.bind(that),
+                move: that._drag.bind(that),
+                end: that._end.bind(that),
+                cancel: that._cancel.bind(that),
+                select: that._select.bind(that)
             });
 
             if (kendo.support.touch) {
                 that.element.find(that.options.filter).css('touch-action', 'none');
             }
 
-            that._afterEndHandler = proxy(that._afterEnd, that);
-            that._captureEscape = proxy(that._captureEscape, that);
+            that._afterEndHandler = that._afterEnd.bind(that);
+            that._captureEscape = that._captureEscape.bind(that);
         },
 
         events: [
@@ -19187,7 +19290,7 @@ var __meta__ = { // jshint ignore:line
                         clearInterval(this._scrollInterval);
                         this._scrollInterval = null;
                     } else if(!this._scrollInterval) {
-                        this._scrollInterval = setInterval($.proxy(this, "_autoScroll"), 50);
+                        this._scrollInterval = setInterval(this._autoScroll.bind(this), 50);
                     }
                 }
             }
@@ -19507,7 +19610,6 @@ var __meta__ = { // jshint ignore:line
         mobile = kendo.mobile,
         fx = kendo.effects,
         ui = mobile.ui,
-        proxy = $.proxy,
         extend = $.extend,
         Widget = ui.Widget,
         Class = kendo.Class,
@@ -19538,8 +19640,8 @@ var __meta__ = { // jshint ignore:line
             Animation.fn.init.call(that);
             extend(that, options);
 
-            that.userEvents.bind("gestureend", proxy(that.start, that));
-            that.tapCapture.bind("press", proxy(that.cancel, that));
+            that.userEvents.bind("gestureend", that.start.bind(that));
+            that.tapCapture.bind("press", that.cancel.bind(that));
         },
 
         enabled: function() {
@@ -19578,9 +19680,9 @@ var __meta__ = { // jshint ignore:line
             });
 
             that.tapCapture.bind("press", function() { that.cancel(); });
-            that.userEvents.bind("end", proxy(that.start, that));
-            that.userEvents.bind("gestureend", proxy(that.start, that));
-            that.userEvents.bind("tap", proxy(that.onEnd, that));
+            that.userEvents.bind("end", that.start.bind(that));
+            that.userEvents.bind("gestureend", that.start.bind(that));
+            that.userEvents.bind("tap", that.onEnd.bind(that));
         },
 
         onCancel: function() {
@@ -19737,7 +19839,7 @@ var __meta__ = { // jshint ignore:line
                 size: horizontal ? "width" : "height"
             });
 
-            that.scrollMovable.bind(CHANGE, proxy(that.refresh, that));
+            that.scrollMovable.bind(CHANGE, that.refresh.bind(that));
             that.container.append(element);
             if (options.alwaysVisible) {
                 that.show();
@@ -19896,7 +19998,7 @@ var __meta__ = { // jshint ignore:line
             });
 
             if (that.options.mousewheelScrolling) {
-                element.on("DOMMouseScroll mousewheel",  proxy(this, "_wheelScroll"));
+                element.on("DOMMouseScroll mousewheel",  this._wheelScroll.bind(this));
             }
 
             extend(that, {
@@ -20106,8 +20208,8 @@ var __meta__ = { // jshint ignore:line
             that.refreshHint = that.scrollElement.children().first();
             that.hintContainer = that.refreshHint.children(".km-template");
 
-            that.pane.y.bind("change", proxy(that._paneChange, that));
-            that.userEvents.bind("end", proxy(that._dragEnd, that));
+            that.pane.y.bind("change", that._paneChange.bind(that));
+            that.userEvents.bind("end", that._dragEnd.bind(that));
         },
 
         _dragEnd: function() {
@@ -20243,7 +20345,6 @@ var __meta__ = { // jshint ignore:line
         ACTIVECHILDREN = ".k-picker-wrap, .k-dropdown-wrap, .k-link",
         MOUSEDOWN = "down",
         DOCUMENT_ELEMENT = $(document.documentElement),
-        proxy = $.proxy,
         WINDOW = $(window),
         SCROLL = "scroll",
         cssPrefix = support.transitions.css,
@@ -20349,7 +20450,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (options.toggleTarget) {
-                $(options.toggleTarget).on(options.toggleEvent + NS, $.proxy(that.toggle, that));
+                $(options.toggleTarget).on(options.toggleEvent + NS, that.toggle.bind(that));
             }
         },
 
@@ -20446,7 +20547,8 @@ var __meta__ = { // jshint ignore:line
                 options = that.options,
                 animation, wrapper,
                 anchor = $(options.anchor),
-                mobile = element[0] && element.hasClass("km-widget");
+                mobile = element[0] && element.hasClass("km-widget"),
+                listbox = element.find("[role='listbox']");
 
             if (!that.visible()) {
                 if (options.copyAnchorStyles) {
@@ -20473,12 +20575,18 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 that.wrapper = wrapper = kendo.wrap(element, options.autosize)
-                                        .css({
-                                            overflow: HIDDEN,
-                                            display: "block",
-                                            position: ABSOLUTE
-                                        })
-                                        .attr("aria-hidden", false);
+                    .css({
+                        overflow: HIDDEN,
+                        display: "block",
+                        position: ABSOLUTE
+                    })
+                    .attr("aria-hidden", false);
+
+                if (listbox.attr("aria-label")) {
+                    wrapper.attr("aria-label", listbox.attr("aria-label"));
+                } else if (listbox.attr("aria-labelledby")) {
+                    wrapper.attr("aria-labelledby", listbox.attr("aria-labelledby"));
+                }
 
                 if (support.mobileOS.android) {
                     wrapper.css(TRANSFORM, "translatez(0)"); // Android is VERY slow otherwise. Should be tested in other droids as well since it may cause blur.
@@ -20960,7 +21068,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         trap: function() {
-            this.element.on("keydown", proxy(this._keepInTrap, this));
+            this.element.on("keydown", this._keepInTrap.bind(this));
         },
 
         removeTrap: function() {
@@ -21084,7 +21192,6 @@ var __meta__ = { // jshint ignore:line
         isFunction = kendo.isFunction,
         isPlainObject = $.isPlainObject,
         extend = $.extend,
-        proxy = $.proxy,
         DOCUMENT = $(document),
         isLocalUrl = kendo.isLocalUrl,
         ARIAIDSUFFIX = "_tb_active",
@@ -21200,10 +21307,10 @@ var __meta__ = { // jshint ignore:line
             that.dimensions = DIMENSIONS[axis];
 
             if (kendo.support.touch && this._isShownOnMouseEnter()) {
-                that.element.on(kendo.support.mousedown + NS, that.options.filter, proxy(that._showOn, that));
+                that.element.on(kendo.support.mousedown + NS, that.options.filter, that._showOn.bind(that));
             }
 
-            that.element.on(that.options.showOn + NS, that.options.filter, proxy(that._showOn, that));
+            that.element.on(that.options.showOn + NS, that.options.filter, that._showOn.bind(that));
         },
 
         options: {
@@ -21386,22 +21493,22 @@ var __meta__ = { // jshint ignore:line
 
             that.dimensions = DIMENSIONS[axis];
 
-            that._documentKeyDownHandler = proxy(that._documentKeyDown, that);
+            that._documentKeyDownHandler = that._documentKeyDown.bind(that);
 
             if (this._isShownOnMouseEnter() || this._isShownOnClick()) {
-                that.element.on("mouseenter" + NS, that.options.filter, proxy(that._mouseenter, that));
+                that.element.on("mouseenter" + NS, that.options.filter, that._mouseenter.bind(that));
             }
 
             if (this.options.autoHide && this._isShownOnMouseEnter()) {
-                that.element.on("mouseleave" + NS, that.options.filter, proxy(that._mouseleave, that));
+                that.element.on("mouseleave" + NS, that.options.filter, that._mouseleave.bind(that));
             }
 
             if (this.options.autoHide && this._isShownOnFocus()) {
-                that.element.on("blur" + NS, that.options.filter, proxy(that._blur, that));
+                that.element.on("blur" + NS, that.options.filter, that._blur.bind(that));
             }
 
             if (kendo.support.touch) {
-                that.element.on(kendo.support.mousedown + NS, that.options.filter, proxy(that._mouseenter, that));
+                that.element.on(kendo.support.mousedown + NS, that.options.filter, that._mouseenter.bind(that));
             }
         },
 
@@ -21491,7 +21598,18 @@ var __meta__ = { // jshint ignore:line
         },
 
         _ajaxRequest: function(options) {
-            var that = this;
+            var that = this,
+                successFn = function (data) {
+                    kendo.ui.progress(that.content, false);
+
+                    that.content.html(data);
+
+                    that.contentLoading = false;
+
+                    that.trigger(CONTENTLOAD);
+
+                    that._openPopup();
+                };
 
             that.contentLoading = true;
 
@@ -21504,17 +21622,7 @@ var __meta__ = { // jshint ignore:line
 
                     that.trigger(ERROR, { status: status, xhr: xhr });
                 },
-                success: proxy(function (data) {
-                    kendo.ui.progress(that.content, false);
-
-                    that.content.html(data);
-
-                    that.contentLoading = false;
-
-                    that.trigger(CONTENTLOAD);
-
-                    that._openPopup();
-                }, that)
+                success: successFn.bind(that)
             }, options));
         },
 
@@ -21611,9 +21719,9 @@ var __meta__ = { // jshint ignore:line
             that.arrow = wrapper.find(".k-callout");
 
             if (options.autoHide && this._isShownOnMouseEnter()) {
-                wrapper.on("mouseleave" + NS, proxy(that._mouseleave, that));
+                wrapper.on("mouseleave" + NS, that._mouseleave.bind(that));
             } else {
-                wrapper.on("click" + NS, ".k-tooltip-button", proxy(that._closeButtonClick, that));
+                wrapper.on("click" + NS, ".k-tooltip-button", that._closeButtonClick.bind(that));
             }
         },
 
@@ -33566,7 +33674,6 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
     var eventCoordinates = utils.eventCoordinates;
     var outerWidth = kendo._outerWidth;
     var outerHeight = kendo._outerHeight;
-    var proxy = $.proxy;
 
     var TOOLTIP_TEMPLATE = '<div class="k-tooltip">' +
             '<div class="k-tooltip-content"></div>' +
@@ -33588,7 +33695,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                 collision: "fit fit"
             };
 
-            this._openPopupHandler = $.proxy(this._openPopup, this);
+            this._openPopupHandler = this._openPopup.bind(this);
 
             this.surface = surface;
             this._bindEvents();
@@ -33604,10 +33711,10 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         },
 
         _bindEvents: function() {
-            this._showHandler = proxy(this._showEvent, this);
-            this._surfaceLeaveHandler = proxy(this._surfaceLeave, this);
-            this._mouseleaveHandler = proxy(this._mouseleave, this);
-            this._mousemoveHandler = proxy(this._mousemove, this);
+            this._showHandler = this._showEvent.bind(this);
+            this._surfaceLeaveHandler = this._surfaceLeave.bind(this);
+            this._mouseleaveHandler = this._mouseleave.bind(this);
+            this._mousemoveHandler = this._mousemove.bind(this);
 
             this.surface.bind("click", this._showHandler);
             this.surface.bind("mouseenter", this._showHandler);
@@ -33616,8 +33723,8 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
             this.surface.element.on("mouseleave" + NS, this._surfaceLeaveHandler);
 
-            this.element.on("click" + NS, ".k-tooltip-button", proxy(this._hideClick, this));
-            this.element.on("mouseleave" + NS, proxy(this._tooltipLeave, this));
+            this.element.on("click" + NS, ".k-tooltip-button", this._hideClick.bind(this));
+            this.element.on("mouseleave" + NS, this._tooltipLeave.bind(this));
         },
 
         getPopup: function() {
@@ -33911,14 +34018,13 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
     define('drawing/surface',[ "./kendo-drawing", "./surface-tooltip" ], f);
 })(function(){
 
-(function ($) {
+(function ($) {  // jshint ignore:line
 
     var kendo = window.kendo;
     var draw = kendo.drawing;
     var DrawingSurface = draw.Surface;
     var Widget = kendo.ui.Widget;
     var deepExtend = kendo.deepExtend;
-    var proxy = $.proxy;
 
     kendo.support.svg = DrawingSurface.support.svg;
     kendo.support.canvas = DrawingSurface.support.canvas;
@@ -33934,7 +34040,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                 this.translate = translate;
             }
 
-            this._triggerInstanceHandler = proxy(this._triggerInstanceEvent, this);
+            this._triggerInstanceHandler = this._triggerInstanceEvent.bind(this);
             this._bindHandler("click");
             this._bindHandler("mouseenter");
             this._bindHandler("mouseleave");
@@ -59261,7 +59367,7 @@ var colorScale = function (color, minLightnessOffset) {
     var offset = 1 - minLightnessOffset;
 
     return function (value) {
-        var hsl = baseColor .toHSL();
+        var hsl = baseColor.toHSL();
         var range = 100 - hsl.l;
         var point = offset - value;
         hsl.l += Math.min(point * range, range);
@@ -59543,15 +59649,17 @@ var HeatmapChart = ChartElement.extend({
             for (var pointIx = 0; pointIx < currentSeries.data.length; pointIx++) {
                 var ref$1 = this$1._bindPoint(currentSeries, seriesIx, pointIx);
                 var valueFields = ref$1.valueFields;
-                this$1.valueRange.min = Math.min(this$1.valueRange.min, valueFields.value);
-                this$1.valueRange.max = Math.max(this$1.valueRange.max, valueFields.value);
+                if (defined(valueFields.value) && valueFields.value !== null) {
+                    this$1.valueRange.min = Math.min(this$1.valueRange.min, valueFields.value);
+                    this$1.valueRange.max = Math.max(this$1.valueRange.max, valueFields.value);
+                }
             }
         }
     },
 
     addValue: function(value, fields) {
         var point;
-        if (value) {
+        if (value && defined(value.value) && value.value !== null) {
             point = this.createPoint(value, fields);
             if (point) {
                 $.extend(point, fields);
@@ -59619,7 +59727,7 @@ var HeatmapChart = ChartElement.extend({
 
         if (isFunction(series.color)) {
             color = pointOptions.color;
-        } else {
+        } else if (this.valueRange.max !== 0) {
             var scale = colorScale(color);
             color = scale(value.value / this.valueRange.max);
         }
@@ -62133,7 +62241,6 @@ kendo.deepExtend(kendo.dataviz, {
     var InstanceObserver = dataviz.InstanceObserver;
     var inArray = dataviz.inArray;
     var services = dataviz.services;
-    var proxy = $.proxy;
     var isArray = Array.isArray;
     var extend = $.extend;
     var template = kendo.template;
@@ -62475,7 +62582,7 @@ kendo.deepExtend(kendo.dataviz, {
         },
 
         _attachEvents: function() {
-             this.element.on(MOUSELEAVE_NS, proxy(this._mouseleave, this));
+             this.element.on(MOUSELEAVE_NS, this._mouseleave.bind(this));
         },
 
         _mouseleave: function(e) {
@@ -62526,7 +62633,7 @@ kendo.deepExtend(kendo.dataviz, {
             var chart = this,
                 dataSource = (userOptions || {}).dataSource;
 
-            chart._dataChangeHandler = proxy(chart._onDataChanged, chart);
+            chart._dataChangeHandler = chart._onDataChanged.bind(chart);
 
             chart.dataSource = DataSource
                 .create(dataSource)
@@ -62619,7 +62726,7 @@ kendo.deepExtend(kendo.dataviz, {
         _initTooltip: function() {
             this._tooltip = this._createTooltip();
 
-            this._tooltip.bind(LEAVE, proxy(this._tooltipleave, this));
+            this._tooltip.bind(LEAVE, this._tooltipleave.bind(this));
         },
 
         _onLegendItemClick: function(e) {
@@ -62998,13 +63105,13 @@ kendo.deepExtend(kendo.dataviz, {
 
             tooltip.element = $(tooltip.template(tooltip.options));
 
-            tooltip.move = proxy(tooltip.move, tooltip);
-            tooltip._mouseleave = proxy(tooltip._mouseleave, tooltip);
+            tooltip.move = tooltip.move.bind(tooltip);
+            tooltip._mouseleave = tooltip._mouseleave.bind(tooltip);
 
             var mobileScrollerSelector = kendo.format("[{0}='content'],[{0}='scroller']", kendo.attr("role"));
             tooltip._mobileScroller = chartElement.closest(mobileScrollerSelector).data("kendoMobileScroller");
             tooltip.downEvent = kendo.applyEventMap(MOUSEDOWN, kendo.guid());
-            tooltip._closeTooltipHandler = proxy(tooltip._closeTooltip, tooltip);
+            tooltip._closeTooltipHandler = tooltip._closeTooltip.bind(tooltip);
         },
 
         destroy: function() {
@@ -70094,7 +70201,7 @@ kendo.deepExtend(kendo.dataviz, {
     ], f);
 })(function(){
 
-(function ($) {
+(function ($) {  // jshint ignore:line
 
     var kendo = window.kendo;
     var dataviz = kendo.dataviz;
@@ -70106,7 +70213,6 @@ kendo.deepExtend(kendo.dataviz, {
     var NAVIGATOR_PANE = constants.NAVIGATOR_PANE;
     var deepExtend = kendo.deepExtend;
     var defined = dataviz.defined;
-    var proxy = $.proxy;
 
     var CHANGE = "change";
 
@@ -70222,7 +70328,7 @@ kendo.deepExtend(kendo.dataviz, {
             var dsOptions = navigatorOptions.dataSource;
 
             if (dsOptions) {
-                this._navigatorDataChangedHandler = this._navigatorDataChangedHandler || proxy(this._onNavigatorDataChanged, this);
+                this._navigatorDataChangedHandler = this._navigatorDataChangedHandler || this._onNavigatorDataChanged.bind(this);
                 this._navigatorDataSource = kendo.data.DataSource
                     .create(dsOptions)
                     .bind(CHANGE, this._navigatorDataChangedHandler);
@@ -71408,14 +71514,13 @@ return window.kendo;
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
-    var proxy = $.proxy;
 
     var NS = ".kendoNavigator";
 
     // Helper functions =======================================================
     function button(dir) {
        return kendo.format(
-           '<button class="k-button k-button-square k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-{0}" aria-label="move {0}">' +
+           '<button class="k-button k-rounded-full k-button-flat k-button-flat-base k-icon-button k-navigator-{0}" aria-label="move {0}">' +
                '<span class="k-button-icon k-icon k-i-arrow-60-{0}"></span>' +
            '</button>', dir);
     }
@@ -71429,13 +71534,13 @@ return window.kendo;
 
             this.element.addClass("k-widget k-navigator")
                         .append(BUTTONS)
-                        .on("click" + NS, ".k-button", proxy(this, "_click"));
+                        .on("click" + NS, ".k-button", this._click.bind(this));
 
             var parentElement = this.element.parent().closest("[" + kendo.attr("role") + "]");
             this._keyroot = parentElement.length > 0 ? parentElement : this.element;
             this._tabindex(this._keyroot);
 
-            this._keydown = proxy(this._keydown, this);
+            this._keydown = this._keydown.bind(this);
             this._keyroot.on("keydown", this._keydown);
         },
 
@@ -71518,7 +71623,6 @@ return window.kendo;
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
-    var proxy = $.proxy;
 
     // Helper functions =======================================================
     function button(dir, iconClass) {
@@ -71543,14 +71647,14 @@ return window.kendo;
 
             this.element.addClass("k-widget k-zoom-control k-button-group k-group-horizontal")
                         .append(BUTTONS)
-                        .on("click" + NS, ".k-button", proxy(this, "_click"));
+                        .on("click" + NS, ".k-button", this._click.bind(this));
 
             var parentElement = this.element.parent().closest("[" + kendo.attr("role") + "]");
             this._keyroot = parentElement.length > 0 ? parentElement : this.element;
 
             this._tabindex(this._keyroot);
 
-            this._keydown = proxy(this._keydown, this);
+            this._keydown = this._keydown.bind(this);
             this._keyroot.on("keydown", this._keydown);
         },
 
@@ -71862,9 +71966,7 @@ return window.kendo;
 
 (function ($, undefined) {
     // Imports ================================================================
-    var proxy = $.proxy,
-
-        kendo = window.kendo,
+    var kendo = window.kendo,
         Class = kendo.Class,
 
         dataviz = kendo.dataviz,
@@ -71888,10 +71990,10 @@ return window.kendo;
                })
                .appendTo(map.scrollElement);
 
-            this._beforeReset = proxy(this._beforeReset, this);
-            this._reset = proxy(this._reset, this);
-            this._resize = proxy(this._resize, this);
-            this._panEnd = proxy(this._panEnd, this);
+            this._beforeReset = this._beforeReset.bind(this);
+            this._reset = this._reset.bind(this);
+            this._resize = this._resize.bind(this);
+            this._panEnd = this._panEnd.bind(this);
             this._activate();
 
             this._updateAttribution();
@@ -71991,9 +72093,7 @@ return window.kendo;
 
 (function ($, undefined) {
     // Imports ================================================================
-    var proxy = $.proxy,
-
-        kendo = window.kendo,
+    var kendo = window.kendo,
         Class = kendo.Class,
         DataSource = kendo.data.DataSource,
 
@@ -72016,7 +72116,7 @@ return window.kendo;
     var ShapeLayer = Layer.extend({
         init: function(map, options) {
 
-            this._pan = proxy(this._pan, this);
+            this._pan = this._pan.bind(this);
 
             Layer.fn.init.call(this, map, options);
 
@@ -72091,7 +72191,7 @@ return window.kendo;
 
         _initDataSource: function() {
             var dsOptions = this.options.dataSource;
-            this._dataChange = proxy(this._dataChange, this);
+            this._dataChange = this._dataChange.bind(this);
             this.dataSource = DataSource
                 .create(dsOptions)
                 .bind("change", this._dataChange);
@@ -72571,8 +72671,6 @@ return window.kendo;
     // Imports ================================================================
     var math = Math,
 
-        proxy = $.proxy,
-
         kendo = window.kendo,
         Class = kendo.Class,
         template = kendo.template,
@@ -72642,7 +72740,7 @@ return window.kendo;
             if (!kendo.support.mobileOS) {
                 if (!this._pan) {
                     this._pan = kendo.throttle(
-                        proxy(this._render, this),
+                        this._render.bind(this),
                         100
                     );
                 }
@@ -72862,13 +72960,13 @@ return window.kendo;
         createElement: function() {
             this.element = $("<img style='position: absolute; display: block;' alt='" + this.options.tileTitle + "' />")
                             .css({ width: this.options.size, height: this.options.size })
-                            .on("error", proxy(function(e) {
+                            .on("error", (function(e) {
                                 if (this.errorUrl()) {
                                     e.target.setAttribute("src", this.errorUrl());
                                 } else {
                                     e.target.removeAttribute("src");
                                 }
-                            }, this));
+                            }).bind(this));
         },
 
         show: function() {
@@ -73058,7 +73156,7 @@ return window.kendo;
 
             TileLayer.fn.init.call(this, map, options);
 
-            this._onMetadata = $.proxy(this._onMetadata, this);
+            this._onMetadata = this._onMetadata.bind(this);
             this._fetchMetadata();
         },
 
@@ -73222,7 +73320,6 @@ return window.kendo;
     var doc = document,
         math = Math,
         indexOf = $.inArray,
-        proxy = $.proxy,
 
         kendo = window.kendo,
         Class = kendo.Class,
@@ -73241,7 +73338,7 @@ return window.kendo;
         init: function(map, options) {
             Layer.fn.init.call(this, map, options);
 
-            this._markerClick = proxy(this._markerClick, this);
+            this._markerClick = this._markerClick.bind(this);
             this.element.on("click", ".k-marker", this._markerClick);
 
             this.items = [];
@@ -73344,7 +73441,7 @@ return window.kendo;
 
         _initDataSource: function() {
             var dsOptions = this.options.dataSource;
-            this._dataChange = proxy(this._dataChange, this);
+            this._dataChange = this._dataChange.bind(this);
             this.dataSource = DataSource
                 .create(dsOptions)
                 .bind("change", this._dataChange);
@@ -73512,8 +73609,6 @@ return window.kendo;
         min = math.min,
         pow = math.pow,
 
-        proxy = $.proxy,
-
         kendo = window.kendo,
         Widget = kendo.ui.Widget,
         deepExtend = kendo.deepExtend,
@@ -73570,7 +73665,7 @@ return window.kendo;
             this._initLayers();
             this._reset();
 
-            this._mousewheel = proxy(this._mousewheel, this);
+            this._mousewheel = this._mousewheel.bind(this);
             this.element.on(MOUSEWHEEL, this._mousewheel);
         },
 
@@ -73910,10 +74005,10 @@ return window.kendo;
             var element = this._createControlElement(options, "topLeft");
             var navigator = this.navigator = new ui.Navigator(element, options);
 
-            this._navigatorPan = proxy(this._navigatorPan, this);
+            this._navigatorPan = this._navigatorPan.bind(this);
             navigator.bind("pan", this._navigatorPan);
 
-            this._navigatorCenter = proxy(this._navigatorCenter, this);
+            this._navigatorCenter = this._navigatorCenter.bind(this);
             navigator.bind("center", this._navigatorCenter);
         },
 
@@ -73944,7 +74039,7 @@ return window.kendo;
             var element = this._createControlElement(options, "topLeft");
             var zoomControl = this.zoomControl = new ui.ZoomControl(element, options);
 
-            this._zoomControlChange = proxy(this._zoomControlChange, this);
+            this._zoomControlChange = this._zoomControlChange.bind(this);
             zoomControl.bind("change", this._zoomControlChange);
         },
 
@@ -73967,12 +74062,12 @@ return window.kendo;
                     supportDoubleTap: true
                 });
 
-            scroller.bind("scroll", proxy(this._scroll, this));
-            scroller.bind("scrollEnd", proxy(this._scrollEnd, this));
-            scroller.userEvents.bind("gesturestart", proxy(this._scaleStart, this));
-            scroller.userEvents.bind("gestureend", proxy(this._scale, this));
-            scroller.userEvents.bind("doubleTap", proxy(this._doubleTap, this));
-            scroller.userEvents.bind("tap", proxy(this._tap, this));
+            scroller.bind("scroll", this._scroll.bind(this));
+            scroller.bind("scrollEnd", this._scrollEnd.bind(this));
+            scroller.userEvents.bind("gesturestart", this._scaleStart.bind(this));
+            scroller.userEvents.bind("gestureend", this._scale.bind(this));
+            scroller.userEvents.bind("doubleTap", this._doubleTap.bind(this));
+            scroller.userEvents.bind("tap", this._tap.bind(this));
 
             this.scrollElement = scroller.scrollElement;
         },
@@ -79363,8 +79458,7 @@ return window.kendo;
             Movable = kendo.ui.Movable,
             util = kendo.drawing.util,
             defined = util.defined,
-            inArray = $.inArray,
-            proxy = $.proxy;
+            inArray = $.inArray;
 
         // Constants ==============================================================
         var Cursors = {
@@ -79952,7 +80046,7 @@ return window.kendo;
                     velocityMultiplier: VELOCITY_MULTIPLIER,
                     mousewheelScrolling: false,
                     zoom: false,
-                    scroll: proxy(tool._move, tool)
+                    scroll: tool._move.bind(tool)
                 }).data("kendoMobileScroller");
 
                 if (canvas.translate) {
@@ -81153,7 +81247,7 @@ return window.kendo;
                         for (y = -1; y <= 1; y++) {
                             if ((x !== 0) || (y !== 0)) { // (0, 0) element, (-1, -1) top-left, (+1, +1) bottom-right
                                 item = new Rectangle(handles);
-                                item.drawingElement._hover = proxy(this._hover, this);
+                                item.drawingElement._hover = this._hover.bind(this);
                                 this.map.push({ x: x, y: y, visual: item });
                                 this.visual.append(item);
                             }
@@ -85626,11 +85720,10 @@ var __meta__ = { // jshint ignore:line
             spriteCssClass: "",
             imageUrl: "",
             size: "medium",
-            shape: "rectangle",
             rounded: "medium",
             fillMode: "solid",
             themeColor: "base",
-            stylingOptions: [ "size", "shape", "rounded", "fillMode", "themeColor" ]
+            stylingOptions: [ "size", "rounded", "fillMode", "themeColor" ]
         },
         iconElement: function() {
             var that = this,
@@ -85740,7 +85833,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         Class = kendo.Class,
         Widget = kendo.ui.Widget,
-        proxy = $.proxy,
         isFunction = kendo.isFunction,
         keys = kendo.keys,
         outerWidth = kendo._outerWidth,
@@ -86191,6 +86283,10 @@ var __meta__ = { // jshint ignore:line
 
                 element.addClass(BUTTON_GROUP);
 
+                if (options.hidden) {
+                    this.hide();
+                }
+
                 this.element.data({
                     type: "buttonGroup",
                     buttonGroup: this
@@ -86298,7 +86394,7 @@ var __meta__ = { // jshint ignore:line
                 this.toolbar = toolbar;
 
                 this.mainButton = new ToolBarButton($.extend({}, options, { hidden: false }), toolbar);
-                this.arrowButton = $('<a class="' + KBUTTON + EMPTY + BUTTON_DEFAULTS + EMPTY + ICON_BUTTON + EMPTY + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? "km-icon km-arrowdown" : "k-icon k-i-arrow-s") + '"></span></a>');
+                this.arrowButton = $('<a class="' + KBUTTON + EMPTY + BUTTON_DEFAULTS + EMPTY + ICON_BUTTON + EMPTY + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? "km-icon km-arrowdown" : "k-icon k-button-icon k-i-arrow-s") + '"></span></a>');
                 this.popupElement = $('<ul class="' + LIST_CONTAINER + EMPTY + MENU_GROUP + '"></ul>');
 
                 this.mainButton.element
@@ -86613,6 +86709,10 @@ var __meta__ = { // jshint ignore:line
                 this.addIdAttr();
                 this.addOverflowAttr();
 
+                if (options.hidden) {
+                    this.hide();
+                }
+
                 element.data({
                     type: TEMPLATE,
                     template: this
@@ -86761,7 +86861,7 @@ var __meta__ = { // jshint ignore:line
                         threshold: 5,
                         allowSelection: true,
                         filter: DOT + OVERFLOW_ANCHOR,
-                        tap: proxy(that._toggleOverflow, that)
+                        tap: that._toggleOverflow.bind(that)
                     });
 
                     that._resizeHandler = kendo.onResize(function() {
@@ -86788,7 +86888,7 @@ var __meta__ = { // jshint ignore:line
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] a." + KBUTTON + COMMA + EMPTY +
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + MENU_LINK + COMMA + EMPTY +
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + OVERFLOW_BUTTON,
-                    tap: proxy(that._buttonClick, that),
+                    tap: that._buttonClick.bind(that),
                     press: toggleActive,
                     release: toggleActive
                 });
@@ -87274,7 +87374,7 @@ var __meta__ = { // jshint ignore:line
                             element[0].focus();
                         }
                     })
-                    .on(KEYDOWN + ns, proxy(that._keydown, that));
+                    .on(KEYDOWN + ns, that._keydown.bind(that));
             },
 
             _keydown: function(e) {
@@ -87373,7 +87473,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (keyCode === keys.HOME) {
-                    if (target.is(".k-dropdown") || target.is("input")) {
+                    if (target.is(".k-dropdownlist") || target.is("input")) {
                         return;
                     }
 
@@ -87384,7 +87484,7 @@ var __meta__ = { // jshint ignore:line
                     }
                     e.preventDefault();
                 } else if (keyCode === keys.END) {
-                    if (target.is(".k-dropdown") || target.is("input")) {
+                    if (target.is(".k-dropdownlist") || target.is("input")) {
                         return;
                     }
                     if (this.overflowAnchor && $(this.overflowAnchor).css("visibility") != "hidden") {
@@ -87393,10 +87493,10 @@ var __meta__ = { // jshint ignore:line
                         items.last().trigger(FOCUS);
                     }
                     e.preventDefault();
-                } else if (keyCode === keys.RIGHT && !this._preventNextFocus && !target.is("input, select, .k-dropdown, .k-colorpicker") && this._getNextElement(e.target, 1 * direction)) {
+                } else if (keyCode === keys.RIGHT && !this._preventNextFocus && !target.is("input, select, .k-dropdownlist, .k-colorpicker") && this._getNextElement(e.target, 1 * direction)) {
                     this._getNextElement(e.target, 1 * direction).focus();
                     e.preventDefault();
-                } else if (keyCode === keys.LEFT && !this._preventNextFocus && !target.is("input, select, .k-dropdown, .k-colorpicker") && this._getNextElement(e.target, -1 * direction)) {
+                } else if (keyCode === keys.LEFT && !this._preventNextFocus && !target.is("input, select, .k-dropdownlist, .k-colorpicker") && this._getNextElement(e.target, -1 * direction)) {
                     this._getNextElement(e.target, -1 * direction).focus();
                     e.preventDefault();
                 }
@@ -87981,7 +88081,7 @@ var __meta__ = { // jshint ignore:line
         FOCUSED = "k-focus",
         HOVER = "k-hover",
         KSELECTED = "k-selected",
-        LOADING = "k-i-loading",
+        LOADING = "k-i-loading k-input-loading-icon",
         LIST = "k-list",
         TABLE = "k-table",
         DATA_TABLE = "k-data-table",
@@ -87991,7 +88091,6 @@ var __meta__ = { // jshint ignore:line
         FIXED_GROUP_HEADER = ".k-list-group-sticky-header",
         GROUP_LABEL = ".k-list-item-group-label",
         ITEMSELECTOR = ".k-list-item",
-        LABELIDPART = "_label",
         OPEN = "open",
         CLOSE = "close",
         CASCADE = "cascade",
@@ -88011,7 +88110,6 @@ var __meta__ = { // jshint ignore:line
         FOCUS = "focus",
         FOCUSOUT = "focusout",
         extend = $.extend,
-        proxy = $.proxy,
         isArray = Array.isArray,
         browser = support.browser,
         HIDDENCLASS = "k-hidden",
@@ -88270,8 +88368,8 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var currentOptions = that.options;
             var virtual = currentOptions.virtual;
-            var changeEventOption = { change: proxy(that._listChange, that) };
-            var listBoundHandler = proxy(that._listBound, that);
+            var changeEventOption = { change: that._listChange.bind(that) };
+            var listBoundHandler = that._listBound.bind(that);
             var focusedElm = that._focused;
             var inputId = that.element.attr("id");
             var labelElm = $("label[for=\"" + that.element.attr("id") + "\"]");
@@ -88287,10 +88385,10 @@ var __meta__ = { // jshint ignore:line
                 autoBind: false,
                 selectable: true,
                 dataSource: that.dataSource,
-                click: proxy(that._click, that),
-                activate: proxy(that._activateItem, that),
+                click: that._click.bind(that),
+                activate: that._activateItem.bind(that),
                 columns: currentOptions.columns,
-                deactivate: proxy(that._deactivateItem, that),
+                deactivate: that._deactivateItem.bind(that),
                 dataBinding: function() {
                     that.trigger(DATA_BINDING);
                 },
@@ -88320,7 +88418,7 @@ var __meta__ = { // jshint ignore:line
         _initList: function() {
             var that = this;
             var listOptions = that._listOptions({
-                selectedItemChange: proxy(that._listChange, that)
+                selectedItemChange: that._listChange.bind(that)
             });
 
             if (!that.options.virtual) {
@@ -88330,7 +88428,7 @@ var __meta__ = { // jshint ignore:line
                 that.list.addClass("k-virtual-list");
             }
 
-            that.listView.bind("listBound", proxy(that._listBound, that));
+            that.listView.bind("listBound", that._listBound.bind(that));
             that._setListValue();
         },
 
@@ -88339,7 +88437,7 @@ var __meta__ = { // jshint ignore:line
 
             if (value !== undefined) {
                 this.listView.value(value)
-                    .done(proxy(this._updateSelectionState, this));
+                    .done(this._updateSelectionState.bind(this));
             }
         },
 
@@ -88680,7 +88778,7 @@ var __meta__ = { // jshint ignore:line
 
         _activateItem: function() {
             var current = this.listView.focus();
-            if (current) {
+            if (current && this.popup.visible()) {
                 this._focused.add(this.filterInput).attr(ARIA_ACTIVEDESCENDANT, current.attr("id"));
             }
         },
@@ -88746,37 +88844,7 @@ var __meta__ = { // jshint ignore:line
 
             that.ul.attr(ARIA_LIVE, !that._isFilterEnabled() ? "off" : "polite");
 
-            that._ariaLabel();
-        },
-
-        _ariaLabel: function() {
-            var that = this;
-            var focusedElm = that._focused;
-            var inputElm = that.element;
-            var inputId = inputElm.attr("id");
-            var labelElm = $("label[for=\"" + inputId + "\"]");
-            var ariaLabel = inputElm.attr(ARIA_LABEL);
-            var ariaLabelledBy = inputElm.attr(ARIA_LABELLEDBY);
-
-            if (focusedElm === inputElm) {
-                return;
-            }
-
-            if (ariaLabel) {
-                focusedElm.attr(ARIA_LABEL, ariaLabel);
-            } else if (ariaLabelledBy) {
-                focusedElm.attr(ARIA_LABELLEDBY, ariaLabelledBy);
-            } else if (labelElm.length) {
-                var labelId = labelElm.attr("id") || that._generateLabelId(labelElm, inputId || kendo.guid());
-                focusedElm.attr(ARIA_LABELLEDBY, labelId);
-            }
-        },
-
-        _generateLabelId: function(label, inputId) {
-            var labelId = inputId + LABELIDPART;
-            label.attr("id", labelId);
-
-            return labelId;
+            that._ariaLabel(that._focused);
         },
 
         _blur: function() {
@@ -88923,6 +88991,8 @@ var __meta__ = { // jshint ignore:line
         },
 
         _openHandler: function(e) {
+            var current;
+
             this._adjustListWidth();
 
             if (this.trigger(OPEN)) {
@@ -88930,6 +89000,11 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this._focused.attr(ARIA_EXPANDED, true);
                 this.ul.attr(ARIA_HIDDEN, false);
+
+                current = this.listView.focus();
+                if (current) {
+                    this._focused.add(this.filterInput).attr(ARIA_ACTIVEDESCENDANT, current.attr("id"));
+                }
             }
         },
 
@@ -88974,6 +89049,7 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this._focused.attr(ARIA_EXPANDED, false);
                 this.ul.attr(ARIA_HIDDEN, true);
+                this._focused.add(this.filterInput).removeAttr(ARIA_ACTIVEDESCENDANT);
             }
         },
 
@@ -89048,12 +89124,12 @@ var __meta__ = { // jshint ignore:line
 
             if (!this.popup.element.is(":visible")) {
                 this.popup.one("open", (function(force) {
-                    return proxy(function() {
+                    return (function() {
                         this._calculatePopupHeight(force);
-                    }, this);
+                    }).bind(this);
                 }).call(this, force));
 
-                this.popup.one(ACTIVATE, proxy(this._refreshScroll, this));
+                this.popup.one(ACTIVATE, this._refreshScroll.bind(this));
             } else {
                 this._calculatePopupHeight(force);
             }
@@ -89066,15 +89142,15 @@ var __meta__ = { // jshint ignore:line
 
             list.popup = new ui.Popup(list.list.parent(), extend({}, list.options.popup, {
                 anchor: list.wrapper,
-                open: proxy(list._openHandler, list),
-                close: proxy(list._closeHandler, list),
+                open: list._openHandler.bind(list),
+                close: list._closeHandler.bind(list),
                 animation: list.options.animation,
                 isRtl: support.isRtl(list.wrapper),
                 autosize: list.options.autoWidth
             }));
 
             list.popup.element.prepend(list.header)
-                .on(MOUSEDOWN + this.ns, proxy(this._listMousedown, this));
+                .on(MOUSEDOWN + this.ns, this._listMousedown.bind(this));
         },
 
         _toggleHover: function(e) {
@@ -89338,9 +89414,9 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource) {
                 that._unbindDataSource();
             } else {
-                that._requestStartHandler = proxy(that._showBusy, that);
-                that._requestEndHandler = proxy(that._requestEnd, that);
-                that._errorHandler = proxy(that._hideBusy, that);
+                that._requestStartHandler = that._showBusy.bind(that);
+                that._requestEndHandler = that._requestEnd.bind(that);
+                that._errorHandler = that._hideBusy.bind(that);
             }
 
             that.dataSource = kendo.data.DataSource.create(dataSource)
@@ -89669,7 +89745,7 @@ var __meta__ = { // jshint ignore:line
                     return;
                 }
 
-                that._cascadeHandlerProxy = proxy(that._cascadeHandler, that);
+                that._cascadeHandlerProxy = that._cascadeHandler.bind(that);
                 that._cascadeFilterRequests = [];
 
                 options.autoBind = false;
@@ -89817,7 +89893,7 @@ var __meta__ = { // jshint ignore:line
             Widget.fn.init.call(this, element, options);
 
             this.element.attr("role", "listbox")
-                        .on(CLICK + STATIC_LIST_NS, "li", proxy(this._click, this))
+                        .on(CLICK + STATIC_LIST_NS, "li", this._click.bind(this))
                         .on(MOUSEENTER + STATIC_LIST_NS, "li", function() { $(this).addClass(HOVER); })
                         .on(MOUSELEAVE + STATIC_LIST_NS, "li", function() { $(this).removeClass(HOVER); });
 
@@ -89875,14 +89951,7 @@ var __meta__ = { // jshint ignore:line
 
             this.setDataSource(this.options.dataSource);
 
-            this._onScroll = proxy(function() {
-                var that = this;
-                clearTimeout(that._scrollId);
-
-                that._scrollId = setTimeout(function() {
-                    that._renderHeader();
-                }, 50);
-            }, this);
+            this._createOnScrollProxy();
         },
 
         options: {
@@ -89925,7 +89994,7 @@ var __meta__ = { // jshint ignore:line
 
                 that.value(value);
             } else {
-                that._refreshHandler = proxy(that.refresh, that);
+                that._refreshHandler = that.refresh.bind(that);
             }
 
             that.setDSFilter(dataSource.filter());
@@ -90246,6 +90315,19 @@ var __meta__ = { // jshint ignore:line
             if (!e.isDefaultPrevented()) {
                 this._triggerClick(e.currentTarget);
             }
+        },
+
+        _createOnScrollProxy: function() {
+            var onScrollProxy = function() {
+                var that = this;
+                clearTimeout(that._scrollId);
+
+                that._scrollId = setTimeout(function() {
+                    that._renderHeader();
+                }, 50);
+            };
+
+            this._onScroll = onScrollProxy.bind(this);
         },
 
         _triggerClick: function(item) {
@@ -90897,7 +90979,6 @@ var __meta__ = { // jshint ignore:line
         ui = kendo.ui,
         Widget = ui.Widget,
         DataBoundWidget = ui.DataBoundWidget,
-        proxy = $.proxy,
         percentageUnitsRegex = /^\d+(\.\d+)?%$/i,
         LIST_CONTENT = "k-list-content k-virtual-content",
         TABLE_CONTENT = "k-table-body k-table-scroller",
@@ -91303,7 +91384,7 @@ var __meta__ = { // jshint ignore:line
                     that.value(value);
                 });
             } else {
-                that._refreshHandler = $.proxy(that.refresh, that);
+                that._refreshHandler = that.refresh.bind(that);
             }
 
             that.dataSource = dataSource.bind(CHANGE, that._refreshHandler);
@@ -91947,7 +92028,7 @@ var __meta__ = { // jshint ignore:line
 
         mute: function(callback) {
             this._mute = true;
-            proxy(callback(), this);
+            callback();
             this._mute = false;
         },
 
@@ -92157,7 +92238,7 @@ var __meta__ = { // jshint ignore:line
 
             that._renderItems = that._whenChanged(
                 scrollCallback(content, that._onScroll),
-                syncList(that._reorderList(that._items, $.proxy(render, that)))
+                syncList(that._reorderList(that._items, render.bind(that)))
             );
 
             that._renderItems();
@@ -92367,7 +92448,7 @@ var __meta__ = { // jshint ignore:line
 
             var theValidator = listValidator(options, screenHeight);
 
-            return $.proxy(function(value, force) {
+            return (function(value, force) {
                 var result = this.result,
                     lastScrollTop = this._lastScrollTop;
 
@@ -92379,7 +92460,7 @@ var __meta__ = { // jshint ignore:line
                 this.result = result;
 
                 return result;
-            }, this);
+            }).bind(this);
         },
 
         _whenChanged: function(getter, callback) {
@@ -92399,7 +92480,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var length = list.length;
             var currentOffset = -Infinity;
-            reorder = $.proxy(map2(reorder, this.templates), this);
+            reorder = map2(reorder, this.templates).bind(this);
 
             return function(list2, offset, force) {
                 var diff = offset - currentOffset;
@@ -92446,7 +92527,7 @@ var __meta__ = { // jshint ignore:line
             var itemClass = this.options.columns && this.options.columns.length ? TABLE_ITEM : LIST_ITEM;
 
             if (this.options.selectable) {
-                this._selectProxy = $.proxy(this, "_clickHandler");
+                this._selectProxy = this._clickHandler.bind(this);
                 this.element.on(CLICK + VIRTUAL_LIST_NS, "." + itemClass, this._selectProxy);
             }
         },
@@ -92776,7 +92857,6 @@ var __meta__ = { // jshint ignore:line
         STATE_FILTER = "filter",
         STATE_ACCEPT = "accept",
         MSG_INVALID_OPTION_LABEL = "The `optionLabel` option is not valid due to missing fields. Define a custom optionLabel as shown here http://docs.telerik.com/kendo-ui/api/javascript/ui/dropdownlist#configuration-optionLabel",
-        proxy = $.proxy,
         OPEN = "open",
         CLOSE = "close";
 
@@ -92792,9 +92872,9 @@ var __meta__ = { // jshint ignore:line
             Select.fn.init.call(that, element, options);
 
             options = that.options;
-            element = that.element.on("focus" + ns, proxy(that._focusHandler, that));
+            element = that.element.on("focus" + ns, that._focusHandler.bind(that));
 
-            that._focusInputHandler = $.proxy(that._focusInput, that);
+            that._focusInputHandler = that._focusInput.bind(that);
 
             that.optionLabel = $();
             that._optionLabel();
@@ -92826,7 +92906,9 @@ var __meta__ = { // jshint ignore:line
             that._aria();
 
             //should read changed value of closed dropdownlist
-            that.wrapper.attr("aria-live", "polite");
+            if (kendo.support.browser.chrome) {
+                that.wrapper.attr("aria-live", "polite");
+            }
 
             that._enable();
 
@@ -92842,7 +92924,7 @@ var __meta__ = { // jshint ignore:line
 
             that.requireValueMapper(that.options);
             that._initList();
-            that.listView.one("dataBound", proxy(that._attachAriaActiveDescendant, that));
+            that.listView.one("dataBound", that._attachAriaActiveDescendant.bind(that));
 
             that._cascade();
 
@@ -93147,6 +93229,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var listView = that.listView;
             var dataSource = that.dataSource;
+            var valueFn = function() { that.value(value); };
 
             if (value === undefined) {
                 value = that._accessor() || that.listView.value()[0];
@@ -93166,7 +93249,7 @@ var __meta__ = { // jshint ignore:line
                     dataSource.unbind(CHANGE, that._valueSetter);
                 }
 
-                that._valueSetter = proxy(function() { that.value(value); }, that);
+                that._valueSetter = valueFn.bind(that);
 
                 dataSource.one(CHANGE, that._valueSetter);
                 return;
@@ -93219,12 +93302,12 @@ var __meta__ = { // jshint ignore:line
             that.optionLabelTemplate = template;
 
             if (!that.hasOptionLabel()) {
-                that.optionLabel = $('<div class="k-list-optionlabel"></div>').prependTo(that.list);
+                that.optionLabel = $('<div role="option" class="k-list-optionlabel"></div>').prependTo(that.list);
             }
 
             that.optionLabel.html(template(optionLabel))
                             .off()
-                            .on(CLICKEVENTS, proxy(that._click, that))
+                            .on(CLICKEVENTS, that._click.bind(that))
                             .on(HOVEREVENTS, that._toggleHover);
 
             that.angular("compile", function() {
@@ -93345,11 +93428,11 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var wrapper = that.wrapper;
 
-            wrapper.on("focusin" + nsFocusEvent, proxy(that._focusinHandler, that))
-                   .on("focusout" + nsFocusEvent, proxy(that._focusoutHandler, that));
+            wrapper.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
+                   .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
             if(that.filterInput) {
-                that.filterInput.on("focusin" + nsFocusEvent, proxy(that._focusinHandler, that))
-                   .on("focusout" + nsFocusEvent, proxy(that._focusoutHandler, that));
+                that.filterInput.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
+                   .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
             }
         },
 
@@ -93413,16 +93496,16 @@ var __meta__ = { // jshint ignore:line
                     .attr(TABINDEX, wrapper.data(TABINDEX))
                     .attr(ARIA_DISABLED, false)
                     .attr(ARIA_READONLY, false)
-                    .on("keydown" + ns, that, proxy(that._keydown, that))
-                    .on(kendo.support.mousedown + ns, proxy(that._wrapperMousedown, that))
-                    .on("paste" + ns, proxy(that._filterPaste, that));
+                    .on("keydown" + ns, that, that._keydown.bind(that))
+                    .on(kendo.support.mousedown + ns, that._wrapperMousedown.bind(that))
+                    .on("paste" + ns, that._filterPaste.bind(that));
 
-                that.wrapper.on("click" + ns, proxy(that._wrapperClick, that));
+                that.wrapper.on("click" + ns, that._wrapperClick.bind(that));
 
                 if (!that.filterInput) {
-                    wrapper.on("keypress" + ns, proxy(that._keypress, that));
+                    wrapper.on("keypress" + ns, that._keypress.bind(that));
                 } else {
-                    wrapper.on("input" + ns, proxy(that._search, that));
+                    wrapper.on("input" + ns, that._search.bind(that));
                 }
 
             } else if (disable) {
@@ -93633,7 +93716,7 @@ var __meta__ = { // jshint ignore:line
 
         _popup: function() {
             Select.fn._popup.call(this);
-            this.popup.one("open", proxy(this._popupOpen, this));
+            this.popup.one("open", this._popupOpen.bind(this));
         },
 
         _getElementDataItem: function(element) {
@@ -93996,7 +94079,7 @@ var __meta__ = { // jshint ignore:line
             span = wrapper.find(SELECTOR);
 
             if (!span[0]) {
-                arrowBtn = html.renderButton('<button type="button" tabindex="-1" unselectable="on" class="k-select k-input-button" aria-label="select"></button>', {
+                arrowBtn = html.renderButton('<button type="button" tabindex="-1" unselectable="on" class="k-input-button" aria-label="select"></button>', {
                     icon: "arrow-s",
                     size: options.size,
                     fillMode: options.fillMode,
@@ -94014,7 +94097,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             that.span = span;
-            that._arrow = wrapper.find(".k-select");
+            that._arrow = wrapper.find(".k-input-button");
             that._arrowIcon = that._arrow.find(".k-icon");
         },
 
@@ -94033,7 +94116,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             that._focused = that.wrapper = wrapper
-                .addClass("k-picker k-dropdown k-widget")
+                .addClass("k-picker k-dropdownlist")
                 .addClass(DOMelement.className)
                 .removeClass('input-validation-error')
                 .css("display", "")
@@ -94060,6 +94143,10 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", true);
                 this.ul.attr("aria-hidden", false);
+
+                if (kendo.support.browser.chrome) {
+                    this.wrapper.removeAttr("aria-live");
+                }
             }
         },
 
@@ -94069,6 +94156,10 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", false);
                 this.ul.attr("aria-hidden", true);
+
+                if (kendo.support.browser.chrome) {
+                    this.wrapper.attr("aria-live", "polite");
+                }
             }
         },
 
@@ -94078,7 +94169,7 @@ var __meta__ = { // jshint ignore:line
 
 
             if (!template) {
-                template = $.proxy(kendo.template('#:this._text(data)#', { useWithBlock: false }), that);
+                template = kendo.template('#:this._text(data)#', { useWithBlock: false }).bind(that);
             } else {
                 template = kendo.template(template);
             }
@@ -94239,7 +94330,6 @@ var __meta__ = { // jshint ignore:line
 (function ($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
-        proxy = $.proxy,
         abs = Math.abs,
         ARIASELECTED = "aria-selected",
         SELECTED = "k-state-selected",
@@ -94286,16 +94376,16 @@ var __meta__ = { // jshint ignore:line
                 global: true,
                 allowSelection: true,
                 filter: (!supportEventDelegation ? "." + SELECTABLE + " " : "") + that.options.filter,
-                tap: proxy(that._tap, that),
+                tap: that._tap.bind(that),
                 touchAction: multiple ? "none" : "pan-x pan-y"
             });
 
             if (multiple) {
                 that.userEvents
-                   .bind("start", proxy(that._start, that))
-                   .bind("move", proxy(that._move, that))
-                   .bind("end", proxy(that._end, that))
-                   .bind("select", proxy(that._select, that));
+                   .bind("start", that._start.bind(that))
+                   .bind("move", that._move.bind(that))
+                   .bind("end", that._end.bind(that))
+                   .bind("select", that._select.bind(that));
             }
         },
 
@@ -94527,7 +94617,7 @@ var __meta__ = { // jshint ignore:line
 
         value: function(val, e) {
             var that = this,
-                selectElement = proxy(that._selectElement, that);
+                selectElement = that._selectElement.bind(that);
 
             if(val) {
                 val.each(function() {
@@ -94805,7 +94895,6 @@ var __meta__ = { // jshint ignore:line
         ARIA_DISABLED = "aria-disabled",
         ARIA_SELECTED = "aria-selected",
         ARIA_LABEL = "aria-label",
-        proxy = $.proxy,
         extend = $.extend,
         DATE = Date,
         views = {
@@ -94866,7 +94955,7 @@ var __meta__ = { // jshint ignore:line
             id = element
                 .addClass("k-widget k-calendar " + (options.weekNumber ? " k-week-number" : ""))
                 .on(MOUSEENTER_WITH_NS + " " + MOUSELEAVE, CELLSELECTOR, mousetoggle)
-                .on(KEYDOWN_NS, "table.k-content", proxy(that._move, that))
+                .on(KEYDOWN_NS, "table.k-content", that._move.bind(that))
                 .on(CLICK + " touchend", CELLSELECTOR, function(e) {
                     var link = e.currentTarget.firstChild,
                         value = toDateObject(link);
@@ -95324,8 +95413,8 @@ var __meta__ = { // jshint ignore:line
                 inputSelectors: "input,textarea,.k-multiselect-wrap,select,button,.k-button>span,.k-button>img,span.k-icon.k-i-arrow-60-down,span.k-icon.k-i-arrow-60-up",
                 multiple: selectableOptions.multiple,
                 filter: "table.k-month:eq(0) " + CELLSELECTORVALID,
-                change: proxy(that._onSelect, that),
-                relatedTarget: proxy(that._onRelatedTarget, that)
+                change: that._onSelect.bind(that),
+                relatedTarget: that._onRelatedTarget.bind(that)
             });
         },
 
@@ -95928,7 +96017,7 @@ var __meta__ = { // jshint ignore:line
                 that._active = that.options.focusOnNav !== false;
                 that.navigateToFuture();
             });
-            element.find('[' + kendo.attr("action") + '="today"]').on(CLICK + " touchend" + ns, proxy(that._todayClick, that));
+            element.find('[' + kendo.attr("action") + '="today"]').on(CLICK + " touchend" + ns, that._todayClick.bind(that));
 
         },
 
@@ -96013,7 +96102,7 @@ var __meta__ = { // jshint ignore:line
                 if (toggle && !isTodayDisabled) {
                     link.addClass(todayClass)
                     .removeClass(DISABLED)
-                    .on(CLICK, proxy(that._todayClick, that));
+                    .on(CLICK, that._todayClick.bind(that));
                 } else {
                     link.removeClass(todayClass)
                     .addClass(DISABLED)
@@ -96841,7 +96930,6 @@ var __meta__ = { // jshint ignore:line
     var Widget = ui.Widget;
     var keys = kendo.keys;
     var ns = ".kendoDateInput";
-    var proxy = $.proxy;
     var objectToString = {}.toString;
 
     var INPUT_EVENT_NAME = (kendo.support.propertyChangeEvent ? "propertychange.kendoDateInput input" : "input") + ns;
@@ -97032,11 +97120,11 @@ var __meta__ = { // jshint ignore:line
                     that.wrapper.removeClass(FOCUSED);
                     that._change();
                 })
-                .on("paste" + ns, proxy(that._paste, that))
-                .on("keydown" + ns, proxy(that._keydown, that))
-                .on(INPUT_EVENT_NAME, proxy(that._input, that))
-                .on("mouseup" + ns, proxy(that._mouseUp, that))
-                .on("DOMMouseScroll" + ns + " mousewheel" + ns, proxy(that._scroll, that));
+                .on("paste" + ns, that._paste.bind(that))
+                .on("keydown" + ns, that._keydown.bind(that))
+                .on(INPUT_EVENT_NAME, that._input.bind(that))
+                .on("mouseup" + ns, that._mouseUp.bind(that))
+                .on("DOMMouseScroll" + ns + " mousewheel" + ns, that._scroll.bind(that));
         },
 
         _unbindInput: function () {
@@ -97152,7 +97240,7 @@ var __meta__ = { // jshint ignore:line
 
             that._addInvalidState();
             clearTimeout(that._invalidStateTimeout);
-            that._invalidStateTimeout = setTimeout(proxy(that._removeInvalidState, that), 100);
+            that._invalidStateTimeout = setTimeout(that._removeInvalidState.bind(that), 100);
         },
 
         _addInvalidState: function() {
@@ -97721,6 +97809,7 @@ var __meta__ = { // jshint ignore:line
     HOVER = "k-hover",
     HOVEREVENTS = "mouseenter" + ns + " mouseleave" + ns,
     MOUSEDOWN = "mousedown" + ns,
+    NAVIGATE = "navigate",
     ID = "id",
     MIN = "min",
     MAX = "max",
@@ -97729,12 +97818,12 @@ var __meta__ = { // jshint ignore:line
     ARIA_READONLY = "aria-readonly",
     ARIA_EXPANDED = "aria-expanded",
     ARIA_HIDDEN = "aria-hidden",
+    ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
     calendar = kendo.calendar,
     isInRange = calendar.isInRange,
     restrictValue = calendar.restrictValue,
     isEqualDatePart = calendar.isEqualDatePart,
     extend = $.extend,
-    proxy = $.proxy,
     DATE = Date;
 
     function normalize(options) {
@@ -97798,10 +97887,13 @@ var __meta__ = { // jshint ignore:line
                 div = $(DIV).attr(ID, kendo.guid())
                             .appendTo(options.omitPopup ? options.dateDiv : that.popup.element)
                             .on(MOUSEDOWN, preventDefault)
-                            .on(CLICK, "td:has(.k-link)", proxy(that._click, that));
+                            .on(CLICK, "td:has(.k-link)", that._click.bind(that));
 
-
-                that.calendar = calendar = new ui.Calendar(div, { componentType: options.componentType, size: options.size, messages: options.messages });
+                that.calendar = calendar = new ui.Calendar(div, {
+                    componentType: options.componentType,
+                    size: options.size,
+                    messages: options.messages
+                });
                 that._setOptions(options);
 
                 div.addClass(kendo.getValidCssClass("k-calendar-", "size", options.size));
@@ -98016,6 +98108,10 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         element.attr(ARIA_EXPANDED, false);
                         div.attr(ARIA_HIDDEN, true);
+
+                        setTimeout(function() {
+                            element.removeAttr("aria-activedescendant");
+                        });
                     }
                 },
                 open: function(e) {
@@ -98039,6 +98135,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
             }));
+
             div = that.dateView.div;
 
             that._icon();
@@ -98157,13 +98254,13 @@ var __meta__ = { // jshint ignore:line
                 }
                 element.attr(ARIA_DISABLED, false)
                        .attr(ARIA_READONLY, false)
-                       .on("keydown" + ns, proxy(that._keydown, that))
-                       .on("focusout" + ns, proxy(that._blur, that))
+                       .on("keydown" + ns, that._keydown.bind(that))
+                       .on("focusout" + ns, that._blur.bind(that))
                        .on("focus" + ns, function() {
                            that.wrapper.addClass(FOCUSED);
                        });
 
-               icon.on(UP, proxy(that._click, that))
+               icon.on(UP, that._click.bind(that))
                    .on(MOUSEDOWN, preventDefault);
             } else {
                 wrapper
@@ -98220,6 +98317,7 @@ var __meta__ = { // jshint ignore:line
 
         open: function() {
             this.dateView.open();
+            this._navigateCalendar();
         },
 
         close: function() {
@@ -98277,6 +98375,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.dateView.toggle();
+            that._navigateCalendar();
             that._focusElement(e.type);
         },
 
@@ -98355,6 +98454,18 @@ var __meta__ = { // jshint ignore:line
                 "role": "button",
                 "aria-controls": that.dateView._dateViewID
             });
+        },
+
+        _navigateCalendar: function() {
+            var that = this;
+
+            if (!!that.dateView.calendar) {
+                that.dateView.calendar.unbind(NAVIGATE).bind(NAVIGATE,function() {
+                    setTimeout(function() {
+                        that.element.attr(ARIA_ACTIVEDESCENDANT, that.dateView.calendar._table.attr(ARIA_ACTIVEDESCENDANT));
+                    });
+                });
+            }
         },
 
         _option: function(option, value) {
@@ -98471,7 +98582,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _template: function() {
-            this._ariaTemplate = proxy(template(this.options.ARIATemplate), this);
+            this._ariaTemplate = template(this.options.ARIATemplate).bind(this);
         },
 
         _createDateInput: function(options) {
@@ -98498,11 +98609,11 @@ var __meta__ = { // jshint ignore:line
             var calendar = that.dateView.calendar;
 
             if (that.element && that.element.length) {
-                that.element[0].removeAttribute("aria-activedescendant");
+                that.element[0].removeAttribute(ARIA_ACTIVEDESCENDANT);
             }
 
             if (calendar) {
-                that.element.attr("aria-activedescendant", calendar._updateAria(that._ariaTemplate, date));
+                that.element.attr(ARIA_ACTIVEDESCENDANT, calendar._updateAria(that._ariaTemplate, date));
             }
         }
     });
@@ -98544,8 +98655,7 @@ var __meta__ = {// jshint ignore:line
         FOCUSED = "k-focus",
         STATEDISABLED = "k-disabled",
         NOCLICKCLASS = "k-no-click",
-        STATEREADONLY = "k-readonly",
-        proxy = $.proxy;
+        STATEREADONLY = "k-readonly";
 
     var FloatingLabel = Widget.extend({
         init: function (element, options) {
@@ -98623,8 +98733,8 @@ var __meta__ = {// jshint ignore:line
                     .removeClass(STATEDISABLED)
                     .removeClass(that.options.useReadOnlyClass ? STATEREADONLY : NOCLICKCLASS);
 
-                element.on("focusin" + NS, proxy(that.refresh, that));
-                element.on("focusout" + NS, proxy(that.refresh, that));
+                element.on("focusin" + NS, that.refresh.bind(that));
+                element.on("focusout" + NS, that.refresh.bind(that));
             } else {
                 element
                     .toggleClass(STATEDISABLED, disable)
@@ -98685,7 +98795,6 @@ var __meta__ = { // jshint ignore:line
         ARIA_DISABLED = "aria-disabled",
         INTEGER_REGEXP = /^(-)?(\d*)$/,
         NULL = null,
-        proxy = $.proxy,
         isPlainObject = $.isPlainObject,
         extend = $.extend;
 
@@ -98700,7 +98809,7 @@ var __meta__ = { // jshint ignore:line
 
              options = that.options;
              element = that.element
-                           .on("focusout" + ns, proxy(that._focusout, that))
+                           .on("focusout" + ns, that._focusout.bind(that))
                            .attr("role", "spinbutton");
 
              options.placeholder = options.placeholder || element.attr("placeholder");
@@ -98732,7 +98841,7 @@ var __meta__ = { // jshint ignore:line
              that._input();
 
              if (!kendo.support.mobileOS) {
-                 that._text.on(FOCUS + ns, proxy(that._click, that));
+                 that._text.on(FOCUS + ns, that._click.bind(that));
              } else {
                  that._text.on(TOUCHEND + ns + " " + FOCUS + ns, function() {
                      if (kendo.support.browser.edge) {
@@ -98778,7 +98887,7 @@ var __meta__ = { // jshint ignore:line
              });
 
              that._label();
-             that._ariaLabel();
+             that._ariaLabel(that._text);
              that._applyCssClasses();
 
              kendo.notify(that);
@@ -98856,13 +98965,13 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 that.element
-                    .on("keydown" + ns, proxy(that._keydown, that))
-                    .on("keyup" + ns, proxy(that._keyup, that))
-                    .on("paste" + ns, proxy(that._paste, that))
-                    .on("input" + ns, proxy(that._inputHandler, that));
+                    .on("keydown" + ns, that._keydown.bind(that))
+                    .on("keyup" + ns, that._keyup.bind(that))
+                    .on("paste" + ns, that._paste.bind(that))
+                    .on("input" + ns, that._inputHandler.bind(that));
 
                 if (that._inputLabel) {
-                    that._inputLabel.on("click" + ns, proxy(that.focus, that));
+                    that._inputLabel.on("click" + ns, that.focus.bind(that));
                 }
 
             } else {
@@ -99173,7 +99282,9 @@ var __meta__ = { // jshint ignore:line
             text = inputs.first();
 
             if (text.length < 2) {
-                text = $('<input type="text"/>').insertBefore(element);
+                text = $('<input type="text"/>')
+                        .attr(kendo.attr("validate"), false)
+                        .insertBefore(element);
             }
 
             try {
@@ -99245,7 +99356,7 @@ var __meta__ = { // jshint ignore:line
                 this._numPadDot = false;
             }
 
-            if (this._isPasted) {
+            if (this._isPasted && this._parse(value)) {
                 value = this._parse(value)
                     .toString()
                     .replace(POINT, numberFormat[POINT]);
@@ -99270,7 +99381,7 @@ var __meta__ = { // jshint ignore:line
 
             that._addInvalidState();
             clearTimeout(that._invalidStateTimeout);
-            that._invalidStateTimeout = setTimeout(proxy(that._removeInvalidState, that), 100);
+            that._invalidStateTimeout = setTimeout(that._removeInvalidState.bind(that), 100);
         },
 
         _addInvalidState: function () {
@@ -99362,32 +99473,6 @@ var __meta__ = { // jshint ignore:line
                 .attr("aria-value" + option, value);
 
             element.attr(option, value);
-        },
-
-        _ariaLabel: function(){
-            var that = this;
-            var text = that._text;
-            var inputElm = that.element;
-            var id = inputElm.attr("id");
-            var labelElm = $("label[for=\'" + id  + "\']");
-            var ariaLabel = inputElm.attr("aria-label");
-            var ariaLabelledBy = inputElm.attr("aria-labelledby");
-            var labelId;
-
-            if (ariaLabel) {
-                text.attr("aria-label", ariaLabel);
-            } else if (ariaLabelledBy){
-                text.attr("aria-labelledby", ariaLabelledBy);
-            } else if (labelElm.length){
-                labelId = labelElm.attr("id");
-                if (labelId) {
-                    text.attr("aria-labelledby", labelId);
-                } else {
-                    labelId = kendo.guid();
-                    labelElm.attr("id", labelId);
-                    text.attr("aria-labelledby", labelId);
-                }
-            }
         },
 
         _spin: function(step, timeout) {
@@ -99544,7 +99629,7 @@ var __meta__ = { // jshint ignore:line
                 that._inputLabel = $("<label class='" + LABELCLASSES + "' for='" + id + "'>" + labelText + "</label>'").insertBefore(that.wrapper);
 
                 if ((that.element.attr("disabled") === undefined) && (that.element.attr("readonly") === undefined)) {
-                    that._inputLabel.on("click" + ns, proxy(that.focus, that));
+                    that._inputLabel.on("click" + ns, that.focus.bind(that));
                 }
             }
         },
@@ -99666,7 +99751,7 @@ var __meta__ = { // jshint ignore:line
         VALIDATE = "validate",
         CHANGE = "change",
         VALIDATE_INPUT = "validateInput",
-        proxy = $.proxy,
+
         patternMatcher = function(value, pattern) {
             if (typeof pattern === "string") {
                 pattern = new RegExp('^(?:' + pattern + ')$');
@@ -99964,7 +100049,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (that.element.is(FORM)) {
-                that.element.on("submit" + NS, proxy(that._submit, that));
+                that.element.on("submit" + NS, that._submit.bind(that));
             }
 
             if (that.options.validateOnBlur) {
@@ -100039,6 +100124,7 @@ var __meta__ = { // jshint ignore:line
                 template = that._errorTemplate,
                 result = that._checkValidity(input),
                 valid = result.valid,
+                widgetInstance,
                 className = "." + INVALIDMSG,
                 fieldName = (input.attr(NAME) || ""),
                 lbl = that._findMessageContainer(fieldName).add(input.next(className).filter(function() {
@@ -100072,7 +100158,7 @@ var __meta__ = { // jshint ignore:line
                 if (lbl.length !== 0) {
                     lbl.replaceWith(messageLabel);
                 } else {
-                    var widgetInstance = kendo.widgetInstance(input);
+                    widgetInstance = kendo.widgetInstance(input);
                     var parentElement = input.parent().get(0);
                     var nextElement = input.next().get(0);
                     var prevElement = input.prev().get(0);
@@ -100117,16 +100203,13 @@ var __meta__ = { // jshint ignore:line
                 this.trigger(VALIDATE_INPUT, { valid: valid, input: input, error: messageText, field: fieldName });
             }
 
-            if (isInputInner && inputWrapper.length) {
-                inputWrapper.toggleClass(INVALIDINPUT, !valid);
-                inputWrapper.toggleClass(VALIDINPUT, valid);
+            widgetInstance = kendo.widgetInstance(input);
+            if (!widgetInstance || !(widgetInstance._inputWrapper || widgetInstance.wrapper)) {
+                input.toggleClass(INVALIDINPUT, !valid);
+                input.toggleClass(VALIDINPUT, valid);
             }
 
-            input.toggleClass(INVALIDINPUT, !valid);
-            input.toggleClass(VALIDINPUT, valid);
-
-
-            if (kendo.widgetInstance(input)) {
+            if (widgetInstance) {
                 var widget = kendo.widgetInstance(input);
                 var inputWrap = widget._inputWrapper || widget.wrapper;
                 var inputLabel = widget._inputLabel;
@@ -100358,7 +100441,7 @@ var __meta__ = { // jshint ignore:line
             container.addClass([VALIDATIONSUMMARY, MESSAGEBOX].join(" "));
             container.attr("role", "alert");
 
-            container.on("click" + NS, proxy(that._summaryClick, that));
+            container.on("click" + NS, that._summaryClick.bind(that));
 
             return container;
         },
@@ -100719,7 +100802,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
             Widget.fn.init.call(that, element, options);
-            that._validateProxy = $.proxy(that._validate, that);
+            that._validateProxy = that._validate.bind(that);
             that.refresh();
         },
 
@@ -100940,7 +101023,6 @@ return window.kendo;
             activeElement = kendo._activeElement,
             outerWidth = kendo._outerWidth,
             outerHeight = kendo._outerHeight,
-            proxy = $.proxy,
             extend = $.extend,
             each = $.each,
             template = kendo.template,
@@ -101150,15 +101232,15 @@ return window.kendo;
                 }
 
                 wrapper
-                    .on("mouseenter" + NS, TITLEBAR_BUTTONS, proxy(that._buttonEnter, that))
-                    .on("mouseleave" + NS, TITLEBAR_BUTTONS, proxy(that._buttonLeave, that))
-                    .on("click" + NS, "> " + TITLEBAR_BUTTONS, proxy(that._windowActionHandler, that))
-                    .on("keydown" + NS, that, proxy(that._keydown, that))
-                    .on("focus" + NS, proxy(that._focus, that))
-                    .on("blur" + NS, proxy(that._blur, that));
+                    .on("mouseenter" + NS, TITLEBAR_BUTTONS, that._buttonEnter.bind(that))
+                    .on("mouseleave" + NS, TITLEBAR_BUTTONS, that._buttonLeave.bind(that))
+                    .on("click" + NS, "> " + TITLEBAR_BUTTONS, that._windowActionHandler.bind(that))
+                    .on("keydown" + NS, that, that._keydown.bind(that))
+                    .on("focus" + NS, that._focus.bind(that))
+                    .on("blur" + NS, that._blur.bind(that));
 
                 windowContent
-                    .on("keydown" + NS, that, proxy(that._keydownContent, that));
+                    .on("keydown" + NS, that, that._keydownContent.bind(that));
 
                 windowFrame = windowContent.find("." + KCONTENTFRAME)[0];
 
@@ -101201,11 +101283,11 @@ return window.kendo;
                 }
 
                 wrapper.add(wrapper.children(".k-resize-handle," + KWINDOWTITLEBAR))
-                    .on(kendo.support.mousedown + NS, proxy(that.toFront, that));
+                    .on(kendo.support.mousedown + NS, that.toFront.bind(that));
 
                 that.touchScroller = kendo.touchScroller(element);
 
-                that._resizeHandler = proxy(that._onDocumentResize, that);
+                that._resizeHandler = that._onDocumentResize.bind(that);
 
                 that._marker = kendo.guid().substring(0, 8);
 
@@ -101401,11 +101483,11 @@ return window.kendo;
                 }
 
                 if (resizable) {
-                    wrapper.on("dblclick" + NS, KWINDOWTITLEBAR, proxy(function(e) {
+                    wrapper.on("dblclick" + NS, KWINDOWTITLEBAR, (function(e) {
                         if (!$(e.target).closest(".k-window-action").length) {
                             this.toggleMaximization();
                         }
-                    }, this));
+                    }).bind(this));
 
                     each("n e s w se sw ne nw".split(" "), function(index, handler) {
                         wrapper.append(templates.resizeHandle(handler));
@@ -101595,15 +101677,14 @@ return window.kendo;
                         that.maximize();
                         that.wrapper.trigger("focus");
                     }
-
                 } else if (e.altKey && keyCode == keys.DOWN){
                     if (!isMinimized && !isMaximized) {
                         that.minimize();
                         that.wrapper.trigger("focus");
                     } else if (isMaximized) {
                         that.restore();
+                        that.wrapper.trigger("focus");
                     }
-
                 }
 
                 offset = kendo.getOffset(wrapper);
@@ -101939,7 +102020,7 @@ return window.kendo;
                         wrapper.addClass(INLINE_FLEX).kendoStop().kendoAnimate({
                             effects: showOptions.effects,
                             duration: showOptions.duration,
-                            complete: proxy(this._activate, this)
+                            complete: this._activate.bind(this)
                         });
                     }
                 }
@@ -102035,7 +102116,7 @@ return window.kendo;
                         effects: hideOptions.effects || showOptions.effects,
                         reverse: hideOptions.reverse === true,
                         duration: hideOptions.duration,
-                        complete: proxy(this._deactivate, this)
+                        complete: this._deactivate.bind(this)
                     });
                     $(window).off(MODAL_NS);
                 }
@@ -102557,7 +102638,7 @@ return window.kendo;
 
                         element.find("." + KCONTENTFRAME)
                             .off("load" + NS)
-                            .on("load" + NS, proxy(this._triggerRefresh, this));
+                            .on("load" + NS, this._triggerRefresh.bind(this));
                     }
                 } else {
                     if (options.template) {
@@ -102605,15 +102686,15 @@ return window.kendo;
             },
 
             _ajaxRequest: function (options) {
-                this._loadingIconTimeout = setTimeout(proxy(this._showLoading, this), 100);
+                this._loadingIconTimeout = setTimeout(this._showLoading.bind(this), 100);
 
                 $.ajax(extend({
                     type: "GET",
                     dataType: "html",
                     cache: false,
-                    error: proxy(this._ajaxError, this),
-                    complete: proxy(this._ajaxComplete, this),
-                    success: proxy(this._ajaxSuccess(options.template), this)
+                    error: this._ajaxError.bind(this),
+                    complete: this._ajaxComplete.bind(this),
+                    success: this._ajaxSuccess(options.template).bind(this)
                 }, options));
             },
 
@@ -102729,7 +102810,7 @@ return window.kendo;
                 "This page requires frames in order to show content" +
                 "</iframe>"
             ),
-            resizeHandle: template("<div class='k-resize-handle k-resize-#= data #'></div>")
+            resizeHandle: template("<div aria-hidden='true' class='k-resize-handle k-resize-#= data #'></div>")
         };
 
 
@@ -102740,13 +102821,13 @@ return window.kendo;
             that._draggable = new Draggable(wnd.wrapper, {
                 filter: ">" + KWINDOWRESIZEHANDLES,
                 group: wnd.wrapper.id + "-resizing",
-                dragstart: proxy(that.dragstart, that),
-                drag: proxy(that.drag, that),
-                dragend: proxy(that.dragend, that)
+                dragstart: that.dragstart.bind(that),
+                drag: that.drag.bind(that),
+                dragend: that.dragend.bind(that)
             });
 
-            that._draggable.userEvents.bind("press", proxy(that.addOverlay, that));
-            that._draggable.userEvents.bind("release", proxy(that.removeOverlay, that));
+            that._draggable.userEvents.bind("press", that.addOverlay.bind(that));
+            that._draggable.userEvents.bind("release", that.removeOverlay.bind(that));
         }
 
         WindowResizing.prototype = {
@@ -102933,10 +103014,10 @@ return window.kendo;
             that._draggable = new Draggable(wnd.wrapper, {
                 filter: dragHandle,
                 group: wnd.wrapper.id + "-moving",
-                dragstart: proxy(that.dragstart, that),
-                drag: proxy(that.drag, that),
-                dragend: proxy(that.dragend, that),
-                dragcancel: proxy(that.dragcancel, that)
+                dragstart: that.dragstart.bind(that),
+                drag: that.drag.bind(that),
+                dragend: that.dragend.bind(that),
+                dragcancel: that.dragcancel.bind(that)
             });
 
             that._draggable.userEvents.stopPropagation = false;
@@ -103102,7 +103183,6 @@ return window.kendo;
             diagram = dataviz.diagram,
             Widget = kendo.ui.Widget,
             Class = kendo.Class,
-            proxy = $.proxy,
             deepExtend = kendo.deepExtend,
             outerWidth = kendo._outerWidth,
             outerHeight = kendo._outerHeight,
@@ -105048,7 +105128,7 @@ return window.kendo;
                     if (tools && tools.length) {
                         this.toolBar = new DiagramToolBar(this, {
                             tools: tools || {},
-                            click: proxy(this._toolBarClick, this),
+                            click: this._toolBarClick.bind(this),
                             modal: false
                         });
 
@@ -105120,7 +105200,7 @@ return window.kendo;
                     editors = editable.shapeEditors;
                     template = editable.shapeTemplate;
                 } else if (editorType == "connection") {
-                    var connectionSelectorHandler = proxy(connectionSelector, this);
+                    var connectionSelectorHandler = connectionSelector.bind(this);
                     editors = deepExtend({}, { from: connectionSelectorHandler, to: connectionSelectorHandler }, editable.connectionEditors);
                     template = editable.connectionTemplate;
                 } else {
@@ -105128,8 +105208,8 @@ return window.kendo;
                 }
 
                 this.editor = new PopupEditor(this.element, {
-                    update: proxy(this._update, this),
-                    cancel: proxy(this._cancel, this),
+                    update: this._update.bind(this),
+                    cancel: this._cancel.bind(this),
                     model: dataItem,
                     type: editorType,
                     target: this,
@@ -105259,39 +105339,39 @@ return window.kendo;
                 var that = this;
                 var element = that.element;
 
-                element.on(MOUSEWHEEL_NS, proxy(that._wheel, that))
-                .on("keydown" + NS, proxy(that._keydown, that));
+                element.on(MOUSEWHEEL_NS, that._wheel.bind(that))
+                .on("keydown" + NS, that._keydown.bind(that));
 
                 that._userEvents = new kendo.UserEvents(this.scrollable, {
                     multiTouch: true,
                     fastTap: true,
-                    tap: proxy(that._tap, that),
-                    start: proxy(that._dragStart, that),
-                    move: proxy(that._drag, that),
-                    end: proxy(that._dragEnd, that),
-                    gesturestart: proxy(that._gestureStart, that),
-                    gesturechange: proxy(that._gestureChange, that),
-                    gestureend: proxy(that._gestureEnd, that),
-                    doubleTap: proxy(that._doubleTap, that),
+                    tap: that._tap.bind(that),
+                    start: that._dragStart.bind(that),
+                    move: that._drag.bind(that),
+                    end: that._dragEnd.bind(that),
+                    gesturestart: that._gestureStart.bind(that),
+                    gesturechange: that._gestureChange.bind(that),
+                    gestureend: that._gestureEnd.bind(that),
+                    doubleTap: that._doubleTap.bind(that),
                     supportDoubleTap: true
                 });
 
                 that.toolService = new ToolService(that);
 
                 this.scrollable
-                    .on("mouseover" + NS, proxy(that._mouseover, that))
-                    .on("mouseout" + NS, proxy(that._mouseout, that))
-                    .on("mousemove" + NS, proxy(that._mouseMove, that))
-                    .on("mousedown" + NS, proxy(that._mouseDown, that))
-                    .on("mouseup" + NS, proxy(that._mouseUp, that));
+                    .on("mouseover" + NS, that._mouseover.bind(that))
+                    .on("mouseout" + NS, that._mouseout.bind(that))
+                    .on("mousemove" + NS, that._mouseMove.bind(that))
+                    .on("mousedown" + NS, that._mouseDown.bind(that))
+                    .on("mouseup" + NS, that._mouseUp.bind(that));
 
-                this._syncHandler = proxy(that._syncChanges, that);
+                this._syncHandler = that._syncChanges.bind(that);
 
-                that._resizeHandler = proxy(that.resize, that, false);
+                that._resizeHandler = that.resize.bind(that, false);
                 kendo.onResize(that._resizeHandler);
 
-                this.bind(ZOOM_START, proxy(that._destroyToolBar, that));
-                this.bind(PAN, proxy(that._destroyToolBar, that));
+                this.bind(ZOOM_START, that._destroyToolBar.bind(that));
+                this.bind(PAN, that._destroyToolBar.bind(that));
             },
 
             _dragStart: function (e) {
@@ -106875,7 +106955,7 @@ return window.kendo;
                             var point;
                             this.singleToolBar = new DiagramToolBar(diagram, {
                                 tools: tools,
-                                click: proxy(this._toolBarClick, this),
+                                click: this._toolBarClick.bind(this),
                                 modal: true,
                                 popupZIndex: parseInt(diagram.element.closest(".k-window").css("zIndex"), 10) + 10
                             });
@@ -106970,9 +107050,9 @@ return window.kendo;
                             .unbind("requestStart", this._shapesRequestStartHandler)
                             .unbind("error", this._shapesErrorHandler);
                     } else {
-                        this._shapesRefreshHandler = proxy(this._refreshShapes, this);
-                        this._shapesRequestStartHandler = proxy(this._shapesRequestStart, this);
-                        this._shapesErrorHandler = proxy(this._error, this);
+                        this._shapesRefreshHandler = this._refreshShapes.bind(this);
+                        this._shapesRequestStartHandler = this._shapesRequestStart.bind(this);
+                        this._shapesErrorHandler = this._error.bind(this);
                     }
 
                     this.dataSource = kendo.data.DataSource.create(ds)
@@ -106996,9 +107076,9 @@ return window.kendo;
                             .unbind("requestStart", this._connectionsRequestStartHandler)
                             .unbind("error", this._connectionsErrorHandler);
                     } else {
-                        this._connectionsRefreshHandler = proxy(this._refreshConnections, this);
-                        this._connectionsRequestStartHandler = proxy(this._connectionsRequestStart, this);
-                        this._connectionsErrorHandler = proxy(this._connectionsError, this);
+                        this._connectionsRefreshHandler = this._refreshConnections.bind(this);
+                        this._connectionsRequestStartHandler = this._connectionsRequestStart.bind(this);
+                        this._connectionsErrorHandler = this._connectionsError.bind(this);
                     }
 
                     this.connectionsDataSource = kendo.data.DataSource.create(ds)
@@ -107242,8 +107322,8 @@ return window.kendo;
                     that._unbindDataSource();
                 }
 
-                that._refreshHandler = proxy(that._refreshSource, that);
-                that._errorHandler = proxy(that._error, that);
+                that._refreshHandler = that._refreshSource.bind(that);
+                that._errorHandler = that._error.bind(that);
 
                 that.dataSource = HierarchicalDataSource.create(dataSource)
                     .bind(CHANGE, that._refreshHandler)
@@ -107489,7 +107569,7 @@ return window.kendo;
                 this.element = $("<div/>");
                 this._toolBar = this.element
                     .kendoToolBar({
-                        click: proxy(this.click, this),
+                        click: this.click.bind(this),
                         resizable: false
                     }).getKendoToolBar();
 
@@ -107924,10 +108004,10 @@ return window.kendo;
             },
 
             _attachButtonEvents: function() {
-                this._cancelClickHandler = proxy(this._cancelClick, this);
+                this._cancelClickHandler = this._cancelClick.bind(this);
                 this.window.element.on(CLICK + NS, "a.k-diagram-cancel", this._cancelClickHandler);
 
-                this._updateClickHandler = proxy(this._updateClick, this);
+                this._updateClickHandler = this._updateClick.bind(this);
                 this.window.element.on(CLICK + NS, "a.k-diagram-update", this._updateClickHandler);
             },
 
@@ -107946,7 +108026,7 @@ return window.kendo;
             },
 
             close: function() {
-                this.window.bind("deactivate", proxy(this.destroy, this)).close();
+                this.window.bind("deactivate", this.destroy.bind(this)).close();
             },
 
             destroy: function() {
@@ -108182,7 +108262,7 @@ return window.kendo;
             ROOT_SIZE: 1000,
 
             init: function(diagram) {
-                var boundsChangeHandler = proxy(this._boundsChange, this);
+                var boundsChangeHandler = this._boundsChange.bind(this);
                 diagram.bind(ITEMBOUNDSCHANGE, boundsChangeHandler);
                 diagram.bind(ITEMROTATE, boundsChangeHandler);
                 this.initRoots();
@@ -108407,7 +108487,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var math = Math,
 
-        proxy = $.proxy,
         isArray = Array.isArray,
 
         kendo = window.kendo,
@@ -108476,10 +108555,10 @@ var __meta__ = { // jshint ignore:line
 
         _attachEvents: function() {
             this.element
-                .on(MOUSEOVER_NS, proxy(this._mouseover, this))
-                .on(MOUSELEAVE_NS, proxy(this._mouseleave, this));
+                .on(MOUSEOVER_NS, this._mouseover.bind(this))
+                .on(MOUSELEAVE_NS, this._mouseleave.bind(this));
 
-            this._resizeHandler = proxy(this.resize, this, false);
+            this._resizeHandler = this.resize.bind(this, false);
             kendo.onResize(this._resizeHandler);
         },
 
@@ -108501,7 +108580,7 @@ var __meta__ = { // jshint ignore:line
                 options = that.options,
                 dataSource = options.dataSource;
 
-            that._dataChangeHandler = proxy(that._onDataChange, that);
+            that._dataChangeHandler = that._onDataChange.bind(that);
 
             that.dataSource = HierarchicalDataSource
                 .create(dataSource)

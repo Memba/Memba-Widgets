@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.mediaplayer',["kendo.slider", "kendo.toolbar", "kendo.dropdownlist", "kendo.tooltip"], f);
+    define('kendo.mediaplayer',["./kendo.slider", "./kendo.toolbar", "./kendo.dropdownlist", "./kendo.tooltip"], f);
 })(function () {
 
     var __meta__ = { // jshint ignore:line
@@ -71,7 +71,6 @@
                 longTime: "HH:mm:ss"
             },
             template = kendo.template,
-            proxy = $.proxy,
             keys = kendo.keys,
             templates = {
                 htmlPlayer: "<video class='" + MEDIA + "'> </video>",
@@ -175,8 +174,8 @@
             _createSlider: function () {
                 var sliderElement = this.wrapper.find(DOT + SLIDER);
                 if (!this._slider) {
-                    this._sliderDragChangeHandler = proxy(this._sliderDragChange, this);
-                    this._sliderDraggingHandler = proxy(this._sliderDragging, this);
+                    this._sliderDragChangeHandler = this._sliderDragChange.bind(this);
+                    this._sliderDraggingHandler = this._sliderDragging.bind(this);
                     sliderElement = this.wrapper.find(DOT + SLIDER);
 
                     this._slider = new ui.Slider(sliderElement[0], {
@@ -196,8 +195,8 @@
             _createVolumeSlider: function () {
                 var volumeSliderElement = this.wrapper.find(DOT + VOLUME_SLIDER);
                 if (!this._volumeSlider) {
-                    this._volumeDraggingHandler = proxy(this._volumeDragging, this);
-                    this._volumeChangeHandler = proxy(this._volumeChange, this);
+                    this._volumeDraggingHandler = this._volumeDragging.bind(this);
+                    this._volumeChangeHandler = this._volumeChange.bind(this);
                     volumeSliderElement.width(87);
                     this._volumeSlider = new ui.Slider(volumeSliderElement[0], {
                         smallStep: 1,
@@ -281,7 +280,7 @@
             _createToolbar: function () {
                 var toolBarElement = this.wrapper.find(DOT + TOOLBAR);
                 if (toolBarElement.length === 0) {
-                    this._toolbarClickHandler = proxy(this._toolbarClick, this);
+                    this._toolbarClickHandler = this._toolbarClick.bind(this);
                     this.wrapper.append(templates.toolBar);
                     toolBarElement = this.wrapper.find(DOT + TOOLBAR);
                     toolBarElement.width(this.wrapper.find(DOT + MEDIA).width());
@@ -360,7 +359,7 @@
                 var dropDownElement = this.wrapper.find(DOT + VIDEO_QUALITY);
                 var media = this.media();
                 if (typeof dropDownElement.data("kendoDropDownList") === "undefined") {
-                    this._dropDownSelectHandler = proxy(this._dropDownSelect, this);
+                    this._dropDownSelectHandler = this._dropDownSelect.bind(this);
                     this._dropDown = new ui.DropDownList(dropDownElement, {
                         dataTextField: "quality",
                         dataValueField: "url",
@@ -575,8 +574,8 @@
             },
 
             _createYoutubePlayer: function () {
-                this._mediaTimeUpdateHandler = proxy(this._mediaTimeUpdate, this);
-                this._mediaDurationChangeHandler = proxy(this._mediaDurationChange, this);
+                this._mediaTimeUpdateHandler = this._mediaTimeUpdate.bind(this);
+                this._mediaDurationChangeHandler = this._mediaDurationChange.bind(this);
 
                 this.wrapper.prepend(templates.youtubePlayer);
                 this._ytPlayer = this.wrapper.find(DOT + YTPLAYER)[0];
@@ -639,9 +638,9 @@
                     'showinfo': 0
                 };
 
-                this._onYouTubePlayerReady = proxy(this._onYouTubePlayerReady, this);
+                this._onYouTubePlayerReady = this._onYouTubePlayerReady.bind(this);
                 window.onYouTubePlayerReady = this._onYouTubePlayerReady;
-                this._onPlayerStateChangeHandler = proxy(this._onPlayerStateChange, this);
+                this._onPlayerStateChangeHandler = this._onPlayerStateChange.bind(this);
                 window.onPlayerStateChange = this._onPlayerStateChange;
 
                 /*jshint unused:false */
@@ -740,9 +739,9 @@
 
             _initializePlayer: function () {
                 if (!this._mouseMoveHandler) {
-                    this._mouseMoveHandler = proxy(this._mouseMove, this);
-                    this._mouseInHandler = proxy(this._mouseIn, this);
-                    this._mouseOutHandler = proxy(this._mouseOut, this);
+                    this._mouseMoveHandler = this._mouseMove.bind(this);
+                    this._mouseInHandler = this._mouseIn.bind(this);
+                    this._mouseOutHandler = this._mouseOut.bind(this);
 
                     $(this.wrapper)
                         .on("mouseenter" + ns, this._mouseInHandler)
@@ -760,17 +759,17 @@
 
             _createHtmlPlayer: function () {
                 if (!this._videoOverlay) {
-                    this._mouseClickHanlder = proxy(this._mouseClick, this);
+                    this._mouseClickHanlder = this._mouseClick.bind(this);
                     this.wrapper.append("<div class='" + OVERLAY + "'></div>");
                     this._videoOverlay = this.wrapper.find(".k-mediaplayer-overlay")
                         .on("click" + ns, this._mouseClickHanlder);
                 }
 
-                this._mediaTimeUpdateHandler = proxy(this._mediaTimeUpdate, this);
-                this._mediaDurationChangeHandler = proxy(this._mediaDurationChange, this);
-                this._mediaEndedHandler = proxy(this._mediaEnded, this);
-                this._mediaCanPlayHandler = proxy(this._mediaReady, this);
-                this._mediaPlayHandler = proxy(this._mediaPlay, this);
+                this._mediaTimeUpdateHandler = this._mediaTimeUpdate.bind(this);
+                this._mediaDurationChangeHandler = this._mediaDurationChange.bind(this);
+                this._mediaEndedHandler = this._mediaEnded.bind(this);
+                this._mediaCanPlayHandler = this._mediaReady.bind(this);
+                this._mediaPlayHandler = this._mediaPlay.bind(this);
                 this._videoOverlay.after(templates.htmlPlayer);
                 this._media = this.wrapper.find(DOT + MEDIA)[0];
                 $(this._media)
@@ -1082,13 +1081,13 @@
             },
 
             _navigatable: function () {
-                this._fullscreenHandler = proxy(this._fullscreen, this);
+                this._fullscreenHandler = this._fullscreen.bind(this);
                 $(document)
                     .on("webkitfullscreenchange mozfullscreenchange fullscreenchange" + ns, this._fullscreenHandler);
 
                 if (this.options.navigatable) {
                     this.wrapper.attr("tabIndex", 0);
-                    this._keyDownHandler = proxy(this._keyDown, this);
+                    this._keyDownHandler = this._keyDown.bind(this);
                     this.wrapper
                         .on("keydown" + ns, this._keyDownHandler);
                 }

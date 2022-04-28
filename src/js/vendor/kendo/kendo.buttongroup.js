@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.buttongroup',[ "kendo.core", "kendo.badge" ], f);
+    define('kendo.buttongroup',[ "./kendo.core", "./kendo.badge" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
     var ui = kendo.ui;
     var Widget = ui.Widget;
     var keys = kendo.keys;
-    var proxy = $.proxy;
     var template = kendo.template;
     var NS = ".kendoButtonGroup";
     var KWIDGET = "k-widget";
@@ -157,11 +156,11 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.element
-                .on(CLICK + NS, "." + KBUTTON, proxy(that._click, that))
-                .on(FOCUS + NS, proxy(that._focus, that))
-                .on(FOCUSOUT + NS, proxy(that._focusout, that))
-                .on(KEYDOWN + NS, proxy(that._keyDown, that))
-                .on(MOUSEDOWN + NS, proxy(that._mouseDown, that));
+                .on(CLICK + NS, "." + KBUTTON, that._click.bind(that))
+                .on(FOCUS + NS, that._focus.bind(that))
+                .on(FOCUSOUT + NS, that._focusout.bind(that))
+                .on(KEYDOWN + NS, that._keyDown.bind(that))
+                .on(MOUSEDOWN + NS, that._mouseDown.bind(that));
         },
 
         _renderItems: function (items) {

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.touch',[ "kendo.core", "kendo.userevents" ], f);
+    define('kendo.touch',[ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -37,7 +37,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
-        proxy = $.proxy,
         abs = Math.abs,
         MAX_DOUBLE_TAP_DISTANCE = 20;
 
@@ -72,17 +71,17 @@ var __meta__ = { // jshint ignore:line
                 fastTap: options.fastTap,
                 press: eventProxy("touchstart"),
                 hold: eventProxy("hold"),
-                tap: proxy(that, "_tap"),
+                tap: that._tap.bind(that),
                 gesturestart: gestureEventProxy("gesturestart"),
                 gesturechange: gestureEventProxy("gesturechange"),
                 gestureend: gestureEventProxy("gestureend")
             });
 
             if (options.enableSwipe) {
-                that.events.bind("start", proxy(that, "_swipestart"));
-                that.events.bind("move", proxy(that, "_swipemove"));
+                that.events.bind("start", that._swipestart.bind(that));
+                that.events.bind("move", that._swipemove.bind(that));
             } else {
-                that.events.bind("start", proxy(that, "_dragstart"));
+                that.events.bind("start", that._dragstart.bind(that));
                 that.events.bind("move", eventProxy("drag"));
                 that.events.bind("end", eventProxy("dragend"));
             }

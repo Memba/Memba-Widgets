@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.filtermenu',[ "kendo.datepicker", "kendo.numerictextbox", "kendo.dropdownlist", "kendo.binder" ], f);
+    define('kendo.filtermenu',[ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.dropdownlist", "./kendo.binder" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -38,7 +38,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
-        proxy = $.proxy,
         support = kendo.support,
         AUTOCOMPLETEVALUE = support.browser.chrome ? "disabled" : "off",
         POPUP = "kendoPopup",
@@ -399,7 +398,7 @@ var __meta__ = { // jshint ignore:line
                 if (field) {
                     type = field.type || "string";
                     if (field.parse) {
-                        that._parse = proxy(field.parse, field);
+                        that._parse = field.parse.bind(field);
                     }
                 }
             }
@@ -420,7 +419,7 @@ var __meta__ = { // jshint ignore:line
                 return { field: that.field, operator: initial || "eq", value: "" };
             };
 
-            that._refreshHandler = proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
 
             that.dataSource.bind(CHANGE, that._refreshHandler);
 
@@ -435,6 +434,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 ui = that.options.ui,
                 setUI = isFunction(ui),
+                attrRole = kendo.attr("role"),
                 role;
 
             that.pane = that.options.pane;
@@ -453,8 +453,8 @@ var __meta__ = { // jshint ignore:line
             }
 
             that.form
-                .on("submit" + NS, proxy(that._submit, that))
-                .on("reset" + NS, proxy(that._reset, that));
+                .on("submit" + NS, that._submit.bind(that))
+                .on("reset" + NS, that._reset.bind(that));
 
             if (setUI) {
                 that.form.find(".k-input-inner")
@@ -464,12 +464,12 @@ var __meta__ = { // jshint ignore:line
                     });
             } else {
                 that.form
-                    .find(".k-input-inner[data-role]")
+                    .find(".k-input-inner["+attrRole+"]")
                     .removeClass("k-input-inner");
             }
 
             that.form
-                .find(".k-input-inner:not([data-role])")
+                .find(".k-input-inner:not([data-role]):not(.k-numerictextbox>.k-input-inner)")
                 .wrap("<span class='k-textbox k-input k-input-md k-rounded-md k-input-solid'></span>");
 
             that.refresh();
@@ -507,8 +507,8 @@ var __meta__ = { // jshint ignore:line
                 that.popup = that.form[POPUP]({
                     anchor: that.link,
                     copyAnchorStyles: false,
-                    open: proxy(that._open, that),
-                    activate: proxy(that._activate, that),
+                    open: that._open.bind(that),
+                    activate: that._activate.bind(that),
                     close: function() {
                         if (that.options.closeCallback) {
                             that.options.closeCallback(that.element);
@@ -521,7 +521,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             that.form
-                .on("keydown" + NS, proxy(that._keydown, that));
+                .on("keydown" + NS, that._keydown.bind(that));
         },
 
         _getTemplate: function() {
@@ -611,7 +611,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             link.attr("tabindex", -1)
-                .on("click" + NS, proxy(that._click, that));
+                .on("click" + NS, that._click.bind(that));
 
             return link;
         },
@@ -1179,7 +1179,7 @@ var __meta__ = { // jshint ignore:line
                             return parseFloat(value);
                         };
                     } else if (field.parse) {
-                        this._parse = proxy(field.parse, field);
+                        this._parse = field.parse.bind(field);
                     }
                     this.type = field.type || "string";
                 }
@@ -1192,7 +1192,7 @@ var __meta__ = { // jshint ignore:line
                 this._init();
             }
 
-            this._refreshHandler = proxy(this.refresh, this);
+            this._refreshHandler = this.refresh.bind(this);
             this.dataSource.bind(CHANGE, this._refreshHandler);
 
         },
@@ -1211,7 +1211,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             this._link = link.attr("tabindex", -1)
-                .on("click" + NS, proxy(this._click, this));
+                .on("click" + NS, this._click.bind(this));
         },
         _init: function() {
             var that = this;
@@ -1247,9 +1247,9 @@ var __meta__ = { // jshint ignore:line
                 this.checkSource.bind(CHANGE, this.checkChangeHandler);
             }
 
-            this.form.on("keydown" + multiCheckNS, proxy(this._keydown, this))
-                        .on("submit" + multiCheckNS, proxy(this._filter, this))
-                        .on("reset" + multiCheckNS, proxy(this._reset, this));
+            this.form.on("keydown" + multiCheckNS, this._keydown.bind(this))
+                        .on("submit" + multiCheckNS, this._filter.bind(this))
+                        .on("reset" + multiCheckNS, this._reset.bind(this));
 
             this.trigger(INIT, { field: this.field, container: this.form });
         },
@@ -1394,8 +1394,8 @@ var __meta__ = { // jshint ignore:line
                     that.popup = that.form.kendoPopup({
                         anchor: that._link,
                         copyAnchorStyles: false,
-                        open: proxy(that._open, that),
-                        activate: proxy(that._activate, that),
+                        open: that._open.bind(that),
+                        activate: that._activate.bind(that),
                         close: function() {
                             if (that.options.closeCallback) {
                                 that.options.closeCallback(that.element);
@@ -1410,10 +1410,20 @@ var __meta__ = { // jshint ignore:line
 
             if (options.search) {
                 this.searchTextBox = this.form.find(".k-searchbox input");
-                this.searchTextBox.on("input" + multiCheckNS, proxy(this._input, this));
+                this.searchTextBox.on("input" + multiCheckNS, this._input.bind(this));
                 this.clearSearchButton = this.form.find(".k-searchbox .k-clear-value");
-                this.clearSearchButton.on("click" + multiCheckNS, proxy(this._clearSearch, this));
+                this.clearSearchButton.on("click" + multiCheckNS, this._clearSearch.bind(this));
             }
+        },
+        _open: function() {
+            var popup;
+
+            $(".k-filter-menu").not(this.form).each(function() {
+                popup = $(this).data(POPUP);
+                if (popup) {
+                    popup.close();
+                }
+            });
         },
         createCheckAllItem: function () {
             var options = this.options;
@@ -1423,7 +1433,7 @@ var __meta__ = { // jshint ignore:line
 
             checkAllContainer.addClass("k-check-all-wrap");
             this.checkBoxAll = checkAllContainer.find(":checkbox").eq(0).addClass("k-check-all");
-            this.checkAllHandler = proxy(this.checkAll, this);
+            this.checkAllHandler = this.checkAll.bind(this);
             this.checkBoxAll.on(CHANGE+ multiCheckNS, this.checkAllHandler);
         },
         updateCheckAllState: function() {
@@ -1502,7 +1512,7 @@ var __meta__ = { // jshint ignore:line
             var template = kendo.template(options.itemTemplate(templateOptions));
             var itemsHtml = kendo.render(template, data);
 
-            this.container.on(CHANGE + multiCheckNS, ":checkbox", proxy(this.updateCheckAllState, this));
+            this.container.on(CHANGE + multiCheckNS, ":checkbox", this.updateCheckAllState.bind(this));
             this.container.prepend(itemsHtml);
 
             if (options.checkAll && !this._isMobile) {

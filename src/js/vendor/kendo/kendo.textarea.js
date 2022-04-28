@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.textarea',["kendo.core", "kendo.floatinglabel"], f);
+    define('kendo.textarea',["./kendo.core", "./kendo.floatinglabel"], f);
 })(function () {
 
 var __meta__ = {// jshint ignore:line
@@ -49,8 +49,7 @@ var __meta__ = {// jshint ignore:line
         STATEDISABLED = "k-disabled",
         STATEREADONLY = "k-readonly",
         ARIA_DISABLED = "aria-disabled",
-        TEXTAREACONTAINER = "k-textarea-container",
-        proxy = $.proxy;
+        TEXTAREACONTAINER = "k-textarea-container";
 
     var TextArea = Widget.extend({
         init: function (element, options) {
@@ -229,8 +228,8 @@ var __meta__ = {// jshint ignore:line
                 wrapper.removeClass(STATEDISABLED)
                         .removeClass(STATEREADONLY);
 
-                element.on("focusin" + NS, proxy(that._focusin, that));
-                element.on("focusout" + NS, proxy(that._focusout, that));
+                element.on("focusin" + NS, that._focusin.bind(that));
+                element.on("focusout" + NS, that._focusout.bind(that));
             } else {
                 element.attr(DISABLED, disable)
                        .attr(READONLY, readonly)

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('util/undoredostack',[ "kendo.core" ], f);
+    define('util/undoredostack',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -75,10 +75,10 @@
 (function(f, define){
     define('editor/main',[
         "../util/undoredostack",
-        "kendo.combobox",
-        "kendo.dropdownlist",
-        "kendo.window",
-        "kendo.colorpicker"
+        "../kendo.combobox",
+        "../kendo.dropdownlist",
+        "../kendo.window",
+        "../kendo.colorpicker"
     ], f);
 })(function(){
 
@@ -91,7 +91,6 @@
         os = kendo.support.mobileOS,
         browser = kendo.support.browser,
         extend = $.extend,
-        proxy = $.proxy,
         deepExtend = kendo.deepExtend,
         keys = kendo.keys;
 
@@ -421,7 +420,7 @@
             type = dom.name(domElement);
 
             this._registerHandler(
-                element.closest("form"), "submit", proxy(that.update, that, undefined)
+                element.closest("form"), "submit", that.update.bind(that, undefined)
             );
 
             toolbarOptions = extend({}, that.options);
@@ -601,7 +600,7 @@
 
             kendo.ui.editor.ElementResizingFactory.current.create(editor);
 
-            editor._showElementResizeHandlesProxy = proxy(editor._showElementResizeHandles, editor);
+            editor._showElementResizeHandlesProxy = editor._showElementResizeHandles.bind(editor);
             editor.bind(SELECT, editor._showElementResizeHandlesProxy);
         },
 
@@ -904,7 +903,7 @@
                 blurTrigger = editor.window;
                 mousedownTrigger = doc;
 
-                this._registerHandler(doc, "mouseup", proxy(this._mouseup, this));
+                this._registerHandler(doc, "mouseup", this._mouseup.bind(this));
             } else {
                 editor.window = window;
                 doc = editor.document = document;
@@ -916,8 +915,8 @@
                 editor.toolbar.decorateFrom(editor.body);
             }
 
-            this._registerHandler(blurTrigger, "blur", proxy(this._blur, this));
-            editor._registerHandler(mousedownTrigger, "down", proxy(editor._mousedown, editor));
+            this._registerHandler(blurTrigger, "blur", this._blur.bind(this));
+            editor._registerHandler(mousedownTrigger, "down", editor._mousedown.bind(editor));
 
             try {
                 doc.execCommand("enableInlineTableEditing", null, false);
@@ -977,7 +976,7 @@
 
                     if (e.keyCode === keys.F10) {
                         // Handling with timeout to avoid the default IE menu
-                        setTimeout(proxy(editor.toolbar.focus, editor.toolbar), 100);
+                        setTimeout(editor.toolbar.focus.bind(editor.toolbar), 100);
                         editor.toolbar.preventPopupHide = true;
                         e.preventDefault();
                         return;
@@ -1551,7 +1550,7 @@
                     that.execCommand(command);
 
                     if (command.async) {
-                        command.change = proxy(that._selectionChange, that);
+                        command.change = that._selectionChange.bind(that);
                         return;
                     }
                 }
@@ -3638,7 +3637,7 @@ var SelectBox = DropDownList.extend({
         // overlay drop-down with popout for snappier interaction
         if (kendo.support.mobileOS.ios) {
             this._initSelectOverlay();
-            this.bind("dataBound", $.proxy(this._initSelectOverlay, this));
+            this.bind("dataBound", this._initSelectOverlay.bind(this));
         }
 
         that.text(that.options.title);
@@ -3696,7 +3695,7 @@ var SelectBox = DropDownList.extend({
         }
 
         var select = $("<select class='k-select-overlay'>" + html + "</select>");
-        var wrapper = $(this.element).closest(".k-widget");
+        var wrapper = $(this.element).closest(".k-dropdownlist");
 
         wrapper.next(".k-select-overlay").remove();
 
@@ -5506,7 +5505,6 @@ extend(editorNS, {
     var editorNS = ui.editor;
     var Widget = ui.Widget;
     var extend = $.extend;
-    var proxy = $.proxy;
     var keys = kendo.keys;
     var NS = ".kendoEditor";
     var EditorUtils = editorNS.EditorUtils;
@@ -5520,7 +5518,7 @@ extend(editorNS, {
                     ".k-tool.k-overflow-anchor:visible," +
                     ".k-tool-group:visible .k-colorpicker:not(input)," +
                     ".k-tool-group:visible .k-selectbox," +
-                    ".k-tool-group:visible .k-dropdown," +
+                    ".k-tool-group:visible .k-dropdownlist," +
                     ".k-tool-group:visible .k-combobox .k-input-inner";
 
     var toolNamesByCssClass = {
@@ -5573,9 +5571,9 @@ extend(editorNS, {
             var toolbar = options.editor.toolbar;
 
             ui.attr("aria-controls", options.editor.element.attr("id"))
-                .on("click", $.proxy(function() {
+                .on("click", (function() {
                     this.overflowPopup.toggle();
-                }, toolbar));
+                }).bind(toolbar));
         },
 
         options: {
@@ -5699,7 +5697,7 @@ extend(editorNS, {
                 close: function() {
                     ui.attr("aria-expanded", false);
                 },
-                activate: proxy(that.focusOverflowPopup, that)
+                activate: that.focusOverflowPopup.bind(that)
             }).data("kendoPopup");
         },
 
@@ -5756,7 +5754,7 @@ extend(editorNS, {
 
             // detach from editor that was previously listened to
             if (that._editor) {
-                that._editor.unbind("select", proxy(that.resize, that));
+                that._editor.unbind("select", that.resize.bind(that));
             }
 
             that._editor = editor;
@@ -5810,12 +5808,13 @@ extend(editorNS, {
                     editor: that._editor
                 });
 
-                ui.closest(".k-widget", that.element).addClass("k-editor-widget");
+                ui.closest(".k-dropdownlist", that.element).addClass("k-editor-widget");
+                ui.closest(".k-combobox", that.element).addClass("k-editor-widget");
 
                 ui.closest(".k-colorpicker", that.element).next(".k-colorpicker").addClass("k-editor-widget");
             });
 
-            editor.bind("select", proxy(that.resize, that));
+            editor.bind("select", that.resize.bind(that));
 
             that.update();
 
@@ -6107,7 +6106,7 @@ extend(editorNS, {
                 }
 
                 if (options.exec && toolElement.hasClass("k-tool")) {
-                    toolElement.on("click", proxy(options.exec, editorElement[0]));
+                    toolElement.on("click", options.exec.bind(editorElement[0]));
                 }
             }
 
@@ -6182,7 +6181,7 @@ extend(editorNS, {
                 buttons = "[role=button].k-tool",
                 enabledButtons = buttons + ":not(.k-disabled)" + ", [role=button].k-i-import:not(.k-disabled)",
                 disabledButtons = buttons + ".k-disabled",
-                dropdown = ".k-dropdown",
+                dropdown = ".k-dropdownlist",
                 colorpicker = ".k-colorpicker",
                 editorTools = [buttons, dropdown, colorpicker].join(",");
 
@@ -6213,7 +6212,7 @@ extend(editorNS, {
                     }
 
                     if (keyCode == keys.RIGHT || keyCode == keys.LEFT) {
-                        if (!$(current).is(".k-dropdown")) {
+                        if (!$(current).is(".k-dropdownlist")) {
                             focusElement = move(keyCode == keys.RIGHT ? 1 * direction : -1 * direction, that.element, true);
                         } else {
                             focusElement = $(current);
@@ -7154,12 +7153,12 @@ var FontTool = DelayedExecutionTool.extend({
             highlightFirst: false
         });
 
-        ui.closest(".k-widget").removeClass("k-" + toolName).find("*").addBack().attr("unselectable", "on");
+        ui.closest(".k-combobox").removeClass("k-" + toolName).find("*").addBack().attr("unselectable", "on");
 
         var widget = ui.data(this.type);
         widget.value("inherit");
 
-        widget.wrapper.on(MOUSEDOWN_NS, ".k-select,.k-input", function() {
+        widget.wrapper.on(MOUSEDOWN_NS, ".k-select,.k-input-button,.k-input", function() {
             var newRange = editor.getRange();
             range = editor._containsRange(newRange) ? newRange : range;
         })
@@ -7254,6 +7253,10 @@ var ColorTool = Tool.extend({
                             that._inputFocused = true;
                         });
                 }
+
+                setTimeout(function() {
+                    picker._popup.element.find(".k-colorpalette").trigger("focus");
+                });
             },
             close: function(e) {
                 e.sender._popup.element.off(MOUSEDOWN_NS);
@@ -7330,7 +7333,6 @@ registerTool("fontSize", new FontTool({cssAttr:"font-size", fontAttr: "size", do
 var kendo = window.kendo,
     Class = kendo.Class,
     extend = $.extend,
-    proxy = $.proxy,
     Editor = kendo.ui.editor,
     dom = Editor.Dom,
     RangeUtils = Editor.RangeUtils,
@@ -7488,7 +7490,7 @@ var LinkCommand = Command.extend({
 
         var dialog = this.createDialog(this._dialogTemplate(), {
             title: messages.createLink,
-            close: proxy(this._close, this),
+            close: this._close.bind(this),
             visible: false
         });
 
@@ -7500,9 +7502,9 @@ var LinkCommand = Command.extend({
         this._initialText = this.linkText(nodes);
 
         dialog
-            .find(".k-dialog-insert").on("click", proxy(this._apply, this)).end()
-            .find(".k-dialog-close").on("click", proxy(this._close, this)).end()
-            .find(".k-edit-field input").on("keydown", proxy(this._keydown, this)).end()
+            .find(".k-dialog-insert").on("click", this._apply.bind(this)).end()
+            .find(".k-dialog-close").on("click", this._close.bind(this)).end()
+            .find(".k-edit-field input").on("keydown", this._keydown.bind(this)).end()
             .find("#k-editor-link-url").val(this.linkUrl(a)).end()
             .find("#k-editor-link-text").val(this._initialText).end()
             .find("#k-editor-link-title").val(a ? a.title : "").end()
@@ -7715,15 +7717,15 @@ var DomTextLinkDetection = Class.extend({
             }
         }
 
-        this.traverser.traverse($.proxy(this._detectEnd, this));
+        this.traverser.traverse(this._detectEnd.bind(this));
         if (!this.end.blank()) {
             this.traverser = this.traverser.clone(this.end);
-            this.traverser.traverse($.proxy(this._detectStart, this));
+            this.traverser.traverse(this._detectStart.bind(this));
 
             if (!this._isLinkDetected()) {
                 var puntuationOptions = this.traverser.extendOptions(this.start);
                 var puntuationTraverser = new RightDomTextTraverser(puntuationOptions);
-                puntuationTraverser.traverse($.proxy(this._skipStartPuntuation, this));
+                puntuationTraverser.traverse(this._skipStartPuntuation.bind(this));
                 if (!this._isLinkDetected()) {
                     this.start = DomPos();
                 }
@@ -8652,9 +8654,9 @@ var ListFormatter = Class.extend({
             childNodes = dom.significantChildNodes(commonAncestor);
 
             if ($.grep(childNodes, dom.isBlock).length) {
-                childNodes = $.grep(childNodes, $.proxy(function(node) {
+                childNodes = $.grep(childNodes, (function(node) {
                     return this.containsAny(node, nodes);
-                }, this));
+                }).bind(this));
             }
 
             if (!childNodes.length) {
@@ -8984,6 +8986,7 @@ var FormattingTool = DelayedExecutionTool.extend({
         ui.width(options.width);
 
         selectBox = ui.kendoSelectBox({
+            autoWidth: true,
             dataTextField: "text",
             dataValueField: "value",
             dataSource: options.items || editor.options[toolName],
@@ -9013,7 +9016,7 @@ var FormattingTool = DelayedExecutionTool.extend({
         selectBox.wrapper.attr("title", initOptions.title);
 
         ui.addClass("k-decorated")
-            .closest(".k-widget")
+            .closest(".k-dropdownlist, .k-combobox")
                 .removeClass("k-" + toolName)
                 .find("*").addBack()
                     .attr("unselectable", "on");
@@ -9174,7 +9177,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('editor/plugins/image',[ "kendo.imagebrowser", "../command" ], f);
+    define('editor/plugins/image',[ "../../kendo.imagebrowser", "../command" ], f);
 })(function(){
 
 (function($, undefined) {
@@ -9432,7 +9435,6 @@ registerTool("insertImage", new Editor.Tool({ command: ImageCommand, template: n
 
 var kendo = window.kendo,
     extend = $.extend,
-    proxy = $.proxy,
     Editor = kendo.ui.editor,
     EditorUtils = Editor.EditorUtils,
     Command = Editor.Command,
@@ -9451,11 +9453,11 @@ var ImportCommand = Command.extend({
         var editor = cmd.editor;
         var importOptions = editor.options["import"];
         var upload = $('<input id="editorImport" name="files" type="file" />').kendoUpload({
-            success: proxy(cmd._onUploadSuccess, cmd),
-            progress: proxy(cmd._onUploadProgress, cmd),
-            select: proxy(cmd._onUploadSelect, cmd),
-            error: proxy(cmd._onUploadError, cmd),
-            complete: proxy(cmd._onUploadComplete, cmd),
+            success: cmd._onUploadSuccess.bind(cmd),
+            progress: cmd._onUploadProgress.bind(cmd),
+            select: cmd._onUploadSelect.bind(cmd),
+            error: cmd._onUploadError.bind(cmd),
+            complete: cmd._onUploadComplete.bind(cmd),
             showFileList: false,
             multiple: false,
             async: {
@@ -9641,7 +9643,6 @@ registerTool("insertHtml", new InsertHtmlTool({template: new ToolTemplate({templ
 
 var kendo = window.kendo,
     extend = $.extend,
-    proxy = $.proxy,
     Editor = kendo.ui.editor,
     EditorUtils = Editor.EditorUtils,
     Command = Editor.Command,
@@ -9749,7 +9750,7 @@ var ExportAsTool = Tool.extend({
         var editor = initOptions.editor;
         var options = tool.options;
         var toolName = options.name;
-        var changeHandler = proxy(tool.changeHandler, tool);
+        var changeHandler = tool.changeHandler.bind(tool);
         var dataSource = options.items || editor.options[toolName];
         var displayName = editor.options.messages[toolName];
         var selectBox;
@@ -9779,7 +9780,7 @@ var ExportAsTool = Tool.extend({
         ui.attr("title", initOptions.title);
         selectBox.wrapper.attr("title", initOptions.title);
 
-        ui.addClass('k-decorated').closest('.k-widget').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
+        ui.addClass('k-decorated').closest('.k-dropdownlist').removeClass('k-' + toolName).find('*').addBack().attr('unselectable', 'on');
     },
 
     changeHandler: function(e) {
@@ -10018,11 +10019,11 @@ var IndentCommand = Command.extend({
     init: function(options) {
         var that = this;
         options.formatter = /** @ignore */ {
-            toggle : $.proxy(function(range) {
+            toggle : (function(range) {
                 var indentFormatter = new IndentFormatter();
                 indentFormatter.immutables = this.editor && this.editor.options.immutables;
                 indentFormatter.apply(RangeUtils.nodes(range));
-            }, that)
+            }).bind(that)
         };
         Command.fn.init.call(this, options);
     }
@@ -10032,11 +10033,11 @@ var OutdentCommand = Command.extend({
     init: function(options) {
         var that = this;
         options.formatter = {
-            toggle : $.proxy(function(range) {
+            toggle : (function(range) {
                 var indentFormatter = new IndentFormatter();
                 indentFormatter.immutables = this.editor && this.editor.options.immutables;
                 indentFormatter.remove(RangeUtils.nodes(range));
-            }, that)
+            }).bind(that)
         };
         Command.fn.init.call(this, options);
     }
@@ -10413,7 +10414,7 @@ registerTool("insertParagraph", new Tool({ key: 13, command: ParagraphCommand })
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('editor/plugins/file',[ "kendo.filebrowser", "./link" ], f);
+    define('editor/plugins/file',[ "../../kendo.filebrowser", "./link" ], f);
 })(function(){
 
 (function($, undefined) {
@@ -10503,7 +10504,7 @@ var FileCommand = Command.extend({
                         "</div>" +
                     '</div>' +
                     '<div class="k-edit-buttons">' +
-                        '<button class="k-dialog-insert k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">#: messages.dialogInsert #</span></button>' +
+                        '<button class="k-dialog-insert k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary"><span class="k-button-text">#: messages.dialogInsert #</span></button>' +
                         '<button class="k-dialog-close k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-button-text">#: messages.dialogCancel #</span></button>' +
                     '</div>' +
                 '</div>' +
@@ -10640,7 +10641,6 @@ registerTool("insertFile", new Editor.Tool({ command: FileCommand, template: new
 
 var kendo = window.kendo,
     extend = $.extend,
-    proxy = $.proxy,
     Editor = kendo.ui.editor,
     dom = Editor.Dom,
     EditorUtils = Editor.EditorUtils,
@@ -10727,13 +10727,13 @@ var PopupTool = Tool.extend({
         var popup = $(this.options.popupTemplate).appendTo("body").kendoPopup({
             anchor: ui,
             copyAnchorStyles: false,
-            open: proxy(this._open, this),
-            activate: proxy(this._activate, this),
-            close: proxy(this._close, this)
+            open: this._open.bind(this),
+            activate: this._activate.bind(this),
+            close: this._close.bind(this)
         }).data("kendoPopup");
 
-        ui.on("click", proxy(this._toggle, this))
-          .on("keydown", proxy(this._keydown, this));
+        ui.on("click", this._toggle.bind(this))
+          .on("keydown", this._keydown.bind(this));
 
         var editor = this._editor = options.editor;
         this._popup = popup;
@@ -10769,13 +10769,16 @@ var PopupTool = Tool.extend({
     },
 
     _keydown: function(e) {
-        var keys = kendo.keys;
-        var key = e.keyCode;
+        var that = this,
+            keys = kendo.keys,
+            key = e.keyCode,
+            shouldContinue = true;
 
-        if (key == keys.DOWN && e.altKey) {
-            this._popup.open();
+        if ((key == keys.DOWN && e.altKey) || key == keys.ENTER || key == keys.SPACEBAR ) {
+            that._popup.open();
+            shouldContinue = false;
         } else if (key == keys.ESC) {
-            this._popup.close();
+            that._popup.close();
         }
     },
 
@@ -10898,6 +10901,8 @@ var InsertTableTool = PopupTool.extend({
     },
 
     _keydown: function(e) {
+        var initiallyVisible = this._popup.visible();
+
         PopupTool.fn._keydown.call(this, e);
 
         if (!this._popup.visible()) {
@@ -10911,7 +10916,8 @@ var InsertTableTool = PopupTool.extend({
         var selectedRows = Math.floor(focus / this.cols);
         var selectedColumns = focus % this.cols;
 
-        var changed = false;
+        var changed = false,
+            button;
 
         if (key == keys.DOWN && !e.altKey) {
             changed = true;
@@ -10925,6 +10931,13 @@ var InsertTableTool = PopupTool.extend({
         } else if (key == keys.LEFT) {
             changed = true;
             selectedColumns--;
+        } else if (key == keys.TAB) {
+            button = this._popup.element.find(".k-button");
+
+            if (button.length > 0) {
+                changed = true;
+                button.trigger("focus");
+            }
         }
 
         var tableSize = {
@@ -10932,7 +10945,7 @@ var InsertTableTool = PopupTool.extend({
             col: Math.max(1, Math.min(this.cols, selectedColumns + 1))
         };
 
-        if (key == keys.ENTER) {
+        if (key == keys.ENTER && initiallyVisible) {
             this._exec(tableSize);
         } else {
             this._setTableSize(tableSize);
@@ -12003,7 +12016,7 @@ var Clipboard = Class.extend({
             blob = blob.getAsFile();
         }
 
-        reader.onload = $.proxy(deferred.resolve, deferred);
+        reader.onload = deferred.resolve.bind(deferred);
 
         reader.readAsDataURL(blob);
 
@@ -12052,7 +12065,7 @@ var Clipboard = Class.extend({
         }
 
         $.when.apply($, $.map(images, this._fileToDataURL))
-            .done($.proxy(function() {
+            .done((function() {
                 var results = Array.prototype.slice.call(arguments);
                 var html = $.map(results, function(e) {
                     return '<img src="' + e.target.result + '" />';
@@ -12061,7 +12074,7 @@ var Clipboard = Class.extend({
                 this._triggerPaste(html);
 
                 this._endModification(modificationInfo);
-            }, this));
+            }).bind(this));
 
         return true;
     },
@@ -12106,7 +12119,7 @@ var Clipboard = Class.extend({
                     textRange.moveToElementText(clipboardNode);
                     $(body).off('paste');
                     textRange.execCommand('Paste');
-                    $(body).on('paste', $.proxy(this.onpaste, this));
+                    $(body).on('paste', this.onpaste.bind(this));
                 } else {
                     var clipboardRange = editor.createRange();
                     clipboardRange.selectNodeContents(clipboardNode);
@@ -13103,7 +13116,7 @@ var HtmlContentCleaner = Cleaner.extend({
     init: function(options) {
         Cleaner.fn.init.call(this, options);
         this.hasText = false; //unpleasant flag to prevent an empty line at the beginning of the generated content.
-        this.enumerator = new DomEnumerator($.proxy(this.buildText, this));
+        this.enumerator = new DomEnumerator(this.buildText.bind(this));
     },
 
     clean: function(html) {
@@ -13976,7 +13989,7 @@ var Keyboard = Class.extend({
         if (force) {
             that.stopTyping();
         } else {
-            that.timeout = window.setTimeout($.proxy(that.stopTyping, that), 1000);
+            that.timeout = window.setTimeout(that.stopTyping.bind(that), 1000);
         }
     },
 
@@ -14542,14 +14555,13 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define) {
-    define('editor/resizing/table-element-resizing',["../main", "kendo.resizable", "./resizing-utils"], f);
+    define('editor/resizing/table-element-resizing',["../main", "../../kendo.resizable", "./resizing-utils"], f);
 })(function() {
 
 (function(kendo, undefined) {
     var $ = kendo.jQuery;
     var extend = $.extend;
     var noop = $.noop;
-    var proxy = $.proxy;
 
     var Editor = kendo.ui.editor;
     var Class = kendo.Class;
@@ -14614,7 +14626,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             var that = this;
             var options = that.options;
 
-            $(that.element).on(MOUSE_MOVE + options.eventNamespace, options.tags.join(COMMA), proxy(that.detectElementBorderHovering, that));
+            $(that.element).on(MOUSE_MOVE + options.eventNamespace, options.tags.join(COMMA), that.detectElementBorderHovering.bind(that));
         },
 
         resizingInProgress: function() {
@@ -14741,9 +14753,9 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
             that._resizable = new kendo.ui.Resizable(tableElement, {
                 draggableElement: that.resizeHandle[0],
-                start: proxy(that.onResizeStart, that),
-                resize: proxy(that.onResize, that),
-                resizeend: proxy(that.onResizeEnd, that)
+                start: that.onResizeStart.bind(that),
+                resize: that.onResize.bind(that),
+                resizeend: that.onResizeEnd.bind(that)
             });
         },
 
@@ -15446,14 +15458,13 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define) {
-    define('editor/resizing/element-resize-handle',["../main",  "kendo.draganddrop", "./resizing-utils"], f);
+    define('editor/resizing/element-resize-handle',["../main",  "../../kendo.draganddrop", "./resizing-utils"], f);
 })(function() {
 
 (function(kendo, undefined) {
     var $ = kendo.jQuery;
     var extend = $.extend;
     var noop = $.noop;
-    var proxy = $.proxy;
 
     var Editor = kendo.ui.editor;
     var Class = kendo.Class;
@@ -15554,8 +15565,8 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             var that = this;
 
             $(that.element)
-                .on(MOUSE_OVER + NS, proxy(that._onMouseOver, that))
-                .on(MOUSE_OUT + NS, proxy(that._onMouseOut, that));
+                .on(MOUSE_OVER + NS, that._onMouseOver.bind(that))
+                .on(MOUSE_OUT + NS, that._onMouseOut.bind(that));
         },
 
         _onMouseOver: function() {
@@ -15593,9 +15604,9 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             }
 
             that._draggable = new Draggable(element, {
-                dragstart: proxy(that._onDragStart, that),
-                drag: proxy(that._onDrag, that),
-                dragend: proxy(that._onDragEnd, that)
+                dragstart: that._onDragStart.bind(that),
+                drag: that._onDrag.bind(that),
+                dragend: that._onDragEnd.bind(that)
             });
         },
 
@@ -16035,7 +16046,6 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
     var $ = kendo.jQuery;
     var contains = $.contains;
     var extend = $.extend;
-    var proxy = $.proxy;
 
     var browser = kendo.support.browser;
     var Editor = kendo.ui.editor;
@@ -16062,8 +16072,6 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
     var DRAG_END = "dragEnd";
     var KEY_DOWN = "keydown";
     var MOUSE_DOWN = "mousedown";
-    var MOUSE_OVER = "mouseover";
-    var MOUSE_OUT = "mouseout";
     var SELECT = "select";
     var DROP = "drop";
 
@@ -16288,11 +16296,9 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
             for (i = 0; i < length; i++) {
                 handle = handles[i];
-                handle.bind(DRAG_START, proxy(that._onResizeHandleDragStart, that));
-                handle.bind(DRAG, proxy(that._onResizeHandleDrag, that));
-                handle.bind(DRAG_END, proxy(that._onResizeHandleDragEnd, that));
-                handle.bind(MOUSE_OVER, proxy(that._onResizeHandleMouseOver, that));
-                handle.bind(MOUSE_OUT, proxy(that._onResizeHandleMouseOut, that));
+                handle.bind(DRAG_START, that._onResizeHandleDragStart.bind(that));
+                handle.bind(DRAG, that._onResizeHandleDrag.bind(that));
+                handle.bind(DRAG_END, that._onResizeHandleDragEnd.bind(that));
             }
         },
 
@@ -16490,19 +16496,17 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
             for (i = 0; i < length; i++) {
                 handle = handles[i];
-                handle.bind(DRAG_START, proxy(that._onResizeHandleDragStart, that));
+                handle.bind(DRAG_START, that._onResizeHandleDragStart.bind(that));
 
                 if(handle.options.direction === "north" || handle.options.direction === "south") {
-                    handle.bind(DRAG, proxy(that._onResizeHandleDragVertical, that));
+                    handle.bind(DRAG, that._onResizeHandleDragVertical.bind(that));
                 } else if(handle.options.direction === "east" || handle.options.direction === "west") {
-                    handle.bind(DRAG, proxy(that._onResizeHandleDragHorizontal, that));
+                    handle.bind(DRAG, that._onResizeHandleDragHorizontal.bind(that));
                 } else {
-                    handle.bind(DRAG, proxy(that._onResizeHandleDragLocked, that));
+                    handle.bind(DRAG, that._onResizeHandleDragLocked.bind(that));
                 }
 
-                handle.bind(DRAG_END, proxy(that._onResizeHandleDragEnd, that));
-                handle.bind(MOUSE_OVER, proxy(that._onResizeHandleMouseOver, that));
-                handle.bind(MOUSE_OUT, proxy(that._onResizeHandleMouseOut, that));
+                handle.bind(DRAG_END, that._onResizeHandleDragEnd.bind(that));
             }
         },
 
@@ -16761,7 +16765,7 @@ var TableWizardCommand = Command.extend({
         var options = {
             visible: false,
             messages: editor.options.messages,
-            closeCallback: $.proxy(cmd.onDialogClose, cmd),
+            closeCallback: cmd.onDialogClose.bind(cmd),
             table: cmd.parseTable(selectedTable, selectedCells),
             dialogOptions: editor.options.dialogOptions,
             isRtl: kendo.support.isRtl(editor.wrapper)
@@ -17384,7 +17388,7 @@ registerTool("tableWizard", new TableWizardEditTool({ command: TableWizardComman
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) {
     (a3 || a2)(); });
 (function(f, define) {
-   define('editor/table-wizard/table-wizard-dialog',["./table-wizard-command", "kendo.tabstrip"], f);
+   define('editor/table-wizard/table-wizard-dialog',["./table-wizard-command", "../../kendo.tabstrip"], f);
 })(function() {
 
 (function($, undefined) {
@@ -18077,7 +18081,7 @@ kendo.ui.editor.TableWizardDialog = TableWizardDialog;
     (a3 || a2)(); });
 (function(f, define){
     define('kendo.editor',[
-        "kendo.combobox", "kendo.dropdownlist", "kendo.resizable", "kendo.window", "kendo.colorpicker", "kendo.imagebrowser", "kendo.numerictextbox",
+        "./kendo.combobox", "./kendo.dropdownlist", "./kendo.resizable", "./kendo.window", "./kendo.colorpicker", "./kendo.imagebrowser", "./kendo.numerictextbox",
 
         "./util/undoredostack",
         "./editor/main",

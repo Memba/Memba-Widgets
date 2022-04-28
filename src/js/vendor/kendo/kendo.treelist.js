@@ -1,41 +1,41 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
     define('kendo.treelist',[
-        "kendo.dom",
-        "kendo.data",
-        "kendo.columnsorter",
-        "kendo.editable",
-        "kendo.window",
-        "kendo.filtermenu",
-        "kendo.columnmenu",
-        "kendo.selectable",
-        "kendo.resizable",
-        "kendo.treeview.draganddrop",
-        "kendo.pager",
-        'kendo.filtercell'
+        "./kendo.dom",
+        "./kendo.data",
+        "./kendo.columnsorter",
+        "./kendo.editable",
+        "./kendo.window",
+        "./kendo.filtermenu",
+        "./kendo.columnmenu",
+        "./kendo.selectable",
+        "./kendo.resizable",
+        "./kendo.treeview.draganddrop",
+        "./kendo.pager",
+        './kendo.filtercell'
     ], f);
 })(function(){
 
@@ -120,7 +120,6 @@ var __meta__ = { // jshint ignore:line
 
     var isArray = Array.isArray;
     var extend = $.extend;
-    var proxy = $.proxy;
     var map = $.map;
     var grep = $.grep;
     var inArray = $.inArray;
@@ -1019,7 +1018,7 @@ var __meta__ = { // jshint ignore:line
             if (!pageable && filter) {
                 data = Query.process(data, {
                     filter: filter,
-                    filterCallback: proxy(this._filterCallback, this)
+                    filterCallback: this._filterCallback.bind(this)
                 }).data;
             }
 
@@ -1046,7 +1045,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var result = {};
             options = options || {};
-            options.filterCallback = proxy(this._filterCallback, this);
+            options.filterCallback = this._filterCallback.bind(this);
 
             if (that._isPageable()) {
                 return that._processPageableQuery(data, options);
@@ -1341,7 +1340,7 @@ var __meta__ = { // jshint ignore:line
                 filter: that.filter(),
                 group: that.group(),
                 aggregate: that.aggregate(),
-                filterCallback: proxy(that._filterCallback, that),
+                filterCallback: that._filterCallback.bind(that),
                 childrenMap: dataMaps.children,
                 idsMap: dataMaps.ids
             };
@@ -1508,8 +1507,8 @@ var __meta__ = { // jshint ignore:line
             }
 
             return this[method]({ id: model.id })
-                .done(proxy(this._modelLoaded, this, model.id))
-                .fail(proxy(this._modelError, this, model.id));
+                .done(this._modelLoaded.bind(this, model.id))
+                .fail(this._modelError.bind(this, model.id));
         },
 
         contains: function(root, child) {
@@ -2163,10 +2162,10 @@ var __meta__ = { // jshint ignore:line
         },
 
         _attachHandlers: function() {
-            var closeHandler = this._cancelProxy = proxy(this._cancel, this);
+            var closeHandler = this._cancelProxy = this._cancel.bind(this);
             this.wrapper.on(CLICK + NS, ".k-grid-cancel", this._cancelProxy);
 
-            this._saveProxy = proxy(this._save, this);
+            this._saveProxy = this._save.bind(this);
             this.wrapper.on(CLICK + NS, ".k-grid-update", this._saveProxy);
 
             this.window.bind("close", function(e) {
@@ -2195,7 +2194,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         close: function() {
-            this.window.bind("deactivate", proxy(this.destroy, this)).close();
+            this.window.bind("deactivate", this.destroy.bind(this)).close();
         },
 
         destroy: function() {
@@ -2291,12 +2290,12 @@ var __meta__ = { // jshint ignore:line
                     var separator = "<span class='k-drag-separator'></span>";
                     return row.children("td").map(text).toArray().join(separator);
                 },
-                contains: proxy(function(source, destination) {
+                contains: (function(source, destination) {
                     var dest = this.dataItem(destination);
                     var src = this.dataItem(source);
 
                     return src == dest || this.dataSource.contains(src, dest);
-                }, this),
+                }).bind(this),
                 itemFromTarget: function(target) {
                     var tr = target.closest("tr");
                     var prevRow = tr.prev();
@@ -2319,7 +2318,7 @@ var __meta__ = { // jshint ignore:line
                         last: last
                     };
                 },
-                dragstart: proxy(function(source) {
+                dragstart: (function(source) {
                     this.wrapper.addClass("k-treelist-dragging");
 
                     if (this.wrapper.find('.k-grid-content').length) {
@@ -2329,13 +2328,13 @@ var __meta__ = { // jshint ignore:line
                     var model = this.dataItem(source);
 
                     return this.trigger(DRAGSTART, { source: model });
-                }, this),
-                drag: proxy(function(e) {
+                }).bind(this),
+                drag: (function(e) {
                     e.source = this.dataItem(e.source);
 
                     this.trigger(DRAG, e);
-                }, this),
-                drop: proxy(function(e) {
+                }).bind(this),
+                drop: (function(e) {
                     e.source = this.dataItem(e.source);
                     e.destination = this.dataItem(e.destination);
 
@@ -2346,8 +2345,8 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     return this.trigger(DROP, e);
-                }, this),
-                dragend: proxy(function(e) {
+                }).bind(this),
+                dragend: (function(e) {
                     var dest = this.dataItem(e.destination);
                     var src = this.dataItem(e.source);
                     var originalSrcParentId = src[parentIdField];
@@ -2387,7 +2386,7 @@ var __meta__ = { // jshint ignore:line
                     e.destination = dest;
 
                     this.trigger(DRAGEND, e);
-                }, this),
+                }).bind(this),
                 reorderable: reorderable,
                 dropHintContainer: function(item) {
                     return item.children("td:visible").eq(0);
@@ -2533,7 +2532,7 @@ var __meta__ = { // jshint ignore:line
             if (this.options.scrollable) {
                 var scrollables = this.thead.closest(".k-grid-header-wrap");
                 var lockedContent = $(this.lockedContent)
-                    .on("DOMMouseScroll" + NS + " mousewheel" + NS, proxy(this._wheelScroll, this));
+                    .on("DOMMouseScroll" + NS + " mousewheel" + NS, this._wheelScroll.bind(this));
 
                 this.content.on("scroll" + NS, function() {
                     kendo.scrollLeft(scrollables, this.scrollLeft);
@@ -2799,7 +2798,7 @@ var __meta__ = { // jshint ignore:line
             var any = this.hideMinScreenCols();
 
             if (any) {
-                this.minScreenResizeHandler = proxy(this.hideMinScreenCols, this);
+                this.minScreenResizeHandler = this.hideMinScreenCols.bind(this);
                 $(window).on("resize", this.minScreenResizeHandler);
             }
         },
@@ -3126,9 +3125,9 @@ var __meta__ = { // jshint ignore:line
 
             if (!loaded) {
                 defaultPromise = this.dataSource.load(model)
-                    .always(proxy(function() {
+                    .always((function() {
                         afterModelLoaded();
-                    }, this));
+                    }).bind(this));
             }
 
             afterModelLoaded();
@@ -3228,10 +3227,10 @@ var __meta__ = { // jshint ignore:line
 
             tables
                 //handle click on tables, will attempt to focus the table
-                .on((kendo.support.touch ? "touchstart" + NS : "mousedown" + NS), NAVROW + ">:visible", proxy(that._tableClick, that))
-                .on("focus" + NS, proxy(that._tableFocus, that))
-                .on("focusout" + NS, proxy(that._tableBlur, that))
-                .on("keydown" + NS, proxy(that._tableKeyDown, that));
+                .on((kendo.support.touch ? "touchstart" + NS : "mousedown" + NS), NAVROW + ">:visible", that._tableClick.bind(that))
+                .on("focus" + NS, that._tableFocus.bind(that))
+                .on("focusout" + NS, that._tableBlur.bind(that))
+                .on("keydown" + NS, that._tableKeyDown.bind(that));
         },
 
         cellIndex: function(td) {
@@ -4147,14 +4146,14 @@ var __meta__ = { // jshint ignore:line
             var retryButton = DOT + classNames.retry;
 
             that._userEvents = new kendo.UserEvents(that.element, {
-                press: proxy(that._onPress, that),
+                press: that._onPress.bind(that),
                 allowSelection: true
             });
 
             this.element
                 .on(CLICK + NS, retryButton, this._dataSourceFetchProxy)
-                .on(CLICK + NS, ".k-button[data-command]", proxy(this._commandClick, this))
-                .on(INPUT + NS, ".k-grid-search input", proxy(this._search, this));
+                .on(CLICK + NS, ".k-button[data-command]", this._commandClick.bind(this))
+                .on(INPUT + NS, ".k-grid-search input", this._search.bind(this));
 
             this._attachCellEditingEventHandlers();
         },
@@ -4389,8 +4388,8 @@ var __meta__ = { // jshint ignore:line
                 return col.selectable;
             }).length) {
                 that._checkBoxSelection = true;
-                that.element.on(CLICK + NS, "tbody > tr " + CHECKBOXINPUT, proxy(that._checkboxClick, that));
-                that.element.on(CLICK + NS, "thead > tr " + CHECKBOXINPUT, proxy(that._headerCheckboxClick, that));
+                that.element.on(CLICK + NS, "tbody > tr " + CHECKBOXINPUT, that._checkboxClick.bind(that));
+                that.element.on(CLICK + NS, "thead > tr " + CHECKBOXINPUT, that._headerCheckboxClick.bind(that));
             }
         },
 
@@ -5368,7 +5367,7 @@ var __meta__ = { // jshint ignore:line
                     if (that.options.rowTemplate) {
                         row = this. _trFromTemplate(rowOptions);
                     } else {
-                        row = this._tds(rowOptions, columns, proxy(this._td, this));
+                        row = this._tds(rowOptions, columns, this._td.bind(this));
                     }
 
                     rows.push(row);
@@ -5723,7 +5722,7 @@ var __meta__ = { // jshint ignore:line
             var columnTemplateAlias = "#=this.columnTemplate(" + templateSettings.paramName + ")#";
 
             var templateString = that._dirtyIndicatorTemplate(column.field) + columnTemplateAlias;
-            var templateFunction = proxy(kendoTemplate(templateString, templateSettings), { columnTemplate: column.template });
+            var templateFunction = kendoTemplate(templateString, templateSettings).bind({ columnTemplate: column.template });
 
             return templateFunction;
         },
@@ -6067,7 +6066,7 @@ var __meta__ = { // jshint ignore:line
             var treelist = this;
 
             $(this.lockedHeader).find("thead").add(this.thead)
-                .on("mousemove" + NS, "tr:not(.k-filter-row) > th", $.proxy(this._positionResizeHandle, this));
+                .on("mousemove" + NS, "tr:not(.k-filter-row) > th", this._positionResizeHandle.bind(this));
 
             this.resizable = new kendo.ui.Resizable(this.wrapper, {
                 handle: ".k-resize-handle",
@@ -6193,13 +6192,13 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            var filterInit = proxy(function(e) {
+            var filterInit = (function(e) {
                 this.trigger(FILTERMENUINIT, { field: e.field, container: e.container });
-            }, this);
+            }).bind(this);
 
-            var filterOpen = proxy(function(e) {
+            var filterOpen = (function(e) {
                 this.trigger(FILTERMENUOPEN, { field: e.field, container: e.container });
-            }, this);
+            }).bind(this);
 
             if (hasMultiColumnHeaders) {
                 if (this.lockedHeader) {
@@ -6402,10 +6401,10 @@ var __meta__ = { // jshint ignore:line
                     filter: filter,
                     aria: true,
                     multiple: selectable.multiple,
-                    change: proxy(this._change, this),
+                    change: this._change.bind(this),
                     useAllItems: useAllItems,
-                    continuousItems: proxy(this._continuousItems, this, filter, selectable.cell),
-                    relatedTarget: !selectable.cell && this._hasLockedColumns ? proxy(this._selectableTarget, this) : undefined
+                    continuousItems: this._continuousItems.bind(this, filter, selectable.cell),
+                    relatedTarget: !selectable.cell && this._hasLockedColumns ? this._selectableTarget.bind(this) : undefined
                 });
 
                 if (that.options.navigatable) {
@@ -6549,7 +6548,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (this._hasLockedColumns) {
-                    value = value.add($.map(value, proxy(this._relatedRow, this)));
+                    value = value.add($.map(value, this._relatedRow.bind(this)));
                 }
             }
 
@@ -6680,10 +6679,10 @@ var __meta__ = { // jshint ignore:line
                 ds.unbind(PROGRESS, this._progressHandler);
             }
 
-            this._refreshHandler = proxy(this.refresh, this);
-            this._errorHandler = proxy(this._error, this);
-            this._sortHandler = proxy(this._clearSortClasses, this);
-            this._progressHandler = proxy(this._progress, this);
+            this._refreshHandler = this.refresh.bind(this);
+            this._errorHandler = this._error.bind(this);
+            this._sortHandler = this._clearSortClasses.bind(this);
+            this._progressHandler = this._progress.bind(this);
 
 
             if (isPlainObject(dataSource)) {
@@ -6705,9 +6704,9 @@ var __meta__ = { // jshint ignore:line
             ds.bind(SORT, this._sortHandler);
             ds.bind(PROGRESS, this._progressHandler);
 
-            this._dataSourceFetchProxy = proxy(function() {
+            this._dataSourceFetchProxy = (function() {
                 this.dataSource.fetch();
-            }, this);
+            }).bind(this);
         },
 
         setDataSource: function(dataSource) {
@@ -6898,7 +6897,7 @@ var __meta__ = { // jshint ignore:line
                 that.editCell(cell);
             } else if (row && row[0]) {
                 that.editRow(row);
-            } else if (that._isPageable() && that._isPopupEditable()) {
+            } else if ((that._isPageable() || that.dataSource.filter()) && (that._isPopupEditable() || that._isInlineEditable())) {
                 that.editRow(model);
             }
         },
@@ -7004,12 +7003,12 @@ var __meta__ = { // jshint ignore:line
             } else {
                 extend(options, {
                     window: this.options.editable.window,
-                    commandRenderer: proxy(function() {
+                    commandRenderer: (function() {
                         return this._buildCommands(["update", "canceledit"]);
-                    }, this),
-                    fieldRenderer: proxy(this._cellContent, this),
-                    save: proxy(this.saveRow, this),
-                    cancel: proxy(this._cancelEdit, this),
+                    }).bind(this),
+                    fieldRenderer: this._cellContent.bind(this),
+                    save: this.saveRow.bind(this),
+                    cancel: this._cancelEdit.bind(this),
                     appendTo: this.wrapper
                 });
 
@@ -7024,7 +7023,7 @@ var __meta__ = { // jshint ignore:line
             delete column.parentColumn;
 
             return new IncellEditor(cell, extend({}, {
-                fieldRenderer: proxy(that._cellContent, that),
+                fieldRenderer: that._cellContent.bind(that),
                 appendTo: that.wrapper,
                 clearContainer: false,
                 target: that,
@@ -7258,7 +7257,7 @@ var __meta__ = { // jshint ignore:line
 
             this.reorderable = new ui.Reorderable(this.wrapper, {
                 draggable: this._draggableInstance,
-                dragOverContainers: proxy(this._allowDragOverContainers, this),
+                dragOverContainers: this._allowDragOverContainers.bind(this),
                 inSameContainer: function(e) {
                     return $(e.source).parent()[0] === $(e.target).parent()[0] && targetParentContainerIndex(flatColumnsInDomOrder(that.columns), that.columns, e.sourceIndex, e.targetIndex) > -1;
                 },
@@ -7573,8 +7572,8 @@ var __meta__ = { // jshint ignore:line
             var options = this.options;
             var columnMenu = options.columnMenu;
             var column, menu, menuOptions, sortable, filterable;
-            var initHandler = proxy(this._columnMenuInit, this);
-            var openHandler = proxy(this._columnMenuOpen, this);
+            var initHandler = this._columnMenuInit.bind(this);
+            var openHandler = this._columnMenuOpen.bind(this);
             var hasLockableColumns = grep(this.columns, function(item) {
                 return item.lockable !== false;
             }).length > 0;

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.multiselect',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist", "kendo.html.chip", "kendo.html.chiplist", "kendo.html.button" ], f);
+    define('kendo.multiselect',[ "./kendo.list", "./kendo.mobile.scroller", "./kendo.virtuallist", "./kendo.html.chip", "./kendo.html.chiplist", "./kendo.html.button" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -53,7 +53,6 @@ var __meta__ = { // jshint ignore:line
         keys = $.extend({ A: 65 }, kendo.keys),
         activeElement = kendo._activeElement,
         ObservableArray = kendo.data.ObservableArray,
-        proxy = $.proxy,
         ID = "id",
         CHIP = ".k-chip",
         ACCEPT = "accept",
@@ -253,7 +252,7 @@ var __meta__ = { // jshint ignore:line
                         .removeClass(FOCUSEDCLASS)
                         .removeAttr(ID);
 
-                    that._currentTag.find(".k-chip-icon").attr("aria-hidden", true);
+                    that._currentTag.find(".k-chip-action").attr("aria-hidden", true);
 
                     that.input.removeAttr("aria-activedescendant");
                 }
@@ -261,7 +260,7 @@ var __meta__ = { // jshint ignore:line
                 if (candidate) {
                     candidate.addClass(FOCUSEDCLASS).attr(ID, that._tagID);
 
-                    candidate.find(".k-chip-icon").removeAttr("aria-hidden");
+                    candidate.find(".k-chip-action").removeAttr("aria-hidden");
 
                     that.input.attr("aria-activedescendant", that._tagID);
                 }
@@ -304,7 +303,7 @@ var __meta__ = { // jshint ignore:line
                 "aria-multiselectable": true
             });
             that.input.attr("aria-controls", id);
-            that._ariaLabel();
+            that._ariaLabel(that._focused);
         },
 
         _activateItem: function() {
@@ -317,7 +316,7 @@ var __meta__ = { // jshint ignore:line
         _listOptions: function(options) {
             var that = this;
             var listOptions = List.fn._listOptions.call(that, $.extend(options, {
-                selectedItemChange: proxy(that._selectedItemChange, that),
+                selectedItemChange: that._selectedItemChange.bind(that),
                 selectable: "multiple"
             }));
 
@@ -372,7 +371,7 @@ var __meta__ = { // jshint ignore:line
             var notInput = e.target.nodeName.toLowerCase() !== "input";
             var target = $(e.target);
             var closeButton = target.closest(".k-multiselect-toggle-button, .k-chip").children(".k-i-arrow-s")[0];
-            var removeButton = target.closest(".k-i-x")[0];
+            var removeButton = target.closest(".k-i-x-circle")[0];
 
             if (notInput && !(removeButton && kendo.support.mobileOS) && e.cancelable) {
                 e.preventDefault();
@@ -484,7 +483,7 @@ var __meta__ = { // jshint ignore:line
             e.stopPropagation();
             var target = $(e.currentTarget);
 
-            if (target.is(".k-i-x")) {
+            if (target.is(".k-i-x-circle")) {
                 this._removeTag(target.closest(CHIP), true);
             }
         },
@@ -555,16 +554,16 @@ var __meta__ = { // jshint ignore:line
                     .removeClass(STATEDISABLED)
                     .removeClass(NOCLICKCLASS)
                     .on(HOVEREVENTS, that._toggleHover)
-                    .on("mousedown" + ns + " touchend" + ns, proxy(that._wrapperMousedown, that))
-                    .on(CLICK, proxy(that._focusHandler, that));
+                    .on("mousedown" + ns + " touchend" + ns, that._wrapperMousedown.bind(that))
+                    .on(CLICK, that._focusHandler.bind(that));
 
-                that.input.on(KEYDOWN, proxy(that._keydown, that))
-                    .on("paste" + ns, proxy(that._search, that))
-                    .on("input" + ns, proxy(that._search, that))
-                    .on("focus" + ns, proxy(that._inputFocus, that))
-                    .on("focusout" + ns, proxy(that._inputFocusout, that));
+                that.input.on(KEYDOWN, that._keydown.bind(that))
+                    .on("paste" + ns, that._search.bind(that))
+                    .on("input" + ns, that._search.bind(that))
+                    .on("focus" + ns, that._inputFocus.bind(that))
+                    .on("focusout" + ns, that._inputFocusout.bind(that));
 
-                that._clear.on(CLICK + " touchend" + ns, proxy(that._clearValue, that));
+                that._clear.on(CLICK + " touchend" + ns, that._clearValue.bind(that));
 
                 input.prop(DISABLED, false)
                      .prop(READONLY, false)
@@ -576,7 +575,7 @@ var __meta__ = { // jshint ignore:line
                 tagList
                     .on(MOUSEENTER, CHIP, function() { $(this).addClass(HOVERCLASS); })
                     .on(MOUSELEAVE, CHIP, function() { $(this).removeClass(HOVERCLASS); })
-                    .on(CLICK + " touchend" + ns, ".k-chip .k-icon", proxy(that._tagListClick, that));
+                    .on(CLICK + " touchend" + ns, ".k-chip .k-icon", that._tagListClick.bind(that));
             } else {
 
                 wrapper.toggleClass(STATEDISABLED, disable)
@@ -809,8 +808,8 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource && that._refreshHandler) {
                 that._unbindDataSource();
             } else {
-                that._progressHandler = proxy(that._showBusy, that);
-                that._errorHandler = proxy(that._hideBusy, that);
+                that._progressHandler = that._showBusy.bind(that);
+                that._errorHandler = that._hideBusy.bind(that);
             }
 
             that.dataSource = kendo.data.DataSource.create(dataSource)
@@ -1126,7 +1125,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            that._busy = setTimeout(proxy(that._showBusyHandler, that), 100);
+            that._busy = setTimeout(that._showBusyHandler.bind(that), 100);
         },
 
         _placeholder: function(show, skipCaret) {
@@ -1547,11 +1546,11 @@ var __meta__ = { // jshint ignore:line
 
             that.tagTemplate = function(data) {
                 return html.renderChip('<span unselectable="on">' +
-                    tagTemplate(data) +
                 '</span>', $.extend({}, options, {
                         fillMode: "solid",
                         rounded: "medium",
                         themeColor: "base",
+                        text: tagTemplate(data),
                         attr: {
                             unselectable: "on"
                         },
@@ -1574,7 +1573,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _loader: function() {
-            this._loading = $('<span class="k-icon k-i-loading ' + HIDDENCLASS + '"></span>').insertAfter(this.tagList);
+            this._loading = $('<span class="k-icon k-i-loading k-input-loading-icon ' + HIDDENCLASS + '"></span>').insertAfter(this.tagList);
         },
 
         _clearButton: function() {

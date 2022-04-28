@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.mobile.view',[ "kendo.core", "kendo.fx", "kendo.mobile.scroller", "kendo.view" ], f);
+    define('kendo.mobile.view',[ "./kendo.core", "./kendo.fx", "./kendo.mobile.scroller", "./kendo.view" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -344,7 +344,7 @@ var __meta__ = { // jshint ignore:line
                 scope = this.options.$angular[0];
 
                 if (controller) {
-                    var callback = $.proxy(this, '_callController', controller, scope);
+                    var callback = this._callController.bind(this, controller, scope);
 
                     if (/^\$(digest|apply)$/.test(scope.$$phase)) {
                         callback();
@@ -494,7 +494,7 @@ var __meta__ = { // jshint ignore:line
                 that.trigger(AFTER);
             });
 
-            this.getLayoutProxy = $.proxy(this, "_getLayout");
+            this.getLayoutProxy = this._getLayout.bind(this);
             that._setupLayouts(container);
 
             collection = container.children(that._locate("modalview drawer"));
@@ -679,7 +679,7 @@ var __meta__ = { // jshint ignore:line
             this.trigger(LOAD_START);
 
             this._xhr = $.get(kendo.absoluteURL(url, this.remoteViewURLPrefix), "html")
-                .always($.proxy(this, "_xhrComplete", callback, url));
+                .always(this._xhrComplete.bind(this, callback, url));
         },
 
         _xhrComplete: function(callback, url, response) {

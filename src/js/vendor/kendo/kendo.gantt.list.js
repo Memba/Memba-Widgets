@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define) {
-    define('kendo.gantt.list',[ "kendo.treelist", "kendo.treeview.draganddrop" ], f);
+    define('kendo.gantt.list',[ "./kendo.treelist", "./kendo.treeview.draganddrop" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -38,7 +38,6 @@ var __meta__ = { // jshint ignore:line
 (function($) {
     var extend = $.extend,
         map = $.map,
-        proxy = $.proxy,
         isFunction = kendo.isFunction,
 
         ui = kendo.ui,
@@ -271,15 +270,15 @@ var __meta__ = { // jshint ignore:line
                 };
 
                 that.content
-                    .on(FOCUSIN + NS, proxy(that._focusInEditableHandler, that))
-                    .on(FOCUSOUT + NS, proxy(that._focusoutCellHandler, that))
-                    .on(KEYDOWN + NS, "tr:not(.k-grouping-row) > td", proxy(that._keydownHandler, that))
-                    .on(KEYUP + NS, "tr:not(.k-grouping-row) > td", proxy(that._keyupHandler, that));
+                    .on(FOCUSIN + NS, that._focusInEditableHandler.bind(that))
+                    .on(FOCUSOUT + NS, that._focusoutCellHandler.bind(that))
+                    .on(KEYDOWN + NS, "tr:not(.k-grouping-row) > td", that._keydownHandler.bind(that))
+                    .on(KEYUP + NS, "tr:not(.k-grouping-row) > td", that._keyupHandler.bind(that));
 
                 if (!mobileOS) {
                     that.content
-                        .on(MOUSE_DOWN + NS, "tr:not(.k-grouping-row) > td", proxy(that._mouseDownHandler, that))
-                        .on(DOUBLE_CLICK + NS, "tr:not(.k-grouping-row) > td", proxy(that._openEditorHandler, that));
+                        .on(MOUSE_DOWN + NS, "tr:not(.k-grouping-row) > td", that._mouseDownHandler.bind(that))
+                        .on(DOUBLE_CLICK + NS, "tr:not(.k-grouping-row) > td", that._openEditorHandler.bind(that));
                 } else {
                     that.touch = that.content
                         .kendoTouch({
@@ -331,7 +330,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
 
-            that.columns = that.options.columns = map(columns, proxy(that._eachColumn, that));
+            that.columns = that.options.columns = map(columns, that._eachColumn.bind(that));
 
             TreeList.fn._columns.call(that);
         },
@@ -399,7 +398,7 @@ var __meta__ = { // jshint ignore:line
 
             if(column.columns) {
                 that.hasNestedColumns = true;
-                column.columns = map(column.columns, proxy(this._eachColumn, this));
+                column.columns = map(column.columns, this._eachColumn.bind(this));
             }
 
             if(typeof column === STRING) {

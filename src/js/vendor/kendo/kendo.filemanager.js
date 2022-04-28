@@ -1,36 +1,35 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('filemanager/commands',["kendo.core"], f);
+    define('filemanager/commands',["../kendo.core"], f);
 })(function () {
 
     (function ($, undefined) {
         var kendo = window.kendo,
             extend = $.extend,
             deferred = $.Deferred,
-            proxy = $.proxy,
             Class = kendo.Class;
 
         var Command = Class.extend({
@@ -49,7 +48,7 @@
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
                     dataSource = filemanager._viewDataSource || filemanager.dataSource,
-                    removeProxy = proxy(that._remove, that);
+                    removeProxy = that._remove.bind(that);
 
                 that._item = dataSource._createNewModel();
 
@@ -150,7 +149,7 @@
 
                 if (itemToRemove) {
                     commandStack.push({ item: itemToRemove })
-                        .then(proxy(that._removeItem, that), proxy(that._removeItem, that));
+                        .then(that._removeItem.bind(that), that._removeItem.bind(that));
 
                     dataSource.remove(itemToRemove);
                 }
@@ -201,13 +200,13 @@
                     cloning.fileManagerNewItem = true;
 
                     var promise = commandStack.push({ item: item, target: target })
-                        .then(proxy(that._delete, that));
+                        .then(that._delete.bind(that));
 
                         promises.push(promise);
                         targetDataSource.add(cloning);
                 }
 
-                kendo.whenAll(promises).always(proxy(that._removeItem, that));
+                kendo.whenAll(promises).always(that._removeItem.bind(that));
             },
             _delete: function(data){
                 var that = this;
@@ -222,7 +221,7 @@
 
                 if (itemToRemove) {
                     commandStack.push({ item: itemToRemove })
-                        .then(proxy(that._removeItem, that), proxy(that._removeItem, that));
+                        .then(that._removeItem.bind(that), that._removeItem.bind(that));
 
                     dataSource.remove(itemToRemove);
                 }
@@ -400,7 +399,7 @@
 
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
 (function(f, define){
-    define('filemanager/view',["kendo.listview", "kendo.treeview"], f);
+    define('filemanager/view',["../kendo.listview", "../kendo.treeview"], f);
 })(function(){
 
 (function($, undefined) {
@@ -409,7 +408,6 @@
         ui = kendo.ui,
         Observable = kendo.Observable,
         extend = $.extend,
-        proxy = $.proxy,
         keys = kendo.keys,
 
         NAVIGATE = "navigate",
@@ -451,8 +449,8 @@
         },
 
         _bindEvents: function(){
-            this.widgetComponent.bind("dataBinding", proxy(this._binding, this));
-            this.widgetComponent.bind("dataBound", proxy(this._bound, this));
+            this.widgetComponent.bind("dataBinding", this._binding.bind(this));
+            this.widgetComponent.bind("dataBound", this._bound.bind(this));
         },
 
         _binding: function(ev){
@@ -479,18 +477,18 @@
 
             that.draggable = element.kendoDraggable({
                 filter: filter,
-                hint: proxy(that._hint, that),
+                hint: that._hint.bind(that),
                 cursorOffset: { top: -10, left: -50 },
                 holdToDrag: true,
                 ignore: "input, .k-focusable",
-                hold: proxy(that._hold, that)
+                hold: that._hold.bind(that)
             }).data("kendoDraggable");
 
             that.draggable.userEvents.minHold = 150;
 
             that.droptarget = element.kendoDropTargetArea({
                 filter: filter,
-                drop: proxy(that._onDrop, that),
+                drop: that._onDrop.bind(that),
                 dragenter: function(ev){
                     ev.dropTarget.addClass("k-filemanager-drop-target");
                 },
@@ -581,7 +579,7 @@
             });
 
             that._setDSOptions(options, dataSourceOptions);
-            options.kendoKeydown = options.kendoKeydown || proxy(that._kendoKeydown , that);
+            options.kendoKeydown = options.kendoKeydown || that._kendoKeydown.bind(that);
 
             Component.fn.init.call(this, ui.ListView, element, options);
 
@@ -616,11 +614,11 @@
             var that = this,
                 listView = that.listView;
 
-            listView.bind(CHANGE, proxy(that._select, that));
-            listView.element.on("dblclick" + NS, proxy(that._dblClick, that));
-            listView.element.on("mousedown" + NS, ".k-listview-item:not(.k-edit-item)", proxy(that._mousedown, that));
-            listView.element.on(KEYDOWN + NS, ".k-edit-item", proxy(that._keydown, that));
-            listView.element.on(KEYDOWN + NS, proxy(that._keydownAction, that));
+            listView.bind(CHANGE, that._select.bind(that));
+            listView.element.on("dblclick" + NS, that._dblClick.bind(that));
+            listView.element.on("mousedown" + NS, ".k-listview-item:not(.k-edit-item)", that._mousedown.bind(that));
+            listView.element.on(KEYDOWN + NS, ".k-edit-item", that._keydown.bind(that));
+            listView.element.on(KEYDOWN + NS, that._keydownAction.bind(that));
 
             listView.bind("edit", function(ev){
                 var sender = ev.sender;
@@ -785,6 +783,8 @@
                 action = ev.action,
                 node = ev.node,
                 parentNode = null,
+                treeEl = treeView.element,
+                activeDescendant = treeEl.attr("aria-activedescendant"),
                 items = ev.items.filter(function(item){
                     return item.isDirectory;
                 }).map(function(item){
@@ -838,6 +838,9 @@
                 }
             }
 
+            if (!!activeDescendant && treeEl.find("#" + activeDescendant).length === 0) {
+                treeEl.removeAttr("aria-activedescendant");
+            }
         },
 
         _remove: function(id){
@@ -856,9 +859,9 @@
         _bindEvents: function () {
             var that = this;
 
-            that.treeView.bind(SELECT, proxy(that._navigate, that));
-            that.treeView.bind(EXPAND, proxy(that._expand, that));
-            that.treeView.element.on(KEYDOWN, proxy(that._keydownAction, that));
+            that.treeView.bind(SELECT, that._navigate.bind(that));
+            that.treeView.bind(EXPAND, that._expand.bind(that));
+            that.treeView.element.on(KEYDOWN, that._keydownAction.bind(that));
         },
 
         _keydownAction: function (ev) {
@@ -930,7 +933,7 @@
 
                 that._setDSOptions(options, dataSourceOptions);
                 that._setupColumns(options, messages);
-                options.kendoKeydown = options.kendoKeydown || proxy(that._kendoKeydown , that);
+                options.kendoKeydown = options.kendoKeydown || that._kendoKeydown.bind(that);
 
                 Component.fn.init.call(this, ui.Grid, element, options);
 
@@ -982,11 +985,11 @@
                 var that = this,
                     grid = that.grid;
 
-                grid.bind(CHANGE, proxy(that._select, that));
-                grid.table.on("dblclick" + NS, proxy(that._dblClick, that));
-                grid.table.on("mousedown" + NS, "tr:not(.k-grid-edit-row)", proxy(that._mousedown, that));
-                grid.table.on(KEYDOWN + NS, ".k-grid-edit-row", proxy(that._keydown, that));
-                grid.table.on(KEYDOWN + NS, proxy(that._keydownAction, that));
+                grid.bind(CHANGE, that._select.bind(that));
+                grid.table.on("dblclick" + NS, that._dblClick.bind(that));
+                grid.table.on("mousedown" + NS, "tr:not(.k-grid-edit-row)", that._mousedown.bind(that));
+                grid.table.on(KEYDOWN + NS, ".k-grid-edit-row", that._keydown.bind(that));
+                grid.table.on(KEYDOWN + NS, that._keydownAction.bind(that));
 
                 grid.bind("edit", function(){
                     that._toggleFocusable(true);
@@ -1175,13 +1178,12 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('filemanager/toolbar',["kendo.toolbar", "kendo.switch"], f);
+    define('filemanager/toolbar',["../kendo.toolbar", "../kendo.switch"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
-        proxy = $.proxy,
         ToolBar = kendo.ui.ToolBar,
         Item = kendo.toolbar.Item,
 
@@ -1237,10 +1239,10 @@ return window.kendo;
         _attachEvents: function() {
             var that = this;
 
-            that.bind(TOGGLE, proxy(that._click, that));
-            that.bind(CLOSE, proxy(that._click, that));
-            that.bind(CLICK, proxy(that._click, that));
-            that.bind(CHANGE, proxy(that._change, that));
+            that.bind(TOGGLE, that._click.bind(that));
+            that.bind(CLOSE, that._click.bind(that));
+            that.bind(CLICK, that._click.bind(that));
+            that.bind(CHANGE, that._change.bind(that));
         },
 
         _extendOptions: function(options) {
@@ -1288,11 +1290,11 @@ return window.kendo;
 
                 if(toolOptions.type === "buttonGroup") {
                     delete toolOptions.attributes["aria-label"];
-                    toolOptions.buttons = toolOptions.buttons.map(proxy(that._mapButtonGroups, that));
+                    toolOptions.buttons = toolOptions.buttons.map(that._mapButtonGroups.bind(that));
                 }
 
                 if(toolOptions.type === "splitButton") {
-                    toolOptions.menuButtons = toolOptions.menuButtons.map(proxy(that._mapMenuButtons, that));
+                    toolOptions.menuButtons = toolOptions.menuButtons.map(that._mapMenuButtons.bind(that));
                 }
 
                 if (toolRules.remote && that.options.filemanager.dataSource.isLocalBinding) {
@@ -1438,7 +1440,7 @@ return window.kendo;
             }
         },
         _bindEvents: function(){
-            this._inputHandler = proxy(this._input, this);
+            this._inputHandler = this._input.bind(this);
             this.input.on("input" + NS, this._inputHandler);
         },
         _input: function (ev) {
@@ -1475,14 +1477,14 @@ return window.kendo;
             that.input.attr("aria-label", options.text);
 
             that.switchInstance = new kendo.ui.Switch(that.input, {
-                change: proxy(that._change, that),
+                change: that._change.bind(that),
                 messages: {
                     checked: toolbar.options.messages.detailsChecked,
                     unchecked: toolbar.options.messages.detailsUnchecked
                 }
             });
 
-            that.label.on(CLICK + NS, proxy(that._click, that));
+            that.label.on(CLICK + NS, that._click.bind(that));
 
             that.toolbar.fileManagerDetailsToggle = that;
         },
@@ -1511,7 +1513,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('filemanager/data',["kendo.data"], f);
+    define('filemanager/data',["../kendo.data"], f);
 })(function(){
 
 (function($, undefined) {
@@ -1746,13 +1748,12 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define){
-    define('filemanager/contextmenu',["kendo.menu"], f);
+    define('filemanager/contextmenu',["../kendo.menu"], f);
 })(function(){
 
 (function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
-        proxy = $.proxy,
         template = kendo.template,
         ContextMenu = kendo.ui.ContextMenu,
 
@@ -1768,8 +1769,8 @@ return window.kendo;
             that._restrictDefaultItems();
             that._extendItems();
 
-            that.bind("select", proxy(that._onSelect, that));
-            that.bind("open", proxy(that._onOpen, that));
+            that.bind("select", that._onSelect.bind(that));
+            that.bind("open", that._onOpen.bind(that));
         },
 
         _overrideTemplates: function(){
@@ -1883,10 +1884,10 @@ return window.kendo;
         "./filemanager/data",
         "./filemanager/contextmenu",
 
-        "kendo.breadcrumb",
-        "kendo.upload",
-        "kendo.dialog",
-        "kendo.resizable"
+        "./kendo.breadcrumb",
+        "./kendo.upload",
+        "./kendo.dialog",
+        "./kendo.resizable"
     ], f);
 })(function(){
 
@@ -1910,7 +1911,6 @@ var __meta__ = { // jshint ignore:line
         isPlainObject = $.isPlainObject,
         isArray = Array.isArray,
         DataBoundWidget = ui.DataBoundWidget,
-        proxy = $.proxy,
         template = kendo.template,
         outerHeight = kendo._outerHeight,
 
@@ -2220,8 +2220,8 @@ var __meta__ = { // jshint ignore:line
                 that.dataSource.unbind(ERROR, that._errorHandler);
                 that.dataSource.unbind(CHANGE, that._changeHandler);
             } else {
-                that._errorHandler = proxy(that._error, that);
-                that._changeHandler = proxy(that._change, that);
+                that._errorHandler = that._error.bind(that);
+                that._changeHandler = that._change.bind(that);
             }
 
             that.dataSource = kendo.data.FileManagerDataSource.create(dataSource)
@@ -2296,7 +2296,7 @@ var __meta__ = { // jshint ignore:line
 
             that.contextMenu = new ui.filemanager.ContextMenu("<ul></ul>", menuOptions);
 
-            that.contextMenu.bind(OPEN, proxy(that._cacheFocus, that));
+            that.contextMenu.bind(OPEN, that._cacheFocus.bind(that));
         },
 
         _renderNavigation: function() {
@@ -2405,10 +2405,10 @@ var __meta__ = { // jshint ignore:line
 
             that.treeView = new ui.filemanager.ViewComponents[TREE_TYPE](treeViewElement, options, explicitOptions);
 
-            that.treeView.bind(NAVIGATE, proxy(that._navigate, that))
-                         .bind(LOAD, proxy(that._load, that))
-                         .bind(DROP, proxy(that._drop, that))
-                         .bind(KEYDOWNACTION, proxy(that._keydownAction, that));
+            that.treeView.bind(NAVIGATE, that._navigate.bind(that))
+                         .bind(LOAD, that._load.bind(that))
+                         .bind(DROP, that._drop.bind(that))
+                         .bind(KEYDOWNACTION, that._keydownAction.bind(that));
 
             return that.treeView;
         },
@@ -2452,8 +2452,8 @@ var __meta__ = { // jshint ignore:line
                 messages: messages
             }, that.options.dialogs[options.type + "Confirm"])).data("kendoConfirm");
 
-            confirm.bind(OPEN, proxy(that._cacheFocus, that));
-            confirm.bind(HIDE, proxy(that._restoreFocus, that, options.target));
+            confirm.bind(OPEN, that._cacheFocus.bind(that));
+            confirm.bind(HIDE, that._restoreFocus.bind(that, options.target));
 
             confirm.open();
 
@@ -2473,8 +2473,8 @@ var __meta__ = { // jshint ignore:line
                 value: options.defaultInput
             },this.options.dialogs[options.type + "Prompt"])).data("kendoPrompt");
 
-            prompt.bind(OPEN, proxy(that._cacheFocus, that));
-            prompt.bind(CLOSE, proxy(that._restoreFocus, that, options.target));
+            prompt.bind(OPEN, that._cacheFocus.bind(that));
+            prompt.bind(CLOSE, that._restoreFocus.bind(that, options.target));
 
             prompt.open();
 
@@ -2541,7 +2541,7 @@ var __meta__ = { // jshint ignore:line
                     items: [
                         {type:"rootitem", text: "" }
                     ],
-                    change: proxy(that._breadcrumbChange, that)
+                    change: that._breadcrumbChange.bind(that)
                 }, options.breadcrumb);
 
             that.breadcrumb = new ui.Breadcrumb(breadcrumbElement, breadcrumbOptions);
@@ -2568,7 +2568,7 @@ var __meta__ = { // jshint ignore:line
                     visible: false,
                     width: 500,
                     actions: [
-                        { text: dialogMessages.clear, action: proxy(that._clearUploadFilesList, that) },
+                        { text: dialogMessages.clear, action: that._clearUploadFilesList.bind(that) },
                         { text: dialogMessages.done, primary: true }
                     ],
                     messages: dialogMessages
@@ -2585,8 +2585,8 @@ var __meta__ = { // jshint ignore:line
             that.uploadDialog.wrapper.addClass(fileManagerStyles.uploadDialog);
             that.uploadDialog.element.append(uploadInstance.wrapper);
 
-            that.uploadDialog.bind(OPEN, proxy(that._toggleUploadDropZone, that, ""));
-            that.uploadDialog.bind(CLOSE, proxy(that._toggleUploadDropZone, that, that.viewWrapper));
+            that.uploadDialog.bind(OPEN, that._toggleUploadDropZone.bind(that, ""));
+            that.uploadDialog.bind(CLOSE, that._toggleUploadDropZone.bind(that, that.viewWrapper));
 
             return that.uploadDialog;
         },
@@ -2618,8 +2618,8 @@ var __meta__ = { // jshint ignore:line
 
             that.upload = new ui.Upload(uploadElement[0], uploadOptions);
 
-            that.upload.bind(UPLOAD, proxy(that._sendUploadPathParameter, that));
-            that.upload.bind(SUCCESS, proxy(that._success, that));
+            that.upload.bind(UPLOAD, that._sendUploadPathParameter.bind(that));
+            that.upload.bind(SUCCESS, that._success.bind(that));
 
             return that.upload;
         },
@@ -2796,13 +2796,13 @@ var __meta__ = { // jshint ignore:line
             that._viewType = type;
             that._view = new ui.filemanager.ViewComponents[type](element, options, explicitOptions);
 
-            that._view.bind(SELECT, proxy(that._select, that));
-            that._view.bind(OPEN, proxy(that._open, that));
-            that._view.bind(DATABINDING, proxy(that._binding, that));
-            that._view.bind(DATABOUND, proxy(that._bound, that));
-            that._view.bind(DROP, proxy(that._drop, that));
-            that._view.bind(KEYDOWNACTION, proxy(that._keydownAction, that));
-            that._view.bind(CANCEL, proxy(that._cancel, that));
+            that._view.bind(SELECT, that._select.bind(that));
+            that._view.bind(OPEN, that._open.bind(that));
+            that._view.bind(DATABINDING, that._binding.bind(that));
+            that._view.bind(DATABOUND, that._bound.bind(that));
+            that._view.bind(DROP, that._drop.bind(that));
+            that._view.bind(KEYDOWNACTION, that._keydownAction.bind(that));
+            that._view.bind(CANCEL, that._cancel.bind(that));
 
             that._view.element.addClass(fileManagerStyles[type]);
 

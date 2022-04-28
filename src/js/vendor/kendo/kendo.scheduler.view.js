@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.scheduler.view',[ "kendo.core" ], f);
+    define('kendo.scheduler.view',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -1426,20 +1426,26 @@ var __meta__ = { // jshint ignore:line
 
         moveToEventInGroup: function(group, slot, selectedEvents, prev) {
             var events = group._continuousEvents || [];
-
             var found, event;
-
             var pad = prev ? -1 : 1;
-
             var length = events.length;
             var idx = prev ? length - 1 : 0;
+            var i, lastSelected;
 
             if (selectedEvents.length) {
-                var lastSelected = selectedEvents[selectedEvents.length - 1];
+                lastSelected = selectedEvents[selectedEvents.length - 1];
 
-                for (var i = 0; i < events.length; i++) {
-                    if (events[i].uid === lastSelected) {
-                        idx = i + pad;
+                if (prev) {
+                    for (i = 0; i < events.length; i++) {
+                        if (events[i].uid === lastSelected) {
+                            idx = i + pad;
+                        }
+                    }
+                } else {
+                    for (i = events.length - 1; i > -1; i--) {
+                        if (events[i].uid === lastSelected) {
+                            idx = i + pad;
+                        }
                     }
                 }
             }
@@ -1907,7 +1913,7 @@ var __meta__ = { // jshint ignore:line
             var tmpl = kendo.template(kendo.format(wrapper, html), settings);
 
             if (state.count > 0) {
-                tmpl = $.proxy(tmpl, state.storage);
+                tmpl = tmpl.bind(state.storage);
             }
 
             return tmpl;

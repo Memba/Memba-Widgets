@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define) {
-    define('kendo.pivotgrid',[ "kendo.pivot.common", "kendo.dom", "kendo.data" ], f);
+    define('kendo.pivotgrid',[ "./kendo.pivot.common", "./kendo.dom", "./kendo.data" ], f);
 })(function() {
 
 var __meta__ = { // jshint ignore:line
@@ -1538,7 +1538,7 @@ var __meta__ = { // jshint ignore:line
 
                     return result;
                 },
-                members: $.proxy(function(response, restrictions) {
+                members: function(response, restrictions) {
                     var name = restrictions.levelUniqueName || restrictions.memberUniqueName;
                     var schemaData = this.options.schema.data;
                     var dataGetter = isFunction(schemaData) ? schemaData : kendo.getter(schemaData, true);
@@ -1587,7 +1587,7 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     return result;
-                }, this)
+                }.bind(this)
             };
         },
 
@@ -3790,7 +3790,7 @@ var __meta__ = { // jshint ignore:line
 
             that.dataSource = kendo.data.PivotDataSource.create(options.dataSource);
 
-            that._refreshHandler = $.proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
             that.dataSource.first(CHANGE, that._refreshHandler);
 
             if (!options.template) {
@@ -4071,7 +4071,7 @@ var __meta__ = { // jshint ignore:line
 
             that.dataSource = kendo.data.PivotDataSourceV2.create(options.dataSource);
 
-            that._refreshHandler = $.proxy(that.refresh, that);
+            that._refreshHandler = that.refresh.bind(that);
             that.dataSource.first(CHANGE, that._refreshHandler);
 
             that.template = kendo.template(that.options.template);
@@ -4193,7 +4193,7 @@ var __meta__ = { // jshint ignore:line
             var items = this._state();
             var i, l;
 
-            name = $.isArray(name) ? name.slice(0) : [name];
+            name = Array.isArray(name) ? name.slice(0) : [name];
 
             for (i = 0, l = name.length; i < l; i++) {
                 if (indexOf(name[i], items) !== -1) {
@@ -4366,7 +4366,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _attachEvents: function() {
-            this.element.on("click" + NS, $.proxy(this.toggle, this));
+            this.element.on("click" + NS, this.toggle.bind(this));
         },
 
         _element: function() {
@@ -4521,16 +4521,16 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var dataSource = that.options.dataSource;
 
-            dataSource = $.isArray(dataSource) ? { data: dataSource } : dataSource;
+            dataSource = Array.isArray(dataSource) ? { data: dataSource } : dataSource;
 
             if (that.dataSource && this._refreshHandler) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler)
                                .unbind(PROGRESS, that._progressHandler)
                                .unbind(ERROR, that._errorHandler);
             } else {
-                that._refreshHandler = $.proxy(that.refresh, that);
-                that._progressHandler = $.proxy(that._requestStart, that);
-                that._errorHandler = $.proxy(that._error, that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._requestStart.bind(that);
+                that._errorHandler = that._error.bind(that);
             }
 
             that.dataSource = kendo.data.PivotDataSourceV2.create(dataSource)
@@ -4550,14 +4550,14 @@ var __meta__ = { // jshint ignore:line
             var rowsHeader = that._rowHeadersWrapper;
 
             that._resize();
-            that._windowResizeHandler = $.proxy(that._resize, that);
+            that._windowResizeHandler = that._resize.bind(that);
 
             that._contentWrapper.scroll(function() {
                 kendo.scrollLeft(columnsHeader, this.scrollLeft);
                 rowsHeader.scrollTop(this.scrollTop);
             });
 
-            rowsHeader.bind("DOMMouseScroll" + NS + " mousewheel" + NS, $.proxy(that._wheelScroll, that));
+            rowsHeader.bind("DOMMouseScroll" + NS + " mousewheel" + NS, that._wheelScroll.bind(that));
             $(window).on(RESIZE + NS, that._windowResizeHandler);
         },
 
@@ -4895,10 +4895,10 @@ var __meta__ = { // jshint ignore:line
                                .unbind(PROGRESS, that._progressHandler)
                                .unbind(ERROR, that._errorHandler);
             } else {
-                that._refreshHandler = $.proxy(that.refresh, that);
-                that._progressHandler = $.proxy(that._requestStart, that);
-                that._stateResetHandler = $.proxy(that._stateReset, that);
-                that._errorHandler = $.proxy(that._error, that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._requestStart.bind(that);
+                that._stateResetHandler = that._stateReset.bind(that);
+                that._errorHandler = that._error.bind(that);
             }
 
             that.dataSource = kendo.data.PivotDataSource.create(dataSource)
@@ -5261,7 +5261,7 @@ var __meta__ = { // jshint ignore:line
                 rowsHeader.scrollTop(this.scrollTop);
             });
 
-            rowsHeader.on("DOMMouseScroll" + NS + " mousewheel" + NS, $.proxy(that._wheelScroll, that));
+            rowsHeader.on("DOMMouseScroll" + NS + " mousewheel" + NS, that._wheelScroll.bind(that));
         },
 
         _wheelScroll: function(e) {
@@ -6442,7 +6442,17 @@ var __meta__ = { // jshint ignore:line
         },
 
         workbook: function() {
-            var promise;
+            var promise,
+                resolveFn = function() {
+                    return {
+                        sheets: [ {
+                            columns: this._columns(),
+                            rows: this._rows(),
+                            freezePane: this._freezePane(),
+                            filter: null
+                        } ]
+                    };
+                };
 
             if (this.dataSource.view()[0]) {
                 promise = $.Deferred();
@@ -6451,16 +6461,7 @@ var __meta__ = { // jshint ignore:line
                 promise = this.dataSource.fetch();
             }
 
-            return promise.then($.proxy(function() {
-                return {
-                    sheets: [ {
-                       columns: this._columns(),
-                       rows: this._rows(),
-                       freezePane: this._freezePane(),
-                       filter: null
-                    } ]
-                };
-            }, this));
+            return promise.then(resolveFn.bind(this));
         }
     });
 
@@ -6482,7 +6483,7 @@ var __meta__ = { // jshint ignore:line
                 widget: this
             });
 
-            exporter.workbook().then($.proxy(function(book) {
+            var resolveFn = function(book) {
                 if (!this.trigger("excelExport", { workbook: book })) {
                     var workbook = new kendo.ooxml.Workbook(book);
 
@@ -6495,7 +6496,9 @@ var __meta__ = { // jshint ignore:line
                         });
                     });
                 }
-            }, this));
+            };
+
+            exporter.workbook().then(resolveFn.bind(this));
         }
     };
 

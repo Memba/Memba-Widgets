@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('dropdowntree/treeview',[ "kendo.treeview" ], f);
+    define('dropdowntree/treeview',[ "../kendo.treeview" ], f);
 })(function(){
 
 (function($, undefined) {
@@ -34,7 +34,6 @@
         DISABLED = "k-disabled",
         SELECT = "select",
         CHECKED = "checked",
-        proxy = $.proxy,
         DATABOUND = "dataBound",
         CLICK = "click",
         NS = ".kendoTreeView",
@@ -66,7 +65,7 @@
 
             TreeView.fn.init.call(that, element, options);
             if(that.dropdowntree._isMultipleSelection()){
-                that.wrapper.on(CLICK + NS, '.k-in.k-selected', proxy(that._clickSelectedItem, that));
+                that.wrapper.on(CLICK + NS, '.k-in.k-selected', that._clickSelectedItem.bind(that));
             }
         },
 
@@ -325,7 +324,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('kendo.dropdowntree',[ "./dropdowntree/treeview", "kendo.popup", "kendo.binder", "kendo.html.chip", "kendo.html.chiplist", "kendo.html.button", "kendo.html.input" ], f);
+    define('kendo.dropdowntree',[ "./dropdowntree/treeview", "./kendo.popup", "./kendo.binder", "./kendo.html.chip", "./kendo.html.chiplist", "./kendo.html.button", "./kendo.html.input" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -367,8 +366,6 @@ var __meta__ = { // jshint ignore:line
         CLOSE = "close",
         CHANGE = "change",
         quotRegExp = /"/g,
-        proxy = $.proxy,
-        LABELIDPART = "_label",
 
         CHIP = ".k-chip";
 
@@ -378,7 +375,7 @@ var __meta__ = { // jshint ignore:line
 
             kendo.ui.Widget.fn.init.call(this, element, options);
             this._selection = this._getSelection();
-            this._focusInputHandler = $.proxy(this._focusInput, this);
+            this._focusInputHandler = this._focusInput.bind(this);
             this._initial = this.element.val();
 
             this._values = [];
@@ -419,7 +416,7 @@ var __meta__ = { // jshint ignore:line
             this._footer();
             this._reset();
             this._popup();
-            this.popup.one("open", proxy(this._popupOpen, this));
+            this.popup.one("open", this._popupOpen.bind(this));
             this._clearButton();
             this._filterHeader();
             this._treeview();
@@ -803,7 +800,11 @@ var __meta__ = { // jshint ignore:line
             });
 
             this._activeId = kendo.guid();
-            this._ariaLabel();
+            this._ariaLabel(this.wrapper);
+
+            if (this.filterInput && this.options.filterLabel) {
+                this.filterInput.attr("aria-label", this.options.filterLabel);
+            }
 
             if(!this.options.checkboxes && input.text().length) {
                 input.attr("role", "option");
@@ -819,37 +820,6 @@ var __meta__ = { // jshint ignore:line
 
                 this.tagList.attr("role", "none");
             }
-        },
-
-        _ariaLabel: function(){
-            var inputElm = this.element,
-                inputId = inputElm.attr("id"),
-                wrapper = this.wrapper,
-                labelElm = $("label[for=\"" + inputId  + "\"]"),
-                ariaLabel = inputElm.attr("aria-label"),
-                ariaLabelledBy = inputElm.attr("aria-labelledby"),
-                labelId;
-
-            if (ariaLabel) {
-                wrapper.attr("aria-label", ariaLabel);
-            } else if (ariaLabelledBy){
-                wrapper.attr("aria-labelledby", ariaLabelledBy);
-            } else if (labelElm.length){
-                labelId = labelElm.attr("id") || this._generateLabelId(labelElm, inputId || kendo.guid());
-                wrapper.attr("aria-labelledby", labelId);
-            }
-
-            if(this.filterInput && this.options.filterLabel) {
-                this.filterInput.attr("aria-label", this.options.filterLabel);
-            }
-        },
-
-        _generateLabelId: function(label, inputId){
-            var labelId = inputId + LABELIDPART;
-
-            label.attr("id", labelId);
-
-            return labelId;
         },
 
         _header: function() {
@@ -1014,8 +984,8 @@ var __meta__ = { // jshint ignore:line
 
             list.popup = new ui.Popup(list.list, extend({}, list.options.popup, {
                 anchor: list.wrapper,
-                open: proxy(list._openHandler, list),
-                close: proxy(list._closeHandler, list),
+                open: list._openHandler.bind(list),
+                close: list._closeHandler.bind(list),
                 animation: list.options.animation,
                 isRtl: support.isRtl(list.wrapper),
                 autosize :list.options.autoWidth
@@ -1251,7 +1221,7 @@ var __meta__ = { // jshint ignore:line
             var template = this.options.valueTemplate;
 
             if (!template) {
-                template = $.proxy(kendo.template('#:this._text(data)#', { useWithBlock: false }), this);
+                template = kendo.template('#:this._text(data)#', { useWithBlock: false }).bind(this);
             } else {
                 template = kendo.template(template);
             }
@@ -1586,7 +1556,7 @@ var __meta__ = { // jshint ignore:line
                         "aria-autocomplete": "list"
                     });
 
-                this.filterInput.on("input" , proxy(this._filterChange, this));
+                this.filterInput.on("input" , this._filterChange.bind(this));
 
                 $(filterTemplate)
                     .insertBefore(this.tree)
@@ -1624,8 +1594,8 @@ var __meta__ = { // jshint ignore:line
                 this.checkAll = $('<div class="k-check-all">' + checkAllCheckbox + '</div>').insertBefore(this.tree);
                 this.checkAll.find(".k-checkbox-label").html(kendo.template(this.options.checkAllTemplate)({ instance: this }));
                 this.checkAll.find(".k-checkbox")
-                                .on("change" + ns, proxy(this._changeCheckAll, this))
-                                .on("keydown" + ns, proxy(this._keydownCheckAll, this));
+                                .on("change" + ns, this._changeCheckAll.bind(this))
+                                .on("keydown" + ns, this._keydownCheckAll.bind(this));
                 this._disabledCheckedItems = [];
                 this._disabledUnCheckedItems = [];
 
@@ -1878,22 +1848,22 @@ var __meta__ = { // jshint ignore:line
                     .removeClass(STATEDISABLED)
                     .on(HOVEREVENTS, that._toggleHover);
 
-                that._clear.on("click" + ns, proxy(that._clearClick, that));
+                that._clear.on("click" + ns, that._clearClick.bind(that));
                 wrapper
                     .attr(TABINDEX, wrapper.data(TABINDEX))
                     .attr(ARIA_DISABLED, false)
-                    .on("keydown" + ns, proxy(that._keydown, that))
-                    .on("focusin" + ns, proxy(that._focusinHandler, that))
-                    .on("focusout" + ns, proxy(that._focusoutHandler, that));
+                    .on("keydown" + ns, that._keydown.bind(that))
+                    .on("focusin" + ns, that._focusinHandler.bind(that))
+                    .on("focusout" + ns, that._focusoutHandler.bind(that));
 
-                that.wrapper.on(CLICK + ns, proxy(that._wrapperClick, that));
+                that.wrapper.on(CLICK + ns, that._wrapperClick.bind(that));
 
                 if (this._isMultipleSelection()) {
                     that.tagList.on(CLICK + ns, "span.k-chip", function(e) {
                         $(e.currentTarget).addClass(FOCUSED);
                     });
 
-                    that.tagList.on(CLICK + ns, ".k-i-close", function(e) {
+                    that.tagList.on(CLICK + ns, ".k-i-x-circle", function(e) {
                         that._removeTagClick(e);
                     });
                 }
@@ -1909,8 +1879,8 @@ var __meta__ = { // jshint ignore:line
                     .removeClass(STATEDISABLED);
 
                 wrapper
-                    .on("focusin" + ns, proxy(that._focusinHandler, that))
-                    .on("focusout" + ns, proxy(that._focusoutHandler, that));
+                    .on("focusin" + ns, that._focusinHandler.bind(that))
+                    .on("focusout" + ns, that._focusoutHandler.bind(that));
             }
 
             element.attr(DISABLED, disable)
@@ -2215,7 +2185,7 @@ var __meta__ = { // jshint ignore:line
 
         _removeTagClick: function(e) {
             e.stopPropagation();
-            var tagItem = this._tags[$(e.currentTarget.parentElement).index()];
+            var tagItem = this._tags[$(e.currentTarget.closest(CHIP)).index()];
             this._removeTag(tagItem);
         },
 
@@ -2317,7 +2287,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!span[0]) {
                 wrapper.append('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>' +
-                                html.renderButton('<button unselectable="on" class="k-select k-input-button" aria-label="select" tabindex="-1"></button>', extend({}, dropdowntree.options, {
+                                html.renderButton('<button unselectable="on" class="k-input-button" aria-label="select" tabindex="-1"></button>', extend({}, dropdowntree.options, {
                                     icon: "arrow-s",
                                     shape: null,
                                     rounded: null
@@ -2328,7 +2298,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             dropdowntree.span = span;
-            dropdowntree._arrow = wrapper.find(".k-select");
+            dropdowntree._arrow = wrapper.find(".k-input-button");
             dropdowntree._arrowIcon = dropdowntree._arrow.find(".k-icon");
         },
 
@@ -2429,8 +2399,6 @@ var __meta__ = { // jshint ignore:line
                     'class="' + ((data.enabled === false) ? "k-disabled" : "") + '"' +
                     ((data.enabled === false) ? 'aria-disabled="true"' : '') +
                     '>' +
-                        (isMultiple ?  tagTemplate(data) : ('<span unselectable="on" data-bind="text: tags.length"></span>' +
-                                                                '<span unselectable="on">&nbsp;' + singleTag +'</span>' )) +
                     '</span>', $.extend({}, options, {
                             fillMode: "solid",
                             themeColor: "base",
@@ -2438,8 +2406,10 @@ var __meta__ = { // jshint ignore:line
                             attr: {
                                 unselectable: "on"
                             },
+                            text: (isMultiple ?  tagTemplate(data) : ('<span unselectable="on" data-bind="text: tags.length"></span>' +
+                            '<span unselectable="on">&nbsp;' + singleTag +'</span>' )),
                             removable: isMultiple,
-                            removeIcon: "close",
+                            removeIcon: "x-circle",
                             removableAttr: {
                                 unselectable: "on",
                                 "aria-hidden": true,

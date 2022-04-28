@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.inputgroupbase',[ "kendo.core" ], f);
+    define('kendo.inputgroupbase',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
         ui = kendo.ui,
         Widget = ui.Widget,
         extend = $.extend,
-        proxy = $.proxy,
         CHANGE = "change",
         FOCUS = "focus",
         CLICK = "click",
@@ -150,9 +149,9 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.element
-                .on(FOCUS + that.NS, DOT + that.groupStyles.input, proxy(that._focusHandler, that))
-                .on(CHANGE + that.NS, DOT + that.groupStyles.input, proxy(that._changeHandler, that))
-                .on(CLICK + that.NS, DOT + that.groupStyles.input, proxy(that._clickHandler, that));
+                .on(FOCUS + that.NS, DOT + that.groupStyles.input, that._focusHandler.bind(that))
+                .on(CHANGE + that.NS, DOT + that.groupStyles.input, that._changeHandler.bind(that))
+                .on(CLICK + that.NS, DOT + that.groupStyles.input, that._clickHandler.bind(that));
         },
 
         _clickHandler: function(e) {
@@ -270,7 +269,7 @@ var __meta__ = { // jshint ignore:line
             var element = this.element;
 
             if(element.children("li").length > 0) {
-                element.find("li").each(proxy(this._markupItem, this));
+                element.find("li").each(this._markupItem.bind(this));
             }
         },
 
@@ -319,7 +318,7 @@ var __meta__ = { // jshint ignore:line
                 this._items = [];
             }
             if(items) {
-                items.forEach(proxy(this._parseItem, this));
+                items.forEach(this._parseItem.bind(this));
             }
         },
 
@@ -378,7 +377,7 @@ var __meta__ = { // jshint ignore:line
 
             this._validationSettings();
 
-            items.forEach(proxy(this._initializeItem, this));
+            items.forEach(this._initializeItem.bind(this));
         }
     });
 

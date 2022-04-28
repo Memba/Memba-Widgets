@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('util/undoredostack',[ "kendo.core" ], f);
+    define('util/undoredostack',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -79,7 +79,7 @@
  */
 (function(f, define){
     define('util/text-metrics',[
-        "kendo.core"
+        "../kendo.core"
     ], f);
 })(function(){
 
@@ -276,7 +276,7 @@ kendo.deepExtend(kendo.util, {
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 (function(f, define) {
     define('util/main',[
-        "kendo.core"
+        "../kendo.core"
     ], f);
 })(function() {
 
@@ -430,7 +430,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('util/parse-xml',[ "kendo.core", "./main" ], f);
+    define('util/parse-xml',[ "../kendo.core", "./main" ], f);
 })(function(){
     "use strict";
 
@@ -752,11 +752,11 @@ return window.kendo;
 
 (function(f, define){
     define('spreadsheet/commands',[
-        "kendo.core",
-        "kendo.binder",
-        "kendo.window",
-        "kendo.list",
-        "kendo.tabstrip"
+        "../kendo.core",
+        "../kendo.binder",
+        "../kendo.window",
+        "../kendo.list",
+        "../kendo.tabstrip"
     ], f);
 })(function(){
 
@@ -1304,6 +1304,7 @@ return window.kendo;
         exec: function() {
             this.getState();
             this[this._type]();
+            this.range().sheet().triggerChange({ recalc: true });
         },
         activate: function(ref) {
             this.range().sheet().activeCell(ref);
@@ -1402,7 +1403,9 @@ return window.kendo;
             this._sheet = this._workbook.activeSheet();
             this._range = this._sheet.selection ? this._sheet.selection() : this._sheet.range(this._clipboard.pasteRef());
             this._state = this._range.getState();
-            this._targetRangeRefs = this._range._ref instanceof kendo.spreadsheet.UnionRef ? this._range._ref.refs : [this._range._ref];
+            this._targetRangeRefs = (this._range._ref instanceof kendo.spreadsheet.UnionRef ? this._range._ref.refs : [this._range._ref]).map(function(ref){
+                return ref.toRangeRef();
+            });
         },
         exec: function() {
             return this.range().sheet().withCultureDecimals(this._exec.bind(this));
@@ -1426,9 +1429,6 @@ return window.kendo;
                 }
                 if (status.pasteOnMerged) {
                     return { reason: "error", type: "modifyMerged" };
-                }
-                if (status.overflow) {
-                    return { reason: "error", type: "overflow" };
                 }
                 if (status.pasteOnDisabled) {
                     this._event.preventDefault();
@@ -1510,6 +1510,14 @@ return window.kendo;
             var targetRangeRefs = that._targetRangeRefs;
             var multipliers = that._targetRanges(sourceRows, sourceCols);
             var i;
+
+            var pasteRef = this._clipboard.pasteRef();
+            if (pasteRef.bottomRight.row >= sheet._rows._count || pasteRef.bottomRight.col >= sheet._columns._count) {
+                sheet.resize(
+                    Math.max(pasteRef.bottomRight.row + 1, sheet._rows._count),
+                    Math.max(pasteRef.bottomRight.col + 1, sheet._columns._count)
+                );
+            }
 
             that._adjustPasteTarget(multipliers, sourceRows, sourceCols);
 
@@ -1944,15 +1952,6 @@ return window.kendo;
         exec: function() {
             var value = this._value;
             var sheet = this.range().sheet();
-            var result = sheet.axisManager().preventAddColumn();
-
-            if(!result && value === "right") {
-                result = sheet.axisManager().preventAddColumnAfterLast();
-            }
-
-            if (result) {
-                return result;
-            }
 
             if (value === "left") {
                 this._pos = sheet.axisManager().addColumnLeft();
@@ -1969,15 +1968,6 @@ return window.kendo;
         exec: function() {
             var value = this._value;
             var sheet = this.range().sheet();
-            var result = sheet.axisManager().preventAddRow();
-
-            if(!result && value === "below") {
-                result = sheet.axisManager().preventAddRowAfterLast();
-            }
-
-            if (result) {
-                return result;
-            }
 
             if (value === "above") {
                 this._pos = sheet.axisManager().addRowAbove();
@@ -2105,7 +2095,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/formulabar',[ "kendo.core" ], f);
+    define('spreadsheet/formulabar',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -2144,7 +2134,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/formulainput',[ "kendo.core" ], f);
+    define('spreadsheet/formulainput',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo, window) {
@@ -2955,7 +2945,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/eventlistener',[ "kendo.core" ], f);
+    define('spreadsheet/eventlistener',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -3148,7 +3138,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/rangelist',[ "kendo.core" ], f);
+    define('spreadsheet/rangelist',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -3263,7 +3253,7 @@ return window.kendo;
     });
 
     var RangeTree = kendo.Class.extend({
-        init: function() {
+        init: function RangeTree() {
             this.root = NilNode;
         },
 
@@ -3307,6 +3297,10 @@ return window.kendo;
             var tree = new RangeTree();
             map(tree, this.root, callback);
             return tree;
+        },
+
+        forEach: function(callback) {
+            forEach(this.root, callback);
         },
 
         clone: function() {
@@ -3368,14 +3362,22 @@ return window.kendo;
         if (root === NilNode) {
             return;
         }
-
         map(tree, root.left, callback);
         tree.insert(callback(root.value));
         map(tree, root.right, callback);
     }
 
+    function forEach(root, callback) {
+        if (root === NilNode) {
+            return;
+        }
+        forEach(root.left, callback);
+        callback(root.value);
+        forEach(root.right, callback);
+    }
+
     var RangeList = kendo.Class.extend({
-        init: function(start, end, value) {
+        init: function RangeList(start, end, value) {
             if (end === undefined) {
                 this.tree = start;
             } else {
@@ -3390,6 +3392,10 @@ return window.kendo;
 
         map: function(callback) {
             return new RangeList(this.tree.map(callback));
+        },
+
+        forEach: function(callback) {
+            this.tree.forEach(callback);
         },
 
         intersecting: function(start, end) {
@@ -3667,7 +3673,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/propertybag',[ "kendo.core" ], f);
+    define('spreadsheet/propertybag',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -3791,6 +3797,33 @@ return window.kendo;
             // https://github.com/telerik/kendo-ui-core/issues/2816
             this.lists.formula.tree.clone = cloneFormulaTree;
             this.lists.validation.tree.clone = cloneFormulaTree;
+        },
+
+        _resize: function(new_rows, new_cols) {
+            var self = this;
+            var old_rows = self.rowCount;
+            var cell_count = new_rows * new_cols - 1;
+            function scaleIndex(index) {
+                var col = index / old_rows | 0;
+                var row = index % old_rows;
+                return col * new_rows + row;
+            }
+            function scaleNode(node) {
+                // node is a ValueRange from rangelist.js
+                // start/end are rowCount * col + row
+                node.start = scaleIndex(node.start);
+                node.end = scaleIndex(node.end);
+            }
+            Object.keys(self.lists).forEach(function(name) {
+                var list = self.lists[name];
+                if (new_rows != old_rows) {
+                    list.forEach(scaleNode);
+                }
+                list.range.end = cell_count;
+            });
+            self.rowCount = new_rows;
+            self.columnCount = new_cols;
+            self.cellCount = cell_count;
         },
 
         getState: function() {
@@ -3977,7 +4010,7 @@ return window.kendo;
 // -*- fill-column: 100 -*-
 
 (function(f, define){
-    define('spreadsheet/references',["kendo.core"], f);
+    define('spreadsheet/references',["../kendo.core"], f);
 })(function(){
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
@@ -4935,7 +4968,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/autofillcalculator',[ "kendo.core" ], f);
+    define('spreadsheet/autofillcalculator',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -5023,7 +5056,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/navigator',[ "kendo.core",  "./autofillcalculator" ], f);
+    define('spreadsheet/navigator',[ "../kendo.core",  "./autofillcalculator" ], f);
 })(function(){
 
 (function(kendo) {
@@ -5710,7 +5743,7 @@ return window.kendo;
 
 
 (function(f, define){
-    define('spreadsheet/axismanager',[ "kendo.core" ], f);
+    define('spreadsheet/axismanager',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -5880,30 +5913,6 @@ return window.kendo;
             });
         },
 
-        preventAddRow: function() {
-            var range = this._sheet.select().toRangeRef();
-            var rowCount = range.height();
-            return this._sheet.preventInsertRow(0, rowCount);
-        },
-
-        preventAddRowAfterLast: function() {
-            var range = this._sheet.select().toRangeRef();
-            var rowCount = range.height();
-            return this._sheet.preventInsertBelowLastRow(range.bottomRight.row, rowCount);
-        },
-
-        preventAddColumn: function() {
-            var range = this._sheet.select().toRangeRef();
-            var columnCount = range.width();
-            return this._sheet.preventInsertColumn(0, columnCount);
-        },
-
-        preventAddColumnAfterLast: function() {
-            var range = this._sheet.select().toRangeRef();
-            var columnCount = range.width();
-            return this._sheet.preventInsertAfterLastColumn(range.bottomRight.col, columnCount);
-        },
-
         addColumnLeft: function() {
             var sheet = this._sheet;
             var base, count = 0;
@@ -5937,18 +5946,14 @@ return window.kendo;
         addRowAbove: function() {
             var sheet = this._sheet;
             var base, count = 0;
-            var totalRows = sheet._grid.rowCount;
             var selectedRows = sheet.select();
-            var selectedRowsCount = selectedRows.bottomRight.row - selectedRows.topLeft.row + 1;
 
             sheet.batch(function(){
                 selectedRows.forEachRowIndex(function(index) {
                     if (!base) {
                         base = index;
                     }
-                    if(selectedRows.bottomRight.row + selectedRowsCount < totalRows) {
-                        sheet.insertRow(base);
-                    }
+                    sheet.insertRow(base);
                     ++count;
                 });
             }, { recalc: true, layout: true });
@@ -5959,18 +5964,14 @@ return window.kendo;
         addRowBelow: function() {
             var sheet = this._sheet;
             var base, count = 0;
-            var totalRows = sheet._grid.rowCount;
 
             sheet.batch(function(){
                 sheet.select().forEachRowIndex(function(index) {
                     base = index + 1;
                     ++count;
                 });
-
-                if(base + count < totalRows) {
-                    for (var i = 0; i < count; ++i) {
-                        sheet.insertRow(base);
-                    }
+                for (var i = 0; i < count; ++i) {
+                    sheet.insertRow(base);
                 }
             }, { recalc: true, layout: true });
 
@@ -5983,7 +5984,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/clipboard',[ "kendo.core" ], f);
+    define('spreadsheet/clipboard',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -6007,7 +6008,7 @@ return window.kendo;
         },
 
         destroy: function() {
-            document.body.removeChild(this.iframe);
+            $(this.iframe).remove();
         },
 
         canCopy: function() {
@@ -6044,10 +6045,6 @@ return window.kendo;
             if (this.menuInvoked) {
                 status.canPaste = false;
                 status.menuInvoked = true;
-            }
-            if (ref.bottomRight.row >= sheet._rows._count || ref.bottomRight.col >= sheet._columns._count) {
-                status.canPaste = false;
-                status.overflow = true;
             }
             return status;
         },
@@ -6095,6 +6092,12 @@ return window.kendo;
         paste: function() {
             var sheet = this.workbook.activeSheet();
             var pasteRef = this.pasteRef();
+            if (pasteRef.bottomRight.row >= sheet._rows._count || pasteRef.bottomRight.col >= sheet._columns._count) {
+                sheet.resize(
+                    Math.max(pasteRef.bottomRight.row + 1, sheet._rows._count),
+                    Math.max(pasteRef.bottomRight.col + 1, sheet._columns._count)
+                );
+            }
             sheet.range(pasteRef).setState(this._content, this);
             sheet.triggerChange({ recalc: true, ref: pasteRef });
         },
@@ -6319,7 +6322,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/range',[ "kendo.core", "../util/text-metrics", "../util/main" ], f);
+    define('spreadsheet/range',[ "../kendo.core", "../util/text-metrics", "../util/main" ], f);
 })(function(){
 
 (function(kendo) {
@@ -9385,7 +9388,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sheet',[ "kendo.core", "kendo.color", "./runtime", "./validation", "./references" ], f);
+    define('spreadsheet/sheet',[ "../kendo.core", "../kendo.color", "./runtime", "./validation", "./references" ], f);
 })(function(){
 
 (function(kendo) {
@@ -9496,6 +9499,9 @@ return window.kendo;
 
                             for (i = 0; i < panes.length; i++) {
                                 pane = panes[i];
+                                if (!pane._currentView) {
+                                    continue;
+                                }
                                 rows = pane._currentView.rows.values;
                                 cols = pane._currentView.columns.values;
 
@@ -9595,7 +9601,49 @@ return window.kendo;
 
             this._formulaSelections = [];
             this._drawings = [];
-       },
+        },
+
+        resize: function(newRows, newCols) {
+            newRows = Math.max(newRows, 1);
+            newCols = Math.max(newCols, 1);
+            var oldRows = this._rows._count;
+            var oldCols = this._columns._count;
+            if (newRows < oldRows) {
+                this.range(newRows, 0, oldRows - newRows, oldCols).clear();
+            }
+            if (newCols < oldCols) {
+                this.range(0, newCols, oldRows, oldCols - newCols).clear();
+            }
+            this._rows._resize(newRows);
+            this._columns._resize(newCols);
+            this._grid._resize(newRows, newCols);
+            this._properties._resize(newRows, newCols);
+            this._sheetRef = this._grid.normalize(kendo.spreadsheet.SHEETREF);
+            if (newRows > oldRows) {
+                this.range(oldRows, 0, newRows - oldRows, newCols).clear();
+                this._filteredRows.value(oldRows, newRows - 1, false);
+            }
+            if (newCols > oldCols) {
+                this.range(0, oldCols, newRows, newCols - oldCols).clear();
+            }
+            this.triggerChange({ layout: true });
+        },
+
+        _resizeAddRow: function(count) {
+            this.resize(this._rows._count + (count || 1), this._columns._count);
+        },
+
+        _resizeAddColumn: function(count) {
+            this.resize(this._rows._count, this._columns._count + (count || 1));
+        },
+
+        _resizeDeleteRow: function(count) {
+            this._resizeAddRow(-(count || 1));
+        },
+
+        _resizeDeleteColumn: function(count) {
+            this._resizeAddColumn(-(count || 1));
+        },
 
         _selectionState: function() {
             return this._inEdit ? this._editSelection : this._viewSelection;
@@ -9818,76 +9866,22 @@ return window.kendo;
             }, this);
         },
 
-        preventInsertRow: function(rowIndex, count) {
-            if (this.selectedHeaders().allRows) {
-                return { reason: "error", type: "insertRowWhenColumnIsSelected" };
-            }
-
-            count = count || 1;
-            var grid = this._grid;
-            var range = this.range(grid.rowCount - count, 0, count, grid.columnCount);
-
-            //TODO: Improve has value to return true only if real value is available?
-            if (range.hasValue()) {
-                return { reason: "error", type: "shiftingNonblankCells" };
-            }
-
-            return false;
-        },
-
-        preventInsertBelowLastRow: function(rowIndex, count) {
-            count = count || 1;
-
-            if (rowIndex + count === this._rows._count) {
-                return { reason: "error", type: "insertRowBelowLastRow" };
-            }
-
-            return false;
-        },
-
-        preventInsertColumn: function(colIndex, count) {
-            if (this.selectedHeaders().allCols) {
-                return { reason: "error", type: "insertColumnWhenRowIsSelected" };
-            }
-
-            count = count || 1;
-            var grid = this._grid;
-            var range = this.range(0, grid.columnCount - count, grid.rowCount, count);
-
-            //TODO: Improve has value to return true only if real value is available?
-            if (range.hasValue()) {
-                return { reason: "error", type: "shiftingNonblankCells" };
-            }
-
-            return false;
-        },
-
-        preventInsertAfterLastColumn: function(colIndex, count) {
-            count = count || 1;
-
-            if (colIndex + count === this._columns._count) {
-                return { reason: "error", type: "insertColAfterLastCol" };
-            }
-
-            return false;
-        },
-
         insertRow: function(rowIndex, skipDataSourceInsert) {
-            var result = this.preventInsertRow(rowIndex);
-
-            if (result) {
-                throw new Error("Shifting nonblank cells off the worksheet is not supported!");
-            }
-
             if (this.trigger("insertRow", { index: rowIndex })) {
                 return;
             }
 
             this.batch(function() {
+                this._resizeAddRow();
 
                 var grid = this._grid;
                 var columnCount = grid.columnCount;
                 var rowCount = grid.rowCount;
+
+                if (rowIndex + 1 == rowCount) {
+                    // we just inserted after the last one, no need to shift data
+                    return;
+                }
 
                 var frozenRows = this.frozenRows();
 
@@ -9974,6 +9968,8 @@ return window.kendo;
                 }
 
                 this._adjustReferences("row", rowIndex, -1, mergedCells);
+
+                this._resizeDeleteRow();
             }, {
                 recalc: true,
                 layout: true,
@@ -9994,8 +9990,15 @@ return window.kendo;
             }
 
             this.batch(function() {
+                this._resizeAddColumn();
+
                 var grid = this._grid;
                 var columnCount = grid.columnCount;
+
+                if (columnIndex + 1 == columnCount) {
+                    // we just inserted after the last one, no need to shift data
+                    return;
+                }
 
                 var frozenColumns = this.frozenColumns();
 
@@ -10083,6 +10086,8 @@ return window.kendo;
                 }
 
                 this._adjustReferences("col", columnIndex, -1, mergedCells);
+
+                this._resizeDeleteColumn();
             }, {
                 recalc: true,
                 layout: true,
@@ -10360,8 +10365,23 @@ return window.kendo;
             }
         },
 
+        _visualRange: function(ref) {
+            var merged = this._mergedCells;
+            for (var i = merged.length; --i >= 0;) {
+                if (merged[i].intersects(ref)) {
+                    return this.range(merged[i]);
+                }
+            }
+            return this.range(ref);
+        },
+
         _renderComment: function(ref) {
-            var comment = ref ? this.range(ref).comment() : null;
+            var comment = null;
+            if (ref) {
+                var range = this._visualRange(ref);
+                comment = range.comment();
+                ref = range._ref.toRangeRef().topLeft;
+            }
             if (comment) {
                 if (!this._commentRef || !ref.eq(this._commentRef)) {
                     this._commentRef = ref;
@@ -11382,7 +11402,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sheetsbar',[ "kendo.core", "kendo.sortable" ], f);
+    define('spreadsheet/sheetsbar',[ "../kendo.core", "../kendo.sortable" ], f);
 })(function(){
 
     (function(kendo) {
@@ -13460,7 +13480,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/excel-reader',[ "kendo.core", "kendo.color", "../util/parse-xml", "./calc" ], f);
+    define('spreadsheet/excel-reader',[ "../kendo.core", "../kendo.color", "../util/parse-xml", "./calc" ], f);
 })(function(){
     "use strict";
 
@@ -13702,7 +13722,7 @@ return window.kendo;
     }
 
     function sheetDimensions(zip, file) {
-        var dim = {
+        var ref, dim = {
             rows: 0,
             cols: 0
         };
@@ -13710,7 +13730,7 @@ return window.kendo;
         parse(zip, xl(file), {
             enter: function(tag, attrs) {
                 if (tag == "dimension") {
-                    var ref = parseReference(attrs.ref);
+                    ref = parseReference(attrs.ref);
                     if (ref.bottomRight) {
                         dim.cols = ref.bottomRight.col + 1;
                         dim.rows = ref.bottomRight.row + 1;
@@ -13723,9 +13743,12 @@ return window.kendo;
                     if (attrs.defaultRowHeight) {
                         dim.rowHeight = toRowHeight(parseFloat(attrs.defaultRowHeight));
                     }
-                } else if (this.is(SEL_ROW)) {
-                    // Don't process actual rows
-                    this.exit();
+                } else if (this.is(SEL_ROW) && attrs.r) {
+                    dim.rows = Math.max(dim.rows, +attrs.r);
+                } else if (this.is(SEL_CELL) && attrs.r) {
+                    ref = parseReference(attrs.r);
+                    dim.rows = Math.max(dim.rows, ref.row + 1);
+                    dim.cols = Math.max(dim.cols, ref.col + 1);
                 }
             }
         });
@@ -14804,7 +14827,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/workbook',[ "kendo.core", "./runtime", "./references", "./excel-reader" ], f);
+    define('spreadsheet/workbook',[ "../kendo.core", "./runtime", "./references", "./excel-reader" ], f);
 })(function(){
 
 (function(kendo) {
@@ -15791,7 +15814,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/formulacontext',[ 'kendo.core' ], f);
+    define('spreadsheet/formulacontext',[ '../kendo.core' ], f);
 })(function() {
 
     /* jshint eqnull:true */
@@ -16038,7 +16061,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/controller',[ "kendo.core" ], f);
+    define('spreadsheet/controller',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -17091,7 +17114,7 @@ return window.kendo;
             filterMenu.bind("action", this.onCommandRequest.bind(this));
             filterMenu.bind("action", filterMenu.close.bind(filterMenu));
 
-            filterMenu.openFor(event.target);
+            filterMenu.openFor(event.target, event);
         },
 
 ////////////////////////////////////////////////////////////////////
@@ -17346,7 +17369,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/view',[ "kendo.core", "kendo.menu", "./sheetsbar", "../util/main" ], f);
+    define('spreadsheet/view',[ "../kendo.core", "../kendo.menu", "./sheetsbar", "../util/main" ], f);
 })(function(){
 
 (function(kendo) {
@@ -18459,7 +18482,10 @@ return window.kendo;
                 dialog.destroy();
             });
 
-            this.cellContextMenu.destroy();
+            if (this.cellContextMenu) {
+                this.cellContextMenu.destroy();
+            }
+
             this.rowHeaderContextMenu.destroy();
             this.colHeaderContextMenu.destroy();
             this.drawingContextMenu.destroy();
@@ -19331,7 +19357,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/customeditors',[ "kendo.core", "kendo.popup", "kendo.calendar", "kendo.listview", "./sheet" ], f);
+    define('spreadsheet/customeditors',[ "../kendo.core", "../kendo.popup", "../kendo.calendar", "../kendo.listview", "./sheet" ], f);
 })(function(){
 
 (function(kendo) {
@@ -19533,7 +19559,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/grid',[ "kendo.core", "./references" ], f);
+    define('spreadsheet/grid',[ "../kendo.core", "./references" ], f);
 })(function(){
 
 (function(kendo) {
@@ -19612,6 +19638,11 @@ return window.kendo;
             this._rows = rows;
             this._headerHeight = headerHeight;
             this._headerWidth = headerWidth;
+        },
+
+        _resize: function(new_rows, new_cols) {
+            this.rowCount = new_rows;
+            this.columnCount = new_cols;
         },
 
         isAxis: function(ref) {
@@ -19836,7 +19867,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/axis',[ "kendo.core" ], f);
+    define('spreadsheet/axis',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -19849,6 +19880,18 @@ return window.kendo;
             this._hidden = new kendo.spreadsheet.RangeList(0, count - 1, 0);
 
             this.scrollBarSize = kendo.support.scrollbar();
+            this._refresh();
+        },
+
+        _resize: function(count) {
+            if (count > this._count) {
+                this.values.value(this._count, count - 1, this._value);
+                this._hidden.value(this._count, count - 1, 0);
+            } else if (count < this._count) {
+                this.values.value(count, this._count - 1, 0);
+                this._hidden.value(count, this._count - 1, 0);
+            }
+            this._count = count;
             this._refresh();
         },
 
@@ -20127,28 +20170,31 @@ return window.kendo;
             var current = 0;
             this._pixelValues = this.values.map(function(range) {
                 var start = current;
-
                 current += (range.end - range.start + 1) * range.value;
-
                 var end = current - 1;
-
                 return new kendo.spreadsheet.ValueRange(start, end, range);
             });
-
             this.total = current;
         },
 
         getState: function() {
             return {
                 values: this.values.getState(),
-                hidden: this._hidden.getState()
+                hidden: this._hidden.getState(),
+                count: this._count
             };
         },
 
         setState: function(state) {
             this.values.setState(state.values);
             this._hidden.setState(state.hidden);
-            this._refresh();
+            var nowCount = this._count;
+            if (nowCount > state.count) {
+                this._count = state.count;
+                this._resize(nowCount); // calls _refresh too
+            } else {
+                this._refresh();
+            }
         }
     });
 
@@ -20265,7 +20311,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/filter',[ "kendo.core", "kendo.data" ], f);
+    define('spreadsheet/filter',[ "../kendo.core", "../kendo.data" ], f);
 })(function(){
 (function(kendo) {
 
@@ -20711,7 +20757,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sorter',[ "kendo.core" ], f);
+    define('spreadsheet/sorter',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -20833,7 +20879,7 @@ return window.kendo;
 // -*- fill-column: 100 -*-
 
 (function(f, define){
-    define('spreadsheet/numformat',[ "./calc", "kendo.dom", "../util/main" ], f);
+    define('spreadsheet/numformat',[ "./calc", "../kendo.dom", "../util/main" ], f);
 })(function(){
     "use strict";
 
@@ -21853,6 +21899,7 @@ return window.kendo;
     var packDate = runtime.packDate;
     var unpackDate = runtime.unpackDate;
     var daysInYear = runtime.daysInYear;
+    var limitPrecision = runtime.limitPrecision;
 
     /* -----[ Math functions ]----- */
 
@@ -22108,7 +22155,7 @@ return window.kendo;
         var sign = num < 0 ? -1 : 1;
         if (sign < 0) { num = -num; }
         digits = Math.pow(10, digits);
-        num *= digits;
+        num = limitPrecision(num * digits);
         num = Math.round(num);
         return sign * num / digits;
     }).args([
@@ -22118,7 +22165,7 @@ return window.kendo;
 
     defineFunction("roundup", function(num, digits){
         digits = Math.pow(10, digits);
-        num *= digits;
+        num = limitPrecision(num * digits);
         num = num < 0 ? Math.floor(num) : Math.ceil(num);
         return num / digits;
     }).args([
@@ -22128,7 +22175,7 @@ return window.kendo;
 
     defineFunction("rounddown", function(num, digits){
         digits = Math.pow(10, digits);
-        num *= digits;
+        num = limitPrecision(num * digits);
         num = num < 0 ? Math.ceil(num) : Math.floor(num);
         return num / digits;
     }).args([
@@ -23713,7 +23760,7 @@ return window.kendo;
         [ "holidays", [ "collect", "date" ] ]
     ]);
 
-    defineFunction("days", function(start, end){
+    defineFunction("days", function(end, start){
         return end - start;
     }).args([
         [ "*start_date", "date" ],
@@ -26182,7 +26229,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/borderpalette',[ "kendo.core", "kendo.colorpicker", "kendo.popup" ], f);
+    define('spreadsheet/borderpalette',[ "../kendo.core", "../kendo.colorpicker", "../kendo.popup" ], f);
 })(function(){
 
     (function(kendo) {
@@ -26451,7 +26498,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/toolbar',[ "kendo.toolbar", "kendo.colorpicker", "kendo.combobox", "kendo.dropdownlist", "kendo.popup", "./borderpalette" ], f);
+    define('spreadsheet/toolbar',[ "../kendo.toolbar", "../kendo.colorpicker", "../kendo.combobox", "../kendo.dropdownlist", "../kendo.popup", "./borderpalette" ], f);
 })(function(){
 
 (function(kendo) {
@@ -26655,14 +26702,14 @@ return window.kendo;
         },
         _nextTool: function (direction) {
             var that = this;
-            var tools = that.element.find(".k-widget, .k-button, .k-button-group > a");
-            var activeIndex = tools.index($(document.activeElement).closest(".k-widget, .k-button, .k-button-group > a"));
+            var tools = that.element.find(".k-dropdownlist, .k-combobox, .k-button, .k-button-group > a").not("[tabindex=-1]");
+            var activeIndex = tools.index($(document.activeElement).closest(".k-dropdownlist, .k-combobox, .k-button, .k-button-group > a").not("[tabindex=-1]"));
             if (activeIndex > 0) {
                 return tools[activeIndex + direction];
             }
         },
         _addSeparators: function(element) {
-            var groups = element.children(".k-widget, a.k-button, .k-button-group");
+            var groups = element.children(".k-dropdownlist, .k-combobox, a.k-button, .k-button-group");
 
             groups.before("<span class='k-separator'></span>");
         },
@@ -26878,7 +26925,8 @@ return window.kendo;
                 .attr("title", options.attributes.title)
                 .attr("aria-label", options.attributes.title)
                 .kendoDropDownList({
-                    height: "auto"
+                    height: "auto",
+                    autoWidth: true
                 }).data("kendoDropDownList");
 
             this.dropDownList = dropDownList;
@@ -26952,7 +27000,7 @@ return window.kendo;
 
     var PopupTool = kendo.toolbar.Item.extend({
         init: function(options, toolbar) {
-            this.element = $("<a role='button' href='#' class='k-button k-button-md k-rounded-md  k-button-rectangle k-button-solid k-button-solid-base'>" +
+            this.element = $("<a role='button' href='#' class='k-button k-button-md k-rounded-md  k-button-solid k-button-solid-base'>" +
                                 "<span class='k-button-icon k-icon " + options.spriteCssClass + "'></span>" +
                                 "<span class='k-button-text'><span class='k-icon k-i-arrow-s'></span></span>" +
                             "</a>");
@@ -27401,9 +27449,11 @@ return window.kendo;
         init: function(options, toolbar) {
             PopupTool.fn.init.call(this, options, toolbar);
 
+            this.popup.element.addClass("k-menu-popup");
+
             this._defineButtons();
             this._commandPalette();
-            this.popup.element.on("click", ".k-button", function(e) {
+            this.popup.element.on("click", ".k-menu-item", function(e) {
                 this._action($(e.currentTarget));
             }.bind(this));
 
@@ -27426,13 +27476,17 @@ return window.kendo;
             PopupTool.fn.destroy.call(this);
         },
         _commandPalette: function() {
-            var element = $("<div />").appendTo(this.popup.element);
+            var element = $("<ul class='k-group k-menu-group k-reset k-menu-group-md'>").appendTo(this.popup.element);
+
             this.buttons.forEach(function(options) {
-                var button = "<a role='button' title='" + options.text + "' data-value='" + options.value + "' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base'>" +
-                                "<span class='k-button-icon k-icon k-i-" + options.iconClass + "'></span>" +
-                                "<span class='k-button-text'>" + options.text + "</span>" +
-                             "</a>";
-                element.append(button);
+                var item = "<li class='k-item k-menu-item' data-value='" + options.value + "'>" +
+                    "<span class='k-link k-menu-link'>" +
+                        "<span class='k-icon k-i-" + options.iconClass + "'></span>" +
+                        "<span class='k-menu-link-text'>" + options.text + "</span>" +
+                    "</span>" +
+                "</li>";
+
+                element.append(item);
             });
         },
         _action: function(button) {
@@ -27459,9 +27513,10 @@ return window.kendo;
         init: function(options, toolbar) {
             PopupTool.fn.init.call(this, options, toolbar);
 
+            this.popup.element.addClass("k-menu-popup");
             this._defineButtons();
             this._commandPalette();
-            this.popup.element.on("click", ".k-button", function(e) {
+            this.popup.element.on("click", ".k-menu-item", function(e) {
                 this._action($(e.currentTarget));
             }.bind(this));
 
@@ -27484,13 +27539,15 @@ return window.kendo;
             PopupTool.fn.destroy.call(this);
         },
         _commandPalette: function() {
-            var element = $("<div />").appendTo(this.popup.element);
+            var element = $("<ul class='k-group k-menu-group k-reset k-menu-group-md'>").appendTo(this.popup.element);
             this.buttons.forEach(function(options) {
-                var button = "<a role='button' title='" + options.text + "' data-value='" + options.value + "' class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base'>" +
-                                "<span class='k-button-icon k-icon k-i-" + options.iconClass + "'></span>" +
-                                "<span class='k-button-text'>" + options.text + "</span>" +
-                             "</a>";
-                element.append(button);
+                var item = "<li class='k-item k-menu-item' data-value='" + options.value + "'>" +
+                    "<span class='k-link k-menu-link'>" +
+                        "<span class='k-icon k-i-" + options.iconClass + "'></span>" +
+                        "<span class='k-menu-link-text'>" + options.text + "</span>" +
+                    "</span>" +
+                "</li>";
+                element.append(item);
             });
         },
         _action: function(button) {
@@ -27743,7 +27800,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/dialogs',[ "kendo.core", "kendo.binder", "kendo.validator" ], f);
+    define('spreadsheet/dialogs',[ "../kendo.core", "../kendo.binder", "../kendo.validator" ], f);
 })(function(){
 
 (function(kendo) {
@@ -29748,7 +29805,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/sheetbinder',[ "kendo.core", "kendo.data", "./sheet" ], f);
+    define('spreadsheet/sheetbinder',[ "../kendo.core", "../kendo.data", "./sheet" ], f);
 })(function(){
 
 (function(kendo) {
@@ -29990,7 +30047,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/filtermenu',[ "kendo.core", "kendo.popup", "kendo.treeview", "kendo.numerictextbox", "kendo.datepicker", "kendo.datetimepicker" ], f);
+    define('spreadsheet/filtermenu',[ "../kendo.core", "../kendo.popup", "../kendo.treeview", "../kendo.numerictextbox", "../kendo.datepicker", "../kendo.datetimepicker" ], f);
 })(function(){
 
     (function(kendo) {
@@ -30101,7 +30158,7 @@ return window.kendo;
             init: function(element, bindings, options) {
                 kendo.data.Binder.fn.init.call(this, element, bindings, options);
 
-                this._change = $.proxy(this.change, this);
+                this._change = this.change.bind(this);
                 $(this.element).on("change", this._change);
             },
             refresh: function() {
@@ -30121,7 +30178,7 @@ return window.kendo;
                 kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
 
                 this.widget = widget;
-                this._change = $.proxy(this.change, this);
+                this._change = this.change.bind(this);
                 this.widget.first("change", this._change);
             },
             refresh: function() {
@@ -30573,9 +30630,16 @@ return window.kendo;
                 this.popup.destroy();
             },
 
-            openFor: function(anchor) {
-                this.popup.setOptions({ anchor: anchor });
-                this.popup.open();
+            openFor: function(anchor, event) {
+                if ($(anchor).hasClass("k-spreadsheet-view-size")) {
+                    // on touch devices this element will sit above to
+                    // enable scrolling; it's not useful as an anchor,
+                    // use event coords instead.
+                    this.popup.open(event.pageX, event.pageY);
+                } else {
+                    this.popup.setOptions({ anchor: anchor });
+                    this.popup.open();
+                }
             },
 
             close: function() {
@@ -30751,7 +30815,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/editor',[ "kendo.core" ], f);
+    define('spreadsheet/editor',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -31274,7 +31338,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/nameeditor',[ "kendo.core" ], f);
+    define('spreadsheet/nameeditor',[ "../kendo.core" ], f);
 })(function(){
 
 (function(kendo) {
@@ -31386,7 +31450,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('spreadsheet/print',[ "kendo.pdf", "./sheet", "./range", "./references", "./numformat", "../util/text-metrics" ], f);
+    define('spreadsheet/print',[ "../kendo.pdf", "./sheet", "./range", "./references", "./numformat", "../util/text-metrics" ], f);
 })(function(){
     "use strict";
 
@@ -32407,9 +32471,9 @@ return window.kendo;
         "./util/undoredostack",
         "./util/text-metrics",
         "./util/parse-xml",
-        "kendo.excel",
-        "kendo.progressbar",
-        "kendo.pdf",
+        "./kendo.excel",
+        "./kendo.progressbar",
+        "./kendo.pdf",
         "./spreadsheet/commands",
         "./spreadsheet/formulabar",
         "./spreadsheet/formulainput",

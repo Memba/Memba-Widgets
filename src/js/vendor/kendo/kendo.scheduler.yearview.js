@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.scheduler.yearview',[ "kendo.scheduler.view", "kendo.multiviewcalendar", "kendo.tooltip" ], f);
+    define('kendo.scheduler.yearview',[ "./kendo.scheduler.view", "./kendo.multiviewcalendar", "./kendo.tooltip" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -40,7 +40,6 @@ var __meta__ = { // jshint ignore:line
         ui = kendo.ui,
         SchedulerView = ui.SchedulerView,
         extend = $.extend,
-        proxy = $.proxy,
         template = kendo.template,
         firstDayOfYear = kendo.date.firstDayOfYear,
         firstDayOfMonth = kendo.date.firstDayOfMonth,
@@ -177,11 +176,11 @@ var __meta__ = { // jshint ignore:line
 
             that.calendar.header.toggleClass(YearViewStyles.hidden);
 
-            that.calendar.element.on(CLICK + NS, "td[role='gridcell']", proxy(that._calendarCellClick, that));
+            that.calendar.element.on(CLICK + NS, "td[role='gridcell']", that._calendarCellClick.bind(that));
 
-            that.calendar.element.on(KEYDOWN + NS, "table.k-content", proxy(that._calendarKeydown, that));
+            that.calendar.element.on(KEYDOWN + NS, "table.k-content", that._calendarKeydown.bind(that));
 
-            that.calendar.bind(NAVIGATE, proxy(that._calendarNavigate, that));
+            that.calendar.bind(NAVIGATE, that._calendarNavigate.bind(that));
 
             that.calendar.element.find("table").attr("tabindex", "-1");
         },
@@ -266,9 +265,9 @@ var __meta__ = { // jshint ignore:line
 
             that._initTooltipPopup();
 
-            that.tooltip.bind(SHOW, proxy(that._tooltipShow, that));
+            that.tooltip.bind(SHOW, that._tooltipShow.bind(that));
 
-            that.tooltip.bind(HIDE, proxy(that._tooltipHide, that));
+            that.tooltip.bind(HIDE, that._tooltipHide.bind(that));
         },
 
         _initTooltipPopup: function() {
@@ -283,9 +282,9 @@ var __meta__ = { // jshint ignore:line
 
             tooltip.popup.element.addClass(YearViewStyles.tooltip);
 
-            tooltip.popup.element.on(CLICK + NS, ".k-tooltip-title > .k-day", proxy(that._tooltipTitleClick, that));
+            tooltip.popup.element.on(CLICK + NS, ".k-tooltip-title > .k-day", that._tooltipTitleClick.bind(that));
 
-            tooltip.popup.element.on(KEYDOWN + NS, that, proxy(that._tooltipKeydown, that));
+            tooltip.popup.element.on(KEYDOWN + NS, that, that._tooltipKeydown.bind(that));
         },
 
         _buildTooltipTemplate: function() {

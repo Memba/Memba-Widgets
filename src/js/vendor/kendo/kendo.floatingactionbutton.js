@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
-    define('kendo.floatingactionbutton',["kendo.core", "kendo.popup", "kendo.fx"], f);
+    define('kendo.floatingactionbutton',["./kendo.core", "./kendo.popup", "./kendo.fx"], f);
 })(function () {
 
 var __meta__ = {// jshint ignore:line
@@ -41,7 +41,6 @@ var __meta__ = {// jshint ignore:line
         ui = kendo.ui,
         keys = kendo.keys,
         support = kendo.support,
-        proxy = $.proxy,
         extend = $.extend,
 
         DOT = '.',
@@ -231,7 +230,8 @@ var __meta__ = {// jshint ignore:line
                 enabled = that._enabled;
 
             // Remove all class names
-            that.element.removeClass(function(index, className) {
+            $(that.element[0].classList).each(function () {
+                var className = this + "";
                 if (className.indexOf('k-') === 0 && keepClassNames.indexOf(className) === -1) {
                     that.element.removeClass(className);
                 }
@@ -401,10 +401,10 @@ var __meta__ = {// jshint ignore:line
                         )
                     }
                 },
-                open: proxy(that._popupOpenHandler, that),
-                close: proxy(that._popupCloseHandler, that),
-                activate: proxy(that._popupExpandHandler, that),
-                deactivate: proxy(that._popupCollapseHandler, that)
+                open: that._popupOpenHandler.bind(that),
+                close: that._popupCloseHandler.bind(that),
+                activate: that._popupExpandHandler.bind(that),
+                deactivate: that._popupCollapseHandler.bind(that)
             }));
 
             that._popup.element.addClass([cssClasses.popup, cssClasses.popupTransparent].join(' '));
@@ -495,13 +495,13 @@ var __meta__ = {// jshint ignore:line
             var that = this,
                 popup = that._popup;
 
-            that.element.on(CLICK + NS, proxy(that._click, that));
+            that.element.on(CLICK + NS, that._click.bind(that));
 
             if (popup) {
                 popup.element
-                    .on(CLICK + NS, DOT + cssClasses.item, proxy(that._itemClick, that))
-                    .on(KEYDOWN + NS, DOT + cssClasses.item, proxy(that._itemKeydown, that))
-                    .on(HOVEREVENTS, DOT + cssClasses.item, proxy(that._itemHover, that));
+                    .on(CLICK + NS, DOT + cssClasses.item, that._itemClick.bind(that))
+                    .on(KEYDOWN + NS, DOT + cssClasses.item, that._itemKeydown.bind(that))
+                    .on(HOVEREVENTS, DOT + cssClasses.item, that._itemHover.bind(that));
             }
         },
 

@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.responsivepanel',[ "kendo.core" ], f);
+    define('kendo.responsivepanel',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -35,7 +35,6 @@ var __meta__ = { // jshint ignore:line
 };
 
 (function ($, undefined) {
-    var proxy = $.proxy;
     var NS = ".kendoResponsivePanel";
     var OPEN = "open";
     var CLOSE = "close";
@@ -47,8 +46,8 @@ var __meta__ = { // jshint ignore:line
 
             this._guid = "_" + kendo.guid();
 
-            this._toggleHandler = proxy(this._toggleButtonClick, this);
-            this._closeHandler = proxy(this._close, this);
+            this._toggleHandler = this._toggleButtonClick.bind(this);
+            this._closeHandler = this._close.bind(this);
 
             $(document.documentElement).on(ACTIVATE_EVENTS, this.options.toggleButton, this._toggleHandler);
 
@@ -62,7 +61,7 @@ var __meta__ = { // jshint ignore:line
             this.element
                 .addClass("k-rpanel k-rpanel-" + this.options.orientation + " " + this._guid);
 
-            this._resizeHandler = proxy(this.resize, this, true);
+            this._resizeHandler = this.resize.bind(this, true);
             $(window).on("resize" + NS, this._resizeHandler);
         },
         _mediaQuery:

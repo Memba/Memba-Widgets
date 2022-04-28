@@ -1,29 +1,29 @@
-/**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
- * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function(f, define){
-    define('kendo.breadcrumb',[ "kendo.core" ], f);
+    define('kendo.breadcrumb',[ "./kendo.core" ], f);
 })(function(){
 
 var __meta__ = { // jshint ignore:line
@@ -39,8 +39,6 @@ var __meta__ = { // jshint ignore:line
         Widget = kendo.ui.Widget,
         extend = $.extend,
         isPlainObject = $.isPlainObject,
-
-        proxy = $.proxy,
 
         BREADCRUMB = ".kendoBreadcrumb",
 
@@ -85,7 +83,7 @@ var __meta__ = { // jshint ignore:line
                 that._tabindex();
             }
 
-            that.wrapper.on(CLICK + BREADCRUMB, "a:not(.k-state-disabled)", proxy(that._click, that));
+            that.wrapper.on(CLICK + BREADCRUMB, "a:not(.k-state-disabled)", that._click.bind(that));
 
             if(options.value || options.bindToLocation || !options.items) {
                 that._value();
@@ -345,14 +343,14 @@ var __meta__ = { // jshint ignore:line
                 .attr(ARIA_HIDDEN, true);
 
             that.input
-                .on(BLUR + BREADCRUMB, proxy(that._blur, that, false))
-                .on(KEYDOWN + BREADCRUMB, proxy(that._keydown, that));
+                .on(BLUR + BREADCRUMB, that._blur.bind(that, false))
+                .on(KEYDOWN + BREADCRUMB, that._keydown.bind(that));
 
             that.wrapper
-                .on(FOCUS + BREADCRUMB, proxy(that._wrapperFocus, that))
-                .on(BLUR + BREADCRUMB, proxy(that._wrapperBlur, that))
-                .on(KEYDOWN + BREADCRUMB, proxy(that._wrapperKeydown, that))
-                .on(CLICK + BREADCRUMB, proxy(that._wrapperClick, that));
+                .on(FOCUS + BREADCRUMB, that._wrapperFocus.bind(that))
+                .on(BLUR + BREADCRUMB, that._wrapperBlur.bind(that))
+                .on(KEYDOWN + BREADCRUMB, that._wrapperKeydown.bind(that))
+                .on(CLICK + BREADCRUMB, that._wrapperClick.bind(that));
         },
 
         _value: function () {

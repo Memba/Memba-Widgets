@@ -10,11 +10,30 @@ Thumbs.db
 
 # Ignore Webstorm files
 .idea/
-coverage/
-undefined/
+
+# Ignore MongoDB database
+/data/
+*.archive
 
 # Ignore Node files
 node_modules/
+logs/
+*.log
+
+# Ignore test files
+.nyc_output/
+coverage/
+errorShots/
+# lib-cov/
+simulation/
+webapp/public/build/gremlins.min.js
+
+# Ignore cordova
+# http://stackoverflow.com/questions/29970885/cordova-5-0-0-which-files-should-i-commit-to-git
+/.cordova/
+/.gradle/
+/platforms/
+/plugins/
 
 # Ignore Grunt Files
 validation-status.json
@@ -22,4 +41,3 @@ validation-report.json
 
 # Ignore Dummy Files
 temp/
-src/js/vendor/gskinner/

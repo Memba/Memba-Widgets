@@ -5,30 +5,21 @@ Website: https://en.wikipedia.org/wiki/Fortran
 Category: scientific
 */
 
-import * as regex from '../lib/regex.js';
-
 /** @type LanguageFn */
 export default function(hljs) {
+  const regex = hljs.regex;
   const PARAMS = {
     className: 'params',
     begin: '\\(',
     end: '\\)'
   };
 
-  const COMMENT = {
-    variants: [
-      hljs.COMMENT('!', '$', {
-        relevance: 0
-      }),
-      // allow FORTRAN 77 style comments
-      hljs.COMMENT('^C[ ]', '$', {
-        relevance: 0
-      }),
-      hljs.COMMENT('^C$', '$', {
-        relevance: 0
-      })
-    ]
-  };
+  const COMMENT = { variants: [
+    hljs.COMMENT('!', '$', { relevance: 0 }),
+    // allow FORTRAN 77 style comments
+    hljs.COMMENT('^C[ ]', '$', { relevance: 0 }),
+    hljs.COMMENT('^C$', '$', { relevance: 0 })
+  ] };
 
   // regex in both fortran and irpf90 should match
   const OPTIONAL_NUMBER_SUFFIX = /(_[a-z_\d]+)?/;
@@ -36,15 +27,9 @@ export default function(hljs) {
   const NUMBER = {
     className: 'number',
     variants: [
-      {
-        begin: regex.concat(/\b\d+/, /\.(\d*)/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)
-      },
-      {
-        begin: regex.concat(/\b\d+/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)
-      },
-      {
-        begin: regex.concat(/\.\d+/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)
-      }
+      { begin: regex.concat(/\b\d+/, /\.(\d*)/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX) },
+      { begin: regex.concat(/\b\d+/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX) },
+      { begin: regex.concat(/\.\d+/, OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX) }
     ],
     relevance: 0
   };

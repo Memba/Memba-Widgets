@@ -6,10 +6,9 @@ Description: Syntax Highlighting for the AspectJ Language which is a general-pur
 Audit: 2020
 */
 
-import * as regex from '../lib/regex.js';
-
 /** @type LanguageFn */
 export default function(hljs) {
+  const regex = hljs.regex;
   const KEYWORDS = [
     "false",
     "synchronized",
@@ -127,9 +126,7 @@ export default function(hljs) {
         excludeEnd: true,
         illegal: /[:;"\[\]]/,
         contains: [
-          {
-            beginKeywords: 'extends implements pertypewithin perthis pertarget percflowbelow percflow issingleton'
-          },
+          { beginKeywords: 'extends implements pertypewithin perthis pertarget percflowbelow percflow issingleton' },
           hljs.UNDERSCORE_TITLE_MODE,
           {
             begin: /\([^\)]*/,
@@ -148,9 +145,7 @@ export default function(hljs) {
         keywords: 'class interface',
         illegal: /[:"\[\]]/,
         contains: [
-          {
-            beginKeywords: 'extends implements'
-          },
+          { beginKeywords: 'extends implements' },
           hljs.UNDERSCORE_TITLE_MODE
         ]
       },

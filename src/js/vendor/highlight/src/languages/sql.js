@@ -20,9 +20,8 @@ SQL is intended to highlight basic/common SQL keywords and expressions
 
  */
 
-import * as regex from '../lib/regex.js';
-
 export default function(hljs) {
+  const regex = hljs.regex;
   const COMMENT_MODE = hljs.COMMENT('--', '$');
   const STRING = {
     className: 'string',
@@ -30,9 +29,7 @@ export default function(hljs) {
       {
         begin: /'/,
         end: /'/,
-        contains: [
-          {begin: /''/ }
-        ]
+        contains: [ { begin: /''/ } ]
       }
     ]
   };
@@ -601,7 +598,10 @@ export default function(hljs) {
 
   const FUNCTIONS = RESERVED_FUNCTIONS;
 
-  const KEYWORDS = [...RESERVED_WORDS, ...NON_RESERVED_WORDS].filter((keyword) => {
+  const KEYWORDS = [
+    ...RESERVED_WORDS,
+    ...NON_RESERVED_WORDS
+  ].filter((keyword) => {
     return !RESERVED_FUNCTIONS.includes(keyword);
   });
 
@@ -619,13 +619,13 @@ export default function(hljs) {
   const FUNCTION_CALL = {
     begin: regex.concat(/\b/, regex.either(...FUNCTIONS), /\s*\(/),
     relevance: 0,
-    keywords: {
-      built_in: FUNCTIONS
-    }
+    keywords: { built_in: FUNCTIONS }
   };
 
   // keywords with less than 3 letters are reduced in relevancy
-  function reduceRelevancy(list, {exceptions, when} = {}) {
+  function reduceRelevancy(list, {
+    exceptions, when
+  } = {}) {
     const qualifyFn = when;
     exceptions = exceptions || [];
     return list.map((item) => {

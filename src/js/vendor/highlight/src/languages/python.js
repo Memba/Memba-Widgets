@@ -5,10 +5,9 @@ Website: https://www.python.org
 Category: common
 */
 
-import { IDENT_RE } from '../lib/modes.js';
-import * as regex from '../lib/regex.js';
-
 export default function(hljs) {
+  const regex = hljs.regex;
+  const IDENT_RE = /[\p{XID_Start}_]\p{XID_Continue}*/u;
   const RESERVED_WORDS = [
     'and',
     'as',
@@ -256,6 +255,12 @@ export default function(hljs) {
   // https://docs.python.org/3.9/reference/lexical_analysis.html#numeric-literals
   const digitpart = '[0-9](_?[0-9])*';
   const pointfloat = `(\\b(${digitpart}))?\\.(${digitpart})|\\b(${digitpart})\\.`;
+  // Whitespace after a number (or any lexical token) is needed only if its absence
+  // would change the tokenization
+  // https://docs.python.org/3.9/reference/lexical_analysis.html#whitespace-between-tokens
+  // We deviate slightly, requiring a word boundary or a keyword
+  // to avoid accidentally recognizing *prefixes* (e.g., `0` in `0x41` or `08` or `0__1`)
+  const lookahead = `\\b|${RESERVED_WORDS.join('|')}`;
   const NUMBER = {
     className: 'number',
     relevance: 0,
@@ -271,7 +276,7 @@ export default function(hljs) {
       // because both MUST contain a decimal point and so cannot be confused with
       // the interior part of an identifier
       {
-        begin: `(\\b(${digitpart})|(${pointfloat}))[eE][+-]?(${digitpart})[jJ]?\\b`
+        begin: `(\\b(${digitpart})|(${pointfloat}))[eE][+-]?(${digitpart})[jJ]?(?=${lookahead})`
       },
       {
         begin: `(${pointfloat})[jJ]?`
@@ -284,22 +289,22 @@ export default function(hljs) {
       // decinteger is optionally imaginary
       // https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
       {
-        begin: '\\b([1-9](_?[0-9])*|0+(_?0)*)[lLjJ]?\\b'
+        begin: `\\b([1-9](_?[0-9])*|0+(_?0)*)[lLjJ]?(?=${lookahead})`
       },
       {
-        begin: '\\b0[bB](_?[01])+[lL]?\\b'
+        begin: `\\b0[bB](_?[01])+[lL]?(?=${lookahead})`
       },
       {
-        begin: '\\b0[oO](_?[0-7])+[lL]?\\b'
+        begin: `\\b0[oO](_?[0-7])+[lL]?(?=${lookahead})`
       },
       {
-        begin: '\\b0[xX](_?[0-9a-fA-F])+[lL]?\\b'
+        begin: `\\b0[xX](_?[0-9a-fA-F])+[lL]?(?=${lookahead})`
       },
 
       // imagnumber (digitpart-based)
       // https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
       {
-        begin: `\\b(${digitpart})[jJ]\\b`
+        begin: `\\b(${digitpart})[jJ](?=${lookahead})`
       }
     ]
   };
@@ -358,6 +363,7 @@ export default function(hljs) {
       'gyp',
       'ipython'
     ],
+    unicodeRegex: true,
     keywords: KEYWORDS,
     illegal: /(<\/|->|\?)|=>/,
     contains: [
@@ -378,8 +384,8 @@ export default function(hljs) {
       hljs.HASH_COMMENT_MODE,
       {
         match: [
-          /def/, /\s+/,
-          IDENT_RE
+          /\bdef/, /\s+/,
+          IDENT_RE,
         ],
         scope: {
           1: "keyword",
@@ -391,14 +397,14 @@ export default function(hljs) {
         variants: [
           {
             match: [
-              /class/, /\s+/,
+              /\bclass/, /\s+/,
               IDENT_RE, /\s*/,
               /\(\s*/, IDENT_RE,/\s*\)/
             ],
           },
           {
             match: [
-              /class/, /\s+/,
+              /\bclass/, /\s+/,
               IDENT_RE
             ],
           }

@@ -12,19 +12,9 @@ import javascript from "./javascript.js";
 
 /** @type LanguageFn */
 export default function(hljs) {
+  const tsLanguage = javascript(hljs);
+
   const IDENT_RE = ECMAScript.IDENT_RE;
-  const NAMESPACE = {
-    beginKeywords: 'namespace', end: /\{/, excludeEnd: true
-  };
-  const INTERFACE = {
-    beginKeywords: 'interface', end: /\{/, excludeEnd: true,
-    keywords: 'interface extends'
-  };
-  const USE_STRICT = {
-    className: 'meta',
-    relevance: 10,
-    begin: /^\s*['"]use strict['"]/
-  };
   const TYPES = [
     "any",
     "void",
@@ -33,12 +23,34 @@ export default function(hljs) {
     "string",
     "object",
     "never",
-    "enum"
+    "symbol",
+    "bigint",
+    "unknown"
   ];
+  const NAMESPACE = {
+    beginKeywords: 'namespace',
+    end: /\{/,
+    excludeEnd: true,
+    contains: [ tsLanguage.exports.CLASS_REFERENCE ]
+  };
+  const INTERFACE = {
+    beginKeywords: 'interface',
+    end: /\{/,
+    excludeEnd: true,
+    keywords: {
+      keyword: 'interface extends',
+      built_in: TYPES
+    },
+    contains: [ tsLanguage.exports.CLASS_REFERENCE ]
+  };
+  const USE_STRICT = {
+    className: 'meta',
+    relevance: 10,
+    begin: /^\s*['"]use strict['"]/
+  };
   const TS_SPECIFIC_KEYWORDS = [
     "type",
     "namespace",
-    "typedef",
     "interface",
     "public",
     "private",
@@ -46,7 +58,9 @@ export default function(hljs) {
     "implements",
     "declare",
     "abstract",
-    "readonly"
+    "readonly",
+    "enum",
+    "override"
   ];
   const KEYWORDS = {
     $pattern: ECMAScript.IDENT_RE,
@@ -62,12 +76,11 @@ export default function(hljs) {
 
   const swapMode = (mode, label, replacement) => {
     const indx = mode.contains.findIndex(m => m.label === label);
-    if (indx === -1) { throw new Error("can not find mode to replace"); };
+    if (indx === -1) { throw new Error("can not find mode to replace"); }
 
     mode.contains.splice(indx, 1, replacement);
   };
 
-  const tsLanguage = javascript(hljs);
 
   // this should update anywhere keywords is used since
   // it will be the same actual JS object
@@ -90,7 +103,10 @@ export default function(hljs) {
 
   Object.assign(tsLanguage, {
     name: 'TypeScript',
-    aliases: ['ts', 'tsx']
+    aliases: [
+      'ts',
+      'tsx'
+    ]
   });
 
   return tsLanguage;

@@ -73,6 +73,8 @@ export const keywords = [
   'internal',
   'in',
   'is', // operator
+  'isolated', // contextual
+  'nonisolated', // contextual
   'lazy', // contextual
   'let',
   'mutating', // contextual
@@ -139,7 +141,7 @@ export const precedencegroupKeywords = [
 ];
 
 // Keywords that start with a number sign (#).
-// #available is handled separately.
+// #(un)available is handled separately.
 export const numberSignKeywords = [
   '#colorLiteral',
   '#column',
@@ -305,7 +307,7 @@ export const keywordAttributes = [
   'usableFromInline'
 ];
 
-// Contextual keywords used in @available and #available.
+// Contextual keywords used in @available and #(un)available.
 export const availabilityKeywords = [
   'iOS',
   'iOSApplicationExtension',

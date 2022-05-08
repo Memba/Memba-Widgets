@@ -5,14 +5,16 @@ Author: Radek Liska <radekliska@gmail.com>
 Website: https://www.tcl.tk/about/language.html
 */
 
-import * as regex from '../lib/regex.js';
-
 export default function(hljs) {
+  const regex = hljs.regex;
   const TCL_IDENT = /[a-zA-Z_][a-zA-Z0-9_]*/;
 
   const NUMBER = {
     className: 'number',
-    variants: [hljs.BINARY_NUMBER_MODE, hljs.C_NUMBER_MODE]
+    variants: [
+      hljs.BINARY_NUMBER_MODE,
+      hljs.C_NUMBER_MODE
+    ]
   };
 
   const KEYWORDS = [
@@ -138,7 +140,7 @@ export default function(hljs) {
 
   return {
     name: 'Tcl',
-    aliases: ['tk'],
+    aliases: [ 'tk' ],
     keywords: KEYWORDS,
     contains: [
       hljs.COMMENT(';[ \\t]*#', '$'),
@@ -160,33 +162,27 @@ export default function(hljs) {
       {
         className: "variable",
         variants: [
-          {
-            begin: regex.concat(
-              /\$/,
-              regex.optional(/::/),
-              TCL_IDENT,
-              '(::',
-              TCL_IDENT,
-              ')*'
-            )
-          },
+          { begin: regex.concat(
+            /\$/,
+            regex.optional(/::/),
+            TCL_IDENT,
+            '(::',
+            TCL_IDENT,
+            ')*'
+          ) },
           {
             begin: '\\$\\{(::)?[a-zA-Z_]((::)?[a-zA-Z0-9_])*',
             end: '\\}',
-            contains: [
-              NUMBER
-            ]
+            contains: [ NUMBER ]
           }
         ]
       },
       {
         className: 'string',
-        contains: [hljs.BACKSLASH_ESCAPE],
-        variants: [
-          hljs.inherit(hljs.QUOTE_STRING_MODE, {illegal: null})
-        ]
+        contains: [ hljs.BACKSLASH_ESCAPE ],
+        variants: [ hljs.inherit(hljs.QUOTE_STRING_MODE, { illegal: null }) ]
       },
       NUMBER
     ]
-  }
+  };
 }

@@ -13,10 +13,12 @@ import * as MODES from './lib/modes.js';
 import { compileLanguage } from './lib/mode_compiler.js';
 import * as packageJSON from '../package.json';
 import * as logger from "./lib/logger.js";
+import HTMLInjectionError from "./lib/html_injection_error.js";
 
 /**
 @typedef {import('highlight.js').Mode} Mode
 @typedef {import('highlight.js').CompiledMode} CompiledMode
+@typedef {import('highlight.js').CompiledScope} CompiledScope
 @typedef {import('highlight.js').Language} Language
 @typedef {import('highlight.js').HLJSApi} HLJSApi
 @typedef {import('highlight.js').HLJSPlugin} HLJSPlugin
@@ -65,6 +67,7 @@ const HLJS = function(hljs) {
   /** @type HLJSOptions */
   let options = {
     ignoreUnescapedHTML: false,
+    throwUnescapedHTML: false,
     noHighlightRe: /^(no-?highlight)$/i,
     languageDetectRe: /\blang(?:uage)?-([\w-]+)\b/i,
     classPrefix: 'hljs-',
@@ -121,7 +124,6 @@ const HLJS = function(hljs) {
    * @param {string} codeOrLanguageName - the language to use for highlighting
    * @param {string | HighlightOptions} optionsOrCode - the code to highlight
    * @param {boolean} [ignoreIllegals] - whether to ignore illegal matches, default is to bail
-   * @param {CompiledMode} [continuation] - current continuation mode, if any
    *
    * @returns {HighlightResult} Result - an object that represents the result
    * @property {string} language - the language name
@@ -131,16 +133,13 @@ const HLJS = function(hljs) {
    * @property {CompiledMode} top - top of the current mode stack
    * @property {boolean} illegal - indicates whether any illegal matches were found
   */
-  function highlight(codeOrLanguageName, optionsOrCode, ignoreIllegals, continuation) {
+  function highlight(codeOrLanguageName, optionsOrCode, ignoreIllegals) {
     let code = "";
     let languageName = "";
     if (typeof optionsOrCode === "object") {
       code = codeOrLanguageName;
       ignoreIllegals = optionsOrCode.ignoreIllegals;
       languageName = optionsOrCode.language;
-      // continuation not supported at all via the new API
-      // eslint-disable-next-line no-undefined
-      continuation = undefined;
     } else {
       // old API
       logger.deprecated("10.7.0", "highlight(lang, code, ...args) has been deprecated.");
@@ -166,7 +165,7 @@ const HLJS = function(hljs) {
     // in which case we don't even need to call highlight
     const result = context.result
       ? context.result
-      : _highlight(context.language, context.code, ignoreIllegals, continuation);
+      : _highlight(context.language, context.code, ignoreIllegals);
 
     result.code = context.code;
     // the plugin can change anything in result to suite it
@@ -273,13 +272,13 @@ const HLJS = function(hljs) {
     }
 
     /**
-     * @param {CompiledMode} mode
+     * @param {CompiledScope} scope
      * @param {RegExpMatchArray} match
      */
     function emitMultiClass(scope, match) {
       let i = 1;
-      // eslint-disable-next-line no-undefined
-      while (match[i] !== undefined) {
+      const max = match.length - 1;
+      while (i <= max) {
         if (!scope._emit[i]) { i++; continue; }
         const klass = language.classNameAliases[scope[i]] || scope[i];
         const text = match[i];
@@ -432,7 +431,7 @@ const HLJS = function(hljs) {
         }
       }
       do {
-        if (top.scope && !top.isMultiClass) {
+        if (top.scope) {
           emitter.closeNode();
         }
         if (!top.skip && !top.subLanguage) {
@@ -727,11 +726,25 @@ const HLJS = function(hljs) {
     fire("before:highlightElement",
       { el: element, language: language });
 
-    // we should be all text, no child nodes
-    if (!options.ignoreUnescapedHTML && element.children.length > 0) {
-      console.warn("One of your code blocks includes unescaped HTML. This is a potentially serious security risk.");
-      console.warn("https://github.com/highlightjs/highlight.js/issues/2886");
-      console.warn(element);
+    // we should be all text, no child nodes (unescaped HTML) - this is possibly
+    // an HTML injection attack - it's likely too late if this is already in
+    // production (the code has likely already done its damage by the time
+    // we're seeing it)... but we yell loudly about this so that hopefully it's
+    // more likely to be caught in development before making it to production
+    if (element.children.length > 0) {
+      if (!options.ignoreUnescapedHTML) {
+        console.warn("One of your code blocks includes unescaped HTML. This is a potentially serious security risk.");
+        console.warn("https://github.com/highlightjs/highlight.js/wiki/security");
+        console.warn("The element with unescaped HTML:");
+        console.warn(element);
+      }
+      if (options.throwUnescapedHTML) {
+        const err = new HTMLInjectionError(
+          "One of your code blocks includes unescaped HTML.",
+          element.innerHTML
+        );
+        throw err;
+      }
     }
 
     node = element;
@@ -930,7 +943,7 @@ const HLJS = function(hljs) {
   }
 
   /**
-   *
+   * DEPRECATED
    * @param {HighlightedHTMLElement} el
    */
   function deprecateHighlightBlock(el) {
@@ -964,6 +977,14 @@ const HLJS = function(hljs) {
   hljs.debugMode = function() { SAFE_MODE = false; };
   hljs.safeMode = function() { SAFE_MODE = true; };
   hljs.versionString = packageJSON.version;
+
+  hljs.regex = {
+    concat: regex.concat,
+    lookahead: regex.lookahead,
+    either: regex.either,
+    optional: regex.optional,
+    anyNumberOfTimes: regex.anyNumberOfTimes
+  };
 
   for (const key in MODES) {
     // @ts-ignore

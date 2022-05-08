@@ -6,13 +6,12 @@ Website: https://www.gnu.org/software/diffutils/
 Category: common
 */
 
-import * as regex from '../lib/regex.js';
-
 /** @type LanguageFn */
 export default function(hljs) {
+  const regex = hljs.regex;
   return {
     name: 'Diff',
-    aliases: ['patch'],
+    aliases: [ 'patch' ],
     contains: [
       {
         className: 'meta',
@@ -38,9 +37,7 @@ export default function(hljs) {
             ),
             end: /$/
           },
-          {
-            match: /^\*{15}$/
-          }
+          { match: /^\*{15}$/ }
         ]
       },
       {

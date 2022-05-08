@@ -28,10 +28,10 @@ Category: scientific
     ],"String"]
 */
 import * as Mathematica from './lib/mathematica.js';
-import * as regex from '../lib/regex.js';
 
 /** @type LanguageFn */
 export default function(hljs) {
+  const regex = hljs.regex;
   /*
   This rather scary looking matching of Mathematica numbers is carefully explained by Robert Jacobson here:
   https://wltools.github.io/LanguageSpec/Specification/Syntax/Number-representations/
@@ -62,23 +62,21 @@ export default function(hljs) {
   const SYMBOL_RE = /[a-zA-Z$][a-zA-Z0-9$]*/;
   const SYSTEM_SYMBOLS_SET = new Set(Mathematica.SYSTEM_SYMBOLS);
   /** @type {Mode} */
-  const SYMBOLS = {
-    variants: [
-      {
-        className: 'builtin-symbol',
-        begin: SYMBOL_RE,
-        // for performance out of fear of regex.either(...Mathematica.SYSTEM_SYMBOLS)
-        "on:begin": (match, response) => {
-          if (!SYSTEM_SYMBOLS_SET.has(match[0])) response.ignoreMatch();
-        }
-      },
-      {
-        className: 'symbol',
-        relevance: 0,
-        begin: SYMBOL_RE
+  const SYMBOLS = { variants: [
+    {
+      className: 'builtin-symbol',
+      begin: SYMBOL_RE,
+      // for performance out of fear of regex.either(...Mathematica.SYSTEM_SYMBOLS)
+      "on:begin": (match, response) => {
+        if (!SYSTEM_SYMBOLS_SET.has(match[0])) response.ignoreMatch();
       }
-    ]
-  };
+    },
+    {
+      className: 'symbol',
+      relevance: 0,
+      begin: SYMBOL_RE
+    }
+  ] };
 
   const NAMED_CHARACTER = {
     className: 'named-character',
@@ -130,9 +128,7 @@ export default function(hljs) {
       'message-name': 'string'
     },
     contains: [
-      hljs.COMMENT(/\(\*/, /\*\)/, {
-        contains: [ 'self' ]
-      }),
+      hljs.COMMENT(/\(\*/, /\*\)/, { contains: [ 'self' ] }),
       PATTERNS,
       SLOTS,
       MESSAGES,

@@ -6,9 +6,8 @@ Website: https://processing.org
 Category: graphics
 */
 
-import * as regex from '../lib/regex.js';
-
 export default function(hljs) {
+  const regex = hljs.regex;
   const BUILT_INS = [
     "displayHeight",
     "displayWidth",
@@ -273,21 +272,19 @@ export default function(hljs) {
     "randomSeed"
   ];
   const IDENT = hljs.IDENT_RE;
-  const FUNC_NAME = {
-    variants: [
-      {
-        match: regex.concat(regex.either(...BUILT_INS), regex.lookahead(/\s*\(/)),
-        className: "built_in"
-      },
-      {
-        relevance: 0,
-        match: regex.concat(
-          /\b(?!for|if|while)/,
-          IDENT, regex.lookahead(/\s*\(/)),
-        className: "title.function"
-      }
-    ]
-  };
+  const FUNC_NAME = { variants: [
+    {
+      match: regex.concat(regex.either(...BUILT_INS), regex.lookahead(/\s*\(/)),
+      className: "built_in"
+    },
+    {
+      relevance: 0,
+      match: regex.concat(
+        /\b(?!for|if|while)/,
+        IDENT, regex.lookahead(/\s*\(/)),
+      className: "title.function"
+    }
+  ] };
   const NEW_CLASS = {
     match: [
       /new\s+/,
@@ -304,30 +301,24 @@ export default function(hljs) {
       /\./,
       IDENT
     ],
-    className: {
-      2: "property"
-    }
+    className: { 2: "property" }
   };
   const CLASS = {
     variants: [
-      {
-        match: [
-          /class/,
-          /\s+/,
-          IDENT,
-          /\s+/,
-          /extends/,
-          /\s+/,
-          IDENT
-        ]
-      },
-      {
-        match: [
-          /class/,
-          /\s+/,
-          IDENT
-        ]
-      }
+      { match: [
+        /class/,
+        /\s+/,
+        IDENT,
+        /\s+/,
+        /extends/,
+        /\s+/,
+        IDENT
+      ] },
+      { match: [
+        /class/,
+        /\s+/,
+        IDENT
+      ] }
     ],
     className: {
       1: "keyword",
@@ -416,9 +407,7 @@ export default function(hljs) {
     name: 'Processing',
     aliases: [ 'pde' ],
     keywords: {
-      keyword: [
-        ...JAVA_KEYWORDS
-      ],
+      keyword: [ ...JAVA_KEYWORDS ],
       literal: 'P2D P3D HALF_PI PI QUARTER_PI TAU TWO_PI null true false',
       title: 'setup draw',
       variable: "super this",

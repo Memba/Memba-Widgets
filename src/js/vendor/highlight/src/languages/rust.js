@@ -6,10 +6,9 @@ Website: https://www.rust-lang.org
 Category: common, system
 */
 
-import * as regex from '../lib/regex.js';
-
 /** @type LanguageFn */
 export default function(hljs) {
+  const regex = hljs.regex;
   const FUNCTION_INVOKE = {
     className: "title.function.invoke",
     relevance: 0,
@@ -185,9 +184,7 @@ export default function(hljs) {
     illegal: '</',
     contains: [
       hljs.C_LINE_COMMENT_MODE,
-      hljs.COMMENT('/\\*', '\\*/', {
-        contains: [ 'self' ]
-      }),
+      hljs.COMMENT('/\\*', '\\*/', { contains: [ 'self' ] }),
       hljs.inherit(hljs.QUOTE_STRING_MODE, {
         begin: /b?"/,
         illegal: null
@@ -195,12 +192,8 @@ export default function(hljs) {
       {
         className: 'string',
         variants: [
-          {
-            begin: /b?r(#*)"(.|\n)*?"\1(?!#)/
-          },
-          {
-            begin: /b?'\\?(x\w{2}|u\w{4}|U\w{8}|.)'/
-          }
+          { begin: /b?r(#*)"(.|\n)*?"\1(?!#)/ },
+          { begin: /b?'\\?(x\w{2}|u\w{4}|U\w{8}|.)'/ }
         ]
       },
       {
@@ -210,19 +203,11 @@ export default function(hljs) {
       {
         className: 'number',
         variants: [
-          {
-            begin: '\\b0b([01_]+)' + NUMBER_SUFFIX
-          },
-          {
-            begin: '\\b0o([0-7_]+)' + NUMBER_SUFFIX
-          },
-          {
-            begin: '\\b0x([A-Fa-f0-9_]+)' + NUMBER_SUFFIX
-          },
-          {
-            begin: '\\b(\\d[\\d_]*(\\.[0-9_]+)?([eE][+-]?[0-9_]+)?)' +
-                   NUMBER_SUFFIX
-          }
+          { begin: '\\b0b([01_]+)' + NUMBER_SUFFIX },
+          { begin: '\\b0o([0-7_]+)' + NUMBER_SUFFIX },
+          { begin: '\\b0x([A-Fa-f0-9_]+)' + NUMBER_SUFFIX },
+          { begin: '\\b(\\d[\\d_]*(\\.[0-9_]+)?([eE][+-]?[0-9_]+)?)'
+                   + NUMBER_SUFFIX }
         ],
         relevance: 0
       },
@@ -251,7 +236,8 @@ export default function(hljs) {
       },
       {
         begin: [
-          /let/, /\s+/,
+          /let/,
+          /\s+/,
           /(?:mut\s+)?/,
           hljs.UNDERSCORE_IDENT_RE
         ],

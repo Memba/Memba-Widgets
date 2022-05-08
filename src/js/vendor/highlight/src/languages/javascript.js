@@ -6,10 +6,10 @@ Website: https://developer.mozilla.org/en-US/docs/Web/JavaScript
 */
 
 import * as ECMAScript from './lib/ecmascript.js';
-import * as regex from '../lib/regex.js';
 
 /** @type LanguageFn */
 export default function(hljs) {
+  const regex = hljs.regex;
   /**
    * Takes a string like "<Booger" and checks to see
    * if we can find a matching "</Booger" later in the
@@ -28,6 +28,8 @@ export default function(hljs) {
     begin: '<>',
     end: '</>'
   };
+  // to avoid some special cases inside isTrulyOpeningTag
+  const XML_SELF_CLOSING = /<[A-Za-z0-9\\._:-]+\s*\/>/;
   const XML_TAG = {
     begin: /<[A-Za-z0-9\\._:-]+/,
     end: /\/[A-Za-z0-9\\._:-]+>|\/>/,
@@ -38,20 +40,41 @@ export default function(hljs) {
     isTrulyOpeningTag: (match, response) => {
       const afterMatchIndex = match[0].length + match.index;
       const nextChar = match.input[afterMatchIndex];
-      // nested type?
-      // HTML should not include another raw `<` inside a tag
-      // But a type might: `<Array<Array<number>>`, etc.
-      if (nextChar === "<") {
+      if (
+        // HTML should not include another raw `<` inside a tag
+        // nested type?
+        // `<Array<Array<number>>`, etc.
+        nextChar === "<" ||
+        // the , gives away that this is not HTML
+        // `<T, A extends keyof T, V>`
+        nextChar === ",") {
         response.ignoreMatch();
         return;
       }
-      // <something>
-      // This is now either a tag or a type.
+
+      // `<something>`
+      // Quite possibly a tag, lets look for a matching closing tag...
       if (nextChar === ">") {
         // if we cannot find a matching closing tag, then we
         // will ignore it
         if (!hasClosingTag(match, { after: afterMatchIndex })) {
           response.ignoreMatch();
+        }
+      }
+
+      // `<blah />` (self-closing)
+      // handled by simpleSelfClosing rule
+
+      // `<From extends string>`
+      // technically this could be HTML, but it smells like a type
+      let m;
+      const afterMatch = match.input.substr(afterMatchIndex);
+      // NOTE: This is ugh, but added specifically for https://github.com/highlightjs/highlight.js/issues/3276
+      if ((m = afterMatch.match(/^\s+extends\s+/))) {
+        if (m.index === 0) {
+          response.ignoreMatch();
+          // eslint-disable-next-line no-useless-return
+          return;
         }
       }
     }
@@ -189,7 +212,9 @@ export default function(hljs) {
     CSS_TEMPLATE,
     TEMPLATE_STRING,
     NUMBER,
-    hljs.REGEXP_MODE
+    // This is intentional:
+    // See https://github.com/highlightjs/highlight.js/issues/3288
+    // hljs.REGEXP_MODE
   ];
   SUBST.contains = SUBST_INTERNALS
     .concat({
@@ -225,6 +250,25 @@ export default function(hljs) {
   // ES6 classes
   const CLASS_OR_EXTENDS = {
     variants: [
+      // class Car extends vehicle
+      {
+        match: [
+          /class/,
+          /\s+/,
+          IDENT_RE,
+          /\s+/,
+          /extends/,
+          /\s+/,
+          regex.concat(IDENT_RE, "(", regex.concat(/\./, IDENT_RE), ")*")
+        ],
+        scope: {
+          1: "keyword",
+          3: "title.class",
+          5: "keyword",
+          7: "title.class.inherited"
+        }
+      },
+      // class Car
       {
         match: [
           /class/,
@@ -236,23 +280,27 @@ export default function(hljs) {
           3: "title.class"
         }
       },
-      {
-        match: [
-          /extends/,
-          /\s+/,
-          regex.concat(IDENT_RE, "(", regex.concat(/\./, IDENT_RE), ")*")
-        ],
-        scope: {
-          1: "keyword",
-          3: "title.class.inherited"
-        }
-      }
+
     ]
   };
 
   const CLASS_REFERENCE = {
     relevance: 0,
-    match: /\b[A-Z][a-z]+([A-Z][a-z]+)*/,
+    match:
+    regex.either(
+      // Hard coded exceptions
+      /\bJSON/,
+      // Float32Array, OutT
+      /\b[A-Z][a-z]+([A-Z][a-z]*|\d)*/,
+      // CSSFactory, CSSFactoryT
+      /\b[A-Z]{2,}([A-Z][a-z]+|\d)+([A-Z][a-z]*)*/,
+      // FPs, FPsT
+      /\b[A-Z]{2,}[a-z]+([A-Z][a-z]+|\d)*([A-Z][a-z]*)*/,
+      // P
+      // single letters are not highlighted
+      // BLAH
+      // this will be flagged as a UPPER_CASE_CONSTANT instead
+    ),
     className: "title.class",
     keywords: {
       _: [
@@ -299,7 +347,7 @@ export default function(hljs) {
 
   const UPPER_CASE_CONSTANT = {
     relevance: 0,
-    match: /\b[A-Z][A-Z_]+\b/,
+    match: /\b[A-Z][A-Z_0-9]+\b/,
     className: "variable.constant"
   };
 
@@ -362,8 +410,10 @@ export default function(hljs) {
       /const|var|let/, /\s+/,
       IDENT_RE, /\s*/,
       /=\s*/,
+      /(async\s*)?/, // async is optional
       regex.lookahead(FUNC_LEAD_IN_RE)
     ],
+    keywords: "async",
     className: {
       1: "keyword",
       3: "title.function"
@@ -378,7 +428,7 @@ export default function(hljs) {
     aliases: ['js', 'jsx', 'mjs', 'cjs'],
     keywords: KEYWORDS,
     // this will be extended by TypeScript
-    exports: { PARAMS_CONTAINS },
+    exports: { PARAMS_CONTAINS, CLASS_REFERENCE },
     illegal: /#(?![$_A-z])/,
     contains: [
       hljs.SHEBANG({
@@ -452,6 +502,7 @@ export default function(hljs) {
           { // JSX
             variants: [
               { begin: FRAGMENT.begin, end: FRAGMENT.end },
+              { match: XML_SELF_CLOSING },
               {
                 begin: XML_TAG.begin,
                 // we carefully check the opening tag to see if it truly

@@ -15,8 +15,9 @@ jobs:
         # See image content at https://github.com/actions/virtual-environments/blob/ffa2110464ecda1cc62b477f29609525de24e570/images/linux/Ubuntu1804-README.md
 
         strategy:
+            # max-parallel: 1
             matrix:
-                node-version: [14.x, 16.x]
+                node-version: [14.x, 16.x, 18.x]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
         steps:

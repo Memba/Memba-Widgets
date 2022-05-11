@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function (f, define) {
     define('kendo.button',["kendo.core", "kendo.badge", "kendo.html.button"], f);
 })(function () {
@@ -48,7 +32,7 @@
             DISABLED = "disabled",
             DISABLEDSTATE = "k-disabled",
             FOCUSEDSTATE = "k-focus",
-            SELECTEDSTATE = "k-selected";
+            ACTIVESTATE = "k-active";
 
         var BUTTON_DEFAULTS = {
             icon: "",
@@ -147,7 +131,7 @@
                 var that = this;
                 that.element.removeClass(FOCUSEDSTATE);
                 setTimeout(function() {
-                    that.element.removeClass(SELECTEDSTATE);
+                    that.element.removeClass(ACTIVESTATE);
                 });
             },
 
@@ -166,12 +150,12 @@
             },
 
             _removeActive: function() {
-                this.element.removeClass(SELECTEDSTATE);
+                this.element.removeClass(ACTIVESTATE);
             },
 
             _addActive: function() {
                 if (this.options.enable) {
-                    this.element.addClass(SELECTEDSTATE);
+                    this.element.addClass(ACTIVESTATE);
                 }
             },
 

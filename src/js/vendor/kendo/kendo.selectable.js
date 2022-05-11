@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.selectable',[ "kendo.core", "kendo.userevents" ], f);
 })(function(){
@@ -67,7 +51,8 @@ var __meta__ = { // jshint ignore:line
     var Selectable = Widget.extend({
         init: function(element, options) {
             var that = this,
-                multiple;
+                multiple,
+                dragToSelect;
 
             Widget.fn.init.call(that, element, options);
 
@@ -78,6 +63,7 @@ var __meta__ = { // jshint ignore:line
             that.relatedTarget = that.options.relatedTarget;
 
             multiple = that.options.multiple;
+            dragToSelect = that.options.dragToSelect;
 
             that.userEvents = new kendo.UserEvents(that.element, {
                 global: true,
@@ -88,10 +74,13 @@ var __meta__ = { // jshint ignore:line
             });
 
             if (multiple) {
+                if(dragToSelect) {
+                    that.userEvents
+                        .bind("start", that._start.bind(that))
+                        .bind("move", that._move.bind(that))
+                        .bind("end", that._end.bind(that));
+                }
                 that.userEvents
-                   .bind("start", that._start.bind(that))
-                   .bind("move", that._move.bind(that))
-                   .bind("end", that._end.bind(that))
                    .bind("select", that._select.bind(that));
             }
         },
@@ -103,6 +92,7 @@ var __meta__ = { // jshint ignore:line
             filter: ">*",
             inputSelectors: INPUTSELECTOR,
             multiple: false,
+            dragToSelect: true,
             relatedTarget: $.noop,
             ignoreOverlapped: false,
             addIdToRanges: false
@@ -495,7 +485,6 @@ var __meta__ = { // jshint ignore:line
     Selectable.parseOptions = function(selectable) {
         var selectableMode = selectable.mode || selectable;
         var asLowerString = typeof selectableMode === "string" && selectableMode.toLowerCase();
-
         return {
             multiple: asLowerString && asLowerString.indexOf("multiple") > -1,
             cell: asLowerString && asLowerString.indexOf("cell") > -1

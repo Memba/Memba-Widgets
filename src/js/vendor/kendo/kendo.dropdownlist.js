@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.dropdownlist',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist", "kendo.html.button" ], f);
 })(function(){
@@ -117,11 +101,6 @@ var __meta__ = { // jshint ignore:line
             that._filterHeader();
 
             that._aria();
-
-            //should read changed value of closed dropdownlist
-            if (kendo.support.browser.chrome) {
-                that.wrapper.attr("aria-live", "polite");
-            }
 
             that._enable();
 
@@ -309,7 +288,7 @@ var __meta__ = { // jshint ignore:line
             var wrapper = this.wrapper,
                 inputId = wrapper.find(".k-input-inner").attr('id');
 
-            wrapper.attr("aria-activedescendant", inputId);
+            wrapper.attr("aria-describedby", inputId);
         },
 
         _focusInput: function () {
@@ -1166,9 +1145,11 @@ var __meta__ = { // jshint ignore:line
                 optionLabel.addClass("k-focus")
                            .attr("id", listView._optionID);
 
-                this._focused.add(this.filterInput)
-                    .removeAttr("aria-activedescendant")
-                    .attr("aria-activedescendant", listView._optionID);
+                if (this.filterInput) {
+                    this.filterInput
+                        .removeAttr("aria-activedescendant")
+                        .attr("aria-activedescendant", listView._optionID);
+                }
             }
         },
 
@@ -1300,7 +1281,7 @@ var __meta__ = { // jshint ignore:line
                     rounded: null
                 });
 
-                wrapper.append('<span id="' + id + '" unselectable="on" role="option" aria-selected="true" class="k-input-inner">' +
+                wrapper.append('<span id="' + id + '" unselectable="on" class="k-input-inner">' +
                             '<span class="k-input-value-text"></span>' +
                         '</span>')
                     .append(arrowBtn)
@@ -1336,7 +1317,7 @@ var __meta__ = { // jshint ignore:line
                 .attr({
                     accesskey: element.attr("accesskey"),
                     unselectable: "on",
-                    role: "listbox",
+                    role: "combobox",
                     "aria-haspopup": "listbox",
                     "aria-expanded": false
                 });
@@ -1356,10 +1337,6 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", true);
                 this.ul.attr("aria-hidden", false);
-
-                if (kendo.support.browser.chrome) {
-                    this.wrapper.removeAttr("aria-live");
-                }
             }
         },
 
@@ -1369,10 +1346,6 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", false);
                 this.ul.attr("aria-hidden", true);
-
-                if (kendo.support.browser.chrome) {
-                    this.wrapper.attr("aria-live", "polite");
-                }
             }
         },
 

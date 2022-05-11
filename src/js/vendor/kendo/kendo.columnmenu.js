@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.columnmenu',[ "kendo.popup", "kendo.filtermenu", "kendo.menu", "kendo.expansionpanel" ], f);
 })(function(){
@@ -56,6 +40,7 @@ var __meta__ = { // jshint ignore:line
         MENU = "kendoMenu",
         EXPANSIONPANEL = "kendoExpansionPanel",
         NS = ".kendoColumnMenu",
+        COLUMNHEADERATTR = "[role='columnheader']",
         Widget = ui.Widget;
 
     function trim(text) {
@@ -148,7 +133,8 @@ var __meta__ = { // jshint ignore:line
 
     var ColumnMenu = Widget.extend({
         init: function(element, options) {
-            var that = this;
+            var that = this,
+                columnHeader;
 
             options = options || {};
             options.componentType = options.componentType || "classic";
@@ -162,7 +148,13 @@ var __meta__ = { // jshint ignore:line
             that.field = element.attr(kendo.attr("field"));
             that.title = element.attr(kendo.attr("title"));
 
-            that.appendTo = $(options.appendTo);
+            columnHeader = $(element.closest(COLUMNHEADERATTR));
+            if (columnHeader.length) {
+                that.appendTo = columnHeader.find(options.appendTo);
+            } else {
+                that.appendTo = $(options.appendTo);
+            }
+
             that.link = that._createLink();
 
             that.wrapper = $('<div class="k-column-menu"/>');

@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.pager',[ "kendo.data" ], f);
 })(function(){
@@ -294,7 +278,7 @@ var __meta__ = { // jshint ignore:line
         options: {
             name: "Pager",
             ARIATemplate: "Page navigation, page #=page# of #=totalPages#",
-            selectTemplate: '<li><span tabindex="#=tabindex#" #if (navigatable) {# aria-label="#=title#" #}# class="k-link k-state-selected">#=text#</span></li>',
+            selectTemplate: '<li><span role="button" tabindex="#=tabindex#" #if (navigatable) {# aria-label="#=title#" #}# class="k-link k-state-selected">#=text#</span></li>',
             currentPageTemplate: '<li class="k-current-page"><span class="k-link k-pager-nav">#=text#</span></li>',
             linkTemplate: '<li><a tabindex="#=tabindex#" href="\\#" class="k-link" data-#=ns#page="#=idx#" #if (title !== "") {# title="#=title#" #}#>#=text#</a></li>',
             numericItemTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#page="#=idx#" #if (title !== "") {# title="#=title#" #}#>#=text#</a></li>',

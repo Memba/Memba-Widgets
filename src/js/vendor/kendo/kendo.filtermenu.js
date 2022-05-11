@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.filtermenu',[ "kendo.datepicker", "kendo.numerictextbox", "kendo.dropdownlist", "kendo.binder" ], f);
 })(function(){
@@ -46,6 +30,7 @@ var __meta__ = { // jshint ignore:line
         REFRESH = "refresh",
         CHANGE = "change",
         NS = ".kendoFilterMenu",
+        COLUMNHEADERATTR = "[role='columnheader']",
         EQ = "Is equal to",
         NEQ = "Is not equal to",
         roles = {
@@ -368,7 +353,8 @@ var __meta__ = { // jshint ignore:line
                 type = "string",
                 operators,
                 initial,
-                field;
+                field,
+                columnHeader;
 
             options = options || {};
             options.componentType = options.componentType || "classic";
@@ -383,7 +369,13 @@ var __meta__ = { // jshint ignore:line
 
             that.field = options.field || element.attr(kendo.attr("field"));
 
-            that.appendTo = $(options.appendTo);
+            columnHeader = $(element.closest(COLUMNHEADERATTR));
+            if (columnHeader.length) {
+                that.appendTo = columnHeader.find(options.appendTo);
+            } else {
+                that.appendTo = $(options.appendTo);
+            }
+
             that.link = that._createLink() || $();
 
             that.model = that.dataSource.reader.model;
@@ -1145,6 +1137,7 @@ var __meta__ = { // jshint ignore:line
             Widget.fn.init.call(this, element, options);
             options = this.options;
             this.element = $(element);
+            var columnHeader;
             var field = this.field = this.options.field || this.element.attr(kendo.attr("field"));
             var checkSource = options.checkSource;
             if (this._foreignKeyValues()) {
@@ -1185,7 +1178,13 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            this.appendTo = $(options.appendTo);
+            columnHeader = $(element.closest(COLUMNHEADERATTR));
+            if (columnHeader.length) {
+                this.appendTo = columnHeader.find(options.appendTo);
+            } else {
+                this.appendTo = $(options.appendTo);
+            }
+
             if (!options.appendToElement) {
                 this._createLink();
             } else {

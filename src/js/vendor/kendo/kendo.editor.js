@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('util/undoredostack',[ "kendo.core" ], f);
 })(function(){
@@ -1224,7 +1208,9 @@
             serialization: {
                 entities: true,
                 semantic: true,
-                scripts: false
+                scripts: false,
+                optimizeTags: false,
+                keepEOL: false
             },
             pasteCleanup: {
                 all: false,
@@ -1711,7 +1697,8 @@ var empty = makeMap("area,base,basefont,br,col,frame,hr,img,input,isindex,link,m
     selfClosing = makeMap("area,base,br,col,command,embed,hr,img,input,keygen,link,menuitem,meta,param,source,track,wbr".split(",")),
     inlineElements = "span,em,a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,strike,strong,sub,sup,textarea,tt,u,var,data,time,mark,ruby".split(","),
     inline = makeMap(inlineElements),
-    fillAttrs = makeMap("checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected".split(","));
+    fillAttrs = makeMap("checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected".split(",")),
+    nonEmptyNonTextContentElements = ["hgroup","ol","ul","dl","object","video","audio","table","colgroup","tbody","thead","tfoot","tr","select","optgroup"];
 
 var normalize = function (node) {
     if (node.nodeType == 1) {
@@ -2081,6 +2068,21 @@ var Dom = {
         return whitespace.test(node.nodeValue);
     },
 
+    allowsTextContent: function(node) {
+        var result = true;
+
+        nonEmptyNonTextContentElements.every(function(name) {
+            if (Dom.is(node, name)) {
+                result = false;
+                return false;
+            } else {
+                return true;
+            }
+        });
+
+        return result;
+    },
+
     allWhitespaceContent: function(node) {
         var child = node.firstChild;
         while(child && Dom.isWhitespace(child)) {
@@ -2089,7 +2091,6 @@ var Dom = {
 
         return !child;
     },
-
 
     isEmptyspace: function(node) {
         return emptyspace.test(node.nodeValue);
@@ -3165,6 +3166,7 @@ var Serializer = {
                 skipEncoding: true
             },
             span: {
+                canOptimize: true,
                 semantic: true,
                 start: function(node) {
                     var style = node.style;
@@ -3257,6 +3259,7 @@ var Serializer = {
                 end: function () { result.push('</span>'); }
             },
             font: {
+                canOptimize: true,
                 semantic: false,
                 start: function (node) {
                     result.push('<span style="');
@@ -3508,6 +3511,13 @@ var Serializer = {
                 mapper = tagMap[tagName];
 
                 if (mapper) {
+                    if (mapper.canOptimize &&
+                        options.optimizeTags &&
+                        shouldOptimize(node)) {
+                            children(node, false, mapper.skipEncoding);
+                        return;
+                    }
+
                     if (typeof mapper.semantic == "undefined" ||
                         (options.semantic ^ mapper.semantic)) {
                         mapper.start(node);
@@ -3548,7 +3558,11 @@ var Serializer = {
                     }
 
                     if (!previous || previous.innerHTML === "" || dom.isBlock(previous)) {
-                        value = value.replace(/^[\r\n\v\f\t ]+/, '');
+                        if (options.keepEOL) {
+                            value = value.replace(/[\r\n\v\f\t ]+/, ' ');
+                        } else {
+                            value = value.replace(/^[\r\n\v\f\t ]+/, '');
+                        }
                     }
 
                     value = value.replace(/ +/, ' ');
@@ -3571,6 +3585,10 @@ var Serializer = {
                     result.push('>');
                 }
             }
+        }
+
+        function shouldOptimize(node) {
+            return node.attributes.length === 0;
         }
 
         function textOnly(root) {
@@ -4824,7 +4842,12 @@ var RangeUtils = {
     },
 
     textNodes: function(range) {
-        return new RangeEnumerator(range).enumerate();
+        var allNodes = new RangeEnumerator(range).enumerate(),
+            result = allNodes.filter(function(node) {
+                return dom.allowsTextContent(node.parentElement);
+            });
+
+        return result;
     },
 
     editableTextNodes: function(range) {

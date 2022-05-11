@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.core',['jquery'], f);
 })(function(){
@@ -31,6 +15,15 @@ var __meta__ = { // jshint ignore:line
     name: "Core",
     category: "framework",
     description: "The core of the Kendo framework."
+};
+
+var packageMetadata = {
+    name: '@progress/kendo-ui',
+    productName: 'Kendo UI',
+    productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
+    publishDate: 0,
+    version: '',
+    licensingDocsUrl: 'https://www.telerik.com/kendo-ui/my-license/'
 };
 
 /*jshint eqnull: true, loopfunc: true, evil: true, boss: true, freeze: false*/
@@ -138,7 +131,7 @@ var __meta__ = { // jshint ignore:line
             return target;
         };
 
-    kendo.version = "2022.1.412".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.2.510".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -2881,6 +2874,8 @@ function pad(number, digits, end) {
         init: function(element, options) {
             var that = this;
 
+            validatePackage();
+
             that.element = kendo.jQuery(element).handler(that);
 
             that.angular("init", options);
@@ -5220,6 +5215,16 @@ function pad(number, digits, end) {
                 typeof obj;
         };
     }());
+
+    var KendoLicensing={validatePackage:function(){},setScriptKey:function(){}};
+
+    window.KendoLicensing = {
+        setScriptKey: KendoLicensing.setScriptKey
+    };
+
+    function validatePackage() {
+        KendoLicensing.validatePackage(packageMetadata);
+    }
 
 })(jQuery, window);
 
@@ -12313,7 +12318,7 @@ var __meta__ = { // jshint ignore:line
                 if (group.hasSubgroups) {
                     this._clearEmptyGroups(group.items);
                 }
-
+                
                 if (group.items && !group.items.length && !group.itemCount) {
                     splice.apply(group.parent(), [idx, 1]);
                 }
@@ -12745,6 +12750,7 @@ var __meta__ = { // jshint ignore:line
                 filters: []
             };
 
+            filter.logic = 'and';
             filter = extend(true, {}, filter);
             filter.filters.push({
                 field: group.field,
@@ -17158,7 +17164,7 @@ var __meta__ = { // jshint ignore:line
                     content = that.content;
                 }
             }
-
+            
             if (typeof content === "string") {
                 content = content.replace(/^\s+|\s+$/g, '');
                 if (that._evalTemplate) {
@@ -71961,7 +71967,7 @@ return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 (function(f, define){
-    define('dataviz/map/layers/base',[ "../../../kendo.core", "../location" ], f);
+    define('dataviz/map/layers/base',[ "kendo.core", "../location" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -73312,7 +73318,7 @@ return window.kendo;
 
 (function(f, define){
     define('dataviz/map/layers/marker',[ "./base", "../location",
-             "../../../kendo.data", "../../../kendo.tooltip" ], f);
+             "kendo.data", "kendo.tooltip" ], f);
 })(function(){
 
 (function ($, undefined) {
@@ -85852,7 +85858,7 @@ var __meta__ = { // jshint ignore:line
         SPACER_CLASS = "k-spacer",
         POPUP = "k-popup",
         RESIZABLE_TOOLBAR = "k-toolbar-resizable",
-        STATE_ACTIVE = "k-active",
+        STATE_SELECTED = "k-selected",
         STATE_DISABLED = "k-disabled",
         STATE_HIDDEN = "k-state-hidden",
         HIDDEN = "k-hidden",
@@ -86153,7 +86159,7 @@ var __meta__ = { // jshint ignore:line
                     this.element.attr(ARIA_PRESSED, selected);
                 }
 
-                this.element.toggleClass(STATE_ACTIVE, selected);
+                this.element.toggleClass(STATE_SELECTED, selected);
                 this.options.selected = selected;
             }
         });
@@ -86229,9 +86235,9 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (this.options.isChild) {
-                    this.element.toggleClass(STATE_ACTIVE, selected);
+                    this.element.toggleClass(STATE_SELECTED, selected);
                 } else {
-                    this.element.find(DOT + KBUTTON).toggleClass(STATE_ACTIVE, selected);
+                    this.element.find(DOT + KBUTTON).toggleClass(STATE_SELECTED, selected);
                 }
                 this.options.selected = selected;
             }
@@ -86349,6 +86355,10 @@ var __meta__ = { // jshint ignore:line
 
                 if (options.click && isFunction(options.click)) {
                     this.clickHandler = options.click;
+                }
+
+                if (options.togglable && options.toggle && isFunction(options.toggle)) {
+                    this.toggleHandler = options.toggle;
                 }
 
                 if (options.imageUrl) {
@@ -86758,7 +86768,7 @@ var __meta__ = { // jshint ignore:line
 
         function toggleActive(e) {
             if (!e.target.is(".k-toggle-button")) {
-                e.target.toggleClass(STATE_ACTIVE, e.type == "press");
+                e.target.toggleClass(STATE_SELECTED, e.type == "press");
             }
         }
 
@@ -86849,7 +86859,7 @@ var __meta__ = { // jshint ignore:line
                     element.addClass("km-widget");
                     KBUTTON = "km-button";
                     BUTTON_GROUP = "km-buttongroup";
-                    STATE_ACTIVE = "km-state-active";
+                    STATE_SELECTED = "km-state-active";
                     STATE_DISABLED = "km-state-disabled";
                 }
 
@@ -87161,7 +87171,7 @@ var __meta__ = { // jshint ignore:line
             },
 
             getSelectedFromGroup: function(groupName) {
-                return this.element.find(DOT + TOGGLE_BUTTON + "[data-group='" + groupName + "']").filter(DOT + STATE_ACTIVE);
+                return this.element.find(DOT + TOGGLE_BUTTON + "[data-group='" + groupName + "']").filter(DOT + STATE_SELECTED);
             },
 
             toggle: function(button, checked) {
@@ -92905,11 +92915,6 @@ var __meta__ = { // jshint ignore:line
 
             that._aria();
 
-            //should read changed value of closed dropdownlist
-            if (kendo.support.browser.chrome) {
-                that.wrapper.attr("aria-live", "polite");
-            }
-
             that._enable();
 
             that._attachFocusHandlers();
@@ -93096,7 +93101,7 @@ var __meta__ = { // jshint ignore:line
             var wrapper = this.wrapper,
                 inputId = wrapper.find(".k-input-inner").attr('id');
 
-            wrapper.attr("aria-activedescendant", inputId);
+            wrapper.attr("aria-describedby", inputId);
         },
 
         _focusInput: function () {
@@ -93953,9 +93958,11 @@ var __meta__ = { // jshint ignore:line
                 optionLabel.addClass("k-focus")
                            .attr("id", listView._optionID);
 
-                this._focused.add(this.filterInput)
-                    .removeAttr("aria-activedescendant")
-                    .attr("aria-activedescendant", listView._optionID);
+                if (this.filterInput) {
+                    this.filterInput
+                        .removeAttr("aria-activedescendant")
+                        .attr("aria-activedescendant", listView._optionID);
+                }
             }
         },
 
@@ -94087,7 +94094,7 @@ var __meta__ = { // jshint ignore:line
                     rounded: null
                 });
 
-                wrapper.append('<span id="' + id + '" unselectable="on" role="option" aria-selected="true" class="k-input-inner">' +
+                wrapper.append('<span id="' + id + '" unselectable="on" class="k-input-inner">' +
                             '<span class="k-input-value-text"></span>' +
                         '</span>')
                     .append(arrowBtn)
@@ -94123,7 +94130,7 @@ var __meta__ = { // jshint ignore:line
                 .attr({
                     accesskey: element.attr("accesskey"),
                     unselectable: "on",
-                    role: "listbox",
+                    role: "combobox",
                     "aria-haspopup": "listbox",
                     "aria-expanded": false
                 });
@@ -94143,10 +94150,6 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", true);
                 this.ul.attr("aria-hidden", false);
-
-                if (kendo.support.browser.chrome) {
-                    this.wrapper.removeAttr("aria-live");
-                }
             }
         },
 
@@ -94156,10 +94159,6 @@ var __meta__ = { // jshint ignore:line
             } else {
                 this.wrapper.attr("aria-expanded", false);
                 this.ul.attr("aria-hidden", true);
-
-                if (kendo.support.browser.chrome) {
-                    this.wrapper.attr("aria-live", "polite");
-                }
             }
         },
 
@@ -94360,7 +94359,8 @@ var __meta__ = { // jshint ignore:line
     var Selectable = Widget.extend({
         init: function(element, options) {
             var that = this,
-                multiple;
+                multiple,
+                dragToSelect;
 
             Widget.fn.init.call(that, element, options);
 
@@ -94371,6 +94371,7 @@ var __meta__ = { // jshint ignore:line
             that.relatedTarget = that.options.relatedTarget;
 
             multiple = that.options.multiple;
+            dragToSelect = that.options.dragToSelect;
 
             that.userEvents = new kendo.UserEvents(that.element, {
                 global: true,
@@ -94381,10 +94382,13 @@ var __meta__ = { // jshint ignore:line
             });
 
             if (multiple) {
+                if(dragToSelect) {
+                    that.userEvents
+                        .bind("start", that._start.bind(that))
+                        .bind("move", that._move.bind(that))
+                        .bind("end", that._end.bind(that));
+                }
                 that.userEvents
-                   .bind("start", that._start.bind(that))
-                   .bind("move", that._move.bind(that))
-                   .bind("end", that._end.bind(that))
                    .bind("select", that._select.bind(that));
             }
         },
@@ -94396,6 +94400,7 @@ var __meta__ = { // jshint ignore:line
             filter: ">*",
             inputSelectors: INPUTSELECTOR,
             multiple: false,
+            dragToSelect: true,
             relatedTarget: $.noop,
             ignoreOverlapped: false,
             addIdToRanges: false
@@ -94788,7 +94793,6 @@ var __meta__ = { // jshint ignore:line
     Selectable.parseOptions = function(selectable) {
         var selectableMode = selectable.mode || selectable;
         var asLowerString = typeof selectableMode === "string" && selectableMode.toLowerCase();
-
         return {
             multiple: asLowerString && asLowerString.indexOf("multiple") > -1,
             cell: asLowerString && asLowerString.indexOf("cell") > -1
@@ -99015,7 +99019,6 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             Widget.fn.setOptions.call(that, options);
 
-            that._arrowsWrap.toggle(that.options.spinners);
             that.wrapper.toggleClass("k-expand-padding", !that.options.spinners);
             that._text.prop("placeholder", that.options.placeholder);
             that._placeholder(that.options.placeholder);
@@ -99025,6 +99028,11 @@ var __meta__ = { // jshint ignore:line
             });
 
             that.options.format = extractFormat(that.options.format);
+            that._upArrowEventHandler.destroy();
+            that._downArrowEventHandler.destroy();
+            that._arrowsWrap.remove();
+            that._arrows();
+
             that._applyCssClasses();
 
             if (options.value !== undefined) {
@@ -99123,11 +99131,11 @@ var __meta__ = { // jshint ignore:line
             spinners = options.spinners,
             element = that.element;
 
-            arrows = element.siblings("." + CLASS_ICON);
+            arrows = element.siblings(".k-icon-button");
 
             if (!arrows[0]) {
-                arrows = $(buttonHtml("increase", options.upArrowText) + buttonHtml("decrease", options.downArrowText))
-                        .insertAfter(element);
+                arrows = $(buttonHtml("increase", options.upArrowText, options) + buttonHtml("decrease", options.downArrowText, options))
+                        .appendTo(that.wrapper);
 
                 that._arrowsWrap = arrows.wrapAll('<span class="k-input-spinner k-spin-button"/>').parent();
             }
@@ -99681,11 +99689,11 @@ var __meta__ = { // jshint ignore:line
         values: kendo.cssProperties.roundedValues.concat([['full', 'full']])
     }]);
 
-    function buttonHtml(direction, text) {
+    function buttonHtml(direction, text, options) {
         var className = direction === "increase" ? "arrow-n" : "arrow-s";
         var dir = direction === "increase" ? "increase" : "decrease";
 
-        return html.renderButton('<button role="button" tabindex="-1" unselectable="on" class="k-spinner-' + dir + '" aria-label="' + text + '" title="' + text + '"></button>', extend({}, this.options, {
+        return html.renderButton('<button role="button" tabindex="-1" unselectable="on" class="k-spinner-' + dir + '" aria-label="' + text + '" title="' + text + '"></button>', extend({}, options, {
             icon: className,
             shape: null,
             rounded: null

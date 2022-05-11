@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.breadcrumb',[ "kendo.core" ], f);
 })(function(){
@@ -474,7 +458,9 @@ var __meta__ = { // jshint ignore:line
                                      '#if(showText && showIcon){# k-breadcrumb-icontext-link#}#' +
                                      '#if(showIcon && !showText){# k-breadcrumb-icon-link#}#' +
                                      '#if(lastSegment && type !== "rootitem"){# k-state-disabled#}#"' +
-                                     '#if(lastSegment){# aria-current="page"#}# title="#:text || title#">' +
+                                     '#if(lastSegment){# aria-current="page"#}#' +
+                                     '#if(lastSegment && type !== "rootitem"){# aria-disabled="true" #}#' +
+                                     'title="#:text || title#">' +
                 '#if(showIcon) {#' +
                     '<span class="#if(icon){#k-icon k-i-#:icon##}# #:iconClass#"></span>' +
                 '#}#' +

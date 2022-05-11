@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.grid',[
         "kendo.data",
@@ -5116,11 +5100,7 @@ var __meta__ = { // jshint ignore:line
                         } else {
                             that._clearEditableState();
                             if (that.dataSource.options.endless) {
-                                that.dataSource.options.endless = null;
-                                that._endlessPageSize = that.dataSource.options.pageSize;
-                                that.dataSource._skip = 0;
-                                that.dataSource._pageSize = that.dataSource._take = that._endlessPageSize;
-                                that.dataSource._page = 1;
+                                that._resetEndless();
                             }
                         }
                     }
@@ -5128,6 +5108,15 @@ var __meta__ = { // jshint ignore:line
 
                 that._addGroupableOptionsToHeader();
             }
+        },
+
+        _resetEndless: function () {
+            var that = this;
+            that.dataSource.options.endless = null;
+            that._endlessPageSize = that.dataSource.options.pageSize;
+            that.dataSource._skip = 0;
+            that.dataSource._pageSize = that.dataSource._take = that._endlessPageSize;
+            that.dataSource._page = 1;
         },
 
         _addGroupableOptionsToHeader: function() {
@@ -5245,6 +5234,7 @@ var __meta__ = { // jshint ignore:line
                     filter: filter,
                     aria: true,
                     multiple: multi,
+                    dragToSelect: that.options.selectable && that.options.selectable.dragToSelect,
                     change: function(e) {
                         var selectedValues;
                         if (!cell) {
@@ -8569,9 +8559,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         that._clearEditableState();
                         if (that.dataSource.options.endless) {
-                            that.dataSource.options.endless = null;
-                            that._endlessPageSize = that.dataSource.options.pageSize;
-                            that.dataSource.pageSize(that.dataSource.options.pageSize);
+                            that._resetEndless();
                         }
                     }
                 },
@@ -8581,9 +8569,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         that._clearEditableState();
                         if (that.dataSource.options.endless) {
-                            that.dataSource.options.endless = null;
-                            that._endlessPageSize = that.dataSource.options.pageSize;
-                            that.dataSource.pageSize(that.dataSource.options.pageSize);
+                            that._resetEndless();
                         }
                     }
                 },
@@ -8691,9 +8677,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         that._clearEditableState();
                         if (that.dataSource.options.endless) {
-                            that.dataSource.options.endless = null;
-                            that._endlessPageSize = that.dataSource.options.pageSize;
-                            that.dataSource.pageSize(that.dataSource.options.pageSize);
+                            that._resetEndless();
                         }
                     }
                 },
@@ -8774,9 +8758,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         that._clearEditableState();
                         if (that.dataSource.options.endless) {
-                            that.dataSource.options.endless = null;
-                            that._endlessPageSize = that.dataSource.options.pageSize;
-                            that.dataSource.pageSize(that.dataSource.options.pageSize);
+                            that._resetEndless();
                         }
                     }
                 };

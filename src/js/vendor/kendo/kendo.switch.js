@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.switch',[ "kendo.core" ], f);
 })(function(){
@@ -59,11 +43,13 @@ var __meta__ = { // jshint ignore:line
         READONLY = "readonly",
         ARIA_READONLY = "aria-readonly",
         ARIA_CHECKED = "aria-checked",
+        ARIA_HIDDEN = "aria-hidden",
         CHECKED = "checked",
         CLICK = support.click + NS,
         TOUCHEND = support.pointers ? "pointerup" : "touchend",
         KEYDOWN = "keydown" + NS,
-        LABELIDPART = "_label";
+        LABELIDPART = "_label",
+        DOT = ".";
 
     var SWITCH_TEMPLATE = kendo.template('<span class="#=styles.widget#" role="switch"></span>');
 
@@ -141,8 +127,8 @@ var __meta__ = { // jshint ignore:line
 
             action = action || "addClass";
 
-            that.wrapper.find("." + switchStyles.track)[action](trackRounded);
-            that.wrapper.find("." + switchStyles.thumb)[action](thumbRounded);
+            that.wrapper.find(DOT + switchStyles.track)[action](trackRounded);
+            that.wrapper.find(DOT + switchStyles.thumb)[action](thumbRounded);
         },
 
         _attachEvents: function() {
@@ -166,12 +152,12 @@ var __meta__ = { // jshint ignore:line
             that.options = $.extend(that.options, options);
 
             if (messages && messages.checked !== undefined) {
-                checkedLabel = that.wrapper.find("." + switchStyles.checkedLabel);
+                checkedLabel = that.wrapper.find(DOT + switchStyles.checkedLabel);
                 checkedLabel.text(messages.checked);
             }
 
             if (messages && messages.unchecked !== undefined) {
-                uncheckedLabel = that.wrapper.find("." + switchStyles.uncheckedLabel);
+                uncheckedLabel = that.wrapper.find(DOT + switchStyles.uncheckedLabel);
                 uncheckedLabel.text(messages.unchecked);
             }
 
@@ -282,16 +268,24 @@ var __meta__ = { // jshint ignore:line
             }
 
             that.wrapper
-                    .attr(ARIA_CHECKED, checked)
-                    .toggleClass(switchStyles.checked, checked)
-                    .toggleClass(switchStyles.unchecked, !checked);
+                .attr(ARIA_CHECKED, checked)
+                .toggleClass(switchStyles.checked, checked)
+                .toggleClass(switchStyles.unchecked, !checked)
+                .find("[aria-hidden='true']")
+                .removeAttr(ARIA_HIDDEN);
 
             if (checked) {
                 that.element
-                        .attr(CHECKED, CHECKED);
+                    .attr(CHECKED, CHECKED);
+
+                that.wrapper.find(DOT + switchStyles.uncheckedLabel)
+                    .attr(ARIA_HIDDEN, true);
             } else {
                 that.element
-                        .prop(CHECKED, false);
+                    .prop(CHECKED, false);
+
+                that.wrapper.find(DOT + switchStyles.checkedLabel)
+                    .attr(ARIA_HIDDEN, true);
             }
         },
 

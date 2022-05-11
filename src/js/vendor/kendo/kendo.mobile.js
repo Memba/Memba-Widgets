@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.core',['jquery'], f);
 })(function(){
@@ -31,6 +15,15 @@ var __meta__ = { // jshint ignore:line
     name: "Core",
     category: "framework",
     description: "The core of the Kendo framework."
+};
+
+var packageMetadata = {
+    name: '@progress/kendo-ui',
+    productName: 'Kendo UI',
+    productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
+    publishDate: 0,
+    version: '',
+    licensingDocsUrl: 'https://www.telerik.com/kendo-ui/my-license/'
 };
 
 /*jshint eqnull: true, loopfunc: true, evil: true, boss: true, freeze: false*/
@@ -138,7 +131,7 @@ var __meta__ = { // jshint ignore:line
             return target;
         };
 
-    kendo.version = "2022.1.412".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.2.510".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -2881,6 +2874,8 @@ function pad(number, digits, end) {
         init: function(element, options) {
             var that = this;
 
+            validatePackage();
+
             that.element = kendo.jQuery(element).handler(that);
 
             that.angular("init", options);
@@ -5220,6 +5215,16 @@ function pad(number, digits, end) {
                 typeof obj;
         };
     }());
+
+    var KendoLicensing={validatePackage:function(){},setScriptKey:function(){}};
+
+    window.KendoLicensing = {
+        setScriptKey: KendoLicensing.setScriptKey
+    };
+
+    function validatePackage() {
+        KendoLicensing.validatePackage(packageMetadata);
+    }
 
 })(jQuery, window);
 
@@ -11772,7 +11777,7 @@ var __meta__ = { // jshint ignore:line
                 if (group.hasSubgroups) {
                     this._clearEmptyGroups(group.items);
                 }
-
+                
                 if (group.items && !group.items.length && !group.itemCount) {
                     splice.apply(group.parent(), [idx, 1]);
                 }
@@ -12204,6 +12209,7 @@ var __meta__ = { // jshint ignore:line
                 filters: []
             };
 
+            filter.logic = 'and';
             filter = extend(true, {}, filter);
             filter.filters.push({
                 field: group.field,
@@ -18083,7 +18089,7 @@ var __meta__ = { // jshint ignore:line
                     content = that.content;
                 }
             }
-
+            
             if (typeof content === "string") {
                 content = content.replace(/^\s+|\s+$/g, '');
                 if (that._evalTemplate) {

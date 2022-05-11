@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.buttongroup',[ "kendo.core", "kendo.badge" ], f);
 })(function(){
@@ -46,7 +30,7 @@ var __meta__ = { // jshint ignore:line
     var KBUTTON = "k-button";
     var KBUTTONDEFAULTS = "k-button-md k-rounded-md k-button-solid k-button-solid-base";
     var KICONBUTTON = "k-icon-button";
-    var ACTIVE = "k-active";
+    var SELECTED = "k-selected";
     var DISABLED = "k-disabled";
     var SELECT = "select";
     var CLICK = "click";
@@ -149,7 +133,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         current: function() {
-            return this.element.find("." + ACTIVE);
+            return this.element.find("." + SELECTED);
         },
 
         _attachEvents: function() {
@@ -180,7 +164,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (item.selected) {
-                    renderedItem.addClass(ACTIVE);
+                    renderedItem.addClass(SELECTED);
                 }
 
                 if ((item.iconClass || item.icon || item.imageUrl) && !item.text) {
@@ -221,8 +205,8 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if (element.find("." + ACTIVE).length) {
-                element.find("." + ACTIVE).first().trigger("focus");
+            if (element.find("." + SELECTED).length) {
+                element.find("." + SELECTED).first().trigger("focus");
             } else {
                 element.children().first().trigger("focus");
             }
@@ -289,7 +273,7 @@ var __meta__ = { // jshint ignore:line
                 ariaPressed = button.attr("aria-pressed") === "true";
                 button
                     .attr("aria-pressed", !ariaPressed)
-                    .toggleClass(ACTIVE);
+                    .toggleClass(SELECTED);
 
                 if (that.selectedIndices.indexOf(index) === -1) {
                     that.selectedIndices.push(index);
@@ -301,11 +285,11 @@ var __meta__ = { // jshint ignore:line
                 that.selectedIndices = [];
                 that.current()
                         .attr("aria-pressed", false)
-                        .removeClass(ACTIVE);
+                        .removeClass(SELECTED);
 
                 button
                     .attr("aria-pressed", true)
-                    .addClass(ACTIVE);
+                    .addClass(SELECTED);
 
                 that.selectedIndices.push(index);
             }
@@ -382,8 +366,8 @@ var __meta__ = { // jshint ignore:line
                     .removeAttr("disabled");
             }
 
-            if (button.is("." + ACTIVE)) {
-                button.removeClass(ACTIVE);
+            if (button.is("." + SELECTED)) {
+                button.removeClass(SELECTED);
                 if ((!button.hasClass(DISABLED) && this.options.selection === "single") ||
                     this.options.selection === "multiple") {
                     this.select(button[0]);

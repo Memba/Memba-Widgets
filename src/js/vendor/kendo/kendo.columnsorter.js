@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.columnsorter',[ "kendo.core" ], f);
 })(function(){
@@ -195,9 +179,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (this.dataSource.options.endless) {
-                this.dataSource.options.endless = null;
-                element.closest(".k-grid").getKendoGrid()._endlessPageSize = that.dataSource.options.pageSize;
-                this.dataSource.pageSize(that.dataSource.options.pageSize);
+                element.closest(".k-grid").getKendoGrid()._resetEndless();
             }
             this.dataSource.sort(sort);
         }

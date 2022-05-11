@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('pdfviewer/pdfjs',["kendo.core"], f);
 })(function(){
@@ -1093,7 +1077,9 @@ return window.kendo;
         },
         _updateZoomComboBox: function (value) {
             var isPredefined = value === PREDEFINED_ZOOM_VALUES.auto ||
-                                value === PREDEFINED_ZOOM_VALUES.actual;
+                                value === PREDEFINED_ZOOM_VALUES.actual ||
+                                value === PREDEFINED_ZOOM_VALUES.fitToPage ||
+                                value === PREDEFINED_ZOOM_VALUES.fitToWidth;
 
             if (!isPredefined) {
                 value = Math.round(value * 100) + '%';

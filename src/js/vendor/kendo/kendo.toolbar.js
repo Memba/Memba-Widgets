@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.toolbar',[ "kendo.core", "kendo.userevents", "kendo.popup", "kendo.html.button" ], f);
 })(function(){
@@ -57,7 +41,7 @@ var __meta__ = { // jshint ignore:line
         SPACER_CLASS = "k-spacer",
         POPUP = "k-popup",
         RESIZABLE_TOOLBAR = "k-toolbar-resizable",
-        STATE_ACTIVE = "k-active",
+        STATE_SELECTED = "k-selected",
         STATE_DISABLED = "k-disabled",
         STATE_HIDDEN = "k-state-hidden",
         HIDDEN = "k-hidden",
@@ -358,7 +342,7 @@ var __meta__ = { // jshint ignore:line
                     this.element.attr(ARIA_PRESSED, selected);
                 }
 
-                this.element.toggleClass(STATE_ACTIVE, selected);
+                this.element.toggleClass(STATE_SELECTED, selected);
                 this.options.selected = selected;
             }
         });
@@ -434,9 +418,9 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (this.options.isChild) {
-                    this.element.toggleClass(STATE_ACTIVE, selected);
+                    this.element.toggleClass(STATE_SELECTED, selected);
                 } else {
-                    this.element.find(DOT + KBUTTON).toggleClass(STATE_ACTIVE, selected);
+                    this.element.find(DOT + KBUTTON).toggleClass(STATE_SELECTED, selected);
                 }
                 this.options.selected = selected;
             }
@@ -554,6 +538,10 @@ var __meta__ = { // jshint ignore:line
 
                 if (options.click && isFunction(options.click)) {
                     this.clickHandler = options.click;
+                }
+
+                if (options.togglable && options.toggle && isFunction(options.toggle)) {
+                    this.toggleHandler = options.toggle;
                 }
 
                 if (options.imageUrl) {
@@ -963,7 +951,7 @@ var __meta__ = { // jshint ignore:line
 
         function toggleActive(e) {
             if (!e.target.is(".k-toggle-button")) {
-                e.target.toggleClass(STATE_ACTIVE, e.type == "press");
+                e.target.toggleClass(STATE_SELECTED, e.type == "press");
             }
         }
 
@@ -1054,7 +1042,7 @@ var __meta__ = { // jshint ignore:line
                     element.addClass("km-widget");
                     KBUTTON = "km-button";
                     BUTTON_GROUP = "km-buttongroup";
-                    STATE_ACTIVE = "km-state-active";
+                    STATE_SELECTED = "km-state-active";
                     STATE_DISABLED = "km-state-disabled";
                 }
 
@@ -1366,7 +1354,7 @@ var __meta__ = { // jshint ignore:line
             },
 
             getSelectedFromGroup: function(groupName) {
-                return this.element.find(DOT + TOGGLE_BUTTON + "[data-group='" + groupName + "']").filter(DOT + STATE_ACTIVE);
+                return this.element.find(DOT + TOGGLE_BUTTON + "[data-group='" + groupName + "']").filter(DOT + STATE_SELECTED);
             },
 
             toggle: function(button, checked) {

@@ -1,27 +1,11 @@
 /**
- * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
+ */
 (function(f, define){
     define('kendo.gantt',["kendo.data", "kendo.resizable", "kendo.switch", "kendo.gantt.data", "kendo.gantt.editors", "kendo.gantt.list", "kendo.gantt.timeline", "kendo.pdf"], f);
 })(function(){
@@ -1038,9 +1022,17 @@ var __meta__ = { // jshint ignore:line
                         that.updatePlannedDuration = e.model.plannedDuration();
                     }
 
+                    if (updatedValues.hasOwnProperty("end")) {
+                        that.previousEnd = e.model.get("end");
+                    }
+
                     if (updatedValues.hasOwnProperty("start")) {
                         that.previousStart = e.model.get("start");
                         updatedValues.end = new Date(updatedValues.start.getTime() + that.updateDuration);
+                    }
+
+                    if (updatedValues.hasOwnProperty("plannedEnd") && updatedValues.plannedEnd) {
+                        that.previousPlannedEnd = e.model.get("plannedEnd");
                     }
 
                     if (updatedValues.hasOwnProperty("plannedStart") && updatedValues.plannedStart) {
@@ -1069,9 +1061,19 @@ var __meta__ = { // jshint ignore:line
                         that.previousStart = null;
                     }
 
+                    if (that.previousEnd) {
+                        task.set("end", that.previousEnd);
+                        that.previousEnd = null;
+                    }
+
                     if (that.previousPlannedStart) {
                         task.set("plannedStart", that.previousPlannedStart);
                         that.previousPlannedStart = null;
+                    }
+
+                    if (that.previousPlannedEnd) {
+                        task.set("plannedEnd", that.previousPlannedEnd);
+                        that.previousPlannedEnd = null;
                     }
 
                     if (that.previousPercentComplete !== null && that.previousPercentComplete !== undefined) {
@@ -1095,7 +1097,7 @@ var __meta__ = { // jshint ignore:line
                             restoreFocus();
                         });
                     } else if(that.dataSource.hasChanges()) {
-                        that.dataSource.cancelChanges();
+                        that.dataSource.cancelChanges(task);
                         that._preventRefresh = false;
                         that.refresh();
                     }
@@ -1702,8 +1704,8 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 that._syncDataSource();
-            } else if(that.dataSource.hasChanges()) {
-                that.dataSource.cancelChanges();
+            } else if (task && task.dirty) {
+                that.dataSource.cancelChanges(task);
                 that._preventRefresh = false;
                 that.refresh();
             }

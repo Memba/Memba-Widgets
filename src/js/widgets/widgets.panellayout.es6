@@ -19,15 +19,15 @@ const {
     support: { touch },
     ui: { plugin, Sortable, Widget },
 } = window.kendo;
-const NS = '.kendoWindowLayout';
-const WIDGET_CLASS = 'k-widget m-window-layout';
+const NS = '.kendoPanelLayout';
+const WIDGET_CLASS = 'k-widget m-panel-layout';
 
 /**
- * WindowLayout
- * @class WindowLayout
+ * PanelLayout
+ * @class PanelLayout
  * @extends Widget
  */
-const WindowLayout = Widget.extend({
+const PanelLayout = Widget.extend({
     /**
      * Constructor
      * @constructor init
@@ -56,7 +56,7 @@ const WindowLayout = Widget.extend({
      * @property options
      */
     options: {
-        name: 'WindowLayout',
+        name: 'PanelLayout',
         enabled: true,
         rows: [],
         items: [],
@@ -108,7 +108,7 @@ const WindowLayout = Widget.extend({
                 .appendTo(element);
             row.cells.forEach((cell) => {
                 $(`<${CONSTANTS.DIV}/>`)
-                    .addClass(`m-window-layout-area ${cell.class}`) // .attr('style', cell.style)
+                    .addClass(`m-panel-layout-area ${cell.class}`) // .attr('style', cell.style)
                     .appendTo($row);
             });
         });
@@ -130,11 +130,12 @@ const WindowLayout = Widget.extend({
         const $title = $(
             `<span class="k-window-title k-cursor-grab m-panel-title">${item.title}</span>`
         );
-        const $buttons = $(`<div class="k-window-actions m-panel-actions">
-            <a role="button" href="#" class="k-button k-flat k-button-icon k-window-action m-panel-action m-panel-edit" title="${messages.edit}" aria-label="${messages.edit}" tabindex="0"><span class="k-icon k-i-edit"></span></a>
-            <a role="button" href="#" class="k-button k-flat k-button-icon k-window-action m-panel-action m-panel-submit" title="${messages.submit}" aria-label="${messages.submit}" tabindex="0"><span class="k-icon k-i-check"></span></a>
-            <a role="button" href="#" class="k-button k-flat k-button-icon k-window-action m-panel-action m-panel-cancel" title="${messages.cancel}" aria-label="${messages.cancel}" tabindex="0"><span class="k-icon k-i-cancel"></span></a>
-            <a role="button" href="#" class="k-button k-flat k-button-icon k-window-action m-panel-action m-panel-close" title="${messages.close}" aria-label="${messages.close}" tabindex="0"><span class="k-icon k-i-close"></span></a>
+        const $buttons =
+            $(`<div class="k-window-actions k-hstack m-panel-actions">
+            <a role="button" href="#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-window-action m-panel-action m-panel-edit" title="${messages.edit}" aria-label="${messages.edit}" tabindex="0"><span class="k-button-icon k-icon k-i-edit"></span></a>
+            <a role="button" href="#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-window-action m-panel-action m-panel-submit" title="${messages.submit}" aria-label="${messages.submit}" tabindex="0"><span class="k-button-icon k-icon k-i-check"></span></a>
+            <a role="button" href="#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-window-action m-panel-action m-panel-cancel" title="${messages.cancel}" aria-label="${messages.cancel}" tabindex="0"><span class="k-button-icon k-icon k-i-cancel"></span></a>
+            <a role="button" href="#" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-window-action m-panel-action m-panel-close" title="${messages.close}" aria-label="${messages.close}" tabindex="0"><span class="k-button-icon k-icon k-i-close"></span></a>
             </div>`);
         const $header = $(`<${CONSTANTS.DIV}/>`)
             .addClass('k-window-titlebar k-cursor-grab m-panel-titlebar')
@@ -148,7 +149,7 @@ const WindowLayout = Widget.extend({
             .append($content)
             .appendTo(
                 element.find(
-                    `div:eq(${item.position[0]}) > div.m-window-layout-area:eq(${item.position[1]})`
+                    `div:eq(${item.position[0]}) > div.m-panel-layout-area:eq(${item.position[1]})`
                 )
             );
         if (item.form) {
@@ -170,13 +171,13 @@ const WindowLayout = Widget.extend({
     _initSortable() {
         // Make panels draggable
         this.sortable = this.element
-            .find('.m-window-layout-area')
+            .find('.m-panel-layout-area')
             .kendoSortable({
                 filter: '.m-panel',
                 handler: '.k-cursor-grab',
                 ignore: 'input, textarea', // See http://docs.telerik.com/kendo-ui/api/web/sortable#configuration-ignore
                 cursor: 'move',
-                connectWith: '.m-window-layout-area',
+                connectWith: '.m-panel-layout-area',
                 holdToDrag: touch,
                 placeholder(element) {
                     assert.instanceof(
@@ -207,10 +208,10 @@ const WindowLayout = Widget.extend({
                         .width(element.width());
                 },
                 start(e) {
-                    e.sender.element.addClass('m-window-layout-sorting');
+                    e.sender.element.addClass('m-panel-layout-sorting');
                 },
                 end(e) {
-                    e.sender.element.removeClass('m-window-layout-sorting');
+                    e.sender.element.removeClass('m-panel-layout-sorting');
                 },
                 // change: function () {
                 // TODO: update positions and trigger events
@@ -253,4 +254,4 @@ const WindowLayout = Widget.extend({
 /**
  * Registration
  */
-plugin(WindowLayout);
+plugin(PanelLayout);

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>widgets.windowlayout</title>
+    <title>widgets.panellayout</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -20,10 +20,10 @@
             Promise.all([
                 SystemJS.import('kendo.binder'),
                 SystemJS.import('kendo.textbox'),
-                SystemJS.import('./widgets.windowlayout.es6')
+                SystemJS.import('./widgets.panellayout.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                $('.container').kendoWindowLayout({
+                $('.container').kendoPanelLayout({
                     rows: [
                         {
                             cells: [

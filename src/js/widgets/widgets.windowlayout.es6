@@ -19,15 +19,15 @@ const {
     support: { touch },
     ui: { plugin, Sortable, Widget },
 } = window.kendo;
-const NS = '.kendoGridLayout';
-const WIDGET_CLASS = 'k-widget m-grid-layout';
+const NS = '.kendoWindowLayout';
+const WIDGET_CLASS = 'k-widget m-window-layout';
 
 /**
- * GridLayout
- * @class GridLayout
+ * WindowLayout
+ * @class WindowLayout
  * @extends Widget
  */
-const GridLayout = Widget.extend({
+const WindowLayout = Widget.extend({
     /**
      * Constructor
      * @constructor init
@@ -56,7 +56,7 @@ const GridLayout = Widget.extend({
      * @property options
      */
     options: {
-        name: 'GridLayout',
+        name: 'WindowLayout',
         enabled: true,
         rows: [],
         items: [],
@@ -108,7 +108,7 @@ const GridLayout = Widget.extend({
                 .appendTo(element);
             row.cells.forEach((cell) => {
                 $(`<${CONSTANTS.DIV}/>`)
-                    .addClass(`m-grid-layout-area ${cell.class}`) // .attr('style', cell.style)
+                    .addClass(`m-window-layout-area ${cell.class}`) // .attr('style', cell.style)
                     .appendTo($row);
             });
         });
@@ -148,7 +148,7 @@ const GridLayout = Widget.extend({
             .append($content)
             .appendTo(
                 element.find(
-                    `div:eq(${item.position[0]}) > div.m-grid-layout-area:eq(${item.position[1]})`
+                    `div:eq(${item.position[0]}) > div.m-window-layout-area:eq(${item.position[1]})`
                 )
             );
         if (item.form) {
@@ -170,13 +170,13 @@ const GridLayout = Widget.extend({
     _initSortable() {
         // Make panels draggable
         this.sortable = this.element
-            .find('.m-grid-layout-area')
+            .find('.m-window-layout-area')
             .kendoSortable({
                 filter: '.m-panel',
                 handler: '.k-cursor-grab',
                 ignore: 'input, textarea', // See http://docs.telerik.com/kendo-ui/api/web/sortable#configuration-ignore
                 cursor: 'move',
-                connectWith: '.m-grid-layout-area',
+                connectWith: '.m-window-layout-area',
                 holdToDrag: touch,
                 placeholder(element) {
                     assert.instanceof(
@@ -207,10 +207,10 @@ const GridLayout = Widget.extend({
                         .width(element.width());
                 },
                 start(e) {
-                    e.sender.element.addClass('m-grid-layout-sorting');
+                    e.sender.element.addClass('m-window-layout-sorting');
                 },
                 end(e) {
-                    e.sender.element.removeClass('m-grid-layout-sorting');
+                    e.sender.element.removeClass('m-window-layout-sorting');
                 },
                 // change: function () {
                 // TODO: update positions and trigger events
@@ -253,4 +253,4 @@ const GridLayout = Widget.extend({
 /**
  * Registration
  */
-plugin(GridLayout);
+plugin(WindowLayout);

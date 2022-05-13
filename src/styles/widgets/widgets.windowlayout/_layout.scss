@@ -1,13 +1,13 @@
-@include exports( "widgets.gridlayout/layout" ) {
-    .m-grid-layout {
+@include exports( "widgets.windowlayout/layout" ) {
+    .m-window-layout {
         // An area is a column whereto panels can be dropped
-        .m-grid-layout-area {
+        .m-window-layout-area {
             align-items: stretch;
             display: flex;
             flex-direction: column;
             user-select: none; // prevents copy/paste bubbles in iOS Safari
 
-            &.m-grid-layout-sorting {
+            &.m-window-layout-sorting {
                 // This is the minimum height to ensure we have an area to drop to after removing all panels
                 min-height: 400px;
             }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>widgets.gridlayout</title>
+    <title>widgets.windowlayout</title>
     <script>
         window.DEBUG = true;
     </script>
@@ -19,10 +19,11 @@
             'use strict';
             Promise.all([
                 SystemJS.import('kendo.binder'),
-                SystemJS.import('./widgets.gridlayout.es6')
+                SystemJS.import('kendo.textbox'),
+                SystemJS.import('./widgets.windowlayout.es6')
             ]).then(function (modules) {
                 var kendo = window.kendo;
-                $('.container').kendoGridLayout({
+                $('.container').kendoWindowLayout({
                     rows: [
                         {
                             cells: [
@@ -89,16 +90,17 @@
 </head>
 <body>
 <div class="container"></div>
+
 <!-- first container -->
 <script id="first" type="text/x-kendo-template">
-    <label>First:<input type="text" data-bind="value: first" class="k-textbox"></label>
+    <label>First:<input type="text" data-bind="value: first" data-role="textbox"></label>
     <div>Second:<span data-bind="text: second"></span></div>
 </script>
 
 <!-- second container -->
 <script id="second" type="text/x-kendo-template">
     <div>First:<span data-bind="text: first"></span></div>
-    <label>Second:<input type="text" data-bind="value: second" class="k-textbox"></label>
+    <label>Second:<input type="text" data-bind="value: second" data-role="textbox"></label>
 </script>
 </body>
 </html>

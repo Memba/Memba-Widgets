@@ -16,7 +16,7 @@ import chaiJquery from 'chai-jquery';
 import sinonChai from 'sinon-chai';
 // import { options2attributes } from '../_misc/test.util.es6';
 import CONSTANTS from '../../../src/js/common/window.constants.es6';
-import '../../../src/js/widgets/widgets.gridlayout.es6';
+import '../../../src/js/widgets/widgets.panellayout.es6';
 
 // const { afterEach, before, beforeEach, describe, it } = window;
 const { before, describe, it } = window;
@@ -24,19 +24,19 @@ const {
     // bind,
     destroy,
     // observable,
-    ui: { GridLayout },
+    ui: { PanelLayout },
 } = window.kendo;
 const { expect } = chai;
 
 const FIXTURES = 'fixtures';
 const ELEMENT = `<${CONSTANTS.DIV}/>`;
-// const ROLE = 'gridlayout';
-const WIDGET = 'kendoGridLayout';
+// const ROLE = 'panellayout';
+const WIDGET = 'kendoPanelLayout';
 
 chai.use((c, u) => chaiJquery(c, u, $));
 chai.use(sinonChai);
 
-describe('widgets.gridlayout', () => {
+describe('widgets.panellayout', () => {
     before(() => {
         if (window.__karma__ && $(`#${FIXTURES}`).length === 0) {
             $(CONSTANTS.BODY).append(`<div id="${FIXTURES}"></div>`);
@@ -55,7 +55,7 @@ describe('widgets.gridlayout', () => {
         it('from code', () => {
             const element = $(ELEMENT).appendTo(`#${FIXTURES}`);
             const widget = element[WIDGET]().data(WIDGET);
-            expect(widget).to.be.an.instanceof(GridLayout);
+            expect(widget).to.be.an.instanceof(PanelLayout);
             // expect(element).to.have.class('k-widget');
             // expect(element).to.have.class(`kj-${ROLE}`);
             expect(widget).to.have.property('wrapper').that.is.an.instanceof($);

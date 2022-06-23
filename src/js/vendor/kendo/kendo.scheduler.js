@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.scheduler',[ "kendo.dropdownlist", "kendo.editable", "kendo.multiselect", "kendo.window", "kendo.datetimepicker", "kendo.scheduler.recurrence", "kendo.scheduler.view", "kendo.scheduler.dayview", "kendo.scheduler.agendaview", "kendo.scheduler.monthview", "kendo.scheduler.timelineview", "kendo.scheduler.yearview", "kendo.dialog", "kendo.pane", "kendo.pdf", "kendo.switch" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "scheduler",
@@ -67,7 +67,7 @@ var __meta__ = { // jshint ignore:line
         getDate = date.getDate,
         getMilliseconds = kendo.date.getMilliseconds,
         recurrence = kendo.recurrence,
-        keys = $.extend({F10: 121}, kendo.keys),
+        keys = $.extend({ F10: 121 }, kendo.keys),
         ui = kendo.ui,
         Widget = ui.Widget,
         DataBoundWidget = ui.DataBoundWidget,
@@ -117,7 +117,7 @@ var __meta__ = { // jshint ignore:line
             '<select aria-label="#= label #" class="k-picker k-dropdown-list k-dropdown k-views-dropdown" tabindex="-1">' +
                 '#for (var view in views) {#' +
                     '<option value="#= view #">${views[view].title}</option>' +
-                '#}#'  +
+                '#}#' +
             '</select>'
         ),
         TOOLBARTEMPLATE = kendo.template('' +
@@ -151,7 +151,7 @@ var __meta__ = { // jshint ignore:line
                         '<span class="k-scheduler-views k-button-group">' +
                             '# for (var view in views) { #' +
                                 '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><span class="k-button-text">${views[view].title}</span></button>' +
-                            '# } #'  +
+                            '# } #' +
                         '</span>' +
                     '</span>' +
                 '# } #' +
@@ -181,10 +181,10 @@ var __meta__ = { // jshint ignore:line
                 '<select tabindex="-1" class="k-picker k-dropdown-list k-dropdown k-scheduler-mobile-views">' +
                     '#for(var view in views){#' +
                         '<option class="k-view-#= view.toLowerCase() #" value="#=view#">${views[view].title}</option>' +
-                    '#}#'  +
+                    '#}#' +
                 '</select>' +
             '#}#' +
-            '</div>'+
+            '</div>' +
             '<div class="k-scheduler-toolbar k-toolbar">' +
                 '<span class="k-scheduler-navigation">' +
                    '<button tabindex="-1" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-nav-prev"><span class="k-button-icon k-icon k-i-arrow-chevron-left"></span></button>' +
@@ -205,11 +205,11 @@ var __meta__ = { // jshint ignore:line
             appendValidDateValidator(attr, options);
             appendDateCompareValidator(attr, options);
 
-            $('<input type="datetime-local" required ' + kendo.attr("type") + '="datetime-local" ' + kendo.attr("bind") + '="value:' + options.field +', invisible:isAllDay" ' + dateTimeValidate + '/>')
+            $('<input type="datetime-local" required ' + kendo.attr("type") + '="datetime-local" ' + kendo.attr("bind") + '="value:' + options.field + ', invisible:isAllDay" ' + dateTimeValidate + '/>')
                 .attr(attr)
                 .appendTo(container);
 
-            $('<input type="date" required ' + kendo.attr("type") + '="date" ' + kendo.attr("bind") + '="value:' + options.field +',visible:isAllDay" ' +
+            $('<input type="date" required ' + kendo.attr("type") + '="date" ' + kendo.attr("bind") + '="value:' + options.field + ',visible:isAllDay" ' +
                 dateValidate + '/>')
                 .attr(attr).appendTo(container);
 
@@ -225,11 +225,11 @@ var __meta__ = { // jshint ignore:line
             appendValidDateValidator(attr, options);
             appendDateCompareValidator(attr, options);
 
-            $('<input type="text" required ' + kendo.attr("type") + '="date"' + ' ' + kendo.attr("role") + '="datetimepicker" ' + kendo.attr("bind") + '="value:' + options.field +',invisible:isAllDay" ' +
+            $('<input type="text" required ' + kendo.attr("type") + '="date"' + ' ' + kendo.attr("role") + '="datetimepicker" ' + kendo.attr("bind") + '="value:' + options.field + ',invisible:isAllDay" ' +
                 dateTimeValidate + '/>')
             .attr(attr).appendTo(container);
 
-            $('<input type="text" required ' + kendo.attr("type") + '="date"' + ' '  + kendo.attr("role") + '="datepicker" ' + kendo.attr("bind") + '="value:' + options.field +',visible:isAllDay" ' +
+            $('<input type="text" required ' + kendo.attr("type") + '="date"' + ' ' + kendo.attr("role") + '="datepicker" ' + kendo.attr("bind") + '="value:' + options.field + ',visible:isAllDay" ' +
                 dateValidate + '/>')
             .attr(attr).appendTo(container);
 
@@ -242,7 +242,7 @@ var __meta__ = { // jshint ignore:line
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg"/>').hide().appendTo(container);
         },
         RECURRENCEEDITOR = function(container, options) {
-            $('<div ' + kendo.attr("bind") + '="value:' + options.field +'" />')
+            $('<div ' + kendo.attr("bind") + '="value:' + options.field + '" />')
                 .attr({
                     name: options.field
                 })
@@ -254,7 +254,7 @@ var __meta__ = { // jshint ignore:line
                 });
         },
         MOBILERECURRENCEEDITOR = function(container, options) {
-            $('<div ' + kendo.attr("bind") + '="value:' + options.field +'" />')
+            $('<div ' + kendo.attr("bind") + '="value:' + options.field + '" />')
                 .attr({
                     name: options.field
                 })
@@ -267,8 +267,8 @@ var __meta__ = { // jshint ignore:line
                     value: options.model[options.field]
                 });
         },
-        MOBILEISALLDAYEDITOR = function (container, options) {
-            $('<input type="checkbox" data-role="switch"' + kendo.attr("bind") + '="value:' + options.field +'" />').appendTo(container);
+        MOBILEISALLDAYEDITOR = function(container, options) {
+            $('<input type="checkbox" data-role="switch"' + kendo.attr("bind") + '="value:' + options.field + '" />').appendTo(container);
         },
         MOBILETIMEZONEPOPUP = function(container, options) {
             var text = timezoneButtonText(options.model, options.messages.noTimezone);
@@ -280,7 +280,7 @@ var __meta__ = { // jshint ignore:line
             $('<a href="#" class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" data-bind="invisible:isAllDay"><span class="k-button-text">' + options.messages.timezoneEditorButton + '</span></a>').on(CLICK, options.click).appendTo(container);
         },
         MOBILETIMEZONEEDITOR = function(container, options) {
-            $('<div class="k-mobiletimezoneeditor" ' + kendo.attr("bind") + '="value:' + options.field +'" />')
+            $('<div class="k-mobiletimezoneeditor" ' + kendo.attr("bind") + '="value:' + options.field + '" />')
                 .attr({
                     name: options.field
                 })
@@ -291,7 +291,7 @@ var __meta__ = { // jshint ignore:line
         },
         TIMEZONEEDITOR = function(container, options) {
             var visible = options.visible || options.visible === undefined;
-            $('<div ' + kendo.attr("bind") + '="value:' + options.field +'" />')
+            $('<div ' + kendo.attr("bind") + '="value:' + options.field + '" />')
                 .attr({ name: options.field })
                 .toggle(visible)
                 .appendTo(container)
@@ -349,7 +349,7 @@ var __meta__ = { // jshint ignore:line
         return function(data) {
             data = originalFunction(data);
 
-            convertData(data, "apply",  timezone);
+            convertData(data, "apply", timezone);
 
             return data || [];
         };
@@ -364,7 +364,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            convertData(data, "remove",  timezone, true);
+            convertData(data, "remove", timezone, true);
 
             data = originalFunction(data);
 
@@ -423,10 +423,10 @@ var __meta__ = { // jshint ignore:line
                 delete event.uid;
             }
 
-            if(method === "remove" && event.start && startOffset && startOffset !== event.start.getTimezoneOffset()) {
+            if (method === "remove" && event.start && startOffset && startOffset !== event.start.getTimezoneOffset()) {
                 event.start = new Date(event.start.getTime() + (startOffset - event.start.getTimezoneOffset()) * 60000);
             }
-            if(method === "remove" && event.end && endOffset && endOffset !== event.end.getTimezoneOffset()) {
+            if (method === "remove" && event.end && endOffset && endOffset !== event.end.getTimezoneOffset()) {
                 event.end = new Date(event.end.getTime() + (endOffset - event.end.getTimezoneOffset()) * 60000);
             }
         }
@@ -562,7 +562,7 @@ var __meta__ = { // jshint ignore:line
         var untilPicker, until,
             container, startInput, start, startPicker;
 
-        if(input.filter(".k-recur-until").length) {
+        if (input.filter(".k-recur-until").length) {
             untilPicker = kendo.widgetInstance(input, kendo.ui);
             until = untilPicker.value();
             container = input.closest(".k-scheduler-edit-form");
@@ -779,7 +779,7 @@ var __meta__ = { // jshint ignore:line
                 endOffset = end.getTimezoneOffset();
                 end = new Date(end.getTime() + MS_PER_DAY - 1);
 
-                if(end.getTimezoneOffset() !== endOffset){
+                if (end.getTimezoneOffset() !== endOffset) {
                     end = kendo.timezone.apply(end, endOffset);
                 }
 
@@ -859,7 +859,7 @@ var __meta__ = { // jshint ignore:line
                 item = data.shift(),
                 id = model.id;
 
-            while(item) {
+            while (item) {
                 if (item.recurrenceId === id) {
                     DataSource.fn.remove.call(this, item);
                 }
@@ -879,9 +879,9 @@ var __meta__ = { // jshint ignore:line
                     var replaceRegExp = new RegExp("(\\" + EXCEPTION_SEPARATOR + "?)" + recurrence.toExceptionString(start, this.reader.timezone));
                     var recurrenceException = (head.recurrenceException || "").replace(OLD_EXCEPTION_SEPARATOR_REGEXP, EXCEPTION_SEPARATOR).replace(/\,$/, "");
 
-                    if(replaceRegExp.test(recurrenceException)){
+                    if (replaceRegExp.test(recurrenceException)) {
                         head.set(RECURRENCE_EXCEPTION, recurrenceException.replace(replaceRegExp, ""));
-                    }else{
+                    } else {
                         start = model.start;
                         replaceRegExp = new RegExp("(\\" + EXCEPTION_SEPARATOR + "?)" + recurrence.toExceptionString(start, this.reader.timezone));
                         head.set(RECURRENCE_EXCEPTION, recurrenceException.replace(replaceRegExp, ""));
@@ -1021,22 +1021,22 @@ var __meta__ = { // jshint ignore:line
             isMs = Array.isArray(editorValue),
             valueArray;
 
-        if(isMs) {
+        if (isMs) {
             valueArray = JSON.parse(JSON.stringify(editorValue));
         } else {
             valueArray = [editorValue.toString()];
         }
 
         editor.dataSource.data().forEach(function(item) {
-            if(item[parentValueField] === null || item[parentValueField] === undefined || item[parentValueField] == parentValue) {
+            if (item[parentValueField] === null || item[parentValueField] === undefined || item[parentValueField] == parentValue) {
                 item.set(DISABLED, false);
             } else {
                 var currentValue = item.get(valueField);
 
                 item.set(DISABLED, true);
 
-                if(valueArray.indexOf(currentValue) >= 0 || valueArray.indexOf(currentValue.toString()) >= 0) {
-                    if(isMs) {
+                if (valueArray.indexOf(currentValue) >= 0 || valueArray.indexOf(currentValue.toString()) >= 0) {
+                    if (isMs) {
                         valueArray.splice(valueArray.indexOf(currentValue), 1);
                     } else {
                         editor.value(null);
@@ -1046,7 +1046,7 @@ var __meta__ = { // jshint ignore:line
             }
         });
 
-        if(isMs && valueArray.length < editorValue.length) {
+        if (isMs && valueArray.length < editorValue.length) {
             editor.value(valueArray);
             editor.trigger(CHANGE);
         }
@@ -1056,7 +1056,7 @@ var __meta__ = { // jshint ignore:line
         var parentElement = container.closest(".k-edit-form-container").find("[data-" + kendo.ns + "bind='value:" + parent + "']");
         var parentWidget = parentElement.getKendoDropDownList();
 
-        if(parentWidget) {
+        if (parentWidget) {
             parentWidget.bind(CHANGE, function(ev) {
                 var parentValue = ev.sender.value();
 
@@ -1077,7 +1077,7 @@ var __meta__ = { // jshint ignore:line
             isMs = Array.isArray(editorValue),
             valueArray;
 
-        if(isMs) {
+        if (isMs) {
             valueArray = JSON.parse(JSON.stringify(editorValue));
         } else {
             valueArray = [editorValue];
@@ -1087,15 +1087,15 @@ var __meta__ = { // jshint ignore:line
             var itemParentValue = kendo.getter(resource.dataParentValueField)(item);
             var valid = itemParentValue === null || itemParentValue === undefined || itemParentValue == parentSelectedValue;
 
-            if(valid) {
+            if (valid) {
                 options[index].removeAttribute(DISABLED);
             } else {
                 options[index].setAttribute(DISABLED, DISABLED);
 
                 var currentValue = "" + item.get(resource.dataValueField);
 
-                if(valueArray.indexOf(currentValue) >= 0) {
-                    if(isMs) {
+                if (valueArray.indexOf(currentValue) >= 0) {
+                    if (isMs) {
                         valueArray.splice(valueArray.indexOf(currentValue), 1);
                     } else {
                         currentEditor.val(null);
@@ -1105,7 +1105,7 @@ var __meta__ = { // jshint ignore:line
             }
         });
 
-        if(isMs && valueArray.length < editorValue.length) {
+        if (isMs && valueArray.length < editorValue.length) {
             currentEditor.val(valueArray);
             currentEditor.trigger(CHANGE);
         }
@@ -1117,7 +1117,7 @@ var __meta__ = { // jshint ignore:line
         return function(container) {
             var currentEditor;
 
-            if(parent) {
+            if (parent) {
                 setTimeout(function() {
                     filterResourceEditorData(currentEditor, model[parent], resource.dataParentValueField, resource.dataValueField);
                     bindParentValueChangeHandler(container, currentEditor, resource, parent);
@@ -1145,7 +1145,7 @@ var __meta__ = { // jshint ignore:line
                         options.each(function(i, el) {
                             var element = $(el);
 
-                            if(element.find("[data-disabled]").length > 0) {
+                            if (element.find("[data-disabled]").length > 0) {
                                 element.addClass("k-state-disabled");
                             }
                         });
@@ -1176,7 +1176,7 @@ var __meta__ = { // jshint ignore:line
             .appendTo(container)
             .attr(attr);
 
-            if(parent) {
+            if (parent) {
                 setTimeout(function() {
                     var parentElement = container.closest(".k-stretched-view").find("[data-" + kendo.ns + "bind='value:" + parent + "']");
                     var parentSelectedValue = model[parent];
@@ -1199,7 +1199,7 @@ var __meta__ = { // jshint ignore:line
         return function(container) {
             var currentEditor;
 
-            if(parent) {
+            if (parent) {
                 setTimeout(function() {
                     filterResourceEditorData(currentEditor, model[parent], resource.dataParentValueField, resource.dataValueField);
                     bindParentValueChangeHandler(container, currentEditor, resource, parent);
@@ -1227,7 +1227,7 @@ var __meta__ = { // jshint ignore:line
                         options.each(function(i, el) {
                             var element = $(el);
 
-                            if(element.find("[data-disabled]").length > 0) {
+                            if (element.find("[data-disabled]").length > 0) {
                                 element.addClass("k-state-disabled");
                             }
                         });
@@ -1258,7 +1258,7 @@ var __meta__ = { // jshint ignore:line
             .appendTo(container)
             .attr(attr);
 
-            if(parent) {
+            if (parent) {
                 setTimeout(function() {
                     var parentElement = container.closest(".k-stretched-view").find("[data-" + kendo.ns + "bind='value:" + parent + "']");
                     var parentSelectedValue = model[parent];
@@ -1332,7 +1332,7 @@ var __meta__ = { // jshint ignore:line
                     isAllDay = this.editable.options.model.isAllDay,
                     bindAttribute = kendo.attr("bind"),
                     element, isDateTimeInput, shouldValidate;
-                container.find("[" + bindAttribute+ "*=end],[" + bindAttribute + "*=start]").each(function() {
+                container.find("[" + bindAttribute + "*=end],[" + bindAttribute + "*=start]").each(function() {
                     element = $(this);
                     if (valueStartEndBoundRegex.test(element.attr(bindAttribute))) {
                         isDateTimeInput = element.is("[" + kendo.attr("role") + "=datetimepicker],[type*=datetime]");
@@ -1375,7 +1375,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if ("description" in model) {
-                fields.push({ field: "description", title: messages.editor.description, editor: editors.description({model: model, field: "description"}) });
+                fields.push({ field: "description", title: messages.editor.description, editor: editors.description({ model: model, field: "description" }) });
             }
 
             for (var resourceIndex = 0; resourceIndex < this.options.resources.length; resourceIndex++) {
@@ -1384,10 +1384,10 @@ var __meta__ = { // jshint ignore:line
                 var hasParent = resourceView.some(checkHierarchical);
                 var parentResource, parent;
 
-                if(hasParent) {
+                if (hasParent) {
                     parentResource = this.options.resources[resourceIndex - 1];
 
-                    if(parentResource) {
+                    if (parentResource) {
                         parent = parentResource.field;
                     }
                 }
@@ -1669,7 +1669,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         showDialog: function(options) {
-            var actions = options.buttons.map(function(button){
+            var actions = options.buttons.map(function(button) {
                 return {
                     text: button.text,
                     action: button.click
@@ -1882,7 +1882,7 @@ var __meta__ = { // jshint ignore:line
                 target: that.options.target
             }).data("kendoEditable");
 
-            for(var field in editableFields) {
+            for (var field in editableFields) {
                 if (editableFields[field].field !== "recurrenceRule") {
                     fieldName = editableFields[field].field;
                     container.find("[name='" + fieldName + "']").attr("aria-labelledby", fieldName + "_label");
@@ -1979,7 +1979,7 @@ var __meta__ = { // jshint ignore:line
             html += '<div class="k-edit-buttons">';
 
             for (var buttonIndex = 0; buttonIndex < options.buttons.length; buttonIndex++) {
-                html+= this.createButton(options.buttons[buttonIndex]);
+                html += this.createButton(options.buttons[buttonIndex]);
             }
 
             html += '</div></div></div>';
@@ -2137,7 +2137,7 @@ var __meta__ = { // jshint ignore:line
 
             that._bindResize();
 
-            if(that.options.messages && that.options.messages.recurrence) {
+            if (that.options.messages && that.options.messages.recurrence) {
                 recurrence.options = that.options.messages.recurrence;
             }
 
@@ -2238,11 +2238,11 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        data: function () {
+        data: function() {
             return this._data;
         },
 
-        select: function (options) {
+        select: function(options) {
             var that = this;
             var view = that.view();
             var selection = that._selection;
@@ -2253,7 +2253,7 @@ var __meta__ = { // jshint ignore:line
                 var selectedEvents;
                 var slots = view._selectedSlots;
 
-                if(!selection) {
+                if (!selection) {
                     return [];
                 }
 
@@ -2294,7 +2294,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 for (fieldName in options.resources) {
-                    filters.push({ field: fieldName, operator: "eq", value: options.resources[fieldName]});
+                    filters.push({ field: fieldName, operator: "eq", value: options.resources[fieldName] });
                 }
 
                 selectedGroups = new kendo.data.Query(groupsByResource)
@@ -2331,7 +2331,7 @@ var __meta__ = { // jshint ignore:line
                     if (ranges.length) {
                         that._selection = {
                             start: kendo.timezone.toLocalDate(ranges[0].start.start),
-                            end: kendo.timezone.toLocalDate(ranges[ranges.length-1].end.end),
+                            end: kendo.timezone.toLocalDate(ranges[ranges.length - 1].end.end),
                             groupIndex: ranges[0].start.groupIndex,
                             index: ranges[0].start.index,
                             isAllDay: ranges[0].start.isDaySlot,
@@ -2344,7 +2344,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _selectEvents: function (eventsUids, selectedGroups) {
+        _selectEvents: function(eventsUids, selectedGroups) {
             var that = this;
             var idx;
             var view = that.view();
@@ -2371,7 +2371,7 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     events = new kendo.data.Query(events)
-                        .filter({field: "element[0].getAttribute('data-uid')", operator: "eq", value: eventsUids[idx]})
+                        .filter({ field: "element[0].getAttribute('data-uid')", operator: "eq", value: eventsUids[idx] })
                         .toArray();
 
                     if (events[0]) {
@@ -2490,7 +2490,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            wrapper.on(MOUSEDOWN + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td, .k-event, .k-scheduler-body td .k-link", function (e) {
+            wrapper.on(MOUSEDOWN + NS, ".k-scheduler-header-all-day td, .k-scheduler-content td, .k-event, .k-scheduler-body td .k-link", function(e) {
                 if (that._isTouch(e)) {
                     return;
                 }
@@ -2524,11 +2524,11 @@ var __meta__ = { // jshint ignore:line
             var isRight = which && which === 3 || button && button == 2;
 
             if (!isRight) {
-                if(e.ctrlKey){
+                if (e.ctrlKey) {
                     this._ctrlKey = e.ctrlKey;
                 }
 
-                if(e.shiftKey){
+                if (e.shiftKey) {
                     this._shiftKey = e.shiftKey;
                 }
 
@@ -2540,13 +2540,13 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            if(kendo._activeElement() !== this.wrapper.get(0)){
+            if (kendo._activeElement() !== this.wrapper.get(0)) {
                 kendo.focusElement(this.wrapper);
             } else {
                 this._select();
             }
 
-            if(this.toolbar){
+            if (this.toolbar) {
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
             }
         },
@@ -2592,8 +2592,8 @@ var __meta__ = { // jshint ignore:line
             var firstEvent = this._firstEvent(),
                 firstDateInYear;
 
-            if(this.options.selectable) {
-                if(firstEvent && firstEvent.length >  0) {
+            if (this.options.selectable) {
+                if (firstEvent && firstEvent.length > 0) {
                     this._createSelection(firstEvent);
                     this._selection.eventElement = firstEvent[0];
                 } else {
@@ -2606,9 +2606,9 @@ var __meta__ = { // jshint ignore:line
                         this._selectFirstSlot();
                     }
                 }
-            } else if (this.toolbar && this.toolbar.find("." + FOCUSEDSTATE).length === 0){
+            } else if (this.toolbar && this.toolbar.find("." + FOCUSEDSTATE).length === 0) {
                 this._focusToolbar();
-            } else if (this.toolbar){
+            } else if (this.toolbar) {
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
             }
         },
@@ -2650,8 +2650,8 @@ var __meta__ = { // jshint ignore:line
                     var events = that._selectedEvents();
                     var slots = view._selectedSlots;
 
-                    that._old ={
-                        selection:current,
+                    that._old = {
+                        selection: current,
                         eventsLength: events.length
                     };
 
@@ -2684,11 +2684,11 @@ var __meta__ = { // jshint ignore:line
             return events;
         },
 
-        _tapPosition: function (event, coordinate) {
+        _tapPosition: function(event, coordinate) {
             return /touch/.test(event.type) ? (event.originalEvent || event).changedTouches[0]['page' + coordinate] : event['page' + coordinate];
         },
 
-        _touchMove: function (e) {
+        _touchMove: function(e) {
             var that = this;
             var content = that.wrapper.find(".k-scheduler-content");
             var verticalScroll = content[0].scrollHeight > content[0].clientHeight;
@@ -2790,11 +2790,11 @@ var __meta__ = { // jshint ignore:line
                 e.preventDefault();
                 return;
             } else if (key === keys.RIGHT || key === keys.LEFT) {
-                if((key === keys.RIGHT && !isRtl) || (key === keys.LEFT && isRtl)) {
+                if ((key === keys.RIGHT && !isRtl) || (key === keys.LEFT && isRtl)) {
 
                     idx = idx + 1;
 
-                    if(idx === focusableItems.length) {
+                    if (idx === focusableItems.length) {
                         this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
                         this.element.focus();
 
@@ -2803,7 +2803,7 @@ var __meta__ = { // jshint ignore:line
                 } else if ((key === keys.LEFT && !isRtl) || (key === keys.RIGHT && isRtl)) {
                     idx = idx - 1;
 
-                    if(idx < 0) {
+                    if (idx < 0) {
                         return;
                     }
                 }
@@ -2881,7 +2881,7 @@ var __meta__ = { // jshint ignore:line
                     this._select();
 
                     // Focus the Scheduler element only if it not the currently focused element
-                    if(document.activeElement !== this.element[0]) {
+                    if (document.activeElement !== this.element[0]) {
                         this.element.focus();
                     }
 
@@ -2906,14 +2906,14 @@ var __meta__ = { // jshint ignore:line
                 timezone = this.options.timezone,
                 editable = this.view().options.editable;
 
-            if(key === 66 && !!this.view().toggleFullDay) {
+            if (key === 66 && !!this.view().toggleFullDay) {
                 this.view().toggleFullDay();
-            } else if(key === 67 && editable && editable.create !== false) {
+            } else if (key === 67 && editable && editable.create !== false) {
                 this.addEvent(extend({}, {
                     start: this.date(),
                     end: this.date()
                 }));
-            } else if(key === 84) {
+            } else if (key === 84) {
                 if (timezone) {
                     var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
                     date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
@@ -2932,7 +2932,7 @@ var __meta__ = { // jshint ignore:line
                 selection = this._selection,
                 key = e.keyCode;
 
-            if(key === keys.TAB) {
+            if (key === keys.TAB) {
                 return;
             }
 
@@ -2958,7 +2958,7 @@ var __meta__ = { // jshint ignore:line
                 e.preventDefault();
                 this.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
                 this._select();
-            }  else if (key === keys.HOME || key === keys.END) {
+            } else if (key === keys.HOME || key === keys.END) {
                 e.preventDefault();
                 content = this.view().content.eq(0);
 
@@ -2988,7 +2988,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _keydownChangeDate: function(key) {
-            var isRtl =  kendo.support.isRtl(this.element),
+            var isRtl = kendo.support.isRtl(this.element),
                 direction = (isRtl && key === keys.LEFT) || (!isRtl && key === keys.RIGHT) ? "next" : "previous";
 
             if (direction === "next") {
@@ -3019,7 +3019,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if((key === keys.LEFT || key === keys.RIGHT) && this._shiftKey) {
+            if ((key === keys.LEFT || key === keys.RIGHT) && this._shiftKey) {
                 this._keydownChangeDate(key);
                 return;
             }
@@ -3029,12 +3029,12 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if(shortcutKeys.indexOf(key) > -1) {
+            if (shortcutKeys.indexOf(key) > -1) {
                 this._keydownShortcut(key);
                 return;
             }
 
-            if(toolbarIsFocused) {
+            if (toolbarIsFocused) {
                 this._keydownToolbar(e);
             } else {
                 if (key === keys.F10) {
@@ -3063,7 +3063,7 @@ var __meta__ = { // jshint ignore:line
                 .addClass(FOCUSEDSTATE);
         },
 
-        _createSelection: function (item) {
+        _createSelection: function(item) {
             var selection = this._selection,
                 uid, slot;
 
@@ -3106,7 +3106,7 @@ var __meta__ = { // jshint ignore:line
             var selection = this._selection;
 
             if (dataItem && selection) {
-                var view =  this.view();
+                var view = this.view();
 
                 if (dataItem.uid) {
                     dataItem = view._updateEventForSelection(dataItem);
@@ -3137,11 +3137,11 @@ var __meta__ = { // jshint ignore:line
 
                 selection.index = dataItem.index;
                 if (this._ctrlKey) {
-                    var indexOfEvent = (events && events.length) ? selection.events.indexOf(events[0]): -1;
+                    var indexOfEvent = (events && events.length) ? selection.events.indexOf(events[0]) : -1;
 
-                    if(indexOfEvent > -1){
+                    if (indexOfEvent > -1) {
                         selection.events.splice(indexOfEvent, 1);
-                    }else{
+                    } else {
                         selection.events = selection.events.concat(events || []);
                     }
                 } else {
@@ -3277,7 +3277,7 @@ var __meta__ = { // jshint ignore:line
                 that.dataSource.unbind(ERROR, that._errorHandler);
             }
 
-            if(that._resourceRefreshHandler) {
+            if (that._resourceRefreshHandler) {
                 for (var idx = 0; idx < that.resources.length; idx++) {
                     var resourceDS = that.resources[idx].dataSource;
                     resourceDS.unbind(CHANGE, that._resourceRefreshHandler);
@@ -3423,7 +3423,7 @@ var __meta__ = { // jshint ignore:line
 
                                 evtClone.update(view._eventOptionsForMove(evtClone));
 
-                                if(evtCloneElement.length) {
+                                if (evtCloneElement.length) {
                                     evtClone.inverseColor = that._isInverseColor(evtCloneElement);
                                 }
 
@@ -3783,7 +3783,7 @@ var __meta__ = { // jshint ignore:line
                     that._convertDates(event);
                     start = event.start;
 
-                    if(dir && event.duration() % MS_PER_DAY === 0 && start.getHours() === 0 && start.getMinutes() === 0 && start.getSeconds() === 0 && start.getMilliseconds() === 0) {
+                    if (dir && event.duration() % MS_PER_DAY === 0 && start.getHours() === 0 && start.getMinutes() === 0 && start.getSeconds() === 0 && start.getMilliseconds() === 0) {
                         event.set("isAllDay", true);
                     }
                 } finally {
@@ -3896,7 +3896,7 @@ var __meta__ = { // jshint ignore:line
                         text = recurrenceMessages.deleteSeriesConfirmation ? recurrenceMessages.deleteSeriesConfirmation : DELETESERIESCONFIRM;
                     }
 
-                    if(isResetSeries) {
+                    if (isResetSeries) {
                         title = recurrenceMessages.resetSeriesWindowTitle;
                         text = recurrenceMessages.resetSeriesConfirmation ? recurrenceMessages.resetSeriesConfirmation : RESETSERIESCONFIRM;
                     }
@@ -3932,7 +3932,7 @@ var __meta__ = { // jshint ignore:line
 
             eventInfo = eventInfo || {};
 
-            var prevented = this.trigger("add", { event:  eventInfo });
+            var prevented = this.trigger("add", { event: eventInfo });
 
             if (!prevented && ((editable && editable.end()) || !editable)) {
                 this.cancelEvent();
@@ -3967,12 +3967,12 @@ var __meta__ = { // jshint ignore:line
             if (container && editable && editable.end() &&
                 !that.trigger(SAVE, { container: container, event: model } )) {
 
-                if(!model.isOccurrence() && !!model.recurrenceException && !model.recurrenceRule) {
+                if (!model.isOccurrence() && !!model.recurrenceException && !model.recurrenceRule) {
                     events = dataSource.data();
 
-                    for(i = events.length - 1; i >= 0; i -= 1) {
+                    for (i = events.length - 1; i >= 0; i -= 1) {
                         event = events[i];
-                        if(event && event.recurrenceId === model.id) {
+                        if (event && event.recurrenceId === model.id) {
                             dataSource.remove(event);
                         }
                     }
@@ -4067,7 +4067,7 @@ var __meta__ = { // jshint ignore:line
              var editable = this.options.editable;
              var editRecurringMode = isPlainObject(editable) ? editable.editRecurringMode : "dialog";
 
-             if (editRecurringMode ===  "occurrence" || this._isMultiDrag) {
+             if (editRecurringMode === "occurrence" || this._isMultiDrag) {
                  editOccurrence();
              } else if (editRecurringMode === "series") {
                  editSeries();
@@ -4093,7 +4093,7 @@ var __meta__ = { // jshint ignore:line
                 commandName = typeof command === STRING ? command : command.name || command.text,
                 options = { className: "k-scheduler-" + (commandName || "").replace(/\s/g, ""), text: commandName, attr: "" };
 
-            if (!commandName && !(isPlainObject(command) && command.template))  {
+            if (!commandName && !(isPlainObject(command) && command.template)) {
                 throw new Error("Custom commands should have name specified");
             }
 
@@ -4112,7 +4112,7 @@ var __meta__ = { // jshint ignore:line
                 options = extend(true, options, defaultCommands[commandName]);
             }
 
-            if(!options.className) {
+            if (!options.className) {
                 options.className = "k-button-solid-base";
             } else if (options.className.indexOf("k-button-solid-primary") === -1) {
                 options.className += " k-button-solid-base";
@@ -4180,7 +4180,7 @@ var __meta__ = { // jshint ignore:line
                 that._preventRefresh = false;
                 that.cancelEvent();
 
-                if(that._attemptRefresh) {
+                if (that._attemptRefresh) {
                     that.refresh();
                 }
 
@@ -4374,7 +4374,7 @@ var __meta__ = { // jshint ignore:line
 
         _unbindView: function(view) {
             var that = this;
-            that.angular("cleanup", function(){
+            that.angular("cleanup", function() {
                 return { elements: that.items() };
             });
 
@@ -4483,7 +4483,7 @@ var __meta__ = { // jshint ignore:line
                     var viewButtons = that.toolbar.find(".k-scheduler-views > .k-button");
 
                     if ( that.toolbar.find(".k-views-dropdown").length === 0 ) {
-                        that.toolbar.find(".k-scheduler-views-wrapper").prepend(VIEWS_DROPDOWN_TEMPLATE({views: that.views, view: name, ns: kendo.ns, label: that.options.messages.selectView}));
+                        that.toolbar.find(".k-scheduler-views-wrapper").prepend(VIEWS_DROPDOWN_TEMPLATE({ views: that.views, view: name, ns: kendo.ns, label: that.options.messages.selectView }));
                         viewsDropdown = that.toolbar.find(".k-views-dropdown");
                     }
 
@@ -4492,7 +4492,7 @@ var __meta__ = { // jshint ignore:line
                     viewButtons.removeClass("k-selected");
                     viewButtons.filter(".k-view-" + name.replace(/\./g, "\\.").toLowerCase()).addClass("k-selected");
                 } else {
-                    var viewSelect =  that.toolbar.find(".k-scheduler-mobile-views");
+                    var viewSelect = that.toolbar.find(".k-scheduler-mobile-views");
 
                     viewSelect.find("[value=" + name.replace(/\./g, "\\.") + "]")
                         .prop("selected", "selected");
@@ -4572,7 +4572,7 @@ var __meta__ = { // jshint ignore:line
                     type = kendo.getter(view.type)(window);
                 }
 
-                if(isSettings && view.workDays && view.workDays.length) {
+                if (isSettings && view.workDays && view.workDays.length) {
                     overrideOptions.workDays = view.workDays;
                 }
 
@@ -4663,14 +4663,14 @@ var __meta__ = { // jshint ignore:line
                 resources = that.resources,
                 resourceFetchArray = [];
 
-            if(that._preventRebind) {
+            if (that._preventRebind) {
                 that._preventRebind = false;
                 return;
             }
 
-            if(that.options.autoBind === false && resources && resources.length > 0) {
+            if (that.options.autoBind === false && resources && resources.length > 0) {
                 resources.forEach(function(resource) {
-                    if(resource.dataSource.data().length === 0) {
+                    if (resource.dataSource.data().length === 0) {
                         that._preventRebind = true;
                         resourceFetchArray.push(resource.dataSource.fetch());
                     }
@@ -4694,7 +4694,7 @@ var __meta__ = { // jshint ignore:line
 
             if (options.timezone && !(dataSource instanceof SchedulerDataSource)) {
                 dataSource = extend(true, dataSource, { schema: { timezone: options.timezone } });
-            } else if(dataSource instanceof SchedulerDataSource) {
+            } else if (dataSource instanceof SchedulerDataSource) {
                 options.timezone = dataSource.options.schema ? dataSource.options.schema.timezone : "";
             }
 
@@ -4764,7 +4764,7 @@ var __meta__ = { // jshint ignore:line
                 that._selectView(that._selectedViewName);
             } else {
                 $.when.apply(null, resourcePromises)
-                      .then(function () {
+                      .then(function() {
                             that.view(that._selectedViewName);
                         });
             }
@@ -4776,7 +4776,7 @@ var __meta__ = { // jshint ignore:line
             var dataSourceInstance = kendo.data.DataSource.create(dataSource);
 
             if (that.options.autoBind) {
-                promises.push(dataSourceInstance.fetch(function(){
+                promises.push(dataSourceInstance.fetch(function() {
                     // 'this' is the DataSource instance not the Scheduler
                     that._bindResourceEvents(this, groupName);
                 }));
@@ -4787,17 +4787,17 @@ var __meta__ = { // jshint ignore:line
             return dataSourceInstance;
         },
 
-        _bindResourceEvents: function(resourceDS, groupName){
+        _bindResourceEvents: function(resourceDS, groupName) {
             var that = this;
             var isGrouped = that.options.group && that.options.group.resources.length;
             var isResourceGrouped = isGrouped && that.options.group.resources.indexOf(groupName) > -1;
 
-            if (!that._resourceRefreshHandler && isResourceGrouped){
+            if (!that._resourceRefreshHandler && isResourceGrouped) {
                 that._resourceRefreshHandler = that._refreshResource.bind(that);
                 that._resourceErrorHandler = that._error.bind(that);
             }
 
-            if(isResourceGrouped) {
+            if (isResourceGrouped) {
                 resourceDS.bind(CHANGE, that._resourceRefreshHandler)
                     .bind(ERROR, that._resourceErrorHandler);
             }
@@ -4807,7 +4807,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var preventRefresh = (that._editor && that._editor.editable) || that._preventRefresh;
 
-            if(!preventRefresh){
+            if (!preventRefresh) {
                 that.view(that._selectedViewName);
             }
         },
@@ -4895,8 +4895,8 @@ var __meta__ = { // jshint ignore:line
                 that.dataSource.filter({
                     logic: "or",
                     filters: [
-                        {field: "title", operator: "contains", value: e.target.value},
-                        {field: "description", operator: "contains", value: e.target.value}
+                        { field: "title", operator: "contains", value: e.target.value },
+                        { field: "description", operator: "contains", value: e.target.value }
                     ]
                 });
             }, 250));
@@ -4921,7 +4921,7 @@ var __meta__ = { // jshint ignore:line
                 that.toolbar.find("." + FOCUSEDSTATE).removeClass(FOCUSEDSTATE);
                 button.addClass(FOCUSEDSTATE).attr("tabindex", 0).trigger("focus").attr("tabindex", -1);
 
-                if($(e.target).is("input")) {
+                if ($(e.target).is("input")) {
                     return;
                 }
 
@@ -4990,7 +4990,7 @@ var __meta__ = { // jshint ignore:line
                 that.popup = new Popup(html, {
                     anchor: target,
                     activate: function() {
-                        if(that.popup && that.calendar){
+                        if (that.popup && that.calendar) {
                             that.popup._toggleResize(false);
                             that.calendar.element.find("table").trigger("focus");
                             that.popup._toggleResize(true);
@@ -5007,7 +5007,7 @@ var __meta__ = { // jshint ignore:line
                                         that.popup.close();
                                     }
 
-                                    if(!that._isMobile()) {
+                                    if (!that._isMobile()) {
                                         that._selectedView.element.trigger("focus");
                                         that.toolbar.find(".k-nav-current").trigger("focus").addClass(FOCUSEDSTATE);
                                     }
@@ -5016,7 +5016,7 @@ var __meta__ = { // jshint ignore:line
                                 max: that.options.max
                             });
                         }
-                        that.calendar.element.on("keydown" + NS, function (e) {
+                        that.calendar.element.on("keydown" + NS, function(e) {
                             if (e.keyCode === keys.ESC || e.keyCode === keys.TAB) {
                                 that.popup.close();
                                 that._selectedView.element.trigger("focus");
@@ -5046,7 +5046,7 @@ var __meta__ = { // jshint ignore:line
 
             this._progress(false);
 
-            this.angular("cleanup", function(){
+            this.angular("cleanup", function() {
                 return { elements: that.items() };
             });
 
@@ -5082,13 +5082,13 @@ var __meta__ = { // jshint ignore:line
         slotByPosition: function(x, y) {
             var view = this.view();
 
-            if(!view._slotByPosition) {
+            if (!view._slotByPosition) {
                 return null;
             }
 
             var slot = view._slotByPosition(x, y);
 
-            if(!slot) {
+            if (!slot) {
                 return null;
             }
 
@@ -5448,5 +5448,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

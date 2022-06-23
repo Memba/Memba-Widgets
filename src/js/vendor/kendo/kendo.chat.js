@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('chat/messageBox',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -196,7 +196,7 @@
             }
         },
 
-        _toggleToolbar: function (ev) {
+        _toggleToolbar: function(ev) {
             this.trigger("toggleToolbar", { originalEvent: ev });
         }
     });
@@ -211,11 +211,11 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('chat/toolbar',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -273,7 +273,7 @@ return window.kendo;
 
             this._setupAnimation();
 
-            if(buttonsDefined && toolbarOptions.toggleable) {
+            if (buttonsDefined && toolbarOptions.toggleable) {
                 this.toggle(true);
             }
 
@@ -291,13 +291,13 @@ return window.kendo;
             this.element.empty();
         },
 
-        _createButtonList: function () {
+        _createButtonList: function() {
             var that = this;
             var styles = ChatToolBar.styles;
             var buttons = that.options.toolbar.buttons;
             var buttonList = $("<div class='" + styles.buttonList + "'></div>");
 
-            for(var i = 0; i < buttons.length; i++) {
+            for (var i = 0; i < buttons.length; i++) {
                 var button = that._createButton(buttons[i]);
                 buttonList.append(button);
             }
@@ -307,7 +307,7 @@ return window.kendo;
             this.buttonList = buttonList;
         },
 
-        _createButton: function (btnOptions) {
+        _createButton: function(btnOptions) {
             var styles = ChatToolBar.styles;
             var buttonElm = $("<button>");
 
@@ -335,7 +335,7 @@ return window.kendo;
             return buttonElm;
         },
 
-        _onClick: function (ev) {
+        _onClick: function(ev) {
             var styles = ChatToolBar.styles;
             var target = $(ev.target).closest(DOT + styles.button);
 
@@ -343,7 +343,7 @@ return window.kendo;
                 this._scroll(target.data(DATA_K_BUTTON_NAME));
             }
 
-            if(target.data(DATA_K_BUTTON_NAME)) {
+            if (target.data(DATA_K_BUTTON_NAME)) {
                 this.trigger("click", {
                     button: target[0],
                     name: target.data(DATA_K_BUTTON_NAME),
@@ -352,7 +352,7 @@ return window.kendo;
             }
         },
 
-        _initScrolling: function () {
+        _initScrolling: function() {
             var styles = ChatToolBar.styles;
 
             this.scrollButtonLeft = this._createButton({
@@ -378,7 +378,7 @@ return window.kendo;
             this.element.on("keydown" + NS, this._refreshScrollButtons.bind(this));
         },
 
-        _scroll: function (commandName) {
+        _scroll: function(commandName) {
             var that = this;
             var buttonWidth = that.buttonWidth();
             var maxScrollSize = this.maxScrollSize();
@@ -387,7 +387,7 @@ return window.kendo;
             var scrollValue = currentScroll + scrollAmmount;
             scrollValue = Math.min(Math.max(scrollValue, 0), maxScrollSize);
 
-            if(commandName !== SCROLL_LEFT_NAME && commandName !== SCROLL_RIGHT_NAME) {
+            if (commandName !== SCROLL_LEFT_NAME && commandName !== SCROLL_RIGHT_NAME) {
                 return;
             }
 
@@ -395,11 +395,11 @@ return window.kendo;
             that._refreshScrollButtons(scrollValue);
         },
 
-        _refreshScrollButtons: function (value) {
+        _refreshScrollButtons: function(value) {
             var maxScrollSize = this.maxScrollSize();
             var currentScrollLeft = value === undefined || isNaN(parseInt(value, 10)) ? this.currentScrollLeft() : value;
 
-            if(!this.scrollButtonLeft && !this.scrollButtonRight) {
+            if (!this.scrollButtonLeft && !this.scrollButtonRight) {
                 return;
             }
 
@@ -407,7 +407,7 @@ return window.kendo;
             this.scrollButtonRight.toggle(currentScrollLeft !== maxScrollSize);
         },
 
-        _setupAnimation: function () {
+        _setupAnimation: function() {
             var animation = this.options.toolbar.animation;
             var defaultExpandAnimation = extend({}, DEFAULT_ANIMATION);
             var defaultCollapseAnimation = extend({
@@ -415,9 +415,9 @@ return window.kendo;
                 hide: true
             }, DEFAULT_ANIMATION);
 
-            if (animation === false){
+            if (animation === false) {
                 animation = extend(true, {}, NO_ANIMATION);
-            }  else {
+            } else {
                 animation = extend(true, {
                     expand: defaultExpandAnimation,
                     collapse: defaultCollapseAnimation
@@ -427,38 +427,38 @@ return window.kendo;
             this.options.toolbar.animation = animation;
         },
 
-        _animationComplete: function () {
+        _animationComplete: function() {
             this._refreshScrollButtons();
         },
 
-        currentScrollLeft: function () {
+        currentScrollLeft: function() {
             return Math.round(kendo.scrollLeft(this.buttonList));
         },
 
-        maxScrollSize: function () {
+        maxScrollSize: function() {
             return Math.round(this.buttonList[0].scrollWidth - this.buttonList[0].clientWidth);
         },
 
-        buttons: function () {
+        buttons: function() {
             var styles = ChatToolBar.styles;
             return this.buttonList ? this.buttonList.children(DOT + styles.button) : null;
         },
 
-        buttonWidth: function () {
+        buttonWidth: function() {
             return Math.round(this.buttons().last().outerWidth(true));
         },
 
-        buttonsWidth: function () {
+        buttonsWidth: function() {
             var width = 0;
 
-            if(this.buttons()) {
+            if (this.buttons()) {
                 width = this.buttonWidth() * this.buttons().length;
             }
 
             return width;
         },
 
-        toggle: function (skipAnimation) {
+        toggle: function(skipAnimation) {
             var animation = this.options.toolbar.animation;
 
             if (skipAnimation) {
@@ -468,7 +468,7 @@ return window.kendo;
             animation.expand.complete = this._animationComplete.bind(this);
             animation.collapse.complete = this._animationComplete.bind(this);
 
-            if(this.element.is(VISIBLE)) {
+            if (this.element.is(VISIBLE)) {
                 this.element.kendoStop().kendoAnimate(animation.collapse);
             } else {
                 this.element.kendoStop().kendoAnimate(animation.expand);
@@ -485,10 +485,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
-    define('chat/view',[ "kendo.core", "kendo.draganddrop"  ], f);
-})(function(){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
+    define('chat/view',[ "kendo.core", "kendo.draganddrop" ], f);
+})(function() {
 
 (function($, undefined) {
 
@@ -944,7 +944,7 @@ return window.kendo;
                 }
             }
 
-            return $(template({text: sender.name, url: sender.iconUrl, styles: viewStyles})).appendTo(appendTarget);
+            return $(template({ text: sender.name, url: sender.iconUrl, styles: viewStyles })).appendTo(appendTarget);
         },
 
         _getMessageGroupTemplate: function(sender, messageType) {
@@ -953,7 +953,7 @@ return window.kendo;
                 SELF_MESSAGE_GROUP_TEMPLATE :
                 MESSAGE_GROUP_TEMPLATE;
 
-            if(messageType == "typing") {
+            if (messageType == "typing") {
                 template = TYPING_INDICATOR_TEMPLATE;
             }
 
@@ -966,7 +966,7 @@ return window.kendo;
             var childrenCount = children.length;
             var indicator = this.element.find(DOT + viewStyles.typingIndicator);
 
-            if(indicator.length && messageType == "typing") {
+            if (indicator.length && messageType == "typing") {
                 return;
             }
 
@@ -990,7 +990,7 @@ return window.kendo;
 
             this._addTypingParticipant(sender);
 
-            if(indicator.length) {
+            if (indicator.length) {
                 participants = this._composeTypingParticipantsText(this.typingParticipants);
 
                 indicatorList = indicator.find(DOT + viewStyles.author).first();
@@ -1008,13 +1008,13 @@ return window.kendo;
 
         _addTypingParticipant: function(sender) {
             var found = false;
-            for(var i = 0; i < this.typingParticipants.length; i += 1) {
-                if(this.typingParticipants[i].id == sender.id) {
+            for (var i = 0; i < this.typingParticipants.length; i += 1) {
+                if (this.typingParticipants[i].id == sender.id) {
                     found = true;
                     break;
                 }
             }
-            if(!found) {
+            if (!found) {
                 this.typingParticipants.push(sender);
             }
         },
@@ -1024,7 +1024,7 @@ return window.kendo;
                 indicatorList,
                 participants;
 
-            if(indicator.length) {
+            if (indicator.length) {
                 for (var i = 0; i < this.typingParticipants.length; i += 1) {
                     if (this.typingParticipants[i].id == sender.id) {
                         this.typingParticipants.splice(i, 1);
@@ -1033,7 +1033,7 @@ return window.kendo;
 
                 participants = this._composeTypingParticipantsText(this.typingParticipants);
 
-                if(participants === "") {
+                if (participants === "") {
                     indicator.remove();
                 } else {
                     indicatorList = indicator.find(DOT + viewStyles.author).first();
@@ -1047,7 +1047,7 @@ return window.kendo;
                 typingAction = participants.length == 1 ? messages.isTyping : messages.areTyping,
                 typingText = "";
 
-            if(participants.length === 0) {
+            if (participants.length === 0) {
                 return typingText;
             }
 
@@ -1061,7 +1061,7 @@ return window.kendo;
         _removeTypingIndicator: function() {
             var indicator = this.element.find(DOT + viewStyles.typingIndicatorBubble);
 
-            if(indicator.length) {
+            if (indicator.length) {
                 this.typingParticipants = [];
                 indicator.remove();
             }
@@ -1084,11 +1084,11 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.chat',[ "./chat/messageBox", "./chat/toolbar", "./chat/view" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "chat",
@@ -1129,7 +1129,7 @@ var __meta__ = { // jshint ignore:line
 
             this._messageBox();
 
-            if(options && options.toolbar && options.toolbar.buttons) {
+            if (options && options.toolbar && options.toolbar.buttons) {
                 this._toolbar();
             }
 
@@ -1183,14 +1183,14 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _resetToolbarButtons: function (options) {
+        _resetToolbarButtons: function(options) {
             var toolbarBoxWrapper = this.wrapper.find(DOT + chatStyles.toolbarBoxWrapper);
 
-            if(!toolbarBoxWrapper.is(":visible")){
+            if (!toolbarBoxWrapper.is(":visible")) {
                 toolbarBoxWrapper.show();
             }
 
-            if(options.toolbar && typeof options.toolbar == "object" && "buttons" in options.toolbar) {
+            if (options.toolbar && typeof options.toolbar == "object" && "buttons" in options.toolbar) {
                 this.options.toolbar.buttons = options.toolbar.buttons;
             }
         },
@@ -1208,7 +1208,7 @@ var __meta__ = { // jshint ignore:line
                 this.messageBox = null;
             }
 
-            if(this.toolbar) {
+            if (this.toolbar) {
                 this.toolbar.destroy();
                 this.toolbar = null;
             }
@@ -1298,17 +1298,17 @@ var __meta__ = { // jshint ignore:line
             var options = extend(true, {}, that.options);
             var element = that.wrapper.find(DOT + chatStyles.toolbarBoxWrapper + "");
 
-            if(options.toolbar.scrollable === undefined) {
+            if (options.toolbar.scrollable === undefined) {
                 this.options.toolbar.scrollable = options.toolbar.scrollable = true;
             }
 
-            if(options.toolbar.toggleable === undefined) {
+            if (options.toolbar.toggleable === undefined) {
                 this.options.toolbar.toggleable = options.toolbar.toggleable = false;
             }
 
             that.toolbar = new kendo.chat.ChatToolBar(element, options);
 
-            that.toolbar.bind("click", function(ev){
+            that.toolbar.bind("click", function(ev) {
                 that.trigger("toolClick", {
                     sender: that,
                     name: ev.name,
@@ -1342,7 +1342,7 @@ var __meta__ = { // jshint ignore:line
             this.view.renderAttachments(options, sender);
         },
 
-        toggleToolbar: function (skipAnimation) {
+        toggleToolbar: function(skipAnimation) {
             this.toolbar.toggle(skipAnimation);
         },
 
@@ -1367,5 +1367,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,16 +1,16 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('pdfviewer/pdfjs',["kendo.core"], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     var extend = $.extend;
     var isLoaded = function() {
         if (!window.pdfjsLib)
@@ -41,13 +41,13 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('pdfviewer/processors/pdfjs-processor',[
         "../pdfjs"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "pdfjs-processor",
@@ -74,7 +74,7 @@ var __meta__ = { // jshint ignore:line
             that.file = options.file;
             that.viewer = viewer;
         },
-        fetchDocument: function () {
+        fetchDocument: function() {
             var that = this,
                 deferred = $.Deferred(),
                 messages = that.viewer.options.messages.errorMessages;
@@ -88,13 +88,13 @@ var __meta__ = { // jshint ignore:line
                 that.file.data = atob(that.file.data);
             }
 
-            PDFJS.getDocument(this.file).promise.then(function (pdf) {
+            PDFJS.getDocument(this.file).promise.then(function(pdf) {
                 var pageSizes = [];
                 that.pdf = pdf;
                 that.pagePromises = [];
                 that._downloadData = $.Deferred();
 
-                pdf.getData().then(function (data) {
+                pdf.getData().then(function(data) {
                     var blob = new Blob([data], { type: 'application/pdf' });
                     that._downloadData.resolve({
                         file: blob
@@ -105,9 +105,9 @@ var __meta__ = { // jshint ignore:line
                     that.pagePromises.push(pdf.getPage(i));
                 }
 
-                Promise.all(that.pagePromises).then(function (pagePromises) {
-                    pageSizes = pagePromises.map(function (pagePromise) {
-                        var viewport = pagePromise.getViewport({scale: 4/3});
+                Promise.all(that.pagePromises).then(function(pagePromises) {
+                    pageSizes = pagePromises.map(function(pagePromise) {
+                        var viewport = pagePromise.getViewport({ scale: 4 / 3 });
                         return {
                             width: viewport.width,
                             height: viewport.height
@@ -118,14 +118,14 @@ var __meta__ = { // jshint ignore:line
                         total: pdf.numPages,
                         pages: pageSizes
                     });
-                }).catch(function (e) { // jshint ignore:line
+                }).catch(function(e) { // jshint ignore:line
                     that.viewer._triggerError({
                         error: e.message,
                         message: messages.parseError
                     });
                 });
 
-            }).catch(function (e) { // jshint ignore:line
+            }).catch(function(e) { // jshint ignore:line
                 var notFoundError = e.name.includes("Missing");
                 var alertMessage = notFoundError ? messages.notFound : messages.parseError;
                 that.viewer._triggerError({
@@ -139,14 +139,14 @@ var __meta__ = { // jshint ignore:line
 
             return deferred;
         },
-        fetchPageData: function (number) {
+        fetchPageData: function(number) {
             return this.pagePromises[number - 1];
         },
-        downloadFile: function (fileName) {
+        downloadFile: function(fileName) {
             var that = this;
             kendo.ui.progress(that.viewer.pageContainer, true);
 
-            that._downloadData.done(function (result) {
+            that._downloadData.done(function(result) {
                 kendo.ui.progress(that.viewer.pageContainer, false);
 
                 var reader = new FileReader();
@@ -163,14 +163,14 @@ var __meta__ = { // jshint ignore:line
                 };
             });
         },
-        _updateDocument: function (file) {
-            if(this.pdf && this.pdf.loadingTask) {
+        _updateDocument: function(file) {
+            if (this.pdf && this.pdf.loadingTask) {
                 this.pdf.loadingTask.destroy();
             }
 
             this.file = file;
         },
-        _isBase64Data: function () {
+        _isBase64Data: function() {
             var data = this.file.data,
                 notBase64 = /[^A-Z0-9+\/=]/i,
                 length = data && data.length,
@@ -186,7 +186,7 @@ var __meta__ = { // jshint ignore:line
                 equalSign === length - 1 ||
                 (equalSign === length - 2 && data[length - 1] === '=');
         },
-        renderTextLayer: function (params) {
+        renderTextLayer: function(params) {
             PDFJS.renderTextLayer(params);
         }
     });
@@ -198,11 +198,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('pdfviewer/processors/dpl-processor',["kendo.core"], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dpl-processor",
@@ -227,7 +227,7 @@ var __meta__ = { // jshint ignore:line
 
             that.viewer = viewer;
         },
-        fetchDocument: function () {
+        fetchDocument: function() {
             var that = this,
                 deferred = $.Deferred(),
                 errorMessages = that.viewer.options.messages.errorMessages;
@@ -240,13 +240,13 @@ var __meta__ = { // jshint ignore:line
                 type: that.read.type,
                 url: that.read.url,
                 dataType: that.read.dataType,
-                success: function (data) {
+                success: function(data) {
                     if (typeof data != "string") {
                         data = kendo.stringify(data);
                     }
                     deferred.resolve(JSON.parse(data));
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     that.viewer._triggerError({
                         error: xhr.responseText,
                         message: errorMessages.parseError
@@ -256,7 +256,7 @@ var __meta__ = { // jshint ignore:line
 
             return deferred;
         },
-        fetchPageData: function (number) {
+        fetchPageData: function(number) {
             var that = this;
             var deferred = $.Deferred();
             var page = that.viewer.document.pages[number - 1];
@@ -268,10 +268,10 @@ var __meta__ = { // jshint ignore:line
                     type: that.read.type,
                     url: that.read.url,
                     data: data,
-                    success: function (data) {
+                    success: function(data) {
                         deferred.resolve(JSON.parse(data));
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         that.viewer._triggerError({
                             error: xhr.responseText,
                             message: that.viewer.options.messages.errorMessages.parseError
@@ -284,11 +284,11 @@ var __meta__ = { // jshint ignore:line
 
             return deferred;
         },
-        downloadFile: function (fileName) {
+        downloadFile: function(fileName) {
             window.location = this.download.url + "?file=" + fileName;
         },
 
-        fromJSON: function (json)
+        fromJSON: function(json)
         {
             var viewer = this.viewer;
             viewer._clearPages();
@@ -312,11 +312,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('pdfviewer/pager',["kendo.core"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var NS = ".kendoPDFViewer",
@@ -370,7 +370,7 @@ return window.kendo;
             CHANGE
         ],
 
-        _pagerLink: function (iconClass, text, pageIdx, wrapClass) {
+        _pagerLink: function(iconClass, text, pageIdx, wrapClass) {
             return this.linkTemplate({
                 iconClass: iconClass,
                 text: text,
@@ -379,7 +379,7 @@ return window.kendo;
             });
         },
 
-        _renderLinks: function ()
+        _renderLinks: function()
         {
             var that = this,
                 options = that.options;
@@ -403,7 +403,7 @@ return window.kendo;
 
         },
 
-        _toggleDisabledClass: function () {
+        _toggleDisabledClass: function() {
             var that = this,
                 options = that.options,
                 total = !options.total;
@@ -427,11 +427,11 @@ return window.kendo;
             }
         },
 
-        _attachEvents: function () {
+        _attachEvents: function() {
             var that = this;
 
             that.element.on(CLICK + NS, DOT + pagerStyles.nav, that._click.bind(that));
-            that.element.on(KEYDOWN + NS, DOT + pagerStyles.nav, function (e) {
+            that.element.on(KEYDOWN + NS, DOT + pagerStyles.nav, function(e) {
                 if (e.keyCode === kendo.keys.ENTER)
                 {
                     that._click(e);
@@ -444,7 +444,7 @@ return window.kendo;
             }
         },
 
-        _click: function (e) {
+        _click: function(e) {
             var target = $(e.currentTarget);
             var page = parseInt(target.attr(kendoAttr("page")), 10);
 
@@ -455,7 +455,7 @@ return window.kendo;
             this._change(page);
         },
 
-        _keydown: function (e) {
+        _keydown: function(e) {
             var key = e.keyCode,
                 keys = kendo.keys,
                 input = $(e.target),
@@ -483,7 +483,7 @@ return window.kendo;
 
         },
 
-        _change: function (page) {
+        _change: function(page) {
             var that = this;
 
             if (page >= 1 && page <= that.options.total) {
@@ -496,10 +496,10 @@ return window.kendo;
                 that._toggleDisabledClass();
             }
 
-            that.trigger(CHANGE, { page: page});
+            that.trigger(CHANGE, { page: page });
         },
 
-        setOptions: function (options) {
+        setOptions: function(options) {
             var that = this,
                 prevTotal = that.options.total;
 
@@ -527,7 +527,7 @@ return window.kendo;
             that._toggleDisabledClass();
         },
 
-        _renderInput: function () {
+        _renderInput: function() {
             var that = this,
                 totalMessage,
                 options = that.options,
@@ -545,12 +545,12 @@ return window.kendo;
                 totalMessage += options.total > 1 ? options.messages.pages : options.messages.page;
             }
 
-            inputTemplate = '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" aria-label="' + options.page + totalMessage  +  '"></span>' + totalMessage;
+            inputTemplate = '<span class="k-textbox k-input k-input-md k-rounded-md k-input-solid"><input class="k-input-inner" aria-label="' + options.page + totalMessage + '"></span>' + totalMessage;
 
             if (pagerInputWrap.length) {
                 pagerInputWrap.html(inputTemplate);
             } else {
-                that.element.append('<span class="k-pager-input k-label">' + inputTemplate +'</span>');
+                that.element.append('<span class="k-pager-input k-label">' + inputTemplate + '</span>');
             }
 
             that.input = that.element
@@ -576,10 +576,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
   define('pdfviewer/toolbar',["kendo.toolbar", "kendo.combobox", "./pager"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -616,7 +616,7 @@ return window.kendo;
         '#for(var zoomIndex in zoomLevels){#' +
             '# var zoomLevel = zoomLevels[zoomIndex]; #' +
             '<option value="#= zoomLevel.percent || (zoomLevel + "%") #">${zoomLevel.text ? zoomLevel.text : zoomLevel + "%"}</option>' +
-        '#}#'  +
+        '#}#' +
     '</select>');
 
     var DefaultTools = {
@@ -719,7 +719,7 @@ return window.kendo;
             this.addUidAttr();
             this.addOverflowAttr();
         },
-        _change: function (e) {
+        _change: function(e) {
             if (this.options.change && this.options.change(e.page))
             {
                 return;
@@ -732,7 +732,7 @@ return window.kendo;
                 }
             });
         },
-        _keydown: function (e) {
+        _keydown: function(e) {
             var that = this,
                 target = $(e.target),
                 keyCode = e.keyCode,
@@ -759,7 +759,7 @@ return window.kendo;
 
     kendo.toolbar.registerComponent("pager", ToolbarPager);
 
-    function appendZoomButtons (element, messages, isOverflow) {
+    function appendZoomButtons(element, messages, isOverflow) {
         var className = isOverflow ? styles.zoomOverflowButtons : styles.zoomButtons;
 
         element.append(ZOOM_BUTTON_TEMPLATE({
@@ -772,7 +772,7 @@ return window.kendo;
         element.append(ZOOM_BUTTON_TEMPLATE({
             text: messages.zoomIn,
             command: ZOOMIN,
-            iconClass:  styles.zoomInIcon,
+            iconClass: styles.zoomInIcon,
             showText: isOverflow,
             className: className
         }));
@@ -808,7 +808,7 @@ return window.kendo;
             this.enable(options.enable);
         },
 
-        _init: function (options, toolbar) {
+        _init: function(options, toolbar) {
             var zoomElement = $("<div />");
 
             this.options = extend(true, options, {
@@ -819,7 +819,7 @@ return window.kendo;
             this.element = zoomElement;
         },
 
-        _appendElements: function () {
+        _appendElements: function() {
             var options = this.options;
 
             if (options.zoomInOut) {
@@ -831,7 +831,7 @@ return window.kendo;
             }
         },
 
-        _buildComboBox: function () {
+        _buildComboBox: function() {
             var that = this,
                 combobox,
                 messages = that.options.messages,
@@ -874,13 +874,13 @@ return window.kendo;
             combobox.bind(CHANGE, kendo.throttle(that.change.bind(that), 300));
         },
 
-        change: function (e) {
+        change: function(e) {
             var value = e.sender ? e.sender.value() : e.target.value,
                 parsedValue;
 
             if (value.toString().match(/^[0-9]+%?$/)) {
                 parsedValue = parseInt(value.replace('%', ''), 10) / 100;
-            } else if (!PREDEFINED_ZOOM_VALUES[value]){
+            } else if (!PREDEFINED_ZOOM_VALUES[value]) {
                 if (this.combobox) {
                     this.combobox.value(this._currentValue);
                 }
@@ -897,7 +897,7 @@ return window.kendo;
             });
         },
 
-        _buttonCommand: function (target) {
+        _buttonCommand: function(target) {
             var button = $(target).closest(".k-button"),
             command = button.data("command");
 
@@ -911,11 +911,11 @@ return window.kendo;
             });
         },
 
-        _click: function (e) {
+        _click: function(e) {
             this._buttonCommand(e.target);
         },
 
-        _keydown: function (e) {
+        _keydown: function(e) {
             var target = e.target,
                 keyCode = e.keyCode,
                 keys = kendo.keys,
@@ -936,7 +936,7 @@ return window.kendo;
             }
         },
 
-        enable: function (value) {
+        enable: function(value) {
             var element = this.element;
 
             element.find(".k-button, select").toggleClass("k-disabled", !value);
@@ -946,7 +946,7 @@ return window.kendo;
             }
         },
 
-        destroy: function(){
+        destroy: function() {
             if (this.combobox) {
                 this.combobox.destroy();
             }
@@ -954,7 +954,7 @@ return window.kendo;
     });
 
     var ToolBarOverflowZoom = ToolBarZoom.extend({
-        _init: function (options, toolbar) {
+        _init: function(options, toolbar) {
             var zoomElement = $("<li></li>");
 
             this.options = extend(true, options, {
@@ -964,7 +964,7 @@ return window.kendo;
             this.toolbar = toolbar;
             this.element = zoomElement;
         },
-        _appendElements: function () {
+        _appendElements: function() {
             var options = this.options;
             if (options.zoomInOut) {
                 appendZoomButtons(this.element, options.messages, true);
@@ -1000,16 +1000,16 @@ return window.kendo;
         events: [
             ACTION
         ],
-        _updateItems: function (items) {
+        _updateItems: function(items) {
             var that = this;
             var messages = this.options.messages;
 
-            return items.map(function (tool) {
-                var isBuiltInTool =  $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name;
+            return items.map(function(tool) {
+                var isBuiltInTool = $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name;
                 tool = isBuiltInTool ? tool.name : tool;
                 var toolOptions = $.isPlainObject(tool) ? tool : AllTools[tool];
                 var options;
-                var toolName =  toolOptions.name;
+                var toolName = toolOptions.name;
 
                 if (toolOptions.type === "buttonGroup") {
                     toolOptions.buttons = that._updateItems(toolOptions.buttons);
@@ -1039,7 +1039,7 @@ return window.kendo;
                 return toolOptions;
             });
         },
-        _click: function (e)
+        _click: function(e)
         {
             var command = $(e.target).data("command");
 
@@ -1052,7 +1052,7 @@ return window.kendo;
                 options: e.options
             });
         },
-        _update: function (e) {
+        _update: function(e) {
             var pageOptions = {
                 page: e.page || 1,
                 total: e.total || 1
@@ -1075,7 +1075,7 @@ return window.kendo;
             this.enable(this.wrapper.find("[data-command='DownloadCommand']"), !e.isBlank);
             this.enable(this.wrapper.find("[data-command='PrintCommand']"), !e.isBlank);
         },
-        _updateZoomComboBox: function (value) {
+        _updateZoomComboBox: function(value) {
             var isPredefined = value === PREDEFINED_ZOOM_VALUES.auto ||
                                 value === PREDEFINED_ZOOM_VALUES.actual ||
                                 value === PREDEFINED_ZOOM_VALUES.fitToPage ||
@@ -1090,11 +1090,11 @@ return window.kendo;
                 this.zoom.combobox.value(value);
             }
         },
-        action: function (args)
+        action: function(args)
         {
             this.trigger(ACTION, args);
         },
-        destroy: function () {
+        destroy: function() {
             if (this.pager) {
                 this.pager.destroy();
             }
@@ -1114,10 +1114,10 @@ return window.kendo;
 })(window.kendo.jQuery);
 
 return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('pdfviewer/page',["kendo.drawing"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var extend = $.extend,
@@ -1137,7 +1137,7 @@ return window.kendo;
     };
 
     var Page = Class.extend({
-        init: function (options, viewer) {
+        init: function(options, viewer) {
             this.viewer = viewer;
             this.processor = options.processor;
             this.options = options;
@@ -1150,7 +1150,7 @@ return window.kendo;
             this.width = options.width;
             this.height = options.height;
         },
-        resize: function (ratio) {
+        resize: function(ratio) {
             var pageElement = this.element;
 
             this._updatePageSize({
@@ -1158,19 +1158,19 @@ return window.kendo;
                 height: Math.min(pageElement.height() * ratio, this.height)
             });
         },
-        _updatePageSize: function (size) {
+        _updatePageSize: function(size) {
             this.element
                     .width(size.width)
                     .height(size.height);
         },
-        destroy: function () {
+        destroy: function() {
             kendo.destroy(this.element);
         },
         render: noop
     });
 
     var DPLPage = Page.extend({
-        draw: function () {
+        draw: function() {
             var that = this,
                 geometries = that.options.geometries;
 
@@ -1182,7 +1182,7 @@ return window.kendo;
             that.viewer.trigger(RENDER, { page: this });
             kendo.ui.progress(that.element, false);
         },
-        load: function () {
+        load: function() {
             var that = this;
 
             if (that.loaded || !that.processor)
@@ -1190,7 +1190,7 @@ return window.kendo;
                 return;
             }
 
-            that.processor.fetchPageData(that.pageNumber).then(function (data) {
+            that.processor.fetchPageData(that.pageNumber).then(function(data) {
                 that.options = data;
                 that._initSurface();
                 that.draw();
@@ -1198,7 +1198,7 @@ return window.kendo;
 
             that.loaded = true;
         },
-        _initSurface: function () {
+        _initSurface: function() {
             var size = {
                 width: this.element.width(),
                 height: this.element.height()
@@ -1207,7 +1207,7 @@ return window.kendo;
             this.surface = new Surface(this.element, surfaceOptions);
             this._updatePageSize(size);
         },
-        _drawGeometries: function (geometries) {
+        _drawGeometries: function(geometries) {
             var that = this,
                 kGeometry;
 
@@ -1247,7 +1247,7 @@ return window.kendo;
                 }
             }
         },
-        _drawRect: function (geometry)
+        _drawRect: function(geometry)
         {
             var rectGeo = new kendo.geometry.Rect(geometry.point, geometry.size);
 
@@ -1258,15 +1258,15 @@ return window.kendo;
             });
         },
 
-        _drawImage: function (geometry)
+        _drawImage: function(geometry)
         {
-            var imageRect =  new kendo.geometry.Rect(geometry.point, geometry.size);
-            return new drawing.Image(geometry.src, imageRect,  {
+            var imageRect = new kendo.geometry.Rect(geometry.point, geometry.size);
+            return new drawing.Image(geometry.src, imageRect, {
                 transform: this._getMatrix(geometry.transform)
             });
         },
 
-        _drawText: function (geometry)
+        _drawText: function(geometry)
         {
             var options = {
                 transform: this._getMatrix(geometry.transform),
@@ -1277,7 +1277,7 @@ return window.kendo;
             return new kendo.drawing.Text(geometry.content, geometry.point, options);
         },
 
-        _drawPath: function (geometry)
+        _drawPath: function(geometry)
         {
             var options = {
                 transform: this._getMatrix(geometry.transform),
@@ -1310,7 +1310,7 @@ return window.kendo;
             return path;
         },
 
-        _getMatrix: function (transform) {
+        _getMatrix: function(transform) {
             var matrix = Object.create(kendo.geometry.Matrix.prototype);
             kendo.geometry.Matrix.apply(matrix, transform);
             return matrix;
@@ -1331,7 +1331,7 @@ return window.kendo;
             that.canvas.height = that.height;
             that.element.append(canvas);
         },
-        load: function (defaultScale, force) {
+        load: function(defaultScale, force) {
             var that = this,
                 promise = $.Deferred();
 
@@ -1346,9 +1346,9 @@ return window.kendo;
             }
 
             if (that.processor) {
-                that.processor.fetchPageData(that.pageNumber).then(function (page) {
+                that.processor.fetchPageData(that.pageNumber).then(function(page) {
                     that._page = page;
-                    that._renderPromise = that.render(defaultScale).then(function () {
+                    that._renderPromise = that.render(defaultScale).then(function() {
                         that.viewer.trigger(RENDER, { page: that });
                     });
                     promise.resolve(that);
@@ -1359,7 +1359,7 @@ return window.kendo;
             that.loaded = true;
             return promise;
         },
-        render: function (scale) {
+        render: function(scale) {
             var that = this;
             var context = this.canvas.getContext('2d'),
                 viewport = this._page.getViewport({
@@ -1388,16 +1388,16 @@ return window.kendo;
 
             this._renderTextLayer(viewport);
 
-            return this._renderTask.promise.then(function () {
+            return this._renderTask.promise.then(function() {
                 that._renderTask = null;
 
-            }).catch(function () {}); // jshint ignore:line
+            }).catch(function() {}); // jshint ignore:line
         },
-        _renderTextLayer: function (viewport) {
+        _renderTextLayer: function(viewport) {
             var that = this;
             var page = that._page;
 
-            if(that.textLayer) {
+            if (that.textLayer) {
                 that.textLayer.remove();
              }
 
@@ -1406,7 +1406,7 @@ return window.kendo;
 
             page.getTextContent({
                 normalizeWhitespace: true
-            }).then(function(textContent){
+            }).then(function(textContent) {
                 $(that.textLayer).css({
                   height: viewport.height,
                   width: viewport.width
@@ -1436,10 +1436,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('pdfviewer/search',["kendo.core"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var Class = kendo.Class,
@@ -1460,7 +1460,7 @@ return window.kendo;
             charClass: "k-text-char"
         },
 
-        processDom: function () {
+        processDom: function() {
             var that = this;
 
             that.targets = isArray(that.options.target) ? that.options.target : [that.options.target];
@@ -1468,7 +1468,7 @@ return window.kendo;
             that.charIndex = 0;
             that.text = "";
 
-            that.targets.forEach(function (target) {
+            that.targets.forEach(function(target) {
                 that.traverseToTextNode(target);
             });
 
@@ -1477,10 +1477,10 @@ return window.kendo;
             }
         },
 
-        traverseToTextNode: function (node) {
+        traverseToTextNode: function(node) {
             var that = this;
 
-            if(node.nodeType === 3) {
+            if (node.nodeType === 3) {
                 that.textNodes.push(node);
             } else {
                 for (var i = 0; i < node.childNodes.length; i++) {
@@ -1489,14 +1489,14 @@ return window.kendo;
             }
         },
 
-        processTextNode: function (node) {
+        processTextNode: function(node) {
             var that = this;
             var text = node.textContent;
             var span;
 
             that.text = that.text + text;
 
-            if(text.length > 0){
+            if (text.length > 0) {
                 span = $(node).wrap("<span>").parent();
                 span.empty();
                 that.splitChars(span.get(0), text);
@@ -1504,19 +1504,19 @@ return window.kendo;
             }
         },
 
-        splitChars: function (span, text) {
+        splitChars: function(span, text) {
             var that = this;
             var newHtml = "";
 
             for (var i = 0; i < text.length; i++) {
-                newHtml = newHtml + "<span class='"+ that.options.charClass + "' " + kendo.attr("char-index") + "=" + that.charIndex + ">" + text[i] + "</span>";
+                newHtml = newHtml + "<span class='" + that.options.charClass + "' " + kendo.attr("char-index") + "=" + that.charIndex + ">" + text[i] + "</span>";
                 that.charIndex++;
             }
 
             span.innerHTML = newHtml;
         },
 
-        search: function (value, matchCase) {
+        search: function(value, matchCase) {
             var that = this;
             var expression = new RegExp(value, !matchCase ? "gi" : "g");
             var match;
@@ -1527,13 +1527,13 @@ return window.kendo;
             that.resetHighlight();
             that.resetMatchIndex();
 
-            if(value === "") {
+            if (value === "") {
                 return;
             }
 
             match = expression.exec(that.text);
 
-            while(match){
+            while (match) {
                 that.matches.push({
                     startOffset: match.index,
                     endOffset: match.index + match[0].length
@@ -1546,10 +1546,10 @@ return window.kendo;
             that.mark();
         },
 
-        highlightAll: function () {
+        highlightAll: function() {
             var that = this;
 
-            that.matches.forEach(function (match, index) {
+            that.matches.forEach(function(match, index) {
                 var start = match.startOffset;
                 var end = match.endOffset;
 
@@ -1557,18 +1557,18 @@ return window.kendo;
             });
         },
 
-        highlight: function (start, end, matchIndex) {
+        highlight: function(start, end, matchIndex) {
             var that = this;
 
             for (var i = start; i < end; i++) {
                 $(that.targets)
-                    .find("." + that.options.charClass + "[" + kendo.attr("char-index")  + "=" + i + "]")
+                    .find("." + that.options.charClass + "[" + kendo.attr("char-index") + "=" + i + "]")
                     .addClass(that.options.highlightClass)
                     .attr(kendo.attr("match-index"), matchIndex);
             }
         },
 
-        resetHighlight: function () {
+        resetHighlight: function() {
             var that = this;
 
             $(that.targets)
@@ -1576,18 +1576,18 @@ return window.kendo;
                 .removeClass(that.options.highlightClass);
         },
 
-        resetMatchIndex: function () {
+        resetMatchIndex: function() {
             var that = this;
 
             $(that.targets)
-                .find("." + that.options.charClass + "[" + kendo.attr("match-index")  + "]")
+                .find("." + that.options.charClass + "[" + kendo.attr("match-index") + "]")
                 .removeAttr(kendo.attr("match-index"));
         },
 
-        mark: function () {
+        mark: function() {
             var that = this;
 
-            if(!that.currentIndex && that.currentIndex !== 0) {
+            if (!that.currentIndex && that.currentIndex !== 0) {
                 that.currentIndex = 0;
             } else if (that.currentIndex > that.matches.length) {
                 that.currentIndex = that.matches.length;
@@ -1596,52 +1596,52 @@ return window.kendo;
             }
 
             $(that.targets)
-                .find("." + that.options.charClass + "[" + kendo.attr("match-index")  + "=" + that.currentIndex + "]")
+                .find("." + that.options.charClass + "[" + kendo.attr("match-index") + "=" + that.currentIndex + "]")
                 .wrapInner("<mark>");
         },
 
-        resetMark: function () {
+        resetMark: function() {
             var that = this;
             $(that.targets).find("mark").contents().unwrap();
         },
 
-        nextMatch: function () {
+        nextMatch: function() {
             var that = this;
 
             that.currentIndex++;
 
-            if(that.currentIndex > that.matches.length) {
+            if (that.currentIndex > that.matches.length) {
                 that.currentIndex = 1;
             }
 
             that.mark();
         },
 
-        previousMatch: function () {
+        previousMatch: function() {
             var that = this;
 
             that.currentIndex--;
 
-            if(that.currentIndex < 1) {
+            if (that.currentIndex < 1) {
                 that.currentIndex = that.matches.length;
             }
 
             that.mark();
         },
 
-        getMarkedIndex: function () {
+        getMarkedIndex: function() {
             return this.matches.length ? this.currentIndex : 0;
         },
 
-        getFirstMarked: function () {
+        getFirstMarked: function() {
             return $(this.targets).find("mark").eq(0);
         },
 
-        destroy: function () {
+        destroy: function() {
             var that = this;
 
             that.resetMark();
-            $(that.targets).children("span:not(." + that.options.charClass + ")").each(function(i, item){
+            $(that.targets).children("span:not(." + that.options.charClass + ")").each(function(i, item) {
                 $(item).text($(item).text());
             });
         }
@@ -1654,10 +1654,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
   define('pdfviewer/dialogs',["kendo.dialog", "kendo.window", "kendo.binder", "kendo.numerictextbox", "kendo.dropdownlist"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1670,7 +1670,7 @@ return window.kendo;
         keys = kendo.keys;
 
     var ErrorDialog = Class.extend({
-        init: function (options) {
+        init: function(options) {
             this.options = extend(options, {
                 actions: [{
                     text: options.messages.dialogs.okText
@@ -1680,13 +1680,13 @@ return window.kendo;
                     .kendoDialog(this.options)
                     .getKendoDialog();
         },
-        open: function () {
+        open: function() {
             this._dialog.center().open();
         }
     });
 
     var ExportAsDialog = Class.extend({
-        init: function (options) {
+        init: function(options) {
             this.options = extend(options, this.options, {
                 fileFormats: [{
                     description: options.messages.dialogs.exportAsDialog.png,
@@ -1735,7 +1735,7 @@ return window.kendo;
                     "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base' data-bind='click: close'><span class='k-button-text'>#: messages.cancel #</span></button>" +
                 "</div>"
         },
-        _updateModel: function (options) {
+        _updateModel: function(options) {
             if (options.pagesCount) {
                 this.viewModel.set("pagesCount", options.pagesCount);
             }
@@ -1743,7 +1743,7 @@ return window.kendo;
                 this.viewModel.set("page", options.page);
             }
         },
-        _initializeDialog: function () {
+        _initializeDialog: function() {
             var that = this;
             var options = that.options;
             var dialogMessages = options.messages.dialogs;
@@ -1763,7 +1763,7 @@ return window.kendo;
                 pagesCount: options.pagesCount,
                 page: 1,
                 apply: that.apply.bind(this),
-                close: function () {
+                close: function() {
                     dialog.close();
                 }
             });
@@ -1787,7 +1787,7 @@ return window.kendo;
     });
 
     var SearchDialog = Class.extend({
-        init: function (options) {
+        init: function(options) {
             var that = this;
             that.options = extend({}, options, that.options);
         },
@@ -1805,16 +1805,16 @@ return window.kendo;
                           "<button class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button' data-bind='click: close' aria-label='#: messages.close #' title='#: messages.close #'><span class='k-button-icon k-icon k-i-close'></<span></button>" +
                       "</div>"
         },
-        open: function () {
+        open: function() {
             var that = this;
 
-            if(!that.dialog) {
+            if (!that.dialog) {
                 that._initializeDialog();
             }
 
             that.dialog.open();
         },
-        _initializeDialog: function () {
+        _initializeDialog: function() {
             var that = this;
             var template = kendo.template(that.options.template);
             var dialogElm = $("<div class='k-pdf-viewer-search-dialog'></div>").append(template({
@@ -1833,7 +1833,7 @@ return window.kendo;
                 draggable: {
                     dragHandle: ".k-search-dialog-draghandle"
                 },
-                activate: function (ev) {
+                activate: function(ev) {
                     ev.sender.element.find(".k-search-dialog-input").trigger("focus");
                 }
             }));
@@ -1844,25 +1844,25 @@ return window.kendo;
                 matchCase: false,
                 matchIndex: 0,
                 matches: 0,
-                matchCaseClick: function () {
+                matchCaseClick: function() {
                     this.set("matchCase", !this.matchCase);
                 },
                 next: that.options.next,
                 prev: that.options.prev,
-                close: function () {
+                close: function() {
                     this.set("boundValue", "");
                     that.dialog.close();
                 },
-                onKeyup: function (ev) {
+                onKeyup: function(ev) {
                     var key = ev.keyCode;
                     var navigationFn = ev.shiftKey ? this.prev : this.next;
 
-                    if(key === keys.ENTER) {
+                    if (key === keys.ENTER) {
                         navigationFn();
                         ev.preventDefault();
                     }
                 },
-                onInput: function (ev) {
+                onInput: function(ev) {
                     this.set("searchText", ev.target.value);
                 }
             });
@@ -1881,10 +1881,10 @@ return window.kendo;
 })(window.kendo.jQuery);
 
 return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
   define('pdfviewer/commands',["kendo.upload"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1909,10 +1909,10 @@ return window.kendo;
             Command.fn.init.call(this, options);
             this.upload = this.viewer.processor.upload;
         },
-        exec: function () {
+        exec: function() {
             (this.viewer._upload || this._initUpload()).element.click();
         },
-        _initUpload: function () {
+        _initUpload: function() {
             var uploadOptions = {
                 select: this._onSelect.bind(this),
                 success: this._onSuccess.bind(this),
@@ -1928,7 +1928,7 @@ return window.kendo;
             if (this.upload) {
                 extend(uploadOptions, {
                     async: {
-                        saveUrl:  this.upload.url,
+                        saveUrl: this.upload.url,
                         autoUpload: true,
                         saveField: this.upload.saveField
                     }
@@ -1940,7 +1940,7 @@ return window.kendo;
 
             return upload;
         },
-        _onComplete: function () {
+        _onComplete: function() {
             progress(this.viewer.pageContainer, false);
         },
         _onSuccess: function(e) {
@@ -1962,7 +1962,7 @@ return window.kendo;
                 message: this.errorMessages.notSupported
             });
         },
-        _onSelect: function (e) {
+        _onSelect: function(e) {
             var that = this;
             var fileToUpload = e.files[0];
 
@@ -1983,7 +1983,7 @@ return window.kendo;
                 var document = e.target.result;
                 that.viewer.fromFile(document);
             };
-            reader.onerror = function () {
+            reader.onerror = function() {
                 that.viewer._triggerError({
                     error: fileToUpload,
                     message: that.errorMessages.parseError
@@ -1995,7 +1995,7 @@ return window.kendo;
     });
 
     var PageChangeCommand = Command.extend({
-        exec: function () {
+        exec: function() {
             var pageNumber = this.options.value;
 
             this.viewer.activatePage(pageNumber);
@@ -2003,7 +2003,7 @@ return window.kendo;
     });
 
     var DownloadCommand = Command.extend({
-        exec: function () {
+        exec: function() {
             if (!this.viewer.document) {
                 this.viewer._triggerError({
                     message: this.errorMessages.notFound
@@ -2033,7 +2033,7 @@ return window.kendo;
 
             dialog.open();
         },
-        apply: function (viewModel) {
+        apply: function(viewModel) {
             var extension = viewModel.extension;
 
             if (extension === ".png") {
@@ -2042,7 +2042,7 @@ return window.kendo;
                 this.viewer.exportSVG(viewModel);
             }
         },
-        _initDialog: function () {
+        _initDialog: function() {
             this.viewer._saveDialog = new kendo.pdfviewer.dialogs.ExportAsDialog({
                 apply: this.apply.bind(this),
                 pagesCount: (this.viewer.document && this.viewer.document.total) || 1,
@@ -2053,7 +2053,7 @@ return window.kendo;
     });
 
     var EnableSelectionCommand = Command.extend({
-        exec: function () {
+        exec: function() {
             var that = this,
                 viewer = that.viewer;
 
@@ -2062,7 +2062,7 @@ return window.kendo;
     });
 
     var EnablePanCommand = Command.extend({
-        exec: function () {
+        exec: function() {
             var that = this,
                 viewer = that.viewer;
 
@@ -2076,7 +2076,7 @@ return window.kendo;
 
             that.viewer = options.viewer;
 
-            if(!that.viewer.searchDialog) {
+            if (!that.viewer.searchDialog) {
                 that.viewer.searchDialog = new kendo.pdfviewer.dialogs.SearchDialog({
                     position: {
                         top: that.viewer.pageContainer.offset().top,
@@ -2092,26 +2092,26 @@ return window.kendo;
 
             Command.fn.init.call(that, options);
         },
-        exec: function () {
+        exec: function() {
             var that = this;
 
             that.viewer.searchDialog.open();
         },
-        _open: function () {
+        _open: function() {
             var that = this;
 
             that.changeHandler = that._change.bind(that);
             that.zoomStartHandler = that._closeDialog.bind(that);
             that.openFileHandler = that._closeDialog.bind(that);
 
-            if(!that.viewer._searchDOM) {
+            if (!that.viewer._searchDOM) {
                 that.viewer._initSearchDOM();
                 that.viewer.searchDialog.searchModel.bind("change", that.changeHandler);
                 that.viewer.bind("zoomStart", that.zoomStartHandler);
                 that.viewer.bind("open", that.openFileHandler);
             }
         },
-        _close: function () {
+        _close: function() {
             var that = this;
             var searchEngine = that.viewer._searchDOM;
 
@@ -2122,14 +2122,14 @@ return window.kendo;
             delete that.viewer._searchDOM;
             that._updateSearchModel();
         },
-        _change: function (ev) {
+        _change: function(ev) {
             var that = this;
             var searchEngine = that.viewer._searchDOM;
             var field = ev.field;
             var model = that.viewer.searchDialog.searchModel;
             var value = model[field];
 
-            if(!searchEngine) {
+            if (!searchEngine) {
                 return;
             }
 
@@ -2146,7 +2146,7 @@ return window.kendo;
                     break;
             }
         },
-        _next: function () {
+        _next: function() {
             var that = this;
             var searchEngine = that.viewer._searchDOM;
 
@@ -2155,7 +2155,7 @@ return window.kendo;
                 that._updateSearchModel();
             }
         },
-        _prev: function () {
+        _prev: function() {
             var that = this;
             var searchEngine = that.viewer._searchDOM;
 
@@ -2164,12 +2164,12 @@ return window.kendo;
                 that._updateSearchModel();
             }
         },
-        _updateSearchModel: function () {
+        _updateSearchModel: function() {
             var that = this;
             var searchEngine = that.viewer._searchDOM;
             var model = that.viewer.searchDialog.searchModel;
 
-            if(searchEngine) {
+            if (searchEngine) {
                 model.set("matches", searchEngine.matches.length);
                 model.set("matchIndex", searchEngine.getMarkedIndex());
                 that._scrollToMark();
@@ -2180,14 +2180,14 @@ return window.kendo;
                 model.set("matchCase", false);
             }
         },
-        _scrollToMark: function () {
+        _scrollToMark: function() {
             var that = this;
             var searchEngine = that.viewer._searchDOM;
             var marked = searchEngine.getFirstMarked();
             var scroller = that.viewer._scroller;
             var position;
 
-            if(!marked.length) {
+            if (!marked.length) {
                 return;
             }
 
@@ -2195,14 +2195,14 @@ return window.kendo;
 
             scroller.scrollTo(scroller.scrollLeft, position * -1);
         },
-        _closeDialog: function () {
+        _closeDialog: function() {
             var that = this;
             that.viewer.searchDialog.dialog.close();
         }
     });
 
     var ZoomCommand = Command.extend({
-        exec: function () {
+        exec: function() {
             var that = this,
                 options = that.options,
                 viewer = that.viewer,
@@ -2213,13 +2213,13 @@ return window.kendo;
                 updatedVisiblePagesCount = 1,
                 renderTasks = [];
 
-            if(viewer.processingLib === "dpl") {
+            if (viewer.processingLib === "dpl") {
                 return;
             }
 
             scale = that._calculateZoom();
 
-            var updateViewer = function () {
+            var updateViewer = function() {
                 var scroller = that.viewer._scroller,
                     scrollingStarted = viewer._scrollingStarted;
 
@@ -2242,7 +2242,7 @@ return window.kendo;
             viewer._scrollingStarted = false;
 
             if (viewer.pages) {
-                viewer.pages.forEach(function (page) {
+                viewer.pages.forEach(function(page) {
                     var pageHeight;
 
                     if (viewer._visiblePages.indexOf(page) !== -1 && page.loaded) {
@@ -2272,16 +2272,16 @@ return window.kendo;
                 }
             }
 
-            Promise.all(renderTasks).then(function () {
+            Promise.all(renderTasks).then(function() {
                 updateViewer();
                 that._triggerZoomEnd(scale);
-            }).catch(function () { // jshint ignore:line
+            }).catch(function() { // jshint ignore:line
                 updateViewer();
                 that._triggerZoomEnd(scale);
             });
         },
 
-        _calculateZoom: function () {
+        _calculateZoom: function() {
             var options = this.options,
                 viewer = this.viewer,
                 viewerOptions = viewer.options,
@@ -2315,7 +2315,7 @@ return window.kendo;
 
             preventZoom = scale < viewerOptions.zoomMin || scale > viewerOptions.zoomMax;
 
-            if (preventZoom || viewer.trigger(ZOOMSTART, { scale: scale})) {
+            if (preventZoom || viewer.trigger(ZOOMSTART, { scale: scale })) {
                 return;
             }
 
@@ -2327,7 +2327,7 @@ return window.kendo;
             return scaleValue;
         },
 
-        _triggerZoomEnd: function (scale) {
+        _triggerZoomEnd: function(scale) {
             var that = this,
                 viewer = that.viewer;
 
@@ -2336,10 +2336,10 @@ return window.kendo;
     });
 
     var PrintCommand = Command.extend({
-        init: function (options){
+        init: function(options) {
             Command.fn.init.call(this, options);
         },
-        exec: function () {
+        exec: function() {
             var that = this;
 
              if (!that.viewer.document) {
@@ -2353,10 +2353,10 @@ return window.kendo;
             that._renderPrintContainer();
             that._loadAllPages().then(that.processAfterRender.bind(that));
         },
-        _renderPrintContainer: function () {
+        _renderPrintContainer: function() {
             this.printContainer = $("<div></div>");
         },
-        _loadAllPages: function () {
+        _loadAllPages: function() {
             var that = this;
             var pages = that.viewer.pages;
             var loadPromises = [];
@@ -2365,7 +2365,7 @@ return window.kendo;
 
             that._originalScale = that.viewer.zoom();
 
-            function getRenderPromise (page) {
+            function getRenderPromise(page) {
                 renderPromises.push(page._renderPromise);
             }
 
@@ -2373,18 +2373,18 @@ return window.kendo;
                 loadPromises.push(pages[i].load(3, true).then(getRenderPromise));
             }
 
-            Promise.all(loadPromises).then(function(){
+            Promise.all(loadPromises).then(function() {
                 promise.resolve(renderPromises);
             });
 
             return promise;
         },
-        processAfterRender: function(renderPromises){
+        processAfterRender: function(renderPromises) {
             var that = this;
 
-            Promise.all(renderPromises).then(function(){
+            Promise.all(renderPromises).then(function() {
                 that._renderPrintPages();
-                setTimeout(function () {
+                setTimeout(function() {
                     that._printDocument();
                     that.viewer.zoom(that._originalScale);
                     progress(that.viewer.pageContainer, false);
@@ -2392,14 +2392,14 @@ return window.kendo;
                 }, 0);
             });
         },
-        _renderPrintPages: function () {
+        _renderPrintPages: function() {
             var pages = this.viewer.pages;
 
             for (var i = 0; i < pages.length; i++) {
                 this._renderPrintImage(pages[i]);
             }
          },
-        _renderPrintImage: function (page) {
+        _renderPrintImage: function(page) {
             var canvas = page.canvas;
             var div = $("<div></div>");
 
@@ -2409,7 +2409,7 @@ return window.kendo;
 
             this.printContainer.append(div);
         },
-        _printDocument: function () {
+        _printDocument: function() {
             var that = this;
             var pages = that.viewer.pages;
             var width = pages[0].width;
@@ -2417,7 +2417,7 @@ return window.kendo;
             var myWindow = window.open('','','innerWidth=' + width + ',innerHeight=' + height + 'location=no,titlebar=no,toolbar=no');
             var browser = kendo.support.browser;
 
-            if(!myWindow) {
+            if (!myWindow) {
                 that.viewer._triggerError({
                     message: that.errorMessages.popupBlocked
                 });
@@ -2432,7 +2432,7 @@ return window.kendo;
             if (!browser.chrome || browser.chromiumEdge) {
                 myWindow.close();
             } else {
-                $(myWindow.document).find("body").on("mousemove", function(){
+                $(myWindow.document).find("body").on("mousemove", function() {
                     myWindow.close();
                 });
             }
@@ -2455,8 +2455,8 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.pdfviewer',[
         "kendo.mobile.scroller",
         "./pdfviewer/processors/pdfjs-processor",
@@ -2467,7 +2467,7 @@ return window.kendo;
         "./pdfviewer/dialogs",
         "./pdfviewer/commands"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "pdfviewer",
@@ -2483,7 +2483,7 @@ var __meta__ = { // jshint ignore:line
         ui = kendo.ui,
         extend = $.extend,
         drawing = kendo.drawing,
-        keys = $.extend({PLUS: 187, MINUS: 189, ZERO: 48, NUMPAD_ZERO: 96 }, kendo.keys),
+        keys = $.extend({ PLUS: 187, MINUS: 189, ZERO: 48, NUMPAD_ZERO: 96 }, kendo.keys),
         Page,
         Widget = ui.Widget,
         progress = kendo.ui.progress,
@@ -2596,7 +2596,7 @@ var __meta__ = { // jshint ignore:line
                     open: "Open",
                     exportAs: "Export",
                     download: "Download",
-                    pager:  {
+                    pager: {
                         first: "Go to the first page",
                         previous: "Go to the previous page",
                         next: "Go to the next page",
@@ -2644,7 +2644,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _wrapper: function () {
+        _wrapper: function() {
             var that = this,
                 options = that.options;
 
@@ -2668,7 +2668,7 @@ var __meta__ = { // jshint ignore:line
             that._pageNum = that.options.page;
         },
 
-        _focus: function (e) {
+        _focus: function(e) {
             if (this.toolbar) {
                 this.toolbar.wrapper.trigger("focus");
             } else {
@@ -2677,7 +2677,7 @@ var __meta__ = { // jshint ignore:line
             e.preventDefault();
         },
 
-        _keydown: function (e) {
+        _keydown: function(e) {
             var plusShortcuts = [keys.PLUS, keys.NUMPAD_PLUS],
                 minusShortcuts = [keys.MINUS, keys.NUMPAD_MINUS],
                 zeroShortcuts = [keys.ZERO, keys.NUMPAD_ZERO],
@@ -2708,7 +2708,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _initProcessor: function (options) {
+        _initProcessor: function(options) {
             var that = this,
                 processingOptions;
 
@@ -2719,7 +2719,7 @@ var __meta__ = { // jshint ignore:line
             Page = kendo.pdfviewer[that.processingLib].Page;
         },
 
-        _renderToolbar: function () {
+        _renderToolbar: function() {
             var that = this,
                 options = that.options;
 
@@ -2741,7 +2741,7 @@ var __meta__ = { // jshint ignore:line
             that.toolbar = new kendo.pdfviewer.Toolbar(toolbarElement, toolbarOptions);
         },
 
-        _initErrorDialog: function (options) {
+        _initErrorDialog: function(options) {
             var that = this;
 
             if (!that._errorDialog) {
@@ -2754,7 +2754,7 @@ var __meta__ = { // jshint ignore:line
             return that._errorDialog;
         },
 
-        _renderPageContainer: function () {
+        _renderPageContainer: function() {
             var that = this;
 
             if (!that.pageContainer) {
@@ -2765,7 +2765,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _triggerError: function (options) {
+        _triggerError: function(options) {
             var dialog = this._initErrorDialog();
             extend(options, {
                 dialog: dialog
@@ -2782,7 +2782,7 @@ var __meta__ = { // jshint ignore:line
             dialog.open().content(options.message);
         },
 
-        _renderPages: function () {
+        _renderPages: function() {
             var that = this,
                 document = that.document,
                 pagesData;
@@ -2816,7 +2816,7 @@ var __meta__ = { // jshint ignore:line
             that._getVisiblePagesCount();
         },
 
-        _renderBlankPage: function () {
+        _renderBlankPage: function() {
             this._blankPage = new Page(this.options.defaultPageSize, this);
 
             this.pageContainer.append(this._blankPage.element);
@@ -2824,7 +2824,7 @@ var __meta__ = { // jshint ignore:line
             this.trigger(UPDATE, { isBlank: true });
         },
 
-        _resize: function () {
+        _resize: function() {
             var that = this,
                 containerWidth,
                 ratio;
@@ -2851,12 +2851,12 @@ var __meta__ = { // jshint ignore:line
             that._resizeHandler = setTimeout(that._resizePages.bind(that), 100);
         },
 
-        _resizePages: function () {
+        _resizePages: function() {
             var that = this,
                 containerWidth = that.pageContainer[0].clientWidth,
                 ratio = 0;
 
-            that.pages.forEach(function (page) {
+            that.pages.forEach(function(page) {
                 var currentRatio = containerWidth / page.element.width();
 
                 if (currentRatio > ratio) {
@@ -2864,7 +2864,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
 
-            if(that._autoFit) {
+            if (that._autoFit) {
                 that.zoom(that._autoFit, true);
                 return;
             }
@@ -2877,7 +2877,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _attachContainerEvents: function () {
+        _attachContainerEvents: function() {
             var that = this;
 
             that._wheel = kendo.throttle(
@@ -2885,8 +2885,8 @@ var __meta__ = { // jshint ignore:line
                 300
             );
 
-            if(that.processingLib !== PROCESSORS.dpl) {
-                that.pageContainer.on(MOUSEWHEEL, function (e) {
+            if (that.processingLib !== PROCESSORS.dpl) {
+                that.pageContainer.on(MOUSEWHEEL, function(e) {
                     if (!e.ctrlKey) {
                         return;
                     }
@@ -2909,7 +2909,7 @@ var __meta__ = { // jshint ignore:line
             that._scroller.bind(SCROLL, that._scroll.bind(this));
         },
 
-        _scroll: function (e) {
+        _scroll: function(e) {
             var that = this,
                 containerScrollHeight = that.pageContainer[0].scrollHeight,
                 containerHeight = that.pageContainer.height(),
@@ -2965,7 +2965,7 @@ var __meta__ = { // jshint ignore:line
                 that._prevScrollTop = containerScrollTop;
         },
 
-        _wheel: function (e) {
+        _wheel: function(e) {
             var originalEvent = e.originalEvent,
                 delta = originalEvent.wheelDelta ? -originalEvent.wheelDelta : originalEvent.detail,
                 zoomIn = delta < 0;
@@ -2982,7 +2982,7 @@ var __meta__ = { // jshint ignore:line
             e.preventDefault();
         },
 
-        zoom: function (scale, preventComboBoxChange) {
+        zoom: function(scale, preventComboBoxChange) {
             var that = this;
             if (!scale) {
                 return that.zoomScale;
@@ -2997,18 +2997,18 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        execute: function (options) {
+        execute: function(options) {
             var commandOptions = extend({ viewer: this }, options.options);
             var command = new kendo.pdfviewer[options.command](commandOptions);
             return command.exec();
         },
 
-        _loadDocument: function () {
+        _loadDocument: function() {
             var that = this;
             var page = that.options.page;
 
             progress(that.pageContainer, true);
-            that.processor.fetchDocument().done(function (document) {
+            that.processor.fetchDocument().done(function(document) {
                 that._clearPages();
                 that.document = document;
 
@@ -3024,7 +3024,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        loadPage: function (number) {
+        loadPage: function(number) {
             var page = this.pages && this.pages[number - 1];
 
             if (page) {
@@ -3032,7 +3032,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        activatePage: function (number) {
+        activatePage: function(number) {
             var page = this.pages && this.pages[number - 1],
                 scroller = this._scroller,
                 scrollerTopPosition,
@@ -3058,14 +3058,14 @@ var __meta__ = { // jshint ignore:line
             this.trigger(UPDATE, { action: PAGE_CHANGE, page: number, total: this.pages.length });
         },
 
-        _getVisiblePagesCount: function () {
+        _getVisiblePagesCount: function() {
             var that = this,
                 loadedPagesHeight = 0,
                 updatedVisiblePagesCount = 0,
                 containerHeight = that.pageContainer[0].clientHeight,
                 index = 0;
 
-            while(loadedPagesHeight <= containerHeight && index < that.pages.length)
+            while (loadedPagesHeight <= containerHeight && index < that.pages.length)
             {
                 loadedPagesHeight += that.pages[index].element.height();
                 updatedVisiblePagesCount++;
@@ -3075,9 +3075,9 @@ var __meta__ = { // jshint ignore:line
             that._visiblePagesCount = updatedVisiblePagesCount;
         },
 
-        _loadVisiblePages: function () {
+        _loadVisiblePages: function() {
             var pagesCount = this.pages && this.pages.length,
-                minVisiblePageNum =  Math.max(this._pageNum - this._visiblePagesCount, 1),
+                minVisiblePageNum = Math.max(this._pageNum - this._visiblePagesCount, 1),
                 maxVisiblePageNum = Math.min(this._pageNum + this._visiblePagesCount, pagesCount);
 
             this._visiblePages = this.pages.slice(minVisiblePageNum - 1, maxVisiblePageNum);
@@ -3088,7 +3088,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _loadAllPages: function () {
+        _loadAllPages: function() {
             var pagesCount = this.pages && this.pages.length;
             var promises = [];
 
@@ -3100,7 +3100,7 @@ var __meta__ = { // jshint ignore:line
             return promises;
         },
 
-        fromFile: function (file) {
+        fromFile: function(file) {
             this.zoomScale = this.options.scale || ZOOM_SCALE;
             this.zoom(this.zoomScale, true);
             this.trigger(UPDATE, { action: "zoom", zoom: this.options.scale || "auto" });
@@ -3109,7 +3109,7 @@ var __meta__ = { // jshint ignore:line
             this._loadDocument();
         },
 
-        exportImage: function (options) {
+        exportImage: function(options) {
             var that = this;
             var pageNumber = options.page;
             var page = that.pages[pageNumber - 1] || that._blankPage;
@@ -3127,7 +3127,7 @@ var __meta__ = { // jshint ignore:line
             progress(that.pageContainer, true);
             rootGroup.append(background, page.group);
 
-            drawing.exportImage(rootGroup).done(function (data) {
+            drawing.exportImage(rootGroup).done(function(data) {
                 progress(that.pageContainer, false);
                 kendo.saveAs({
                     dataURI: data,
@@ -3139,7 +3139,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        exportSVG: function (options) {
+        exportSVG: function(options) {
             var that = this;
             var pageNumber = options.page;
             var page = that.pages[pageNumber - 1] || that._blankPage;
@@ -3148,7 +3148,7 @@ var __meta__ = { // jshint ignore:line
 
             page.load();
 
-            drawing.exportSVG(page.group).done(function (data) {
+            drawing.exportSVG(page.group).done(function(data) {
                 progress(that.pageContainer, false);
                 kendo.saveAs({
                     dataURI: data,
@@ -3160,7 +3160,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        setOptions: function (options)
+        setOptions: function(options)
         {
             var that = this;
 
@@ -3186,7 +3186,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        destroy: function ()
+        destroy: function()
         {
             if (this._resizeHandler)
             {
@@ -3213,7 +3213,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (this.pages && this.pages.length) {
-                this.pages.forEach(function (page) {
+                this.pages.forEach(function(page) {
                     page.destroy();
                 });
                 this.pages = [];
@@ -3228,7 +3228,7 @@ var __meta__ = { // jshint ignore:line
             Widget.fn.destroy.call(this);
         },
 
-        _clearPages: function () {
+        _clearPages: function() {
             this.pages = [];
             this.document = null;
             this._pageNum = 1;
@@ -3244,10 +3244,10 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _toggleSelection: function (enable) {
+        _toggleSelection: function(enable) {
             var that = this;
 
-            if(enable === undefined) {
+            if (enable === undefined) {
                 enable = true;
             }
 
@@ -3258,10 +3258,10 @@ var __meta__ = { // jshint ignore:line
         },
 
 
-        _initSearchDOM: function () {
+        _initSearchDOM: function() {
             var that = this;
-            var promise = new Promise(function (resolve) {
-                Promise.all(that._loadAllPages()).then(function(){
+            var promise = new Promise(function(resolve) {
+                Promise.all(that._loadAllPages()).then(function() {
                     that._searchDOM = new kendo.pdfviewer.SearchDOM({
                         target: that._getTextLayers(),
                         highlightClass: styles.highlightClass,
@@ -3275,8 +3275,8 @@ var __meta__ = { // jshint ignore:line
             return promise;
         },
 
-        _getTextLayers: function () {
-            return this.pages.map(function(page){
+        _getTextLayers: function() {
+            return this.pages.map(function(page) {
                 return page.textLayer;
             });
         }
@@ -3287,5 +3287,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

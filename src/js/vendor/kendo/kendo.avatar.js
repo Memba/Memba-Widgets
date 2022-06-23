@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.avatar',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "avatar",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
 
@@ -47,7 +47,7 @@ var __meta__ = { // jshint ignore:line
             this._fromMarkup();
             this._wrapper();
 
-            if(this._markupContent && this._markupContent.length > 0) {
+            if (this._markupContent && this._markupContent.length > 0) {
                 this._contentFromMarkup();
             } else {
                 this._content();
@@ -79,10 +79,10 @@ var __meta__ = { // jshint ignore:line
 
             Widget.fn.setOptions.call(this, options);
 
-            if(!updatedOptions[updatedOptions.type]) {
+            if (!updatedOptions[updatedOptions.type]) {
                 currentOptions = this._optionsFromWrapper(currentOptions);
             }
-            if(updatedOptions.border === false) {
+            if (updatedOptions.border === false) {
                 wrapper.removeClass(AVATAR_STYLES.bordered);
             }
 
@@ -99,15 +99,15 @@ var __meta__ = { // jshint ignore:line
                 type = options.type,
                 content;
 
-            if(type === AVATAR_TYPE.icon) {
+            if (type === AVATAR_TYPE.icon) {
                 content = $("<span class='k-icon k-i-" + options.icon + "'>");
-            } else if(type === AVATAR_TYPE.image) {
+            } else if (type === AVATAR_TYPE.image) {
                 content = $("<img src='" + options.image + "'>");
 
-                if(options.alt) {
+                if (options.alt) {
                     content.attr("alt", options.alt);
                 }
-            } else if(type === AVATAR_TYPE.text) {
+            } else if (type === AVATAR_TYPE.text) {
                 content = $("<span>" + options.text + "</span>");
             }
 
@@ -130,13 +130,13 @@ var __meta__ = { // jshint ignore:line
             image = element.children("img");
             icon = element.children(".k-icon");
 
-            if(image.length > 0 ) {
+            if (image.length > 0 ) {
                 options.type = AVATAR_TYPE.image;
                 this._markupContent = image.first();
-            } else if(icon.length > 0) {
+            } else if (icon.length > 0) {
                 options.type = AVATAR_TYPE.icon;
                 this._markupContent = icon.first();
-            } else if(element.children().length > 0) {
+            } else if (element.children().length > 0) {
                 options.type = AVATAR_TYPE.text;
                 this._markupContent = element.children();
             }
@@ -146,21 +146,21 @@ var __meta__ = { // jshint ignore:line
             var wrapper = this.wrapper,
                 classes, image;
 
-            if(updatedOptions.type === AVATAR_TYPE.text) {
+            if (updatedOptions.type === AVATAR_TYPE.text) {
                 updatedOptions.text = wrapper.text().trim();
-            } else if(updatedOptions.type === AVATAR_TYPE.icon) {
+            } else if (updatedOptions.type === AVATAR_TYPE.icon) {
                 classes = wrapper.find(".k-icon").attr("class").split(/\s+/);
 
                 classes.forEach(function(name) {
-                    if(name.indexOf("k-i-") === 0) {
+                    if (name.indexOf("k-i-") === 0) {
                         updatedOptions.icon = name.substring(4);
                     }
                 });
-            } else if(updatedOptions.type === AVATAR_TYPE.image) {
+            } else if (updatedOptions.type === AVATAR_TYPE.image) {
                 image = wrapper.find("img");
                 updatedOptions.image = image.attr("src");
 
-                if(image.attr("alt")) {
+                if (image.attr("alt")) {
                     updatedOptions.alt = image.attr("alt");
                 }
             }
@@ -178,13 +178,13 @@ var __meta__ = { // jshint ignore:line
 
             this._applyCssClasses();
 
-            if(options.border) {
+            if (options.border) {
                 wrapper.addClass(AVATAR_STYLES.bordered);
             }
-            if(options.style) {
+            if (options.style) {
                 wrapper.css(options.style);
             }
-            if(options.className) {
+            if (options.className) {
                 wrapper.addClass(options.className);
             }
 
@@ -206,4 +206,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

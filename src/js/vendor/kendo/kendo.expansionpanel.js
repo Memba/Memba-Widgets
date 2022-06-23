@@ -1,16 +1,16 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function (f, define) {
+(function(f, define) {
     define('kendo.expansionpanel',["kendo.core"], f);
-})(function () {
+})(function() {
 
-var __meta__ = {// jshint ignore:line
+var __meta__ = { // jshint ignore:line
     id: "expansionpanel",
     name: "ExpansionPanel",
     category: "web",
@@ -18,7 +18,7 @@ var __meta__ = {// jshint ignore:line
     depends: ["core"]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         ui = kendo.ui,
@@ -41,21 +41,21 @@ var __meta__ = {// jshint ignore:line
         KEYDOWN = "keydown",
         HEIGHT = "height",
 
-        headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0" aria-controls="#: elementId #">'+
+        headerTemplate = '<div #if(!useBareTemplate){# class="k-expander-header" #}#  data-#=ns#expander-header role="button" tabindex="0" aria-controls="#: elementId #">' +
                             '#if(!useBareTemplate){#' +
-                                '<div class="k-expander-title">#:title#</div>'+
+                                '<div class="k-expander-title">#:title#</div>' +
                             '#} else {#' +
                                 '#=title#' +
                             '#}#' +
-                            '<span class="k-expander-spacer"></span>'+
+                            '<span class="k-expander-spacer"></span>' +
                             '#if(!useBareTemplate){#' +
-                                '<div class="k-expander-sub-title">#:subTitle#</div>'+
+                                '<div class="k-expander-sub-title">#:subTitle#</div>' +
                             '#}#' +
-                            '<span class="k-expander-indicator #:iconClass#"></span>'+
+                            '<span class="k-expander-indicator #:iconClass#"></span>' +
                         '</div>';
 
     var ExpansionPanel = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
             var headerAttribute = kendo.attr("expander-header");
 
@@ -111,7 +111,7 @@ var __meta__ = {// jshint ignore:line
             useBareTemplate: false
         },
 
-        _wrapper: function () {
+        _wrapper: function() {
             var that = this;
             var element = that.element;
             var DOMElement = element[0];
@@ -119,7 +119,7 @@ var __meta__ = {// jshint ignore:line
             var header;
             var elementId = element.attr("id");
 
-            if(!elementId) {
+            if (!elementId) {
                 elementId = kendo.guid();
                 element.attr("id", elementId);
             }
@@ -164,7 +164,7 @@ var __meta__ = {// jshint ignore:line
             }
         },
 
-        _click: function (e) {
+        _click: function(e) {
             var that = this;
             var expanded = that._indicator.hasClass(that.options.collapseIconClass);
             var element = that.element;
@@ -199,7 +199,7 @@ var __meta__ = {// jshint ignore:line
             }
 
             if (!hasCollapseAnimation) {
-                collapse = extend(collapse, {reverse: true});
+                collapse = extend(collapse, { reverse: true });
             }
 
             if (!expand) {
@@ -207,7 +207,7 @@ var __meta__ = {// jshint ignore:line
 
                 animation.complete = that._completeHandler.bind(that);
             } else {
-                animation = extend( { complete:  that._completeHandler.bind(that) }, animation );
+                animation = extend( { complete: that._completeHandler.bind(that) }, animation );
             }
 
             if (expand) {
@@ -228,7 +228,7 @@ var __meta__ = {// jshint ignore:line
             .kendoAnimate(animation);
         },
 
-        _completeHandler: function () {
+        _completeHandler: function() {
             this.trigger(COMPLETE);
         },
 
@@ -254,7 +254,7 @@ var __meta__ = {// jshint ignore:line
             this.header.attr(ARIA_DISABLED, !enabled);
         },
 
-        _blur: function () {
+        _blur: function() {
             var that = this;
 
             if (that.header) {
@@ -262,7 +262,7 @@ var __meta__ = {// jshint ignore:line
             }
         },
 
-        _focus: function () {
+        _focus: function() {
             var that = this;
 
             if (that.wrapper) {
@@ -275,4 +275,4 @@ var __meta__ = {// jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

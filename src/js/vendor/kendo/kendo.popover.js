@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.popover',[ "kendo.tooltip" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "popover",
@@ -85,7 +85,7 @@ var __meta__ = { // jshint ignore:line
             center: "n"
         },
         EVENTSCOUNTERPART = {
-            "mouseenter" : "mouseleave",
+            "mouseenter": "mouseleave",
             "focus": "blur",
             "focusin": "focusout"
         },
@@ -110,7 +110,7 @@ var __meta__ = { // jshint ignore:line
             that._actionsHandler = that._actionsClick.bind(that);
 
             if (that.options.toggleOnClick && that._isShownOnClick()) {
-                that.element.on((kendo.support.touch ? kendo.support.mousedown: that.options.showOn)  + NS, that.options.filter, that._showAction.bind(that));
+                that.element.on((kendo.support.touch ? kendo.support.mousedown : that.options.showOn) + NS, that.options.filter, that._showAction.bind(that));
             }
 
             if (!that._isShownOnClick()) {
@@ -142,7 +142,7 @@ var __meta__ = { // jshint ignore:line
 
         events: [ SHOW, HIDE ],
 
-        _addAria: function () {
+        _addAria: function() {
             var that = this;
             var options = that.options;
             var id;
@@ -169,7 +169,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _appendContent: function (target) {
+        _appendContent: function(target) {
             var that = this,
                 options = that.options,
                 template = that.options.template;
@@ -188,7 +188,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _actionsClick: function (e) {
+        _actionsClick: function(e) {
             var that = this;
             var actions = that.options.actions;
             var button = $(e.currentTarget);
@@ -203,13 +203,13 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _attachActions: function () {
+        _attachActions: function() {
             var that = this;
 
             that.wrapper.on("click" + NS, ".k-popover-actions .k-button", that._actionsHandler);
         },
 
-        _dettachActions: function () {
+        _dettachActions: function() {
             var that = this;
 
             if (that.wrapper) {
@@ -217,7 +217,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _buildActions: function (actions) {
+        _buildActions: function(actions) {
             if (!actions.length) {
                 return;
             }
@@ -229,7 +229,7 @@ var __meta__ = { // jshint ignore:line
 
                 if (action.text && action.iconClass) {
                     html += kendo.template(ICONTEXTBUTTONTEMPLATE)( { text: action.text, index: kendo.attr("index") + "=" + index, iconClass: action.iconClass });
-                } else if(action.iconClass && !action.text) {
+                } else if (action.iconClass && !action.text) {
                     html += kendo.template(ICONBUTTON)( { index: kendo.attr("index") + "=" + index, iconClass: action.iconClass });
                 } else {
                     html += kendo.template(TEXTBUTTONTEMPLATE)( { text: action.text, index: kendo.attr("index") + "=" + index });
@@ -311,7 +311,7 @@ var __meta__ = { // jshint ignore:line
             that.arrow = wrapper.find(".k-popover-callout");
         },
 
-        _dismissAction: function () {
+        _dismissAction: function() {
             var that = this;
 
             clearTimeout(that.timeout);
@@ -323,7 +323,7 @@ var __meta__ = { // jshint ignore:line
             }, that.options.hideAfter);
         },
 
-        _showAction: function () {
+        _showAction: function() {
             var that = this;
             that._shown = !that._shown;
 
@@ -389,5 +389,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

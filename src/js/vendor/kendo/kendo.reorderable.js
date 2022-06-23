@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.reorderable',[ "kendo.core", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "reorderable",
@@ -18,13 +18,13 @@ var __meta__ = { // jshint ignore:line
     advanced: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         outerWidth = kendo._outerWidth,
         outerHeight = kendo._outerHeight,
         getOffset = kendo.getOffset,
         Widget = kendo.ui.Widget,
-        CHANGE =  "change",
+        CHANGE = "change",
         KREORDERABLE = "k-reorderable";
 
     var Reorderable = Widget.extend({
@@ -45,7 +45,7 @@ var __meta__ = { // jshint ignore:line
                 hint: options.hint
             });
 
-            if(!that.options.dropFilter) {
+            if (!that.options.dropFilter) {
                 that.options.dropFilter = draggable.options.filter;
             }
 
@@ -72,7 +72,7 @@ var __meta__ = { // jshint ignore:line
 
                     if (!denied) {
                         offset = getOffset(dropTarget);
-                        var cueOffset = { top: offset.top, left: offset.left};
+                        var cueOffset = { top: offset.top, left: offset.left };
                         var isHorizontal = options.orientation === "horizontal";
 
                         if (!options.smartPosition || (options.inSameContainer && !options.inSameContainer({
@@ -132,7 +132,7 @@ var __meta__ = { // jshint ignore:line
                         });
                     }
 
-                    if(that.reorderDropCue) {
+                    if (that.reorderDropCue) {
                         that.reorderDropCue.remove();
                     }
                 }
@@ -160,7 +160,7 @@ var __meta__ = { // jshint ignore:line
             CHANGE
         ],
 
-        toggleHintClass: function (hint, denied) {
+        toggleHintClass: function(hint, denied) {
             var that = this,
                 options = that.options;
 
@@ -173,15 +173,21 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _handleExternalDraggable: function (draggable) {
+        _handleExternalDraggable: function(draggable) {
             var that = this;
+            var draggableFilter = that.options.dropFilter.trimStart();
+
+            // make direct child selectors compatible with .closest()
+            if (draggableFilter && draggableFilter[0] == ">") {
+                draggableFilter = draggableFilter.substring(1);
+            }
 
             that._dragcancelHandler = that._dragcancel.bind(that);
             that._dragendHandler = that._dragend.bind(that);
             that._dragstartHandler = that._dragstart.bind(that);
-            that._dragHandler =  that._drag.bind(that);
+            that._dragHandler = that._drag.bind(that);
 
-            that._draggable = draggable.currentTarget.closest(that.options.dropFilter);
+            that._draggable = draggable.currentTarget.closest(draggableFilter);
             that._draggableInstance = draggable;
             that._elements = that.element.find(that.options.dropFilter);
 
@@ -196,7 +202,7 @@ var __meta__ = { // jshint ignore:line
         _dragcancel: function() {
             var that = this;
 
-            if(that._draggableInstance && (that._dragcancelHandler || that._dragendHandler ||
+            if (that._draggableInstance && (that._dragcancelHandler || that._dragendHandler ||
                 that._dragstartHandler || that._dragHandler)) {
 
                     that._draggableInstance.unbind({
@@ -207,7 +213,7 @@ var __meta__ = { // jshint ignore:line
                 });
             }
 
-            if(that.reorderDropCue) {
+            if (that.reorderDropCue) {
                 that.reorderDropCue.remove();
             }
 
@@ -218,7 +224,7 @@ var __meta__ = { // jshint ignore:line
         _dragend: function() {
             var that = this;
 
-            if(that._draggableInstance && (that._dragcancelHandler || that._dragendHandler ||
+            if (that._draggableInstance && (that._dragcancelHandler || that._dragendHandler ||
                 that._dragstartHandler || that._dragHandler)) {
 
                     that._draggableInstance.unbind({
@@ -229,7 +235,7 @@ var __meta__ = { // jshint ignore:line
                 });
             }
 
-            if(that.reorderDropCue) {
+            if (that.reorderDropCue) {
                 that.reorderDropCue.remove();
             }
 
@@ -239,15 +245,29 @@ var __meta__ = { // jshint ignore:line
         _dragstart: function(e) {
             var that = this;
             var target = $(e.currentTarget);
+            var draggableFilter = that.options.dropFilter.trimStart();
 
-            that._draggable = target.is(that.options.dropFilter) ? target : target.closest(that.options.dropFilter);
+            // make direct child selectors compatible with .closest()
+            if (draggableFilter && draggableFilter[0] == ">") {
+                draggableFilter = draggableFilter.substring(1);
+            }
+
+            that._draggable = target.is(draggableFilter) ? target : target.closest(draggableFilter);
             that._elements = that.element.find(that.options.dropFilter);
         },
         _drag: function(e) {
             var that = this,
                 dropIndex, sourceIndex, denied,
                 offset = {},
-                target = $(e.currentTarget).closest(that.options.dropFilter);
+                target,
+                draggableFilter = that.options.dropFilter.trimStart();
+
+            // make direct child selectors compatible with .closest()
+            if (draggableFilter && draggableFilter[0] == ">") {
+                draggableFilter = draggableFilter.substring(1);
+            }
+
+            target = $(e.currentTarget).closest(draggableFilter);
 
             if (!that._dropTarget || (that.options.smartPosition && e.sender.hint.find(".k-drag-status").hasClass("k-i-cancel"))) {
                 return;
@@ -257,7 +277,7 @@ var __meta__ = { // jshint ignore:line
             sourceIndex = that._index(target);
             sourceIndex = dropIndex > sourceIndex ? sourceIndex + 1 : sourceIndex;
 
-            if(that.options.orientation === "horizontal") {
+            if (that.options.orientation === "horizontal") {
                 var dropStartOffset = getOffset(that._dropTarget).left;
                 var width = outerWidth(that._dropTarget);
 
@@ -293,7 +313,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _isPartOfSortable: function (draggable) {
+        _isPartOfSortable: function(draggable) {
             var that = this;
 
             return that._elements.index(draggable) >= 0;
@@ -303,7 +323,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 options = that.options;
 
-            if(!that._draggable && options.externalDraggable) {
+            if (!that._draggable && options.externalDraggable) {
                 return options.externalDraggable(e);
             }
 
@@ -392,6 +412,6 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 

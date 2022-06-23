@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.treemap',[ "kendo.data", "kendo.userevents", "kendo.dataviz.themes" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.treeMap",
@@ -344,7 +344,7 @@ var __meta__ = { // jshint ignore:line
                 var elements = element.children(".k-treemap-wrap").children();
                 var child, childElement;
 
-                this._layout.compute(root.children, root.coord, {text: this._view.titleSize(root, element)});
+                this._layout.compute(root.children, root.coord, { text: this._view.titleSize(root, element) });
                 for (var idx = 0; idx < root.children.length; idx++) {
                     child = root.children[idx];
                     childElement = elements.filter("[" + kendo.attr("uid") + "='" + child.dataItem.uid + "']");
@@ -511,7 +511,7 @@ var __meta__ = { // jshint ignore:line
 
         layoutV: function(items, width, coord) {
             var totalArea = this._totalArea(items),
-                top =  0;
+                top = 0;
 
             width = round(totalArea / width);
 
@@ -550,7 +550,7 @@ var __meta__ = { // jshint ignore:line
                 top = coord.top,
                 left = 0;
 
-            for (var i=0; i<items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 items[i].coord = {
                     height: height,
                     width: round(items[i].area / height),
@@ -629,7 +629,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _compile: function(element, dataItem) {
-            this.treeMap.angular("compile", function(){
+            this.treeMap.angular("compile", function() {
                 return {
                     elements: element,
                     data: [ { dataItem: dataItem } ]
@@ -1057,5 +1057,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

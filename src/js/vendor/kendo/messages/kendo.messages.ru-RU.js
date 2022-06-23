@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* Filter menu operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -570,7 +570,7 @@ $.extend(true, kendo.ui.Gantt.prototype.options.messages, {
 }
 
 /* Filter messages */
-  
+
 if (kendo.ui.Filter) {
   kendo.ui.Filter.prototype.options.messages = $.extend(
   true,
@@ -943,7 +943,7 @@ if (kendo.spreadsheet && kendo.spreadsheet.messages.view) {
 kendo.spreadsheet.messages.view =
 $.extend(true, kendo.spreadsheet.messages.view,{
   "errors": {
-    "shiftingNonblankCells": "Не удается вставить ячейки из-за возможности потери данных. Выберите другое место для вставки или удалите данные с конца рабочего листа.",        
+    "shiftingNonblankCells": "Не удается вставить ячейки из-за возможности потери данных. Выберите другое место для вставки или удалите данные с конца рабочего листа.",
     "filterRangeContainingMerges": "Невозможно создать фильтр в диапазоне, содержащем слияния",
     "validationError": "Введенное вами значение нарушает правила проверки, установленные для ячейки."
   },

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,16 +12,16 @@
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/gauge/kendo-gauges',[
         "kendo.core",
         "kendo.color",
         "kendo.drawing",
         "kendo.dataviz.core"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -2329,14 +2329,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/gauge/main',[
         "./kendo-gauges"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var dataviz = kendo.dataviz;
@@ -2351,7 +2351,7 @@ kendo.deepExtend(kendo.dataviz, {
         var themeName = options.theme || "";
         var lowerName = themeName.toLowerCase();
 
-        if(dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
+        if (dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
             return dataviz.autoTheme().gauge;
         }
 
@@ -2597,11 +2597,11 @@ kendo.deepExtend(kendo.dataviz, {
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.gauge',[ "./dataviz/gauge/main", "kendo.dataviz.themes" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.gauge",
@@ -2613,5 +2613,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

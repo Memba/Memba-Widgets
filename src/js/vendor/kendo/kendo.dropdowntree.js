@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('dropdowntree/treeview',[ "kendo.treeview" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -45,15 +45,14 @@
             var that = this;
 
             that.dropdowntree = dropdowntree;
-            that._nodesToLoad = 0;
 
             TreeView.fn.init.call(that, element, options);
-            if(that.dropdowntree._isMultipleSelection()){
+            if (that.dropdowntree._isMultipleSelection()) {
                 that.wrapper.on(CLICK + NS, '.k-in.k-selected', that._clickSelectedItem.bind(that));
             }
         },
 
-        _checkOnSelect: function (e) {
+        _checkOnSelect: function(e) {
             if (!e.isDefaultPrevented()) {
                 var dataItem = this.dataItem(e.node);
 
@@ -61,20 +60,20 @@
             }
         },
 
-        _setCheckedValue: function (node, value){
+        _setCheckedValue: function(node, value) {
             node.set(CHECKED, value);
         },
 
-        _click: function (e) {
+        _click: function(e) {
             var that = this;
 
-            if(that.dropdowntree._isMultipleSelection()){
+            if (that.dropdowntree._isMultipleSelection()) {
                 that.one("select", that._checkOnSelect);
             }
             TreeView.fn._click.call(that, e);
         },
 
-        _clickSelectedItem: function (e) {
+        _clickSelectedItem: function(e) {
             var that = this,
             node = $(e.currentTarget);
 
@@ -136,7 +135,6 @@
             } else if (action == "itemchange") {
                 this._updateNodes(items);
             } else if (action == "itemloaded") {
-                this._nodesToLoad --;
                 this._refreshChildren(parentNode, items, e.index);
             } else {
                 this._refreshRoot(items);
@@ -145,16 +143,11 @@
             if (action != "remove") {
                 for (i = 0; i < items.length; i++) {
                     if (!loadOnDemand || items[i].expanded) {
-                        if(items[i].hasChildren){
-                            that._nodesToLoad ++;
-                        }
                         items[i].load();
                     }
                 }
             }
-            if(this._nodesToLoad === 0){
-                this.dropdowntree.trigger("allNodesAreLoaded");
-            }
+
             that.wrapper.attr("role", "tree");
             that.wrapper.find(">ul").attr("role", "none");
             this.trigger(DATABOUND, { node: node ? parentNode : undefined });
@@ -188,10 +181,10 @@
             } else {
                 result = that.parent(node) || node;
 
-                if(!result.length){
+                if (!result.length) {
                     if (that.dropdowntree.checkAll && that.dropdowntree.checkAll.is(":visible")) {
                         that.dropdowntree.checkAll.find(".k-checkbox").trigger("focus");
-                    } else if(that.dropdowntree.filterInput){
+                    } else if (that.dropdowntree.filterInput) {
                         that.dropdowntree.filterInput.trigger("focus");
                     } else {
                         that.dropdowntree.wrapper.trigger("focus");
@@ -275,20 +268,20 @@
             this.dropdowntree.wrapper.trigger("focus");
         },
 
-        refresh: function(e){
+        refresh: function(e) {
             this.defaultrefresh(e);
 
-            if(this.dropdowntree.options.skipUpdateOnBind){
+            if (this.dropdowntree.options.skipUpdateOnBind) {
                 return;
             }
 
             if (e.action === "itemchange") {
                 if (this.dropdowntree._isMultipleSelection()) {
-                    if(e.field === "checked"){
+                    if (e.field === "checked") {
                         this.dropdowntree._checkValue(e.items[0]);
                     }
                 } else {
-                    if(e.field !== "checked" && e.field !== "expanded" && e.items[0].selected){
+                    if (e.field !== "checked" && e.field !== "expanded" && e.items[0].selected) {
                         this.dropdowntree._selectValue(e.items[0]);
                     }
                 }
@@ -305,11 +298,11 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dropdowntree',[ "./dropdowntree/treeview", "kendo.popup", "kendo.binder", "kendo.html.chip", "kendo.html.chiplist", "kendo.html.button", "kendo.html.input" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dropdowntree",
@@ -433,7 +426,7 @@ var __meta__ = { // jshint ignore:line
             kendo.notify(this);
         },
 
-        _preselect: function(data, value){
+        _preselect: function(data, value) {
             this._selection._preselect(data, value);
         },
 
@@ -487,7 +480,7 @@ var __meta__ = { // jshint ignore:line
 
         setDataSource: function(dataSource) {
             this._isDataSourceSet = true;
-            if(this._tags){
+            if (this._tags) {
                 this._noInitialValue = true;
                 this.setValue([]);
                 this._tags.empty();
@@ -533,7 +526,7 @@ var __meta__ = { // jshint ignore:line
             checkboxes: false,
             noDataTemplate: true,
             placeholder: "",
-            checkAll:false,
+            checkAll: false,
             checkAllTemplate: "Check all",
             tagMode: "multiple",
             template: null,
@@ -564,7 +557,7 @@ var __meta__ = { // jshint ignore:line
             this.wrapper.trigger("focus");
         },
 
-        dataItem: function (node){
+        dataItem: function(node) {
             return this.treeview.dataItem(node);
         },
 
@@ -591,9 +584,9 @@ var __meta__ = { // jshint ignore:line
         open: function() {
             var popup = this.popup;
 
-            if(!this.options.autoBind && !this.dataSource.data().length){
+            if (!this.options.autoBind && !this.dataSource.data().length) {
                 this.treeview._progress(true);
-                if(this._isFilterEnabled()){
+                if (this._isFilterEnabled()) {
                     this._search();
                 } else {
                     this.dataSource.fetch();
@@ -604,7 +597,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if(this._isMultipleSelection()){
+            if (this._isMultipleSelection()) {
                 popup.element.addClass("k-multiple-selection");
             }
             popup.element.addClass("k-popup-dropdowntree");
@@ -625,8 +618,8 @@ var __meta__ = { // jshint ignore:line
 
             if ((!options.enforceMinLength && !word.length) || word.length >= options.minLength) {
                 filter = this._getFilter(word);
-                if(this.trigger("filtering", { filter: filter }) ||
-                 Array.isArray(this.options.dataTextField)){
+                if (this.trigger("filtering", { filter: filter }) ||
+                 Array.isArray(this.options.dataTextField)) {
                     return;
                 }
 
@@ -635,7 +628,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _getFilter: function (word){
+        _getFilter: function(word) {
             return {
                 field: this.options.dataTextField,
                 operator: this.options.filter,
@@ -658,7 +651,7 @@ var __meta__ = { // jshint ignore:line
 
         setOptions: function(options) {
 
-            if(this.options.checkboxes != options.checkboxes){
+            if (this.options.checkboxes != options.checkboxes) {
                 delete options.checkboxes;
                 window.console.warn('setOptions method can not be used to set the checkboxes option in DropDownTree');
             }
@@ -697,7 +690,7 @@ var __meta__ = { // jshint ignore:line
 
         destroy: function() {
             kendo.ui.Widget.fn.destroy.call(this);
-            if(this.treeview){
+            if (this.treeview) {
                 this.treeview.destroy();
             }
             this.popup.destroy();
@@ -708,7 +701,7 @@ var __meta__ = { // jshint ignore:line
                 this.filterInput.off(ns);
             }
 
-            if(this.tagList){
+            if (this.tagList) {
                 this.tagList.off(ns);
             }
 
@@ -735,16 +728,16 @@ var __meta__ = { // jshint ignore:line
         value: function(value) {
             var that = this;
 
-            if(value){
-                if(that.filterInput && that.dataSource._filter){
+            if (value) {
+                if (that.filterInput && that.dataSource._filter) {
                     that._filtering = true;
                     that.dataSource.filter({});
-                } else if (!that.dataSource.data().length || !that.treeview.dataSource.data().length){
+                } else if (!that.dataSource.data().length || !that.treeview.dataSource.data().length) {
                     that.dataSource.fetch(function() {
-                        if(that.options.loadOnDemand){
+                        if (that.options.loadOnDemand) {
                             that._selection._setValue(value);
                         } else {
-                            that.one('allNodesAreLoaded', function(){
+                            that.treeview.one('loadCompleted', function() {
                                 that._selection._setValue(value);
                             });
                         }
@@ -785,7 +778,7 @@ var __meta__ = { // jshint ignore:line
             this.wrapper.attr({
                 "aria-haspopup": "tree",
                 "aria-expanded": false,
-                "aria-owns": this.treeview.element.attr("id"),
+                "aria-controls": this.treeview.element.attr("id"),
                 "role": "listbox"
             });
 
@@ -796,13 +789,13 @@ var __meta__ = { // jshint ignore:line
                 this.filterInput.attr("aria-label", this.options.filterLabel);
             }
 
-            if(!this.options.checkboxes && input.text().length) {
+            if (!this.options.checkboxes && input.text().length) {
                 input.attr("role", "option");
                 input.attr("aria-selected", "true");
                 input.attr("id", this._activeId);
 
                 this.wrapper.attr("aria-activedescendant", this._activeId);
-            } else if(this.options.checkboxes) {
+            } else if (this.options.checkboxes) {
                 this.wrapper.attr({
                     "aria-multiselectable": true,
                     "aria-describedby": this.tagList[0].id
@@ -838,7 +831,7 @@ var __meta__ = { // jshint ignore:line
         _noData: function() {
             var list = this;
             var noData = $(list.noData);
-            var template = list.options.noDataTemplate === true ?  list.options.messages.noData : list.options.noDataTemplate;
+            var template = list.options.noDataTemplate === true ? list.options.messages.noData : list.options.noDataTemplate;
 
             list.angular("cleanup", function() { return { elements: noData }; });
             kendo.destroy(noData);
@@ -925,7 +918,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             computedStyle = window.getComputedStyle ? window.getComputedStyle(wrapper[0], null) : 0;
-            computedWidth = parseFloat(computedStyle  && computedStyle.width) || outerWidth(wrapper);
+            computedWidth = parseFloat(computedStyle && computedStyle.width) || outerWidth(wrapper);
 
             if (computedStyle && browser.msie) { // getComputedStyle returns different box in IE.
                 computedWidth += parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight) + parseFloat(computedStyle.borderLeftWidth) + parseFloat(computedStyle.borderRightWidth);
@@ -968,7 +961,7 @@ var __meta__ = { // jshint ignore:line
         _popup: function() {
             var list = this;
 
-            if(list.options.checkboxes && list.options.checkAll) {
+            if (list.options.checkboxes && list.options.checkAll) {
                 list.list.attr("role", "application");
             }
 
@@ -978,7 +971,7 @@ var __meta__ = { // jshint ignore:line
                 close: list._closeHandler.bind(list),
                 animation: list.options.animation,
                 isRtl: support.isRtl(list.wrapper),
-                autosize :list.options.autoWidth
+                autosize: list.options.autoWidth
             }));
         },
 
@@ -998,10 +991,10 @@ var __meta__ = { // jshint ignore:line
 
         _placeholder: function(show) {
             if (this.span) {
-                this.span.toggleClass("k-readonly", show).text(show? this.options.placeholder: "");
+                this.span.toggleClass("k-readonly", show).text(show ? this.options.placeholder : "");
             }
 
-            if(this.span.text().trim().length > 0) {
+            if (this.span.text().trim().length > 0) {
                 this.span.parent().attr({
                     role: "option",
                     "aria-selected": true
@@ -1028,7 +1021,7 @@ var __meta__ = { // jshint ignore:line
             var isMultiple = this.options.tagMode === "multiple";
 
             if (dataItem || dataItem === 0) {
-                if(dataItem.level){
+                if (dataItem.level) {
                     dataItem._level = dataItem.level();
                 }
 
@@ -1042,7 +1035,7 @@ var __meta__ = { // jshint ignore:line
                     return item.uid === dataItem._tagUid;
                 });
 
-                if (alreadyAddedTag.length){
+                if (alreadyAddedTag.length) {
                     return;
                 }
 
@@ -1063,7 +1056,7 @@ var __meta__ = { // jshint ignore:line
                     this.setValue(currentValue);
                 }
             } else {
-                var itemToRemove = this._tags.find(function(item){
+                var itemToRemove = this._tags.find(function(item) {
                     return item.uid === dataItem._tagUid;
                 });
 
@@ -1102,8 +1095,8 @@ var __meta__ = { // jshint ignore:line
             this._updateSelectedOptions();
         },
 
-        _updateSelectedOptions: function(){
-            if(this.element[0].tagName.toLowerCase() !== 'select'){
+        _updateSelectedOptions: function() {
+            if (this.element[0].tagName.toLowerCase() !== 'select') {
                 return;
             }
 
@@ -1155,7 +1148,7 @@ var __meta__ = { // jshint ignore:line
             var text = "";
 
             if (dataItem || dataItem === 0) {
-                if(dataItem.level){
+                if (dataItem.level) {
                     dataItem._level = dataItem.level();
                 }
                 text = this._text(dataItem) || dataItem;
@@ -1169,7 +1162,7 @@ var __meta__ = { // jshint ignore:line
             this._textAccessor(text, dataItem);
             this._accessor(value);
 
-            if(!this._preventChangeTrigger && !this._valueMethodCalled){
+            if (!this._preventChangeTrigger && !this._valueMethodCalled) {
                 this.trigger(CHANGE);
             }
             this._valueMethodCalled = false;
@@ -1263,7 +1256,7 @@ var __meta__ = { // jshint ignore:line
 
             try {
                 span.html(valueTemplate(dataItem));
-            } catch(e) {
+            } catch (e) {
                 //dataItem has missing fields required in custom template
                 if (span) {
                     span.html("");
@@ -1280,21 +1273,21 @@ var __meta__ = { // jshint ignore:line
             var textField = element.attr(kendo.attr("text-field"));
             var valueField = element.attr(kendo.attr("value-field"));
 
-            var getterFunction = function (field) {
+            var getterFunction = function(field) {
                 if (Array.isArray(field)) {
                     var count = field.length;
                     var levels = $.map(field, function(x) {
-                        return function(d){ return d[x];};
+                        return function(d) { return d[x];};
                     });
 
-                    return function (dataItem) {
+                    return function(dataItem) {
                         var level = dataItem._level;
 
-                        if(!level && level !== 0){
+                        if (!level && level !== 0) {
                             return;
                         }
 
-                        return levels[Math.min(level, count-1)](dataItem);
+                        return levels[Math.min(level, count - 1)](dataItem);
                     };
                 } else {
                     return getter(field);
@@ -1341,7 +1334,7 @@ var __meta__ = { // jshint ignore:line
         _clearButton: function() {
             var clearTitle = this.options.messages.clear;
 
-            if(!this._clear){
+            if (!this._clear) {
                 this._clear = $('<span unselectable="on" class="k-clear-value" title="' + clearTitle + '"><span class="k-icon k-i-x"></span></span>').attr({
                     "role": "button",
                     "tabIndex": -1
@@ -1371,13 +1364,13 @@ var __meta__ = { // jshint ignore:line
         },
 
         _showClear: function() {
-            if(this._clear) {
+            if (this._clear) {
                 this._clear.removeClass(HIDDENCLASS);
             }
         },
 
         _hideClear: function() {
-            if(this._clear) {
+            if (this._clear) {
                 this._clear.addClass(HIDDENCLASS);
             }
         },
@@ -1421,8 +1414,8 @@ var __meta__ = { // jshint ignore:line
                 e.sender.expand(e.node);
             }
 
-            if(this._filtering){
-                if(!e.node){
+            if (this._filtering) {
+                if (!e.node) {
                     this._filtering = false;
                 }
 
@@ -1440,7 +1433,7 @@ var __meta__ = { // jshint ignore:line
                 var rootItems = e.sender.dataSource.data();
 
                 this._checkLoadedItems(rootItems);
-                if(this._noInitialValue){
+                if (this._noInitialValue) {
                     this._noInitialValue = false;
                 }
             } else {
@@ -1453,7 +1446,7 @@ var __meta__ = { // jshint ignore:line
             this.trigger("dataBound", e);
         },
 
-        _deselectItem: function(e){
+        _deselectItem: function(e) {
             var items = [];
             if (!e.node) {
                 items = e.sender.dataSource.data();
@@ -1475,7 +1468,7 @@ var __meta__ = { // jshint ignore:line
         _checkLoadedItems: function(items) {
             var value = this.value();
 
-            if(!items){
+            if (!items) {
                 return;
             }
 
@@ -1734,15 +1727,15 @@ var __meta__ = { // jshint ignore:line
             var itemText;
 
             if (!this._isNullorUndefined(itemValue)) {
-                if(this._isNullorUndefined(value)){
+                if (this._isNullorUndefined(value)) {
                     return false;
                 }
 
                 var newValue = this._value(value);
 
-                if(newValue){
+                if (newValue) {
                     return itemValue == newValue;
-                }else{
+                } else {
                     return itemValue == value;
                 }
             }
@@ -1759,7 +1752,7 @@ var __meta__ = { // jshint ignore:line
             return false;
         },
 
-        _isNullorUndefined: function(value){
+        _isNullorUndefined: function(value) {
             return value === undefined || value === null;
         },
 
@@ -1775,7 +1768,7 @@ var __meta__ = { // jshint ignore:line
 
         _getAllCheckedItems: function(item) {
             if (this._allItemsAreChecked) {
-                this._allItemsAreChecked =  item.checked;
+                this._allItemsAreChecked = item.checked;
             }
 
             if (this._allItemsAreUnchecked) {
@@ -1921,16 +1914,16 @@ var __meta__ = { // jshint ignore:line
             } else if (this.checkAll) {
                 this.checkAll.find(".k-checkbox").trigger("focus");
             } else if (this.tree.is(":visible")) {
-                this.tree[0].focus({preventScroll: true});
+                this.tree[0].focus({ preventScroll: true });
                 this._ie11PreventScrollOnFocus();
             }
         },
 
-        _ie11PreventScrollOnFocus: function(){
+        _ie11PreventScrollOnFocus: function() {
             if (browser.msie && browser.version == 11) {
                 var popup = this.popup;
                 popup._toggleResize(false);
-                setTimeout(function () {
+                setTimeout(function() {
                     popup._toggleResize(true);
                 },50);
             }
@@ -1953,14 +1946,14 @@ var __meta__ = { // jshint ignore:line
                 isWrapperActive = this.wrapper[0] === activeElement();
             }
 
-            if(isWrapperActive){
+            if (isWrapperActive) {
                 if (key === keys.ESC) {
                     this._clearTextAndValue();
                     e.preventDefault();
                     return;
                 }
 
-                if(this._isMultipleSelection()){
+                if (this._isMultipleSelection()) {
                     if (key === keys.LEFT) {
                         this._focusPrevTag();
                         e.preventDefault();
@@ -1987,7 +1980,7 @@ var __meta__ = { // jshint ignore:line
 
                     if (key === keys.DELETE) {
                         focused = this.tagList.find(DOT + FOCUSED).first();
-                        if(focused.length){
+                        if (focused.length) {
                             tagItem = this._tags[focused.index()];
                             this._removeTag(tagItem);
                         }
@@ -2024,13 +2017,13 @@ var __meta__ = { // jshint ignore:line
                     e.preventDefault();
                 }
 
-                if(browser.msie && browser.version < 10){
+                if (browser.msie && browser.version < 10) {
                     if (key === keys.BACKSPACE || key === keys.DELETE) {
                         this._search();
                     }
                 }
 
-                if(key === keys.TAB){
+                if (key === keys.TAB) {
                     this.close();
                     this.wrapper.trigger("focus");
                     e.preventDefault();
@@ -2065,14 +2058,14 @@ var __meta__ = { // jshint ignore:line
                     this.filterInput.trigger("focus");
                 } else if (this.checkAll && this.checkAll.is(":visible")) {
                     this.checkAll.find('input').trigger("focus");
-                } else if(this.tree.is(":visible")) {
-                    this.tree[0].focus({preventScroll: true});
+                } else if (this.tree.is(":visible")) {
+                    this.tree[0].focus({ preventScroll: true });
                     this._ie11PreventScrollOnFocus();
                 }
                 e.preventDefault();
             }
 
-            if(key === keys.TAB && isPopupVisible){
+            if (key === keys.TAB && isPopupVisible) {
                 this.close();
                 this.wrapper.trigger("focus");
                 e.preventDefault();
@@ -2165,7 +2158,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _clearFilter: function() {
-            if(this.filterInput.val().length){
+            if (this.filterInput.val().length) {
                 this.filterInput.val("");
                 this._prev = "";
                 this._filtering = true;
@@ -2180,7 +2173,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _removeTag: function(tagItem) {
-           if(!tagItem){
+           if (!tagItem) {
                 return;
            }
 
@@ -2233,7 +2226,7 @@ var __meta__ = { // jshint ignore:line
             this._span();
         },
 
-        _preselect: function(data){
+        _preselect: function(data) {
             var dropdowntree = this._dropdowntree;
 
             dropdowntree._selectValue(data);
@@ -2279,8 +2272,8 @@ var __meta__ = { // jshint ignore:line
                 wrapper.append('<span unselectable="on" class="k-input-inner"><span class="k-input-value-text"></span></span>' +
                                 html.renderButton('<button unselectable="on" class="k-input-button" aria-label="select" tabindex="-1"></button>', extend({}, dropdowntree.options, {
                                     icon: "arrow-s",
-                                    shape: null,
-                                    rounded: null
+                                    shape: "none",
+                                    rounded: "none"
                                 })))
                        .append(dropdowntree.element);
 
@@ -2318,7 +2311,7 @@ var __meta__ = { // jshint ignore:line
 
             if (dropdowntree.treeview.dataItem(selectedNode)) {
                 dropdowntree.treeview.dataItem(selectedNode).set('selected', false);
-                if(!dropdowntree._valueMethodCalled){
+                if (!dropdowntree._valueMethodCalled) {
                     dropdowntree.trigger(CHANGE);
                 }
             }
@@ -2327,16 +2320,16 @@ var __meta__ = { // jshint ignore:line
         _checkLoadedItem: function(tempItem, value) {
             var dropdowntree = this._dropdowntree;
 
-            if (!dropdowntree._isNullorUndefined(value) && value!=="") {
-                if(dropdowntree._valueComparer(tempItem, value)){
+            if (!dropdowntree._isNullorUndefined(value) && value !== "") {
+                if (dropdowntree._valueComparer(tempItem, value)) {
                     dropdowntree._preventChangeTrigger = true;
                     tempItem.set("selected", true);
                     dropdowntree._preventChangeTrigger = false;
-                } else if (tempItem.selected){
+                } else if (tempItem.selected) {
                     dropdowntree.treeview.select(dropdowntree.treeview.findByUid(tempItem.uid));
                 }
 
-            } else if (!value && tempItem.selected){
+            } else if (!value && tempItem.selected) {
                 dropdowntree.treeview.select(dropdowntree.treeview.findByUid(tempItem.uid));
             }
         }
@@ -2360,7 +2353,7 @@ var __meta__ = { // jshint ignore:line
 
         },
 
-        _preselect: function(data, value){
+        _preselect: function(data, value) {
             var dropdowntree = this._dropdowntree;
             var valueToSelect = value || dropdowntree.options.value;
 
@@ -2396,8 +2389,8 @@ var __meta__ = { // jshint ignore:line
                             attr: {
                                 unselectable: "on"
                             },
-                            text: (isMultiple ?  tagTemplate(data) : ('<span unselectable="on" data-bind="text: tags.length"></span>' +
-                            '<span unselectable="on">&nbsp;' + singleTag +'</span>' )),
+                            text: (isMultiple ? tagTemplate(data) : ('<span unselectable="on" data-bind="text: tags.length"></span>' +
+                            '<span unselectable="on">&nbsp;' + singleTag + '</span>' )),
                             removable: isMultiple,
                             removeIcon: "x-circle",
                             removableAttr: {
@@ -2430,14 +2423,14 @@ var __meta__ = { // jshint ignore:line
 
             if (!tagList[0]) {
                 var isMultiple = dropdowntree.options.tagMode === "multiple";
-                var tagCollection = isMultiple ? "tags": "multipleTag";
+                var tagCollection = isMultiple ? "tags" : "multipleTag";
 
                 tagList = $(html.renderChipList('<div unselectable="on" class="k-input-values" data-template="tagTemplate" data-bind="source: ' + tagCollection + '" />', $.extend({}, dropdowntree.options))).appendTo(dropdowntree.wrapper);
             }
 
             dropdowntree.tagList = tagList;
             dropdowntree.tagList.attr('id', kendo.guid() + "_tagList");
-            dropdowntree.wrapper.attr("aria-owns", dropdowntree.tagList.attr('id'));
+            dropdowntree.wrapper.attr("aria-controls", dropdowntree.tagList.attr('id'));
             var viewModel = kendo.observable({
                 multipleTag: dropdowntree._multipleTags,
                 tags: dropdowntree._tags,
@@ -2474,18 +2467,18 @@ var __meta__ = { // jshint ignore:line
 
             for (var idx = 0; idx < removedValues.length; idx++) {
                 for (var j = 0; j < dropdowntree._tags.length; j++) {
-                    if (dropdowntree._valueComparer(dropdowntree._tags[j],removedValues[idx])){
+                    if (dropdowntree._valueComparer(dropdowntree._tags[j],removedValues[idx])) {
                         dropdowntree._uncheckItemByUid(dropdowntree._tags[j].uid);
                     }
                 }
             }
         },
 
-        _getNewValues: function(oldValues, value){
+        _getNewValues: function(oldValues, value) {
             var removedValues = [];
 
             for (var idx = 0; idx < oldValues.length; idx++) {
-                if(value.indexOf(oldValues[idx]) === -1){
+                if (value.indexOf(oldValues[idx]) === -1) {
                     removedValues.push(oldValues[idx]);
                 }
             }
@@ -2505,7 +2498,7 @@ var __meta__ = { // jshint ignore:line
 
             if (tagsArray.length) {
                 dropdowntree._preventChangeTrigger = false;
-                if(!dropdowntree._valueMethodCalled){
+                if (!dropdowntree._valueMethodCalled) {
                     dropdowntree.trigger(CHANGE);
                 }
             }
@@ -2548,5 +2541,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

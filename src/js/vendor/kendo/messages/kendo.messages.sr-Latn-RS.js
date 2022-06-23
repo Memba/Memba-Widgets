@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -23,23 +23,9 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 */
 
-(function ($, undefined) {
+(function($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -854,10 +840,10 @@ $.extend(true, kendo.spreadsheet.messages.filterMenu,{
       "endswith": "Tekst se završava"
     },
     "date": {
-      "eq":  "Datum je",
+      "eq": "Datum je",
       "neq": "Datum nije",
-      "lt":  "Datum je pre",
-      "gt":  "Datum je posle"
+      "lt": "Datum je pre",
+      "gt": "Datum je posle"
     },
     "number": {
       "eq": "Je jednako na",
@@ -1044,7 +1030,7 @@ $.extend(true, kendo.ui.TreeView.prototype.options.messages,{
 /* Upload messages */
 
 if (kendo.ui.Upload) {
-kendo.ui.Upload.prototype.options.localization=
+kendo.ui.Upload.prototype.options.localization =
 $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "select": "Izaberite datoteke...",
   "cancel": "Otkazati",

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.timeline',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "timeline",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "userevents" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
@@ -78,7 +78,7 @@ var __meta__ = { // jshint ignore:line
                     '# } #' +
                 '<span class="k-event-collapse k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
                     '<span class="k-button-icon k-icon k-i-arrow-chevron-right"></span>' +
-                '</span></div>'+
+                '</span></div>' +
                 '# if(data[subtitleField]) { #' +
                     '<div class="k-card-subtitle">#: data[subtitleField] #</div>' +
                 '# } #' +
@@ -173,7 +173,7 @@ var __meta__ = { // jshint ignore:line
             var x;
             var values;
 
-            if(matrix != "none") {
+            if (matrix != "none") {
                 values = matrix.match(/-?[\d\.]+/g);
                 x = values[4];
                 return (x / element.width() * 100);
@@ -338,9 +338,9 @@ var __meta__ = { // jshint ignore:line
 
                 Widget.fn.init.call(this, element, options);
 
-                this.element.addClass(orientation === VERTICAL ? "k-timeline k-widget k-timeline-vertical": "k-timeline k-widget k-timeline-horizontal");
+                this.element.addClass(orientation === VERTICAL ? "k-timeline k-widget k-timeline-vertical" : "k-timeline k-widget k-timeline-horizontal");
 
-                if(orientation != VERTICAL) {
+                if (orientation != VERTICAL) {
                     that._horizontal();
                 } else {
                     that._vertical();
@@ -351,11 +351,11 @@ var __meta__ = { // jshint ignore:line
                     var dataItemUid = $(ev.target).closest(".k-timeline-event").data("uid");
                     var dataItem = that.dataSource.getByUid(dataItemUid);
 
-                    that.trigger("actionClick", { sender: that, element: action, dataItem: dataItem});
+                    that.trigger("actionClick", { sender: that, element: action, dataItem: dataItem });
                 });
 
                 that.currentEventIndex = 0;
-                that._forward  = null;
+                that._forward = null;
                 that._eventPage = 1;
                 that._currentIndex = 0;
                 that._firstIndexInView = 0;
@@ -388,7 +388,7 @@ var __meta__ = { // jshint ignore:line
                 eventsWrap.addClass("k-timeline-events-list");
                 eventsList.addClass("k-timeline-scrollable-wrap");
 
-                if(options.eventHeight) {
+                if (options.eventHeight) {
                     eventsList.height(options.eventHeight);
                 }
 
@@ -411,7 +411,7 @@ var __meta__ = { // jshint ignore:line
 
                 that.element.append(eventsList);
 
-                if(options.alternatingMode) {
+                if (options.alternatingMode) {
                     element.addClass("k-timeline-alternating");
                 }
 
@@ -423,12 +423,12 @@ var __meta__ = { // jshint ignore:line
                         var itemWrapper = card.parent();
                         var dataItem = that.dataSource.getByUid(itemWrapper.data("uid"));
 
-                        if(card.hasClass("k-collapsed")) {
-                            if (!that.trigger("expand", {sender: that, dataItem: dataItem})) {
+                        if (card.hasClass("k-collapsed")) {
+                            if (!that.trigger("expand", { sender: that, dataItem: dataItem })) {
                                 that.expand(itemWrapper);
                             }
                         } else {
-                            if (!that.trigger("collapse", {sender: that, dataItem: dataItem})) {
+                            if (!that.trigger("collapse", { sender: that, dataItem: dataItem })) {
                                 that.collapse(itemWrapper);
                             }
                         }
@@ -457,7 +457,7 @@ var __meta__ = { // jshint ignore:line
                 var html;
                 var itemTemplate;
 
-                if(typeof options.eventTemplate === Function) {
+                if (typeof options.eventTemplate === Function) {
                     itemTemplate = options.eventTemplate;
                 } else {
                     itemTemplate = options.eventTemplate ? kendo.template(options.eventTemplate) : kendo.template(DEFAULTVERTICALCARDTEMPLATE, { useWithBlock: false });
@@ -484,7 +484,7 @@ var __meta__ = { // jshint ignore:line
 
                 this._eventsList.html(html);
 
-                if(options.eventWidth) {
+                if (options.eventWidth) {
                     that.element.find(".k-card").width(options.eventWidth);
                 }
             },
@@ -496,7 +496,7 @@ var __meta__ = { // jshint ignore:line
                 var itemTemplate;
                 var dataFieldMappings = that._dataFieldMappings;
 
-                if(typeof options.eventTemplate === Function) {
+                if (typeof options.eventTemplate === Function) {
                     itemTemplate = options.eventTemplate;
                 } else {
                     itemTemplate = options.eventTemplate ? kendo.template(options.eventTemplate) : kendo.template(DEFAULTHORIZONTALCARDTEMPLATE, { useWithBlock: false });
@@ -512,13 +512,13 @@ var __meta__ = { // jshint ignore:line
                     showDateLabels: options.showDateLabels
                 });
 
-                if(options.initialEventIndex) {
+                if (options.initialEventIndex) {
                     that._trackWrap.append($(html).find(".k-timeline-scrollable-wrap").css("transform", "translateX(-100%)").parent());
                 } else {
                     that._scrollableWrap.html(html);
                 }
 
-                if(that.pane) {
+                if (that.pane) {
                     that.pane.destroy();
                 }
 
@@ -546,7 +546,7 @@ var __meta__ = { // jshint ignore:line
             },
 
             _transitionEnd: function() {
-                if(this._forward) {
+                if (this._forward) {
                     this.pane.pages.push(this.pane.pages.shift());//forward
                 } else {
                     this.pane.pages.unshift(this.pane.pages.pop());//back
@@ -574,7 +574,7 @@ var __meta__ = { // jshint ignore:line
 
                 eventContainer = that._forward ? that.pane.pages[2].element : that.pane.pages[0].element;
 
-                if(!that.trigger("change", { eventContainer: eventContainer, dataItem: dataItem})) {
+                if (!that.trigger("change", { eventContainer: eventContainer, dataItem: dataItem })) {
                     that.open(trackItem);
                 }
             },
@@ -598,7 +598,7 @@ var __meta__ = { // jshint ignore:line
 
                 var dataItem = that.dataSource.view()[itemIndex];
 
-                if(that.currentEventIndex === itemIndex) {
+                if (that.currentEventIndex === itemIndex) {
                     return;
                 }
 
@@ -608,15 +608,15 @@ var __meta__ = { // jshint ignore:line
 
                 that.pane.updatePage(forward, dataItem, calculateOffset(trackItemCircle, that._trackWrap));
 
-                if(that._forward) {
+                if (that._forward) {
                     clearTimeout(that.navigateTimeOut);
-                    that.navigateTimeOut = setTimeout(function(){
+                    that.navigateTimeOut = setTimeout(function() {
                         that.pane.transition.moveTo({ location: -that.pane.pages[2].element.width(), duration: 800, ease: Transition.easeOutExpo });
                     }, 200);
 
                 } else {
                     clearTimeout(that.navigateTimeOut);
-                    that.navigateTimeOut = setTimeout(function(){
+                    that.navigateTimeOut = setTimeout(function() {
                         that.pane.transition.moveTo({ location: that.pane.pages[0].element.width(), duration: 800, ease: Transition.easeOutExpo });
                     }, 200);
                 }
@@ -628,10 +628,10 @@ var __meta__ = { // jshint ignore:line
                 var that = this;
                 var delta = $(event.currentTarget).hasClass("k-timeline-arrow-right") ? 1 : -1;
 
-                if(!that.trigger("navigate", {sender: that, action: delta > 0 ? "next": "previous"}) && !that._animationInProgress) {
+                if (!that.trigger("navigate", { sender: that, action: delta > 0 ? "next" : "previous" }) && !that._animationInProgress) {
                     that._animationInProgress = true;
 
-                    if(delta > 0) {
+                    if (delta > 0) {
                         that.next();
                     } else {
                         that.previous();
@@ -663,7 +663,7 @@ var __meta__ = { // jshint ignore:line
                 var that = this;
                 var transform = that._end || 0;
 
-                if(next) {
+                if (next) {
                     return that._firstIndexInView + that.numOfEvents >= that.maxEvents;
                 } else {
                     return Math.abs(transform) <= 1;
@@ -674,7 +674,7 @@ var __meta__ = { // jshint ignore:line
                 var that = this;
                 var options = that.options;
 
-                if(!that._validateNavigation(true) && options.orientation != VERTICAL) {
+                if (!that._validateNavigation(true) && options.orientation != VERTICAL) {
                     that._forward = true;
                     that._navigate();
                 }
@@ -697,7 +697,7 @@ var __meta__ = { // jshint ignore:line
 
                 end = forward ? end - 100 : end + 100;
 
-                if(end >= 0) {
+                if (end >= 0) {
                     end = 0;
                 }
 
@@ -707,9 +707,9 @@ var __meta__ = { // jshint ignore:line
 
                 currentPage = Math.floor(currentIndex / that.numOfEvents);
 
-                if(forward) {
-                    if(that.numOfEvents === 1) {
-                        firstEventInViewIndex =  firstIndexInView  === 0 ? 1 : firstIndexInView;
+                if (forward) {
+                    if (that.numOfEvents === 1) {
+                        firstEventInViewIndex = firstIndexInView === 0 ? 1 : firstIndexInView;
                         firstEventInView = this._trackWrap.find("." + TRACKITEMCLASS).eq(firstEventInViewIndex).nextAll(":not(." + FLAGWRAPCLASS + ")").first();
                         that._firstIndexInView = firstEventInView.index();
                     } else {
@@ -718,8 +718,8 @@ var __meta__ = { // jshint ignore:line
                         that._firstIndexInView = firstIndexInView + that.numOfEvents;
                     }
                 } else {
-                    if(that.numOfEvents === 1) {
-                        firstEventInViewIndex =  firstIndexInView;
+                    if (that.numOfEvents === 1) {
+                        firstEventInViewIndex = firstIndexInView;
                         firstEventInView = this._trackWrap.find("." + TRACKITEMCLASS).eq(firstEventInViewIndex).prevAll(":not(." + FLAGWRAPCLASS + ")").first();
                         that._firstIndexInView = firstEventInView.index();
                     } else {
@@ -732,9 +732,9 @@ var __meta__ = { // jshint ignore:line
 
                 dataItem = that.dataSource.view()[firstEventInView.index("li[class='k-timeline-track-item']")];
 
-                this._trackWrap.find("." + SCROLLABLEWRAPCLASS).css("transform",  "translateX(" + end + "%)");
+                this._trackWrap.find("." + SCROLLABLEWRAPCLASS).css("transform", "translateX(" + end + "%)");
 
-                if(that._currentIndex != firstEventInView.index()) {
+                if (that._currentIndex != firstEventInView.index()) {
                     that.currentEventIndex = firstEventInView.index("li[class='k-timeline-track-item']");
 
                     that._currentIndex = firstEventInView.index();
@@ -744,7 +744,7 @@ var __meta__ = { // jshint ignore:line
                     clearTimeout(that.navigateTimeOut);
 
                     that.navigateTimeOut = setTimeout(function() {
-                        if(forward && that.pane && that.pane.pages.length > 0) {
+                        if (forward && that.pane && that.pane.pages.length > 0) {
                             that.pane.transition.moveTo({ location: - that.pane.pages[2].element.width(), duration: 800, ease: Transition.easeOutExpo });
                         } else {
                             that.pane.transition.moveTo({ location: that.pane.pages[0].element.width(), duration: 800, ease: Transition.easeOutExpo });
@@ -753,7 +753,7 @@ var __meta__ = { // jshint ignore:line
                 } else {
                     var scrollWrapElement = this._trackWrap.find("." + SCROLLABLEWRAPCLASS);
                     var transitionEndHandler = function() {
-                        if(that.numOfEvents != 1) {
+                        if (that.numOfEvents != 1) {
                             var page = that.pane.pages[1];
                             var calloutOffset = calculateOffset(firstEventInView.find(".k-timeline-circle"), that._trackWrap);
                             page.setPageCallout("left", (calloutOffset / page.element.width()) * 100 + "%");
@@ -769,7 +769,7 @@ var __meta__ = { // jshint ignore:line
                 var that = this;
                 var options = that.options;
 
-                if(!that._validateNavigation(false) && options.orientation != VERTICAL) {
+                if (!that._validateNavigation(false) && options.orientation != VERTICAL) {
                     that._forward = false;
                     that._navigate();
                 }
@@ -822,7 +822,7 @@ var __meta__ = { // jshint ignore:line
             _resizeHandler: function() {
                 var that = this;
                 clearTimeout(that.resizeTimeOut);
-                that.resizeTimeOut = setTimeout(function(){
+                that.resizeTimeOut = setTimeout(function() {
                     that._redrawEvents();
                     that.pane.repositionPages();
                 });
@@ -830,7 +830,7 @@ var __meta__ = { // jshint ignore:line
 
             redraw: function() {
                 var options = this.options;
-                if(options.orientation != VERTICAL) {
+                if (options.orientation != VERTICAL) {
                     this._redrawEvents();
                     this.pane.repositionPages();
                 }
@@ -841,7 +841,7 @@ var __meta__ = { // jshint ignore:line
                 var numOfEvents = Math.floor(that.element.find(".k-timeline-scrollable-wrap").width() / 150);
                 var width;
 
-                if(that.element.width() <= 480) {
+                if (that.element.width() <= 480) {
                     that.element.addClass("k-timeline-mobile");
                     width = 100;
                     that.numOfEvents = 1;
@@ -850,7 +850,7 @@ var __meta__ = { // jshint ignore:line
                     that._repositionEvents();
                 } else {
                     that.element.removeClass("k-timeline-mobile");
-                    if(numOfEvents != that.numOfEvents) {
+                    if (numOfEvents != that.numOfEvents) {
                         that.numOfEvents = numOfEvents;
                         width = 100 / numOfEvents;
                         applyCssStyles(that.element.find("li.k-timeline-track-item"), "flex", "1 0 " + width + "%");
@@ -873,13 +873,13 @@ var __meta__ = { // jshint ignore:line
                 var leftOffset;
                 var circleElement;
 
-                if(that.numOfEvents === 1) {
+                if (that.numOfEvents === 1) {
                     offset = that.currentEventIndex * width;
                 } else {
                     offset = that._currentIndex * width;
                 }
-                if(page) {
-                    if(that.numOfEvents === 1) {
+                if (page) {
+                    if (that.numOfEvents === 1) {
                         page.setPageCallout("left", "50%");
                         leftOffset = offset;
                         applyCssStyles(trackWrapScrollableElement, "transform", "translateX(-" + leftOffset + "%)");
@@ -887,13 +887,13 @@ var __meta__ = { // jshint ignore:line
                         that._updateArrows();
                         return;
                     }
-                    if(offset >= Math.abs(end) + 100) {
+                    if (offset >= Math.abs(end) + 100) {
                         leftOffset = Math.abs(end) + ((offset - (Math.abs(end) + 100)) + width);
                         that._end = -leftOffset;
                         applyCssStyles(trackWrapScrollableElement, "transform", "translateX(-" + leftOffset + "%)");
                         that._firstIndexInView = that._currentIndex - that.numOfEvents + 1;
                     }
-                    else if(offset <= Math.abs(end)) {
+                    else if (offset <= Math.abs(end)) {
                         leftOffset = offset;
                         that._end = -leftOffset;
                         applyCssStyles(trackWrapScrollableElement, "transform", "translateX(-" + leftOffset + "%)");
@@ -906,7 +906,7 @@ var __meta__ = { // jshint ignore:line
                     }
                     var scrollWrapElement = this._trackWrap.find("." + SCROLLABLEWRAPCLASS);
                     var transitionEndHandler = function() {
-                        if(that.numOfEvents != 1) {
+                        if (that.numOfEvents != 1) {
                             var page = that.pane.pages[1];
                             var eventElement = that._trackWrap.find("." + TRACKITEMCLASS).eq(that._currentIndex);
                             var calloutOffset = calculateOffset(eventElement.find(".k-timeline-circle"), that._trackWrap);
@@ -938,7 +938,7 @@ var __meta__ = { // jshint ignore:line
 
                 that._updateArrows();
 
-                that._resizeHandlerBound =  that._resizeHandler.bind(that);
+                that._resizeHandlerBound = that._resizeHandler.bind(that);
 
                 kendo.jQuery(window).on("resize" + NS, that._resizeHandlerBound);
                 that._trackWrap.on("click", ".k-timeline-track-item:not(.k-timeline-flag-wrap)", that._setCurrentEvent.bind(that));
@@ -960,14 +960,14 @@ var __meta__ = { // jshint ignore:line
                         .attr("role", "listbox")
                         .attr("aria-orientation", "horizontal")
                         .attr("tabindex", 0)
-                        .on("focus" + NS, function () {
+                        .on("focus" + NS, function() {
                             that.pane.pages[1].cardContainer.attr("id", that._cardId);
                             that._setCurrent(that._scrollableWrap.find(".k-timeline-track-item").eq(that._currentIndex));
                         })
-                        .on("focusout" + NS, function () {
+                        .on("focusout" + NS, function() {
                             that._removeCurrent();
                         })
-                        .on("keydown" + NS, function (e) {
+                        .on("keydown" + NS, function(e) {
                             var handled;
                             var current = that._currentBullet;
                             var itemOffset;
@@ -1029,7 +1029,7 @@ var __meta__ = { // jshint ignore:line
                 }
             },
 
-            _setCurrent: function (next) {
+            _setCurrent: function(next) {
                 if (!next) {
                     return;
                 }
@@ -1050,7 +1050,7 @@ var __meta__ = { // jshint ignore:line
                 that._currentBullet = next;
             },
 
-            _removeCurrent: function () {
+            _removeCurrent: function() {
                 if (this._currentBullet) {
                     this._currentBullet
                         .removeClass("k-state-focus")
@@ -1073,8 +1073,8 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 this.dataSource = DataSource.create(dataSource);
-                if(this.dataSource._sort === undefined) {
-                    this.dataSource._sort = [{field: options.dataDateField, dir: "asc"}];
+                if (this.dataSource._sort === undefined) {
+                    this.dataSource._sort = [{ field: options.dataDateField, dir: "asc" }];
                 }
 
                 that.dataSource.bind(CHANGE, that._refresh);
@@ -1090,14 +1090,14 @@ var __meta__ = { // jshint ignore:line
 
                 var data = this.dataSource.view();
 
-                if(options.orientation != VERTICAL) {
+                if (options.orientation != VERTICAL) {
                     that._trackWrap.empty().remove();
                     that.element.find('.k-timeline-events-list').remove();
                     that._horizontal();
                 }
 
                 that.currentEventIndex = 0;
-                that._forward  = null;
+                that._forward = null;
                 that._eventPage = 1;
                 that._currentIndex = 0;
                 that._firstIndexInView = 0;
@@ -1106,8 +1106,8 @@ var __meta__ = { // jshint ignore:line
 
                 that._initDataFieldMappings();
 
-                if(data.length){
-                    if(options.orientation === "horizontal") {
+                if (data.length) {
+                    if (options.orientation === "horizontal") {
                         that._renderContentHorizontal(data);
                         that._redrawEvents();
                         that._initHorizontal();
@@ -1117,7 +1117,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
 
-                that.trigger("dataBound", {sender: that});
+                that.trigger("dataBound", { sender: that });
             },
 
             destroy: function() {
@@ -1125,11 +1125,11 @@ var __meta__ = { // jshint ignore:line
 
                 Widget.fn.destroy.call(this);
 
-                if(this.resizeTimeOut) {
+                if (this.resizeTimeOut) {
                     clearTimeout(this.resizeTimeOut);
                 }
 
-                if(this.navigateTimeOut) {
+                if (this.navigateTimeOut) {
                     clearTimeout(this.navigateTimeOut);
                 }
 
@@ -1139,7 +1139,7 @@ var __meta__ = { // jshint ignore:line
 
                 this.element.off();
 
-                if(options.orientation != VERTICAL) {
+                if (options.orientation != VERTICAL) {
                     if (this.pane) {
                         this.pane.destroy();
                     }
@@ -1197,5 +1197,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

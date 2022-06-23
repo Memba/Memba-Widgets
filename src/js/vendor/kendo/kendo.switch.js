@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.switch',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "switch",
@@ -111,7 +111,7 @@ var __meta__ = { // jshint ignore:line
             that._applyRoundedClasses();
         },
 
-        _applyRoundedClasses: function (action) {
+        _applyRoundedClasses: function(action) {
             var that = this,
                 options = that.options,
                 trackRounded = kendo.cssProperties.getValidClass({
@@ -140,7 +140,7 @@ var __meta__ = { // jshint ignore:line
                 .on(KEYDOWN, that._keydown.bind(that));
         },
 
-        setOptions: function (options) {
+        setOptions: function(options) {
             var that = this,
                 messages = options.messages,
                 checkedLabel,
@@ -182,7 +182,7 @@ var __meta__ = { // jshint ignore:line
             that._applyRoundedClasses();
         },
 
-        _initSettings: function () {
+        _initSettings: function() {
             var that = this,
                 element = that.element[0],
                 options = that.options;
@@ -210,20 +210,20 @@ var __meta__ = { // jshint ignore:line
             that.readonly(options.readonly);
         },
 
-        _aria: function () {
+        _aria: function() {
             var that = this,
                 element = that.element,
                 wrapper = that.wrapper,
                 id = element.attr("id"),
-                labelFor = $("label[for=\"" + id  + "\"]"),
+                labelFor = $("label[for=\"" + id + "\"]"),
                 ariaLabel = element.attr("aria-label"),
                 ariaLabelledBy = element.attr("aria-labelledby");
 
             if (ariaLabel) {
                 wrapper.attr("aria-label", ariaLabel);
-            } else if (ariaLabelledBy){
+            } else if (ariaLabelledBy) {
                 wrapper.attr("aria-labelledby", ariaLabelledBy);
-            } else if (labelFor.length){
+            } else if (labelFor.length) {
                 var labelId = labelFor.attr("id");
 
                 if (!labelId) {
@@ -293,7 +293,7 @@ var __meta__ = { // jshint ignore:line
         value: function(value) {
             if (typeof value === "string") {
                 value = (value === "true");
-            } else if (value === null){
+            } else if (value === null) {
                 value = false;
             }
             return this.check.apply(this, [value]);
@@ -314,13 +314,13 @@ var __meta__ = { // jshint ignore:line
             var element = this.element,
                 wrapper = this.wrapper;
 
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
             this.options.enabled = enable;
 
-            if(enable) {
+            if (enable) {
                 element.prop(DISABLED, false);
                 wrapper.removeAttr(ARIA_DISABLED);
             } else {
@@ -336,13 +336,13 @@ var __meta__ = { // jshint ignore:line
                 element = that.element,
                 wrapper = that.wrapper;
 
-            if(typeof readonly == "undefined") {
+            if (typeof readonly == "undefined") {
                 readonly = true;
             }
 
             that.options.readonly = readonly;
 
-            if(readonly) {
+            if (readonly) {
                 element.attr(READONLY, true);
                 wrapper.attr(ARIA_READONLY, true);
             } else {
@@ -353,7 +353,7 @@ var __meta__ = { // jshint ignore:line
             wrapper.toggleClass(switchStyles.readonly, readonly);
         },
 
-        _check: function () {
+        _check: function() {
             var that = this,
                 checked = that.element[0].checked = !that.element[0].checked;
 
@@ -368,7 +368,7 @@ var __meta__ = { // jshint ignore:line
             that.check(checked);
         },
 
-        _keydown: function (e) {
+        _keydown: function(e) {
             if (e.keyCode === kendo.keys.SPACEBAR) {
                 this._check();
                 e.preventDefault();
@@ -379,13 +379,13 @@ var __meta__ = { // jshint ignore:line
             return /touch/.test(event.type) || (event.originalEvent && /touch/.test(event.originalEvent.pointerType));
         },
 
-        _click: function (e) {
+        _click: function(e) {
             if (!this._isTouch(e) && e.which === 1) {
                 this._check();
             }
         },
 
-        _touchEnd: function (e) {
+        _touchEnd: function(e) {
             if (this._isTouch(e)) {
                 this._check();
                 e.preventDefault();
@@ -406,5 +406,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('drawing/util',['kendo.core'], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -49,7 +49,7 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
  * your modifications will eventually be lost.  The source code is in
@@ -259,11 +259,11 @@ kendo.deepExtend(kendo.util, {
  * `kendo-drawing` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('drawing/kendo-drawing',[ "./util", "kendo.color", '../util/text-metrics' ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
 /* jshint eqnull:true */
 /* jshint -W058 */
@@ -284,8 +284,8 @@ var supportBrowser = support.browser;
 var createPromise = kendoDrawingUtil.createPromise;
 var promiseAll = kendoDrawingUtil.promiseAll;
 
-var HasObservers = (function (Class$$1) {
-    function HasObservers () {
+var HasObservers = (function(Class$$1) {
+    function HasObservers() {
         Class$$1.apply(this, arguments);
     }
 
@@ -295,12 +295,12 @@ var HasObservers = (function (Class$$1) {
     HasObservers.fn = HasObservers.prototype;
     HasObservers.fn.init = HasObservers.fn.constructor;
 
-    HasObservers.prototype.observers = function observers () {
+    HasObservers.prototype.observers = function observers() {
         this._observers = this._observers || [];
         return this._observers;
     };
 
-    HasObservers.prototype.addObserver = function addObserver (element) {
+    HasObservers.prototype.addObserver = function addObserver(element) {
         if (!this._observers) {
             this._observers = [ element ];
         } else {
@@ -309,7 +309,7 @@ var HasObservers = (function (Class$$1) {
         return this;
     };
 
-    HasObservers.prototype.removeObserver = function removeObserver (element) {
+    HasObservers.prototype.removeObserver = function removeObserver(element) {
         var observers = this.observers();
         var index = observers.indexOf(element);
         if (index !== -1) {
@@ -318,7 +318,7 @@ var HasObservers = (function (Class$$1) {
         return this;
     };
 
-    HasObservers.prototype.trigger = function trigger (methodName, event) {
+    HasObservers.prototype.trigger = function trigger(methodName, event) {
         var observers = this._observers;
 
         if (observers && !this._suspended) {
@@ -332,30 +332,30 @@ var HasObservers = (function (Class$$1) {
         return this;
     };
 
-    HasObservers.prototype.optionsChange = function optionsChange (e) {
+    HasObservers.prototype.optionsChange = function optionsChange(e) {
         if (e === void 0) { e = {}; }
 
         e.element = this;
         this.trigger("optionsChange", e);
     };
 
-    HasObservers.prototype.geometryChange = function geometryChange () {
+    HasObservers.prototype.geometryChange = function geometryChange() {
         this.trigger("geometryChange", {
             element: this
         });
     };
 
-    HasObservers.prototype.suspend = function suspend () {
+    HasObservers.prototype.suspend = function suspend() {
         this._suspended = (this._suspended || 0) + 1;
         return this;
     };
 
-    HasObservers.prototype.resume = function resume () {
+    HasObservers.prototype.resume = function resume() {
         this._suspended = Math.max((this._suspended || 0) - 1, 0);
         return this;
     };
 
-    HasObservers.prototype._observerField = function _observerField (field, value) {
+    HasObservers.prototype._observerField = function _observerField(field, value) {
         if (this[field]) {
             this[field].removeObserver(this);
         }
@@ -11314,11 +11314,11 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 })(window.kendo.jQuery);
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+(function(f, define) {
     define('drawing/surface-tooltip',[ "kendo.popup", "./kendo-drawing" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     var NS = ".kendo";
     var kendo = window.kendo;
@@ -11432,7 +11432,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         },
 
         _tooltipShape: function(shape) {
-            while(shape && !shape.options.tooltip) {
+            while (shape && !shape.options.tooltip) {
                 shape = shape.parent;
             }
             return shape;
@@ -11505,7 +11505,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
             delete this._current;
             clearTimeout(this._showTimeout);
             if (popup && popup.visible() && current &&
-                !this.surface.trigger("tooltipClose", { element: current.shape, target: current.target, popup: popup})) {
+                !this.surface.trigger("tooltipClose", { element: current.shape, target: current.target, popup: popup })) {
                 popup.close();
             }
         },
@@ -11543,7 +11543,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                     elementSize: elementSize,
                     shape: shape,
                     target: target,
-                    position: this._position(options.shared ? shape: target, options, elementSize, event)
+                    position: this._position(options.shared ? shape : target, options, elementSize, event)
                 };
 
                 if (delay) {
@@ -11637,7 +11637,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                 if (options.position == "cursor") {
                     var position = this._position(e.element, options, current.elementSize, e.originalEvent);
                     current.position = position;
-                    this.getPopup().wrapper.css({left: position.left, top: position.top});
+                    this.getPopup().wrapper.css({ left: position.left, top: position.top });
                 }
             }
         },
@@ -11668,12 +11668,12 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('drawing/surface',[ "./kendo-drawing", "./surface-tooltip" ], f);
-})(function(){
+})(function() {
 
-(function ($) {  // jshint ignore:line
+(function($) { // jshint ignore:line
 
     var kendo = window.kendo;
     var draw = kendo.drawing;
@@ -11825,12 +11825,12 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('drawing/html',[ "./kendo-drawing" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     var kendo = window.kendo;
     var drawing = kendo.drawing;
@@ -11846,9 +11846,9 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.drawing',[
         "./drawing/util",
         "./drawing/kendo-drawing",
@@ -11856,7 +11856,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         "./drawing/surface",
         "./drawing/html"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "drawing",
@@ -11866,4 +11866,4 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         depends: [ "core", "color", "popup" ]
     };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

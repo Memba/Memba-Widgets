@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.circularprogressbar',[ "kendo.dataviz", "kendo.dataviz.themes" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "circularprogressBar",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
 
     window.kendo.dataviz = window.kendo.dataviz || {};
     var dataviz = kendo.dataviz;
@@ -110,7 +110,7 @@ var __meta__ = { // jshint ignore:line
 
         events: [ ],
 
-        value: function (value) {
+        value: function(value) {
             var that = this;
 
             if (value === undefined) {
@@ -176,7 +176,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!!options.labelId) {
                 wrapper.attr("aria-labelledby", options.labelId);
-            } else if(!!options.label) {
+            } else if (!!options.label) {
                 wrapper.attr("aria-label", options.label);
             }
 
@@ -192,7 +192,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _restrictValue: function (value) {
+        _restrictValue: function(value) {
 
             if (value < MINVALUE) {
                 return MINVALUE;
@@ -219,7 +219,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _centerSvgElements: function () {
+        _centerSvgElements: function() {
             var center = this._getCenter();
 
             if (this.circle._geometry.center.x !== center.x ||
@@ -265,7 +265,7 @@ var __meta__ = { // jshint ignore:line
             return centerElement;
         },
 
-        _pointerChange: function (oldValue, newValue) {
+        _pointerChange: function(oldValue, newValue) {
             var animation;
 
             if (this.options.transitions) {
@@ -313,10 +313,10 @@ var __meta__ = { // jshint ignore:line
             var color = this._getColor(this.value()) || this.theme.pointer.color;
             var radius = Math.min(center.x, center.y) - DEFAULT_MARGIN - this.options.pointerWidth;
 
-            var circleGeometry = new geometry.Circle([center.x, center.y], radius + (this.options.pointerWidth/2));
+            var circleGeometry = new geometry.Circle([center.x, center.y], radius + (this.options.pointerWidth / 2));
             var circle = this.circle = new drawing.Circle(circleGeometry, {
                 fill: { color: "none" },
-                stroke :{ color: this.theme.scale.rangePlaceholderColor, width: this.options.pointerWidth }
+                stroke: { color: this.theme.scale.rangePlaceholderColor, width: this.options.pointerWidth }
             });
 
             visuals.append(circle);
@@ -332,9 +332,9 @@ var __meta__ = { // jshint ignore:line
 
         _slotAngle: function(value) {
             var result;
-    
+
             result = ((value - MINVALUE) / (MAXVALUE) * 360) + 90;
-    
+
             return result + GEO_ARC_ADJUST_ANGLE;
         },
 
@@ -343,20 +343,20 @@ var __meta__ = { // jshint ignore:line
             var colors = options.colors;
             var color = options.color;
             var currentValue = dataviz.isNumber(value) ? value : 0;
-    
+
             if (colors) {
                 for (var idx = 0; idx < colors.length; idx++) {
                     var range = colors[idx];
                     var rangeColor = range.color;
                     var from = range.from; if (from === void 0) { from = 0; }
                     var to = range.to; if (to === void 0) { to = 100; }
-    
+
                     if (from <= currentValue && currentValue <= to) {
                         return rangeColor;
                     }
                 }
             }
-    
+
             return color;
         },
 
@@ -368,7 +368,7 @@ var __meta__ = { // jshint ignore:line
                 startAngle: 270,
                 endAngle: endAngle
             });
-    
+
             return new Arc(rangeGeom, {
                 stroke: {
                     width: rangeSize,
@@ -381,30 +381,30 @@ var __meta__ = { // jshint ignore:line
         _centerTemplatePosition: function(width, height) {
             var size = this._getSize();
             var center = this._getCenter();
-    
+
             var left = center.x - width / 2;
             var top = center.y - height / 2;
             var right;
             var bottom;
-    
+
             if (width < size.width) {
                 right = left + width;
-    
+
                 left = Math.max(left, 0);
-    
+
                 if (right > size.width) {
                     left -= right - size.width;
                 }
             }
-    
+
             if (height < size.height) {
                 bottom = top + height;
-    
+
                 if (bottom > size.height) {
                     top -= bottom - size.height;
                 }
             }
-    
+
             return {
                 left: left,
                 top: top
@@ -413,7 +413,7 @@ var __meta__ = { // jshint ignore:line
 
         _getCenter: function() {
             var size = this._getSize();
-            return new dataviz.Point(size.width/2, size.height/2);
+            return new dataviz.Point(size.width / 2, size.height / 2);
         },
 
         _getSize: function() {
@@ -471,7 +471,7 @@ var __meta__ = { // jshint ignore:line
         var themeName = options.theme || "";
         var lowerName = themeName.toLowerCase();
 
-        if(dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
+        if (dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
             return dataviz.autoTheme().gauge;
         }
 
@@ -484,4 +484,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

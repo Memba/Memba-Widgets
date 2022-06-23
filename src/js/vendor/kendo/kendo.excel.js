@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,13 +12,13 @@
  * `kendo-ooxml` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('excel/kendo-excel',[
         "kendo.core"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
 window.kendo.excel = window.kendo.excel || {};
 
@@ -75,7 +75,7 @@ var ExcelExporter = kendo.Class.extend({
         this.groups = [].concat(options.groups || []);
         this.hasGroups = this.groups.length > 0;
         this.hierarchy = options.hierarchy;
-        this.hasGroupHeaderColumn = this.columns.some(function (column) { return column.groupHeaderColumnTemplate; });
+        this.hasGroupHeaderColumn = this.columns.some(function(column) { return column.groupHeaderColumnTemplate; });
         this.collapsible = this.options.collapsible;
     },
 
@@ -95,7 +95,7 @@ var ExcelExporter = kendo.Class.extend({
     _trimColumns: function(columns) {
         var this$1 = this;
 
-        return columns.filter(function (column) {
+        return columns.filter(function(column) {
             var result = Boolean(column.field);
 
             if (!result && column.columns) {
@@ -171,7 +171,7 @@ var ExcelExporter = kendo.Class.extend({
     _createPaddingCells: function(length) {
         var this$1 = this;
 
-        return createArray(length, function () { return $.extend({
+        return createArray(length, function() { return $.extend({
             background: "#dfdfdf",
             color: "#333"
         }, this$1.options.paddingCellOptions); });
@@ -366,7 +366,7 @@ var ExcelExporter = kendo.Class.extend({
 
     _footer: function(dataItem, level) {
         var rows = [];
-        var footer = this.columns.some(function (column) { return column.groupFooterTemplate; });
+        var footer = this.columns.some(function(column) { return column.groupFooterTemplate; });
 
         var templateData, group;
         if (footer) {
@@ -376,12 +376,12 @@ var ExcelExporter = kendo.Class.extend({
                          value: dataItem.value }
             };
             templateData = {};
-            Object.keys(dataItem.aggregates).forEach(function (key) {
+            Object.keys(dataItem.aggregates).forEach(function(key) {
                 templateData[key] = $.extend({}, dataItem.aggregates[key], group);
             });
         }
 
-        var cells = this.columns.map(function (column) {
+        var cells = this.columns.map(function(column) {
             if (column.groupFooterTemplate) {
                 var data = $.extend({}, templateData, dataItem.aggregates[column.field], group);
                 return $.extend({
@@ -415,7 +415,7 @@ var ExcelExporter = kendo.Class.extend({
     _visibleColumns: function(columns) {
         var this$1 = this;
 
-        return columns.filter(function (column) {
+        return columns.filter(function(column) {
             var exportable = column.exportable;
             if (typeof exportable === 'object') {
                 exportable = column.exportable.excel;
@@ -447,7 +447,7 @@ var ExcelExporter = kendo.Class.extend({
 
         return {
             type: "header",
-            cells: createArray(groups.length, function () { return $.extend({
+            cells: createArray(groups.length, function() { return $.extend({
                 background: "#7a7a7a",
                 color: "#fff"
             }, this$1.options.headerPaddingCellOptions); }).concat(headers)
@@ -515,7 +515,7 @@ var ExcelExporter = kendo.Class.extend({
             this._prependHeaderRows(rows);
             var footer = false;
 
-            var cells = this.columns.map(function (column) {
+            var cells = this.columns.map(function(column) {
                 if (column.footerTemplate) {
                     footer = true;
 
@@ -593,7 +593,7 @@ var ExcelExporter = kendo.Class.extend({
 
     _columns: function() {
         var depth = this._depth();
-        var columns = createArray(depth, function () { return ({ width: 20 }); });
+        var columns = createArray(depth, function() { return ({ width: 20 }); });
 
         return columns.concat(this.columns.map(function(column) {
             return {
@@ -611,12 +611,12 @@ kendo.deepExtend(kendo.excel, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('excel/main',[ "kendo.core", "kendo.data", "./kendo-excel" ], f);
-})(function(){
+})(function() {
 
-(function($, kendo){
+(function($, kendo) {
 
     var ExcelExporter = kendo.excel.ExcelExporter;
 
@@ -728,13 +728,13 @@ kendo.deepExtend(kendo.excel, {
 
 return kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('excel/mixins',[ "./main", "kendo.ooxml" ], f);
-})(function(){
+})(function() {
 
-(function($, kendo){
+(function($, kendo) {
 
 
 kendo.ExcelMixin = {
@@ -766,7 +766,7 @@ kendo.ExcelMixin = {
             if (!this.trigger("excelExport", { workbook: book, data: data })) {
                 var workbook = new kendo.ooxml.Workbook(book);
 
-                if(!workbook.options) {
+                if (!workbook.options) {
                     workbook.options = {};
                 }
                 workbook.options.skipCustomHeight = true;
@@ -789,11 +789,11 @@ kendo.ExcelMixin = {
 
 return kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.excel',[ "./excel/main", "./excel/mixins" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "excel",
@@ -804,5 +804,5 @@ var __meta__ = { // jshint ignore:line
     depends: [ "data", "ooxml" ]
 };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

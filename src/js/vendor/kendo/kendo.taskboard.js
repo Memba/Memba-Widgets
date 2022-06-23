@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('taskboard/toolbar',["kendo.toolbar"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -76,8 +76,8 @@
                 return;
             }
 
-            return tools.map(function (tool) {
-                var isBuiltInTool =  $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name,
+            return tools.map(function(tool) {
+                var isBuiltInTool = $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name,
                     attr = {},
                     toolOptions;
 
@@ -85,7 +85,7 @@
                 tool = isBuiltInTool ? tool.name : tool;
                 toolOptions = $.isPlainObject(tool) ? tool : extend({}, that.defaultTools[tool] || { name: tool, command: tool + "Command", type: "button" });
 
-                if(!that._validateRules(toolOptions)) {
+                if (!that._validateRules(toolOptions)) {
                     return { hidden: true };
                 }
 
@@ -103,11 +103,11 @@
                     overflow: toolOptions.overflow
                 });
 
-                if(toolOptions.type === "buttonGroup") {
+                if (toolOptions.type === "buttonGroup") {
                     toolOptions.buttons = toolOptions.buttons.map(that._mapButtonGroups.bind(that));
                 }
 
-                if(toolOptions.type === "splitButton") {
+                if (toolOptions.type === "splitButton") {
                     toolOptions.menuButtons = toolOptions.menuButtons.map(that._mapMenuButtons.bind(that));
                 }
 
@@ -120,8 +120,8 @@
                 messages = that.options.messages,
                 attr = {};
 
-            attr[kendo.attr("command")]= button.command;
-            attr[kendo.attr("options")]= button.options;
+            attr[kendo.attr("command")] = button.command;
+            attr[kendo.attr("options")] = button.options;
 
             return kendo.deepExtend(button, {
                 attributes: extend({}, button.attributes, {
@@ -136,8 +136,8 @@
                 messages = that.options.messages,
                 attr = {};
 
-            attr[kendo.attr("command")]= button.command;
-            attr[kendo.attr("options")]= button.options;
+            attr[kendo.attr("command")] = button.command;
+            attr[kendo.attr("options")] = button.options;
 
             return kendo.deepExtend(button,{
                 text: messages[button.name],
@@ -148,17 +148,17 @@
             });
         },
 
-        _validateRules: function (tool) {
+        _validateRules: function(tool) {
             var that = this,
                 states = that.options.states,
                 rules = tool.rules ? tool.rules.split(";") : [];
 
-            if(!rules.length) {
+            if (!rules.length) {
                 return true;
             }
 
             for (var i = 0; i < rules.length; i++) {
-                if(!states[rules[i]]){
+                if (!states[rules[i]]) {
                     return false;
                 }
             }
@@ -180,7 +180,7 @@
             });
         },
 
-        _change: function (ev) {
+        _change: function(ev) {
             var command = $(ev.target).attr(kendo.attr("command")),
                 options = $(ev.target).attr(kendo.attr("options"));
 
@@ -201,7 +201,7 @@
                 options = that.options,
                 found = false;
 
-            for(var i = 0; i < options.items.length; i++) {
+            for (var i = 0; i < options.items.length; i++) {
                 if (options.items[i].name == toolName) {
                     found = true;
                     break;
@@ -211,12 +211,12 @@
             return options.items[toolName] || found;
         },
 
-        action: function (args) {
+        action: function(args) {
             this.trigger(ACTION, args);
         },
 
-        destroy: function () {
-            if(this.search) {
+        destroy: function() {
+            if (this.search) {
                 this.search.destroy();
             }
 
@@ -228,7 +228,7 @@
         init: function(options, toolbar) {
             var that = this,
                 styles = TaskBoardToolBar.styles,
-                element = $("<span class='" + styles.searchbox  + "'></span>"),
+                element = $("<span class='" + styles.searchbox + "'></span>"),
                 icon = $("<span class='" + styles.searchInputIcon + "'></span>"),
                 input = $("<input class='" + styles.searchInput + "' autocomplete='off' />");
 
@@ -255,7 +255,7 @@
             that._bindEvents();
             that.toolbar.search = that;
         },
-        attributes: function () {
+        attributes: function() {
             if (this.options.attributes) {
                 this.input.attr(this.options.attributes);
             }
@@ -265,14 +265,14 @@
                 this.icon.addClass(TaskBoardToolBar.styles.searchIcon);
             }
         },
-        _bindEvents: function(){
+        _bindEvents: function() {
             this._inputHandler = this._input.bind(this);
             this.input.on("input" + NS, this._inputHandler);
         },
-        _input: function (ev) {
-            this.toolbar.trigger(CHANGE, {target: ev.target});
+        _input: function(ev) {
+            this.toolbar.trigger(CHANGE, { target: ev.target });
         },
-        destroy: function(){
+        destroy: function() {
             this.element.off(NS);
         }
     });
@@ -292,10 +292,10 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('taskboard/column',["kendo.sortable"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -343,7 +343,7 @@ return window.kendo;
     function preventDefault(ev) { ev.preventDefault(); }
 
     var TaskBoardColumn = Observable.extend({
-        init: function (options, dataItem) {
+        init: function(options, dataItem) {
             var that = this;
 
             that._dataItem = dataItem;
@@ -353,24 +353,24 @@ return window.kendo;
             that._render();
             that._attachEvents();
 
-            if(options.states.isReorderable) {
+            if (options.states.isReorderable) {
                 that._initSortable();
             }
 
             Observable.fn.init.call(that);
         },
 
-        empty: function () {
+        empty: function() {
             var that = this;
             that.container.empty();
         },
 
-        addCard: function (cardHtml) {
+        addCard: function(cardHtml) {
             var that = this;
             that.container.append(cardHtml);
         },
 
-        edit: function () {
+        edit: function() {
             var that = this,
                 styles = TaskBoardColumn.styles;
 
@@ -378,11 +378,11 @@ return window.kendo;
             that._renderEditHeader();
         },
 
-        getDataItem: function () {
+        getDataItem: function() {
             return this._dataItem;
         },
 
-        cards: function () {
+        cards: function() {
             var that = this;
 
             return that.container.children();
@@ -412,7 +412,7 @@ return window.kendo;
 
         defaultButtons: [ "editColumn", "addCard", "deleteColumn" ],
 
-        _render: function () {
+        _render: function() {
             var that = this,
                 styles = TaskBoardColumn.styles,
                 headerLabelId = kendo.guid(),
@@ -438,7 +438,7 @@ return window.kendo;
             that.element = element;
         },
 
-        _renderHeader: function () {
+        _renderHeader: function() {
             var that = this,
                 styles = TaskBoardColumn.styles,
                 options = that.options,
@@ -450,7 +450,7 @@ return window.kendo;
             }, that._dataItem)));
         },
 
-        _renderEditHeader: function () {
+        _renderEditHeader: function() {
             var that = this,
                 styles = TaskBoardColumn.styles,
                 options = that.options,
@@ -464,14 +464,14 @@ return window.kendo;
                 buttons: that._buildActionsHtml()
             }, that._dataItem)));
 
-            setTimeout(function () {
+            setTimeout(function() {
                 that.header.find("input").trigger("focus");
             }, 0);
 
             that.header.find(DOT + styles.actions).addClass(styles.disabled);
         },
 
-        _buildActionsHtml: function () {
+        _buildActionsHtml: function() {
             var that = this,
                 options = that.options,
                 messages = options.messages,
@@ -483,7 +483,7 @@ return window.kendo;
                 var button = buttons[i];
                 button = ($.isPlainObject(button) && Object.keys(button).length === 1 && button.name) ? button.name : button;
 
-                if(typeof button === "string") {
+                if (typeof button === "string") {
                     button = extend(true, {},
                         that.builtinButtons[button] || { spriteCssClass: button, command: button + "Command" },
                         { text: messages[button] || button }
@@ -514,17 +514,17 @@ return window.kendo;
             return html;
         },
 
-        _validateRules: function (tool) {
+        _validateRules: function(tool) {
             var that = this,
                 states = that.options.states,
                 rules = tool.rules ? tool.rules.split(";") : [];
 
-            if(!rules.length) {
+            if (!rules.length) {
                 return true;
             }
 
             for (var i = 0; i < rules.length; i++) {
-                if(!states[rules[i]]){
+                if (!states[rules[i]]) {
                     return false;
                 }
             }
@@ -532,7 +532,7 @@ return window.kendo;
             return true;
         },
 
-        _actionClick: function (ev) {
+        _actionClick: function(ev) {
             var that = this,
                 target = $(ev.target).closest("[" + kendo.attr("command") + "]"),
                 command = target.attr(kendo.attr("command")),
@@ -550,7 +550,7 @@ return window.kendo;
             });
         },
 
-        _textboxBlur: function (ev) {
+        _textboxBlur: function(ev) {
             var that = this,
                 target = $(ev.target).closest("[" + kendo.attr("command") + "]"),
                 command = target.attr(kendo.attr("command")),
@@ -568,7 +568,7 @@ return window.kendo;
             });
         },
 
-        _attachEvents: function () {
+        _attachEvents: function() {
             var that = this;
 
             that.header.on(CLICK + NS,
@@ -581,7 +581,7 @@ return window.kendo;
 
             that.header.on("keyup" + NS,
                 DOT + TaskBoardColumn.styles.input,
-                function (ev) {
+                function(ev) {
                     if (ev.keyCode === kendo.keys.ENTER) {
                         that._textboxBlur(ev);
                     }
@@ -600,7 +600,7 @@ return window.kendo;
             }
         },
 
-        _initSortable: function () {
+        _initSortable: function() {
             var that = this,
                 isRtl = that.options.states.isRtl,
                 dirClass = isRtl ? " k-rtl" : "",
@@ -639,7 +639,7 @@ return window.kendo;
             that.sortable.draggable.userEvents.bind("select", that._select.bind(that));
         },
 
-        _select: function (ev) {
+        _select: function(ev) {
             var ignoreDragSelectors = TaskBoardColumn.ignoreDragSelectors;
             var target = $(ev.event.target);
 
@@ -651,28 +651,28 @@ return window.kendo;
             }
         },
 
-        _move: function (ev) {
+        _move: function(ev) {
             extend(ev, {
                 columnElement: ev.sender.element.parents(DOT + TaskBoardColumn.styles.element)
             });
             this.trigger(MOVE, ev);
         },
 
-        _start: function (ev) {
+        _start: function(ev) {
             extend(ev, {
                 columnElement: ev.sender.element.parents(DOT + TaskBoardColumn.styles.element)
             });
             this.trigger(MOVE_START, ev);
         },
 
-        _end: function (ev) {
+        _end: function(ev) {
             extend(ev, {
                 columnElement: ev.sender.element.parents(DOT + TaskBoardColumn.styles.element)
             });
             this.trigger(MOVE_END, ev);
         },
 
-        _change: function (ev) {
+        _change: function(ev) {
             var that = this;
 
             extend(ev, {
@@ -689,7 +689,7 @@ return window.kendo;
             }
         },
 
-        destroy: function () {
+        destroy: function() {
             var that = this;
 
             that.header.off(NS);
@@ -702,7 +702,7 @@ return window.kendo;
     });
 
     var TaskBoardNewColumn = TaskBoardColumn.extend({
-        _render: function () {
+        _render: function() {
             var that = this,
                 styles = TaskBoardColumn.styles,
                 element = $("<div class='" + styles.element + "'></div>").addClass(styles.newColumn).attr(kendo.attr("uid"), that._dataItem.uid),
@@ -730,10 +730,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('taskboard/card',["kendo.core"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -760,7 +760,7 @@ return window.kendo;
     };
 
     var TaskBoardCard = Observable.extend({
-        init: function (options, dataItem, resources) {
+        init: function(options, dataItem, resources) {
             var that = this;
 
             that._dataItem = dataItem;
@@ -783,7 +783,7 @@ return window.kendo;
                                     '<span class="k-button-icon #:styles.actionsIcon#"></span>' +
                                 '</button></div>',
 
-        _render: function(){
+        _render: function() {
             var that = this,
                 options = that.options,
                 styles = TaskBoardCard.styles,
@@ -867,8 +867,8 @@ return window.kendo;
                             color: resourceColor
                         };
 
-                        if(resource.multiple){
-                            if(resources[resource.field]) {
+                        if (resource.multiple) {
+                            if (resources[resource.field]) {
                                 resources[resource.field].push(result);
                             } else {
                                 resources[resource.field] = [result];
@@ -882,7 +882,7 @@ return window.kendo;
             return resources;
         },
 
-        _buildTemplate: function () {
+        _buildTemplate: function() {
             var that = this,
                 options = that.options,
                 headerTemplate = kendo.format(that.headerTemplate, options.dataTitleField),
@@ -902,10 +902,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('taskboard/cardmenu',["kendo.menu"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -929,7 +929,7 @@ return window.kendo;
             that.bind("activate", that._focus.bind(that));
         },
 
-        _overrideTemplates: function(){
+        _overrideTemplates: function() {
             this.templates.sprite = template("#if(spriteCssClass) {#<span class='#: spriteCssClass #'></span>#}#");
         },
 
@@ -942,15 +942,15 @@ return window.kendo;
             ACTION
         ]),
 
-        _extendItems: function(){
+        _extendItems: function() {
             var that = this,
                 items = that.options.items,
                 item, isBuiltInTool;
 
-            if(items && items.length){
+            if (items && items.length) {
                 for (var i = 0; i < items.length; i++) {
                     item = items[i];
-                    isBuiltInTool =  $.isPlainObject(item) && Object.keys(item).length === 1 && item.name;
+                    isBuiltInTool = $.isPlainObject(item) && Object.keys(item).length === 1 && item.name;
 
                     if (isBuiltInTool) {
                         item = item.name;
@@ -974,7 +974,7 @@ return window.kendo;
             }
         },
 
-        _append: function (item) {
+        _append: function(item) {
             var that = this;
 
             that._extendItem(item);
@@ -992,7 +992,7 @@ return window.kendo;
 
             attr[kendo.attr("command")] = item.command;
 
-            if(item.options) {
+            if (item.options) {
                 attr[kendo.attr("options")] = item.options;
             }
 
@@ -1004,17 +1004,17 @@ return window.kendo;
             });
         },
 
-        _validateRules: function (tool) {
+        _validateRules: function(tool) {
             var that = this,
                 states = that.options.states,
                 rules = tool.rules ? tool.rules.split(";") : [];
 
-            if(!rules.length) {
+            if (!rules.length) {
                 return true;
             }
 
             for (var i = 0; i < rules.length; i++) {
-                if(!states[rules[i]]){
+                if (!states[rules[i]]) {
                     return false;
                 }
             }
@@ -1048,13 +1048,13 @@ return window.kendo;
             }
         },
 
-        _focus: function (ev) {
+        _focus: function(ev) {
             if (ev.sender) {
                 ev.sender.element.trigger("focus");
             }
         },
 
-        action: function (args) {
+        action: function(args) {
             this.trigger(ACTION, args);
         }
     });
@@ -1067,23 +1067,23 @@ return window.kendo;
 
     return window.kendo;
 
-    }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function (f, define) {
+    }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('taskboard/commands',["kendo.dialog"], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             extend = $.extend,
             isPlainObject = $.isPlainObject,
             Class = kendo.Class;
 
         var TaskBoardCommand = Class.extend({
-            init: function (options) {
+            init: function(options) {
                 this.options = options;
                 this.taskboard = options.taskboard;
             },
-            _confirm: function (title, content, okText, cancel) {
+            _confirm: function(title, content, okText, cancel) {
                 var that = this,
                     taskboard = that.taskboard,
                     taskboardOptions = taskboard.options,
@@ -1107,7 +1107,7 @@ return window.kendo;
 
                 confirm.open();
 
-                setTimeout(function () {
+                setTimeout(function() {
                     confirm.element.trigger("focus");
                 });
 
@@ -1117,7 +1117,7 @@ return window.kendo;
 
         // Column commands
         var AddColumnCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard;
 
@@ -1125,7 +1125,7 @@ return window.kendo;
                     return;
                 }
 
-                taskboard.columns().each(function(index, column){
+                taskboard.columns().each(function(index, column) {
                     taskboard.enableByColumn(column, false);
                 });
                 taskboard.addColumn();
@@ -1133,7 +1133,7 @@ return window.kendo;
         });
 
         var EditColumnCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     taskboard = that.taskboard;
@@ -1142,7 +1142,7 @@ return window.kendo;
                     return;
                 }
 
-                taskboard.columns().each(function(index, column){
+                taskboard.columns().each(function(index, column) {
                     taskboard.enableByColumn(column, false);
                 });
                 taskboard.editColumn(options.columnElement);
@@ -1150,7 +1150,7 @@ return window.kendo;
         });
 
         var DeleteColumnCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     taskboard = that.taskboard,
@@ -1160,7 +1160,7 @@ return window.kendo;
 
                 var result = that._confirm(messages.deleteColumn, messages.deleteColumnConfirm, messages["delete"], messages.cancel);
 
-                result.done(function () {
+                result.done(function() {
                     if (taskboard.trigger("deleteColumn", { column: options.column })) {
                         taskboard.dataSource.cancelChanges();
                         return;
@@ -1173,7 +1173,7 @@ return window.kendo;
         });
 
         var SaveColumnCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     taskboard = that.taskboard,
@@ -1193,7 +1193,7 @@ return window.kendo;
         });
 
         var CancelEditColumnCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     columnDS = taskboard.columnsDataSource;
@@ -1204,7 +1204,7 @@ return window.kendo;
 
         //Move focus command
         var MoveFocusCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     options = that.options,
@@ -1220,7 +1220,7 @@ return window.kendo;
                         columnIndex = Math.max(0, currentColumnIndex - 1);
                         break;
                     case "right":
-                        columnIndex = Math.min(columns.length - 1,  currentColumnIndex + 1);
+                        columnIndex = Math.min(columns.length - 1, currentColumnIndex + 1);
                         break;
                     default:
                         columnIndex = currentColumnIndex;
@@ -1240,7 +1240,7 @@ return window.kendo;
                     columns.eq(columnIndex).trigger("focus");
                 }
             },
-            _moveFromCardFocus: function (direction, cardElement) {
+            _moveFromCardFocus: function(direction, cardElement) {
                 var that = this,
                     currentIndex = cardElement.index(),
                     focusCard, index, seekFocusableCard = false;
@@ -1270,16 +1270,16 @@ return window.kendo;
                     that.options.columnElement.focus();
                 }
             },
-            _getFocusableCard: function (index, direction) {
+            _getFocusableCard: function(index, direction) {
                 var that = this,
                     lastIndex = that.cards.length - 1,
                     focusable = that.cards.eq(Math.min(index, lastIndex));
 
-                if(focusable.length) {
+                if (focusable.length) {
                     return focusable;
                 }
 
-                if(that.columnIndex <= 0 || that.columnIndex >= that.columns.length - 1) {
+                if (that.columnIndex <= 0 || that.columnIndex >= that.columns.length - 1) {
                     return;
                 }
 
@@ -1288,7 +1288,7 @@ return window.kendo;
                         that.columnIndex = Math.max(0, that.columnIndex - 1);
                         break;
                     case "right":
-                        that.columnIndex = Math.min(that.columns.length - 1,  that.columnIndex + 1);
+                        that.columnIndex = Math.min(that.columns.length - 1, that.columnIndex + 1);
                         break;
                 }
 
@@ -1302,7 +1302,7 @@ return window.kendo;
 
         // Card commands
         var TaskBoardBaseCardCommand = TaskBoardCommand.extend({
-            _updateOrder: function (column, currentIndex) {
+            _updateOrder: function(column, currentIndex) {
                 var that = this,
                     taskboard = that.taskboard,
                     taskBoardOptions = taskboard.options,
@@ -1311,7 +1311,7 @@ return window.kendo;
                     currentCard = options.card,
                     cardIndex = options.cardElement ? options.cardElement.index() : column.cards().length,
                     newIndex = currentIndex,
-                    cards = column.cards().map(function (idx, card) {
+                    cards = column.cards().map(function(idx, card) {
                         return taskboard.dataItem(card);
                     }),
                     prevCard = cards[cardIndex - 1],
@@ -1337,7 +1337,7 @@ return window.kendo;
         });
 
         var SelectCardCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     options = that.options,
@@ -1349,7 +1349,7 @@ return window.kendo;
         });
 
         var SaveChangesCommand = TaskBoardBaseCardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     taskBoardOptions = taskboard.options,
@@ -1362,7 +1362,7 @@ return window.kendo;
                     activeElm.trigger("change");
                 }
 
-                if(taskboard.pane && taskboard.pane.form && !taskboard.pane.form.validate()) {
+                if (taskboard.pane && taskboard.pane.form && !taskboard.pane.form.validate()) {
                     return;
                 }
 
@@ -1375,14 +1375,14 @@ return window.kendo;
                     that._updateOrder(targetColumn, options.card.get(taskBoardOptions.dataOrderField));
                 }
 
-                taskboard.dataSource.sync().then(function () {
+                taskboard.dataSource.sync().then(function() {
                     taskboard.columns().eq(0).trigger("focus");
                 });
             }
         });
 
         var DeleteCardCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     messages = taskboard.options.messages,
@@ -1391,25 +1391,25 @@ return window.kendo;
                 var result = that._confirm(messages.deleteCard, messages.deleteCardConfirm, messages["delete"], messages.cancel);
 
                 result
-                    .done(function () {
+                    .done(function() {
                         if (taskboard.trigger("deleteCard", { card: options.card })) {
                             taskboard.dataSource.cancelChanges();
                             return;
                         }
 
                         taskboard.dataSource.remove(options.card);
-                        taskboard.dataSource.sync().then(function () {
+                        taskboard.dataSource.sync().then(function() {
                             taskboard.columns().eq(0).trigger("focus");
                         });
                     })
-                    .fail(function () {
+                    .fail(function() {
                         options.cardElement.trigger("focus");
                     });
             }
         });
 
         var MoveCardCommand = TaskBoardBaseCardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     taskBoardOptions = taskboard.options,
@@ -1428,7 +1428,7 @@ return window.kendo;
         });
 
         var EditCardCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     options = that.options;
@@ -1444,7 +1444,7 @@ return window.kendo;
         });
 
         var AddCardCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     taskboard = that.taskboard,
                     options = that.options;
@@ -1489,7 +1489,7 @@ return window.kendo;
         // Search command
 
         var SearchCommand = TaskBoardCommand.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     value = that.options.value,
                     taskboard = that.taskboard,
@@ -1503,12 +1503,12 @@ return window.kendo;
 
                 taskboard.dataSource.filter(filters);
             },
-            _buildFilters: function (fields, operator, value) {
-                var filters = fields.map(function (field) {
+            _buildFilters: function(fields, operator, value) {
+                var filters = fields.map(function(field) {
                     return { field: field, operator: operator, value: value };
                 });
 
-                return  { logic: "or", filters: filters };
+                return { logic: "or", filters: filters };
             }
         });
 
@@ -1537,10 +1537,10 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('taskboard/pane',["kendo.form"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1573,7 +1573,7 @@ return window.kendo;
     };
 
     var TaskBoardPane = Observable.extend({
-        init: function(taskboard, options, dataItem, resources){
+        init: function(taskboard, options, dataItem, resources) {
             var that = this;
 
             that.taskboard = taskboard;
@@ -1584,7 +1584,7 @@ return window.kendo;
             that._render();
 
             that.element.on(CLICK + NS,
-                "["+kendo.attr("command")+"]",
+                "[" + kendo.attr("command") + "]",
                 that._commandClick.bind(that));
 
             Observable.fn.init.call(that);
@@ -1609,7 +1609,7 @@ return window.kendo;
             "create": { name: "create", text: "Create", command: "SaveChangesCommand", primary: true, rules: "isEditable" }
         },
         defaultButtons: [],
-        _render: function () {
+        _render: function() {
             var that = this,
                 styles = TaskBoardPane.styles,
                 element = $("<div class='" + styles.element + "'></div>"),
@@ -1625,7 +1625,7 @@ return window.kendo;
             that.buttonsContainer.append(that._buildButtonsHtml());
             that.element = element;
         },
-        _renderHeader: function () {
+        _renderHeader: function() {
             var that = this,
                 styles = TaskBoardPane.styles,
                 options = that.options,
@@ -1639,11 +1639,11 @@ return window.kendo;
                 resources: resources
             }, that._dataItem)));
         },
-        _buildHeaderTemplate: function () {
+        _buildHeaderTemplate: function() {
             var that = this;
             return kendo.format(that.headerTemplate, "#:" + that.options.dataTitleField + "#");
         },
-        _renderContent: function(){
+        _renderContent: function() {
             var that = this,
                 styles = TaskBoardPane.styles,
                 options = that.options,
@@ -1707,8 +1707,8 @@ return window.kendo;
                             color: resourceColor
                         };
 
-                        if(resource.multiple){
-                            if(resources[resource.field]) {
+                        if (resource.multiple) {
+                            if (resources[resource.field]) {
                                 resources[resource.field].push(result);
                             } else {
                                 resources[resource.field] = [result];
@@ -1721,7 +1721,7 @@ return window.kendo;
             }
             return resources;
         },
-        _buildButtonsHtml: function () {
+        _buildButtonsHtml: function() {
             var that = this,
                 options = that.options,
                 messages = options.messages,
@@ -1763,7 +1763,7 @@ return window.kendo;
 
             return html;
         },
-        _commandClick: function (ev) {
+        _commandClick: function(ev) {
             var that = this,
                 target = $(ev.target).closest("[" + kendo.attr("command") + "]"),
                 command = target.attr(kendo.attr("command")),
@@ -1781,24 +1781,24 @@ return window.kendo;
                 options: extend({ card: card }, options)
             });
         },
-        _validateRules: function (tool) {
+        _validateRules: function(tool) {
             var that = this,
                 states = that.options.states,
                 rules = tool.rules ? tool.rules.split(";") : [];
 
-            if(!rules.length) {
+            if (!rules.length) {
                 return true;
             }
 
             for (var i = 0; i < rules.length; i++) {
-                if(!states[rules[i]]){
+                if (!states[rules[i]]) {
                     return false;
                 }
             }
 
             return true;
         },
-        destroy: function(){
+        destroy: function() {
             var that = this;
 
             that.element.off(NS);
@@ -1807,7 +1807,7 @@ return window.kendo;
     });
 
     var TaskBoardPreviewPane = TaskBoardPane.extend({
-        init: function (taskboard, options, dataItem, resources) {
+        init: function(taskboard, options, dataItem, resources) {
             var that = this;
 
             options = extend({}, options.previewPane, {
@@ -1824,11 +1824,11 @@ return window.kendo;
             that.element.addClass(TaskBoardPane.styles.preview);
         },
         _contentTemplate: "<p>#:{0}#</p>",
-        defaultButtons: [ "delete",  "edit" ]
+        defaultButtons: [ "delete", "edit" ]
     });
 
     var TaskBoardEditPane = TaskBoardPane.extend({
-        init: function (taskboard, options, dataItem) {
+        init: function(taskboard, options, dataItem) {
             var that = this;
 
             options = extend({}, options.editable, {
@@ -1849,15 +1849,15 @@ return window.kendo;
 
             that.element.addClass(TaskBoardPane.styles.edit);
         },
-        defaultButtons: [ "cancel",  "saveChanges" ],
+        defaultButtons: [ "cancel", "saveChanges" ],
         formSettings: {
             buttonsTemplate: ""
         },
-        _buildHeaderTemplate: function () {
+        _buildHeaderTemplate: function() {
             var that = this;
             return kendo.format(that.headerTemplate, that.options.messages.edit + " #:" + that.options.dataTitleField + "#");
         },
-        _renderContent: function(){
+        _renderContent: function() {
             var that = this,
                 options = that.options,
                 styles = TaskBoardPane.styles,
@@ -1880,7 +1880,7 @@ return window.kendo;
     });
 
     var TaskBoardCreatePane = TaskBoardEditPane.extend({
-        init: function (taskboard, options, dataItem, resources, column) {
+        init: function(taskboard, options, dataItem, resources, column) {
             var that = this,
                 columnStatusField = options.columnSettings.dataStatusField,
                 firstColumn = taskboard.columnsDataSource.view().at(0),
@@ -1896,11 +1896,11 @@ return window.kendo;
 
             TaskBoardEditPane.fn.init.call(that, taskboard, options, dataItem, resources);
         },
-        _buildHeaderTemplate: function () {
+        _buildHeaderTemplate: function() {
             var that = this;
             return kendo.format(that.headerTemplate, that.options.messages.createNewCard);
         },
-        defaultButtons: [ "cancel",  "create" ]
+        defaultButtons: [ "cancel", "create" ]
     });
 
     extend(kendo.ui.taskboard, {
@@ -1918,10 +1918,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('taskboard/keyboard',["kendo.core"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1936,7 +1936,7 @@ return window.kendo;
 
 
     var Keyboard = Observable.extend({
-        init: function (element) {
+        init: function(element) {
             var that = this;
 
             that.register = {};
@@ -1947,7 +1947,7 @@ return window.kendo;
             Observable.fn.init.call(that);
         },
 
-        registerShortcut: function (selector, shortcut, options) {
+        registerShortcut: function(selector, shortcut, options) {
             var that = this;
 
             if (!that.register[selector]) {
@@ -1970,14 +1970,14 @@ return window.kendo;
 
         },
 
-        _attachEvents: function () {
+        _attachEvents: function() {
             var that = this,
                 handler = that._handler.bind(that);
 
             that.element.on(KEYDOWN + NS, handler);
         },
 
-        _handler: function (ev) {
+        _handler: function(ev) {
             var that = this,
                 target = $(ev.target),
                 shortcuts, action;
@@ -1995,7 +1995,7 @@ return window.kendo;
             }
         },
 
-        _trigger: function (action, ev) {
+        _trigger: function(action, ev) {
             var that = this,
                 target = $(ev.target);
 
@@ -2013,7 +2013,7 @@ return window.kendo;
             }
         },
 
-        _getAction: function (shortcuts, ev) {
+        _getAction: function(shortcuts, ev) {
             var that = this;
 
             for (var i = 0; i < shortcuts.length; i++) {
@@ -2023,7 +2023,7 @@ return window.kendo;
             }
         },
 
-        _compareShortcut: function (shortcut, ev) {
+        _compareShortcut: function(shortcut, ev) {
             var that = this;
 
             for (var key in shortcut) {
@@ -2038,7 +2038,7 @@ return window.kendo;
                         break;
                 }
 
-                if(result) {
+                if (result) {
                     return false;
                 }
             }
@@ -2046,12 +2046,12 @@ return window.kendo;
             return true;
         },
 
-        _getShortcutModifier: function (ev) {
+        _getShortcutModifier: function(ev) {
             var mac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
             return mac ? ev.metaKey : ev.ctrlKey;
         },
 
-        destroy: function(){
+        destroy: function() {
             var that = this;
 
             that.element.off(NS);
@@ -2066,8 +2066,8 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function (f, define) {
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.taskboard',[
         "./taskboard/toolbar",
         "./taskboard/column",
@@ -2079,7 +2079,7 @@ return window.kendo;
 
         "kendo.data"
     ], f);
-})(function () {
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "taskboard",
@@ -2102,9 +2102,9 @@ return window.kendo;
         ignoreDrag: "k-taskboard-drag-ignore"
     };
 
-    var preventDefault = function (ev) { ev.preventDefault(); };
+    var preventDefault = function(ev) { ev.preventDefault(); };
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
             DataSource = kendo.data.DataSource,
@@ -2138,7 +2138,7 @@ return window.kendo;
             COLUMNSDATABOUND = "columnsDataBound";
 
         var TaskBoard = Widget.extend({
-            init: function (element, options) {
+            init: function(element, options) {
                 var that = this;
 
                 Widget.fn.init.call(that, element, options);
@@ -2232,7 +2232,7 @@ return window.kendo;
                 }
             },
 
-            items: function () {
+            items: function() {
                 var that = this,
                     result = $([]);
 
@@ -2243,14 +2243,14 @@ return window.kendo;
                 return result;
             },
 
-            itemsByStatus: function (status) {
+            itemsByStatus: function(status) {
                 var that = this,
                     result = that._getColumn(status).cards();
 
                 return result;
             },
 
-            itemsByColumn: function (columnElm) {
+            itemsByColumn: function(columnElm) {
                 var that = this,
                     column = that._getColumnByElement(columnElm);
 
@@ -2259,7 +2259,7 @@ return window.kendo;
                 }
             },
 
-            load: function () {
+            load: function() {
                 var that = this,
                     fetchPromises = [];
 
@@ -2275,7 +2275,7 @@ return window.kendo;
                     .then(that.dataSource.read.bind(that.dataSource));
             },
 
-            dataItem: function (cardElm) {
+            dataItem: function(cardElm) {
                 var that = this,
                     dataSource = that.dataSource,
                     uid;
@@ -2286,7 +2286,7 @@ return window.kendo;
                 return dataSource.getByUid(uid);
             },
 
-            columnDataItem: function (columnElm) {
+            columnDataItem: function(columnElm) {
                 var that = this,
                     columnsDataSource = that.columnsDataSource,
                     uid;
@@ -2297,7 +2297,7 @@ return window.kendo;
                 return columnsDataSource.getByUid(uid);
             },
 
-            columns: function () {
+            columns: function() {
                 var that = this,
                     result = $([]);
 
@@ -2308,14 +2308,14 @@ return window.kendo;
                 return result;
             },
 
-            columnByStatus: function (status) {
+            columnByStatus: function(status) {
                 return this._getColumn(status).element;
             },
 
-            select: function (card, toggle) {
+            select: function(card, toggle) {
                 var that = this;
 
-                if(!card) {
+                if (!card) {
                     return that.element
                         .find(DOT + TaskBoard.styles.card + DOT + TaskBoard.styles.selected).eq(0);
                 }
@@ -2332,7 +2332,7 @@ return window.kendo;
                 card.toggleClass(TaskBoard.styles.selected, toggle);
             },
 
-            previewCard: function (cardElement) {
+            previewCard: function(cardElement) {
                 var that = this,
                     options = that.options,
                     args = that._extendExecArgs({ target: cardElement });
@@ -2344,7 +2344,7 @@ return window.kendo;
                 }
             },
 
-            editCard: function (cardElement) {
+            editCard: function(cardElement) {
                 var that = this,
                     options = that.options,
                     args;
@@ -2359,13 +2359,13 @@ return window.kendo;
                 }
             },
 
-            saveCard: function () {
+            saveCard: function() {
                 var that = this;
 
                 that.dataSource.sync();
             },
 
-            deleteCard: function (cardElement) {
+            deleteCard: function(cardElement) {
                 var that = this,
                     card = that.dataItem(cardElement);
 
@@ -2373,7 +2373,7 @@ return window.kendo;
                 that.dataSource.sync();
             },
 
-            addCard: function (dataItem) {
+            addCard: function(dataItem) {
                 var that = this,
                     options = that.options,
                     args = { card: dataItem };
@@ -2385,7 +2385,7 @@ return window.kendo;
                 }
             },
 
-            addColumn: function (index, data) {
+            addColumn: function(index, data) {
                 var that = this,
                     columnSettings = extend(true, {}, that.options.columnSettings, {
                         messages: that.options.messages,
@@ -2394,7 +2394,7 @@ return window.kendo;
                     }),
                     newColumn, model, column;
 
-                if(isNaN(index) && !data) {
+                if (isNaN(index) && !data) {
                     data = index;
                     index = null;
                 }
@@ -2415,7 +2415,7 @@ return window.kendo;
                 newColumn.bind(ACTION, that.executeCommand.bind(that));
             },
 
-            editColumn: function (columnElement) {
+            editColumn: function(columnElement) {
                 var that = this;
 
                 columnElement = $(columnElement);
@@ -2423,13 +2423,13 @@ return window.kendo;
                 that._getColumnByElement(columnElement).edit();
             },
 
-            saveColumn: function () {
+            saveColumn: function() {
                 var that = this;
 
                 that.columnsDataSource.sync();
             },
 
-            deleteColumn: function (columnElement) {
+            deleteColumn: function(columnElement) {
                 var that = this,
                     column = that.columnDataItem(columnElement);
 
@@ -2437,30 +2437,30 @@ return window.kendo;
                 that.columnsDataSource.sync();
             },
 
-            registerShortcut: function (selector, shortcut, options) {
+            registerShortcut: function(selector, shortcut, options) {
                 var that = this;
 
                 that.keyboardManager.registerShortcut(selector, shortcut, options);
             },
 
-            enable: function (cardElement, toggle) {
+            enable: function(cardElement, toggle) {
                 cardElement = $(cardElement);
 
                 cardElement.toggleClass(TaskBoard.styles.disabled, toggle === false);
                 cardElement.attr("aria-disabled", toggle === false);
             },
 
-            enableByColumn: function (columnElement, toggle) {
+            enableByColumn: function(columnElement, toggle) {
                 var that = this;
 
                 columnElement = $(columnElement);
 
-                that.itemsByColumn(columnElement).each(function(index, card){
+                that.itemsByColumn(columnElement).each(function(index, card) {
                     that.enable(card, toggle);
                 });
             },
 
-            readOnly: function (cardElement, toggle) {
+            readOnly: function(cardElement, toggle) {
                 cardElement = $(cardElement);
 
                 toggle = toggle !== false;
@@ -2472,17 +2472,17 @@ return window.kendo;
                 cardElement.attr("aria-readonly", toggle);
             },
 
-            readOnlyByColumn: function (columnElement, toggle) {
+            readOnlyByColumn: function(columnElement, toggle) {
                 var that = this;
 
                 columnElement = $(columnElement);
 
-                that.itemsByColumn(columnElement).each(function(index, card){
+                that.itemsByColumn(columnElement).each(function(index, card) {
                     that.readOnly(card, toggle);
                 });
             },
 
-            setDataSource: function (dataSource) {
+            setDataSource: function(dataSource) {
                 var that = this;
 
                 that.options.dataSource = dataSource;
@@ -2493,24 +2493,24 @@ return window.kendo;
                 }
             },
 
-            setColumnsDataSource: function (dataSource) {
+            setColumnsDataSource: function(dataSource) {
                 var that = this;
 
                 that.options.columns = dataSource;
                 that._columnsDataSource();
 
                 if (that.options.autoBind) {
-                    that.columnsDataSource.fetch(function(){
+                    that.columnsDataSource.fetch(function() {
                         that._renderCards(that.dataSource.view());
                     });
                 }
             },
 
-            _getColumn: function (status) {
+            _getColumn: function(status) {
                 return this._columns[status];
             },
 
-            _getColumnByElement: function (columnElement) {
+            _getColumnByElement: function(columnElement) {
                 var that = this;
 
                 columnElement = $(columnElement);
@@ -2522,7 +2522,7 @@ return window.kendo;
                 }
             },
 
-            _openPane: function (options) {
+            _openPane: function(options) {
                 var that = this,
                     pane = new ui.taskboard.panes[options.pane](that, extend({}, that.options, {
                         states: that._buildStates()
@@ -2561,12 +2561,12 @@ return window.kendo;
                     focusableElement = that.pane.element.find("button");
                 }
 
-                setTimeout(function () {
+                setTimeout(function() {
                     focusableElement.eq(0).trigger("focus");
                 }, 0);
             },
 
-            _closePane: function () {
+            _closePane: function() {
                 var that = this;
 
                 if (that.pane) {
@@ -2579,7 +2579,7 @@ return window.kendo;
                 }
             },
 
-            _wrapper: function () {
+            _wrapper: function() {
                 var that = this,
                     options = that.options,
                     styles = TaskBoard.styles,
@@ -2596,7 +2596,7 @@ return window.kendo;
                 that.columnsContainer = $(colsContainer).appendTo(that.content);
             },
 
-            _initToolbar: function () {
+            _initToolbar: function() {
                 var that = this,
                     styles = TaskBoard.styles,
                     options = that.options,
@@ -2618,7 +2618,7 @@ return window.kendo;
                 that.toolbar = new ui.taskboard.ToolBar(toolbarElm, toolbarOptions);
             },
 
-            _buildStates: function () {
+            _buildStates: function() {
                 var that = this;
 
                 return {
@@ -2633,19 +2633,19 @@ return window.kendo;
                 };
             },
 
-            _isSearchable: function () {
+            _isSearchable: function() {
                 return !!this.options.search;
             },
 
-            _isEditable: function () {
+            _isEditable: function() {
                 return !!this.options.editable;
             },
 
-            _isReorderable: function () {
+            _isReorderable: function() {
                 return !!this.options.reorderable;
             },
 
-            _isSelectable: function () {
+            _isSelectable: function() {
                 return !!this.options.selectable;
             },
 
@@ -2656,7 +2656,7 @@ return window.kendo;
                     command = ui.taskboard.commands[commandName] && new ui.taskboard.commands[commandName](commandOptions);
 
 
-                if(!that.trigger(EXECUTE, args)) {
+                if (!that.trigger(EXECUTE, args)) {
                     if (command) {
                         command.exec();
                     } else {
@@ -2665,18 +2665,18 @@ return window.kendo;
                 }
             },
 
-            _extendExecArgs: function (args) {
+            _extendExecArgs: function(args) {
                 var that = this,
                     target = args.draggableEvent ? args.item : args.target,
                     columnElm, cardElm, columnDataItem, cardDataItem;
 
                 if (args.card) {
-                    target = that.items().filter(function (idx, elm) {
+                    target = that.items().filter(function(idx, elm) {
                         return $(elm).attr(kendo.attr("uid")) === args.card.get("uid");
                     });
                 }
 
-                if(!target || !(target && target.length)) {
+                if (!target || !(target && target.length)) {
                     return args;
                 }
 
@@ -2694,20 +2694,20 @@ return window.kendo;
             },
 
 
-            _select: function (card, toggle) {
+            _select: function(card, toggle) {
                 var that = this;
 
                 if (toggle === null) {
                     toggle = true;
                 }
 
-                if(!that.trigger(SELECT, { card: card })) {
+                if (!that.trigger(SELECT, { card: card })) {
                     that.select(card, toggle);
                     that.previewCard(card);
                 }
             },
 
-            _columnsDataSource: function () {
+            _columnsDataSource: function() {
                 var that = this,
                     options = that.options,
                     columnSettings = options.columnSettings,
@@ -2722,7 +2722,7 @@ return window.kendo;
                 if (!columnsDataSource.schema) {
                     var fields = {};
 
-                    fields[columnSettings.dataStatusField] = { type: "string", defaultValue: function () { return kendo.guid().split("-")[0]; } };
+                    fields[columnSettings.dataStatusField] = { type: "string", defaultValue: function() { return kendo.guid().split("-")[0]; } };
                     fields[columnSettings.dataTextField] = { type: "string" };
 
                     if (columnSettings.dataOrderField) {
@@ -2749,7 +2749,7 @@ return window.kendo;
                                 .bind(ERROR, that._columnsErrorHandler);
             },
 
-            _columnsDataSourceChange: function (ev) {
+            _columnsDataSourceChange: function(ev) {
                 var that = this,
                     view = that.columnsDataSource.view(),
                     columnSettings = extend(true, {}, that.options.columnSettings, {
@@ -2795,23 +2795,23 @@ return window.kendo;
                 that.trigger(COLUMNSDATABOUND, ev);
             },
 
-            _move: function (ev) {
+            _move: function(ev) {
                 this.trigger(MOVE, this._extendExecArgs(ev));
             },
 
-            _moveEnd: function (ev) {
+            _moveEnd: function(ev) {
                 this.trigger(MOVE_END, this._extendExecArgs(ev));
             },
 
-            _moveStart: function (ev) {
+            _moveStart: function(ev) {
                 this.trigger(MOVE_START, this._extendExecArgs(ev));
             },
 
-            _changeOrder: function (ev) {
+            _changeOrder: function(ev) {
                 this.trigger(CHANGE, this._extendExecArgs(ev));
             },
 
-            _dataSource: function () {
+            _dataSource: function() {
                 var that = this,
                     options = that.options,
                     dataSource = options.dataSource;
@@ -2853,7 +2853,7 @@ return window.kendo;
                                 .bind(CHANGE, that._changeHandler);
             },
 
-            _change: function (ev) {
+            _change: function(ev) {
                 var that = this;
 
                 if (ev.action && ev.action !== "sync") {
@@ -2874,11 +2874,11 @@ return window.kendo;
                 that._progress(false);
             },
 
-            _error: function () {
+            _error: function() {
                 this._progress(false);
             },
 
-            _renderCards: function (data) {
+            _renderCards: function(data) {
                 var that = this;
 
                 for (var i = 0; i < data.length; i++) {
@@ -2886,7 +2886,7 @@ return window.kendo;
                 }
             },
 
-            _renderCard: function (card) {
+            _renderCard: function(card) {
                 var that = this,
                     options = extend({}, that.options, { states: that._buildStates() }),
                     statusField = options.dataStatusField,
@@ -2899,7 +2899,7 @@ return window.kendo;
                 }
             },
 
-            _clearColumns: function () {
+            _clearColumns: function() {
                 var that = this;
 
                 for (var key in that._columns) {
@@ -2907,7 +2907,7 @@ return window.kendo;
                 }
             },
 
-            _initCardMenu: function(){
+            _initCardMenu: function() {
                 var that = this,
                     options = that.options,
                     cardMenuOptions = isArray(options.cardMenu) ? { items: options.cardMenu } : options.cardMenu;
@@ -2922,14 +2922,14 @@ return window.kendo;
                     states: that._buildStates()
                 }, cardMenuOptions);
 
-                if(options.cardMenu === false) {
+                if (options.cardMenu === false) {
                     return;
                 }
 
                 that.cardMenu = new ui.taskboard.CardMenu("<ul></ul>", cardMenuOptions);
             },
 
-            _initResources: function () {
+            _initResources: function() {
                 var that = this,
                     resources = that.options.resources;
 
@@ -2938,7 +2938,7 @@ return window.kendo;
                 }
             },
 
-            _addResource: function (resource) {
+            _addResource: function(resource) {
                 var that = this;
 
                 if (!that.resources) {
@@ -2958,20 +2958,20 @@ return window.kendo;
                 };
             },
 
-            _resourceDataSource: function (resourceDS) {
+            _resourceDataSource: function(resourceDS) {
                 var dataSource = isArray(resourceDS) ? { data: resourceDS } : resourceDS,
                     dataSourceInstance = kendo.data.DataSource.create(dataSource);
 
                 return dataSourceInstance;
             },
 
-            _progress: function (toggle) {
+            _progress: function(toggle) {
                 var that = this;
 
                 kendo.ui.progress(that.element, toggle);
             },
 
-            _initKeyboard: function () {
+            _initKeyboard: function() {
                 var that = this;
 
                 that.keyboardManager = new ui.taskboard.KeyboardManager(that.element);
@@ -2980,7 +2980,7 @@ return window.kendo;
                 that._registerShortcuts();
             },
 
-            _registerShortcuts: function () {
+            _registerShortcuts: function() {
                 var that = this,
                     states = that._buildStates();
 
@@ -3021,31 +3021,31 @@ return window.kendo;
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.card, {
                     keyCode: kendo.keys.UP
-                }, { command: "MoveFocusCommand", options: {value: "up"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "up" }, handler: preventDefault });
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.card, {
                     keyCode: kendo.keys.DOWN
-                }, { command: "MoveFocusCommand", options: {value: "down"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "down" }, handler: preventDefault });
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.card, {
                     keyCode: kendo.keys.LEFT
-                }, { command: "MoveFocusCommand", options: {value: "left"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "left" }, handler: preventDefault });
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.card, {
                     keyCode: kendo.keys.RIGHT
-                }, { command: "MoveFocusCommand", options: {value: "right"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "right" }, handler: preventDefault });
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.column, {
                     keyCode: kendo.keys.LEFT
-                }, { command: "MoveFocusCommand", options: {value: "left"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "left" }, handler: preventDefault });
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.column, {
                     keyCode: kendo.keys.RIGHT
-                }, { command: "MoveFocusCommand", options: {value: "right"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "right" }, handler: preventDefault });
 
                 that.keyboardManager.registerShortcut(DOT + TaskBoard.styles.column, {
                     keyCode: kendo.keys.DOWN
-                }, { command: "MoveFocusCommand", options: {value: "down"}, handler: preventDefault });
+                }, { command: "MoveFocusCommand", options: { value: "down" }, handler: preventDefault });
             },
 
             destroy: function() {
@@ -3093,5 +3093,5 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

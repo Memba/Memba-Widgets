@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
-    define('kendo.scheduler.recurrence',[ "kendo.dropdownlist", "kendo.datepicker", "kendo.numerictextbox",  "kendo.buttongroup" ], f);
-})(function(){
+(function(f, define) {
+    define('kendo.scheduler.recurrence',[ "kendo.dropdownlist", "kendo.datepicker", "kendo.numerictextbox", "kendo.buttongroup" ], f);
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "scheduler.recurrence",
@@ -209,8 +209,8 @@ var __meta__ = { // jshint ignore:line
                     var nextMonthFirstDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
                     var ruleDay = normalizeDayIndex(rule.day, weekStart);
 
-                    if(nextMonthFirstDay.getDay() <= ruleDay) {
-                        if(!weekDayRule || normalizeDayIndex(weekDayRule.day, weekStart) > ruleDay) {
+                    if (nextMonthFirstDay.getDay() <= ruleDay) {
+                        if (!weekDayRule || normalizeDayIndex(weekDayRule.day, weekStart) > ruleDay) {
                             weekDayRule = rule;
                         }
                     }
@@ -225,7 +225,7 @@ var __meta__ = { // jshint ignore:line
                 weekDayRule = weekDayRules[0];
 
                 if (!weekDayRule) {
-                    if(rule.freq === "monthly" && !rule.positions || rule.position > 0) {
+                    if (rule.freq === "monthly" && !rule.positions || rule.position > 0) {
                         weekDays.forEach(traverseRuleForNextMont);
                     }
                     if (!weekDayRule) {
@@ -421,7 +421,7 @@ var __meta__ = { // jshint ignore:line
                 }
             },
 
-            interval: function (rule, current) {
+            interval: function(rule, current) {
                 var start = new Date(rule._startPeriod);
                 var date = new Date(current);
                 var hours = current.getHours();
@@ -524,7 +524,7 @@ var __meta__ = { // jshint ignore:line
                 return modified;
             },
 
-            _getNumberOfWeeksBetweenDates: function(first, second){
+            _getNumberOfWeeksBetweenDates: function(first, second) {
                  var weeks = (second - first) / 604800000;
                  var exactWeeks = Math.floor(weeks);
 
@@ -607,7 +607,7 @@ var __meta__ = { // jshint ignore:line
                         date.setMonth(date.getMonth() + 1);
                         adjustDST(date, hours);
 
-                        while(date.getDate() !== day) {
+                        while (date.getDate() !== day) {
                             date.setDate(day);
                             adjustDST(date, hours);
                         }
@@ -650,7 +650,7 @@ var __meta__ = { // jshint ignore:line
                         date.setMonth(date.getMonth() + 1);
                         adjustDST(date, hours);
 
-                        while(date.getDate() !== day) {
+                        while (date.getDate() !== day) {
                             date.setDate(day);
                             adjustDST(date, hours);
                         }
@@ -667,11 +667,11 @@ var __meta__ = { // jshint ignore:line
             setup: function() {}
         }),
         frequencies = {
-            "hourly" : new HourlyFrequency(),
-            "daily" : new DailyFrequency(),
-            "weekly" : new WeeklyFrequency(),
-            "monthly" : new MonthlyFrequency(),
-            "yearly" : new YearlyFrequency()
+            "hourly": new HourlyFrequency(),
+            "daily": new DailyFrequency(),
+            "weekly": new WeeklyFrequency(),
+            "monthly": new MonthlyFrequency(),
+            "yearly": new YearlyFrequency()
         },
         CLICK = "click",
         CHANGE = "change";
@@ -697,7 +697,7 @@ var __meta__ = { // jshint ignore:line
         return days + date.getDate();
     }
 
-    function weekInYear(date, weekStart){
+    function weekInYear(date, weekStart) {
         var year, days;
 
         date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -821,7 +821,7 @@ var __meta__ = { // jshint ignore:line
 
             if (value === ruleValue) {
                 return null;
-            }  else if (value < ruleValue) {
+            } else if (value < ruleValue) {
                 availableRules.push(ruleValue);
             }
         }
@@ -1204,20 +1204,20 @@ var __meta__ = { // jshint ignore:line
                     var startZone = event.startTimezone || event.endTimezone;
                     var endZone = event.endTimezone || event.startTimezone;
 
-                    if(!event.isAllDay){
-                        if((zone && startZone) || (!zone && !startZone)){
+                    if (!event.isAllDay) {
+                        if ((zone && startZone) || (!zone && !startZone)) {
                             var startOffsetDiff = getZoneOffset(start, zone) - getZoneOffset(event.start, zone);
                             var endOffsetDiff = getZoneOffset(endDate, zone) - getZoneOffset(event.end, zone);
                             var startTZOffsetDiff = getZoneOffset(start, startZone) - getZoneOffset(event.start, startZone);
                             var endTZOffsetDiff = getZoneOffset(endDate, endZone) - getZoneOffset(event.end, endZone);
 
-                            if(startOffsetDiff !== startTZOffsetDiff){
+                            if (startOffsetDiff !== startTZOffsetDiff) {
                                 var offsetTicksStart = (startOffsetDiff - startTZOffsetDiff) * 60000;
                                 shiftedStart = new Date(start.getTime() - offsetTicksStart);
                                 shiftedStartTime = startTime - offsetTicksStart;
                             }
 
-                            if(endOffsetDiff !== endTZOffsetDiff){
+                            if (endOffsetDiff !== endTZOffsetDiff) {
                                 var offsetTicksEnd = (endOffsetDiff - endTZOffsetDiff) * 60000;
                                 shiftedEnd = new Date(endDate.getTime() - offsetTicksEnd);
                                 shifterEndTime = endTime - offsetTicksEnd;
@@ -1269,7 +1269,7 @@ var __meta__ = { // jshint ignore:line
                 var isMissingDSTHour = isDSTMissingHour(start);
                 freq.next(start, rule);
 
-                if(isMissingDSTHour && rule.freq!=="hourly" && kendoDate.toInvariantTime(event.start).getTime() !== kendoDate.toInvariantTime(start).getTime()){
+                if (isMissingDSTHour && rule.freq !== "hourly" && kendoDate.toInvariantTime(event.start).getTime() !== kendoDate.toInvariantTime(start).getTime()) {
                     rule._startTime = startTime = new Date(start.getTime() - 3600000);
                 }
 
@@ -1280,7 +1280,7 @@ var __meta__ = { // jshint ignore:line
         return events;
     }
 
-    function isDSTMissingHour(date){
+    function isDSTMissingHour(date) {
         var dateOffset = date.getTimezoneOffset();
         var dateMinusHour = new Date(date.getTime() - 3600000);
         var dateMinusHourOffset = dateMinusHour.getTimezoneOffset();
@@ -1289,7 +1289,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function getZoneOffset(date, zone) {
-        return zone ? kendo.timezone.offset(date, zone): date.getTimezoneOffset();
+        return zone ? kendo.timezone.offset(date, zone) : date.getTimezoneOffset();
     }
 
     function parseUTCDate(value, zone) {
@@ -1715,7 +1715,7 @@ var __meta__ = { // jshint ignore:line
             mobile: false,
             messages: {
                 repeat: "Repeat",
-                recurrenceEditorTitle:"Recurrence editor",
+                recurrenceEditorTitle: "Recurrence editor",
                 frequencies: {
                     never: "Never",
                     hourly: "Hourly",
@@ -1820,7 +1820,7 @@ var __meta__ = { // jshint ignore:line
                     text: abbreviated[idx],
                     attributes: {
                         "data-value": values[idx],
-                        "aria-label":  repeatOn + " " + names[idx]
+                        "aria-label": repeatOn + " " + names[idx]
                     }
                 });
             }
@@ -2041,14 +2041,14 @@ var __meta__ = { // jshint ignore:line
             input.attr("data-validDate-msg", validDateValidationMessage);
             input.attr("data-untilDateCompare-msg", dateCompareValidationMessage);
 
-            if(startInput.length === 0) {
+            if (startInput.length === 0) {
                 startInput = that.wrapper.closest(".k-scheduler-edit-form").find("[name=start]");
             }
 
-            if(startInput.length > 0 && startInput.val()) {
+            if (startInput.length > 0 && startInput.val()) {
                 min = kendo.parseDate(startInput.val());
 
-                if(initialValue < min) {
+                if (initialValue < min) {
                     initialValue = min;
                 }
             }
@@ -2057,15 +2057,15 @@ var __meta__ = { // jshint ignore:line
                 min: min,
                 value: until || initialValue,
                 change: function() {
-                    var date  = this.value();
-                    if(date) {
-                        rule.until =  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+                    var date = this.value();
+                    if (date) {
+                        rule.until = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
                     }
                     that._trigger();
                 }
             }).data("kendoDatePicker");
 
-            if(startInput) {
+            if (startInput) {
                 startInput.on("change", function() {
                     that._until.setOptions({
                         min: startInput.val()
@@ -2105,7 +2105,7 @@ var __meta__ = { // jshint ignore:line
 
             that._frequency.destroy();
 
-            if(this._weekDayButtonGroup) {
+            if (this._weekDayButtonGroup) {
                 this._weekDayButtonGroup.destroy();
             }
 
@@ -2162,7 +2162,7 @@ var __meta__ = { // jshint ignore:line
                 options = that.options,
                 frequencies = options.frequencies,
                 messages = options.messages.frequencies,
-                buttonGroupElement = $('<div class="k-button-group-stretched k-flex-1"/>').attr({title: options.messages.recurrenceEditorTitle}),
+                buttonGroupElement = $('<div class="k-button-group-stretched k-flex-1"/>').attr({ title: options.messages.recurrenceEditorTitle }),
                 frequency;
 
             frequencies = $.map(frequencies, function(frequency) {
@@ -2240,7 +2240,7 @@ var __meta__ = { // jshint ignore:line
 
             if (monthInputs[0]) {
                 options = {
-                    change:  function() {
+                    change: function() {
                         rule.months = [Number(this.value())];
                         that.trigger("change");
                     },
@@ -2343,11 +2343,11 @@ var __meta__ = { // jshint ignore:line
                 count = until = null;
             }
 
-            if(that._count){
+            if (that._count) {
                 that._count.enable(enableCount);
             }
 
-            if(that._until){
+            if (that._until) {
                 that._until.enable(enableUntil);
             }
 
@@ -2443,7 +2443,7 @@ var __meta__ = { // jshint ignore:line
                         '<span class="k-item-title k-listgroup-form-field-label">#:messages.repeatOn#</span>' +
                     '</label>' +
                 '</li>' +
-                '<div class="k-button-group-stretched k-recur-weekday-buttons" title="#:messages.repeatOn#">'+
+                '<div class="k-button-group-stretched k-recur-weekday-buttons" title="#:messages.repeatOn#">' +
             '</ul>' +
         '# } else if (frequency === "monthly") { #' +
             '<ul class="k-recur-items-wrap k-listgroup k-listgroup-flush">' +
@@ -2526,7 +2526,7 @@ var __meta__ = { // jshint ignore:line
         '<select class="k-scheduler-select">' +
             '#for (var i = 0, length = dataSource.length; i < length; i++) {#' +
                 '<option value="#=dataSource[i].value#" #= value === dataSource[i].value  ? \"selected\" : \"\" #>#:dataSource[i].text#</option>' +
-            '#}#'  +
+            '#}#' +
         '</select>'
     );
 
@@ -2627,7 +2627,7 @@ var __meta__ = { // jshint ignore:line
 
             kendo.destroy(this._endFields);
 
-            if(this._weekDayButtonGroup) {
+            if (this._weekDayButtonGroup) {
                 this._weekDayButtonGroup.destroy();
             }
 
@@ -2642,7 +2642,7 @@ var __meta__ = { // jshint ignore:line
 
             that._container.find(".k-recur-interval")
                 .val(that._value.interval || 1)
-                .on(CHANGE + that._namespace, function(e){
+                .on(CHANGE + that._namespace, function(e) {
                     rule.interval = e.target.value;
                     that._trigger();
                 });
@@ -2664,7 +2664,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _endLiItem: function () {
+        _endLiItem: function() {
             var that = this;
             return '<li class="k-item k-listgroup-item"><label class="k-label k-listgroup-form-row"><span class="k-item-title k-listgroup-form-field-label">' + that.options.messages.end.mobileLabel + '</span></label></li>';
         },
@@ -2703,7 +2703,7 @@ var __meta__ = { // jshint ignore:line
             that._endButton = endEditField.find(".k-scheduler-recur-end").text(that._endText());
         },
 
-        _navigateToView: function (viewName) {
+        _navigateToView: function(viewName) {
             var that = this;
             that._createView(viewName);
             that._pane.navigate(that._view, that.options.animations.left);
@@ -2809,7 +2809,7 @@ var __meta__ = { // jshint ignore:line
 
             var html = '<div data-role="view" class="k-popup-edit-form k-scheduler-edit-form" id="recurrence">' +
                        '<div data-role="header" class="k-header">' +
-                           '<a href="#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"'+
+                           '<a href="#" class="k-header-cancel k-scheduler-cancel k-link" title="' + messages.cancel + '"' +
                            'aria-label="' + messages.cancel + '"><span class="k-icon k-i-arrow-chevron-left"></span></a>' +
                                messages.headerTitle +
                            '<a href="#" class="k-header-done k-scheduler-update k-link" title="' + messages.update + '" ' +
@@ -2885,7 +2885,7 @@ var __meta__ = { // jshint ignore:line
             var container = that._container = that._container || this._pane.view().content.find("li.k-recur-view");
             var rule = that._value;
 
-            if(that._endLabelField){
+            if (that._endLabelField) {
                 that._endLabelField.toggleClass("k-state-disabled", frequency === "never");
             }
 
@@ -2918,7 +2918,7 @@ var __meta__ = { // jshint ignore:line
             that._period();
         },
 
-        _initMonthDay: function () {
+        _initMonthDay: function() {
             var that = this;
             var rule = that._value;
             var monthDayInput = that._monthDay = that._container.find(".k-recur-monthday");
@@ -2928,25 +2928,25 @@ var __meta__ = { // jshint ignore:line
                 max: 31
             })
             .val(rule.monthDays ? rule.monthDays[0] : that.options.start.getDate())
-            .on(CHANGE + that._namespace, function(e){
+            .on(CHANGE + that._namespace, function(e) {
                 rule.count = e.target.value;
                 that._trigger();
             });
         },
 
-        _initCount: function(){
+        _initCount: function() {
             var that = this,
                 input = that._count = that._container.find(".k-recur-count"),
                 rule = that._value;
 
             input.val(rule.count || 1)
-                .on(CHANGE + that._namespace, function(ev){
+                .on(CHANGE + that._namespace, function(ev) {
                     rule.count = ev.target.value;
                     that._trigger();
                 });
         },
 
-        _initEndView: function (endPattern) {
+        _initEndView: function(endPattern) {
             var that = this;
             var rule = that._value;
 
@@ -3058,7 +3058,7 @@ var __meta__ = { // jshint ignore:line
                 var currentValue = rule.weekDays ? "weekday" : "monthday";
 
                 var html = RECURRENCE_GROUP_BUTTON_TEMPLATE({
-                    value : currentValue,
+                    value: currentValue,
                     dataSource: [
                         { text: messages.dayOfMonth, value: "monthday" },
                         { text: messages.dayOfWeek, value: "weekday" }
@@ -3122,9 +3122,9 @@ var __meta__ = { // jshint ignore:line
                 that._until = input.attr("min", kendo.toString(min, "yyyy-MM-dd"))
                                    .val(kendo.toString(until || start, "yyyy-MM-dd"))
                                    .on("change", function() {
-                                        var date  = kendo.parseDate(this.value, "yyyy-MM-dd");
-                                        if(date) {
-                                            rule.until =  date;
+                                        var date = kendo.parseDate(this.value, "yyyy-MM-dd");
+                                        if (date) {
+                                            rule.until = date;
                                         }
                                         that._trigger();
                                    });
@@ -3133,9 +3133,9 @@ var __meta__ = { // jshint ignore:line
                     min: min,
                     value: until || start,
                     change: function() {
-                        var date  = this.value();
-                        if(date) {
-                            rule.until =  date;
+                        var date = this.value();
+                        if (date) {
+                            rule.until = date;
                         }
                         that._trigger();
                     }
@@ -3167,5 +3167,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.breadcrumb',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "breadcrumb",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         extend = $.extend,
@@ -62,14 +62,14 @@ var __meta__ = { // jshint ignore:line
 
             that._wrapper();
 
-            if(options.editable) {
+            if (options.editable) {
                 that._editable();
                 that._tabindex();
             }
 
             that.wrapper.on(CLICK + BREADCRUMB, "a:not(.k-state-disabled)", that._click.bind(that));
 
-            if(options.value || options.bindToLocation || !options.items) {
+            if (options.value || options.bindToLocation || !options.items) {
                 that._value();
             } else if (options.items) {
                 that.items(options.items);
@@ -112,7 +112,7 @@ var __meta__ = { // jshint ignore:line
         items: function(items) {
             var that = this;
 
-            if(items === undefined) {
+            if (items === undefined) {
                 return that.options.items;
             }
 
@@ -131,7 +131,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _generateSegments: function (value) {
+        _generateSegments: function(value) {
             var that = this,
                 options = that.options,
                 items = options.items,
@@ -139,7 +139,7 @@ var __meta__ = { // jshint ignore:line
 
             segments = that._split(value);
 
-            if(!items) {
+            if (!items) {
                 that.options.items = that._segments = segments;
                 return;
             }
@@ -166,11 +166,11 @@ var __meta__ = { // jshint ignore:line
                 path = that._path(previousItems),
                 segment = that._segments[item.index()];
 
-            if(!options.navigational) {
+            if (!options.navigational) {
                 e.preventDefault();
             }
 
-            if(!that.trigger(CLICK, { sender: that, originalEvent: e, isRoot: segment.type === "rootitem", item: segment})) {
+            if (!that.trigger(CLICK, { sender: that, originalEvent: e, isRoot: segment.type === "rootitem", item: segment })) {
                 that._update(path);
             }
         },
@@ -243,14 +243,14 @@ var __meta__ = { // jshint ignore:line
                 target.hasClass(breadcrumbStyles.textbox) ||
                 target.closest(DOT + breadcrumbStyles.item);
 
-            if(target[0] === this.wrapper[0]) {
+            if (target[0] === this.wrapper[0]) {
                 return false;
             }
 
             return canNavigate && !target.hasClass("k-breadcrumb-last-item");
         },
 
-        _wrapperKeydown: function (ev) {
+        _wrapperKeydown: function(ev) {
             var that = this,
                 target = $(ev.target),
                 isNavigational = that.isNavigational(target);
@@ -260,12 +260,12 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _wrapperClick: function (ev) {
+        _wrapperClick: function(ev) {
             var that = this,
                 target = $(ev.target),
                 isNavigational = that.isNavigational(target);
 
-            if(!isNavigational) {
+            if (!isNavigational) {
                 this._edit();
             }
         },
@@ -309,12 +309,12 @@ var __meta__ = { // jshint ignore:line
         },
 
 
-        _editable: function(){
+        _editable: function() {
             var that = this,
                 element = that.element,
                 elementIsInput = element.is("input");
 
-            if(elementIsInput) {
+            if (elementIsInput) {
                 that.input = that.element;
             } else {
                 that.input = $("<input />");
@@ -337,7 +337,7 @@ var __meta__ = { // jshint ignore:line
                 .on(CLICK + BREADCRUMB, that._wrapperClick.bind(that));
         },
 
-        _value: function () {
+        _value: function() {
             var that = this,
                 options = that.options;
 
@@ -351,8 +351,8 @@ var __meta__ = { // jshint ignore:line
         },
 
         _split: function(value) {
-            return value.split("/").filter(function (item, index) {
-                if(index > 0 && item === "") {
+            return value.split("/").filter(function(item, index) {
+                if (index > 0 && item === "") {
                     return false;
                 }
 
@@ -386,13 +386,13 @@ var __meta__ = { // jshint ignore:line
                 isLastSegment = idx === segments.length - 1;
 
                 if (segment !== undefined) {
-                    if(!html) {
+                    if (!html) {
                         href = "/";
                     } else {
                         href += segment.text || segment || "";
                     }
 
-                    if(typeof segment === "string") {
+                    if (typeof segment === "string") {
                         segment = {
                             type: !html ? "rootitem" : "item",
                             href: options.navigational ? href : "#",
@@ -429,13 +429,13 @@ var __meta__ = { // jshint ignore:line
                             showText: segment.showText === undefined ? segment.type === "item" && segment.type !== "rootitem" : segment.showText
                         });
 
-                        if(segment.type === "rootitem") {
+                        if (segment.type === "rootitem") {
                             segment.itemClass += " k-breadcrumb-root-item";
-                            segment.linkClass += " " +  breadcrumbStyles.rootLink;
+                            segment.linkClass += " " + breadcrumbStyles.rootLink;
                         }
                     }
 
-                    if(segment.type === "rootitem" && segment.text === "") {
+                    if (segment.type === "rootitem" && segment.text === "") {
                         segment.title = messages.rootTitle;
                     }
 
@@ -585,4 +585,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

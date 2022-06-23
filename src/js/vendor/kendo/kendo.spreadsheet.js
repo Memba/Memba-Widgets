@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1886,7 +1886,7 @@ return window.kendo;
                     sheet._restoreModifiedFormulas(x.formulas);
                 });
                 range.setState(self._state);
-            }, { layout: true, recalc: true, ref: range._ref });
+            }, { layout: true, recalc: true, ref: range._ref, isValue: true });
         }
     });
 
@@ -3016,6 +3016,11 @@ return window.kendo;
         },
 
         keyDown: function(e) {
+            // Do not handle keys for Toolbar Tab switch shortcuts
+            if (e.altKey && (e.key === "n" || e.key === "h" || e.key === "a")) {
+                return;
+            }
+
             this.handleEvent(e, keyName(e.originalEvent));
         },
 
@@ -3024,7 +3029,6 @@ return window.kendo;
         },
 
         mouse: function(e) {
-
             var rightClick;
 
             if (e.which) {
@@ -3126,6 +3130,8 @@ return window.kendo;
 })(function(){
 
 (function(kendo) {
+
+    /* jshint laxbreak:true, eqnull:true */
 
     var RangeTreeNode = kendo.Class.extend({
         init: function Node(level, value, left, right) {
@@ -3597,6 +3603,7 @@ return window.kendo;
 
     var SparseRangeList = RangeList.extend({
         init: function(start, end, value) {
+            this._defaultValue = value;
             this.tree = new RangeTree();
             this.range = new Range(start, end, value);
         },
@@ -3628,6 +3635,9 @@ return window.kendo;
         },
 
         insert: function(start, end, value) {
+            if (value == null) {
+                value = this._defaultValue;
+            }
             if (value !== this.range.value) {
                 this.tree.insert(new Range(start, end, value));
             }
@@ -5485,7 +5495,7 @@ return window.kendo;
                     case "previous":
                         if(isFirstCell) {
                             navigatedAway = true;
-                            this._sheet._workbook._view.element.find('.k-spreadsheet-name-editor .k-input').trigger("focus");
+                            this._sheet._workbook._view.element.find('.k-spreadsheet-name-editor .k-input-inner').trigger("focus");
                         } else if (selTopLeft.eq(current)) {
                             setSelection(sheet.previousNavigationRange());
                             row = selBottomRight.row;
@@ -6383,10 +6393,11 @@ return window.kendo;
             });
             if (!noTrigger) {
                 sheet.triggerChange({
-                    recalc : name == "formula" || name == "value" || name == "validation",
-                    value  : value,
-                    range  : self,
-                    ref    : self._ref
+                    recalc  : name == "formula" || name == "value" || name == "validation",
+                    value   : value,
+                    range   : self,
+                    ref     : self._ref,
+                    isValue : name == "value"
                 });
             }
             return self;
@@ -6466,7 +6477,13 @@ return window.kendo;
                         // present.
                         this.value(x.value);
                     }
-                }.bind(this), { recalc: true, value: value, ref: this._ref, editorChange: this._sheet.isInEditMode() });
+                }.bind(this), {
+                    recalc       : true,
+                    value        : value,
+                    ref          : this._ref,
+                    editorChange : this._sheet.isInEditMode(),
+                    isValue      : true
+                });
 
                 return this;
             } else {
@@ -6891,7 +6908,7 @@ return window.kendo;
 
                 this._sheet._filterBy(this._ref.toRangeRef(), spec.map(function(spec, index) {
                     return {
-                        index: spec.column === undefined ? index : spec.column,
+                        index: spec.column === undefined ? spec.index === undefined ? index : spec.index : spec.column,
                         filter: spec.filter
                     };
                 }));
@@ -9629,6 +9646,27 @@ return window.kendo;
             this._resizeAddColumn(-(count || 1));
         },
 
+        _resizeForJSON: function(rows) {
+            var rowCount = rows.length, colCount = 0;
+            for (var ri = 0; ri < rows.length; ++ri) {
+                var row = rows[ri];
+                if (row.index != null) {
+                    rowCount = Math.max(rowCount, row.index + 1);
+                }
+                if (row.cells) {
+                    colCount = Math.max(colCount, row.cells.length);
+                    for (var ci = 0; ci < row.cells.length; ++ci) {
+                        var cell = row.cells[ci];
+                        if (cell.index != null) {
+                            colCount = Math.max(colCount, cell.index + 1);
+                        }
+                    }
+                }
+            }
+            this.resize(Math.max(rowCount, this._rows._count),
+                        Math.max(colCount, this._columns._count));
+        },
+
         _selectionState: function() {
             return this._inEdit ? this._editSelection : this._viewSelection;
         },
@@ -10813,6 +10851,7 @@ return window.kendo;
                 }
 
                 if (json.rows !== undefined) {
+                    this._resizeForJSON(json.rows);
                     this._rows.fromJSON("height", json.rows);
 
                     for (var ri = 0; ri < json.rows.length; ri++) {
@@ -11551,12 +11590,16 @@ return window.kendo;
                 scrollNextButton = sheetsWrapper.find(DOT + classNames.sheetsBarNext);
 
                 if (toggle) {
-                    scrollPrevButton.on("mousedown", function () {
+                    scrollPrevButton.on("mousedown", function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
                         that._nowScrollingSheets = true;
                         that._scrollSheetsByDelta(options.scrollable.distance * (that._isRtl ? 1 : -1));
                     });
 
-                    scrollNextButton.on("mousedown", function () {
+                    scrollNextButton.on("mousedown", function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
                         that._nowScrollingSheets = true;
                         that._scrollSheetsByDelta(options.scrollable.distance * (that._isRtl ? -1 : 1));
                     });
@@ -15937,14 +15980,14 @@ return window.kendo;
             var val;
             if (ref.hasSheet()) {
                 // qualified name
-                val = this.workbook.nameValue(ref.print());
+                val = this.workbook.nameValue(this._displayString(ref.print()));
             } else {
                 // try local name
                 ref = ref.clone().setSheet(fsheet, true);
-                val = this.workbook.nameValue(ref.print());
+                val = this.workbook.nameValue(this._displayString(ref.print()));
                 if (val == null) {
                     // try global name
-                    val = this.workbook.nameValue(ref.name);
+                    val = this.workbook.nameValue(this._displayString(ref.name));
                 }
             }
             if (val instanceof Ref) {
@@ -16030,6 +16073,12 @@ return window.kendo;
             }, 50);
 
             return true;
+        },
+        _displayString: function(val) {
+            if (/^[a-z_][a-z0-9_]*$/i.test(val)) {
+                return val;
+            }
+            return "'" + val.replace(/\x27/g, "\\'") + "'";
         }
     });
 
@@ -16558,6 +16607,12 @@ return window.kendo;
                 sheet.startDragging(object);
                 sheet.triggerChange({ dragging: true });
                 event.preventDefault();
+                return;
+            }
+
+            if (object.type === "outside") {
+                event.preventDefault();
+                event.stopPropagation();
                 return;
             }
 
@@ -22335,13 +22390,13 @@ return window.kendo;
     defineFunction("min", function(numbers){
         return numbers.length ? Math.min.apply(Math, numbers) : 0;
     }).args([
-        [ "numbers", [ "collect", "number" ] ]
+        [ "numbers", [ "collect", "number!" ] ]
     ]);
 
     defineFunction("max", function(numbers){
         return numbers.length ? Math.max.apply(Math, numbers) : 0;
     }).args([
-        [ "numbers", [ "collect", "number" ] ]
+        [ "numbers", [ "collect", "number!" ] ]
     ]);
 
     defineFunction("counta", function(values){
@@ -22638,8 +22693,8 @@ return window.kendo;
     defineFunction("stdev.p", function(numbers){
         return _stdev_sp(numbers, numbers.length);
     }).args([
-        [ "numbers", [ "collect", "number" ] ],
-        [ "?", [ "assert", "$numbers.length >= 2", "NUM" ] ]
+        [ "numbers", [ "collect", "number!" ] ],
+        [ "?", [ "assert", "$numbers.length >= 1", "NUM" ] ]
     ]);
 
     defineFunction("var.s", function(numbers){
@@ -29794,6 +29849,8 @@ return window.kendo;
 
 (function(kendo) {
 
+    /* jshint eqnull:true */
+
     var identity = function(o) { return o; };
 
     var SheetDataSourceBinder = kendo.Class.extend({
@@ -29856,7 +29913,7 @@ return window.kendo;
                 return;
             }
 
-            if (e.recalc && e.ref) {
+            if (e.recalc && e.ref && e.isValue) {
                 var UnionRef = kendo.spreadsheet.UnionRef;
                 var dataSource = this.dataSource;
                 var data = dataSource.view();
@@ -29896,7 +29953,7 @@ return window.kendo;
                 getters = columns.map(function(column) {
                     var field = column.field;
                     if (field && fields && fields[field] && fields[field].type == "date") {
-                        return kendo.spreadsheet.numberToDate;
+                        return numberToDate;
                     }
                     return identity;
                 });
@@ -30025,6 +30082,10 @@ return window.kendo;
             columns: []
         }
     });
+
+    function numberToDate(val) {
+        return val == null ? null : kendo.spreadsheet.numberToDate(val);
+    }
 
     kendo.spreadsheet.SheetDataSourceBinder = SheetDataSourceBinder;
 })(kendo);
@@ -31199,7 +31260,7 @@ return window.kendo;
                 }
                 values = linearRegression(values);
                 f = function(N, i) {
-                    return data[i].replace(/^(.*\D)\d+/, "$1" + values(N, i));
+                    return data[i].replace(/^(.*[\D0]+)\d+/, "$1" + values(N, i));
                 };
             } else {
                 f = function() { return null; };
@@ -32450,7 +32511,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.spreadsheet',[
         "./util/undoredostack",
         "./util/text-metrics",
@@ -32495,7 +32556,7 @@ return window.kendo;
         "./spreadsheet/nameeditor",
         "./spreadsheet/print"
     ], f);
-})(function(){
+})(function() {
     var __meta__ = { // jshint ignore:line
         id: "spreadsheet",
         name: "Spreadsheet",
@@ -32513,7 +32574,7 @@ return window.kendo;
         }
 
         var $ = kendo.jQuery;
-        var keys = $.extend({F10: 121, F11: 122, B: 66, I: 73, U: 85, N: 78, H: 72, A: 65, PAGEDOWN: 34, PAGEUP: 33, DELETE: 46, R: 82}, kendo.keys);
+        var keys = $.extend({ F10: 121, F11: 122, B: 66, I: 73, U: 85, N: 78, H: 72, A: 65, PAGEDOWN: 34, PAGEUP: 33, DELETE: 46, R: 82 }, kendo.keys);
         var Widget = kendo.ui.Widget;
         var Workbook = kendo.spreadsheet.Workbook;
         var Controller = kendo.spreadsheet.Controller;
@@ -32545,7 +32606,7 @@ return window.kendo;
                 this._view = new View(this.element, {
                     messages: this.options.messages.view,
                     toolbar: this.options.toolbar,
-                    sheetsbar:this.options.sheetsbar
+                    sheetsbar: this.options.sheetsbar
                 });
 
                 this._workbook = new Workbook(this.options, this._view);
@@ -32666,7 +32727,7 @@ return window.kendo;
                 return this._workbook.activeSheet(sheet);
             },
 
-            moveSheetToIndex: function (sheet, index) {
+            moveSheetToIndex: function(sheet, index) {
                 return this._workbook.moveSheetToIndex(sheet, index);
             },
 
@@ -32977,26 +33038,26 @@ return window.kendo;
                 messages: {},
                 pdf: {
                     // which part of the workbook to be exported
-                    area      : "workbook",
-                    fileName  : "Workbook.pdf",
-                    proxyURL  : "",
+                    area: "workbook",
+                    fileName: "Workbook.pdf",
+                    proxyURL: "",
                     // paperSize can be an usual name, i.e. "A4", or an array of two Number-s specifying the
                     // width/height in points (1pt = 1/72in), or strings including unit, i.e. "10mm".  Supported
                     // units are "mm", "cm", "in" and "pt".  The default "auto" means paper size is determined
                     // by content.
-                    paperSize : "a4",
+                    paperSize: "a4",
                     // True to reverse the paper dimensions if needed such that width is the larger edge.
-                    landscape : true,
+                    landscape: true,
                     // An object containing { left, top, bottom, right } margins with units.
-                    margin    : null,
+                    margin: null,
                     // Optional information for the PDF Info dictionary; all strings except for the date.
-                    title     : null,
-                    author    : null,
-                    subject   : null,
-                    keywords  : null,
-                    creator   : "Kendo UI PDF Generator v." + kendo.version,
+                    title: null,
+                    author: null,
+                    subject: null,
+                    keywords: null,
+                    creator: "Kendo UI PDF Generator v." + kendo.version,
                     // Creation Date; defaults to new Date()
-                    date      : null
+                    date: null
                 },
                 defaultCellStyle: {
                     fontFamily: "Arial",
@@ -33077,5 +33138,5 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

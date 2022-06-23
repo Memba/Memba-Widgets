@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.wizard',[ "kendo.stepper", "kendo.button", "kendo.form" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "wizard",
@@ -39,7 +39,7 @@ var __meta__ = { // jshint ignore:line
     }]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         extend = $.extend,
@@ -66,7 +66,6 @@ var __meta__ = { // jshint ignore:line
         ARIA_SELECTED = "aria-selected",
         ARIA_CONTROLS = "aria-controls",
         ARIA_HIDDEN = "aria-hidden",
-        ARIA_EXPANDED = "aria-expanded",
         ARIA_LABEL = "aria-label",
 
         VERTICAL = "vertical",
@@ -102,7 +101,7 @@ var __meta__ = { // jshint ignore:line
         init: function(options) {
             this.options = extend({}, this.options, options);
 
-            if(this.options.actionBar) {
+            if (this.options.actionBar) {
                 this._processButtons();
             }
 
@@ -147,7 +146,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         load: function() {
-            if(this.options.contentUrl) {
+            if (this.options.contentUrl) {
                 this._ajaxRequest();
             }
         },
@@ -163,7 +162,7 @@ var __meta__ = { // jshint ignore:line
             this._buttonsContainer();
         },
 
-        _ajaxRequest: function (wizard, triggerActivate) {
+        _ajaxRequest: function(wizard, triggerActivate) {
             var that = this,
                 url = that.options.contentUrl,
                 data = {},
@@ -176,38 +175,38 @@ var __meta__ = { // jshint ignore:line
                 dataType: "html",
                 data: data,
 
-                error: function (xhr, status) {
-                    if(wizard) {
+                error: function(xhr, status) {
+                    if (wizard) {
                         wizard._triggerError(xhr, status, that);
                     }
                 },
 
-                complete: function () {
-                    if(wizard && triggerActivate) {
+                complete: function() {
+                    if (wizard && triggerActivate) {
                         wizard._triggerActivate(that);
                     }
                 },
 
-                success: function (content) {
+                success: function(content) {
                     var contentElement = element.find(DOT + wizardClasses.wizardContent);
 
                     try {
-                        if(wizard) {
-                            wizard.angular("cleanup", function () { return { elements: element.get() }; });
+                        if (wizard) {
+                            wizard.angular("cleanup", function() { return { elements: element.get() }; });
                         }
 
                         kendo.destroy(contentElement);
                         contentElement.html(content);
 
-                        if(wizard) {
+                        if (wizard) {
                             wizard._triggerContentLoad(that);
                         }
                     } catch (e) {
                         this.error(this.xhr, "error");
                     }
 
-                    if(wizard) {
-                        wizard.angular("compile", function(){ return { elements: element.get() }; });
+                    if (wizard) {
+                        wizard.angular("compile", function() { return { elements: element.get() }; });
                     }
                 }
             };
@@ -228,7 +227,6 @@ var __meta__ = { // jshint ignore:line
             element.attr(ROLE, "tabpanel")
                 .attr(TABINDEX, 0)
                 .attr(ID, options.wizardId + DASH + options.index)
-                .attr(ARIA_EXPANDED, options.selected)
                 .attr(ARIA_LABEL, label);
         },
 
@@ -241,20 +239,20 @@ var __meta__ = { // jshint ignore:line
             buttonElement.attr(DATA_WIZARD_PREFIX + buttonOptions.name, "");
             buttonElement.text(buttonOptions.text);
 
-            if(buttonOptions.click) {
+            if (buttonOptions.click) {
                 button.bind(CLICK, buttonOptions.click);
             }
-            if(buttonOptions.enabled === false) {
+            if (buttonOptions.enabled === false) {
                 button.enable(false);
             }
 
-            if(buttonOptions.position === LEFT) {
+            if (buttonOptions.position === LEFT) {
                 this._leftButtonsContainer.append(buttonElement);
             } else {
                 this._rightButtonsContainer.append(buttonElement);
             }
 
-            if(buttonOptions.name === "done" && this.options.formTag !== "form") {
+            if (buttonOptions.name === "done" && this.options.formTag !== "form") {
                 button.element.attr("type", SUBMIT);
             }
 
@@ -276,7 +274,7 @@ var __meta__ = { // jshint ignore:line
 
             this.options.buttons.map(this._buttonFactory.bind(this));
 
-            if(this.options.pager) {
+            if (this.options.pager) {
                 this._pager();
             }
         },
@@ -293,7 +291,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (options.markupContainer) {
-                if(!loadFromRemote && !options.contentId && !options.content) {
+                if (!loadFromRemote && !options.contentId && !options.content) {
                     contentElement.append(options.markupContainer.html());
                 }
 
@@ -322,20 +320,20 @@ var __meta__ = { // jshint ignore:line
         _iterateButton: function(button) {
             var messages = this.options.messages;
 
-            if(typeof button === "string") {
+            if (typeof button === "string") {
                 button = {
                     name: button
                 };
             }
-            if(!button.text) {
+            if (!button.text) {
                 button.text = messages[button.name] || button.name.charAt(0).toUpperCase() + button.name.slice(1);
             }
-            if(button.primary !== false && (button.name === DONE || button.name === NEXT)) {
+            if (button.primary !== false && (button.name === DONE || button.name === NEXT)) {
                 button.primary = true;
             }
-            if(!button.position && button.name === RESET) {
+            if (!button.position && button.name === RESET) {
                 button.position = LEFT;
-            } else if(!button.position) {
+            } else if (!button.position) {
                 button.position = RIGHT;
             }
 
@@ -361,12 +359,12 @@ var __meta__ = { // jshint ignore:line
                 buttonsOptions = options.buttons,
                 defaultButtons = this._defaultButtonsConfiguration;
 
-            if(!buttonsOptions || !buttonsOptions.length || buttonsOptions.length === 0) {
+            if (!buttonsOptions || !buttonsOptions.length || buttonsOptions.length === 0) {
                 this.options.defaultButtons = true;
 
-                if(options.index === 0) {
+                if (options.index === 0) {
                     buttonsOptions = defaultButtons.first;
-                } else if(options.index + 1 === options.totalSteps) {
+                } else if (options.index + 1 === options.totalSteps) {
                     buttonsOptions = defaultButtons.last;
                 } else {
                     buttonsOptions = defaultButtons.middle;
@@ -379,22 +377,22 @@ var __meta__ = { // jshint ignore:line
         _render: function() {
             this.element = $("<div>").addClass(wizardClasses.wizardStep);
 
-            if(this.options.className) {
+            if (this.options.className) {
                 this.element.addClass(this.options.className);
             }
 
             this._ariaAttributes();
 
-            if(!this.options.selected) {
+            if (!this.options.selected) {
                 this.element.addClass(HIDDEN);
                 this.element.attr(ARIA_HIDDEN, true);
             }
 
-            if(this.options.actionBar) {
+            if (this.options.actionBar) {
                 this._buttonsContainer();
             }
 
-            if(this.options.form) {
+            if (this.options.form) {
                 this._form();
             } else {
                 this._content();
@@ -463,14 +461,14 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 targetStep;
 
-            if(stepIndex === undefined || stepIndex === null || isNaN(stepIndex) || stepIndex >= that._steps.length || stepIndex < 0) {
+            if (stepIndex === undefined || stepIndex === null || isNaN(stepIndex) || stepIndex >= that._steps.length || stepIndex < 0) {
                 return;
             }
 
             stepIndex = Number(stepIndex);
             targetStep = that._steps[stepIndex];
 
-            if(targetStep.options.enabled === value) {
+            if (targetStep.options.enabled === value) {
                 return;
             } else {
                 targetStep.options.enabled = value;
@@ -486,7 +484,7 @@ var __meta__ = { // jshint ignore:line
                 iterateStep = function(step, i) {
                     var label;
 
-                    if(i >= index) {
+                    if (i >= index) {
                         step.options.index += 1;
                     }
                     step.options.totalSteps += 1;
@@ -497,10 +495,10 @@ var __meta__ = { // jshint ignore:line
                     step.element.attr(ARIA_LABEL, label);
                 };
 
-            if(index === null || index === undefined || isNaN(index) || index < 0 || index > numberOfSteps) {
+            if (index === null || index === undefined || isNaN(index) || index < 0 || index > numberOfSteps) {
                 return;
             }
-            if(!stepOptions) {
+            if (!stepOptions) {
                 return;
             }
 
@@ -512,7 +510,7 @@ var __meta__ = { // jshint ignore:line
             stepOptions.index = index;
             stepOptions.formTag = this.wrapper.is("form") ? "div" : "form";
 
-            if(this.options.pager === false && stepOptions.pager !== true) {
+            if (this.options.pager === false && stepOptions.pager !== true) {
                 stepOptions.pager = false;
             }
 
@@ -520,11 +518,11 @@ var __meta__ = { // jshint ignore:line
             steps.forEach(iterateStep);
             steps.splice(index, 0, step);
 
-            if(index === 0 || index === numberOfSteps) {
+            if (index === 0 || index === numberOfSteps) {
                 alteredStepIndex = index === 0 ? 1 : numberOfSteps - 1;
                 alteredStep = steps[alteredStepIndex];
 
-                if(alteredStep.options.defaultButtons) {
+                if (alteredStep.options.defaultButtons) {
                     alteredStep.resetButtons();
                 }
             }
@@ -539,7 +537,7 @@ var __meta__ = { // jshint ignore:line
                 stepsLength = that._steps.length,
                 currentStepIndex = that.currentStep.options.index;
 
-            if(currentStepIndex + 1 === stepsLength) {
+            if (currentStepIndex + 1 === stepsLength) {
                 return;
             } else if (!that.steps()[currentStepIndex + 1].options.enabled) {
                 return;
@@ -554,7 +552,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 currentStepIndex = that.currentStep.options.index;
 
-            if(currentStepIndex === 0) {
+            if (currentStepIndex === 0) {
                 return;
             } else if (!that.steps()[currentStepIndex - 1].options.enabled) {
                 return;
@@ -571,14 +569,14 @@ var __meta__ = { // jshint ignore:line
                 removedStep, newSelectedStepIndex, alteredStepIndex, alteredStep, i, step, label,
                 messages = this.options.messages;
 
-            if(index === null || index === undefined || isNaN(index) || index < 0 || index > numberOfSteps || numberOfSteps === 1) {
+            if (index === null || index === undefined || isNaN(index) || index < 0 || index > numberOfSteps || numberOfSteps === 1) {
                 return;
             }
 
             this.stepper.removeAt(index);
             removedStep = steps.splice(index, 1)[0];
 
-            if(!stepContentElement.hasClass(HIDDEN)) {
+            if (!stepContentElement.hasClass(HIDDEN)) {
                 newSelectedStepIndex = index === 0 ? 0 : index - 1;
                 this.select(newSelectedStepIndex);
             }
@@ -586,7 +584,7 @@ var __meta__ = { // jshint ignore:line
             kendo.destroy(stepContentElement);
             stepContentElement.remove();
 
-            for(i = 0; i < numberOfSteps - 1; i +=1) {
+            for (i = 0; i < numberOfSteps - 1; i += 1) {
                 step = steps[i];
                 step.options.index = i;
                 step.options.totalSteps = numberOfSteps - 1;
@@ -596,11 +594,11 @@ var __meta__ = { // jshint ignore:line
                 step.element.attr(ARIA_LABEL, label);
             }
 
-            if(index === 0 || index === numberOfSteps - 1) {
+            if (index === 0 || index === numberOfSteps - 1) {
                 alteredStepIndex = index === 0 ? 0 : numberOfSteps - 2;
                 alteredStep = steps[alteredStepIndex];
 
-                if(alteredStep.options.defaultButtons) {
+                if (alteredStep.options.defaultButtons) {
                     alteredStep.resetButtons();
                 }
             }
@@ -613,14 +611,14 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 targetStep;
 
-            if(stepIndex === undefined || stepIndex === null || isNaN(stepIndex) || stepIndex >= that._steps.length || stepIndex < 0) {
+            if (stepIndex === undefined || stepIndex === null || isNaN(stepIndex) || stepIndex >= that._steps.length || stepIndex < 0) {
                 return;
             }
 
             stepIndex = Number(stepIndex);
             targetStep = that._steps[stepIndex];
 
-            if(!targetStep.options.enabled) {
+            if (!targetStep.options.enabled) {
                 return;
             }
 
@@ -645,7 +643,7 @@ var __meta__ = { // jshint ignore:line
                 .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + PREVIOUS + "]", that._previousClickHandler.bind(that))
                 .on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + NEXT + "]", that._nextClickHandler.bind(that));
 
-            if(that.wrapper.is("form")) {
+            if (that.wrapper.is("form")) {
                 that.wrapper.on(CLICK + WIZARD, "[" + DATA_WIZARD_PREFIX + DONE + "]", clickBeforeSubmit);
                 that.wrapper.on(SUBMIT + WIZARD, that._doneHandler.bind(that));
             } else {
@@ -661,18 +659,16 @@ var __meta__ = { // jshint ignore:line
 
             steps.addClass(HIDDEN);
             steps.attr(ARIA_HIDDEN, true);
-            steps.attr(ARIA_EXPANDED, false);
 
             step.element.removeClass(HIDDEN);
             step.element.removeAttr(ARIA_HIDDEN);
-            step.element.attr(ARIA_EXPANDED, true);
         },
 
         _createStep: function(options, index, stepsFromMarkup, total) {
             var wrapper = this.wrapper,
                 stepsFromMarkupTitles = this.wrapper.children("ol, ul").children("li");
 
-            if(typeof options === "string") {
+            if (typeof options === "string") {
                 options = {
                     title: options
                 };
@@ -683,28 +679,28 @@ var __meta__ = { // jshint ignore:line
             options.index = index;
             options.formTag = this.wrapper.is("form") ? "div" : "form";
 
-            if(index === 0) {
+            if (index === 0) {
                 options.selected = true;
             }
-            if(this.options.actionBar === false) {
+            if (this.options.actionBar === false) {
                 options.actionBar = false;
             }
-            if(stepsFromMarkup.length > 0 && stepsFromMarkup[index]) {
+            if (stepsFromMarkup.length > 0 && stepsFromMarkup[index]) {
                 options.markupContainer = $(stepsFromMarkup[index]);
 
-                if(!options.title) {
+                if (!options.title) {
                     options.title = stepsFromMarkupTitles[index] ? stepsFromMarkupTitles[index].textContent : (index + 1).toString();
 
-                    if(!this.options.steps) {
+                    if (!this.options.steps) {
                         this.options.steps = [];
                     }
 
                 }
             }
-            if(wrapper.attr(ID)) {
+            if (wrapper.attr(ID)) {
                 options.wizardId = wrapper.attr(ID);
             }
-            if(this.options.pager === false && options.pager !== true) {
+            if (this.options.pager === false && options.pager !== true) {
                 options.pager = false;
             }
 
@@ -724,19 +720,19 @@ var __meta__ = { // jshint ignore:line
 
             that._steps = [];
 
-            if(!stepsOptions || stepsOptions.length === 0) {
+            if (!stepsOptions || stepsOptions.length === 0) {
                 stepsOptions = [];
-                for(i = 0; i < stepsFromMarkup.length; i+= 1) {
+                for (i = 0; i < stepsFromMarkup.length; i += 1) {
                     stepsOptions.push({});
                 }
             }
 
-            for(i = 0; i < stepsOptions.length; i += 1) {
+            for (i = 0; i < stepsOptions.length; i += 1) {
                 stepOptions = stepsOptions[i];
 
                 step = that._createStep(stepOptions, i, stepsFromMarkup, stepsOptions.length);
 
-                if(stepOptions.contentUrl && (i === 0 || !that.options.loadOnDemand )) {
+                if (stepOptions.contentUrl && (i === 0 || !that.options.loadOnDemand )) {
                     kendo.ui.progress(that.wrapper, true);
                     step._ajaxRequest(that);
                 }
@@ -761,21 +757,21 @@ var __meta__ = { // jshint ignore:line
                 forms = [],
                 form, i;
 
-            if(!this._doneClicked) {
+            if (!this._doneClicked) {
                 return;
             }
 
             this._doneClicked = false;
 
-            if(!!this.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+            if (!!this.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
                 e.preventDefault();
                 this.trigger(FORM_VALIDATE_FAILED, { sender: this, step: currentStep, form: currentStep.form });
                 return;
             }
 
-            for(i = 0; i < steps.length; i += 1) {
+            for (i = 0; i < steps.length; i += 1) {
                 form = steps[i].form;
-                if(form) {
+                if (form) {
                     forms.push(form);
                 }
             }
@@ -786,14 +782,14 @@ var __meta__ = { // jshint ignore:line
         _insertStepElementAtIndex: function(index, stepElement) {
             var stepsContainer = this.wrapper.find(DOT + wizardClasses.wizardStepsContainer);
 
-            if(index === 0) {
+            if (index === 0) {
                 stepsContainer.prepend(stepElement);
             } else {
                 stepsContainer.find(DOT + wizardClasses.wizardStep + ":nth-child(" + index + ")").after(stepElement);
             }
         },
 
-        _isEmpty: function(element){
+        _isEmpty: function(element) {
             return !kendo.trim(element.html());
         },
 
@@ -822,7 +818,7 @@ var __meta__ = { // jshint ignore:line
             var targetStep = this._steps[index],
                 options = this.options;
 
-            if(targetStep.options.contentUrl &&
+            if (targetStep.options.contentUrl &&
                 (options.reloadOnSelect ||
                     (options.loadOnDemand && this._isEmpty(targetStep.element.find(DOT + wizardClasses.wizardContent))))) {
                 this.ajaxLoad = true;
@@ -842,16 +838,16 @@ var __meta__ = { // jshint ignore:line
                 button = $(e.target).getKendoButton(),
                 targetStep = steps[currentStepIndex + 1];
 
-            if(numberOfSteps === currentStepIndex + 1 || !targetStep.options.enabled) {
+            if (numberOfSteps === currentStepIndex + 1 || !targetStep.options.enabled) {
                 return;
             }
 
-            if(!!that.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+            if (!!that.options.validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
                 that.trigger(FORM_VALIDATE_FAILED, { sender: that, step: currentStep, form: currentStep.form });
                 return;
             }
 
-            if(!that.trigger(SELECT, {
+            if (!that.trigger(SELECT, {
                 sender: that,
                 originalEvent: e.originalEvent,
                 step: targetStep,
@@ -860,7 +856,7 @@ var __meta__ = { // jshint ignore:line
                 that._select(currentStepIndex + 1);
                 that._selectStepper(currentStepIndex + 1);
 
-                if(!that.ajaxLoad) {
+                if (!that.ajaxLoad) {
                     that.trigger(ACTIVATE, { sender: that, step: targetStep });
                 }
 
@@ -877,16 +873,16 @@ var __meta__ = { // jshint ignore:line
                 button = $(e.target).getKendoButton(),
                 targetStep = steps[currentStepIndex - 1];
 
-            if(currentStepIndex === 0 || !targetStep.options.enabled) {
+            if (currentStepIndex === 0 || !targetStep.options.enabled) {
                 return;
             }
 
-            if(!!validateForms && validateForms.validateOnPrevious !== false && !!currentStep.form && !currentStep.form.validator.validate()) {
+            if (!!validateForms && validateForms.validateOnPrevious !== false && !!currentStep.form && !currentStep.form.validator.validate()) {
                 that.trigger(FORM_VALIDATE_FAILED, { sender: that, step: currentStep, form: currentStep.form });
                 return;
             }
 
-            if(!that.trigger(SELECT, {
+            if (!that.trigger(SELECT, {
                 sender: that,
                 originalEvent: e.originalEvent,
                 step: targetStep,
@@ -895,7 +891,7 @@ var __meta__ = { // jshint ignore:line
                 that._select(currentStepIndex - 1);
                 that._selectStepper(currentStepIndex - 1);
 
-                if(!that.ajaxLoad) {
+                if (!that.ajaxLoad) {
                     that.trigger(ACTIVATE, { sender: that, step: targetStep });
                 }
 
@@ -907,7 +903,7 @@ var __meta__ = { // jshint ignore:line
             var editorElements = this.wrapper.find("[data-role='editor']"),
                 i, element;
 
-            for(i = 0; i < editorElements.length; i += 1) {
+            for (i = 0; i < editorElements.length; i += 1) {
                 element = $(editorElements[i]);
                 element.getKendoEditor().refresh();
             }
@@ -939,7 +935,7 @@ var __meta__ = { // jshint ignore:line
             stepperOptions.orientation = options.contentPosition === BOTTOM ? HORIZONTAL : VERTICAL;
             stepperOptions.selectOnFocus = true;
             stepperOptions.kendoKeydown = function(e) {
-                if(e.keyCode === kendo.keys.TAB){
+                if (e.keyCode === kendo.keys.TAB) {
                     e.preventKendoKeydown = true;
                 }
             };
@@ -955,16 +951,16 @@ var __meta__ = { // jshint ignore:line
                 stepperSteps = stepper.steps(),
                 selected, step, i;
 
-            if(!stepperSteps) {
+            if (!stepperSteps) {
                 return;
             }
 
             stepper.element.find(DOT + STEPPER_LIST).attr(ROLE, "tablist");
 
-            for(i = 0; i < stepperSteps.length; i += 1) {
+            for (i = 0; i < stepperSteps.length; i += 1) {
                 selected = false;
 
-                if(i === 0) {
+                if (i === 0) {
                     selected = true;
                 }
 
@@ -987,25 +983,25 @@ var __meta__ = { // jshint ignore:line
                 step = wizardSteps[stepIndex],
                 currentStep = that.currentStep;
 
-            if(stepIndex > currentStepIndex && !!validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
+            if (stepIndex > currentStepIndex && !!validateForms && !!currentStep.form && !currentStep.form.validator.validate()) {
                 e.preventDefault();
                 that.trigger(FORM_VALIDATE_FAILED, { sender: that, step: currentStep, form: currentStep.form });
                 return;
             }
 
-            if(stepIndex < currentStepIndex && !!validateForms && validateForms.validateOnPrevious !== false && !!currentStep.form && !currentStep.form.validator.validate()) {
+            if (stepIndex < currentStepIndex && !!validateForms && validateForms.validateOnPrevious !== false && !!currentStep.form && !currentStep.form.validator.validate()) {
                 e.preventDefault();
                 that.trigger(FORM_VALIDATE_FAILED, { sender: that, step: currentStep, form: currentStep.form });
                 return;
             }
 
-            if(!that.trigger(SELECT, { sender: that, originalEvent: e.originalEvent, step: step, stepper: stepper })) {
+            if (!that.trigger(SELECT, { sender: that, originalEvent: e.originalEvent, step: step, stepper: stepper })) {
                 that._select(stepIndex);
 
                 stepper.wrapper.find(DOT + STEPPER_STEP_LINK).attr(ARIA_SELECTED, false);
                 stepperStep.element.find(DOT + STEPPER_STEP_LINK).attr(ARIA_SELECTED, true);
 
-                if(!that.ajaxLoad) {
+                if (!that.ajaxLoad) {
                     that.trigger(ACTIVATE, { sender: that, step: step });
                 }
 
@@ -1038,9 +1034,9 @@ var __meta__ = { // jshint ignore:line
             that.wrapper = element;
             that.wrapper.addClass(wizardClasses.wizard);
 
-            if(contentPosition === RIGHT) {
+            if (contentPosition === RIGHT) {
                 that.wrapper.addClass(wizardClasses.verticalWizard + SPACE + wizardClasses.rightWizard);
-            } else if(contentPosition === LEFT) {
+            } else if (contentPosition === LEFT) {
                 that.wrapper.addClass(wizardClasses.verticalWizard + SPACE + wizardClasses.leftWizard);
             } else {
                 that.wrapper.addClass(wizardClasses.horizontalWizard);
@@ -1058,4 +1054,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

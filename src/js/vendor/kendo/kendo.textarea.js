@@ -1,16 +1,16 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function (f, define) {
+(function(f, define) {
     define('kendo.textarea',["kendo.core", "kendo.floatinglabel"], f);
-})(function () {
+})(function() {
 
-var __meta__ = {// jshint ignore:line
+var __meta__ = { // jshint ignore:line
     id: "textarea",
     name: "TextArea",
     category: "web",
@@ -18,7 +18,7 @@ var __meta__ = {// jshint ignore:line
     depends: ["core", "floatinglabel"]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         ui = kendo.ui,
@@ -36,7 +36,7 @@ var __meta__ = {// jshint ignore:line
         TEXTAREACONTAINER = "k-textarea-container";
 
     var TextArea = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
 
             Widget.fn.init.call(that, element, options);
@@ -47,7 +47,7 @@ var __meta__ = {// jshint ignore:line
             that.options.enable = options.enable !== undefined ? options.enable : !(Boolean(that.element.attr("disabled")));
             that.options.placeholder = options.placeholder || that.element.attr("placeholder");
 
-            if(!that.options.value.replace(/\s/g, '').length){
+            if (!that.options.value.replace(/\s/g, '').length) {
                 that.options.value = '';
                 that.element.val('');
             }
@@ -97,7 +97,7 @@ var __meta__ = {// jshint ignore:line
             overflow: "auto"
         },
 
-        _applyCssClasses: function (action) {
+        _applyCssClasses: function(action) {
             var that = this,
                 options = that.options,
                 resize = kendo.cssProperties.getValidClass({
@@ -113,6 +113,10 @@ var __meta__ = {// jshint ignore:line
 
             Widget.fn._applyCssClasses.call(that);
 
+            if (!resize && options.resize === "none") {
+                resize = "k-resize-none";
+            }
+
             action = action || "addClass";
 
             if (options.overflow === "auto") {
@@ -123,7 +127,7 @@ var __meta__ = {// jshint ignore:line
             that.element[action](overflow);
         },
 
-        _applyAttributes: function(){
+        _applyAttributes: function() {
             var that = this;
             var property;
             var attributes = {};
@@ -272,7 +276,7 @@ var __meta__ = {// jshint ignore:line
 
             that.wrapper.removeClass(FOCUSED);
 
-            if(value === null) {
+            if (value === null) {
                 value = "";
             }
 
@@ -283,7 +287,7 @@ var __meta__ = {// jshint ignore:line
             }
         },
 
-        _wrapper: function () {
+        _wrapper: function() {
             var that = this;
             var element = that.element;
             var DOMElement = element[0];
@@ -309,5 +313,5 @@ var __meta__ = {// jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

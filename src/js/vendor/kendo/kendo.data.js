@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.data',[ "kendo.core", "kendo.data.odata", "kendo.data.xml" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "data",
@@ -104,7 +104,7 @@ var __meta__ = { // jshint ignore:line
         toJSON: function(serializeFunctions) {
             var idx, length = this.length, value, json = new Array(length);
 
-            for (idx = 0; idx < length; idx++){
+            for (idx = 0; idx < length; idx++) {
                 value = this[idx];
 
                 if (value instanceof ObservableObject) {
@@ -161,18 +161,18 @@ var __meta__ = { // jshint ignore:line
                     });
                 });
 
-                object.bind(ITEMLOAD, function (e) {
+                object.bind(ITEMLOAD, function(e) {
                     that._loadPromises.push(e.promise);
                     that._loading = true;
 
-                    e.promise.done(function(){
+                    e.promise.done(function() {
                         that._loadedNodes.push(e.node);
                         var index = that._loadPromises.indexOf(e.promise);
                         that._loadPromises.splice(index, 1);
 
-                        if(!that._loadPromises.length){
+                        if (!that._loadPromises.length) {
                             that._loading = false;
-                            that.trigger(ITEMSLOADED, {collection: that, nodes: that._loadedNodes});
+                            that.trigger(ITEMSLOADED, { collection: that, nodes: that._loadedNodes });
                             that._loadedNodes = [];
                         }
                     });
@@ -182,7 +182,7 @@ var __meta__ = { // jshint ignore:line
             return object;
         },
 
-        loading: function () {
+        loading: function() {
             return this._loading;
         },
 
@@ -217,7 +217,7 @@ var __meta__ = { // jshint ignore:line
                 this.trigger(CHANGE, {
                     action: "remove",
                     index: length - 1,
-                    items:[result]
+                    items: [result]
                 });
             }
 
@@ -265,7 +265,7 @@ var __meta__ = { // jshint ignore:line
                 this.trigger(CHANGE, {
                     action: "remove",
                     index: 0,
-                    items:[result]
+                    items: [result]
                 });
             }
 
@@ -441,7 +441,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     var LazyObservableArray = ObservableArray.extend({
-        init: function (data, type, events) {
+        init: function(data, type, events) {
             var parentFn = function() { return this; };
 
             Observable.fn.init.call(this);
@@ -494,19 +494,19 @@ var __meta__ = { // jshint ignore:line
         };
     }
 
-    function ownKeys (value, ignoreObjectKeys) {
+    function ownKeys(value, ignoreObjectKeys) {
         var props = [];
         var keys, filteredObjectKeys;
 
         value = value || {};
 
         keys = Object.getOwnPropertyNames(value);
-        filteredObjectKeys = objectKeys.filter(function(key){
+        filteredObjectKeys = objectKeys.filter(function(key) {
             return keys.indexOf(key) < 0;
         });
 
         while (value) {
-            Object.getOwnPropertyNames(value).forEach(function (prop) {
+            Object.getOwnPropertyNames(value).forEach(function(prop) {
                 if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || filteredObjectKeys.indexOf(prop) < 0)) {
                     props.push(prop);
                 }
@@ -532,7 +532,7 @@ var __meta__ = { // jshint ignore:line
 
             this._handlers = {};
 
-            keys.forEach(function(field){
+            keys.forEach(function(field) {
                 member = value[field];
 
                 if (typeof member === "object" && member && !member.getTime && field.charAt(0) != "_") {
@@ -557,7 +557,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        toJSON: function (serializeFunctions) {
+        toJSON: function(serializeFunctions) {
             var result = {}, value, field;
 
             for (field in this) {
@@ -805,7 +805,7 @@ var __meta__ = { // jshint ignore:line
         shouldSerialize: function(field) {
             return ObservableObject.fn.shouldSerialize.call(this, field) &&
                 field !== "uid" && !(this.idField !== "id" && field === "id") &&
-                field !== "dirty" &&  field !== "dirtyFields" && field !== "_accessors";
+                field !== "dirty" && field !== "dirtyFields" && field !== "_accessors";
         },
 
         _parse: function(field, value) {
@@ -986,7 +986,7 @@ var __meta__ = { // jshint ignore:line
 
         compare: function(field) {
             var selector = this.selector(field);
-            return function (a, b) {
+            return function(a, b) {
                 a = selector(a);
                 b = selector(b);
 
@@ -1040,7 +1040,7 @@ var __meta__ = { // jshint ignore:line
     var StableComparer = extend({}, Comparer, {
         asc: function(field) {
             var selector = this.selector(field);
-            return function (a, b) {
+            return function(a, b) {
                 var valueA = selector(a);
                 var valueB = selector(b);
 
@@ -1071,7 +1071,7 @@ var __meta__ = { // jshint ignore:line
 
         desc: function(field) {
             var selector = this.selector(field);
-            return function (a, b) {
+            return function(a, b) {
                 var valueA = selector(a);
                 var valueB = selector(b);
 
@@ -1104,7 +1104,7 @@ var __meta__ = { // jshint ignore:line
         }
     });
 
-    map = function (array, callback) {
+    map = function(array, callback) {
         var idx, length = array.length, result = new Array(length);
 
         for (idx = 0; idx < length; idx++) {
@@ -1114,7 +1114,7 @@ var __meta__ = { // jshint ignore:line
         return result;
     };
 
-    var operators = (function(){
+    var operators = (function() {
 
         function quote(str) {
             if (typeof str == "string") {
@@ -1127,7 +1127,7 @@ var __meta__ = { // jshint ignore:line
             return function(a, b, ignore, accentFoldingFiltering) {
                 b += "";
                 if (ignore) {
-                    a = "(" + a + " + '').toString()" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering  +"')" : ".toLowerCase()");
+                    a = "(" + a + " + '').toString()" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering + "')" : ".toLowerCase()");
                     b = ((accentFoldingFiltering) ? b.toLocaleLowerCase(accentFoldingFiltering) : b.toLowerCase());
                 }
                 return impl(a, quote(b), ignore);
@@ -1142,7 +1142,7 @@ var __meta__ = { // jshint ignore:line
                         b = new Date(+date[1]);
                     } else if (ignore) {
                         b = quote(((accentFoldingFiltering) ? b.toLocaleLowerCase(accentFoldingFiltering) : b.toLowerCase()));
-                        a = "((" + a + " || '')+'')" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering  +"')" : ".toLowerCase()");
+                        a = "((" + a + " || '')+'')" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering + "')" : ".toLowerCase()");
                     } else {
                         b = quote(b);
                     }
@@ -1233,11 +1233,11 @@ var __meta__ = { // jshint ignore:line
             doesnotcontain: textOp(function(a, b) {
                 return a + ".indexOf(" + b + ") == -1";
             }),
-            matches: textOp(function(a, b){
+            matches: textOp(function(a, b) {
                 b = b.substring(1, b.length - 1);
                 return getMatchRegexp(b) + ".test(" + a + ")";
             }),
-            doesnotmatch: textOp(function(a, b){
+            doesnotmatch: textOp(function(a, b) {
                 b = b.substring(1, b.length - 1);
                 return "!" + getMatchRegexp(b) + ".test(" + a + ")";
             }),
@@ -1301,7 +1301,7 @@ var __meta__ = { // jshint ignore:line
                 fieldFunctions.push.apply(fieldFunctions, expr.fields);
             } else {
                 if (typeof field === FUNCTION) {
-                    expr = "__f[" + fieldFunctions.length +"](d)";
+                    expr = "__f[" + fieldFunctions.length + "](d)";
                     fieldFunctions.push(field);
                 } else {
                     expr = kendo.expr(field);
@@ -1311,14 +1311,14 @@ var __meta__ = { // jshint ignore:line
                     filter = "__o[" + operatorFunctions.length + "](" + expr + ", " + operators.quote(filter.value) + ")";
                     operatorFunctions.push(operator);
                 } else {
-                    filter = operators[(operator || "eq").toLowerCase()](expr, filter.value, filter.ignoreCase !== undefined? filter.ignoreCase : true, expression.accentFoldingFiltering);
+                    filter = operators[(operator || "eq").toLowerCase()](expr, filter.value, filter.ignoreCase !== undefined ? filter.ignoreCase : true, expression.accentFoldingFiltering);
                 }
             }
 
             expressions.push(filter);
         }
 
-        return  { expression: "(" + expressions.join(logic[expression.logic]) + ")", fields: fieldFunctions, operators: operatorFunctions };
+        return { expression: "(" + expressions.join(logic[expression.logic]) + ")", fields: fieldFunctions, operators: operatorFunctions };
     };
 
     function normalizeSort(field, dir) {
@@ -1487,7 +1487,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function normalizeGroup(field, dir, compare, skipItemSorting) {
-        var descriptor = typeof field === STRING ? { field: field, dir: dir, compare: compare, skipItemSorting : skipItemSorting } : field,
+        var descriptor = typeof field === STRING ? { field: field, dir: dir, compare: compare, skipItemSorting: skipItemSorting } : field,
         descriptors = isArray(descriptor) ? descriptor : (descriptor !== undefined ? [descriptor] : []);
 
         return map(descriptors, function(d) {
@@ -1524,19 +1524,19 @@ var __meta__ = { // jshint ignore:line
     }
 
     Query.prototype = {
-        toArray: function () {
+        toArray: function() {
             return this.data;
         },
         range: function(index, count) {
             return new Query(this.data.slice(index, index + count));
         },
-        skip: function (count) {
+        skip: function(count) {
             return new Query(this.data.slice(count));
         },
-        take: function (count) {
+        take: function(count) {
             return new Query(this.data.slice(0, count));
         },
-        select: function (selector) {
+        select: function(selector) {
             return new Query(map(this.data, selector));
         },
         order: function(selector, dir, inPlace) {
@@ -1624,7 +1624,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         group: function(descriptors, allData, options) {
-            descriptors =  normalizeGroup(descriptors || []);
+            descriptors = normalizeGroup(descriptors || []);
             allData = allData || this.data;
 
             var that = this,
@@ -1635,7 +1635,7 @@ var __meta__ = { // jshint ignore:line
                 descriptor = descriptors[0];
 
                 if (options && options.groupPaging) {
-                    result = new Query(allData).groupAllData(descriptor, allData).select(function (group) {
+                    result = new Query(allData).groupAllData(descriptor, allData).select(function(group) {
                         var data = new Query(allData).filter([{
                             field: group.field,
                             operator: "eq",
@@ -1693,10 +1693,10 @@ var __meta__ = { // jshint ignore:line
                 len,
                 result = [group];
 
-            for(idx = 0, len = sorted.length; idx < len; idx++) {
+            for (idx = 0, len = sorted.length; idx < len; idx++) {
                 item = sorted[idx];
                 currentValue = accessor.get(item, field);
-                if(!groupValueComparer(groupValue, currentValue)) {
+                if (!groupValueComparer(groupValue, currentValue)) {
                     groupValue = currentValue;
                     group = {
                         field: field,
@@ -1713,7 +1713,7 @@ var __meta__ = { // jshint ignore:line
             return new Query(result);
         },
 
-        groupAllData: function (descriptor, allData) {
+        groupAllData: function(descriptor, allData) {
             if (isEmptyObject(descriptor) || this.data && !this.data.length) {
                 return new Query([]);
             }
@@ -1783,14 +1783,14 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        aggregate: function (aggregates) {
+        aggregate: function(aggregates) {
             var idx,
                 len,
                 result = {},
                 state = {};
 
             if (aggregates && aggregates.length) {
-                for(idx = 0, len = this.data.length; idx < len; idx++) {
+                for (idx = 0, len = this.data.length; idx < len; idx++) {
                     calculateAggregate(result, aggregates, this.data[idx], idx, len, state);
                 }
             }
@@ -1855,7 +1855,7 @@ var __meta__ = { // jshint ignore:line
                 state.count++;
             }
 
-            if(index == length - 1 && isNumber(accumulator)) {
+            if (index == length - 1 && isNumber(accumulator)) {
                 accumulator = accumulator / state.count;
             }
             return accumulator;
@@ -1867,7 +1867,7 @@ var __meta__ = { // jshint ignore:line
                 accumulator = value;
             }
 
-            if(accumulator < value && (isNumber(value) || isDate(value))) {
+            if (accumulator < value && (isNumber(value) || isDate(value))) {
                 accumulator = value;
             }
             return accumulator;
@@ -1879,7 +1879,7 @@ var __meta__ = { // jshint ignore:line
                 accumulator = value;
             }
 
-            if(accumulator > value && (isNumber(value) || isDate(value))) {
+            if (accumulator > value && (isNumber(value) || isDate(value))) {
                 accumulator = value;
             }
             return accumulator;
@@ -2015,7 +2015,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
 
-            that.cache = options.cache? Cache.create(options.cache) : {
+            that.cache = options.cache ? Cache.create(options.cache) : {
                 find: noop,
                 add: noop
             };
@@ -2075,7 +2075,7 @@ var __meta__ = { // jshint ignore:line
 
             result = cache.find(options.data);
 
-            if(result !== undefined) {
+            if (result !== undefined) {
                 success(result);
             } else {
                 options.success = function(result) {
@@ -2122,7 +2122,7 @@ var __meta__ = { // jshint ignore:line
             this._store = {};
         },
         add: function(key, data) {
-            if(key !== undefined) {
+            if (key !== undefined) {
                 this._store[stringify(key)] = data;
             }
         },
@@ -2662,7 +2662,7 @@ var __meta__ = { // jshint ignore:line
             that._pristineTotal = 0;
             that._destroyed = [];
             that._pageSize = options.pageSize;
-            that._page = options.page  || (options.pageSize ? 1 : undefined);
+            that._page = options.page || (options.pageSize ? 1 : undefined);
             that._sort = normalizeSort(options.sort);
             that._sortFields = sortFields(options.sort);
             that._filter = normalizeFilter(options.filter);
@@ -2770,11 +2770,11 @@ var __meta__ = { // jshint ignore:line
             return this.options.serverGrouping && group.length;
         },
 
-        _isServerGroupPaged: function(){
+        _isServerGroupPaged: function() {
             return this._isServerGrouped() && this._groupPaging;
         },
 
-        _isGroupPaged: function(){
+        _isGroupPaged: function() {
             var group = this._group || [];
 
             return this._groupPaging && group.length;
@@ -3065,7 +3065,7 @@ var __meta__ = { // jshint ignore:line
                     var model = this._createNewModel(item);
                     var found = false;
 
-                    this._eachItem(this._data, function(items){
+                    this._eachItem(this._data, function(items) {
                         for (var idx = 0; idx < items.length; idx++) {
                             var item = items.at(idx);
                             if (item.id === model.id) {
@@ -3100,7 +3100,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _moveItems: function (index, items) {
+        _moveItems: function(index, items) {
             if (!isArray(items)) {
                 items = [items];
             }
@@ -3114,7 +3114,7 @@ var __meta__ = { // jshint ignore:line
                     var item = items[i];
                     var model = this._createNewModel(item);
 
-                    this._eachItem(this._data, function(dataItems){
+                    this._eachItem(this._data, function(dataItems) {
                         for (var idx = 0; idx < dataItems.length; idx++) {
                             var dataItem = dataItems.at(idx);
                             if (dataItem.id === model.id) {
@@ -3139,7 +3139,7 @@ var __meta__ = { // jshint ignore:line
                 hasGroups = that._isServerGrouped();
 
             if (hasGroups && model.uid && (!model.isNew || !model.isNew())) {
-                that._destroyed.push(model);
+                that._pushInDestroyed(model);
             }
 
             this._eachItem(that._data, function(items) {
@@ -3219,7 +3219,7 @@ var __meta__ = { // jshint ignore:line
                  .then(function() {
                     var idx, length;
 
-                    for (idx = 0, length = arguments.length; idx < length; idx++){
+                    for (idx = 0, length = arguments.length; idx < length; idx++) {
                         if (arguments[idx]) {
                             that._accept(arguments[idx]);
                         }
@@ -3596,7 +3596,7 @@ var __meta__ = { // jshint ignore:line
                                 deferred.reject.apply(deferred, args);
                             }
                         });
-                    } else if (that.options.offlineStorage != null){
+                    } else if (that.options.offlineStorage != null) {
                         that.success(that.offlineData(), params);
 
                         deferred.resolve();
@@ -3670,7 +3670,7 @@ var __meta__ = { // jshint ignore:line
                     var state = item.__state__;
                     if (state == "destroy") {
                         if (!itemIds[item[idField]]) {
-                            this._destroyed.push(this._createNewModel(item));
+                            this._pushInDestroyed(this._createNewModel(item));
                         }
                     } else {
                         items.push(item);
@@ -3789,7 +3789,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _addRange: function (data, skip) {
+        _addRange: function(data, skip) {
             var that = this,
                 start = typeof (skip) !== "undefined" ? skip : (that._skip || 0),
                 end,
@@ -3821,7 +3821,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _appendToGroupsFlat: function (data) {
+        _appendToGroupsFlat: function(data) {
             var length = data.length;
 
             for (var i = 0; i < length; i++) {
@@ -3829,7 +3829,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _getGroupByUid: function(uid){
+        _getGroupByUid: function(uid) {
             var length = this._groupsFlat.length;
             var group;
 
@@ -3855,7 +3855,7 @@ var __meta__ = { // jshint ignore:line
 
         _params: function(data) {
             var that = this,
-                options =  extend({
+                options = extend({
                     take: that.take(),
                     skip: that.skip(),
                     page: that.page(),
@@ -3998,13 +3998,22 @@ var __meta__ = { // jshint ignore:line
             that._total = total;
         },
 
+        _pushInDestroyed: function(model) {
+            var isPushed = this._destroyed.find(function(item) {
+                return item.uid === model.uid;
+            });
+            if (!isPushed) {
+                this._destroyed.push(model);
+            }
+        },
+
         _change: function(e) {
             var that = this, idx, length, action = e ? e.action : "";
 
             if (action === "remove") {
                 for (idx = 0, length = e.items.length; idx < length; idx++) {
                     if (!e.items[idx].isNew || !e.items[idx].isNew()) {
-                        that._destroyed.push(e.items[idx]);
+                        that._pushInDestroyed(e.items[idx]);
                     }
                 }
             }
@@ -4029,7 +4038,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _calculateAggregates: function (data, options) {
+        _calculateAggregates: function(data, options) {
             options = options || {};
 
             var query = new Query(data),
@@ -4043,7 +4052,7 @@ var __meta__ = { // jshint ignore:line
             return query.aggregate(aggregates);
         },
 
-        _process: function (data, e) {
+        _process: function(data, e) {
             var that = this,
                 options = {},
                 result;
@@ -4052,7 +4061,7 @@ var __meta__ = { // jshint ignore:line
                 options.skip = that._skip;
                 options.take = that._take || that._pageSize;
 
-                if(options.skip === undefined && that._page !== undefined && that._pageSize !== undefined) {
+                if (options.skip === undefined && that._page !== undefined && that._pageSize !== undefined) {
                     options.skip = (that._page - 1) * that._pageSize;
                 }
 
@@ -4091,6 +4100,20 @@ var __meta__ = { // jshint ignore:line
                 result = that._queryProcess(data, options);
             }
 
+            if (that._filter && e && e.action === "add") {
+                var model = e.items[0],
+                    resultData = result.data;
+
+                var modelIsInView = resultData.find(function(item) {
+                    return item.uid === model.uid;
+                });
+
+                if (!modelIsInView) {
+                    result.data.splice(model.index, 0, model);
+                    result.total++;
+                }
+            }
+
             if (that.options.serverAggregates !== true) {
                 // for performance reasons, calculate aggregates for part of the data only after query process
                 // this is necessary in the TreeList when paging
@@ -4108,7 +4131,7 @@ var __meta__ = { // jshint ignore:line
             that.trigger(CHANGE, e);
         },
 
-        _setView: function (result, options, e) {
+        _setView: function(result, options, e) {
             var that = this;
 
             if (that._isGroupPaged() && !that._isServerGrouped()) {
@@ -4133,12 +4156,12 @@ var __meta__ = { // jshint ignore:line
         },
 
         _clearEmptyGroups: function(data) {
-            for (var idx = data.length - 1; idx >=0; idx--) {
+            for (var idx = data.length - 1; idx >= 0; idx--) {
                 var group = data[idx];
                 if (group.hasSubgroups) {
                     this._clearEmptyGroups(group.items);
                 }
-                
+
                 if (group.items && !group.items.length && !group.itemCount) {
                     splice.apply(group.parent(), [idx, 1]);
                 }
@@ -4167,17 +4190,17 @@ var __meta__ = { // jshint ignore:line
                 that._skip = that._currentRangeStart = options.skip;
                 that._take = options.take;
 
-                if(that._skip === undefined) {
+                if (that._skip === undefined) {
                     that._skip = that._currentRangeStart = that.skip();
                     options.skip = that.skip();
                 }
 
-                if(that._take === undefined && that._pageSize !== undefined) {
+                if (that._take === undefined && that._pageSize !== undefined) {
                     that._take = that._pageSize;
                     options.take = that._take;
                 }
 
-                if(that.options.virtual) {
+                if (that.options.virtual) {
                     options.virtual = that.options.virtual;
                 }
 
@@ -4187,7 +4210,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (options.filter) {
-                    that._filter = options.filter = (that.options.accentFoldingFiltering && !$.isEmptyObject(options.filter)) ? $.extend({}, normalizeFilter(options.filter), { accentFoldingFiltering: that.options.accentFoldingFiltering}) : normalizeFilter(options.filter);
+                    that._filter = options.filter = (that.options.accentFoldingFiltering && !$.isEmptyObject(options.filter)) ? $.extend({}, normalizeFilter(options.filter), { accentFoldingFiltering: that.options.accentFoldingFiltering }) : normalizeFilter(options.filter);
                 }
 
                 if (options.group) {
@@ -4238,7 +4261,7 @@ var __meta__ = { // jshint ignore:line
             return $.Deferred().resolve(isPrevented).promise();
         },
 
-        _hasExpandedSubGroups: function (group) {
+        _hasExpandedSubGroups: function(group) {
             var result = false;
             var length = group.items ? group.items.length : 0;
 
@@ -4255,7 +4278,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        _findGroupedRange: function (data, result, options, parents, callback) {
+        _findGroupedRange: function(data, result, options, parents, callback) {
             var that = this;
             var length = data.length;
             var group;
@@ -4348,7 +4371,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _expandedSubGroupItemsCount: function (group, end, includeCurrentItems) {
+        _expandedSubGroupItemsCount: function(group, end, includeCurrentItems) {
             var that = this;
             var result = 0;
             var subGroup;
@@ -4472,15 +4495,15 @@ var __meta__ = { // jshint ignore:line
             }
 
             clearTimeout(that._timeout);
-            that._timeout = setTimeout(function () {
-                that._queueRequest(data, function () {
+            that._timeout = setTimeout(function() {
+                that._queueRequest(data, function() {
                     if (!that.trigger(REQUESTSTART, {
                             type: "read"
                         })) {
                         that.transport.read({
                             data: data,
                             success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback, groupItemsSkip),
-                            error: function () {
+                            error: function() {
                                 var args = slice.call(arguments);
                                 that.error.apply(that, args);
                             }
@@ -4498,7 +4521,7 @@ var __meta__ = { // jshint ignore:line
             callback = isFunction(callback) ? callback : noop;
             var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : "Total";
 
-            return function (data) {
+            return function(data) {
                 var temp;
                 var model = Model.define(that.options.schema.model);
                 var totalCount;
@@ -4523,7 +4546,7 @@ var __meta__ = { // jshint ignore:line
                     group.subgroupCount = totalCount;
                 } else {
                     temp = that.reader.data(data);
-                    temp = temp.map(function (item) {
+                    temp = temp.map(function(item) {
                         return new model(item);
                     });
                 }
@@ -4557,7 +4580,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         findSubgroups: function(group) {
-            var indexOfCurrentGroup = this._group.map(function (g) {
+            var indexOfCurrentGroup = this._group.map(function(g) {
                 return g.field;
             }).indexOf(group.field);
 
@@ -4640,10 +4663,11 @@ var __meta__ = { // jshint ignore:line
                 for (var i = 0; i < length; i++) {
                     currentSubGroup = group.items[i];
                     indexes.push(i);
-                    if (currentSubGroup.uid === subgroup.uid) {
+                    if (currentSubGroup.uid === subgroup.uid ||
+                            (currentSubGroup.hasSubgroups &&
+                            currentSubGroup.items.length &&
+                            that._containsSubGroup(currentSubGroup, subgroup, indexes))) {
                         return true;
-                    } else if (currentSubGroup.hasSubgroups && currentSubGroup.items.length) {
-                        return that._containsSubGroup(currentSubGroup, subgroup, indexes);
                     }
                     indexes.pop();
                 }
@@ -4656,7 +4680,7 @@ var __meta__ = { // jshint ignore:line
             group = typeof group.toJSON == "function" ? group.toJSON() : group;
 
             if (group.items && group.items.length) {
-                group.items = group.items.map(function (item) {
+                group.items = group.items.map(function(item) {
                     return that._cloneGroup(item);
                 });
             }
@@ -4745,7 +4769,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
             skip;
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 val = math.max(math.min(math.max(val, 1), that.totalPages()), 1);
                 var take = that.take();
 
@@ -4776,7 +4800,7 @@ var __meta__ = { // jshint ignore:line
         sort: function(val) {
             var that = this;
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 that.trigger("sort");
                 that._query({ sort: val });
                 return;
@@ -4802,13 +4826,13 @@ var __meta__ = { // jshint ignore:line
 
             if (that._groupPaging) {
                 // clear ranges if ungrouping is performed
-                if (val!== undefined && (!val || !val.length) ) {
+                if (val !== undefined && (!val || !val.length) ) {
                     that._ranges = [];
                 }
                 options.page = 1;
             }
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 that._query(options);
                 return;
             }
@@ -4816,7 +4840,7 @@ var __meta__ = { // jshint ignore:line
             return that._group;
         },
 
-        getGroupsFlat: function (data) {
+        getGroupsFlat: function(data) {
             var idx,
                 result = [],
                 length;
@@ -4837,7 +4861,7 @@ var __meta__ = { // jshint ignore:line
             return parseInt(this._total || 0, 10);
         },
 
-        groupsTotal: function (includeExpanded) {
+        groupsTotal: function(includeExpanded) {
             var that = this;
 
             if (!that._group.length) {
@@ -4856,7 +4880,7 @@ var __meta__ = { // jshint ignore:line
             return that._calculateGroupsTotal(that._ranges.length ? that._ranges[0].data : [], includeExpanded);
         },
 
-        _calculateGroupsTotal: function (groups, includeExpanded, itemsField, ignoreState) {
+        _calculateGroupsTotal: function(groups, includeExpanded, itemsField, ignoreState) {
             var that = this;
             itemsField = itemsField || "items";
             var total;
@@ -4877,7 +4901,7 @@ var __meta__ = { // jshint ignore:line
             return that._groupsTotal;
         },
 
-        groupCount: function (group, includeExpanded, itemsField, ignoreState) {
+        groupCount: function(group, includeExpanded, itemsField, ignoreState) {
             var that = this;
             var total = 0;
 
@@ -4886,7 +4910,7 @@ var __meta__ = { // jshint ignore:line
                     total += 1;
                 }
 
-                group[itemsField].forEach(function (subgroup) {
+                group[itemsField].forEach(function(subgroup) {
                     total += that.groupCount(subgroup, includeExpanded, itemsField, ignoreState);
                 });
             } else {
@@ -4902,7 +4926,7 @@ var __meta__ = { // jshint ignore:line
             return total;
         },
 
-        countGroupRange: function (range) {
+        countGroupRange: function(range) {
             var total = 0;
             var length = range.length;
 
@@ -4916,7 +4940,7 @@ var __meta__ = { // jshint ignore:line
         aggregate: function(val) {
             var that = this;
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 that._query({ aggregate: val });
                 return;
             }
@@ -4940,11 +4964,11 @@ var __meta__ = { // jshint ignore:line
             if (!isEmptyObject(aggregates)) {
                 var aggregate = {};
 
-                if (!isArray(aggregates)){
+                if (!isArray(aggregates)) {
                     aggregates = [aggregates];
                 }
 
-                for (var idx = 0; idx <aggregates.length; idx++) {
+                for (var idx = 0; idx < aggregates.length; idx++) {
                     aggregate[aggregates[idx].aggregate] = 0;
                     result[aggregates[idx].field] = aggregate;
                 }
@@ -4964,7 +4988,7 @@ var __meta__ = { // jshint ignore:line
                 idx,
                 length;
 
-            for (idx = groups.length-1, length = 0; idx >= length; idx--) {
+            for (idx = groups.length - 1, length = 0; idx >= length; idx--) {
                 group = groups[idx];
                 parent = {
                     value: model.get ? model.get(group.field) : model[group.field],
@@ -5195,7 +5219,7 @@ var __meta__ = { // jshint ignore:line
             return [];
         },
 
-        _getRangesMismatch: function (pageSkip) {
+        _getRangesMismatch: function(pageSkip) {
             var that = this;
             var ranges = that._ranges;
             var mismatch = 0;
@@ -5273,7 +5297,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (that._skip === undefined) {
-                return (that._page !== undefined ? (that._page  - 1) * (that.take() || 1) : undefined);
+                return (that._page !== undefined ? (that._page - 1) * (that.take() || 1) : undefined);
             }
             return that._skip;
         },
@@ -5286,7 +5310,7 @@ var __meta__ = { // jshint ignore:line
             return this._take || this._pageSize;
         },
 
-        _prefetchSuccessHandler: function (skip, size, callback, force) {
+        _prefetchSuccessHandler: function(skip, size, callback, force) {
             var that = this;
             var timestamp = that._timeStamp();
 
@@ -5414,7 +5438,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _adjustPageSkip: function (start, take) {
+        _adjustPageSkip: function(start, take) {
             var that = this;
             var prevRange = that._getPrevRange(start);
             var result;
@@ -5442,7 +5466,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        _getNextRange: function (end) {
+        _getNextRange: function(end) {
             var that = this,
                 ranges = that._ranges,
                 idx,
@@ -5455,7 +5479,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _getPrevRange: function (start) {
+        _getPrevRange: function(start) {
             var that = this,
                 ranges = that._ranges,
                 idx,
@@ -5488,7 +5512,7 @@ var __meta__ = { // jshint ignore:line
             return false;
         },
 
-        _groupRangeExists: function (start, end) {
+        _groupRangeExists: function(start, end) {
             var that = this,
                 ranges = that._ranges,
                 idx,
@@ -5618,7 +5642,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _updateOuterRangesLength: function () {
+        _updateOuterRangesLength: function() {
             var that = this;
             var ranges = that._ranges || [];
             var rangesLength = ranges.length;
@@ -5721,7 +5745,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!isEmptyObject(model)) {
-                dataSource.schema = extend(true, dataSource.schema, { model:  { fields: model } });
+                dataSource.schema = extend(true, dataSource.schema, { model: { fields: model } });
             }
         }
 
@@ -5803,12 +5827,12 @@ var __meta__ = { // jshint ignore:line
 
             for (fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
                 cell = cells[fieldIndex];
-                if(cell.nodeName.toLowerCase() !== "th") {
+                if (cell.nodeName.toLowerCase() !== "th") {
                     empty = false;
                     record[fields[fieldIndex].field] = cell.innerHTML;
                 }
             }
-            if(!empty) {
+            if (!empty) {
                 data.push(record);
             }
         }
@@ -5859,9 +5883,9 @@ var __meta__ = { // jshint ignore:line
             if (isFunction(hasChildren)) {
                 var hasChildrenObject = hasChildren.call(that, that);
 
-                if(hasChildrenObject && hasChildrenObject.length === 0){
+                if (hasChildrenObject && hasChildrenObject.length === 0) {
                     that.hasChildren = false;
-                } else{
+                } else {
                     that.hasChildren = !!hasChildrenObject;
                 }
             }
@@ -5895,16 +5919,16 @@ var __meta__ = { // jshint ignore:line
                     return data;
                 };
 
-                children.parent = function(){
+                children.parent = function() {
                     return that;
                 };
 
-                children.bind(CHANGE, function(e){
+                children.bind(CHANGE, function(e) {
                     e.node = e.node || that;
                     that.trigger(CHANGE, e);
                 });
 
-                children.bind(ERROR, function(e){
+                children.bind(ERROR, function(e) {
                     var collection = that.parent();
 
                     if (collection) {
@@ -5913,7 +5937,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 });
 
-                children.bind(ITEMSLOADED, function (e) {
+                children.bind(ITEMSLOADED, function(e) {
                     var collection = that.parent();
 
                     if (collection) {
@@ -5976,13 +6000,13 @@ var __meta__ = { // jshint ignore:line
 
                 children.one(CHANGE, this._childrenLoaded.bind(this));
 
-                if(this._matchFilter){
+                if (this._matchFilter) {
                     options.filter = { field: '_matchFilter', operator: 'eq', value: true };
                 }
 
                 promise = children[method](options);
                 if (!this._loaded) {
-                    this.trigger(ITEMLOAD, {promise: promise, node: this});
+                    this.trigger(ITEMLOAD, { promise: promise, node: this });
                 }
             } else {
                 this.loaded(true);
@@ -6033,7 +6057,7 @@ var __meta__ = { // jshint ignore:line
                 children: options
             });
 
-            if(options.filter && !options.serverFiltering){
+            if (options.filter && !options.serverFiltering) {
                 this._hierarchicalFilter = options.filter;
                 options.filter = null;
             }
@@ -6055,17 +6079,17 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        loading: function () {
-            if(this._data) {
+        loading: function() {
+            if (this._data) {
                 return this._data.loading() || this._childrenLoading();
             }
             return false;
         },
 
-        _childrenLoading: function () {
+        _childrenLoading: function() {
             var isLoading = false;
-            this._data.forEach(function (node) {
-                if(node.hasChildren && node.children.loading()) {
+            this._data.forEach(function(node) {
+                if (node.hasChildren && node.children.loading()) {
                     isLoading = true;
                 }
             });
@@ -6075,10 +6099,10 @@ var __meta__ = { // jshint ignore:line
         read: function(data) {
             var result = DataSource.fn.read.call(this, data);
 
-            if(this._hierarchicalFilter){
-                if(this._data && this._data.length > 0){
+            if (this._hierarchicalFilter) {
+                if (this._data && this._data.length > 0) {
                     this.filter(this._hierarchicalFilter);
-                }else{
+                } else {
                     this.options.filter = this._hierarchicalFilter;
                     this._filter = normalizeFilter(this.options.filter);
                     this._hierarchicalFilter = null;
@@ -6088,7 +6112,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        remove: function(node){
+        remove: function(node) {
             var parentNode = node.parentNode(),
                 dataSource = this,
                 result;
@@ -6126,15 +6150,15 @@ var __meta__ = { // jshint ignore:line
                  return this._filter;
             }
 
-            if(!this.options.serverFiltering && this._markHierarchicalQuery(val)){
-                val = { logic: "or", filters: [val, {field:'_matchFilter', operator: 'equals', value: true }]};
+            if (!this.options.serverFiltering && this._markHierarchicalQuery(val)) {
+                val = { logic: "or", filters: [val, { field: '_matchFilter', operator: 'equals', value: true }] };
             }
 
             this.trigger("reset");
             this._query({ filter: val, page: 1 });
         },
 
-        _markHierarchicalQuery: function(expressions){
+        _markHierarchicalQuery: function(expressions) {
             var compiled;
             var predicate;
             var fields;
@@ -6142,10 +6166,10 @@ var __meta__ = { // jshint ignore:line
             var filter;
             var accentFoldingFiltering = this.options.accentFoldingFiltering;
 
-            expressions = accentFoldingFiltering ? $.extend({}, normalizeFilter(expressions), { accentFoldingFiltering: accentFoldingFiltering}) : normalizeFilter(expressions);
+            expressions = accentFoldingFiltering ? $.extend({}, normalizeFilter(expressions), { accentFoldingFiltering: accentFoldingFiltering }) : normalizeFilter(expressions);
 
             if (!expressions || expressions.filters.length === 0) {
-                this._updateHierarchicalFilter(function(){return true;});
+                this._updateHierarchicalFilter(function() {return true;});
                 return false;
             }
 
@@ -6165,7 +6189,7 @@ var __meta__ = { // jshint ignore:line
             return true;
         },
 
-         _updateHierarchicalFilter: function(filter){
+         _updateHierarchicalFilter: function(filter) {
             var current;
             var data = this._data;
             var result = false;
@@ -6173,16 +6197,16 @@ var __meta__ = { // jshint ignore:line
             for (var idx = 0; idx < data.length; idx++) {
                  current = data[idx];
 
-                 if(current.hasChildren){
+                 if (current.hasChildren) {
                      current._matchFilter = current.children._updateHierarchicalFilter(filter);
-                    if(!current._matchFilter){
+                    if (!current._matchFilter) {
                         current._matchFilter = filter(current);
                     }
-                }else{
+                } else {
                     current._matchFilter = filter(current);
                 }
 
-                if(current._matchFilter){
+                if (current._matchFilter) {
                     result = true;
                 }
             }
@@ -6346,12 +6370,12 @@ var __meta__ = { // jshint ignore:line
             this._recalculate();
         },
 
-        at: function(index)  {
+        at: function(index) {
             var pageSize = this.pageSize,
                 itemPresent = true;
 
             if (index >= this.total()) {
-                this.trigger("endreached", {index: index });
+                this.trigger("endreached", { index: index });
                 return null;
             }
 
@@ -6550,20 +6574,20 @@ var __meta__ = { // jshint ignore:line
             this.buffer = new Buffer(dataSource, batchSize * 3);
 
             this.buffer.bind({
-                "endreached": function (e) {
+                "endreached": function(e) {
                     batchBuffer.trigger("endreached", { index: e.index });
                 },
-                "prefetching": function (e) {
+                "prefetching": function(e) {
                     batchBuffer.trigger("prefetching", { skip: e.skip, take: e.take });
                 },
-                "prefetched": function (e) {
+                "prefetched": function(e) {
                     batchBuffer.trigger("prefetched", { skip: e.skip, take: e.take });
                 },
-                "reset": function () {
+                "reset": function() {
                     batchBuffer._total = 0;
                     batchBuffer.trigger("reset");
                 },
-                "resize": function () {
+                "resize": function() {
                     batchBuffer._total = Math.ceil(this.length / batchBuffer.batchSize);
                     batchBuffer.trigger("resize", { total: batchBuffer.total(), offset: this.offset });
                 }
@@ -6632,5 +6656,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

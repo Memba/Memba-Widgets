@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -794,10 +794,10 @@ $.extend(true, kendo.spreadsheet.messages.filterMenu,{
       "endswith": "Texto termina com"
     },
     "date": {
-      "eq":  "É igual a",
+      "eq": "É igual a",
       "neq": "Não é igual a",
-      "lt":  "É anterior a",
-      "gt":  "É posterior a"
+      "lt": "É anterior a",
+      "gt": "É posterior a"
     },
     "number": {
       "eq": "É igual à",
@@ -957,7 +957,7 @@ $.extend(true, kendo.ui.TreeView.prototype.options.messages,{
 /* Upload messages */
 
 if (kendo.ui.Upload) {
-kendo.ui.Upload.prototype.options.localization=
+kendo.ui.Upload.prototype.options.localization =
 $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "select": "Selecionar...",
   "cancel": "Cancelar",

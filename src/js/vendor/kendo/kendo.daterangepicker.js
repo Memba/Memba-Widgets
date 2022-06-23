@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
-    define('kendo.daterangepicker',[ "kendo.core", "kendo.multiviewcalendar",  "kendo.datepicker"], f);
-})(function(){
+(function(f, define) {
+    define('kendo.daterangepicker',[ "kendo.core", "kendo.multiviewcalendar", "kendo.datepicker"], f);
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "daterangepicker",
@@ -38,6 +38,7 @@ var __meta__ = { // jshint ignore:line
         SELECTED = "k-state-selected",
         ARIA_EXPANDED = "aria-expanded",
         ARIA_DISABLED = "aria-disabled",
+        ARIA_ACTIVEDESCENDANT = "aria-activedescendant",
         STATEDISABLED = "k-disabled",
         DISABLED = "disabled",
         READONLY = "readonly",
@@ -82,7 +83,7 @@ var __meta__ = { // jshint ignore:line
         }
     };
 
-    DateRangeView.prototype._setOptions =  function(options) {
+    DateRangeView.prototype._setOptions = function(options) {
         this.calendar.setOptions({
             focusOnNav: false,
             change: options.change,
@@ -102,7 +103,7 @@ var __meta__ = { // jshint ignore:line
         });
     };
 
-    DateRangeView.prototype.range = function (range) {
+    DateRangeView.prototype.range = function(range) {
         this._range = range;
 
         if (this.calendar) {
@@ -203,15 +204,21 @@ var __meta__ = { // jshint ignore:line
                     if (that.trigger(CLOSE)) {
                         e.preventDefault();
                     } else {
-                        that.wrapper.attr(ARIA_EXPANDED, false);
+                        that._inputs.attr(ARIA_EXPANDED, false);
                         div.attr(ARIA_HIDDEN, true);
+
+                        setTimeout(function() {
+                            if (that._inputs) {
+                                that._inputs.removeAttr(ARIA_ACTIVEDESCENDANT);
+                            }
+                        });
                     }
                 },
                 open: function(e) {
                     if (that.trigger(OPEN)) {
                         e.preventDefault();
                     } else {
-                        that.wrapper.attr(ARIA_EXPANDED, true);
+                        that._inputs.attr(ARIA_EXPANDED, true);
                         div.attr(ARIA_HIDDEN, false);
                         that._updateARIA();
                     }
@@ -220,13 +227,7 @@ var __meta__ = { // jshint ignore:line
             div = that.dateView.div;
             that._ariaTemplate = template(this.options.ARIATemplate).bind(that);
             that._reset();
-            that.wrapper
-                .attr({
-                    role: "combobox",
-                    "aria-expanded": false,
-                    "aria-owns": that.dateView._dateViewID,
-                    "autocomplete": "off"
-                });
+            that._aria();
 
             that._inputs
                 .on(UP + ns, that._click.bind(that))
@@ -292,6 +293,17 @@ var __meta__ = { // jshint ignore:line
             that._range = options.range;
         },
 
+        _aria: function() {
+            this._inputs
+                .attr({
+                    role: "combobox",
+                    "aria-haspopup": "grid",
+                    "aria-expanded": false,
+                    "aria-controls": this.dateView._dateViewID,
+                    "autocomplete": "off"
+                });
+        },
+
         _click: function() {
             var that = this;
 
@@ -322,8 +334,8 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var calendar = that.dateView.calendar;
 
-            if(that.element && that.element.length) {
-                that._inputs.removeAttr("aria-describedby");
+            if (that._inputs && that._inputs.length) {
+                that._inputs.removeAttr(ARIA_ACTIVEDESCENDANT);
             }
 
             if (calendar) {
@@ -332,12 +344,12 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if ($.contains(that.element[0], document.activeElement)) {
-                    $(document.activeElement).attr("aria-describedby", calendar._updateAria(that._ariaTemplate, date));
+                    that._inputs.attr(ARIA_ACTIVEDESCENDANT, calendar._updateAria(that._ariaTemplate, date));
                 }
             }
         },
 
-        _startChange: function (e) {
+        _startChange: function(e) {
             var that = this;
             var input = e.sender;
             var startValue = input.value();
@@ -355,7 +367,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _endChange: function (e) {
+        _endChange: function(e) {
             var that = this;
             var input = e.sender;
             var endValue = input.value();
@@ -373,7 +385,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _initializeDateInputs: function () {
+        _initializeDateInputs: function() {
             var that = this;
             var options = that.options;
             var range = options.range || {};
@@ -429,9 +441,9 @@ var __meta__ = { // jshint ignore:line
 
             if (that.options.labels) {
                 id = kendo.guid();
-                $('<span class="k-floating-label-container"><input id="'+ id + '"/><label for="'+ id +'" class="k-label">'+ that.options.messages.startLabel + '</label></span>').appendTo(that.wrapper);
+                $('<span class="k-floating-label-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + that.options.messages.startLabel + '</label></span>').appendTo(that.wrapper);
                 id = kendo.guid();
-                $('<span>&nbsp;</span><span class="k-floating-label-container"><input id="'+ id + '"/><label for="'+ id +'" class="k-label">'+ that.options.messages.endLabel + '</label></span>').appendTo(that.wrapper);
+                $('<span>&nbsp;</span><span class="k-floating-label-container"><input id="' + id + '"/><label for="' + id + '" class="k-label">' + that.options.messages.endLabel + '</label></span>').appendTo(that.wrapper);
             } else {
                 $('<input/><span>&nbsp;</span><input/>').appendTo(that.wrapper);
             }
@@ -439,12 +451,12 @@ var __meta__ = { // jshint ignore:line
             that._startInput = that.wrapper.find("input").eq(0);
             that._endInput = that.wrapper.find("input").eq(1);
 
-            if (that.options.startField !== ""){
+            if (that.options.startField !== "") {
                 that._startInput.attr(kendo.attr("bind"), "value: " + that.options.startField);
 				that._startInput.attr("name", that.options.startField);
             }
 
-            if (that.options.endField !== ""){
+            if (that.options.endField !== "") {
                 that._endInput.attr(kendo.attr("bind"), "value: " + that.options.endField);
 				that._endInput.attr("name", that.options.endField);
             }
@@ -616,5 +628,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.editable',[ "kendo.checkbox", "kendo.dropdownlist", "kendo.datepicker", "kendo.numerictextbox", "kendo.validator", "kendo.binder" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "editable",
@@ -169,7 +169,7 @@ var __meta__ = { // jshint ignore:line
     ];
 
     var editors = {
-        "hidden": function (container, options) {
+        "hidden": function(container, options) {
             var attr = createAttributes(options);
             $('<input type="hidden"/>').attr(attr).appendTo(container);
         },
@@ -210,7 +210,7 @@ var __meta__ = { // jshint ignore:line
                 "\'" + kendo.attr("role") + '="dropdownlist"/>') .attr(attr).appendTo(container);
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg  k-hidden"/>').appendTo(container);
         },
-        "kendoEditor": function (container, options) {
+        "kendoEditor": function(container, options) {
             var attr = createAttributes(options);
             var type = options.editor;
             var editor = "kendo" + type;
@@ -227,31 +227,31 @@ var __meta__ = { // jshint ignore:line
     };
 
     var mobileEditors = {
-        "number": function (container, options) {
+        "number": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="number"/>').attr(attr).appendTo(container);
         },
-        "date": function (container, options) {
+        "date": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="date"/>').attr(attr).appendTo(container);
         },
-        "string": function (container, options) {
+        "string": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="text" />').attr(attr).appendTo(container);
         },
-        "boolean": function (container, options) {
+        "boolean": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="checkbox" />').attr(attr).appendTo(container);
         },
-        "values": function (container, options) {
+        "values": function(container, options) {
             var attr = createAttributes(options);
             var items = options.values;
             var select = $('<select />');
@@ -289,7 +289,7 @@ var __meta__ = { // jshint ignore:line
 
         if (addHidden) {
             tag.val(true);
-            container.append($("<input type='hidden' name='" + field.field +"' value='false' data-skip='true' data-validate='false'/>"));
+            container.append($("<input type='hidden' name='" + field.field + "' value='false' data-skip='true' data-validate='false'/>"));
         }
     }
 
@@ -334,7 +334,7 @@ var __meta__ = { // jshint ignore:line
                 isCustomEditor = isObject && !isHidden && field.editor,
                 isKendoEditor = isObject && $.inArray(field.editor, kendoEditors) !== -1,
                 editor = isCustomEditor ? field.editor : editors[isHidden ? "hidden" : type],
-                container = that.element.find("[" + kendo.attr("container-for") + "=" + fieldName.replace(nameSpecialCharRegExp, "\\$1")+ "]");
+                container = that.element.find("[" + kendo.attr("container-for") + "=" + fieldName.replace(nameSpecialCharRegExp, "\\$1") + "]");
 
             editor = editor ? editor : editors.string;
 
@@ -367,7 +367,7 @@ var __meta__ = { // jshint ignore:line
                    return bindingRegex.test($(this).attr(bindAttribute));
                 });
             if (input.length > 1) {
-                input = input.filter(function () {
+                input = input.filter(function() {
                     var element = $(this);
                     return !element.is(":radio") || element.val() == value;
                 });
@@ -392,7 +392,7 @@ var __meta__ = { // jshint ignore:line
         destroy: function() {
             var that = this;
 
-            that.angular("cleanup", function(){
+            that.angular("cleanup", function() {
                 return { elements: that.element };
             });
 
@@ -445,7 +445,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (that.options.target) {
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     return {
                         elements: container,
                         data: container.map(function() { return { dataItem: model }; })
@@ -497,5 +497,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

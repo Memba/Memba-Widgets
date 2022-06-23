@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.scrollview',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "scrollview",
@@ -30,7 +30,7 @@ var __meta__ = { // jshint ignore:line
 
         // Math
         math = Math,
-        abs  = math.abs,
+        abs = math.abs,
         ceil = math.ceil,
         round = math.round,
         max = math.max,
@@ -94,7 +94,7 @@ var __meta__ = { // jshint ignore:line
                 if (callback) {
                     callback(that.dataSource.view());
                 } else {
-                    that.trigger("page", {page: page});
+                    that.trigger("page", { page: page });
                 }
              }
              if (this.useRanges) {
@@ -172,7 +172,7 @@ var __meta__ = { // jshint ignore:line
             this._refreshProxy = that._refresh.bind(that);
             scrollView.bind(CHANGE, this._changeProxy);
             scrollView.bind(REFRESH, this._refreshProxy);
-            element.on(CLICK+NS, "li.k-link", this._click.bind(scrollView));
+            element.on(CLICK + NS, "li.k-link", this._click.bind(scrollView));
 
             $.extend(that, { element: element, scrollView: scrollView });
 
@@ -183,13 +183,13 @@ var __meta__ = { // jshint ignore:line
             return this.element.children();
         },
 
-        _focus: function () {
+        _focus: function() {
             var that = this;
             that._focused = true;
             that._setCurrent(that.element.find(DOT + className(CURRENT_PAGE_CLASS)));
         },
 
-        _blur: function () {
+        _blur: function() {
             var that = this;
 
             that._focused = false;
@@ -201,7 +201,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _keyDown: function (e) {
+        _keyDown: function(e) {
             var that = this;
             var handled;
             var next;
@@ -239,7 +239,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _setCurrent: function (current) {
+        _setCurrent: function(current) {
             if (!this._focused) {
                 return;
             }
@@ -279,9 +279,9 @@ var __meta__ = { // jshint ignore:line
 
             that._ariaTemplate = kendo.template(pageable.ARIATemplate || "Item #=data.index#");
 
-            that.element.on(KEYDOWN+NS, that, that._keyDown.bind(that));
-            that.element.on(FOCUS+NS, that._focus.bind(that));
-            that.element.on(FOCUSOUT+NS, that._blur.bind(that));
+            that.element.on(KEYDOWN + NS, that, that._keyDown.bind(that));
+            that.element.on(FOCUS + NS, that._focus.bind(that));
+            that.element.on(FOCUSOUT + NS, that._blur.bind(that));
         },
 
         _refresh: function(e) {
@@ -291,7 +291,7 @@ var __meta__ = { // jshint ignore:line
 
             for (var idx = 0; idx < e.pageCount; idx ++) {
                 if (navigatable) {
-                    pageHTML += '<li class="k-link" role="option" aria-label="' + this._ariaTemplate({ index: idx }) +'" aria-selected="false"></li>';
+                    pageHTML += '<li class="k-link" role="option" aria-label="' + this._ariaTemplate({ index: idx }) + '" aria-selected="false"></li>';
                 } else {
                     pageHTML += '<li class="k-link"></li>';
                 }
@@ -305,7 +305,7 @@ var __meta__ = { // jshint ignore:line
                 current.attr("aria-selected", true);
             }
 
-            this.scrollView._toggleNavigation({currentPage: e.page});
+            this.scrollView._toggleNavigation({ currentPage: e.page });
         },
 
         _change: function(e) {
@@ -330,7 +330,7 @@ var __meta__ = { // jshint ignore:line
                 current.attr("aria-selected", true);
             }
 
-            var itemOffset = this.items().eq(e.nextPage).length > 0 ?  this.items().eq(e.nextPage).position().left : 0;
+            var itemOffset = this.items().eq(e.nextPage).length > 0 ? this.items().eq(e.nextPage).position().left : 0;
 
             if (itemOffset > scrollViewWidth / 2 || itemOffset < kendo.scrollLeft(innerNavigationContainer) + scrollViewWidth / 2) {
 
@@ -339,15 +339,15 @@ var __meta__ = { // jshint ignore:line
                     translate = kendo.scrollLeft(innerNavigationContainer) + itemOffset - scrollViewWidth / 2;
                 }
                 else {
-                    translate = kendo.scrollLeft(innerNavigationContainer) - (scrollViewWidth / 2 -itemOffset);
+                    translate = kendo.scrollLeft(innerNavigationContainer) - (scrollViewWidth / 2 - itemOffset);
                 }
 
                 translate += (containerOffset + pageWidth);
 
-                innerNavigationContainer.animate({"scrollLeft": translate }, 300);
+                innerNavigationContainer.animate({ "scrollLeft": translate }, 300);
             }
 
-            this.scrollView._toggleNavigation({currentPage: e.currentPage, nextPage: e.nextPage});
+            this.scrollView._toggleNavigation({ currentPage: e.currentPage, nextPage: e.nextPage });
         },
 
         _click: function(e) {
@@ -791,7 +791,7 @@ var __meta__ = { // jshint ignore:line
             if (delta) {
                 nextPage = (delta > 0) ? nextPage + 1 : nextPage - 1;
 
-                if(that instanceof kendo.ui.VirtualScrollViewContent) {
+                if (that instanceof kendo.ui.VirtualScrollViewContent) {
                     that.dataReader.page(nextPage);
                     data = that.dataReader.getViewData();
                 }
@@ -860,7 +860,7 @@ var __meta__ = { // jshint ignore:line
 
         forcePageUpdate: function() {
             var offset = this.pane.offset(),
-                threshold  = this.pane.size().width * 3/4;
+                threshold = this.pane.size().width * 3 / 4;
 
             if (abs(offset) > threshold) {
                 return this.updatePage();
@@ -1061,7 +1061,7 @@ var __meta__ = { // jshint ignore:line
             content.bind("reset", function() {
                 this._pendingPageRefresh = false;
                 that.trigger(REFRESH, { pageCount: content.pageCount, page: content.page });
-                that._toggleNavigation({currentPage: content.page, nextPage: content.page });
+                that._toggleNavigation({ currentPage: content.page, nextPage: content.page });
             });
 
             content.bind("resize", function(e) {
@@ -1071,7 +1071,7 @@ var __meta__ = { // jshint ignore:line
                 if (currentPage != nextPage) {
                     e._defaultPrevented = that.trigger(CHANGE, { currentPage: content.page, nextPage: e.nextPage, data: e.data });
                 }
-                that._toggleNavigation({ currentPage: content.page, nextPage: e.nextPage});
+                that._toggleNavigation({ currentPage: content.page, nextPage: e.nextPage });
             });
 
             content.bind(ITEM_CHANGE, function(e) {
@@ -1188,7 +1188,7 @@ var __meta__ = { // jshint ignore:line
 
         prev: function() {
             var that = this,
-                prevPage =  that._content.page - 1;
+                prevPage = that._content.page - 1;
 
             if (that._content instanceof VirtualScrollViewContent) {
                 that._content.paneMoved(RIGHT_SWIPE, undefined, function(eventData) {
@@ -1242,14 +1242,14 @@ var __meta__ = { // jshint ignore:line
             return this.element.find(".k-" + VIRTUAL_PAGE_CLASS);
         },
 
-        _updateAria: function () {
+        _updateAria: function() {
             var content = this._content;
             if (this.options.navigatable) {
-                this.ariaLiveEl.html(this._ariaTemplate({index: (content.page + 1), total: content.pageCount}));
+                this.ariaLiveEl.html(this._ariaTemplate({ index: (content.page + 1), total: content.pageCount }));
             }
         },
 
-        _setCurrent: function (current) {
+        _setCurrent: function(current) {
             if (!this._focused) {
                 return;
             }
@@ -1340,11 +1340,11 @@ var __meta__ = { // jshint ignore:line
                 that.element.append(that.ariaLiveEl);
             }
 
-            navigationContainer.on(CLICK+NS, "a.k-scrollview-prev", that.prev.bind(that));
-            navigationContainer.on(CLICK+NS, "a.k-scrollview-next", that.next.bind(that));
+            navigationContainer.on(CLICK + NS, "a.k-scrollview-prev", that.prev.bind(that));
+            navigationContainer.on(CLICK + NS, "a.k-scrollview-next", that.next.bind(that));
         },
 
-        _navigatable: function () {
+        _navigatable: function() {
             var that = this;
             var navigationContainer = that._navigationContainer;
 
@@ -1357,7 +1357,7 @@ var __meta__ = { // jshint ignore:line
             navigationContainer.find(">a.k-scrollview-prev").attr(TABINDEX, 0);
             navigationContainer.find(">a.k-scrollview-next").attr(TABINDEX, 0);
 
-            navigationContainer.on(KEYDOWN + NS, that, function (e) {
+            navigationContainer.on(KEYDOWN + NS, that, function(e) {
                 var target = $(e.target);
                 if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
                     e.preventDefault();
@@ -1374,13 +1374,13 @@ var __meta__ = { // jshint ignore:line
             that.itemsWrapper.on(FOCUSOUT + NS, that._blur.bind(that));
         },
 
-        _focus: function () {
+        _focus: function() {
             var that = this;
             that._focused = true;
             that._setCurrent();
         },
 
-        _blur: function () {
+        _blur: function() {
             if (this._current) {
                 this._current.removeClass(FOCUSED);
                 this._current.removeAttr("id");
@@ -1388,7 +1388,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _keyDown: function (e) {
+        _keyDown: function(e) {
             var that = this;
             var handled;
             var key = e.keyCode;
@@ -1435,5 +1435,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

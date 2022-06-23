@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -34,7 +34,7 @@
             KSCROLL = "k-scroll",
             KTITLELESS = "k-dialog-titleless",
             KDIALOGTITLE = ".k-dialog-title",
-            KDIALOGTITLEBAR =".k-dialog-titlebar",
+            KDIALOGTITLEBAR = ".k-dialog-titlebar",
             KBUTTONGROUP = ".k-dialog-buttongroup",
             // KACTIONS = ".k-actions",
             KBUTTON = ".k-button",
@@ -63,8 +63,8 @@
             DATADOCOVERFLOWRULE = "original-overflow-rule",
             DATAHTMLTAPYRULE = "tap-y",
             messages = {
-                okText  : "OK",
-                cancel : "Cancel",
+                okText: "OK",
+                cancel: "Cancel",
                 promptInput: "Input"
             },
             ceil = Math.ceil,
@@ -245,7 +245,7 @@
             _applyScrollClassName: function(element) {
                     var hasScroll = element.get(0).scrollHeight > element.outerHeight();
 
-                    if (hasScroll){
+                    if (hasScroll) {
                         element.addClass(KSCROLL);
                     } else {
                         element.removeClass(KSCROLL);
@@ -372,7 +372,7 @@
                 }
             },
 
-            _closable: function (wrapper) {
+            _closable: function(wrapper) {
                 var that = this;
                 var options = that.options;
                 var titlebar = wrapper.children(KDIALOGTITLEBAR);
@@ -433,7 +433,7 @@
                 }
             },
 
-            _mergeTextWithOptions : function(action) {
+            _mergeTextWithOptions: function(action) {
                 var text = action.text;
                 return text ? template(text)(this.options) : "";
             },
@@ -595,7 +595,7 @@
             },
 
             close: function(systemTriggered) {
-                if(!arguments.length) {
+                if (!arguments.length) {
                     systemTriggered = true;
                 }
 
@@ -687,7 +687,7 @@
                 }
             },
 
-            _stopDocumentScrolling: function(){
+            _stopDocumentScrolling: function() {
                 var that = this;
 
                 var $body = $("body");
@@ -706,11 +706,11 @@
                 }
             },
 
-            _touchStart: function (e) {
+            _touchStart: function(e) {
                 $(this).data(DATAHTMLTAPYRULE, e.changedTouches[0].pageY);
             },
 
-            _touchMove: function (e) {
+            _touchMove: function(e) {
                 var target = e.target;
                 var $target = $(e.target);
                 var upScroll = e.changedTouches[0].pageY - $(this).data(DATAHTMLTAPYRULE) > 0;
@@ -722,7 +722,7 @@
                 }
             },
 
-            _enableDocumentScrolling: function(){
+            _enableDocumentScrolling: function() {
                 var that = this;
                 var $body = $(document.body);
                 var $html = $("html");
@@ -738,26 +738,26 @@
                 }
             },
 
-            _storeOverflowRule: function($element){
-                if(this._isOverflowStored($element)){
+            _storeOverflowRule: function($element) {
+                if (this._isOverflowStored($element)) {
                     return;
                 }
 
                 var overflowRule = $element.get(0).style.overflow;
 
-                if(typeof overflowRule === "string"){
+                if (typeof overflowRule === "string") {
                     $element.data(DATADOCOVERFLOWRULE, overflowRule);
                 }
             },
 
-            _isOverflowStored: function ($element){
+            _isOverflowStored: function($element) {
                 return typeof $element.data(DATADOCOVERFLOWRULE) === "string";
             },
 
-            _restoreOverflowRule: function($element){
+            _restoreOverflowRule: function($element) {
                 var overflowRule = $element.data(DATADOCOVERFLOWRULE);
 
-                if(overflowRule !== null && overflowRule !== undefined){
+                if (overflowRule !== null && overflowRule !== undefined) {
                     $element.css(OVERFLOW, overflowRule);
                     $element.removeData(DATADOCOVERFLOWRULE);
                 } else {
@@ -872,14 +872,14 @@
                     return content.html();
                 }
 
-                this.angular("cleanup", function(){
+                this.angular("cleanup", function() {
                     return { elements: content.children() };
                 });
 
                 kendo.destroy(content.children());
                 content.html(html);
 
-                this.angular("compile", function(){
+                this.angular("compile", function() {
                     var a = [];
                     for (var i = content.length; --i >= 0;) {
                         a.push({ dataItem: data });
@@ -964,7 +964,7 @@
 
             _ensureContentId: function(element) {
                 var node = $(element);
-                if(!node.attr("id")) {
+                if (!node.attr("id")) {
                     node.attr("id", kendo.guid() + "_k-popup");
                 }
             },

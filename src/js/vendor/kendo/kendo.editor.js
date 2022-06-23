@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -56,7 +56,7 @@
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
 /*jshint scripturl: true */
-(function(f, define){
+(function(f, define) {
     define('editor/main',[
         "../util/undoredostack",
         "kendo.combobox",
@@ -64,7 +64,7 @@
         "kendo.window",
         "kendo.colorpicker"
     ], f);
-})(function(){
+})(function() {
 
 (function($,undefined) {
 
@@ -80,7 +80,7 @@
 
     var SELECT = "select";
     var SELECT_OVERLAY_SELECTOR = "select.k-select-overlay";
-    var PLACEHOLDER_CLASS= "k-placeholder";
+    var PLACEHOLDER_CLASS = "k-placeholder";
     var PLACEHOLDER_TAG_ID = "placeholder";
     var REFRESH_INTERVAL = 200;
     var DEFAULT_LANGUAGE = "en";
@@ -93,7 +93,7 @@
 
         getHtml: function() {
             var options = this.options;
-            return kendo.template(options.template, {useWithBlock:false})(options);
+            return kendo.template(options.template, { useWithBlock: false })(options);
         }
     });
 
@@ -125,9 +125,9 @@
         tableWizardButtonTemplate:
             '# var iconCssClass = "k-icon k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' +
             '# var dataPopup = data.popup ? "data-popup" : "";#' +
-            '<button type="button" tabindex="0" role="button" class="k-tool k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">'+
+            '<button type="button" tabindex="0" role="button" class="k-tool k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" #= dataPopup # title="#= data.title #" aria-label="#= data.title #">' +
                 '<span class="#= iconCssClass #"></span>' +
-                '<span class="k-tool-text">#= data.title #</span>'+
+                '<span class="k-tool-text">#= data.title #</span>' +
             '</button>',
 
         colorPickerTemplate:
@@ -156,7 +156,7 @@
             }
         },
 
-        getToolCssClass: function (name) {
+        getToolCssClass: function(name) {
             var toolCssClassNames = {
 
                 superscript: "sup-script",
@@ -201,7 +201,7 @@
             };
 
             var cssClass = toolCssClassNames[name];
-            if(cssClass) {
+            if (cssClass) {
                 return cssClass;
             }
             return name;
@@ -225,15 +225,15 @@
             Editor.fn.options.formats[formatName] = format;
         },
 
-        cacheComments: function (content, comments) {
-            for(var index in comments){
+        cacheComments: function(content, comments) {
+            for (var index in comments) {
                 content = content.replace(comments[index], "{" + index + "}");
             }
             return content;
         },
 
-        retrieveComments: function (content, comments) {
-            for(var index in comments){
+        retrieveComments: function(content, comments) {
+            for (var index in comments) {
                 content = content.replace("{" + index + "}", comments[index]);
             }
             return content;
@@ -378,7 +378,7 @@
     };
 
     var Editor = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this,
                 value,
                 editorNS = kendo.ui.editor,
@@ -431,7 +431,7 @@
             that.toolbar.bindTo(that);
 
             if (type == "textarea") {
-                setTimeout(function () {
+                setTimeout(function() {
                     var heightStyle = that.wrapper[0].style.height;
                     var expectedHeight = parseInt(heightStyle, 10);
                     var actualHeight = that.wrapper.height();
@@ -461,7 +461,7 @@
                 // indented HTML introduces problematic ranges in IE
                 value = domElement.value;
 
-                if(!value.replace(/\s/g, '').length) {
+                if (!value.replace(/\s/g, '').length) {
                     value = value.replace(/\s/g, '');
                 }
 
@@ -511,12 +511,12 @@
                 $body = $(body),
                 placeholder = that.options.placeholder;
 
-            if(!that.textarea || !placeholder) {
+            if (!that.textarea || !placeholder) {
                 return;
             }
 
             $body.attr('aria-label', function() {
-                return  show ? placeholder : "";
+                return show ? placeholder : "";
             });
 
             $body.toggleClass(PLACEHOLDER_CLASS, show);
@@ -668,7 +668,7 @@
             var domain = specifiedDomain || document.domain;
             var domainScript = "";
             var src = 'javascript:""';
-            var lang ="";
+            var lang = "";
 
             textarea.hide();
 
@@ -689,7 +689,7 @@
                 iframe.src = src;
             }
 
-            if(!iframe.src) {
+            if (!iframe.src) {
                 iframe.src = "";
             }
 
@@ -750,7 +750,7 @@
                     "k\\:script{display:none;}" +
                 "</style>" +
                 domainScript +
-                $.map(stylesheets, function(href){
+                $.map(stylesheets, function(href) {
                     return "<link rel='stylesheet' href='" + href + "'>";
                 }).join("") +
                 "</head><body autocorrect='off' contenteditable='true'></body></html>"
@@ -773,7 +773,7 @@
 
             if (value != old) {
                 this.trigger("change");
-                if(textarea) {
+                if (textarea) {
                     textarea.trigger("change");
                 }
             }
@@ -874,7 +874,7 @@
                     body.setAttribute("autocorrect", "off");
                     doc.getElementsByTagName("html")[0].appendChild(body);
 
-                    var interval = setInterval(function (){
+                    var interval = setInterval(function() {
                         if ($(editor.document).find("body").length > 1) {
                             $(editor.document).find("body").last().remove();
                             window.clearInterval(interval);
@@ -904,7 +904,7 @@
 
             try {
                 doc.execCommand("enableInlineTableEditing", null, false);
-            } catch(e) { }
+            } catch (e) { }
 
             if (kendo.support.touch) {
                 this._registerHandler(doc, {
@@ -922,7 +922,7 @@
             this._spellCorrect(editor);
 
             this._registerHandler(editor.document, {
-                "mouseover dragenter": function(e){
+                "mouseover dragenter": function(e) {
                     var height = $(editor.body).height();
                     var htmlHeight = $(editor.body.parentElement).height();
 
@@ -931,8 +931,8 @@
                         editor.body.style.height = "100%";
                     }
                 },
-                "mouseout dragleave drop contextmenu": function(e){
-                    var restoreHeight = function(){
+                "mouseout dragleave drop contextmenu": function(e) {
+                    var restoreHeight = function() {
                         if (editor._cachedHeight !== undefined && e.target === editor.body) {
                             editor.body.style.height = editor._cachedHeight;
                             delete editor._cachedHeight;
@@ -940,7 +940,7 @@
                     };
 
                     if (e.type === "contextmenu") {
-                        setTimeout(function(){
+                        setTimeout(function() {
                             restoreHeight();
                         }, 10);
                     } else {
@@ -951,7 +951,7 @@
             });
 
             this._registerHandler(editor.body, {
-                "keydown": function (e) {
+                "keydown": function(e) {
                     var range;
 
                     if ((e.keyCode === keys.BACKSPACE || e.keyCode === keys.DELETE) && editor.body.getAttribute("contenteditable") !== "true") {
@@ -1004,12 +1004,12 @@
                     editor.keyboard.keydown(e);
                 },
                 "keypress": function(e) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         editor._runPostContentKeyCommands(e);
                         editor._showElementResizeHandles();
                     }, 0);
                 },
-                "keyup": function (e) {
+                "keyup": function(e) {
                     var selectionCodes = [
                        keys.BACKSPACE,
                        keys.TAB,
@@ -1027,7 +1027,7 @@
 
                     if ($.inArray(e.keyCode, selectionCodes) > -1 || (e.keyCode == 65 && e.ctrlKey && !e.altKey && !e.shiftKey)) {
                         window.clearTimeout(this._refreshInterval);
-                        this._refreshInterval = window.setTimeout(function(){
+                        this._refreshInterval = window.setTimeout(function() {
                             editor._selectionChange();
                         }, REFRESH_INTERVAL);
                     }
@@ -1043,10 +1043,10 @@
                         editor.selectRange(range);
                     }
                 },
-                "cut copy paste drop dragover": function (e) {
+                "cut copy paste drop dragover": function(e) {
                     editor.clipboard["on" + e.type](e);
                 },
-                "focusin": function () {
+                "focusin": function() {
                     if (editor.body.hasAttribute("contenteditable")) {
                         $(this).addClass("k-state-active");
                         editor.toolbar.show();
@@ -1086,12 +1086,12 @@
                 placeholder = that.options.placeholder,
                 style, $head;
 
-            if(!that.textarea || !placeholder) {
+            if (!that.textarea || !placeholder) {
                 return;
             }
 
-            style = "<style id='"+ PLACEHOLDER_TAG_ID +"'>." +
-                        PLACEHOLDER_CLASS +  ":before { content: '"+ placeholder + "'; }" +
+            style = "<style id='" + PLACEHOLDER_TAG_ID + "'>." +
+                        PLACEHOLDER_CLASS + ":before { content: '" + placeholder + "'; }" +
                     "</style>";
 
             $head = $(that.document.head);
@@ -1101,16 +1101,16 @@
             that._togglePlaceholder(!that.value().trim());
         },
 
-        _initializeImmutables: function(){
+        _initializeImmutables: function() {
             var that = this,
                 editorNS = kendo.ui.editor;
 
-            if (that.options.immutables){
+            if (that.options.immutables) {
                 that.immutables = new editorNS.Immutables(that);
             }
         },
 
-        _mousedown: function (e) {
+        _mousedown: function(e) {
             var editor = this;
             editor._selectionStarted = true;
 
@@ -1125,12 +1125,12 @@
 
             var target = $(e.target).closest("a[href]");
 
-            if ((e.which == 2 || (e.which == 1 && e.ctrlKey)) && target &&  target.is("a[href]")) {
+            if ((e.which == 2 || (e.which == 1 && e.ctrlKey)) && target && target.is("a[href]")) {
                 window.open(target.attr("href"), "_new");
             }
 
-            if(e.target.tagName && e.target.tagName.toLowerCase() === "html") {
-                setTimeout(function(){
+            if (e.target.tagName && e.target.tagName.toLowerCase() === "html") {
+                setTimeout(function() {
                     editor.body.focus();
                 }, 0);
             }
@@ -1150,7 +1150,7 @@
             }
         },
 
-        _runPostContentKeyCommands: function (e) {
+        _runPostContentKeyCommands: function(e) {
             var range = this.getRange();
             var tools = this.keyboard.toolsFromShortcut(this.toolbar.tools, e);
 
@@ -1161,7 +1161,7 @@
                     continue;
                 }
 
-                var cmd = new o.command({range: range});
+                var cmd = new o.command({ range: range });
                 if (cmd.changesContent()) {
                     this.keyboard.endTyping(true);
                     this.exec(tool.name);
@@ -1242,7 +1242,7 @@
                 { text: "Verdana", value: "Verdana, Geneva, sans-serif" }
             ],
             fontSize: [
-                { text: "1 (8pt)",  value: "xx-small" },
+                { text: "1 (8pt)", value: "xx-small" },
                 { text: "2 (10pt)", value: "x-small" },
                 { text: "3 (12pt)", value: "small" },
                 { text: "4 (14pt)", value: "medium" },
@@ -1307,7 +1307,7 @@
             kendo.ui.editor.ColumnResizing.dispose(editor);
         },
 
-        _focusOutside: function () {
+        _focusOutside: function() {
             // move focus outside the Editor, see https://github.com/telerik/kendo/issues/3673
             if (kendo.support.browser.msie && this.textarea) {
                 var tempInput = $("<input style='position:fixed;left:1px;top:1px;width:1px;height:1px;font-size:0;border:0;opacity:0' />").appendTo(document.body).trigger("focus");
@@ -1315,7 +1315,7 @@
             }
         },
 
-        _destroyUploadWidget: function(){
+        _destroyUploadWidget: function() {
             var editor = this;
             if (editor._uploadWidget) {
                 editor._uploadWidget.destroy();
@@ -1344,7 +1344,7 @@
             return false;
         },
 
-        value: function (html) {
+        value: function(html) {
             var body = this.body,
                 editorNS = kendo.ui.editor,
                 options = this.options,
@@ -1384,12 +1384,12 @@
             var scrollTop;
 
 
-            if(!iframe && body.scrollHeight > body.clientHeight) {
+            if (!iframe && body.scrollHeight > body.clientHeight) {
                 scrollTop = body.scrollTop;
                 body.focus();
                 body.scrollTop = scrollTop;
 
-            } else if(activeElement != body && activeElement != iframe) {
+            } else if (activeElement != body && activeElement != iframe) {
                 scrollTop = documentElement.scrollTop;
                 body.focus();
                 documentElement.scrollTop = scrollTop;
@@ -1404,11 +1404,11 @@
             }
         },
 
-        focus: function () {
+        focus: function() {
             this.restoreSelection();
         },
 
-        update: function (value) {
+        update: function(value) {
             value = value || this.options.encoded ? this.encodedValue() : this.value();
 
             if (this.textarea) {
@@ -1419,15 +1419,15 @@
             }
         },
 
-        encodedValue: function () {
+        encodedValue: function() {
             return kendo.ui.editor.Dom.encode(this.value());
         },
 
-        createRange: function (document) {
+        createRange: function(document) {
             return kendo.ui.editor.RangeUtils.createRange(document || this.document);
         },
 
-        getSelection: function () {
+        getSelection: function() {
             return kendo.ui.editor.SelectionUtils.selectionFromDocument(this.document);
         },
 
@@ -1439,7 +1439,7 @@
             this.saveSelection(range);
         },
 
-        getRange: function () {
+        getRange: function() {
             var selection = this.getSelection(),
                 range = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : this.createRange(),
                 doc = this.document;
@@ -1452,14 +1452,14 @@
             return range;
         },
 
-        _containsRange: function (range) {
+        _containsRange: function(range) {
             var dom = kendo.ui.editor.Dom;
             var body = this.body;
             return range && dom.isAncestorOrSelf(body, range.startContainer) &&
                 dom.isAncestorOrSelf(body, range.endContainer);
         },
 
-        _deleteSavedRange: function () {
+        _deleteSavedRange: function() {
             if ("_range" in this) {
                 delete this._range;
             }
@@ -1469,7 +1469,7 @@
             return kendo.ui.editor.Serializer.domToXhtml(this.getRange().cloneContents());
         },
 
-        paste: function (html, options) {
+        paste: function(html, options) {
             this.focus();
 
             var command = new kendo.ui.editor.InsertHtmlCommand($.extend({
@@ -1482,7 +1482,7 @@
             command.exec();
         },
 
-        exec: function (name, params) {
+        exec: function(name, params) {
             var that = this;
             var command = null;
             var range, tool, prevented;
@@ -1568,20 +1568,20 @@
             ui.attr({ unselectable: "on", title: options.title, "aria-label": options.title });
         },
 
-        command: function (commandArguments) {
+        command: function(commandArguments) {
             return new this.options.command(commandArguments);
         },
 
         update: $.noop
     });
 
-    Tool.exec = function (editor, name, value) {
+    Tool.exec = function(editor, name, value) {
         editor.exec(name, { value: value });
     };
 
     var UndoTool = Tool.extend({
-        command:  $.noop,
-        update: function (ui, nodes, undoRedoStack) {
+        command: $.noop,
+        update: function(ui, nodes, undoRedoStack) {
             var that = this,
                 name = that.options.name;
 
@@ -1598,16 +1598,16 @@
         }
     });
 
-    EditorUtils.registerTool("separator", new Tool({ template: new ToolTemplate({template: EditorUtils.separatorTemplate})}));
-    EditorUtils.registerTool("undo", new UndoTool({ key: "Z", ctrl: true, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Undo"})}));
-    EditorUtils.registerTool("redo", new UndoTool({key: "Y", ctrl: true, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Redo"})}));
+    EditorUtils.registerTool("separator", new Tool({ template: new ToolTemplate({ template: EditorUtils.separatorTemplate }) }));
+    EditorUtils.registerTool("undo", new UndoTool({ key: "Z", ctrl: true, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Undo" }) }));
+    EditorUtils.registerTool("redo", new UndoTool({ key: "Y", ctrl: true, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Redo" }) }));
 
     // Exports ================================================================
 
     var emptyElementContent = '\ufeff';
     var emptyTableCellContent = emptyElementContent;
 
-    if(browser.msie || browser.edge) {
+    if (browser.msie || browser.edge) {
         emptyTableCellContent = emptyElementContent = "&nbsp;";
     }
 
@@ -1661,11 +1661,11 @@
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/dom',[ "./main" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -1700,7 +1700,7 @@ var empty = makeMap("area,base,basefont,br,col,frame,hr,img,input,isindex,link,m
     fillAttrs = makeMap("checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected".split(",")),
     nonEmptyNonTextContentElements = ["hgroup","ol","ul","dl","object","video","audio","table","colgroup","tbody","thead","tfoot","tr","select","optgroup"];
 
-var normalize = function (node) {
+var normalize = function(node) {
     if (node.nodeType == 1) {
         node.normalize();
     }
@@ -1857,12 +1857,12 @@ var Dom = {
         return node;
     },
 
-    getAllComments: function (rootElem) {
+    getAllComments: function(rootElem) {
         var comments = [];
         // Fourth argument, which is actually obsolete according to the DOM4 standard, is required in IE 11
         var iterator = document.createNodeIterator(rootElem,
             NodeFilter.SHOW_COMMENT,
-            function () {
+            function() {
                 return NodeFilter.FILTER_ACCEPT;
             }, false);
 
@@ -1960,25 +1960,25 @@ var Dom = {
         NOTATION_NODE: 12
     },
 
-    toHex: function (color) {
+    toHex: function(color) {
         var matches = rgb.exec(color);
 
         if (!matches) {
             return color;
         }
 
-        return "#" + map(matches.slice(1), function (x) {
+        return "#" + map(matches.slice(1), function(x) {
             x = parseInt(x, 10).toString(16);
             return x.length > 1 ? x : "0" + x;
         }).join("");
     },
 
-    encode: function (value, options) {
+    encode: function(value, options) {
         var encodableChars = (!options || options.entities) ? entityRe : htmlRe;
         return value.replace(encodableChars, function(c) {
             var charCode = c.charCodeAt(0);
             var entity = entityTable[charCode];
-            return entity ? '&'+entity+';' : c;
+            return entity ? '&' + entity + ';' : c;
         });
     },
     isBom: function(node) {
@@ -1989,7 +1989,7 @@ var Dom = {
     },
 
     stripBomNode: function(node) {
-        if(Dom.isBom(node)) {
+        if (Dom.isBom(node)) {
             node.parentNode.removeChild(node);
         }
     },
@@ -2028,7 +2028,7 @@ var Dom = {
         return node.nodeType == 1 && !Dom.significantNodes(node.childNodes).length;
     },
 
-    name: function (node) {
+    name: function(node) {
         return node.nodeName.toLowerCase();
     },
 
@@ -2056,7 +2056,7 @@ var Dom = {
         return result;
     },
 
-    is: function (node, nodeName) {
+    is: function(node, nodeName) {
         return node && Dom.name(node) == nodeName;
     },
 
@@ -2085,7 +2085,7 @@ var Dom = {
 
     allWhitespaceContent: function(node) {
         var child = node.firstChild;
-        while(child && Dom.isWhitespace(child)) {
+        while (child && Dom.isWhitespace(child)) {
             child = child.nextSibling;
         }
 
@@ -2096,7 +2096,7 @@ var Dom = {
         return emptyspace.test(node.nodeValue);
     },
 
-    htmlIndentSpace: function (node){
+    htmlIndentSpace: function(node) {
         if (!(Dom.isDataNode(node) && Dom.isWhitespace(node))) {
             return false;
         }
@@ -2108,7 +2108,7 @@ var Dom = {
         var sibling = function(el, direction) {
             while (el[direction]) {
                 el = el[direction];
-                if (Dom.significantNodes([el]).length  > 0) {
+                if (Dom.significantNodes([el]).length > 0) {
                     return el;
                 }
             }
@@ -2175,7 +2175,7 @@ var Dom = {
         return scrollContainer;
     },
 
-    scrollTo: function (node, toStart) {
+    scrollTo: function(node, toStart) {
         var doc = node.ownerDocument;
         var wnd = Dom.windowFromDocument(doc);
         var windowHeight = wnd.innerHeight;
@@ -2184,7 +2184,7 @@ var Dom = {
 
         if (Dom.isDataNode(node)) {
             if (toStart) {
-                marker = Dom.create(doc, "span", {"innerHTML": "&#xfeff;"});
+                marker = Dom.create(doc, "span", { "innerHTML": "&#xfeff;" });
                 Dom.insertBefore(marker, node);
                 element = $(marker);
             } else {
@@ -2216,8 +2216,8 @@ var Dom = {
         persistedScrollTop = Dom.scrollContainer(doc).scrollTop;
     },
 
-    offset: function (target, offsetParent) {
-        var result = {top: target.offsetTop, left: target.offsetLeft};
+    offset: function(target, offsetParent) {
+        var result = { top: target.offsetTop, left: target.offsetLeft };
         var parent = target.offsetParent;
 
         while (parent && (!offsetParent || Dom.isAncestorOf(offsetParent, parent))) {
@@ -2236,11 +2236,11 @@ var Dom = {
         }
     },
 
-    insertAt: function (parent, newElement, position) {
+    insertAt: function(parent, newElement, position) {
         parent.insertBefore(newElement, parent.childNodes[position] || null);
     },
 
-    insertBefore: function (newElement, referenceElement) {
+    insertBefore: function(newElement, referenceElement) {
         if (referenceElement.parentNode) {
             return referenceElement.parentNode.insertBefore(newElement, referenceElement);
         } else {
@@ -2248,18 +2248,18 @@ var Dom = {
         }
     },
 
-    insertAfter: function (newElement, referenceElement) {
+    insertAfter: function(newElement, referenceElement) {
         return referenceElement.parentNode.insertBefore(newElement, referenceElement.nextSibling);
     },
 
-    remove: function (node) {
-        if(node.parentNode) {
+    remove: function(node) {
+        if (node.parentNode) {
             node.parentNode.removeChild(node);
         }
     },
 
-    removeChildren: function(node){
-        while(node.firstChild) {
+    removeChildren: function(node) {
+        while (node.firstChild) {
             node.removeChild(node.firstChild);
         }
     },
@@ -2276,7 +2276,7 @@ var Dom = {
         }
     },
 
-    trim: function (parent) {
+    trim: function(parent) {
         for (var i = parent.childNodes.length - 1; i >= 0; i--) {
             var node = parent.childNodes[i];
             if (Dom.isDataNode(node)) {
@@ -2297,7 +2297,7 @@ var Dom = {
     },
 
     closest: function(node, tags) {
-        if(typeof tags === "string") {
+        if (typeof tags === "string") {
             tags = [tags];
         }
 
@@ -2310,7 +2310,7 @@ var Dom = {
 
     closestBy: function(node, condition, rootCondition) {
         while (node && !condition(node)) {
-            if (rootCondition && rootCondition(node)){
+            if (rootCondition && rootCondition(node)) {
                 return null;
             }
             node = node.parentNode;
@@ -2334,7 +2334,7 @@ var Dom = {
         return Dom.sibling(node, "previousSibling");
     },
 
-    parentOfType: function (node, tags) {
+    parentOfType: function(node, tags) {
         do {
             node = node.parentNode;
         } while (node && !(Dom.ofType(node, tags)));
@@ -2342,11 +2342,11 @@ var Dom = {
         return node;
     },
 
-    ofType: function (node, tags) {
+    ofType: function(node, tags) {
         return $.inArray(Dom.name(node), tags) >= 0;
     },
 
-    changeTag: function (referenceElement, tagName, skipAttributes) {
+    changeTag: function(referenceElement, tagName, skipAttributes) {
         var newElement = Dom.create(referenceElement.ownerDocument, tagName),
             attributes = referenceElement.attributes,
             i, len, name, value, attribute;
@@ -2386,13 +2386,13 @@ var Dom = {
         return node;
     },
 
-    wrap: function (node, wrapper) {
+    wrap: function(node, wrapper) {
         Dom.insertBefore(wrapper, node);
         wrapper.appendChild(node);
         return wrapper;
     },
 
-    unwrap: function (node) {
+    unwrap: function(node) {
         var parent = node.parentNode;
         while (node.firstChild) {
             parent.insertBefore(node.firstChild, node);
@@ -2402,24 +2402,24 @@ var Dom = {
     },
 
     wrapper: function(node) {
-        var wrapper = Dom.closestBy(node, function (el) {
+        var wrapper = Dom.closestBy(node, function(el) {
             return el.parentNode && Dom.significantNodes(el.parentNode.childNodes).length > 1;
         });
 
         return $(wrapper).is("body,.k-editor") ? undefined : wrapper;
     },
 
-    create: function (document, tagName, attributes) {
+    create: function(document, tagName, attributes) {
         return Dom.attr(document.createElement(tagName), attributes);
     },
 
-    createEmptyNode: function (document, tagName, attributes) {
+    createEmptyNode: function(document, tagName, attributes) {
         var node = Dom.attr(document.createElement(tagName), attributes);
         node.innerHTML = "\ufeff";
         return node;
     },
 
-    attr: function (element, attributes) {
+    attr: function(element, attributes) {
         attributes = extend({}, attributes);
 
         if (attributes && STYLE in attributes) {
@@ -2439,29 +2439,29 @@ var Dom = {
         return extend(element, attributes);
     },
 
-    mergeAttributes: function (origin, target, traverseCss) {
+    mergeAttributes: function(origin, target, traverseCss) {
         if (!origin.attributes.length) {
             return;
         }
 
         $.each(origin.attributes, function() {
-            if(this.name !== "contenteditable" && (!traverseCss || this.name !== STYLE)) {
+            if (this.name !== "contenteditable" && (!traverseCss || this.name !== STYLE)) {
                 $(target).attr(this.name, this.value);
             }
 
             if (traverseCss && this.name === STYLE) {
-                $.each(origin.style, function(){
+                $.each(origin.style, function() {
                     target.style[this] = origin.style[this];
                 });
             }
         });
     },
 
-    style: function (node, value) {
+    style: function(node, value) {
         $(node).css(value || {});
     },
 
-    unstyle: function (node, value) {
+    unstyle: function(node, value) {
         for (var key in value) {
             if (key == FLOAT) {
                 key = kendo.support.cssFloat ? CSSFLOAT : STYLEFLOAT;
@@ -2532,7 +2532,7 @@ var Dom = {
         }
     },
 
-    commonAncestor: function () {
+    commonAncestor: function() {
         var count = arguments.length,
             paths = [],
             minPathLength = Infinity,
@@ -2631,7 +2631,7 @@ var Dom = {
     },
 
     filter: function(tagName, nodes, invert) {
-        var filterFn = function (node) {
+        var filterFn = function(node) {
             return Dom.name(node) == tagName;
         };
 
@@ -2690,15 +2690,15 @@ var Dom = {
 
     // Start: Table Utilities
 
-    reMapTableColumns: function (table, colAttr) {
+    reMapTableColumns: function(table, colAttr) {
         Dom._mapColIndices(table, colAttr);
     },
 
-    clearTableMappings: function (table, colAttr) {
-        $(table).find("["+ colAttr + "]").removeAttr(colAttr);
+    clearTableMappings: function(table, colAttr) {
+        $(table).find("[" + colAttr + "]").removeAttr(colAttr);
     },
 
-    _mapColIndices: function (table, colAttr) {
+    _mapColIndices: function(table, colAttr) {
         var registeredColumns = {};
 
         for (var rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
@@ -2707,26 +2707,26 @@ var Dom = {
             for (var cellIndex = 0; cellIndex < cells.length; cellIndex++, colIndex++) {
                 var cell = cells[cellIndex];
 
-                if(cell.rowSpan > 1) {
+                if (cell.rowSpan > 1) {
                     this._mapColspan(cell, rowIndex, colIndex, registeredColumns);
                 }
 
-                if(registeredColumns[rowIndex]) {
-                    while(registeredColumns[rowIndex][colIndex]) {
+                if (registeredColumns[rowIndex]) {
+                    while (registeredColumns[rowIndex][colIndex]) {
                         colIndex++;
                     }
                 }
 
                 cell.setAttribute(colAttr, colIndex);
 
-                if(cell.colSpan > 1) {
+                if (cell.colSpan > 1) {
                     colIndex = colIndex + cell.colSpan - 1;
                 }
             }
         }
     },
 
-    _mapColspan: function (cell, rowIndex, colIndex, registeredColumns) {
+    _mapColspan: function(cell, rowIndex, colIndex, registeredColumns) {
         var rowSpan = cell.rowSpan,
             colSpan = cell.colSpan,
             index;
@@ -2736,13 +2736,13 @@ var Dom = {
 
             for (var ri = rowIndex + 1; ri < rowIndex + rowSpan; ri++) {
 
-                if(!registeredColumns[ri]) {
+                if (!registeredColumns[ri]) {
                     registeredColumns[ri] = {};
                     registeredColumns[ri].length = 0;
                 }
 
-                if(registeredColumns[rowIndex]) {
-                    while(registeredColumns[rowIndex][index]) {
+                if (registeredColumns[rowIndex]) {
+                    while (registeredColumns[rowIndex][index]) {
                         index++;
                     }
                 }
@@ -2763,7 +2763,7 @@ var Dom = {
         var tbodyMatrix = [];
         var theadRows, i;
 
-        if(table.tHead) {
+        if (table.tHead) {
             theadRows = table.tHead.rows;
             numberOfTheadRows = theadRows.length;
         } else {
@@ -2795,19 +2795,19 @@ var Dom = {
             cells = row.cells;
             col = 0;
 
-            for(j = 0; j < cells.length; j++) {
+            for (j = 0; j < cells.length; j++) {
                 cell = cells[j];
                 id = "table" + i + j + (++timestamp);
                 cell.setAttribute("id", id);
                 colspan = cell.getAttribute("colspan") || 1;
                 rowspan = cell.getAttribute("rowspan") || 1;
 
-                while(theadMatrix[i][j + col]) {
+                while (theadMatrix[i][j + col]) {
                     col += 1;
                 }
 
-                for(k = 0; k < rowspan; k++) {
-                    for(l = 0; l < colspan; l++) {
+                for (k = 0; k < rowspan; k++) {
+                    for (l = 0; l < colspan; l++) {
                         theadMatrix[i + k][j + col + l] = id;
                     }
                 }
@@ -2821,7 +2821,7 @@ var Dom = {
         var numberOfTableRows = tableRows.length;
         var row, cells, cell, col, id, colspan, rowspan, i, j, k, l, colIndex, headers;
 
-        var pushHeaderId = function(row){
+        var pushHeaderId = function(row) {
             headers.push(row[colIndex]);
         };
 
@@ -2830,19 +2830,19 @@ var Dom = {
             cells = $(row.cells).filter("th");
             col = 0;
 
-            for(j = 0; j < cells.length; j++) {
+            for (j = 0; j < cells.length; j++) {
                 cell = cells[j];
                 id = "table" + i + j + (++timestamp);
                 cell.setAttribute("id", id);
                 colspan = cell.getAttribute("colspan") || 1;
                 rowspan = cell.getAttribute("rowspan") || 1;
 
-                while(tbodyMatrix[i][j + col]) {
+                while (tbodyMatrix[i][j + col]) {
                     col += 1;
                 }
 
-                for(k = 0; k < rowspan; k++) {
-                    for(l = 0; l < colspan; l++) {
+                for (k = 0; k < rowspan; k++) {
+                    for (l = 0; l < colspan; l++) {
                         tbodyMatrix[i + k][j + col + l] = id;
                     }
                 }
@@ -2861,7 +2861,7 @@ var Dom = {
         var numberOfTableRows = tableRows.length;
         var row, cells, cell, i, j, colIndex, headers;
 
-        var pushHeaderId = function(row){
+        var pushHeaderId = function(row) {
             headers.push(row[colIndex]);
         };
 
@@ -2869,7 +2869,7 @@ var Dom = {
             row = tableRows[i];
             cells = $(row.cells).filter("td");
 
-            for(j = 0; j < cells.length; j++) {
+            for (j = 0; j < cells.length; j++) {
                 cell = cells[j];
                 colIndex = cell.getAttribute("col-index");
                 headers = tbodyMatrix[i].slice();
@@ -2886,10 +2886,10 @@ var Dom = {
         var numberOfCols = 0;
         var cell, i, currentIndex;
 
-        for(i = 0; i < cells.length; i++) {
+        for (i = 0; i < cells.length; i++) {
             cell = cells[i];
             currentIndex = Number(cell.getAttribute("col-index")) + 1;
-            if(currentIndex > numberOfCols) {
+            if (currentIndex > numberOfCols) {
                 numberOfCols = currentIndex;
             }
         }
@@ -2902,15 +2902,15 @@ var Dom = {
         var numberOfCols = 0;
         var currentIndex, row, i, j, cell;
 
-        for(i = numberOfHeaderRows; i < rows.length; i++) {
+        for (i = numberOfHeaderRows; i < rows.length; i++) {
             row = rows[i];
 
-            for(j = 0; j < row.cells.length; j++) {
+            for (j = 0; j < row.cells.length; j++) {
                 cell = row.cells[j];
 
-                if(this.is(cell, "th")) {
+                if (this.is(cell, "th")) {
                     currentIndex = Number(cell.getAttribute("col-index")) + 1;
-                    if(currentIndex > numberOfCols) {
+                    if (currentIndex > numberOfCols) {
                         numberOfCols = currentIndex;
                     }
                 }
@@ -2926,20 +2926,20 @@ var Dom = {
         var number = thead && table.tHead.rows ? table.tHead.rows.length : 0;
         var j, row, cell, length;
 
-        if(number === 0) {
+        if (number === 0) {
             row = rows[0];
             length = row.cells && row.cells.length;
 
-            while(row && length && this.is(row.cells[0], "th")) {
-                for(j = 0; j < length; j++) {
+            while (row && length && this.is(row.cells[0], "th")) {
+                for (j = 0; j < length; j++) {
                     cell = row ? row.cells[j] : null;
 
-                    if(!this.is(cell, "th")) {
+                    if (!this.is(cell, "th")) {
                         row = null;
                     }
                 }
 
-                if(row) {
+                if (row) {
                     number += 1;
                     row = this.next(row);
                     length = row && row.cells && row.cells.length;
@@ -2947,7 +2947,7 @@ var Dom = {
             }
         }
 
-        return number ;
+        return number;
     },
 
     // End: Table Utilities
@@ -2961,13 +2961,13 @@ kendo.ui.editor.Dom = Dom;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 
 
-(function(f, define){
+(function(f, define) {
     define('editor/serializer',[ "./dom" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -3017,11 +3017,11 @@ var Serializer = {
             first = body.firstChild,
             last = body.lastChild;
 
-        while (emptyTextNode(first)){
+        while (emptyTextNode(first)) {
             first = first.nextSibling;
         }
 
-        while (emptyTextNode(last)){
+        while (emptyTextNode(last)) {
             last = last.previousSibling;
         }
 
@@ -3045,7 +3045,7 @@ var Serializer = {
                 }
 
                 if (node.nodeType == 1 && !dom.empty[dom.name(node)]) {
-                    if(dom.is(node, "td")) {
+                    if (dom.is(node, "td")) {
                         node.innerHTML = kendo.ui.editor.emptyTableCellContent;
                     }
                     else {
@@ -3061,7 +3061,7 @@ var Serializer = {
         $(".k-paste-container", body).remove();
     },
 
-    _resetOrderedLists: function(root){
+    _resetOrderedLists: function(root) {
         // fix for IE9 OL bug -- https://connect.microsoft.com/IE/feedback/details/657695/ordered-list-numbering-changes-from-correct-to-0-0
         var ols = root.getElementsByTagName("ol"), i, ol, originalStart;
 
@@ -3109,7 +3109,7 @@ var Serializer = {
 
         html = Serializer.toEditableHtml(html);
 
-        if(isFunction(o.custom)) {
+        if (isFunction(o.custom)) {
             html = o.custom(html) || html;
         }
         root.innerHTML = html;
@@ -3157,12 +3157,12 @@ var Serializer = {
 
         var tagMap = {
             iframe: {
-                start: function (node) { mapStart(node, "iframe"); },
-                end: function () { result.push('</iframe>'); }
+                start: function(node) { mapStart(node, "iframe"); },
+                end: function() { result.push('</iframe>'); }
             },
             'k:script': {
-                start: function (node) { mapStart(node, "script"); },
-                end: function () { result.push('</script>'); },
+                start: function(node) { mapStart(node, "script"); },
+                end: function() { result.push('</script>'); },
                 skipEncoding: true
             },
             span: {
@@ -3217,35 +3217,35 @@ var Serializer = {
             },
             strong: {
                 semantic: true,
-                start: function (node) { mapStart(node, "b"); },
-                end: function () { result.push('</b>'); }
+                start: function(node) { mapStart(node, "b"); },
+                end: function() { result.push('</b>'); }
             },
             em: {
                 semantic: true,
-                start: function (node) { mapStart(node, "i"); },
-                end: function () { result.push('</i>'); }
+                start: function(node) { mapStart(node, "i"); },
+                end: function() { result.push('</i>'); }
             },
             b: {
                 semantic: false,
-                start: function (node) { mapStart(node, "strong"); },
-                end: function () { result.push('</strong>'); }
+                start: function(node) { mapStart(node, "strong"); },
+                end: function() { result.push('</strong>'); }
             },
             i: {
                 semantic: false,
-                start: function (node) { mapStart(node, "em"); },
-                end: function () { result.push('</em>'); }
+                start: function(node) { mapStart(node, "em"); },
+                end: function() { result.push('</em>'); }
             },
             u: {
                 semantic: false,
-                start: function (node) {
+                start: function(node) {
                     result.push('<span');
 
                     var attributes = specifiedAttributes(node);
-                    var style = $(attributes).filter(function(i, item){ return item.name == "style"; })[0];
-                    var styleObj = { nodeName: "style", value: "text-decoration:underline;"};
+                    var style = $(attributes).filter(function(i, item) { return item.name == "style"; })[0];
+                    var styleObj = { nodeName: "style", value: "text-decoration:underline;" };
 
                     if (style) {
-                        styleObj.value  = style.value;
+                        styleObj.value = style.value;
                         if (!/text-decoration/i.test(styleObj.value)) {
                             styleObj.value = "text-decoration:underline;" + styleObj.value;
                         }
@@ -3256,12 +3256,12 @@ var Serializer = {
                     attr(node, attributes);
                     result.push('>');
                 },
-                end: function () { result.push('</span>'); }
+                end: function() { result.push('</span>'); }
             },
             font: {
                 canOptimize: true,
                 semantic: false,
-                start: function (node) {
+                start: function(node) {
                     result.push('<span style="');
 
                     var color = node.getAttribute('color');
@@ -3288,7 +3288,7 @@ var Serializer = {
 
                     result.push('">');
                 },
-                end: function () {
+                end: function() {
                     result.push('</span>');
                 }
             }
@@ -3477,7 +3477,7 @@ var Serializer = {
                     if (node.childNodes.length !== 1) {
                         return false;
                     }
-                } while(!dom.isBlock(node));
+                } while (!dom.isBlock(node));
 
                 return true;
             }
@@ -3542,7 +3542,7 @@ var Serializer = {
                     result.push('>');
                 }
             } else if (nodeType == 3) {
-                if(isEmptyBomNode(node)) {
+                if (isEmptyBomNode(node)) {
                     result.push('&nbsp;');
                     return;
                 }
@@ -3631,14 +3631,13 @@ extend(Editor, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 
 
-
-(function(f, define){
+(function(f, define) {
     define('editor/components',[ "./serializer" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -3689,7 +3688,10 @@ var SelectBox = DropDownList.extend({
     },
     options: {
         name: "SelectBox",
-        index: -1
+        index: -1,
+        size: "medium",
+        fillMode: "solid",
+        rounded: "medium"
     },
 
     _initSelectOverlay: function() {
@@ -3752,7 +3754,7 @@ var SelectBox = DropDownList.extend({
             tag = items[i].tag || "span";
             className = items[i].className;
 
-            style = dom.inlineStyle(body, tag, { className : className });
+            style = dom.inlineStyle(body, tag, { className: className });
 
             style = style.replace(/"/g, "'");
 
@@ -3767,15 +3769,22 @@ var SelectBox = DropDownList.extend({
 kendo.ui.plugin(SelectBox);
 kendo.ui.editor.SelectBox = SelectBox;
 
+kendo.cssProperties.registerPrefix("SelectBox", "k-picker-");
+
+kendo.cssProperties.registerValues("SelectBox", [{
+    prop: "rounded",
+    values: kendo.cssProperties.roundedValues.concat([['full', 'full']])
+}]);
+
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 /*jshint boss: true */
 
-(function(f, define){
+(function(f, define) {
     define('editor/range',[ "./components" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -3794,7 +3803,7 @@ kendo.ui.editor.SelectBox = SelectBox;
 
 var SelectionUtils = {
     selectionFromWindow: function(window) {
-        if(!window) {
+        if (!window) {
             return;
         }
 
@@ -3829,47 +3838,47 @@ var W3CRange = Class.extend({
     },
 
     // Positioning Methods
-    setStart: function (node, offset) {
+    setStart: function(node, offset) {
         this.startContainer = node;
         this.startOffset = offset;
         updateRangeProperties(this);
         fixIvalidRange(this, true);
     },
 
-    setEnd: function (node, offset) {
+    setEnd: function(node, offset) {
         this.endContainer = node;
         this.endOffset = offset;
         updateRangeProperties(this);
         fixIvalidRange(this, false);
     },
 
-    setStartBefore: function (node) {
+    setStartBefore: function(node) {
         this.setStart(node.parentNode, findNodeIndex(node));
     },
 
-    setStartAfter: function (node) {
+    setStartAfter: function(node) {
         this.setStart(node.parentNode, findNodeIndex(node) + 1);
     },
 
-    setEndBefore: function (node) {
+    setEndBefore: function(node) {
         this.setEnd(node.parentNode, findNodeIndex(node));
     },
 
-    setEndAfter: function (node) {
+    setEndAfter: function(node) {
         this.setEnd(node.parentNode, findNodeIndex(node) + 1);
     },
 
-    selectNode: function (node) {
+    selectNode: function(node) {
         this.setStartBefore(node);
         this.setEndAfter(node);
     },
 
-    selectNodeContents: function (node) {
+    selectNodeContents: function(node) {
         this.setStart(node, 0);
         this.setEnd(node, node[node.nodeType === 1 ? 'childNodes' : 'nodeValue'].length);
     },
 
-    collapse: function (toStart) {
+    collapse: function(toStart) {
         var that = this;
 
         if (toStart) {
@@ -3881,7 +3890,7 @@ var W3CRange = Class.extend({
 
     // Editing Methods
 
-    deleteContents: function () {
+    deleteContents: function() {
         var that = this,
             range = that.cloneRange();
 
@@ -3902,7 +3911,7 @@ var W3CRange = Class.extend({
         })(new RangeIterator(range));
     },
 
-    cloneContents: function () {
+    cloneContents: function() {
         // clone subtree
         var document = RangeUtils.documentFromRange(this);
         return (function cloneSubtree(iterator) {
@@ -3922,7 +3931,7 @@ var W3CRange = Class.extend({
         })(new RangeIterator(this));
     },
 
-    extractContents: function () {
+    extractContents: function() {
         var that = this,
             range = that.cloneRange();
 
@@ -3952,7 +3961,7 @@ var W3CRange = Class.extend({
         })(new RangeIterator(range));
     },
 
-    insertNode: function (node) {
+    insertNode: function(node) {
         var that = this;
 
         if (isDataNode(that.startContainer)) {
@@ -3968,7 +3977,7 @@ var W3CRange = Class.extend({
         that.setStart(that.startContainer, that.startOffset);
     },
 
-    cloneRange: function () {
+    cloneRange: function() {
         // fast copy
         return $.extend(new W3CRange(this.ownerDocument), {
             startContainer: this.startContainer,
@@ -3983,7 +3992,7 @@ var W3CRange = Class.extend({
     },
 
     // used for debug purposes
-    toString: function () {
+    toString: function() {
         var startNodeName = this.startContainer.nodeName,
             endNodeName = this.endContainer.nodeName;
 
@@ -4108,11 +4117,11 @@ var RangeIterator = Class.extend({
         findClosestAncestor(root, range.endContainer).nextSibling;
     },
 
-    hasNext: function () {
+    hasNext: function() {
         return !!this._next;
     },
 
-    next: function () {
+    next: function() {
         var that = this,
             current = that._current = that._next;
         that._next = that._current && that._current.nextSibling != that._end ?
@@ -4133,7 +4142,7 @@ var RangeIterator = Class.extend({
         return current;
     },
 
-    traverse: function (callback) {
+    traverse: function(callback) {
         var that = this,
             current;
 
@@ -4154,7 +4163,7 @@ var RangeIterator = Class.extend({
         return current;
     },
 
-    remove: function (originalRange) {
+    remove: function(originalRange) {
         var that = this,
             inStartContainer = that.range.startContainer == that._current,
             inEndContainer = that.range.endContainer == that._current,
@@ -4195,17 +4204,17 @@ var RangeIterator = Class.extend({
         }
     },
 
-    hasPartialSubtree: function () {
+    hasPartialSubtree: function() {
         return !isDataNode(this._current) &&
         (dom.isAncestorOrSelf(this._current, this.range.startContainer) ||
             dom.isAncestorOrSelf(this._current, this.range.endContainer));
     },
 
-    getSubtreeIterator: function () {
+    getSubtreeIterator: function() {
         return new RangeIterator(this.getSubRange());
     },
 
-    getSubRange: function(){
+    getSubRange: function() {
         var that = this,
             subRange = that.range.cloneRange();
         subRange.selectNodeContents(that._current);
@@ -4226,7 +4235,7 @@ var W3CSelection = Class.extend({
         this.rangeCount = 1;
     },
 
-    addRange: function (range) {
+    addRange: function(range) {
         var textRange = this.ownerDocument.body.createTextRange();
 
         // end container should be adopted first in order to prevent selection with negative length
@@ -4236,7 +4245,7 @@ var W3CSelection = Class.extend({
         textRange.select();
     },
 
-    removeAllRanges: function () {
+    removeAllRanges: function() {
         var selection = this.ownerDocument.selection;
 
         if (selection.type != "None") {
@@ -4244,7 +4253,7 @@ var W3CSelection = Class.extend({
         }
     },
 
-    getRangeAt: function () {
+    getRangeAt: function() {
         var textRange,
             range = new W3CRange(this.ownerDocument),
             selection = this.ownerDocument.selection,
@@ -4283,7 +4292,7 @@ var W3CSelection = Class.extend({
                 endContainer = range.endContainer,
                 body = this.ownerDocument.body;
 
-            if (!range.collapsed && range.startOffset === 0 && range.endOffset == getNodeLength(range.endContainer) &&  // check for full body selection
+            if (!range.collapsed && range.startOffset === 0 && range.endOffset == getNodeLength(range.endContainer) && // check for full body selection
                 !(startContainer == endContainer && isDataNode(startContainer) && startContainer.parentNode == body)) { // but not when single textnode is selected
                 var movedStart = false,
                     movedEnd = false;
@@ -4420,7 +4429,7 @@ function adoptEndPoint(textRange, range, commonAncestor, start) {
 
 var RangeEnumerator = Class.extend({
     init: function(range) {
-        this.enumerate = function () {
+        this.enumerate = function() {
             var nodes = [];
 
             function visit(node) {
@@ -4443,19 +4452,19 @@ var RangeEnumerator = Class.extend({
 });
 
 var ImmutablesRangeIterator = RangeIterator.extend({
-    hasPartialSubtree: function () {
+    hasPartialSubtree: function() {
         var immutable = Editor.Immutables && Editor.Immutables.immutable;
         return immutable && !immutable(this._current) && RangeIterator.fn.hasPartialSubtree.call(this);
     },
 
-    getSubtreeIterator: function () {
+    getSubtreeIterator: function() {
         return new ImmutablesRangeIterator(this.getSubRange());
     }
 });
 
 var ImmutablesRangeEnumerator = Class.extend({
     init: function(range) {
-        this.enumerate = function () {
+        this.enumerate = function() {
             var nodes = [];
             var immutable = Editor.Immutables && Editor.Immutables.immutable;
             function visit(node) {
@@ -4584,7 +4593,7 @@ var RestorePoint = Class.extend({
         }
     },
 
-    toRange: function () {
+    toRange: function() {
         var that = this,
             result = that.range.cloneRange();
 
@@ -4601,7 +4610,7 @@ var Marker = Class.extend({
         this.caret = null;
     },
 
-    addCaret: function (range) {
+    addCaret: function(range) {
         var that = this;
         var caret = that.caret = dom.create(RangeUtils.documentFromRange(range), 'span', { className: 'k-marker' });
         range.insertNode(caret);
@@ -4613,7 +4622,7 @@ var Marker = Class.extend({
         return caret;
     },
 
-    removeCaret: function (range) {
+    removeCaret: function(range) {
         var that = this,
             previous = that.caret.previousSibling,
             startOffset = 0;
@@ -4649,7 +4658,7 @@ var Marker = Class.extend({
         range.collapse(true);
     },
 
-    add: function (range, expand) {
+    add: function(range, expand) {
         var that = this;
 
         var collapsed = range.collapsed && !RangeUtils.isExpandable(range);
@@ -4712,7 +4721,7 @@ var Marker = Class.extend({
         return index;
     },
 
-    remove: function (range) {
+    remove: function(range) {
         var that = this,
             start = that.start,
             end = that.end,
@@ -4852,13 +4861,17 @@ var RangeUtils = {
 
     editableTextNodes: function(range) {
         var nodes = [],
-            immutableParent = Editor.Immutables && Editor.Immutables.immutableParent;
+            immutableParent = Editor.Immutables && Editor.Immutables.immutableParent,
+            result = [];
 
         if (immutableParent && !immutableParent(range.commonAncestorContainer)) {
             nodes = new ImmutablesRangeEnumerator(range).enumerate();
+            result = nodes.filter(function(node) {
+                return dom.allowsTextContent(node.parentElement);
+            });
         }
 
-        return nodes;
+        return result;
     },
 
     documentFromRange: function(range) {
@@ -4927,7 +4940,7 @@ var RangeUtils = {
             };
         }
 
-        return RangeUtils.mapAll(range, function (node) {
+        return RangeUtils.mapAll(range, function(node) {
             if (predicate(node)) {
                 return node;
             }
@@ -4940,7 +4953,7 @@ var RangeUtils = {
         });
     },
 
-    image: function (range) {
+    image: function(range) {
         var nodes = RangeUtils.getAll(range, "img");
 
         if (nodes.length == 1) {
@@ -4959,7 +4972,7 @@ var RangeUtils = {
             var index = dom.findNodeIndex(range.startContainer);
             var parent = range.startContainer.parentNode;
 
-            while (index > 0 && parent[index-1] && dom.insignificant(parent[index-1])) {
+            while (index > 0 && parent[index - 1] && dom.insignificant(parent[index - 1])) {
                 index--;
             }
 
@@ -5027,7 +5040,7 @@ var RangeUtils = {
         return range;
     },
 
-    expand: function (range) {
+    expand: function(range) {
         var result = range.cloneRange();
 
         var startContainer = result.startContainer.childNodes[result.startOffset === 0 ? 0 : result.startOffset - 1];
@@ -5060,7 +5073,7 @@ var RangeUtils = {
         return result;
     },
 
-    isExpandable: function (range) {
+    isExpandable: function(range) {
         var node = range.startContainer;
         var rangeDocument = RangeUtils.documentFromRange(range);
 
@@ -5105,11 +5118,11 @@ extend(Editor, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/immutables',[ "./range" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -5154,7 +5167,7 @@ extend(Editor, {
         return node.getAttribute && node.getAttribute("contenteditable") == "false";
     };
 
-    var immutableParent = function (node) {
+    var immutableParent = function(node) {
         return dom.closestBy(node, immutable, rootCondition);
     };
 
@@ -5163,10 +5176,10 @@ extend(Editor, {
         var endImmutableParent = immutableParent(range.endContainer);
 
         if (startImmutableParent || endImmutableParent) {
-            if (startImmutableParent){
+            if (startImmutableParent) {
                 range.setStartBefore(startImmutableParent);
             }
-            if (endImmutableParent){
+            if (endImmutableParent) {
                 range.setEndAfter(endImmutableParent);
             }
         }
@@ -5175,9 +5188,9 @@ extend(Editor, {
     var immutablesContext = function(range) {
         if (immutableParent(range.commonAncestorContainer)) {
             return true;
-        } else if(immutableParent(range.startContainer) || immutableParent(range.endContainer)){
+        } else if (immutableParent(range.startContainer) || immutableParent(range.endContainer)) {
             var editableNodes = RangeUtils.editableTextNodes(range);
-            if (editableNodes.length === 0){
+            if (editableNodes.length === 0) {
                 return true;
             }
         }
@@ -5193,13 +5206,13 @@ extend(Editor, {
         return result;
     };
 
-    var removeImmutables = function (root) {
-        var serializedImmutables = {empty: true}, nodeName, id, serialized;
-         $(root).find(IMMUTABLE_SELECTOR).each(function(i, node){
+    var removeImmutables = function(root) {
+        var serializedImmutables = { empty: true }, nodeName, id, serialized;
+         $(root).find(IMMUTABLE_SELECTOR).each(function(i, node) {
             nodeName = dom.name(node);
             id = randomId();
             serialized = "<" + nodeName + " " + IMMUTABALE + "='" + id + "'></" + nodeName + ">";
-            serializedImmutables[id] = {node: node, style: $(node).attr("style")};
+            serializedImmutables[id] = { node: node, style: $(node).attr("style") };
             serializedImmutables.empty = false;
             $(node).replaceWith(serialized);
         });
@@ -5219,19 +5232,19 @@ extend(Editor, {
         });
     };
 
-    var deletingKey = function (keyCode) {
+    var deletingKey = function(keyCode) {
         var keys = kendo.keys;
         return keyCode === keys.BACKSPACE || keyCode == keys.DELETE;
     };
     var updateToolOptions = function(tool) {
         var options = tool ? tool.options : undefined;
         if (options && options.finder) {
-            options.finder._initOptions({immutables: true});
+            options.finder._initOptions({ immutables: true });
         }
     };
 
     var Immutables = Class.extend({
-        init: function (editor) {
+        init: function(editor) {
             this.editor = editor;
             this.serializedImmutables = {};
             this.options = $.extend({}, editor && editor.options && editor.options.immutables);
@@ -5258,7 +5271,7 @@ extend(Editor, {
             return result;
         },
 
-        _toHtml: function(node){
+        _toHtml: function(node) {
             var serialization = this.options.serialization;
             var serializationType = typeof serialization;
             var nodeName;
@@ -5290,7 +5303,7 @@ extend(Editor, {
             that.serializedImmutables = {};
         },
 
-        randomId: function (length) {
+        randomId: function(length) {
             return randomId(length);
         },
 
@@ -5375,13 +5388,13 @@ extend(Editor, {
         _nextNode: function(node, forwards) {
             var sibling = forwards ? "nextSibling" : "previousSibling";
             var current = node, next;
-            while(current && !next) {
+            while (current && !next) {
                 next = current[sibling];
-                if (next && dom.isDataNode(next) && /^\s|[\ufeff]$/.test(next.nodeValue)){
+                if (next && dom.isDataNode(next) && /^\s|[\ufeff]$/.test(next.nodeValue)) {
                     current = next;
                     next = current[sibling];
                 }
-                if (!next){
+                if (!next) {
                     current = current.parentNode;
                 }
             }
@@ -5400,11 +5413,11 @@ extend(Editor, {
     Editor.Immutables = Immutables;
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/command',[ "./immutables" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -5431,35 +5444,35 @@ function finishUpdate(editor, startRestorePoint) {
 var Command = Class.extend({
     init: function(options) {
         this.options = options;
-        this.restorePoint = new RestorePoint(options.range, options.body, {immutables: options.immutables});
+        this.restorePoint = new RestorePoint(options.range, options.body, { immutables: options.immutables });
         this.marker = new Marker();
         this.formatter = options.formatter;
     },
 
-    getRange: function () {
+    getRange: function() {
         return this.restorePoint.toRange();
     },
 
-    lockRange: function (expand) {
+    lockRange: function(expand) {
         return this.marker.add(this.getRange(), expand);
     },
 
-    releaseRange: function (range) {
+    releaseRange: function(range) {
         this.marker.remove(range);
         this.editor.selectRange(range);
     },
 
-    undo: function () {
+    undo: function() {
         var point = this.restorePoint;
         point.restoreHtml();
         this.editor.selectRange(point.toRange());
     },
 
-    redo: function () {
+    redo: function() {
         this.exec();
     },
 
-    createDialog: function (content, options) {
+    createDialog: function(content, options) {
         var editor = this.editor;
 
         return $(content).appendTo(document.body)
@@ -5467,14 +5480,14 @@ var Command = Class.extend({
             .closest(".k-window").toggleClass("k-rtl", kendo.support.isRtl(editor.wrapper)).end();
     },
 
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(true);
         this.formatter.editor = this.editor;
         this.formatter.toggle(range);
         this.releaseRange(range);
     },
 
-    immutables: function(){
+    immutables: function() {
         return this.editor && this.editor.options.immutables;
     },
 
@@ -5493,14 +5506,14 @@ var GenericCommand = Class.extend({
         this.endRestorePoint = endRestorePoint;
     },
 
-    redo: function () {
+    redo: function() {
         dom.removeChildren(this.body);
 
         this.body.innerHTML = this.endRestorePoint.html;
         this.editor.selectRange(this.endRestorePoint.toRange());
     },
 
-    undo: function () {
+    undo: function() {
         dom.removeChildren(this.body);
 
         this.body.innerHTML = this.startRestorePoint.html;
@@ -5516,11 +5529,11 @@ extend(editorNS, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/toolbar',[ "./range" ], f);
-})(function(){
+})(function() {
 
 (function($,undefined) {
     var kendo = window.kendo;
@@ -5683,12 +5696,12 @@ extend(editorNS, {
                         this._moved = true;
                     }
                 })
-                .on("mousedown", function(e){
+                .on("mousedown", function(e) {
                     if (!$(e.target).is(".k-icon")) {
                         that.preventPopupHide = true;
                     }
                 })
-                .on("focusout", function(){
+                .on("focusout", function() {
                     that.options.editor.element.focusout();
                 })
                 .data("kendoWindow");
@@ -5842,7 +5855,7 @@ extend(editorNS, {
             that.update();
 
             if (window) {
-                window.wrapper.css({top: "", left: "", width: ""});
+                window.wrapper.css({ top: "", left: "", width: "" });
             }
         },
 
@@ -5883,7 +5896,7 @@ extend(editorNS, {
             }
         },
 
-        _getWindowWidth: function(){
+        _getWindowWidth: function() {
             var that = this,
                 wrapper = that.window.wrapper,
                 editorElement = that.options.editor.element;
@@ -6143,7 +6156,7 @@ extend(editorNS, {
                 that._initOverflowPopup(that.element.find(".k-overflow-anchor"));
             }
 
-            that.angular("compile", function(){
+            that.angular("compile", function() {
                 return { elements: that.element };
             });
         },
@@ -6246,7 +6259,7 @@ extend(editorNS, {
                         focusElement = that.element.find(focusable)[0];
                         e.preventDefault();
                     } else if (keyCode == keys.END) {
-                        focusableItems = that.element.find(focusable).filter(function () {
+                        focusableItems = that.element.find(focusable).filter(function() {
                             return $(this).css('visibility') !== 'hidden';
                         });
                         focusElement = focusableItems[focusableItems.length - 1];
@@ -6304,7 +6317,7 @@ extend(editorNS, {
             }
         },
 
-        _toolName: function (element) {
+        _toolName: function(element) {
             if (!element) {
                 return;
             }
@@ -6315,7 +6328,7 @@ extend(editorNS, {
                 className = element.firstChild.className;
             }
 
-            var tool = $.grep(className.split(" "), function (x) {
+            var tool = $.grep(className.split(" "), function(x) {
                 return !/^k-(widget|tool|tool-icon|icon|state-hover|header|combobox|dropdown|selectbox|colorpicker)$/i.test(x);
             });
 
@@ -6324,7 +6337,7 @@ extend(editorNS, {
                 if (toolNamesByCssClass[toolname]) {
                     toolname = toolNamesByCssClass[toolname];
                 }
-                if (toolname.indexOf("k-i-") >=0) {
+                if (toolname.indexOf("k-i-") >= 0) {
                     return kendo.toCamelCase(toolname.substring(toolname.indexOf("k-i-") + 4));
                 }
                 else {
@@ -6420,10 +6433,10 @@ extend(editorNS, {
                 return;
             }
 
-            if(toolbarWindow) {
+            if (toolbarWindow) {
                 toolbarWindow.wrapper.width(this._getWindowWidth());
 
-                if(!toolbarWindow._moved) {
+                if (!toolbarWindow._moved) {
                     toolbarWindow.wrapper.css({
                         left: Math.max(0, parseInt(editorElement.offset().left, 10))
                     });
@@ -6477,7 +6490,7 @@ extend(editorNS, {
             if (width > this._groupsWidth()) {
                 hiddenGroups = this._hiddenGroups();
 
-                for (var i = 0; i < hiddenGroups.length ; i++) {
+                for (var i = 0; i < hiddenGroups.length; i++) {
                     group = hiddenGroups.eq(i);
                     if (width < this._groupsWidth() || !this._showGroup(group, width)) {
                         break;
@@ -6572,11 +6585,11 @@ $.extend(editorNS, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/viewhtml',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -6679,15 +6692,15 @@ extend(ViewHtmlCommand, {
 
 kendo.ui.editor.ViewHtmlCommand = ViewHtmlCommand;
 
-Editor.EditorUtils.registerTool("viewHtml", new Tool({ command: ViewHtmlCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "View HTML"})}));
+Editor.EditorUtils.registerTool("viewHtml", new Tool({ command: ViewHtmlCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "View HTML" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/format',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -6699,22 +6712,22 @@ var kendo = window.kendo,
     EditorUtils = Editor.EditorUtils;
 
 var FormatCommand = Command.extend({
-    init: function (options) {
+    init: function(options) {
         options.formatter = options.formatter();
         var finder = options.formatter.finder;
         if (finder && EditorUtils.formatByName("immutable", finder.format)) {
-            finder._initOptions({immutables: options.immutables});
+            finder._initOptions({ immutables: options.immutables });
         }
         Command.fn.init.call(this, options);
     }
 });
 
 var FormatTool = Tool.extend({
-    init: function (options) {
+    init: function(options) {
         Tool.fn.init.call(this, options);
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         var that = this;
         return new FormatCommand(extend(commandArguments, {
                 formatter: that.options.formatter
@@ -6736,11 +6749,11 @@ $.extend(Editor, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/inlineformat',[ "./format" ], f);
-})(function(){
+})(function() {
 (function($) {
 
 var kendo = window.kendo,
@@ -6792,7 +6805,7 @@ var InlineFormatFinder = Class.extend({
         }
     },
 
-    findSuitable: function (sourceNode, skip) {
+    findSuitable: function(sourceNode, skip) {
         if (!skip && this.numberOfSiblings(sourceNode) > 0) {
             return null;
         }
@@ -6811,7 +6824,7 @@ var InlineFormatFinder = Class.extend({
         return node;
     },
 
-    findFormat: function (sourceNode) {
+    findFormat: function(sourceNode) {
         var format = this.format,
             attrEquals = dom.attrEquals,
             i, len, node, tags, attributes;
@@ -6836,7 +6849,7 @@ var InlineFormatFinder = Class.extend({
         return null;
     },
 
-    isFormatted: function (nodes) {
+    isFormatted: function(nodes) {
         var i, len;
 
         for (i = 0, len = nodes.length; i < len; i++) {
@@ -6868,7 +6881,7 @@ var InlineFormatter = Class.extend({
         }
     },
 
-    toggle: function (range) {
+    toggle: function(range) {
         var textNodes = this.immutables() ? RangeUtils.editableTextNodes : RangeUtils.textNodes;
         var nodes = textNodes(range);
 
@@ -6877,11 +6890,11 @@ var InlineFormatter = Class.extend({
         }
     },
 
-    immutables: function(){
+    immutables: function() {
         return this.editor && this.editor.options.immutables;
     },
 
-    apply: function (nodes) {
+    apply: function(nodes) {
         var formatNodes = [];
         var i, l, node, formatNode;
 
@@ -6900,7 +6913,7 @@ var InlineFormatter = Class.extend({
         this.consolidate(formatNodes);
     },
 
-    format: function (node, outerMostInline) {
+    format: function(node, outerMostInline) {
         var formatNode = this.finder.findSuitable(node);
         var attributes = this.attributes;
         var styleAttr = attributes ? attributes.style || {} : {};
@@ -6929,7 +6942,7 @@ var InlineFormatter = Class.extend({
         return formatNode;
     },
 
-    remove: function (nodes) {
+    remove: function(nodes) {
         var i, l, formatNode;
 
         for (i = 0, l = nodes.length; i < l; i++) {
@@ -6947,7 +6960,7 @@ var InlineFormatter = Class.extend({
         }
     },
 
-    split: function (range) {
+    split: function(range) {
         var nodes = RangeUtils.textNodes(range);
         var l = nodes.length;
         var i, formatNode;
@@ -6962,7 +6975,7 @@ var InlineFormatter = Class.extend({
         }
     },
 
-    consolidate: function (nodes) {
+    consolidate: function(nodes) {
         var node, last;
 
         while (nodes.length > 1) {
@@ -7040,7 +7053,7 @@ var GreedyInlineFormatFinder = InlineFormatFinder.extend({
         }
     },
 
-    getFormatInner: function (node) {
+    getFormatInner: function(node) {
         var $node = $(dom.isDataNode(node) ? node.parentNode : node);
         var parents = $node.parentsUntil("[contentEditable]").addBack().toArray().reverse();
         var i, len, value;
@@ -7056,7 +7069,7 @@ var GreedyInlineFormatFinder = InlineFormatFinder.extend({
         return "inherit";
     },
 
-    getFormat: function (nodes) {
+    getFormat: function(nodes) {
         var result = this.getFormatInner(nodes[0]), i, len;
 
         for (i = 1, len = nodes.length; i < len; i++) {
@@ -7068,7 +7081,7 @@ var GreedyInlineFormatFinder = InlineFormatFinder.extend({
         return result;
     },
 
-    isFormatted: function (nodes) {
+    isFormatted: function(nodes) {
         return this.getFormat(nodes) !== "";
     }
 });
@@ -7104,7 +7117,7 @@ var InlineFormatTool = FormatTool.extend({
     init: function(options) {
         FormatTool.fn.init.call(this, extend(options, {
             finder: new InlineFormatFinder(options.format),
-            formatter: function () { return new InlineFormatter(options.format); }
+            formatter: function() { return new InlineFormatter(options.format); }
         }));
     }
 });
@@ -7128,13 +7141,13 @@ var FontTool = DelayedExecutionTool.extend({
         this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr, options.fontAttr);
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         var options = this.options,
             format = this.format,
             style = {};
 
         return new Editor.FormatCommand(extend(commandArguments, {
-            formatter: function () {
+            formatter: function() {
                 style[options.domAttr] = commandArguments.value;
 
                 return new GreedyInlineFormatter(format, { style: style }, options.cssAttr);
@@ -7142,7 +7155,7 @@ var FontTool = DelayedExecutionTool.extend({
         }));
     },
 
-    initialize: function (ui, initOptions) {
+    initialize: function(ui, initOptions) {
         var editor = initOptions.editor,
             options = this.options,
             toolName = options.name,
@@ -7159,17 +7172,17 @@ var FontTool = DelayedExecutionTool.extend({
 
         dataSource = defaultValue.concat(options.items ? options.items : (editor.options[toolName] || [] ));
 
-        ui.attr({ title: initOptions.title});
+        ui.attr({ title: initOptions.title });
         ui[this.type]({
             dataTextField: "text",
             dataValueField: "value",
             dataSource: dataSource,
-            change: function () {
+            change: function() {
                 editor._range = range;
                 Tool.exec(editor, toolName, this.value());
             },
-            close: function () {
-                setTimeout(function(){
+            close: function() {
+                setTimeout(function() {
                     editor._deleteSavedRange();
                 },0);
             },
@@ -7199,7 +7212,7 @@ var ColorTool = Tool.extend({
     init: function(options) {
         Tool.fn.init.call(this, options);
 
-        this.format = [{ tags: ["span","font"]}];
+        this.format = [{ tags: ["span","font"] }];
         this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
     },
 
@@ -7212,13 +7225,13 @@ var ColorTool = Tool.extend({
         this._widget.close();
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         var options = this.options,
             format = this.format,
             style = {};
 
         return new Editor.FormatCommand(extend(commandArguments, {
-            formatter: function () {
+            formatter: function() {
                 style[options.domAttr] = commandArguments.value;
 
                 return new GreedyInlineFormatter(format, { style: style }, options.cssAttr);
@@ -7230,7 +7243,7 @@ var ColorTool = Tool.extend({
         var that = this,
             editor = initOptions.editor,
             toolName = this.name,
-            options =  extend({}, ColorTool.fn.options, this.options),
+            options = extend({}, ColorTool.fn.options, this.options),
             palette = options.palette,
             columns = options.columns;
 
@@ -7258,21 +7271,21 @@ var ColorTool = Tool.extend({
                 delete that._inputFocused;
                 editor.focus();
             },
-            open: function (e) {
+            open: function(e) {
                 var picker = e.sender;
                 that.storedRange = editor.getRange();
 
-                picker._popup.element.on(MOUSEDOWN_NS, function(e){
-                    if(!$(e.target).is("input.k-color-value")){
+                picker._popup.element.on(MOUSEDOWN_NS, function(e) {
+                    if (!$(e.target).is("input.k-color-value")) {
                         e.preventDefault();
                     }
                 });
 
-                if(!picker._popup.element.is("[unselectable='on']")) {
+                if (!picker._popup.element.is("[unselectable='on']")) {
                     picker._popup.element
                         .attr({ unselectable: "on" })
                         .find("*:not(input)").attr("unselectable", "on")
-                        .end().find("input").on("focus", function(){
+                        .end().find("input").on("focus", function() {
                             that._inputFocused = true;
                         });
                 }
@@ -7317,39 +7330,39 @@ extend(Editor, {
     ColorTool: ColorTool
 });
 
-registerFormat("bold", [ { tags: ["strong", "b"] }, { tags: ["span"], attr: { style: { fontWeight: "bold"}} } ]);
-registerTool("bold", new InlineFormatTool({ key: "B", ctrl: true, format: formats.bold, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Bold"}) }));
+registerFormat("bold", [ { tags: ["strong", "b"] }, { tags: ["span"], attr: { style: { fontWeight: "bold" } } } ]);
+registerTool("bold", new InlineFormatTool({ key: "B", ctrl: true, format: formats.bold, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Bold" }) }));
 
-registerFormat("italic", [ { tags: ["em", "i"] }, { tags: ["span"], attr: { style: { fontStyle: "italic"}} } ]);
-registerTool("italic", new InlineFormatTool({ key: "I", ctrl: true, format: formats.italic, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Italic"})}));
+registerFormat("italic", [ { tags: ["em", "i"] }, { tags: ["span"], attr: { style: { fontStyle: "italic" } } } ]);
+registerTool("italic", new InlineFormatTool({ key: "I", ctrl: true, format: formats.italic, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Italic" }) }));
 
-registerFormat("underline", [ { tags: ["span"], attr: { style: { textDecoration: "underline"}} }, { tags: ["u"] } ]);
-registerTool("underline", new InlineFormatTool({ key: "U", ctrl: true, format: formats.underline, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Underline"})}));
+registerFormat("underline", [ { tags: ["span"], attr: { style: { textDecoration: "underline" } } }, { tags: ["u"] } ]);
+registerTool("underline", new InlineFormatTool({ key: "U", ctrl: true, format: formats.underline, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Underline" }) }));
 
-registerFormat("strikethrough", [ { tags: ["del", "strike"] }, { tags: ["span"], attr: { style: { textDecoration: "line-through"}} } ]);
-registerTool("strikethrough", new InlineFormatTool({format: formats.strikethrough, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Strikethrough"})}));
+registerFormat("strikethrough", [ { tags: ["del", "strike"] }, { tags: ["span"], attr: { style: { textDecoration: "line-through" } } } ]);
+registerTool("strikethrough", new InlineFormatTool({ format: formats.strikethrough, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Strikethrough" }) }));
 
 registerFormat("superscript", [ { tags: ["sup"] } ]);
-registerTool("superscript", new InlineFormatTool({format: formats.superscript, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Superscript"})}));
+registerTool("superscript", new InlineFormatTool({ format: formats.superscript, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Superscript" }) }));
 
 registerFormat("subscript", [ { tags: ["sub"] } ]);
-registerTool("subscript", new InlineFormatTool({format: formats.subscript, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Subscript"})}));
+registerTool("subscript", new InlineFormatTool({ format: formats.subscript, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Subscript" }) }));
 
-registerTool("foreColor", new ColorTool({cssAttr:"color", fontAttr: "color", domAttr:"color", name:"foreColor", template: new ToolTemplate({template: EditorUtils.colorPickerTemplate, title: "Color"})}));
+registerTool("foreColor", new ColorTool({ cssAttr: "color", fontAttr: "color", domAttr: "color", name: "foreColor", template: new ToolTemplate({ template: EditorUtils.colorPickerTemplate, title: "Color" }) }));
 
-registerTool("backColor", new ColorTool({cssAttr:"background-color", domAttr: "backgroundColor", name:"backColor", template: new ToolTemplate({template: EditorUtils.colorPickerTemplate, title: "Background Color"})}));
+registerTool("backColor", new ColorTool({ cssAttr: "background-color", domAttr: "backgroundColor", name: "backColor", template: new ToolTemplate({ template: EditorUtils.colorPickerTemplate, title: "Background Color" }) }));
 
-registerTool("fontName", new FontTool({cssAttr:"font-family", fontAttr: "face", domAttr: "fontFamily", name:"fontName", defaultValue: [{ text: "fontNameInherit",  value: "inherit" }], template: new ToolTemplate({template: EditorUtils.comboBoxTemplate, title: "Font Name"})}));
+registerTool("fontName", new FontTool({ cssAttr: "font-family", fontAttr: "face", domAttr: "fontFamily", name: "fontName", defaultValue: [{ text: "fontNameInherit", value: "inherit" }], template: new ToolTemplate({ template: EditorUtils.comboBoxTemplate, title: "Font Name" }) }));
 
-registerTool("fontSize", new FontTool({cssAttr:"font-size", fontAttr: "size", domAttr:"fontSize", name:"fontSize", defaultValue: [{ text: "fontSizeInherit",  value: "inherit" }], template: new ToolTemplate({template: EditorUtils.comboBoxTemplate, title: "Font Size"})}));
+registerTool("fontSize", new FontTool({ cssAttr: "font-size", fontAttr: "size", domAttr: "fontSize", name: "fontSize", defaultValue: [{ text: "fontSizeInherit", value: "inherit" }], template: new ToolTemplate({ template: EditorUtils.comboBoxTemplate, title: "Font Size" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/link',[ "./inlineformat" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -7375,7 +7388,7 @@ var protocolRegExp = /^\w*:\/\//;
 var endLinkCharsRegExp = /[\w\/\$\-_\*\?]/i;
 
 var LinkFormatFinder = Class.extend({
-    findSuitable: function (sourceNode) {
+    findSuitable: function(sourceNode) {
         return dom.parentOfType(sourceNode, ["a"]);
     }
 });
@@ -7385,7 +7398,7 @@ var LinkFormatter = Class.extend({
         this.finder = new LinkFormatFinder();
     },
 
-    apply: function (range, attributes) {
+    apply: function(range, attributes) {
         var nodes = this.immutables ? editableTextNodes(range) : textNodes(range);
         var markers, doc, formatter, a, parent;
 
@@ -7417,10 +7430,10 @@ var LinkFormatter = Class.extend({
                 dom.insertBefore(doc.createTextNode("\ufeff"), markers[1] || markers[0]);
                 dom.insertAfter(doc.createTextNode("\ufeff"), markers[1] || markers[0]);
                 range.setStartBefore(markers[0]);
-                range.setEndAfter(markers[markers.length-1]);
+                range.setEndAfter(markers[markers.length - 1]);
             }
         } else {
-            formatter = new InlineFormatter([{ tags: ["a"]}], attributes);
+            formatter = new InlineFormatter([{ tags: ["a"] }], attributes);
             formatter.finder = this.finder;
             formatter.apply(nodes);
         }
@@ -7431,9 +7444,9 @@ var UnlinkCommand = Command.extend({
     init: function(options) {
         var that = this;
         options.formatter = /** @ignore */ {
-            toggle : function(range) {
+            toggle: function(range) {
                 var nodes = that.immutables() ? editableTextNodes(range) : textNodes(range);
-                new InlineFormatter([{ tags: ["a"]}]).remove(nodes);
+                new InlineFormatter([{ tags: ["a"] }]).remove(nodes);
             }
         };
         this.options = options;
@@ -7501,7 +7514,7 @@ var LinkCommand = Command.extend({
         });
     },
 
-    exec: function () {
+    exec: function() {
         var messages = this.editor.options.messages;
         this._initialText = "";
         this._range = this.lockRange(true);
@@ -7539,7 +7552,7 @@ var LinkCommand = Command.extend({
         $("#k-editor-link-url", dialog).trigger("focus").select();
     },
 
-    _keydown: function (e) {
+    _keydown: function(e) {
         var keys = kendo.keys;
 
         if (e.keyCode == keys.ENTER) {
@@ -7549,7 +7562,7 @@ var LinkCommand = Command.extend({
         }
     },
 
-    _apply: function (e) {
+    _apply: function(e) {
         var element = this._dialog.element;
         var href = $("#k-editor-link-url", element).val();
         var title, text, target;
@@ -7590,7 +7603,7 @@ var LinkCommand = Command.extend({
         }
     },
 
-    _close: function (e) {
+    _close: function(e) {
         e.preventDefault();
         this._dialog.destroy();
 
@@ -7608,7 +7621,7 @@ var LinkCommand = Command.extend({
         return HTTP_PROTOCOL;
     },
 
-    linkText: function (nodes) {
+    linkText: function(nodes) {
         var text = "";
         var i;
 
@@ -7619,7 +7632,7 @@ var LinkCommand = Command.extend({
         return dom.stripBom(text || "");
     },
 
-    redo: function () {
+    redo: function() {
         var range = this.lockRange(true);
 
         this.formatter.apply(range, this.attributes);
@@ -7629,13 +7642,13 @@ var LinkCommand = Command.extend({
 });
 
 var AutoLinkCommand = Command.extend({
-    init: function (options) {
+    init: function(options) {
         Command.fn.init.call(this, options);
 
         this.formatter = new LinkFormatter();
     },
 
-    exec: function () {
+    exec: function() {
         var detectedLink = this.detectLink();
         if (!detectedLink) {
             return;
@@ -7659,7 +7672,7 @@ var AutoLinkCommand = Command.extend({
         this.releaseRange(range);
     },
 
-    detectLink: function () {
+    detectLink: function() {
         var range = this.getRange();
         var startNode = range.startContainer;
         var startOffset = range.startOffset;
@@ -7682,7 +7695,7 @@ var AutoLinkCommand = Command.extend({
         return !!this.detectLink();
     },
 
-    _ensureWebProtocol: function (linkText) {
+    _ensureWebProtocol: function(linkText) {
         var hasProtocol = this._hasProtocolPrefix(linkText);
         return hasProtocol ? linkText : this._prefixWithWebProtocol(linkText);
     },
@@ -7699,9 +7712,9 @@ var AutoLinkCommand = Command.extend({
 var UnlinkTool = Tool.extend({
     init: function(options) {
         this.options = options;
-        this.finder = new InlineFormatFinder([{tags:["a"]}]);
+        this.finder = new InlineFormatFinder([{ tags: ["a"] }]);
 
-        Tool.fn.init.call(this, $.extend(options, {command:UnlinkCommand}));
+        Tool.fn.init.call(this, $.extend(options, { command: UnlinkCommand }));
     },
 
     initialize: function(ui, options) {
@@ -7709,21 +7722,21 @@ var UnlinkTool = Tool.extend({
         ui.addClass("k-disabled");
     },
 
-    update: function (ui, nodes) {
+    update: function(ui, nodes) {
         ui.toggleClass("k-disabled", !this.finder.isFormatted(nodes))
           .removeClass("k-hover");
     }
 });
 
 var DomTextLinkDetection = Class.extend({
-    init: function (traverser) {
+    init: function(traverser) {
         this.traverser = traverser;
         this.start = DomPos();
         this.end = DomPos();
         this.text = "";
     },
 
-    detectLink: function () {
+    detectLink: function() {
         var node = this.traverser.node;
         var offset = this.traverser.offset;
         if (dom.isDataNode(node)) {
@@ -7802,7 +7815,7 @@ var DomTextLinkDetection = Class.extend({
 
         this.text = this.text.substring(ii);
         this.start.node = node;
-        this.start.offset = ii + (offset |0);
+        this.start.offset = ii + (offset | 0);
 
         if (i > -1) {
             return false;
@@ -7833,13 +7846,13 @@ var DomPos = function() {
 };
 
 var DomTextTraverser = Class.extend({
-    init: function (options) {
+    init: function(options) {
         this.node = options.node;
         this.offset = options.offset === undefined ? (dom.isDataNode(this.node) && this.node.length) || 0 : options.offset;
         this.cancelAtNode = options.cancelAtNode || this.cancelAtNode || $.noop;
     },
 
-    traverse: function (callback) {
+    traverse: function(callback) {
         if (!callback) {
             return;
         }
@@ -7847,7 +7860,7 @@ var DomTextTraverser = Class.extend({
         this._traverse(callback, this.node, this.offset);
     },
 
-    _traverse: function (callback, node, offset) {
+    _traverse: function(callback, node, offset) {
         if (!node || this.cancel) {
             return;
         }
@@ -7940,17 +7953,17 @@ extend(kendo.ui.editor, {
     RightDomTextTraverser: RightDomTextTraverser
 });
 
-registerTool("createLink", new Tool({ key: "K", ctrl: true, command: LinkCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Create Link"})}));
-registerTool("unlink", new UnlinkTool({ key: "K", ctrl: true, shift: true, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Remove Link"})}));
+registerTool("createLink", new Tool({ key: "K", ctrl: true, command: LinkCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Create Link" }) }));
+registerTool("unlink", new UnlinkTool({ key: "K", ctrl: true, shift: true, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Remove Link" }) }));
 registerTool("autoLink", new Tool({ key: [keys.ENTER, keys.SPACEBAR], keyPressCommand: true, command: AutoLinkCommand }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/formatblock',[ "./format" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -7985,7 +7998,7 @@ var BlockFormatFinder = Class.extend({
         return true;
     },
 
-    findSuitable: function (nodes) {
+    findSuitable: function(nodes) {
         var format = this.format,
             suitable = [],
             i, len, candidate;
@@ -8017,7 +8030,7 @@ var BlockFormatFinder = Class.extend({
 
         return suitable;
     },
-    _resolveListsItems: function(nodes){
+    _resolveListsItems: function(nodes) {
         var i, node, wrapper;
         for (i = 0; i < nodes.length; i++) {
             node = nodes[i];
@@ -8029,7 +8042,7 @@ var BlockFormatFinder = Class.extend({
         }
     },
 
-    findFormat: function (sourceNode, until) {
+    findFormat: function(sourceNode, until) {
         var format = this.format,
             i, len, node, tags, attributes;
         var editableParent = dom.editableParent(sourceNode);
@@ -8053,7 +8066,7 @@ var BlockFormatFinder = Class.extend({
                     return node;
                 }
 
-                if(until && until(node)) {
+                if (until && until(node)) {
                     break;
                 }
 
@@ -8063,7 +8076,7 @@ var BlockFormatFinder = Class.extend({
         return null;
     },
 
-    getFormat: function (nodes) {
+    getFormat: function(nodes) {
         var that = this,
             findFormat = function(node) {
                     return that.findFormat(dom.isDataNode(node) ? node.parentNode : node);
@@ -8084,7 +8097,7 @@ var BlockFormatFinder = Class.extend({
         return result.nodeName.toLowerCase();
     },
 
-    isFormatted: function (nodes, until) {
+    isFormatted: function(nodes, until) {
         for (var i = 0, len = nodes.length; i < len; i++) {
             if (!this.findFormat(nodes[i], until)) {
                 return false;
@@ -8096,7 +8109,7 @@ var BlockFormatFinder = Class.extend({
 });
 
 var BlockFormatter = Class.extend({
-    init: function (format, values) {
+    init: function(format, values) {
         this.format = format;
         this.values = values;
         this.finder = new BlockFormatFinder(format);
@@ -8138,7 +8151,7 @@ var BlockFormatter = Class.extend({
         }
     },
 
-    apply: function (nodes) {
+    apply: function(nodes) {
         var format, values = this.values;
 
         function attributes(format) {
@@ -8173,7 +8186,7 @@ var BlockFormatter = Class.extend({
         }
     },
 
-    _handleImmutables: function (nodes, applyFormatting) {
+    _handleImmutables: function(nodes, applyFormatting) {
         if (!this.immutables()) {
             return;
         }
@@ -8203,7 +8216,7 @@ var BlockFormatter = Class.extend({
         return this.editor && this.editor.options.immutables;
     },
 
-    remove: function (nodes) {
+    remove: function(nodes) {
         var i, l, formatNode, namedFormat, name;
 
         this._handleImmutables(nodes, false);
@@ -8223,7 +8236,7 @@ var BlockFormatter = Class.extend({
         }
     },
 
-    toggle: function (range) {
+    toggle: function(range) {
         var that = this,
             nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
 
@@ -8236,14 +8249,14 @@ var BlockFormatter = Class.extend({
 });
 
 var GreedyBlockFormatter = Class.extend({
-    init: function (format, values) {
+    init: function(format, values) {
         var that = this;
         that.format = format;
         that.values = values;
         that.finder = new BlockFormatFinder(format);
     },
 
-    apply: function (nodes) {
+    apply: function(nodes) {
         var format = this.format;
         var blocks = dom.blockParents(nodes);
         var formatTag = format[0].tags[0];
@@ -8282,7 +8295,7 @@ var GreedyBlockFormatter = Class.extend({
         }
     },
 
-    toggle: function (range) {
+    toggle: function(range) {
         var nodes = RangeUtils.textNodes(range);
         if (!nodes.length) {
             range.selectNodeContents(range.commonAncestorContainer);
@@ -8300,10 +8313,10 @@ var GreedyBlockFormatter = Class.extend({
     }
 });
 
-var BlockFormatTool = FormatTool.extend({ init: function (options) {
+var BlockFormatTool = FormatTool.extend({ init: function(options) {
         FormatTool.fn.init.call(this, extend(options, {
             finder: new BlockFormatFinder(options.format),
-            formatter: function () {
+            formatter: function() {
                 return new BlockFormatter(options.format);
             }
         }));
@@ -8320,10 +8333,10 @@ extend(Editor, {
 var listElements = ["ul","ol","li"];
 
 registerFormat("justifyLeft", [
-    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "left" }} },
-    { tags: ["img"], attr: { style: { "float": "left", display: "", marginLeft: "", marginRight: "" }} },
-    { tags: ["immutable"], attr: { style: { "float": "left", display: "", marginLeft: "", marginRight: "" }} },
-    { tags: listElements, attr: { style: { textAlign: "left", listStylePosition: "" }} }
+    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "left" } } },
+    { tags: ["img"], attr: { style: { "float": "left", display: "", marginLeft: "", marginRight: "" } } },
+    { tags: ["immutable"], attr: { style: { "float": "left", display: "", marginLeft: "", marginRight: "" } } },
+    { tags: listElements, attr: { style: { textAlign: "left", listStylePosition: "" } } }
 ]);
 registerTool("justifyLeft", new BlockFormatTool({
     format: formats.justifyLeft,
@@ -8334,10 +8347,10 @@ registerTool("justifyLeft", new BlockFormatTool({
 }));
 
 registerFormat("justifyCenter", [
-    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "center" }} },
-    { tags: ["img"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" }} },
-    { tags: ["immutable"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" }} },
-    { tags: listElements, attr: { style: { textAlign: "center", listStylePosition: "inside" }} }
+    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "center" } } },
+    { tags: ["img"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" } } },
+    { tags: ["immutable"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" } } },
+    { tags: listElements, attr: { style: { textAlign: "center", listStylePosition: "inside" } } }
 ]);
 registerTool("justifyCenter", new BlockFormatTool({
     format: formats.justifyCenter,
@@ -8348,10 +8361,10 @@ registerTool("justifyCenter", new BlockFormatTool({
 }));
 
 registerFormat("justifyRight", [
-    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "right" }} },
-    { tags: ["img"], attr: { style: { "float": "right", display: "", marginLeft: "", marginRight: "" }} },
-    { tags: ["immutable"], attr: { style: { "float": "right", display: "", marginLeft: "", marginRight: "" }} },
-    { tags: listElements, attr: { style: { textAlign: "right", listStylePosition: "inside" }} }
+    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "right" } } },
+    { tags: ["img"], attr: { style: { "float": "right", display: "", marginLeft: "", marginRight: "" } } },
+    { tags: ["immutable"], attr: { style: { "float": "right", display: "", marginLeft: "", marginRight: "" } } },
+    { tags: listElements, attr: { style: { textAlign: "right", listStylePosition: "inside" } } }
 ]);
 registerTool("justifyRight", new BlockFormatTool({
     format: formats.justifyRight,
@@ -8362,10 +8375,10 @@ registerTool("justifyRight", new BlockFormatTool({
 }));
 
 registerFormat("justifyFull", [
-    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "justify" }} },
-    { tags: ["img"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" }} },
-    { tags: ["immutable"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" }} },
-    { tags: listElements, attr: { style: { textAlign: "justify", listStylePosition: "" }} }
+    { tags: dom.nonListBlockElements, attr: { style: { textAlign: "justify" } } },
+    { tags: ["img"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" } } },
+    { tags: ["immutable"], attr: { style: { display: "block", marginLeft: "auto", marginRight: "auto", "float": "" } } },
+    { tags: listElements, attr: { style: { textAlign: "justify", listStylePosition: "" } } }
 ]);
 registerTool("justifyFull", new BlockFormatTool({
     format: formats.justifyFull,
@@ -8377,11 +8390,11 @@ registerTool("justifyFull", new BlockFormatTool({
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/lists',[ "./formatblock" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -8419,15 +8432,15 @@ var ListFormatFinder = BlockFormatFinder.extend({
         BlockFormatFinder.fn.init.call(this, format);
     },
 
-    matchesType: function (node) {
+    matchesType: function(node) {
         return dom.attrEquals(node, this.attr) || (this.altAttr && dom.attrEquals(node, this.altAttr));
     },
 
-    isList: function(node){
+    isList: function(node) {
         return dom.list(node);
     },
 
-    isFormatted: function (nodes) {
+    isFormatted: function(nodes) {
         var formatNodes = [];
         var formatNode, i;
 
@@ -8461,7 +8474,7 @@ var ListFormatFinder = BlockFormatFinder.extend({
         return true;
     },
 
-    findSuitable: function (nodes) {
+    findSuitable: function(nodes) {
         var candidate = this.findFormat(nodes[0], this.isList);
 
         if (candidate && dom.name(candidate) == this.tag) {
@@ -8487,7 +8500,7 @@ var ListFormatter = Class.extend({
         return dom.list(node);
     },
 
-    immutables: function () {
+    immutables: function() {
         return this.editor && !!this.editor.options.immutables;
     },
 
@@ -8548,7 +8561,7 @@ var ListFormatter = Class.extend({
         return false;
     },
 
-    suitable: function (candidate, nodes) {
+    suitable: function(candidate, nodes) {
         if (candidate.className == "k-marker") {
             var sibling = candidate.nextSibling;
 
@@ -8572,7 +8585,7 @@ var ListFormatter = Class.extend({
         return $(node).parentsUntil(editable, "ul,ol");
     },
 
-    split: function (range) {
+    split: function(range) {
         var nodes = textNodes(range);
         var start, end, parents;
 
@@ -8605,7 +8618,7 @@ var ListFormatter = Class.extend({
 
         // merge with previous list
         if (prev && dom.name(prev) == tag && this.finder.matchesType(prev)) {
-            while(formatNode.firstChild) {
+            while (formatNode.firstChild) {
                 prev.appendChild(formatNode.firstChild);
             }
             dom.remove(formatNode);
@@ -8619,7 +8632,7 @@ var ListFormatter = Class.extend({
 
         // merge with next list
         if (next && dom.name(next) == tag && this.finder.matchesType(next)) {
-            while(formatNode.lastChild) {
+            while (formatNode.lastChild) {
                 next.insertBefore(formatNode.lastChild, next.firstChild);
             }
             dom.remove(formatNode);
@@ -8634,7 +8647,7 @@ var ListFormatter = Class.extend({
         );
     },
 
-    findSuitableNode: function (nodes) {
+    findSuitableNode: function(nodes) {
         var that = this,
             finder = that.finder,
             tag = that.tag,
@@ -8648,7 +8661,7 @@ var ListFormatter = Class.extend({
             formatNode = finder.findSuitable(nodes);
         }
 
-        if(!formatNode) {
+        if (!formatNode) {
             // Find the same tag
             finder = new ListFormatFinder({ tag: tag });
             formatNode = finder.findSuitable(nodes);
@@ -8659,7 +8672,7 @@ var ListFormatter = Class.extend({
         return formatNode;
     },
 
-    applyOnSection: function (section, nodes) {
+    applyOnSection: function(section, nodes) {
         var tag = this.tag;
         var attr = this.attr;
         var commonAncestor = dom.closestSplittableParent(nodes);
@@ -8714,7 +8727,7 @@ var ListFormatter = Class.extend({
 
         if (!formatNode) {
             formatNode = dom.create(commonAncestor.ownerDocument, tag, attr);
-            if(dom.isBlock(ancestors[0])) {
+            if (dom.isBlock(ancestors[0])) {
                 dom.mergeAttributes(ancestors[0], formatNode);
             }
             dom.insertBefore(formatNode, ancestors[0]);
@@ -8743,7 +8756,7 @@ var ListFormatter = Class.extend({
         this.merge(tag, formatNode);
     },
 
-    apply: function (nodes) {
+    apply: function(nodes) {
         var i = 0,
             sections = [],
             lastSection,
@@ -8793,7 +8806,7 @@ var ListFormatter = Class.extend({
         for (li = ul.firstChild; li; li = li.nextSibling) {
             p = dom.create(ul.ownerDocument, unwrapTag || 'p');
 
-            while(li.firstChild) {
+            while (li.firstChild) {
                 child = li.firstChild;
 
                 if (dom.isBlock(child)) {
@@ -8826,7 +8839,7 @@ var ListFormatter = Class.extend({
         dom.remove(ul);
     },
 
-    remove: function (nodes) {
+    remove: function(nodes) {
         var formatNode;
         for (var i = 0, l = nodes.length; i < l; i++) {
             formatNode = this.finder.findFormat(nodes[i]);
@@ -8837,7 +8850,7 @@ var ListFormatter = Class.extend({
         }
     },
 
-    toggle: function (range) {
+    toggle: function(range) {
         var that = this,
             nodes = textNodes(range),
             ancestor = range.commonAncestorContainer;
@@ -8879,7 +8892,7 @@ var ListTool = FormatTool.extend({
         }));
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         return new ListCommand(extend(commandArguments, { tag: this.options.tag, attr: this.options.attr }));
     }
 });
@@ -8891,18 +8904,18 @@ extend(Editor, {
     ListTool: ListTool
 });
 
-registerTool("insertUnorderedList", new ListTool({tag:'ul', attr: { style: { listStyleType: "" }, type: "" }, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert unordered list"})}));
-registerTool("insertOrderedList", new ListTool({tag:'ol', attr: { style: { listStyleType: "" }, type: "" }, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert ordered list"})}));
-registerTool("insertUpperRomanList", new ListTool({tag:'ol', attr: { style: { listStyleType: "upper-roman" }}, altAttr: { type: "I" }, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert upper roman list"})}));
-registerTool("insertLowerRomanList", new ListTool({tag:'ol', attr: { style: { listStyleType: "lower-roman" }}, altAttr: { type: "i" }, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert lower roman list"})}));
+registerTool("insertUnorderedList", new ListTool({ tag: 'ul', attr: { style: { listStyleType: "" }, type: "" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert unordered list" }) }));
+registerTool("insertOrderedList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "" }, type: "" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert ordered list" }) }));
+registerTool("insertUpperRomanList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "upper-roman" } }, altAttr: { type: "I" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert upper roman list" }) }));
+registerTool("insertLowerRomanList", new ListTool({ tag: 'ol', attr: { style: { listStyleType: "lower-roman" } }, altAttr: { type: "i" }, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert lower roman list" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/formatting',[ "./inlineformat" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -8969,7 +8982,7 @@ var FormattingTool = DelayedExecutionTool.extend({
         return item;
     },
 
-    command: function (args) {
+    command: function(args) {
         var that = this;
         var item = args.value;
 
@@ -8977,7 +8990,7 @@ var FormattingTool = DelayedExecutionTool.extend({
 
         return new Editor.FormatCommand({
             range: args.range,
-            formatter: function () {
+            formatter: function() {
                 var formatter,
                     tags = (item.tag || item.context || "span").split(","),
                     format = [{
@@ -9015,7 +9028,7 @@ var FormattingTool = DelayedExecutionTool.extend({
             dataSource: options.items || editor.options[toolName],
             title: editor.options.messages[toolName],
             autoSize: true,
-            change: function () {
+            change: function() {
                 var dataItem = this.dataItem();
 
                 if (dataItem) {
@@ -9049,7 +9062,7 @@ var FormattingTool = DelayedExecutionTool.extend({
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
             var tag = item.tag || item.context || "";
-            var className = item.className ? "."+item.className : "";
+            var className = item.className ? "." + item.className : "";
             var selector = tag + className;
 
             var element = $(nodes[0]).closest(selector)[0];
@@ -9125,7 +9138,7 @@ var CleanFormatCommand = Command.extend({
         });
 
 
-        for(var c = nodes.length - 1; c >= 0; c--) {
+        for (var c = nodes.length - 1; c >= 0; c--) {
             var node = nodes[c];
             if (!this.immutableParent(node)) {
                 this.clean(node);
@@ -9156,7 +9169,7 @@ var CleanFormatCommand = Command.extend({
         } else if (name == "blockquote") {
             dom.changeTag(node, "p");
         } else if (node.nodeType == 1 && !dom.insignificant(node)) {
-            for (var i = node.childNodes.length-1; i >= 0; i--) {
+            for (var i = node.childNodes.length - 1; i >= 0; i--) {
                 this.clean(node.childNodes[i]);
             }
 
@@ -9197,11 +9210,11 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/image',[ "kendo.imagebrowser", "../command" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -9236,7 +9249,7 @@ var ImageCommand = Command.extend({
         if (attributes.src && attributes.src != "http://") {
 
             var removeIEAttributes = function() {
-                setTimeout(function(){
+                setTimeout(function() {
                     if (!attributes.width) {
                         img.removeAttribute("width");
                     }
@@ -9321,7 +9334,7 @@ var ImageCommand = Command.extend({
         });
     },
 
-    redo: function () {
+    redo: function() {
         var that = this,
             range = that.lockRange();
 
@@ -9330,7 +9343,7 @@ var ImageCommand = Command.extend({
         }
     },
 
-    exec: function () {
+    exec: function() {
         var that = this,
             range = that.lockRange(),
             applied = false,
@@ -9424,7 +9437,7 @@ var ImageCommand = Command.extend({
                 extend({}, imageBrowser)
             );
 
-            this._imageBrowser.bind("change", function (ev) {
+            this._imageBrowser.bind("change", function(ev) {
                 if (ev.selected.get("type") === "f") {
                     element.find(KEDITORIMAGEURL).val(this.value());
                 }
@@ -9433,7 +9446,7 @@ var ImageCommand = Command.extend({
             this._imageBrowser.bind("apply", apply);
         }
 
-        if(isIE) {
+        if (isIE) {
             var dialogHeight = element.closest(".k-window").height();
             element.css("max-height", dialogHeight);
         }
@@ -9445,15 +9458,15 @@ var ImageCommand = Command.extend({
 
 kendo.ui.editor.ImageCommand = ImageCommand;
 
-registerTool("insertImage", new Editor.Tool({ command: ImageCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert Image" }) }));
+registerTool("insertImage", new Editor.Tool({ command: ImageCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert Image" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/import',[ "../main" ], f);
-})(function(){
+})(function() {
 (function($, undefined) {
 
 var kendo = window.kendo,
@@ -9471,7 +9484,7 @@ var ImportCommand = Command.extend({
         (this.editor._uploadWidget || this._initializeUploadWidget()).element.click();
     },
 
-    _initializeUploadWidget: function(){
+    _initializeUploadWidget: function() {
         var cmd = this;
         var editor = cmd.editor;
         var importOptions = editor.options["import"];
@@ -9484,7 +9497,7 @@ var ImportCommand = Command.extend({
             showFileList: false,
             multiple: false,
             async: {
-                saveUrl:  importOptions.proxyURL,
+                saveUrl: importOptions.proxyURL,
                 autoUpload: true,
                 saveField: "file"
             },
@@ -9498,26 +9511,26 @@ var ImportCommand = Command.extend({
 
         return upload;
     },
-    _onUploadComplete: function(ev){
+    _onUploadComplete: function(ev) {
         this._trigger("complete", ev);
         ev.sender.clearAllFiles();
 
         this._removeLoadingOverlay();
     },
-    _onUploadSuccess: function(ev){
+    _onUploadSuccess: function(ev) {
         this.editor.value(ev.response.html.replace(/<\/?body>/ig, ""));
         this._trigger("success", ev);
     },
-    _onUploadProgress: function(ev){
+    _onUploadProgress: function(ev) {
         this._trigger("progress", ev);
     },
-    _onUploadSelect: function(ev){
+    _onUploadSelect: function(ev) {
         this._trigger("select", ev);
         if (!ev.files[0].validationErrors) {
             this._initLoadingOverlay();
         }
     },
-    _onUploadError: function(ev){
+    _onUploadError: function(ev) {
         this._trigger("error", ev);
     },
 
@@ -9529,12 +9542,12 @@ var ImportCommand = Command.extend({
         }
     },
 
-    _initLoadingOverlay: function (){
+    _initLoadingOverlay: function() {
         var editable = this.editor.body;
         if (Editor.Dom.is(editable, "body")) {
             this._iframeWrapper = this._container =
                 this.editor.wrapper.find("iframe").parent()
-                .css({position: "relative"}).append(loadingOverlay);
+                .css({ position: "relative" }).append(loadingOverlay);
         } else {
             this._container = $(editable).append(loadingOverlay);
         }
@@ -9542,7 +9555,7 @@ var ImportCommand = Command.extend({
         kendo.ui.progress(this._container, true);
     },
 
-    _removeLoadingOverlay: function(){
+    _removeLoadingOverlay: function() {
         kendo.ui.progress(this._container, false);
         $(this._iframeWrapper).css({
             position: ""
@@ -9559,16 +9572,16 @@ extend(Editor, {
 
 registerTool("import", new Tool({
     command: ImportCommand,
-    template: new ToolTemplate({template: EditorUtils.iconTextButtonTemplate, title: "Import"})
+    template: new ToolTemplate({ template: EditorUtils.iconTextButtonTemplate, title: "Import" })
 }));
 
 }(window.kendo.jQuery));
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/insert',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -9625,7 +9638,7 @@ var InsertHtmlTool = Tool.extend({
             dataSource: dataSource,
             dataTextField: "text",
             dataValueField: "value",
-            change: function () {
+            change: function() {
                 Tool.exec(editor, 'insertHtml', this.value());
             },
             title: editor.options.messages.insertHtml,
@@ -9636,7 +9649,7 @@ var InsertHtmlTool = Tool.extend({
         this._selectBox.wrapper.attr("title", initOptions.title);
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         return new InsertHtmlCommand(commandArguments);
     },
 
@@ -9652,15 +9665,15 @@ extend(editorNS, {
     InsertHtmlTool: InsertHtmlTool
 });
 
-registerTool("insertHtml", new InsertHtmlTool({template: new ToolTemplate({template: EditorUtils.dropDownListTemplate, title: "Insert HTML", initialValue: "Insert HTML"})}));
+registerTool("insertHtml", new InsertHtmlTool({ template: new ToolTemplate({ template: EditorUtils.dropDownListTemplate, title: "Insert HTML", initialValue: "Insert HTML" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/export',[ "../main" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -9842,9 +9855,9 @@ registerTool('exportAs', new ExportAsTool({
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/indent',[ "./formatblock" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -9885,10 +9898,10 @@ function indent(node, value) {
 
 var IndentFormatter = Class.extend({
     init: function() {
-        this.finder = new BlockFormatFinder([{tags:dom.blockElements}]);
+        this.finder = new BlockFormatFinder([{ tags: dom.blockElements }]);
     },
 
-    apply: function (nodes) {
+    apply: function(nodes) {
         nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
         var formatNodes = this.finder.findSuitable(nodes),
             targets = [],
@@ -9951,25 +9964,25 @@ var IndentFormatter = Class.extend({
                 }
             }
         } else {
-            var formatter = new BlockFormatter([{tags:["p"]}], {style:{marginLeft:30}});
+            var formatter = new BlockFormatter([{ tags: ["p"] }], { style: { marginLeft: 30 } });
 
             formatter.apply(nodes);
         }
     },
 
-    getListTypeAttr: function (list) {
+    getListTypeAttr: function(list) {
         var type = list.getAttribute("type");
         var styleType = list.style.listStyleType;
 
         return type ? { type: type } : { style: { listStyleType: styleType } };
     },
 
-    mapImmutables: function(nodes){
+    mapImmutables: function(nodes) {
         if (!this.immutables) {
             return nodes;
         } else {
             var immutables = [];
-            return $.map(nodes, function (node) {
+            return $.map(nodes, function(node) {
                 var immutable = Editor.Immutables.immutableParent(node);
                 if (immutable) {
                     if ($.inArray(immutable, immutables) === -1) {
@@ -10042,7 +10055,7 @@ var IndentCommand = Command.extend({
     init: function(options) {
         var that = this;
         options.formatter = /** @ignore */ {
-            toggle : (function(range) {
+            toggle: (function(range) {
                 var indentFormatter = new IndentFormatter();
                 indentFormatter.immutables = this.editor && this.editor.options.immutables;
                 indentFormatter.apply(RangeUtils.nodes(range));
@@ -10056,7 +10069,7 @@ var OutdentCommand = Command.extend({
     init: function(options) {
         var that = this;
         options.formatter = {
-            toggle : (function(range) {
+            toggle: (function(range) {
                 var indentFormatter = new IndentFormatter();
                 indentFormatter.immutables = this.editor && this.editor.options.immutables;
                 indentFormatter.remove(RangeUtils.nodes(range));
@@ -10070,7 +10083,7 @@ var OutdentTool = Tool.extend({
     init: function(options) {
         Tool.fn.init.call(this, options);
 
-        this.finder = new BlockFormatFinder([{tags:blockElements}]);
+        this.finder = new BlockFormatFinder([{ tags: blockElements }]);
     },
 
     initialize: function(ui, options) {
@@ -10083,7 +10096,7 @@ var OutdentTool = Tool.extend({
         ui.addClass("k-disabled");
     },
 
-    update: function (ui, nodes) {
+    update: function(ui, nodes) {
         var suitableNodes = this.finder.findSuitable(nodes),
             isOutdentable, listParentsCount, i, len, suitable, immutableParent;
         for (i = 0, len = suitableNodes.length; i < len; i++) {
@@ -10121,16 +10134,16 @@ extend(Editor, {
     OutdentTool: OutdentTool
 });
 
-registerTool("indent", new Tool({ command: IndentCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Indent"}) }));
-registerTool("outdent", new OutdentTool({ command: OutdentCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Outdent"})}));
+registerTool("indent", new Tool({ command: IndentCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Indent" }) }));
+registerTool("outdent", new OutdentTool({ command: OutdentCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Outdent" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/linebreak',[ "./formatblock" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -10209,7 +10222,7 @@ var ParagraphCommand = Command.extend({
         return (startInBlock && !endInBlock) || (!startInBlock && endInBlock);
     },
 
-    _blankAfter: function (node) {
+    _blankAfter: function(node) {
         while (node && (dom.isMarker(node) || dom.stripBom(node.nodeValue) === "")) {
             node = node.nextSibling;
         }
@@ -10217,7 +10230,7 @@ var ParagraphCommand = Command.extend({
         return !node;
     },
 
-    exec: function () {
+    exec: function() {
         var range = this.getRange(),
             doc = RangeUtils.documentFromRange(range),
             parent, previous, next,
@@ -10237,7 +10250,7 @@ var ParagraphCommand = Command.extend({
 
         li = dom.closestEditableOfType(marker, ['li']);
         heading = dom.closestEditableOfType(marker, 'h1,h2,h3,h4,h5,h6'.split(','));
-        tableNode = dom.is(marker.parentNode, 'table') &&  marker.parentNode;
+        tableNode = dom.is(marker.parentNode, 'table') && marker.parentNode;
 
         if (li) {
             // hitting 'enter' in empty li
@@ -10283,7 +10296,7 @@ var ParagraphCommand = Command.extend({
 
         if (!next) {
             if (!(li || heading)) {
-                new BlockFormatter([{ tags: ['p']}]).apply([marker]);
+                new BlockFormatter([{ tags: ['p'] }]).apply([marker]);
             }
 
             range.selectNode(marker);
@@ -10324,7 +10337,7 @@ var ParagraphCommand = Command.extend({
         RangeUtils.selectRange(range);
     },
 
-    _insertParagraphAfter: function (node) {
+    _insertParagraphAfter: function(node) {
         var range = this.getRange();
         var doc = RangeUtils.documentFromRange(range);
         var emptyElementContent = editorNS.emptyElementContent;
@@ -10378,7 +10391,7 @@ var NewLineCommand = Command.extend({
         Command.fn.init.call(this, options);
     },
 
-    exec: function () {
+    exec: function() {
         var range = this.getRange();
         this.expandImmutablesIn(range);
 
@@ -10394,10 +10407,10 @@ var NewLineCommand = Command.extend({
         if (tableNode) {
             dom.insertAfter(br, tableNode);
         } else {
-            kbrParent =  $(node).closest('.k-br');
+            kbrParent = $(node).closest('.k-br');
             range.insertNode(br);
 
-            if(kbrParent.length) {
+            if (kbrParent.length) {
                 // pressing enter in an k-br node
                 dom.unwrap(kbrParent[0]);
             }
@@ -10407,7 +10420,7 @@ var NewLineCommand = Command.extend({
 
         if (!oldIE && (!br.nextSibling || dom.isWhitespace(br.nextSibling))) {
             // Gecko and WebKit cannot put the caret after only one br.
-            if(!!br.nextSibling && dom.isWhitespace(br.nextSibling)) {
+            if (!!br.nextSibling && dom.isWhitespace(br.nextSibling)) {
                 $(br.nextSibling).remove();
             }
             filler = br.cloneNode(true);
@@ -10434,11 +10447,11 @@ registerTool("insertParagraph", new Tool({ key: 13, command: ParagraphCommand })
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/file',[ "kendo.filebrowser", "./link" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -10476,7 +10489,7 @@ var FileCommand = Command.extend({
         if (attributes.href && attributes.href != "http://") {
 
             if (!file) {
-                file = dom.create(doc, "a", {href: attributes.href});
+                file = dom.create(doc, "a", { href: attributes.href });
                 file.innerHTML = attributes.innerHTML;
                 file.title = attributes.title;
 
@@ -10538,7 +10551,7 @@ var FileCommand = Command.extend({
         });
     },
 
-    redo: function () {
+    redo: function() {
         var that = this,
             range = that.lockRange();
 
@@ -10546,7 +10559,7 @@ var FileCommand = Command.extend({
         that.releaseRange(range);
     },
 
-    exec: function () {
+    exec: function() {
         var that = this,
             range = that.lockRange(),
             nodes = textNodes(range),
@@ -10629,7 +10642,7 @@ var FileCommand = Command.extend({
                 extend({}, fileBrowser)
             );
 
-            that._fileBrowser.bind("change", function (ev) {
+            that._fileBrowser.bind("change", function(ev) {
                 if (ev.selected.get("type") === "f") {
                     element.find(KEDITORFILEURL).val(this.value());
                 }
@@ -10638,7 +10651,7 @@ var FileCommand = Command.extend({
             that._fileBrowser.bind("apply", apply);
         }
 
-        if(isIE) {
+        if (isIE) {
             var dialogHeight = element.closest(".k-window").height();
             element.css("max-height", dialogHeight);
         }
@@ -10650,15 +10663,15 @@ var FileCommand = Command.extend({
 
 kendo.ui.editor.FileCommand = FileCommand;
 
-registerTool("insertFile", new Editor.Tool({ command: FileCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert File" }) }));
+registerTool("insertFile", new Editor.Tool({ command: FileCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Insert File" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/tables',[ "./formatblock", "./insert" ], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -10701,7 +10714,7 @@ var template = kendo.template;
 
 var columnTemplate = "<td style='width:#=width#%;'>#=content#</td>";
 
-var tableFormatFinder = new BlockFormatFinder([{tags:[TABLE]}]);
+var tableFormatFinder = new BlockFormatFinder([{ tags: [TABLE] }]);
 
 var TableCommand = InsertHtmlCommand.extend({
     init: function(options) {
@@ -11002,16 +11015,16 @@ var TableModificationCommand = Command.extend({
         point.restoreHtml();
 
         $(this.editor.body).find(".k-element-resize-handle-wrapper")
-            .each(function(index,el){
+            .each(function(index,el) {
                 el.remove();
             });
 
         this.editor.selectRange(point.toRange());
     },
-    _clearColIndexAttr: function (table) {
+    _clearColIndexAttr: function(table) {
         dom.clearTableMappings(table, "col-index");
     },
-    _mapColIndices: function (table) {
+    _mapColIndices: function(table) {
         dom.reMapTableColumns(table, "col-index");
     },
     _findRowSpanCell: function(parent, rowIndex, colIndex) {
@@ -11019,27 +11032,27 @@ var TableModificationCommand = Command.extend({
 
         for (var i = rowIndex; i >= 0; i--) {
             row = parent.rows[i];
-            cell = $(row).find("[col-index=" + colIndex +"]");
+            cell = $(row).find("[col-index=" + colIndex + "]");
 
-            if(cell.length) {
+            if (cell.length) {
                 return cell;
             }
         }
     },
-    _resetElementResizing: function (editor) {
+    _resetElementResizing: function(editor) {
         editor._destroyResizings();
         editor._initializeColumnResizing();
         editor._initializeRowResizing();
         editor._initializeElementResizing();
     },
-    _findNextTdInRow: function (row, colIndex){
+    _findNextTdInRow: function(row, colIndex) {
         var lastTd = row.find("td:last-child"),
             lastIndex = parseInt(lastTd.attr("col-index"), 10) + lastTd.prop("colSpan") - 1,
             td;
 
         for (var i = colIndex; i <= lastIndex; i++) {
-            td = row.find("[col-index=" + i  +"]");
-            if(td.length) {
+            td = row.find("[col-index=" + i + "]");
+            if (td.length) {
                 return td;
             }
         }
@@ -11051,16 +11064,16 @@ var TableModificationCommand = Command.extend({
             numberOfCells = cells.length,
             i, colgroup, cell;
 
-        while(colElements.length > 0) {
+        while (colElements.length > 0) {
             colElements[0].remove();
         }
-        while(colgroupElements.length > 0) {
+        while (colgroupElements.length > 0) {
             colgroupElements[0].remove();
         }
 
-        for(i = numberOfCells - 1; i >= 0; i--) {
+        for (i = numberOfCells - 1; i >= 0; i--) {
             cell = cells[i];
-            if(cell.getAttribute(SCOPE) === COLGROUP) {
+            if (cell.getAttribute(SCOPE) === COLGROUP) {
                 colgroup = dom.createEmptyNode(this.editor.document, COLGROUP);
                 colgroup.setAttribute("span", cell.getAttribute(COLSPAN));
                 table.prepend(colgroup);
@@ -11081,7 +11094,7 @@ var TableModificationCommand = Command.extend({
 });
 
 var InsertRowCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(true),
             td = dom.closest(range.endContainer, [TD, TH]),
             table = dom.closest(td, TABLE),
@@ -11099,7 +11112,7 @@ var InsertRowCommand = TableModificationCommand.extend({
         row = td.parentNode;
         rowIndex = dom.findNodeIndex(row, true);
 
-        if(td.rowSpan > 1 && position === "after") {
+        if (td.rowSpan > 1 && position === "after") {
             row = table.rows[rowIndex + td.rowSpan - 1];
         }
 
@@ -11108,10 +11121,10 @@ var InsertRowCommand = TableModificationCommand.extend({
         $(newRow).empty();
 
         for (var i = 0; i < cellCount; i = i + cell.prop("colSpan")) {
-            cell = $(row).find("[col-index=" + i +"]");
+            cell = $(row).find("[col-index=" + i + "]");
 
             if (cell.length) {
-                if(cell.prop("rowSpan") > 1 && position === "after" && cell) {
+                if (cell.prop("rowSpan") > 1 && position === "after" && cell) {
                     cell.attr(ROWSPAN, cell.prop("rowSpan") + 1);
                 } else {
                     this._appendCell(newRow, cell);
@@ -11121,15 +11134,15 @@ var InsertRowCommand = TableModificationCommand.extend({
                 cell = this._findRowSpanCell(row.parentElement, rowIndex, i);
                 rowSpanIndex = cell.closest(TR).index();
 
-                if(rowSpanIndex + cell.prop("rowSpan") - 1 === rowIndex && position === "after") {
+                if (rowSpanIndex + cell.prop("rowSpan") - 1 === rowIndex && position === "after") {
                     this._appendCell(newRow, cell);
                 } else {
                     cell.attr(ROWSPAN, cell.prop("rowSpan") + 1);
                 }
             }
 
-            createdCell = $(newRow).find("[col-index=" + i +"]");
-            if(createdCell.attr(SCOPE) === ROWGROUP && !createdCell.attr(ROWSPAN)) {
+            createdCell = $(newRow).find("[col-index=" + i + "]");
+            if (createdCell.attr(SCOPE) === ROWGROUP && !createdCell.attr(ROWSPAN)) {
                 createdCell.attr(SCOPE, ROW);
             }
         }
@@ -11149,7 +11162,7 @@ var InsertRowCommand = TableModificationCommand.extend({
 
         this._resetElementResizing(this.editor);
     },
-    _appendCell: function(row, cell){
+    _appendCell: function(row, cell) {
         var newCell;
 
         newCell = cell.clone();
@@ -11160,7 +11173,7 @@ var InsertRowCommand = TableModificationCommand.extend({
 });
 
 var InsertColumnCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(true),
             td = dom.closest(range.endContainer, [TD, TH]),
             table = dom.closest(td, TABLE),
@@ -11191,7 +11204,7 @@ var InsertColumnCommand = TableModificationCommand.extend({
         for (i = 0; i < rows.length; i++) {
             cell = this._processForColSpan(rows[i], columnIndex, position, td);
 
-            if (!cell){
+            if (!cell) {
                 continue;
             }
 
@@ -11199,7 +11212,7 @@ var InsertColumnCommand = TableModificationCommand.extend({
             newCell.innerHTML = Editor.emptyTableCellContent;
             newCell.removeAttribute(COLSPAN);
 
-            if(newCell.getAttribute(SCOPE) && newCell.getAttribute(SCOPE) === COLGROUP) {
+            if (newCell.getAttribute(SCOPE) && newCell.getAttribute(SCOPE) === COLGROUP) {
                 newCell.setAttribute(SCOPE, COL);
             }
 
@@ -11212,7 +11225,7 @@ var InsertColumnCommand = TableModificationCommand.extend({
             this._resizeCells(newCell, cell);
         }
 
-        if(colElements.length > 0 || colgroupElements.length > 0) {
+        if (colElements.length > 0 || colgroupElements.length > 0) {
             this._adjustColgroups(rows[0], table);
         }
 
@@ -11225,12 +11238,12 @@ var InsertColumnCommand = TableModificationCommand.extend({
 
         this._resetElementResizing(this.editor);
     },
-    _processForColSpan: function (row, columnIndex, position, selectedCell) {
+    _processForColSpan: function(row, columnIndex, position, selectedCell) {
         var cell,
             colSpanEffect,
             index = columnIndex - 1;
 
-        cell = $(row).find("[col-index=" + columnIndex +"]")[0];
+        cell = $(row).find("[col-index=" + columnIndex + "]")[0];
 
         if (cell && cell.colSpan > 1 && position === "after" && cell !== selectedCell) {
             cell.colSpan += 1;
@@ -11242,22 +11255,22 @@ var InsertColumnCommand = TableModificationCommand.extend({
         }
 
         for (index; index >= 0; index--) {
-            cell = $(row).find("[col-index=" + index +"]")[0];
+            cell = $(row).find("[col-index=" + index + "]")[0];
 
-            if(cell && cell.colSpan > 1) {
+            if (cell && cell.colSpan > 1) {
                 break;
             }
         }
 
-        if(!cell) {
+        if (!cell) {
             return;
         }
 
         colSpanEffect = parseInt(cell.getAttribute("col-index"),10) + cell.colSpan - 1;
 
-        if(colSpanEffect === columnIndex && position === "after") {
+        if (colSpanEffect === columnIndex && position === "after") {
             return cell;
-        } else if (columnIndex <= colSpanEffect){
+        } else if (columnIndex <= colSpanEffect) {
             cell.setAttribute(COLSPAN, cell.colSpan + 1);
         }
     },
@@ -11265,7 +11278,7 @@ var InsertColumnCommand = TableModificationCommand.extend({
         var width = newCell.style.width,
         parsedWidth, unit, calculatedWidth;
 
-        if(!width) {
+        if (!width) {
             return;
         }
 
@@ -11279,7 +11292,7 @@ var InsertColumnCommand = TableModificationCommand.extend({
 });
 
 var DeleteRowCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange();
         var rows = RangeUtils.mapAll(range, function(node) {
             return $(node).closest(TR)[0];
@@ -11298,7 +11311,7 @@ var DeleteRowCommand = TableModificationCommand.extend({
         }
 
         for (var x = 0; x < rowSpan; x++) {
-            if(rows.indexOf(rowParent.rows[rowIndex + x]) < 0) {
+            if (rows.indexOf(rowParent.rows[rowIndex + x]) < 0) {
                 rows.push(rowParent.rows[rowIndex + x]);
             }
         }
@@ -11315,10 +11328,10 @@ var DeleteRowCommand = TableModificationCommand.extend({
 
             dom.remove(table);
             this._resetElementResizing(this.editor);
-        } else if(rowParent.rows.length <= rows.length) {
+        } else if (rowParent.rows.length <= rows.length) {
             focusElement = rowParent.nextSibling;
 
-            if(!focusElement) {
+            if (!focusElement) {
                 focusElement = rowParent.previousSibling;
             }
 
@@ -11356,12 +11369,12 @@ var DeleteRowCommand = TableModificationCommand.extend({
 
         this._resetElementResizing(this.editor);
     },
-    _focusElement: function (range, node) {
+    _focusElement: function(range, node) {
         range.setStart(node, 0);
         range.collapse(true);
         this.editor.selectRange(range);
     },
-    _handleRowSpanCells: function (table, row) {
+    _handleRowSpanCells: function(table, row) {
         var index, cell, adjacentCell, nextRow, rowIndex = dom.findNodeIndex(row, true),
             firstRow = table.rows[0],
             lastCell = firstRow.cells[firstRow.cells.length - 1],
@@ -11370,11 +11383,11 @@ var DeleteRowCommand = TableModificationCommand.extend({
         for (index = 0; index <= lastIndex; index = index + cell.prop("colSpan")) {
             cell = $(row).find("[col-index=" + index + "]");
 
-            if(cell.length && cell.prop("rowSpan") > 1) {
-                nextRow = table.rows[rowIndex+1];
+            if (cell.length && cell.prop("rowSpan") > 1) {
+                nextRow = table.rows[rowIndex + 1];
                 adjacentCell = $(nextRow).find("[col-index=" + (index + 1) + "]");
 
-                if(adjacentCell.length) {
+                if (adjacentCell.length) {
                     adjacentCell.before(cell);
                 } else {
                     $(nextRow).append(cell);
@@ -11382,18 +11395,18 @@ var DeleteRowCommand = TableModificationCommand.extend({
                 this._reduceRowSpan(cell);
             }
 
-            if(!cell.length) {
+            if (!cell.length) {
                 cell = this._findRowSpanCell(row.parentElement, rowIndex, index);
                 this._reduceRowSpan(cell);
             }
         }
     },
-    _reduceRowSpan: function (td) {
+    _reduceRowSpan: function(td) {
         var rowSpanValue = td.prop("rowSpan") - 1;
 
-        if(rowSpanValue <= 1) {
+        if (rowSpanValue <= 1) {
             td.removeAttr(ROWSPAN);
-            if(td.attr(SCOPE) === ROWGROUP) {
+            if (td.attr(SCOPE) === ROWGROUP) {
                 td.attr(SCOPE, ROW);
             }
         } else {
@@ -11403,7 +11416,7 @@ var DeleteRowCommand = TableModificationCommand.extend({
 });
 
 var DeleteColumnCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(),
             td = dom.closest(range.endContainer, [TD, TH]),
             table = dom.closest(td, TABLE),
@@ -11444,7 +11457,7 @@ var DeleteColumnCommand = TableModificationCommand.extend({
                 for (i = 0; i < rows.length; i = i + (cell.prop("rowSpan") || 1)) {
                     cell = $(rows[i]).find("[col-index=" + (columnIndex + x) + "]");
 
-                    if(cell.length && cell.prop("colSpan") <= 1) {
+                    if (cell.length && cell.prop("colSpan") <= 1) {
                         cell.remove();
                     } else {
                         this._handleColSpanCells(rows[i], columnIndex + x);
@@ -11455,7 +11468,7 @@ var DeleteColumnCommand = TableModificationCommand.extend({
             this._clearColIndexAttr(table);
         }
 
-        if(colElements.length > 0 || colgroupElements.length > 0) {
+        if (colElements.length > 0 || colgroupElements.length > 0) {
             this._adjustColgroups(rows[0], table);
         }
 
@@ -11471,10 +11484,10 @@ var DeleteColumnCommand = TableModificationCommand.extend({
 
         this._resetElementResizing(this.editor);
     },
-    _handleColSpanCells: function (row, colIndex) {
+    _handleColSpanCells: function(row, colIndex) {
         var cell = $(row).find("[col-index=" + colIndex + "]");
 
-        if(cell.length && cell.prop("colSpan") > 1) {
+        if (cell.length && cell.prop("colSpan") > 1) {
             var clone = cell.clone(true);
             cell.after(clone);
             this._reduceColSpan(clone);
@@ -11486,19 +11499,19 @@ var DeleteColumnCommand = TableModificationCommand.extend({
         for (var i = colIndex; i >= 0; i--) {
             cell = $(row).find("[col-index=" + i + "]");
 
-            if(cell.length) {
+            if (cell.length) {
                 this._reduceColSpan(cell);
                 cell.attr("col-index", parseInt(cell.attr("col-index"),10) + 1);
                 return;
             }
         }
     },
-    _reduceColSpan: function (td) {
+    _reduceColSpan: function(td) {
         var colSpanValue = td.prop("colSpan") - 1;
 
-        if(colSpanValue <= 1) {
+        if (colSpanValue <= 1) {
             td.removeAttr(COLSPAN);
-            if(td.attr(SCOPE) === COLGROUP) {
+            if (td.attr(SCOPE) === COLGROUP) {
                 td.attr(SCOPE, COL);
             }
         } else {
@@ -11508,12 +11521,12 @@ var DeleteColumnCommand = TableModificationCommand.extend({
 });
 
 var MergeCellsHorizontallyCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(),
             td = dom.closest(range.endContainer, [TD, TH]),
             table, row, columnIndex, nextTd, colspan;
 
-            if(!td) {
+            if (!td) {
                 this.releaseRange(range);
                 return;
             }
@@ -11533,7 +11546,7 @@ var MergeCellsHorizontallyCommand = TableModificationCommand.extend({
             columnIndex = parseInt($(td).attr("col-index"), 10);
             nextTd = $(row).find("[col-index=" + (columnIndex + 1 + this._getColspan(td) - 1) + "]").get(0);
 
-            if(!nextTd || nextTd.rowSpan !== td.rowSpan || td.tagName !== nextTd.tagName) {
+            if (!nextTd || nextTd.rowSpan !== td.rowSpan || td.tagName !== nextTd.tagName) {
                 this._clearColIndexAttr(table);
                 this.releaseRange(range);
                 return;
@@ -11547,10 +11560,10 @@ var MergeCellsHorizontallyCommand = TableModificationCommand.extend({
             $(td).width(td.offsetWidth);
             $(nextTd).remove();
 
-            if(td.getAttribute(SCOPE) === COL) {
+            if (td.getAttribute(SCOPE) === COL) {
                 td.setAttribute(SCOPE, COLGROUP);
             }
-            if(td.getAttribute(SCOPE) === COLGROUP) {
+            if (td.getAttribute(SCOPE) === COLGROUP) {
                 this._adjustColgroups(row, table);
             }
 
@@ -11562,18 +11575,18 @@ var MergeCellsHorizontallyCommand = TableModificationCommand.extend({
             this.releaseRange(range);
             this._resetElementResizing(this.editor);
     },
-    _getColspan: function (td) {
+    _getColspan: function(td) {
         return parseInt(td.getAttribute(COLSPAN), 10) || 1;
     }
 });
 
 var MergeCellsVerticallyCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(),
             td = dom.closest(range.endContainer, [TD, TH]),
-            tr, parent, table, columnIndex, rowIndex, targetRow,  bottomTd;
+            tr, parent, table, columnIndex, rowIndex, targetRow, bottomTd;
 
-            if(!td) {
+            if (!td) {
                 this.releaseRange(range);
                 return;
             }
@@ -11602,7 +11615,7 @@ var MergeCellsVerticallyCommand = TableModificationCommand.extend({
             columnIndex = $(td).attr("col-index");
             bottomTd = $(targetRow).find("[col-index=" + columnIndex + "]").get(0);
 
-            if(!bottomTd || bottomTd.colSpan !== td.colSpan || td.tagName !== bottomTd.tagName) {
+            if (!bottomTd || bottomTd.colSpan !== td.colSpan || td.tagName !== bottomTd.tagName) {
                 this._clearColIndexAttr(table);
                 this.releaseRange(range);
                 return;
@@ -11611,7 +11624,7 @@ var MergeCellsVerticallyCommand = TableModificationCommand.extend({
             $(td).prop(ROWSPAN, this._getRowspan(td) + this._getRowspan(bottomTd))
                  .append(dom.emptyNode(bottomTd) ? "" : "<br/>" + bottomTd.innerHTML);
 
-            if(td.getAttribute(SCOPE) === ROW) {
+            if (td.getAttribute(SCOPE) === ROW) {
                 td.setAttribute(SCOPE, ROWGROUP);
             }
 
@@ -11624,13 +11637,13 @@ var MergeCellsVerticallyCommand = TableModificationCommand.extend({
             this._clearColIndexAttr(table);
             this.releaseRange(range);
     },
-    _getRowspan: function (td) {
+    _getRowspan: function(td) {
         return parseInt(td.getAttribute(ROWSPAN), 10) || 1;
     }
 });
 
 var SplitCellCommand = TableModificationCommand.extend({
-    exec: function () {
+    exec: function() {
         var range = this.lockRange(),
             type = this.options.type,
             attr = type === "row" ? COLSPAN : ROWSPAN,
@@ -11646,13 +11659,13 @@ var SplitCellCommand = TableModificationCommand.extend({
 
         this._mapColIndices(table);
 
-        if(type === "row" && $(td).is("[" + attr + "]")) {
+        if (type === "row" && $(td).is("[" + attr + "]")) {
             this._splitCellHorizontally(td, parent, attr, emptyTd);
-        } else if (type === "column" && $(td).is("[" + attr + "]")){
+        } else if (type === "column" && $(td).is("[" + attr + "]")) {
             this._splitCellVertically(td, parent, attr, emptyTd);
         }
 
-        if($(td).prop(attr.toLowerCase()) <= 1) {
+        if ($(td).prop(attr.toLowerCase()) <= 1) {
             $(td).removeAttr(attr);
         }
 
@@ -11663,23 +11676,23 @@ var SplitCellCommand = TableModificationCommand.extend({
         this._clearColIndexAttr(table);
         this.releaseRange(range);
     },
-    _getRowspanValue: function (td) {
+    _getRowspanValue: function(td) {
         return parseInt(td.getAttribute(ROWSPAN), 10);
     },
-    _getColspanValue: function (td) {
+    _getColspanValue: function(td) {
         return parseInt(td.getAttribute(COLSPAN), 10);
     },
-    _splitCellHorizontally: function (td, parent, attr, emptyTd) {
+    _splitCellHorizontally: function(td, parent, attr, emptyTd) {
         var rowSpan = td.rowSpan,
             colSpan = td.colSpan,
             tdToAdd = $(emptyTd),
-            colSpanResult = Math.floor(colSpan/2);
+            colSpanResult = Math.floor(colSpan / 2);
 
-            if(colSpanResult > 1) {
+            if (colSpanResult > 1) {
                 tdToAdd.attr(COLSPAN, colSpanResult);
             }
 
-            if(rowSpan > 1) {
+            if (rowSpan > 1) {
                 tdToAdd.attr(ROWSPAN, rowSpan);
             }
 
@@ -11689,10 +11702,10 @@ var SplitCellCommand = TableModificationCommand.extend({
             $(td).width(td.offsetWidth);
             tdToAdd.width(tdToAdd[0].offsetWidth);
 
-            if(td.hasAttribute(SCOPE)) {
-                if(td.getAttribute(SCOPE) === COLGROUP) {
+            if (td.hasAttribute(SCOPE)) {
+                if (td.getAttribute(SCOPE) === COLGROUP) {
                     tdToAdd.attr(SCOPE, COL);
-                    if(!td.getAttribute(COLSPAN) || td.getAttribute(COLSPAN) === "1") {
+                    if (!td.getAttribute(COLSPAN) || td.getAttribute(COLSPAN) === "1") {
                         td.setAttribute(SCOPE, COL);
                     }
 
@@ -11702,25 +11715,25 @@ var SplitCellCommand = TableModificationCommand.extend({
                 }
             }
     },
-    _splitCellVertically: function (td, parent, attr, emptyTd) {
+    _splitCellVertically: function(td, parent, attr, emptyTd) {
         var tr = dom.closest(td,TR),
             columnIndex = parseInt($(td).attr("col-index"), 10),
             rowIndex = dom.findNodeIndex(tr, true),
             rowSpan = td.rowSpan,
             colSpan = td.colSpan,
-            rowSpanResult = Math.floor(rowSpan/2),
+            rowSpanResult = Math.floor(rowSpan / 2),
             targetRow = $(parent).find(TR).eq(rowIndex + rowSpan - rowSpanResult),
             nextTd = this._findNextTdInRow(targetRow, columnIndex + colSpan),
             tdToAdd = $(emptyTd);
 
-            if(rowSpanResult > 1) {
+            if (rowSpanResult > 1) {
                 tdToAdd.attr(ROWSPAN, rowSpanResult);
             }
-            if(colSpan > 1) {
+            if (colSpan > 1) {
                 tdToAdd.attr(COLSPAN, colSpan);
             }
 
-            if(nextTd && nextTd.length) {
+            if (nextTd && nextTd.length) {
                 nextTd.before(tdToAdd);
             } else {
                 targetRow.append(tdToAdd);
@@ -11728,10 +11741,10 @@ var SplitCellCommand = TableModificationCommand.extend({
 
             $(td).prop(attr, rowSpan - rowSpanResult);
 
-            if(td.hasAttribute(SCOPE)) {
-                if(td.getAttribute(SCOPE) === ROWGROUP) {
+            if (td.hasAttribute(SCOPE)) {
+                if (td.getAttribute(SCOPE) === ROWGROUP) {
                     tdToAdd.attr(SCOPE, ROW);
-                    if(!td.getAttribute(ROWSPAN) || td.getAttribute(ROWSPAN) === "1"){
+                    if (!td.getAttribute(ROWSPAN) || td.getAttribute(ROWSPAN) === "1") {
                         td.setAttribute(SCOPE, ROW);
                     }
                 } else {
@@ -11742,7 +11755,7 @@ var SplitCellCommand = TableModificationCommand.extend({
 });
 
 var TableModificationTool = Tool.extend({
-    command: function (options) {
+    command: function(options) {
         var commandsMap = {
             row: {
                 insert: InsertRowCommand,
@@ -11785,13 +11798,13 @@ var TableModificationTool = Tool.extend({
 });
 
 var TableFormatCommand = FormatCommand.extend({
-    exec: function () {
+    exec: function() {
         var that = this;
         var editor = that.editor;
 
         FormatCommand.fn.exec.call(this);
 
-        if(editor.elementResizing) {
+        if (editor.elementResizing) {
             editor.elementResizing._showResizeHandles();
         }
     }
@@ -11831,7 +11844,7 @@ var TableFormatTool = BlockFormatTool.extend({
             formatter: that.options.formatter
         }));
     },
-    isTable: function(node){
+    isTable: function(node) {
         return dom.is(node, "table");
     }
 });
@@ -11852,21 +11865,21 @@ extend(kendo.ui.editor, {
     SplitCellCommand: SplitCellCommand
 });
 
-registerTool("createTable", new InsertTableTool({ template: new ToolTemplate({template: EditorUtils.buttonTemplate, popup: true, title: "Create table"})}));
+registerTool("createTable", new InsertTableTool({ template: new ToolTemplate({ template: EditorUtils.buttonTemplate, popup: true, title: "Create table" }) }));
 
-registerTool("addColumnLeft", new TableModificationTool({ type: "column", position: "before", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Add column on the left"})}));
-registerTool("addColumnRight", new TableModificationTool({ type: "column", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Add column on the right"})}));
-registerTool("addRowAbove", new TableModificationTool({ type: "row", position: "before", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Add row above"})}));
-registerTool("addRowBelow", new TableModificationTool({ type: "row", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Add row below"})}));
-registerTool("deleteRow", new TableModificationTool({ type: "row", action: "delete", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Delete row"})}));
-registerTool("deleteColumn", new TableModificationTool({ type: "column", action: "delete", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Delete column"})}));
-registerTool("mergeCellsHorizontally", new TableModificationTool({type: "row", action: "merge", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Merge Cell Right"})}));
-registerTool("mergeCellsVertically", new TableModificationTool({type: "column", action: "merge", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Merge Cell Down"})}));
-registerTool("splitCellHorizontally", new TableModificationTool({type: "row", action: "split", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Split Cell"})}));
-registerTool("splitCellVertically", new TableModificationTool({type: "column", action: "split", template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Split Cell"})}));
+registerTool("addColumnLeft", new TableModificationTool({ type: "column", position: "before", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add column on the left" }) }));
+registerTool("addColumnRight", new TableModificationTool({ type: "column", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add column on the right" }) }));
+registerTool("addRowAbove", new TableModificationTool({ type: "row", position: "before", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add row above" }) }));
+registerTool("addRowBelow", new TableModificationTool({ type: "row", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Add row below" }) }));
+registerTool("deleteRow", new TableModificationTool({ type: "row", action: "delete", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Delete row" }) }));
+registerTool("deleteColumn", new TableModificationTool({ type: "column", action: "delete", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Delete column" }) }));
+registerTool("mergeCellsHorizontally", new TableModificationTool({ type: "row", action: "merge", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Merge Cell Right" }) }));
+registerTool("mergeCellsVertically", new TableModificationTool({ type: "column", action: "merge", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Merge Cell Down" }) }));
+registerTool("splitCellHorizontally", new TableModificationTool({ type: "row", action: "split", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Split Cell" }) }));
+registerTool("splitCellVertically", new TableModificationTool({ type: "column", action: "split", template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Split Cell" }) }));
 
 registerFormat("tableAlignLeft", [
-    { tags: ["table"], attr: { style: { marginLeft: "", marginRight: "auto" }} },
+    { tags: ["table"], attr: { style: { marginLeft: "", marginRight: "auto" } } },
     { tags: ["table"], attr: { align: "left" } }
 ]);
 registerTool("tableAlignLeft", new TableFormatTool({
@@ -11878,7 +11891,7 @@ registerTool("tableAlignLeft", new TableFormatTool({
 }));
 
 registerFormat("tableAlignCenter", [
-    { tags: ["table"], attr: { style: { marginLeft: "auto", marginRight: "auto" }} },
+    { tags: ["table"], attr: { style: { marginLeft: "auto", marginRight: "auto" } } },
     { tags: ["table"], attr: { align: "center" } }
 ]);
 registerTool("tableAlignCenter", new TableFormatTool({
@@ -11890,7 +11903,7 @@ registerTool("tableAlignCenter", new TableFormatTool({
 }));
 
 registerFormat("tableAlignRight", [
-    { tags: ["table"], attr: { style: { marginLeft: "auto", marginRight: "" }} },
+    { tags: ["table"], attr: { style: { marginLeft: "auto", marginRight: "" } } },
     { tags: ["table"], attr: { align: "right" } }
 ]);
 registerTool("tableAlignRight", new TableFormatTool({
@@ -11903,11 +11916,11 @@ registerTool("tableAlignRight", new TableFormatTool({
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/clipboard',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -12069,7 +12082,7 @@ var Clipboard = Class.extend({
         return this._insertImages(items);
     },
 
-    _insertImages: function(items){
+    _insertImages: function(items) {
         if (!items) {
             return;
         }
@@ -12117,7 +12130,7 @@ var Clipboard = Class.extend({
         this._contentModification(
             function beforePaste(editor, range) {
                 var clipboardNode = dom.create(editor.document, 'div', {
-                        className:'k-paste-container',
+                        className: 'k-paste-container',
                         innerHTML: "\ufeff"
                     });
                 var browser = kendo.support.browser;
@@ -12174,13 +12187,13 @@ var Clipboard = Class.extend({
             }
         );
     },
-    ondragover: function(e){
+    ondragover: function(e) {
         if (browser.msie || browser.edge) {
             e.stopPropagation();
             e.preventDefault();
         }
     },
-    ondrop: function(e){
+    ondrop: function(e) {
         if (!('FileReader' in window)) {
             return;
         }
@@ -12199,12 +12212,12 @@ var Clipboard = Class.extend({
 
         node = $(node);
         node.css({
-            borderWidth : "0px",
-            width : "0px",
-            height : "0px",
+            borderWidth: "0px",
+            width: "0px",
+            height: "0px",
             overflow: "hidden",
-            margin : "0",
-            padding : "0"
+            margin: "0",
+            padding: "0"
         });
 
         if (browser.msie) {
@@ -12212,11 +12225,11 @@ var Clipboard = Class.extend({
             var documentElement = $(body.ownerDocument.documentElement);
 
             node.css({
-                fontVariant : "normal",
-                fontWeight : "normal",
-                lineSpacing : "normal",
-                lineHeight : "normal",
-                textDecoration : "none"
+                fontVariant: "normal",
+                fontWeight: "normal",
+                lineSpacing: "normal",
+                lineHeight: "normal",
+                textDecoration: "none"
             });
             var color = documentElement.css("color");
             if (color) {
@@ -12243,10 +12256,10 @@ var Clipboard = Class.extend({
 
         $(node).css({
             "-webkit-transform": translate,
-            "transform" : translate
+            "transform": translate
         });
     },
-    _caretOffset: function (range, body) {
+    _caretOffset: function(range, body) {
         var editor = this.editor;
         var caret = dom.create(editor.document, 'span', { innerHTML: "\ufeff" });
         var startContainer = range.startContainer;
@@ -12256,7 +12269,7 @@ var Clipboard = Class.extend({
             var isStartTextNode = dom.isDataNode(startContainer);
             if (isStartTextNode && (dom.isBom(startContainer) || range.startOffset === 0)) {
                 dom.insertBefore(caret, startContainer);
-            } else if(isStartTextNode && range.startOffset === startContainer.length) {
+            } else if (isStartTextNode && range.startOffset === startContainer.length) {
                 dom.insertAfter(caret, startContainer);
             } else {
                 range.insertNode(caret);
@@ -12274,7 +12287,7 @@ var Clipboard = Class.extend({
 
         dom.remove(caret);
 
-        if(rangeChanged && dom.isDataNode(prev) && dom.isDataNode(next) && !dom.isBom(prev) && !dom.isBom(next)) {
+        if (rangeChanged && dom.isDataNode(prev) && dom.isDataNode(next) && !dom.isBom(prev) && !dom.isBom(next)) {
             var prevLength = prev.length;
             next.data = prev.data + next.data;
             range.setStart(next, prevLength);
@@ -12287,7 +12300,7 @@ var Clipboard = Class.extend({
         return offset;
     },
 
-    expandImmutablesIn: function(range){
+    expandImmutablesIn: function(range) {
         var editor = this.editor;
         if (editor && editor.options.immutables) {
             var body = editor.body;
@@ -12322,7 +12335,7 @@ var Clipboard = Class.extend({
         return parentNode;
     },
 
-    paste: function (html, options) {
+    paste: function(html, options) {
         var editor = this.editor,
             i, l, childNodes;
 
@@ -12330,7 +12343,7 @@ var Clipboard = Class.extend({
 
         options = extend({ clean: false, split: true }, options);
 
-        if(!options.skipCleaners) {
+        if (!options.skipCleaners) {
             for (i = 0, l = this.cleaners.length; i < l; i++) {
                 if (this.cleaners[i].applicable(html)) {
                     html = this.cleaners[i].clean(html);
@@ -12390,7 +12403,7 @@ var Clipboard = Class.extend({
             .filter("table").addClass("k-table").end()
             .find("table").addClass("k-table");
 
-        $(childNodes).each(function(index, elm){
+        $(childNodes).each(function(index, elm) {
            if (dom.isBlock(elm) && !dom.isSelfClosing(elm) && elm.innerHTML === "") {
                 elm.appendChild(editor.document.createTextNode("\ufeff"));
            }
@@ -12421,17 +12434,17 @@ var Clipboard = Class.extend({
 
         var focusedTable = $(range.commonAncestorContainer.parentNode).closest("table");
 
-        if(focusedTable.get(0)) {
+        if (focusedTable.get(0)) {
             var siblingNodes = focusedTable.parent().contents();
             var lastSiblingIndex = siblingNodes.length - 1;
             var lastSibling = siblingNodes.get(lastSiblingIndex);
 
-            while(lastSibling.nodeValue !== null && (lastSibling.nodeValue === " " || lastSibling.nodeValue === "")) {
+            while (lastSibling.nodeValue !== null && (lastSibling.nodeValue === " " || lastSibling.nodeValue === "")) {
                 lastSiblingIndex -= 1;
                 lastSibling = siblingNodes.get(lastSiblingIndex);
             }
 
-            if(lastSibling === focusedTable.get(0) && !focusedTable.parents("table").length) {
+            if (lastSibling === focusedTable.get(0) && !focusedTable.parents("table").length) {
                 dom.insertAfter(dom.createEmptyNode(editor.document, "p"), focusedTable[0]);
             }
         }
@@ -12452,7 +12465,7 @@ var Cleaner = Class.extend({
             i, l;
 
         for (i = 0, l = replacements.length; i < l; i += 2) {
-            html = html.replace(replacements[i], replacements[i+1]);
+            html = html.replace(replacements[i], replacements[i + 1]);
         }
 
         return html;
@@ -12519,7 +12532,7 @@ var MSWordFormatCleaner = Cleaner.extend({
             /<(\/?)font(\s[^>]*)?>/ig, this.convertFontMatch,
             /<(\/?)i(\s[^>]*)?>/ig, '<$1em$2>',
             /style=(["|'])\s*\1/g, '', /* empty style attributes */
-            /(<br[^>]*>)?\n/g, function ($0, $1) { return $1 ? $0 : ' '; } /* phantom extra line feeds */
+            /(<br[^>]*>)?\n/g, function($0, $1) { return $1 ? $0 : ' '; } /* phantom extra line feeds */
         ]);
     },
 
@@ -12604,18 +12617,18 @@ var MSWordFormatCleaner = Cleaner.extend({
         return dom.create(document, 'li', { innerHTML: content });
     },
 
-    _checkForBullet: function (html) {
+    _checkForBullet: function(html) {
         var p = dom.create(document, 'p', { innerHTML: html });
         var bulletRgx = /^\s*\w+[\.\)]\s+/;
 
-        if(bulletRgx.test(p.innerText)) {
+        if (bulletRgx.test(p.innerText)) {
             return this._getHtmlNoBullet(p);
         }
 
         return html;
     },
 
-    _getHtmlNoBullet: function (element) {
+    _getHtmlNoBullet: function(element) {
         var content,
             name = dom.name(element);
 
@@ -12874,14 +12887,14 @@ var MSWordFormatCleaner = Cleaner.extend({
     removeTextNodes: function(trs) {
         var i, j, childNodes, currentNode, row;
 
-        for(i = 0; i < trs.length; i++) {
+        for (i = 0; i < trs.length; i++) {
             row = trs[i];
             childNodes = row.childNodes;
 
-            for(j = 0; j < childNodes.length; j++) {
+            for (j = 0; j < childNodes.length; j++) {
                 currentNode = childNodes[j];
 
-                if(currentNode.nodeType === dom.nodeTypes.TEXT_NODE) {
+                if (currentNode.nodeType === dom.nodeTypes.TEXT_NODE) {
                     row.removeChild(currentNode);
                 }
             }
@@ -12924,7 +12937,7 @@ var MSWordFormatCleaner = Cleaner.extend({
         }
     },
 
-    removeFormatting: function (placeholder) {
+    removeFormatting: function(placeholder) {
         $(placeholder).find("*").each(function() {
             $(this).css({
                 fontSize: "",
@@ -12950,7 +12963,7 @@ var MSWordFormatCleaner = Cleaner.extend({
             html = Cleaner.fn.clean.call(that, html);
             html = that.stripEmptyAnchors(html);
 
-            placeholder = dom.create(document, 'div', {innerHTML: html});
+            placeholder = dom.create(document, 'div', { innerHTML: html });
             that.headers(placeholder);
 
             if (filters.msConvertLists) {
@@ -12987,7 +13000,7 @@ var WebkitFormatCleaner = Cleaner.extend({
 
 var DomCleaner = Cleaner.extend({
     clean: function(html) {
-        var container = dom.create(document, 'div', {innerHTML: html});
+        var container = dom.create(document, 'div', { innerHTML: html });
         container = this.cleanDom(container);
         return container.innerHTML;
     },
@@ -13143,7 +13156,7 @@ var HtmlContentCleaner = Cleaner.extend({
     },
 
     clean: function(html) {
-        var container = dom.create(document, 'div', {innerHTML: html});
+        var container = dom.create(document, 'div', { innerHTML: html });
 
         return this.cleanDom(container);
     },
@@ -13179,9 +13192,9 @@ var HtmlContentCleaner = Cleaner.extend({
 
     getDefaultSeparators: function() {
         if (this.options.all) {
-            return {text: " ", line: " "};
+            return { text: " ", line: " " };
         } else {
-            return {text: " ", line: "<br/>"};
+            return { text: " ", line: "<br/>" };
         }
     },
 
@@ -13192,7 +13205,7 @@ var HtmlContentCleaner = Cleaner.extend({
         thead: $.noop,
         tbody: $.noop,
         td: function(cleaner, node) {
-            var tdCleaner = new HtmlContentCleaner({all: true});
+            var tdCleaner = new HtmlContentCleaner({ all: true });
 
             var cellText = tdCleaner.cleanDom(node);
             cleaner.htmlLines.appendInlineBlockText(cellText);
@@ -13232,11 +13245,11 @@ extend(editorNS, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/keyboard',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -13272,7 +13285,7 @@ function getSibling(node, direction, condition) {
 var tableCells = "td,th,caption";
 var tableCellsWrappers = "table,tbody,thead,tfoot,tr";
 var tableElements = tableCellsWrappers + "," + tableCells;
-var inTable = function (range) { return !range.collapsed && $(range.commonAncestorContainer).is(tableCellsWrappers); };
+var inTable = function(range) { return !range.collapsed && $(range.commonAncestorContainer).is(tableCellsWrappers); };
 
 var RemoveTableContent = Class.extend({
     remove: function(range) {
@@ -13280,7 +13293,7 @@ var RemoveTableContent = Class.extend({
         var marker = new Marker();
         marker.add(range, false);
 
-        var nodes = RangeUtils.getAll(range, function (node) { return $(node).is(tableElements); });
+        var nodes = RangeUtils.getAll(range, function(node) { return $(node).is(tableElements); });
         var doc = RangeUtils.documentFromRange(range);
         var start = marker.start;
         var end = marker.end;
@@ -13316,11 +13329,11 @@ var RemoveTableContent = Class.extend({
         dom.remove(start);
         dom.remove(end);
     },
-    _removeContent: function (start, top, forwards) {
+    _removeContent: function(start, top, forwards) {
         if (top) {
             var sibling = forwards ? "nextSibling" : "previousSibling",
                 next,
-                getNext = function (node) {
+                getNext = function(node) {
                     while (node && !node[sibling]) {
                         node = node.parentNode;
                     }
@@ -13341,7 +13354,7 @@ var TypingHandler = Class.extend({
         this.editor = editor;
     },
 
-    keydown: function (e) {
+    keydown: function(e) {
         var that = this,
             editor = that.editor,
             keyboard = editor.keyboard,
@@ -13375,7 +13388,7 @@ var TypingHandler = Class.extend({
                 backspaceHandler.deleteSelection(range);
             }
 
-            keyboard.startTyping(function () {
+            keyboard.startTyping(function() {
                 that._removeBomSpan();
                 that.endRestorePoint = editorNS._finishUpdate(editor, that.startRestorePoint);
             });
@@ -13386,7 +13399,7 @@ var TypingHandler = Class.extend({
         return false;
     },
 
-    keyup: function (e) {
+    keyup: function(e) {
         var keyboard = this.editor.keyboard;
 
         this.editor.trigger("keyup", e);
@@ -13399,15 +13412,15 @@ var TypingHandler = Class.extend({
         return false;
     },
 
-    _removeBomSpan: function () {
+    _removeBomSpan: function() {
         var node = this.editor.getRange().commonAncestorContainer;
 
-        if(!dom.emptyNode(node)) {
-            if(node.nodeType === 3) {
+        if (!dom.emptyNode(node)) {
+            if (node.nodeType === 3) {
                 node = node.parentNode;
             }
 
-            if(dom.insignificant(node)) {
+            if (dom.insignificant(node)) {
                 // typing in an insignificant node
                 // make it significant
                 node.textContent = dom.stripBom(node.textContent);
@@ -13478,14 +13491,14 @@ var BackspaceHandler = Class.extend({
         var node = range.startContainer;
         var text = node.nodeValue;
         var count = 0;
-        while (offset-count >= 0 && text[offset-count-1] == "\ufeff") {
+        while (offset - count >= 0 && text[offset - count - 1] == "\ufeff") {
             count++;
         }
 
         if (count > 0) {
-            node.deleteData(offset-count, count);
+            node.deleteData(offset - count, count);
 
-            range.setStart(node, Math.max(0, offset-count));
+            range.setStart(node, Math.max(0, offset - count));
             range.collapse(true);
 
             this.editor.selectRange(range);
@@ -13527,8 +13540,8 @@ var BackspaceHandler = Class.extend({
             previousSibling = dom.prev(li);
         }
 
-        if(block && previousSibling && dom.is(previousSibling, 'table') && editorNS.RangeUtils.isStartOf(range, block)) {
-            if(block.innerText === ''){
+        if (block && previousSibling && dom.is(previousSibling, 'table') && editorNS.RangeUtils.isStartOf(range, block)) {
+            if (block.innerText === '') {
                 block.innerHTML = '\ufeff';
             }
             return true;
@@ -13613,7 +13626,7 @@ var BackspaceHandler = Class.extend({
         var marker = new Marker();
         marker.add(range, false);
 
-        if(range.commonAncestorContainer === editor.body) {
+        if (range.commonAncestorContainer === editor.body) {
             this._surroundFullyContent(marker, range);
         }
 
@@ -13631,7 +13644,7 @@ var BackspaceHandler = Class.extend({
 
         range.deleteContents();
 
-        if(end.tagName.toLocaleLowerCase() === "li" && dom.emptyNode(end)) {
+        if (end.tagName.toLocaleLowerCase() === "li" && dom.emptyNode(end)) {
             range.selectNode(end);
             range.deleteContents();
         }
@@ -13655,7 +13668,7 @@ var BackspaceHandler = Class.extend({
 
         start = range.startContainer;
         if (dom.name(start) == "tr") {
-            start = start.childNodes[Math.max(0, range.startOffset-1)];
+            start = start.childNodes[Math.max(0, range.startOffset - 1)];
             range.setStart(start, dom.getNodeLength(start));
         }
 
@@ -13671,7 +13684,7 @@ var BackspaceHandler = Class.extend({
 
         return true;
     },
-    _handleImmutables: function (marker) {
+    _handleImmutables: function(marker) {
         var immutableParent = editorNS.Immutables.immutableParent;
         var startImmutable = immutableParent(marker.start);
         var endImmutable = immutableParent(marker.start);
@@ -13707,11 +13720,11 @@ var BackspaceHandler = Class.extend({
         var start = marker.start,
             end = marker.end;
 
-        if(startParent && RangeUtils.isStartOf(range, startParent)){
+        if (startParent && RangeUtils.isStartOf(range, startParent)) {
             dom.insertBefore(start, startParent);
         }
 
-        if(endParent && RangeUtils.isEndOf(range, endParent)){
+        if (endParent && RangeUtils.isEndOf(range, endParent)) {
             dom.insertAfter(end, endParent);
         }
     },
@@ -13798,7 +13811,7 @@ var BackspaceHandler = Class.extend({
             editorNS._finishUpdate(editor, startRestorePoint);
         }
     },
-    deleteSelection: function (range) {
+    deleteSelection: function(range) {
         this._handleSelection(range);
     },
     keyup: $.noop
@@ -13810,11 +13823,11 @@ var SystemHandler = Class.extend({
         this.systemCommandIsInProgress = false;
     },
 
-    createUndoCommand: function () {
+    createUndoCommand: function() {
         this.startRestorePoint = this.endRestorePoint = editorNS._finishUpdate(this.editor, this.startRestorePoint);
     },
 
-    changed: function () {
+    changed: function() {
         if (this.startRestorePoint) {
             return this.startRestorePoint.html != this.editor.body.innerHTML;
         }
@@ -13822,7 +13835,7 @@ var SystemHandler = Class.extend({
         return false;
     },
 
-    keydown: function (e) {
+    keydown: function(e) {
         var that = this,
             editor = that.editor,
             keyboard = editor.keyboard;
@@ -13851,7 +13864,7 @@ var SystemHandler = Class.extend({
         return false;
     },
 
-    keyup: function () {
+    keyup: function() {
         var that = this;
 
         if (that.systemCommandIsInProgress && that.changed()) {
@@ -13869,7 +13882,7 @@ var SelectAllHandler = Class.extend({
         this.editor = editor;
     },
 
-    keydown: function (e) {
+    keydown: function(e) {
         if (!browser.webkit || e.isDefaultPrevented() ||
             !(e.ctrlKey && e.keyCode == 65 && !e.altKey && !e.shiftKey)) {
             return;
@@ -13898,11 +13911,11 @@ var SelectAllHandler = Class.extend({
             first = body.firstChild,
             last = body.lastChild;
 
-        while (emptyTextNode(first)){
+        while (emptyTextNode(first)) {
             first = first.nextSibling;
         }
 
-        while (emptyTextNode(last)){
+        while (emptyTextNode(last)) {
             last = last.previousSibling;
         }
 
@@ -13930,7 +13943,7 @@ var Keyboard = Class.extend({
                keyCode == 229;
     },
 
-    toolFromShortcut: function (tools, e) {
+    toolFromShortcut: function(tools, e) {
         var key = String.fromCharCode(e.keyCode),
             toolName,
             toolOptions,
@@ -13948,18 +13961,18 @@ var Keyboard = Class.extend({
         }
     },
 
-    _getShortcutModifier: function (e, platform) {
+    _getShortcutModifier: function(e, platform) {
         var mac = platform.toUpperCase().indexOf('MAC') >= 0;
         return mac ? e.metaKey : e.ctrlKey;
     },
 
-    toolsFromShortcut: function (tools, e) {
+    toolsFromShortcut: function(tools, e) {
         var key = String.fromCharCode(e.keyCode),
             toolName,
             o,
             matchesKey,
             found = [];
-        var matchKey = function (toolKey) { return toolKey == key || toolKey == e.keyCode || toolKey == e.charCode; };
+        var matchKey = function(toolKey) { return toolKey == key || toolKey == e.keyCode || toolKey == e.charCode; };
 
         for (toolName in tools) {
             o = $.extend({ ctrl: false, alt: false, shift: false }, tools[toolName].options);
@@ -13976,25 +13989,25 @@ var Keyboard = Class.extend({
         return found;
     },
 
-    isTypingKey: function (e) {
+    isTypingKey: function(e) {
         var keyCode = e.keyCode;
         return (this.isCharacter(keyCode) && !e.ctrlKey && !e.altKey) ||
                keyCode == 32 || keyCode == 13 || keyCode == 8 ||
                (keyCode == 46 && !e.shiftKey && !e.ctrlKey && !e.altKey);
     },
 
-    isModifierKey: function (e) {
+    isModifierKey: function(e) {
         var keyCode = e.keyCode;
         return (keyCode == 17 && !e.shiftKey && !e.altKey) ||
                (keyCode == 16 && !e.ctrlKey && !e.altKey) ||
                (keyCode == 18 && !e.ctrlKey && !e.shiftKey);
     },
 
-    isSystem: function (e) {
+    isSystem: function(e) {
         return e.keyCode == 46 && e.ctrlKey && !e.altKey && !e.shiftKey;
     },
 
-    startTyping: function (callback) {
+    startTyping: function(callback) {
         this.onEndTyping = callback;
         this.typingInProgress = true;
     },
@@ -14006,7 +14019,7 @@ var Keyboard = Class.extend({
         this.typingInProgress = false;
     },
 
-    endTyping: function (force) {
+    endTyping: function(force) {
         var that = this;
         that.clearTimeout();
         if (force) {
@@ -14016,11 +14029,11 @@ var Keyboard = Class.extend({
         }
     },
 
-    isTypingInProgress: function () {
+    isTypingInProgress: function() {
         return this.typingInProgress;
     },
 
-    clearTimeout: function () {
+    clearTimeout: function() {
         window.clearTimeout(this.timeout);
     },
 
@@ -14034,11 +14047,11 @@ var Keyboard = Class.extend({
         }
     },
 
-    keydown: function (e) {
+    keydown: function(e) {
         this.notify(e, 'keydown');
     },
 
-    keyup: function (e) {
+    keyup: function(e) {
         this.notify(e, 'keyup');
     }
 });
@@ -14053,11 +14066,11 @@ extend(editorNS, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/exportpdf',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -14097,15 +14110,15 @@ extend(editorNS, {
     ExportPdfCommand: ExportPdfCommand
 });
 
-registerTool("pdf", new Tool({ command: ExportPdfCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Export PDF"})}));
+registerTool("pdf", new Tool({ command: ExportPdfCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Export PDF" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/print',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -14141,15 +14154,15 @@ extend(editorNS, {
     PrintCommand: PrintCommand
 });
 
-registerTool("print", new Tool({ command: PrintCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Print"})}));
+registerTool("print", new Tool({ command: PrintCommand, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Print" }) }));
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('editor/plugins/formatpainter',[ "../command" ], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -14164,11 +14177,11 @@ var kendo = window.kendo,
     registerTool = EditorUtils.registerTool;
 
 var CopyFormatCommand = Command.extend({
-    init: function (options) {
+    init: function(options) {
         Command.fn.init.call(this, options);
     },
 
-    exec: function(){
+    exec: function() {
         var range = this.lockRange(true);
         this.inlineStyles = [];
         this.blockStyles = [];
@@ -14182,14 +14195,14 @@ var CopyFormatCommand = Command.extend({
         var rangeNodes = RangeUtils.nodes(range);
         var node;
 
-        if(rangeNodes.length === 1) {
+        if (rangeNodes.length === 1) {
             node = rangeNodes[0].parentNode;
         } else {
             node = range.startContainer;
         }
 
-        while(node && !dom.is(node, "body") && node.getAttribute("data-role") !== "editor") {
-            if(dom.isBlock(node)) {
+        while (node && !dom.is(node, "body") && node.getAttribute("data-role") !== "editor") {
+            if (dom.isBlock(node)) {
                 this.populateStyles(node, "blockStyles");
                 if (dom.is(node, "li")) {
                     node = node.parentNode;
@@ -14214,18 +14227,18 @@ var CopyFormatCommand = Command.extend({
         };
         var styleValue, styleKey, attributeKey, attributeValue, i;
 
-        for(i = 0; styles && i < styles.length; i++) {
+        for (i = 0; styles && i < styles.length; i++) {
             styleKey = styles[i];
             styleValue = styles[styleKey];
             nodeStyles.attr.style[styleKey] = styleValue;
         }
 
-        for(i = 0; attributes && i < attributes.length; i++) {
+        for (i = 0; attributes && i < attributes.length; i++) {
             attributeKey = attributes[i].nodeName;
             attributeValue = attributes[i].nodeValue;
-            if(attributeKey === "style") {
+            if (attributeKey === "style") {
                 continue;
-            } else if(attributeKey === "class") {
+            } else if (attributeKey === "class") {
                 nodeStyles.attr.className = attributeValue;
             } else {
                 nodeStyles.attr[attributeKey] = attributeValue;
@@ -14237,11 +14250,11 @@ var CopyFormatCommand = Command.extend({
 });
 
 var ApplyFormatCommand = Command.extend({
-    init: function (options) {
+    init: function(options) {
         Command.fn.init.call(this, options);
     },
 
-    exec: function(){
+    exec: function() {
         var range = this.lockRange(true);
         var markers = RangeUtils.getMarkers(range);
         var editor = this.editor;
@@ -14249,11 +14262,11 @@ var ApplyFormatCommand = Command.extend({
         var blockStyles = editor.blockStyles;
         var nodes;
 
-        if((!inlineStyles || inlineStyles.length === 0) && (!blockStyles || blockStyles.length === 0)) {
+        if ((!inlineStyles || inlineStyles.length === 0) && (!blockStyles || blockStyles.length === 0)) {
             return;
         }
 
-        if(markers.length === 3) {
+        if (markers.length === 3) {
             this.marker.removeCaret(range);
             this.marker.caret = null;
         }
@@ -14263,7 +14276,7 @@ var ApplyFormatCommand = Command.extend({
         this.cleanInlineParents(nodes);
         dom.normalize(range.commonAncestorContainer);
 
-        if(markers.length === 2) {
+        if (markers.length === 2) {
             range.setStartAfter(markers[0]);
             range.setEndBefore(markers[1]);
         } else {
@@ -14273,11 +14286,11 @@ var ApplyFormatCommand = Command.extend({
 
         nodes = RangeUtils.nodes(range);
 
-        if(nodes && blockStyles && blockStyles.length) {
+        if (nodes && blockStyles && blockStyles.length) {
             this.applyBlockStyles(nodes, blockStyles);
         }
 
-        if(nodes && inlineStyles && inlineStyles.length) {
+        if (nodes && inlineStyles && inlineStyles.length) {
             this.applyInlineStyles(nodes, inlineStyles);
         }
 
@@ -14293,7 +14306,7 @@ var ApplyFormatCommand = Command.extend({
         emptyElements = RangeUtils.getAll(range, isEmptyInline);
 
         if (emptyElements && emptyElements.length > 0) {
-            for(i = 0; i < emptyElements.length; i++) {
+            for (i = 0; i < emptyElements.length; i++) {
                 emptyElements[i].parentNode.removeChild(emptyElements[i]);
             }
         }
@@ -14302,21 +14315,21 @@ var ApplyFormatCommand = Command.extend({
     cleanInlineParents: function(nodes) {
         var i, node, parent, children, j, child, newNode;
 
-        for(i = 0; i < nodes.length; i++) {
+        for (i = 0; i < nodes.length; i++) {
             node = nodes[i];
             parent = node.parentNode;
 
-            if(this.immutableParent(node)) {
+            if (this.immutableParent(node)) {
                 continue;
             }
 
-            while(parent && dom.isInline(parent)) {
+            while (parent && dom.isInline(parent)) {
                 children = parent.childNodes;
 
-                for(j = 0; j < children.length; j++) {
+                for (j = 0; j < children.length; j++) {
                     child = children[j];
 
-                    if(!dom.isMarker(child) && child !== node) {
+                    if (!dom.isMarker(child) && child !== node) {
                         newNode = parent.cloneNode(true);
                         newNode.innerHTML = "";
                         dom.wrap(child, newNode);
@@ -14339,52 +14352,52 @@ var ApplyFormatCommand = Command.extend({
         for (i = 0, len = nodes.length; i < len; i++) {
             node = nodes[i];
 
-            if(dom.isWhitespace(node) || this.immutableParent(node)) {
+            if (dom.isWhitespace(node) || this.immutableParent(node)) {
                 continue;
             }
 
             blockParent = dom.blockParentOrBody(node);
 
             if (blockParent.tagName !== "BODY" && blockParent.tagName !== formatTag) {
-                if(blockParent.tagName !== "LI" && blockParent.tagName !== "TD" && blockParent.tagName !== "TH") {
+                if (blockParent.tagName !== "LI" && blockParent.tagName !== "TD" && blockParent.tagName !== "TH") {
                     previousNodes = [];
                     nextNodes = [];
                     previous = node.previousSibling;
                     next = node.nextSibling;
 
-                    while(previous) {
-                        if(!dom.isMarker(previous)) {
+                    while (previous) {
+                        if (!dom.isMarker(previous)) {
                             previousNodes.push(previous);
                         }
 
                         previous = previous.previousSibling;
                     }
 
-                    if(previousNodes.length) {
+                    if (previousNodes.length) {
                         prevWrapper = blockParent.cloneNode(true);
                         prevWrapper.innerHTML = "";
                         dom.insertBefore(prevWrapper, previousNodes[0]);
 
-                        for(j = 0; j < previousNodes.length; j++) {
+                        for (j = 0; j < previousNodes.length; j++) {
                             child = previousNodes[j];
                             dom.insertAt(prevWrapper, child, 0);
                         }
                     }
 
-                    while(next) {
-                        if(!dom.isMarker(next)) {
+                    while (next) {
+                        if (!dom.isMarker(next)) {
                             nextNodes.push(next);
                         }
 
                         next = next.nextSibling;
                     }
 
-                    if(nextNodes.length) {
+                    if (nextNodes.length) {
                         nextWrapper = blockParent.cloneNode(true);
                         nextWrapper.innerHTML = "";
                         dom.insertBefore(nextWrapper, nextNodes[0]);
 
-                        for(j = 0; j < nextNodes.length; j++) {
+                        for (j = 0; j < nextNodes.length; j++) {
                             child = nextNodes[j];
                             nextWrapper.appendChild(child);
                         }
@@ -14400,10 +14413,10 @@ var ApplyFormatCommand = Command.extend({
             }
         }
 
-        if(blockParent && blockStyles.length === 2 && blockParent.tagName !== "LI" && formatTag === "LI") {
+        if (blockParent && blockStyles.length === 2 && blockParent.tagName !== "LI" && formatTag === "LI") {
             listItems = [];
 
-            while(dom.is(wrapper, "li")) {
+            while (dom.is(wrapper, "li")) {
                 listItems.push(wrapper);
                 wrapper = dom.prev(wrapper);
             }
@@ -14415,7 +14428,7 @@ var ApplyFormatCommand = Command.extend({
             for (i = 1, len = listItems.length; i < len; i++) {
                 dom.insertBefore(listItems[i], outerWrapper.firstChild);
             }
-        } else if(blockParent && blockStyles.length === 2 && blockParent.tagName !== "LI") {
+        } else if (blockParent && blockStyles.length === 2 && blockParent.tagName !== "LI") {
             outerWrapper = dom.create(document, blockStyles[1].tags[0], blockStyles[1].attr);
             dom.wrap(wrapper, outerWrapper);
         }
@@ -14425,27 +14438,27 @@ var ApplyFormatCommand = Command.extend({
         var document = this.editor.document;
         var currentStyle, createdNode, topNode, i, newNode, node;
 
-        for(i = 0; i < inlineStyles.length; i++) {
+        for (i = 0; i < inlineStyles.length; i++) {
             currentStyle = inlineStyles[i];
             createdNode = dom.create(document, currentStyle.tags[0], currentStyle.attr);
 
-            if(topNode) {
+            if (topNode) {
                 createdNode.appendChild(topNode);
             }
 
             topNode = createdNode;
         }
 
-        if(topNode) {
-            for(i = 0; i < nodes.length; i++) {
+        if (topNode) {
+            for (i = 0; i < nodes.length; i++) {
                 node = nodes[i];
-                if(dom.isWhitespace(node) || this.immutableParent(node)) {
+                if (dom.isWhitespace(node) || this.immutableParent(node)) {
                     continue;
                 }
                 newNode = topNode.cloneNode(true);
                 dom.insertBefore(newNode, node);
 
-                while(newNode.children && newNode.children.length) {
+                while (newNode.children && newNode.children.length) {
                     newNode = newNode.children[0];
                 }
 
@@ -14464,21 +14477,21 @@ var ApplyFormatCommand = Command.extend({
 });
 
 var CopyFormatTool = Tool.extend({
-    init: function (options) {
+    init: function(options) {
         Tool.fn.init.call(this, options);
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         return new CopyFormatCommand(commandArguments);
     }
 });
 
 var ApplyFormatTool = Tool.extend({
-    init: function (options) {
+    init: function(options) {
         Tool.fn.init.call(this, options);
     },
 
-    command: function (commandArguments) {
+    command: function(commandArguments) {
         return new ApplyFormatCommand(commandArguments);
     }
 });
@@ -14495,7 +14508,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('editor/resizing/resizing-utils',["../main"], f);
@@ -14528,7 +14541,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
     }
 
     function getScrollBarWidth(element) {
-        if  (element && !$(element).is("body") && element.scrollHeight > element.clientHeight) {
+        if (element && !$(element).is("body") && element.scrollHeight > element.clientHeight) {
             return kendo.support.scrollbar();
         }
 
@@ -14575,7 +14588,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
     });
 })(window.kendo);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('editor/resizing/table-element-resizing',["../main", "kendo.resizable", "./resizing-utils"], f);
@@ -14932,7 +14945,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
 })(window.kendo);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('editor/resizing/column-resizing',["../main", "./resizing-utils", "./table-element-resizing", "../dom"], f);
@@ -15034,7 +15047,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                                     parseFloat(tableInnerElement.css("marginTop"));
             var browser = kendo.support.browser;
 
-            if(rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
+            if (rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
                 scrollLeftOffset = scrollLeftOffset * -1;
             }
 
@@ -15078,7 +15091,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                                             parseFloat(resizeHandle.css("marginLeft"));
             var browser = kendo.support.browser;
 
-            if(rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
+            if (rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
                 scrollLeftOffset = scrollLeftOffset * -1;
             }
 
@@ -15108,7 +15121,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
             colIndex = parseInt(column.attr(COLATTR), 10);
 
-            if(column.prop("colSpan") > 1) {
+            if (column.prop("colSpan") > 1) {
                 column = $(that.element).find("[" + COLATTR + "=" + (colIndex + column.prop("colSpan") - 1) + "]").eq(0);
                 colIndex = parseInt(column.attr(COLATTR), 10);
             }
@@ -15238,7 +15251,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
 })(window.kendo);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('editor/resizing/row-resizing',["../main", "./resizing-utils", "./table-element-resizing"], f);
@@ -15295,7 +15308,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                         '<div class="' + RESIZE_HANDLE_CLASS + '">' +
                             '<div class="' + RESIZE_HANDLE_MARKER_WRAPPER_CLASS + '">' +
                                 '<div class="' + RESIZE_MARKER_CLASS + '"></div>' +
-                            '</div>'+
+                            '</div>' +
                         '</div>' +
                     '</div>'
             }
@@ -15332,7 +15345,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                                     parseFloat(row.css("marginTop"));
             var browser = kendo.support.browser;
 
-            if(options.rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
+            if (options.rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
                 scrollLeftOffset = scrollLeftOffset * -1;
             }
 
@@ -15357,8 +15370,8 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             var that = this;
             var options = that.options;
             var min = options.min;
-            var tableHead =  $(that.element).children(THEAD);
-            var tableBody =  $(that.element).children(TBODY);
+            var tableHead = $(that.element).children(THEAD);
+            var tableBody = $(that.element).children(TBODY);
             var topInnerTableElement = tableHead.length > 0 ? tableHead : tableBody;
             var resizeHandle = $(that.resizeHandle);
             var row = $(e.currentTarget).data(options.handle.dataAttribute);
@@ -15478,10 +15491,10 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
 })(window.kendo);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
-    define('editor/resizing/element-resize-handle',["../main",  "kendo.draganddrop", "./resizing-utils"], f);
+    define('editor/resizing/element-resize-handle',["../main", "kendo.draganddrop", "./resizing-utils"], f);
 })(function() {
 
 (function(kendo, undefined) {
@@ -15556,7 +15569,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             resizableElement: null,
             rtl: false,
             template:
-                "<div class='k-element-resize-handle-wrapper' unselectable='on' contenteditable='false'>"+
+                "<div class='k-element-resize-handle-wrapper' unselectable='on' contenteditable='false'>" +
                     "<div class='" + RESIZE_HANDLE_CLASS + "'></div>" +
                 "</div>"
         },
@@ -15652,7 +15665,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             this.trigger(DRAG_END);
         },
 
-        _destroyDraggable : function() {
+        _destroyDraggable: function() {
             var that = this;
 
             if (that._draggable) {
@@ -15758,7 +15771,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             if (!rootElement.is(BODY)) {
                 rootLeft = kendo.scrollLeft(rootElement) || 0;
 
-                if(options.rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
+                if (options.rtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
                     rootLeft = rootLeft * -1;
                 }
 
@@ -16054,7 +16067,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
     });
 })(window.kendo);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('editor/resizing/element-resizing',["../main", "./element-resize-handle", "./resizing-utils"], f);
@@ -16521,9 +16534,9 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                 handle = handles[i];
                 handle.bind(DRAG_START, that._onResizeHandleDragStart.bind(that));
 
-                if(handle.options.direction === "north" || handle.options.direction === "south") {
+                if (handle.options.direction === "north" || handle.options.direction === "south") {
                     handle.bind(DRAG, that._onResizeHandleDragVertical.bind(that));
-                } else if(handle.options.direction === "east" || handle.options.direction === "west") {
+                } else if (handle.options.direction === "east" || handle.options.direction === "west") {
                     handle.bind(DRAG, that._onResizeHandleDragHorizontal.bind(that));
                 } else {
                     handle.bind(DRAG, that._onResizeHandleDragLocked.bind(that));
@@ -16562,7 +16575,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                 initialHeight = this._initialElementHeight,
                 deltas;
 
-            if(min === args.initialDeltaX || min === args.initialDeltaX * -1) {
+            if (min === args.initialDeltaX || min === args.initialDeltaX * -1) {
                 args.initialDeltaY = args.initialDeltaX * initialHeight / initialWidth;
                 args.deltaY = args.deltaX;
             } else if (min === args.initialDeltaY || min === args.initialDeltaY * -1) {
@@ -16645,12 +16658,12 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                         hasImg = false;
 
                     nodes.forEach(function(node) {
-                        if(node.nodeName === "IMG") {
+                        if (node.nodeName === "IMG") {
                             hasImg = true;
                         }
                     });
 
-                    if(hasImg && nodes.length > 1) {
+                    if (hasImg && nodes.length > 1) {
                         editor.elementResizing._destroyResizeHandles();
                     }
                 })
@@ -16658,7 +16671,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
                     setTimeout(function() {
                         var image = RangeUtils.image(editor.getRange());
 
-                        if(image) {
+                        if (image) {
                             editor.elementResizing._destroyResizeHandles();
                             editor.elementResizing.element = image;
                             editor.elementResizing.showResizeHandles();
@@ -16713,13 +16726,13 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
             // https://stackoverflow.com/questions/53831846/resizing-images-in-contenteditable-div-stopped-working-in-firefox
             // Enable custom resize handlers for FF too
             if (!browser.msie) {
-                if($(element).is(TABLE)) {
+                if ($(element).is(TABLE)) {
                     editor.elementResizing = editor.tableResizing = new TableResizing(element, {
                         appendHandlesTo: editor.body,
                         rtl: kendo.support.isRtl(editor.element),
                         rootElement: editor.body
                     });
-                } else if($(element).is(IMG)) {
+                } else if ($(element).is(IMG)) {
                     editor.elementResizing = new ImageResizing(element, {
                         appendHandlesTo: editor.body,
                         rtl: kendo.support.isRtl(editor.element),
@@ -16746,7 +16759,7 @@ registerTool("applyFormat", new ApplyFormatTool({ template: new ToolTemplate({ t
 
 })(window.kendo);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
    define('editor/table-wizard/table-wizard-command',["./../plugins/tables"], f);
@@ -16763,8 +16776,8 @@ var kendo = window.kendo,
     ToolTemplate = Editor.ToolTemplate,
     Command = Editor.Command;
 
-var tableFormatFinder = new Editor.BlockFormatFinder([{tags:["table"]}]);
-var cellsFormatFinder = new Editor.BlockFormatFinder([{tags:["td","th"]}]);
+var tableFormatFinder = new Editor.BlockFormatFinder([{ tags: ["table"] }]);
+var cellsFormatFinder = new Editor.BlockFormatFinder([{ tags: ["td","th"] }]);
 var reUnit = /([a-z]+|%)$/i;
 
 var COL = "col";
@@ -16825,17 +16838,17 @@ var TableWizardCommand = Command.extend({
 
         this._ensureFocusableAfterTable(table);
     },
-    _ensureFocusableAfterTable: function (table) {
+    _ensureFocusableAfterTable: function(table) {
         var siblingNodes = $(table).parent().contents();
         var lastSiblingIndex = siblingNodes.length - 1;
         var lastSibling = siblingNodes.get(lastSiblingIndex);
 
-        while(lastSibling.nodeValue !== null && (lastSibling.nodeValue === " " || lastSibling.nodeValue === "")) {
+        while (lastSibling.nodeValue !== null && (lastSibling.nodeValue === " " || lastSibling.nodeValue === "")) {
             lastSiblingIndex -= 1;
             lastSibling = siblingNodes.get(lastSiblingIndex);
         }
 
-        if(lastSibling === table) {
+        if (lastSibling === table) {
             dom.insertAfter(dom.createEmptyNode(this.editor.document, "p"), table);
         }
     },
@@ -16867,15 +16880,15 @@ var TableWizardCommand = Command.extend({
 
         cellProp = data.cellProperties;
         if (selectedCells[0]) {
-            dom.attr(selectedCells[0], {id: cellProp.id || null});
+            dom.attr(selectedCells[0], { id: cellProp.id || null });
         }
-        (cellProp.selectAllCells ? $(tableRows).children() : $(selectedCells)).each(function(i, cell){
+        (cellProp.selectAllCells ? $(tableRows).children() : $(selectedCells)).each(function(i, cell) {
             cmd._updateCellProperties(cell, cellProp);
         });
 
         cmd._updateCaption(table, tableProp);
 
-        if(tHead) {
+        if (tHead) {
             cmd._updateHeadersWithThead(table, data);
         } else {
             cmd._updateHeadersNoThead(table, data);
@@ -16893,7 +16906,7 @@ var TableWizardCommand = Command.extend({
     cellsWithHeadersAssociated: function(table) {
         var cells = $(table.rows).children();
         var headingIds = [];
-        var checkHeader = function(header){
+        var checkHeader = function(header) {
             return headingIds.indexOf(header) > -1;
         };
 
@@ -16907,10 +16920,10 @@ var TableWizardCommand = Command.extend({
             var headersAttr = cell.getAttribute(HEADERS);
             var headersArray;
 
-            if(headersAttr && !dom.is(cell, TH)) {
+            if (headersAttr && !dom.is(cell, TH)) {
                 headersArray = headersAttr.split(" ");
 
-                if(headersArray && headersArray.length > 0) {
+                if (headersArray && headersArray.length > 0) {
                     return headersArray.some(checkHeader);
                 }
             }
@@ -16927,7 +16940,7 @@ var TableWizardCommand = Command.extend({
             cell.innerHTML = "&nbsp;";
         }
     },
-    _deleteTableRows: function(rows, count){
+    _deleteTableRows: function(rows, count) {
         for (var i = 0, row, rowParent; i < count; i++) {
             row = rows.pop();
             rowParent = row.parentNode;
@@ -16948,7 +16961,7 @@ var TableWizardCommand = Command.extend({
         cmd._updateTableProperties(table, tableProp);
         cmd._updateCaption(table, tableProp);
 
-        if(tableProp.headerRows && tableProp.headerRows > 0) {
+        if (tableProp.headerRows && tableProp.headerRows > 0) {
             thead = table.createTHead();
             cmd._createTableRows(data, thead, rowIndex, true);
             rowIndex += tableProp.headerRows;
@@ -16961,7 +16974,7 @@ var TableWizardCommand = Command.extend({
 
         if (tableProp.cellsWithHeaders === "ids") {
             dom.associateWithIds(table);
-        } else if(tableProp.cellsWithHeaders === "scope") {
+        } else if (tableProp.cellsWithHeaders === "scope") {
             cmd._addScopes(table, tableProp.headerRows, tableProp.headerColumns);
         }
 
@@ -16982,7 +16995,7 @@ var TableWizardCommand = Command.extend({
             row = container.insertRow();
 
             for (var c = 0, cell; c < columns; c++) {
-                if(headerRows || headerColumns > c) {
+                if (headerRows || headerColumns > c) {
                     cell = document.createElement(TH);
                 } else {
                     cell = document.createElement(TD);
@@ -17018,12 +17031,12 @@ var TableWizardCommand = Command.extend({
         var numberOfColumns = Number(firstRowLastCell.getAttribute(COL_INDEX)) + firstRowLastCell.colSpan;
 
         if (numberOfColumns > columns) {
-            $(tableRows).each(function(i, row){
+            $(tableRows).each(function(i, row) {
                 var lastCurrentCell = last(row.cells);
                 var rowColumns = Number(lastCurrentCell.getAttribute(COL_INDEX)) + lastCurrentCell.colSpan;
 
-                while(rowColumns > columns) {
-                    if(lastCurrentCell.colSpan && lastCurrentCell.colSpan > 1) {
+                while (rowColumns > columns) {
+                    if (lastCurrentCell.colSpan && lastCurrentCell.colSpan > 1) {
                         lastCurrentCell.colSpan -= 1;
                     } else {
                         row.deleteCell(-1);
@@ -17043,7 +17056,7 @@ var TableWizardCommand = Command.extend({
             });
         }
     },
-    _updateTableProperties: function(table, data){
+    _updateTableProperties: function(table, data) {
         var style = this._getStylesData(data);
         dom.attr(table, {
             cellSpacing: data.cellSpacing || null,
@@ -17064,7 +17077,7 @@ var TableWizardCommand = Command.extend({
             className: data.className || null
         });
     },
-    _updateCaption: function(table, data){
+    _updateCaption: function(table, data) {
         if (table.caption && !data.captionContent) {
             table.deleteCaption();
         } else if (data.captionContent) {
@@ -17085,15 +17098,15 @@ var TableWizardCommand = Command.extend({
         var rows = table.rows;
         var row, cells, cell, i, j;
 
-        for(i = 0; i < rows.length; i++) {
+        for (i = 0; i < rows.length; i++) {
             row = rows[i];
             cells = row.cells;
 
-            for(j = 0; j < cells.length; j++) {
+            for (j = 0; j < cells.length; j++) {
                 cell = cells[j];
-                if(!cmd._isHeadingCell(cell) && (i < tableProp.headerRows || tableProp.headerColumns > cell.getAttribute(COL_INDEX))) {
+                if (!cmd._isHeadingCell(cell) && (i < tableProp.headerRows || tableProp.headerColumns > cell.getAttribute(COL_INDEX))) {
                     dom.changeTag(cell, TH, false);
-                } else if(cmd._isHeadingCell(cell) && i >= tableProp.headerRows && tableProp.headerColumns <= cell.getAttribute(COL_INDEX)) {
+                } else if (cmd._isHeadingCell(cell) && i >= tableProp.headerRows && tableProp.headerColumns <= cell.getAttribute(COL_INDEX)) {
                     dom.changeTag(cell, TD, false);
                 }
             }
@@ -17111,35 +17124,35 @@ var TableWizardCommand = Command.extend({
             tbody = table.createTBody();
         }
 
-        if(tableProp.headerRows && tableProp.headerRows > 0) {
+        if (tableProp.headerRows && tableProp.headerRows > 0) {
             if (!thead) {
                 thead = table.createTHead();
             }
 
-            while(thead.rows.length < tableProp.headerRows) {
+            while (thead.rows.length < tableProp.headerRows) {
                 thead.appendChild(tbody.rows[0]);
             }
 
-            while(thead.rows.length > tableProp.headerRows) {
+            while (thead.rows.length > tableProp.headerRows) {
                 tbody.appendChild(thead.rows[0]);
             }
 
             cmd._swapToHeaderCells(thead);
-        } else if(thead) {
-            while(thead.rows.length > 0) {
+        } else if (thead) {
+            while (thead.rows.length > 0) {
                 tbody.appendChild(thead.rows[thead.rows.length - 1]);
             }
 
             table.deleteTHead();
         }
 
-        while(tbody.rows.length > rowIndex) {
+        while (tbody.rows.length > rowIndex) {
             row = tbody.rows[rowIndex];
-            for(i = 0; i < row.cells.length; i++) {
+            for (i = 0; i < row.cells.length; i++) {
                 cell = row.cells[i];
                 if (cmd._isHeadingCell(cell) && tableProp.headerColumns <= cell.getAttribute(COL_INDEX)) {
                     dom.changeTag(cell, TD, false);
-                } else if(!cmd._isHeadingCell(cell) && tableProp.headerColumns > cell.getAttribute(COL_INDEX)) {
+                } else if (!cmd._isHeadingCell(cell) && tableProp.headerColumns > cell.getAttribute(COL_INDEX)) {
                     dom.changeTag(cell, TH, false);
                 }
             }
@@ -17150,17 +17163,17 @@ var TableWizardCommand = Command.extend({
         var cmd = this;
 
         if (tableProp.cellsWithHeaders === "ids") {
-            if(!cmd.cellsWithHeadersAssociated(table)) {
+            if (!cmd.cellsWithHeadersAssociated(table)) {
                 cmd._removeScopes(table);
             }
             dom.associateWithIds(table);
         } else if (tableProp.cellsWithHeaders === "scope") {
-            if(cmd.cellsWithHeadersAssociated(table)) {
+            if (cmd.cellsWithHeadersAssociated(table)) {
                 cmd._removeAssociates(table);
             }
             cmd._addScopes(table, tableProp.headerRows, tableProp.headerColumns);
         } else {
-            if(cmd.cellsWithHeadersAssociated(table)) {
+            if (cmd.cellsWithHeadersAssociated(table)) {
                 cmd._removeAssociates(table);
             } else {
                 cmd._removeScopes(table);
@@ -17171,15 +17184,15 @@ var TableWizardCommand = Command.extend({
         var rows = table.rows;
         var i, j, row, cell;
 
-        for(i = 0; i < rows.length; i++) {
+        for (i = 0; i < rows.length; i++) {
             row = rows[i];
 
-            for(j = 0; j < row.cells.length; j++) {
+            for (j = 0; j < row.cells.length; j++) {
                 cell = row.cells[j];
 
                 if (i < headerRows) {
                     cell.setAttribute(SCOPE, COL);
-                } else if(cell.getAttribute(COL_INDEX) < headerCols) {
+                } else if (cell.getAttribute(COL_INDEX) < headerCols) {
                     cell.setAttribute(SCOPE, ROW);
                 }
             }
@@ -17230,7 +17243,7 @@ var TableWizardCommand = Command.extend({
                 textAlign = alignment;
             }
         }
-        return {textAlign: textAlign, verticalAlign: verticalAlign};
+        return { textAlign: textAlign, verticalAlign: verticalAlign };
     },
     parseTable: function(table, selectedCells) {
         if (!table) {
@@ -17254,7 +17267,7 @@ var TableWizardCommand = Command.extend({
         var numberOfHeaderRows = dom._getNumberOfHeaderRows(table);
 
         var cellsWithHeaders;
-        if(cmd.cellsWithHeadersAssociated(table)) {
+        if (cmd.cellsWithHeadersAssociated(table)) {
             cellsWithHeaders = "ids";
         } else if ($(table).find("th[scope]").length > 0) {
             cellsWithHeaders = "scope";
@@ -17304,7 +17317,7 @@ var TableWizardCommand = Command.extend({
         var data = [], row, rowData, cells, cell, cellData;
         for (var i = 0; i < rows.length; i++) {
             row = rows[i];
-            rowData = {cells: []};
+            rowData = { cells: [] };
             cells = row.cells;
             data.push(rowData);
             for (var j = 0; j < cells.length; j++) {
@@ -17347,19 +17360,19 @@ var TableWizardCommand = Command.extend({
         var style = element.style;
         var hAlign = style.textAlign || element.align || "";
         if (horizontalOnly) {
-            return {textAlign: hAlign};
+            return { textAlign: hAlign };
         }
         var vAlign = style.verticalAlign || element.vAlign || "";
-        if(hAlign && vAlign) {
-            return {textAlign: hAlign, verticalAlign: vAlign};
+        if (hAlign && vAlign) {
+            return { textAlign: hAlign, verticalAlign: vAlign };
         }
-        if(!hAlign && vAlign) {
-            return {textAlign: "left", verticalAlign: vAlign};
+        if (!hAlign && vAlign) {
+            return { textAlign: "left", verticalAlign: vAlign };
         }
-        if(hAlign && !vAlign) {
-            return {textAlign: hAlign, verticalAlign: "top"};
+        if (hAlign && !vAlign) {
+            return { textAlign: hAlign, verticalAlign: "top" };
         }
-        return {textAlign: "", verticalAlign: ""};
+        return { textAlign: "", verticalAlign: "" };
     },
     _getUnit: function(value) {
         var unit = (value || "").match(reUnit);
@@ -17379,7 +17392,7 @@ var TableWizardCommand = Command.extend({
 });
 
 var TableWizardTool = Editor.Tool.extend({
-    command: function (options) {
+    command: function(options) {
         options.insertNewTable = this.options.insertNewTable;
         return new TableWizardCommand(options);
     }
@@ -17404,7 +17417,7 @@ var TableWizardEditTool = TableWizardTool.extend({
 kendo.ui.editor.TableWizardTool = TableWizardTool;
 kendo.ui.editor.TableWizardCommand = TableWizardCommand;
 
-registerTool("tableWizard", new TableWizardEditTool({ command: TableWizardCommand, insertNewTable: false, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Table Wizard"})}));
+registerTool("tableWizard", new TableWizardEditTool({ command: TableWizardCommand, insertNewTable: false, template: new ToolTemplate({ template: EditorUtils.buttonTemplate, title: "Table Wizard" }) }));
 
 })(window.kendo.jQuery);
 
@@ -17788,13 +17801,13 @@ var TableWizardDialog = kendo.Class.extend({
         dialog.center();
         dialog.open();
 
-        if(isIE) {
+        if (isIE) {
             var dialogHeight = element.closest(".k-window").height();
             element.css("max-height", dialogHeight);
         }
     },
 
-    _initTabStripComponent: function(element){
+    _initTabStripComponent: function(element) {
         var components = this.components = {};
         components.tabStrip = element.find("#k-table-wizard-tabs").kendoTabStrip({
             animation: false
@@ -17868,7 +17881,7 @@ var TableWizardDialog = kendo.Class.extend({
         tableProperties.headerRows = accessibilityView.headerRows.value();
         tableProperties.headerColumns = accessibilityView.headerColumns.value();
     },
-    _addUnit: function(units, value){
+    _addUnit: function(units, value) {
         if (value && $.inArray(value, units) == -1) {
             units.push(value);
         }
@@ -17886,7 +17899,7 @@ var TableWizardDialog = kendo.Class.extend({
             var currentNumberOfColumnsHeaders = headerColumnsNumeric.value();
             var numberOfColumns = args.sender.value();
 
-            if(numberOfColumns < currentNumberOfColumnsHeaders) {
+            if (numberOfColumns < currentNumberOfColumnsHeaders) {
                 headerColumnsNumeric.value(numberOfColumns);
             }
 
@@ -17899,7 +17912,7 @@ var TableWizardDialog = kendo.Class.extend({
             var currentNumberOfRowHeaders = headerRowsNumeric.value();
             var numberOfRows = args.sender.value();
 
-            if(numberOfRows < currentNumberOfRowHeaders) {
+            if (numberOfRows < currentNumberOfRowHeaders) {
                 headerRowsNumeric.value(numberOfRows);
             }
 
@@ -17911,8 +17924,8 @@ var TableWizardDialog = kendo.Class.extend({
 
         that._initNumericTextbox(element.find("#k-editor-table-width"), "width", tableProperties, tableView);
         that._initNumericTextbox(element.find("#k-editor-table-height"), "height", tableProperties, tableView);
-        that._initNumericTextbox(element.find("#k-editor-table-columns"), "columns", tableProperties, tableView, {min: 1, value: DEFAULT_NUMBER_OF_COLS_AND_ROWS, change: onColumnsNumberChange});
-        that._initNumericTextbox(element.find("#k-editor-table-rows"), "rows", tableProperties, tableView, {min: 1, value: DEFAULT_NUMBER_OF_COLS_AND_ROWS, change: onRowsNumberChange});
+        that._initNumericTextbox(element.find("#k-editor-table-columns"), "columns", tableProperties, tableView, { min: 1, value: DEFAULT_NUMBER_OF_COLS_AND_ROWS, change: onColumnsNumberChange });
+        that._initNumericTextbox(element.find("#k-editor-table-rows"), "rows", tableProperties, tableView, { min: 1, value: DEFAULT_NUMBER_OF_COLS_AND_ROWS, change: onRowsNumberChange });
         that._initDropDownList(element.find("#k-editor-table-width-type"), "widthUnit", tableProperties, tableView, units);
         that._initDropDownList(element.find("#k-editor-table-height-type"), "heightUnit", tableProperties, tableView, units);
         that._initNumericTextbox(element.find("#k-editor-table-cell-spacing"), "cellSpacing", tableProperties, tableView);
@@ -17931,7 +17944,7 @@ var TableWizardDialog = kendo.Class.extend({
         var components = this.components;
         var cellView = components.cellView = {};
         table.selectedCells = table.selectedCells = table.selectedCells || [];
-        var cellProperties = table.selectedCells[0] || {borderStyle: "", wrapText: true};
+        var cellProperties = table.selectedCells[0] || { borderStyle: "", wrapText: true };
         this._addUnit(units, cellProperties.widthUnit);
         this._addUnit(units, cellProperties.heightUnit);
 
@@ -17989,9 +18002,9 @@ var TableWizardDialog = kendo.Class.extend({
         this._setComponentValue(component, data, property);
     },
 
-    _initTableAlignmentDropDown: function (element, data) {
+    _initTableAlignmentDropDown: function(element, data) {
         var messages = this.options.messages;
-        var tableView =  this.components.tableView;
+        var tableView = this.components.tableView;
         var dataSource = tableAlignmentDropDownSettings.dataSource;
         dataSource[0].tooltip = messages.alignLeft;
         dataSource[1].tooltip = messages.alignCenter;
@@ -18001,9 +18014,9 @@ var TableWizardDialog = kendo.Class.extend({
         this._initAlignmentDropDown(element, tableAlignmentDropDownSettings, "alignment", data, tableView);
     },
 
-    _initCellAlignmentDropDown: function (element, data) {
+    _initCellAlignmentDropDown: function(element, data) {
         var messages = this.options.messages;
-        var cellView =  this.components.cellView;
+        var cellView = this.components.cellView;
         var dataSource = cellAlignmentDropDownSettings.dataSource;
         dataSource[0].tooltip = messages.alignLeftTop;
         dataSource[1].tooltip = messages.alignCenterTop;
@@ -18019,9 +18032,9 @@ var TableWizardDialog = kendo.Class.extend({
         this._initAlignmentDropDown(element, cellAlignmentDropDownSettings, "alignment", data, cellView);
     },
 
-    _initAccessibilityAlignmentDropDown: function (element, data) {
+    _initAccessibilityAlignmentDropDown: function(element, data) {
         var messages = this.options.messages;
-        var accessibilityView =  this.components.accessibilityView;
+        var accessibilityView = this.components.accessibilityView;
         var dataSource = accessibilityAlignmentDropDownSettings.dataSource;
         dataSource[0].tooltip = messages.alignLeftTop;
         dataSource[1].tooltip = messages.alignCenterTop;
@@ -18046,7 +18059,7 @@ var TableWizardDialog = kendo.Class.extend({
 
         this._setComponentValue(component, data, name);
     },
-    _setComponentValue: function(component, data, property){
+    _setComponentValue: function(component, data, property) {
         if (property in data) {
             component.value(data[property]);
         }
@@ -18054,7 +18067,7 @@ var TableWizardDialog = kendo.Class.extend({
 
     _initColorPicker: function(element, property, data, storage) {
         var component = storage[property] =
-            element.kendoColorPicker({buttons: false, clearButton: true}).data("kendoColorPicker");
+            element.kendoColorPicker({ buttons: false, clearButton: true }).data("kendoColorPicker");
 
         if (data[property]) {
             component.value(data[property]);
@@ -18102,7 +18115,7 @@ kendo.ui.editor.TableWizardDialog = TableWizardDialog;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) {
     (a3 || a2)(); });
-(function(f, define){
+(function(f, define) {
     define('kendo.editor',[
         "kendo.combobox", "kendo.dropdownlist", "kendo.resizable", "kendo.window", "kendo.colorpicker", "kendo.imagebrowser", "kendo.numerictextbox",
 
@@ -18144,7 +18157,7 @@ kendo.ui.editor.TableWizardDialog = TableWizardDialog;
         "./editor/table-wizard/table-wizard-command",
         "./editor/table-wizard/table-wizard-dialog"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "editor",
@@ -18177,5 +18190,5 @@ kendo.ui.editor.TableWizardDialog = TableWizardDialog;
 
 	return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

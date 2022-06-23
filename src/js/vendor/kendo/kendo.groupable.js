@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.groupable',[ "kendo.core", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "groupable",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     advanced: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         outerWidth = kendo._outerWidth,
@@ -43,7 +43,7 @@ var __meta__ = { // jshint ignore:line
                 '<a href="\\#" data-role="button" aria-label="Remove grouping by ${data.title || data.field} field" class="k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button">' +
                     '<span class="k-button-icon k-icon k-i-close"></span>' +
                 '</a>' +
-             '</div>',  { useWithBlock:false }),
+             '</div>', { useWithBlock: false }),
         hint = function(target) {
             var title = target.attr(kendo.attr("title"));
             if (title) {
@@ -103,10 +103,10 @@ var __meta__ = { // jshint ignore:line
                         if (!targetElement.hasClass("k-group-indicator") && !that._canDrag(targetElement)) {
                             return;
                         }
-                        if(lastCuePosition) {
+                        if (lastCuePosition) {
                             position = that._dropCuePosition(kendo.getOffset(dropCue).left + parseInt(lastCuePosition.element.css("marginLeft"), 10) * (isRtl ? -1 : 1) + parseInt(lastCuePosition.element.css("marginRight"), 10));
-                            if(position && that._canDrop($(sourceIndicator), position.element, position.left)) {
-                                if(position.before) {
+                            if (position && that._canDrop($(sourceIndicator), position.element, position.left)) {
+                                if (position.before) {
                                     position.element.before(sourceIndicator || that.buildIndicator(field, title, dir));
                                 } else {
                                     position.element.after(sourceIndicator || that.buildIndicator(field, title, dir));
@@ -171,7 +171,7 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     intializePositions();
-                    if(dropCuePositions.length) {
+                    if (dropCuePositions.length) {
                         element = dropCuePositions[dropCuePositions.length - 1].element;
                         marginRight = parseInt(element.css("marginRight"), 10);
                         left = element.position().left + outerWidth(element) + marginRight;
@@ -190,7 +190,7 @@ var __meta__ = { // jshint ignore:line
                 that._refreshHandler = that.refresh.bind(that);
             }
 
-            if(that.dataSource) {
+            if (that.dataSource) {
                 that.dataSource.bind("change", that._refreshHandler);
                 that.refresh();
             }
@@ -209,7 +209,7 @@ var __meta__ = { // jshint ignore:line
 
                 each(groups, function(index, group) {
                     var field = group.field;
-                    var dir =group.dir;
+                    var dir = group.dir;
                     var element = that.element
                         .find(that.options.filter)
                         .filter(function() {
@@ -269,7 +269,7 @@ var __meta__ = { // jshint ignore:line
 
         indicator: function(field) {
             var indicators = $(".k-group-indicator", this.groupContainer);
-            return $.grep(indicators, function (item)
+            return $.grep(indicators, function(item)
                 {
                     return $(item).attr(kendo.attr("field")) === field;
                 })[0];
@@ -346,7 +346,7 @@ var __meta__ = { // jshint ignore:line
 
         _change: function() {
             var that = this;
-            if(that.dataSource) {
+            if (that.dataSource) {
                 var descriptors = that.descriptors();
                 if (that.trigger("change", { groups: descriptors })) {
                     that.refresh();
@@ -358,7 +358,7 @@ var __meta__ = { // jshint ignore:line
 
         _dropCuePosition: function(position) {
             var dropCuePositions = this._dropCuePositions;
-            if(!dropCue.is(":visible") || dropCuePositions.length === 0) {
+            if (!dropCue.is(":visible") || dropCuePositions.length === 0) {
                 return;
             }
 
@@ -370,7 +370,7 @@ var __meta__ = { // jshint ignore:line
                 marginLeft = parseInt(lastCuePosition.element.css("marginLeft"), 10),
                 marginRight = parseInt(lastCuePosition.element.css("marginRight"), 10);
 
-            if(position >= right && !isRtl || position < left && isRtl) {
+            if (position >= right && !isRtl || position < left && isRtl) {
                 position = {
                     left: lastCuePosition.element.position().left + (!isRtl ? outerWidth(lastCuePosition.element) + marginRight : - marginLeft),
                     element: lastCuePosition.element,
@@ -381,7 +381,7 @@ var __meta__ = { // jshint ignore:line
                     return (item.left <= position && position <= item.right) || (isRtl && position > item.right);
                 })[0];
 
-                if(position) {
+                if (position) {
                     position = {
                         left: isRtl ? position.element.position().left + outerWidth(position.element) + marginRight : position.element.position().left - marginLeft,
                         element: position.element,
@@ -444,7 +444,7 @@ var __meta__ = { // jshint ignore:line
         },
         _invalidateGroupContainer: function() {
             var groupContainer = this.groupContainer;
-            if(groupContainer && groupContainer.is(":empty")) {
+            if (groupContainer && groupContainer.is(":empty")) {
                 groupContainer.html(this.options.messages.empty);
             }
         }
@@ -456,5 +456,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

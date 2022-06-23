@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.scheduler.view',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "scheduler.view",
@@ -162,10 +162,10 @@ var __meta__ = { // jshint ignore:line
                    var nextSlot;
 
                    var horizontalEnd = slot.offsetLeft + width;
-                   var verticalEnd =  slot.offsetTop + height;
+                   var verticalEnd = slot.offsetTop + height;
 
                    if (!byDate) {
-                        nextSlot =  collection.at(slotIndex + 1);
+                        nextSlot = collection.at(slotIndex + 1);
                    }
 
                    if (nextSlot) {
@@ -219,7 +219,7 @@ var __meta__ = { // jshint ignore:line
             if (end && !end.inRange && endTime <= end.slot.start) {
                 lastIndex = end.slot.collectionIndex;
 
-                if(endTime === end.slot.start && ((start && lastIndex > start.slot.collectionIndex) || (lastIndex > firstIndex))) {
+                if (endTime === end.slot.start && ((start && lastIndex > start.slot.collectionIndex) || (lastIndex > firstIndex))) {
                     lastIndex -= 1;
                 }
 
@@ -227,7 +227,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (start === null && end === null) {
-                if(endTime - startTime < kendo.date.MS_PER_DAY) {
+                if (endTime - startTime < kendo.date.MS_PER_DAY) {
                     return [];
                 } else {
                     start = {
@@ -375,7 +375,7 @@ var __meta__ = { // jshint ignore:line
             var endTime = event._endTime || kendo.date.toUtcTime(event.end);
 
             if (isDay === undefined) {
-                if(this._enforceAllDaySlot) {
+                if (this._enforceAllDaySlot) {
                     isDay = event.isMultiDay();
                 } else {
                     isDay = event.isAllDay;
@@ -537,7 +537,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _collection: function(index, multiday) {
-            var collections = multiday? this._daySlotCollections : this._timeSlotCollections;
+            var collections = multiday ? this._daySlotCollections : this._timeSlotCollections;
 
             return collections[index];
         },
@@ -550,7 +550,7 @@ var __meta__ = { // jshint ignore:line
             if (!collection) {
                 collection = collections[index];
 
-                while(index < collections.length - 1 && collection._start < time) {
+                while (index < collections.length - 1 && collection._start < time) {
                     index++;
                     collection = collections[index];
                 }
@@ -579,7 +579,7 @@ var __meta__ = { // jshint ignore:line
             if (!collection) {
                 collection = collections[index];
 
-                while(index > 0 && collection._start > time) {
+                while (index > 0 && collection._start > time) {
                     index--;
                     collection = collections[index];
                 }
@@ -590,7 +590,7 @@ var __meta__ = { // jshint ignore:line
             var slot = collection.slotByEndDate(time, isAllDay);
 
             if (!slot) {
-                if(time <= collection.first().start) {
+                if (time <= collection.first().start) {
                     slot = collection.first();
                 } else {
                     slot = collection.last();
@@ -639,7 +639,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        events: function () {
+        events: function() {
             return this.collection.events();
         },
 
@@ -703,7 +703,7 @@ var __meta__ = { // jshint ignore:line
             if (snap) {
                 top = startSlot.offsetTop;
                 bottom = endSlot.offsetTop + endSlot[property + "Height"];
-                if(isRtl) {
+                if (isRtl) {
                     left = endSlot.offsetLeft;
                     right = startSlot.offsetLeft + startSlot[property + "Width"];
                 } else {
@@ -731,8 +731,8 @@ var __meta__ = { // jshint ignore:line
 
                 bottom = endSlot.offsetTop + endSlot[property + "Height"] - endSlot[property + "Height"] * endOffset / endSlotDuration;
 
-                if(isRtl) {
-                    left = Math.round(endSlot.offsetLeft + endSlot[property + "Width"]* endOffset / endSlotDuration);
+                if (isRtl) {
+                    left = Math.round(endSlot.offsetLeft + endSlot[property + "Width"] * endOffset / endSlotDuration);
                     right = Math.round(startSlot.offsetLeft + startSlot[property + "Width"] - startSlot[property + "Width"] * startOffset / startSlotDuration);
                 } else {
                     left = Math.round(startSlot.offsetLeft + startSlot[property + "Width"] * startOffset / startSlotDuration);
@@ -962,7 +962,7 @@ var __meta__ = { // jshint ignore:line
             if (this.isHorizontal) {
                 //need update
                 var isRtl = kendo.support.isRtl(this.element);
-                difference =  x - offset.left;
+                difference = x - offset.left;
                 time = Math.floor(duration * ( difference / this.offsetWidth));
 
                 if (isRtl) {
@@ -1077,7 +1077,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        visibleEndDate: function () {
+        visibleEndDate: function() {
             return this.endDate();
         },
 
@@ -1122,7 +1122,7 @@ var __meta__ = { // jshint ignore:line
             return kendo.format(this.options.selectedShortDateFormat, this.startDate(), this.endDate());
         },
 
-        mobileDateForTitle: function () {
+        mobileDateForTitle: function() {
             return kendo.format(this.options.selectedMobileDateFormat || this.options.selectedShortDateFormat, this.startDate(), this.endDate());
         },
 
@@ -1150,7 +1150,7 @@ var __meta__ = { // jshint ignore:line
                   index = group.daySlotCollectionCount() ? slot.index - 1 : slot.collectionIndex - 1;
 
                   if (index >= 0) {
-                      return  collections[index]._slots[collections[index]._slots.length - 1];
+                      return collections[index]._slots[collections[index]._slots.length - 1];
                   }
               } else {
                   collections = group._getCollections(group.daySlotCollectionCount());
@@ -1158,7 +1158,7 @@ var __meta__ = { // jshint ignore:line
                   var slotIndex = group.daySlotCollectionCount() ? slot.collectionIndex + 1 : 0;
 
                   if (collections[index] && collections[index]._slots[slotIndex]) {
-                      return  collections[index]._slots[slotIndex];
+                      return collections[index]._slots[slotIndex];
                   }
                }
         },
@@ -1172,7 +1172,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _isInRange: function(newStart, newEnd) {
-            if(!newStart || !newEnd || !this.options.min || !this.options.max){
+            if (!newStart || !newEnd || !this.options.min || !this.options.max) {
                 return false;
             }
             return getDate(newStart) <= getDate(this.options.min) || getDate(newEnd) >= getDate(this.options.max);
@@ -1197,7 +1197,7 @@ var __meta__ = { // jshint ignore:line
             if (this._isGroupedByDate() && !multiple) {
                   var tempSlot = this._changeGroup(selection, reverse);
 
-                  if(!tempSlot)
+                  if (!tempSlot)
                   {
                     horizontalRange = this._getNextHorizontalRange(group, method, horizontalRange);
                   } else {
@@ -1226,8 +1226,8 @@ var __meta__ = { // jshint ignore:line
             return horizontalRange;
         },
 
-         _getNextHorizontalRange: function(group, method, horizontalRange){
-            if(!this._isVerticallyGrouped()){
+         _getNextHorizontalRange: function(group, method, horizontalRange) {
+            if (!this._isVerticallyGrouped()) {
                 horizontalRange.startSlot = group[method](horizontalRange.startSlot);
                 horizontalRange.endSlot = group[method](horizontalRange.endSlot);
             }
@@ -1258,7 +1258,7 @@ var __meta__ = { // jshint ignore:line
                 if (this._isGroupedByDate()) {
                     verticalRange.startSlot = verticalRange.endSlot = this._changeDate(selection, slot, reverse);
 
-               }else{
+               } else {
                     verticalRange.startSlot = verticalRange.endSlot = this._changeGroup(selection, reverse);
                }
             }
@@ -1266,7 +1266,7 @@ var __meta__ = { // jshint ignore:line
             return verticalRange;
         },
 
-        _getNextVerticalRange: function(group, method, verticalRange, multiple){
+        _getNextVerticalRange: function(group, method, verticalRange, multiple) {
              verticalRange.startSlot = group[method](verticalRange.startSlot, multiple);
              verticalRange.endSlot = group[method](verticalRange.endSlot, multiple);
 
@@ -1305,7 +1305,7 @@ var __meta__ = { // jshint ignore:line
                 that.footer = $(html).appendTo(that.element);
             }
 
-            if(that.footer) {
+            if (that.footer) {
                 that.footer.on("click" + NS, ".k-scheduler-today", function(e) {
                     e.preventDefault();
                     var timezone = that.options.timezone;
@@ -1313,10 +1313,10 @@ var __meta__ = { // jshint ignore:line
                     var currentDate = new Date();
                     var date;
 
-                    if(timezone){
+                    if (timezone) {
                         var timezoneOffset = kendo.timezone.offset(currentDate, timezone);
                         date = kendo.timezone.convert(currentDate, currentDate.getTimezoneOffset(), timezoneOffset);
-                    }else{
+                    } else {
                         date = currentDate;
                     }
 
@@ -1351,7 +1351,7 @@ var __meta__ = { // jshint ignore:line
         move: function(selection, key, shift) {
             var handled = false;
             var group = this.groups[selection.groupIndex];
-            var verticalByDate = this._isGroupedByDate()  && this._isVerticallyGrouped();
+            var verticalByDate = this._isGroupedByDate() && this._isVerticallyGrouped();
 
             if (!group.timeSlotCollectionCount()) {
                 selection.isAllDay = true;
@@ -1468,23 +1468,23 @@ var __meta__ = { // jshint ignore:line
                 var uniqueAllEvents = this._getUniqueEvents(allEvents);
                 var sortedEvents = this._getSortedEvents(uniqueAllEvents);
 
-                if(events.length === 0){
+                if (events.length === 0) {
                     var eventIndex = this._getNextEventIndexBySlot(slot, sortedEvents, groupIndex);
 
-                    if(prev){
+                    if (prev) {
                         eventIndex--;
                     }
 
                     event = sortedEvents[eventIndex];
-                } else{
+                } else {
                      var idx = this._getStartIdx(events, sortedEvents);
 
                     while (idx < sortedEvents.length && idx > -1) {
-                        if(events.length > 0){
+                        if (events.length > 0) {
                             slot = this._getSelectedSlot(slot, sortedEvents, event, idx, pad, prev);
                         }
 
-                        if(!slot){
+                        if (!slot) {
                             break;
                         }
 
@@ -1549,7 +1549,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _getNextEventIndexBySlot: function(slot, sortedEvents, groupIndex){
+        _getNextEventIndexBySlot: function(slot, sortedEvents, groupIndex) {
             var tempIndex = 0;
             var slotStartDate = kendo.date.getDate(slot.startDate());
 
@@ -1596,11 +1596,11 @@ var __meta__ = { // jshint ignore:line
              return slot;
         },
 
-        _getStartIdx: function(events, sortedEvents){
+        _getStartIdx: function(events, sortedEvents) {
             var selectedEventIndex = 0;
 
             $.each(sortedEvents, function() {
-                if (this.uid === events[0]){
+                if (this.uid === events[0]) {
                      return false;
                 }
 
@@ -1610,20 +1610,20 @@ var __meta__ = { // jshint ignore:line
             return selectedEventIndex;
         },
 
-        _getAllEvents: function(){
+        _getAllEvents: function() {
             var allEvents = [];
             var groups = this.groups;
 
             for (var idx = 0; idx < groups.length; idx++) {
                 if (groups[idx]._continuousEvents) {
-                    allEvents= allEvents.concat(groups[idx]._continuousEvents);
+                    allEvents = allEvents.concat(groups[idx]._continuousEvents);
                 }
             }
 
             return allEvents;
         },
 
-        _getUniqueEvents: function(allEvents){
+        _getUniqueEvents: function(allEvents) {
             var uniqueAllEvents = [];
 
             for (var i = 0; i < allEvents.length; i++) {
@@ -1643,7 +1643,7 @@ var __meta__ = { // jshint ignore:line
             return uniqueAllEvents;
         },
 
-        _getSortedEvents: function(uniqueAllEvents){
+        _getSortedEvents: function(uniqueAllEvents) {
              return uniqueAllEvents.sort(function(first, second) {
                 var firstStartDate = first.start.startDate();
                 var secondStartDate = second.start.startDate();
@@ -1730,7 +1730,7 @@ var __meta__ = { // jshint ignore:line
                 if ($.inArray(groupEvents[idx].uid, events) > -1) {
                     groupEvent = groupEvents[idx];
                     result = result.add(groupEvent.element);
-                    if(selection.events.indexOf(groupEvent.uid) === -1){
+                    if (selection.events.indexOf(groupEvent.uid) === -1) {
                         selection.events.push(groupEvent.uid);
                     }
                 }
@@ -1806,7 +1806,7 @@ var __meta__ = { // jshint ignore:line
                         groupLevelMember = groupLevel[i];
                         numberOfChildren = groupLevelMember[nestedMember].length;
 
-                        if(numberOfChildren > resourceIndex - passedChildren) {
+                        if (numberOfChildren > resourceIndex - passedChildren) {
                             this._setResourceValue(groupLevelMember, resource, result);
 
                             i = groupLevel.length;
@@ -1834,7 +1834,7 @@ var __meta__ = { // jshint ignore:line
             this._resizeHint = $();
         },
 
-        _removeMoveHint: function (uid) {
+        _removeMoveHint: function(uid) {
             if (uid) {
                 this._moveHint.filter("[data-uid='" + uid + "']").remove();
 
@@ -1873,7 +1873,7 @@ var __meta__ = { // jshint ignore:line
             var eventBackground = element.css("background-color");
             var eventBackgroundIsDark = new Color(eventBackground).isDark();
 
-            if(eventColorIsDark == eventBackgroundIsDark) {
+            if (eventColorIsDark == eventBackgroundIsDark) {
                 element.addClass(INVERSE_COLOR_CLASS);
             }
         },
@@ -1981,7 +1981,7 @@ var __meta__ = { // jshint ignore:line
             var columnLevels = this.columnLevels = levels(layout, "columns");
             var rowLevels = this.rowLevels = levels(layout, "rows");
 
-            if(this._isVirtualized()) {
+            if (this._isVirtualized()) {
                 this._trimRowLevels(rowLevels);
             }
 
@@ -1993,28 +1993,28 @@ var __meta__ = { // jshint ignore:line
             this.table.find("tbody").first().append(this._bottomSection(columnLevels, rowLevels, rowCount));
             this.element.append(this.table);
 
-            if(this._isVirtualized()) {
+            if (this._isVirtualized()) {
                 this._updateDomRowLevels();
             }
 
             // Enable horizontal scrolling when mobile, grouped and less than 1024px width
-            if(this._isMobile() &&
+            if (this._isMobile() &&
                     columnLevels.length > 1 &&
                     this._groupOrientation() === "horizontal" &&
-                    kendo._outerWidth($(window)) < MIN_HORIZONTAL_SCROLL_SIZE ){
+                    kendo._outerWidth($(window)) < MIN_HORIZONTAL_SCROLL_SIZE ) {
 
-                this.table.find(".k-scheduler-content .k-scheduler-table").width((columnLevels[columnLevels.length - 2].length * 100)  + "%");
+                this.table.find(".k-scheduler-content .k-scheduler-table").width((columnLevels[columnLevels.length - 2].length * 100) + "%");
                 this.table.find(".k-scheduler-header .k-scheduler-table").width((columnLevels[columnLevels.length - 2].length * 100) + "%");
             }
 
             this._scroller();
         },
 
-        _isVirtualized: function () {
+        _isVirtualized: function() {
             return this.options.virtual && this.rowLevels.length > 1 && this._isVerticallyGrouped();
         },
 
-        _trimRowLevels: function (rowLevels){
+        _trimRowLevels: function(rowLevels) {
             var lastGroup = rowLevels[rowLevels.length - 2];
             var cachedRowLevels = this.cachedRowLevels || [];
             var levelMarker;
@@ -2022,7 +2022,7 @@ var __meta__ = { // jshint ignore:line
             this._hasContentToRender = true;
 
             var stopAtLevel = function(levels, index) {
-                var hasParent  = levels[index - 1].length > 0,
+                var hasParent = levels[index - 1].length > 0,
                 parentLevel, parentValue;
 
                 if (hasParent) {
@@ -2037,18 +2037,18 @@ var __meta__ = { // jshint ignore:line
 
             for (var rowLevelIndex = rowLevels.length - 2; rowLevelIndex >= 0; rowLevelIndex--) {
                 var stop = false;
-                if(rowLevelIndex > 0 && stopAtLevel(rowLevels, rowLevelIndex)) {
+                if (rowLevelIndex > 0 && stopAtLevel(rowLevels, rowLevelIndex)) {
                     stop = true;
                     levelMarker = rowLevelIndex;
                 }
 
                 cachedRowLevels[rowLevelIndex] = rowLevels[rowLevelIndex].splice(1);
 
-                if(rowLevelIndex < rowLevels.length - 2 && rowLevels[rowLevelIndex][0].rows.length != 1) {
+                if (rowLevelIndex < rowLevels.length - 2 && rowLevels[rowLevelIndex][0].rows.length != 1) {
                     rowLevels[rowLevelIndex][0].rows = rowLevels[rowLevelIndex + 1];
                 }
 
-                if(stop) {
+                if (stop) {
                     break;
                 }
             }
@@ -2057,7 +2057,7 @@ var __meta__ = { // jshint ignore:line
 
             this.cachedRowLevels = cachedRowLevels;
 
-            if(!cachedRowLevels[cachedRowLevels.length - 1].length) {
+            if (!cachedRowLevels[cachedRowLevels.length - 1].length) {
                 this._hasContentToRender = false;
             }
 
@@ -2067,7 +2067,7 @@ var __meta__ = { // jshint ignore:line
             };
         },
 
-        createNextLayout: function (){
+        createNextLayout: function() {
             var clone = [];
             var trimmedRowLevels;
             var rowLevels;
@@ -2095,7 +2095,7 @@ var __meta__ = { // jshint ignore:line
 
             this._updateDomRowLevels();
 
-            if(levelMarker > 0) {
+            if (levelMarker > 0) {
                 for (i = 0; i < levelMarker; i++) {
                     var cell = this.table.find("[data-row-level=" + i + "]").last();
                     var rowSpan = parseInt(cell.attr("rowspan"),10) + rowCount;
@@ -2107,24 +2107,24 @@ var __meta__ = { // jshint ignore:line
             this.render(this._cachedEvents);
         },
 
-        _tryRenderContent: function (){
+        _tryRenderContent: function() {
             var that = this;
             var bufferHeight = that.table.innerHeight();
             var height = that.content.find("table").innerHeight();
             var scrollTop = that.content.scrollTop();
 
-            while(that._hasContentToRender && height - bufferHeight < scrollTop) {
+            while (that._hasContentToRender && height - bufferHeight < scrollTop) {
                 that.createNextLayout();
                 height = that.content.find("table").innerHeight();
             }
         },
 
-        _updateDomRowLevels: function () {
+        _updateDomRowLevels: function() {
             var that = this;
             var groupCells = that.times.find(".k-scheduler-group-cell:not([data-row-level])");
 
-            if(!this._rowLevelIndices) {
-                this._rowLevelIndices = groupCells.map(function(index, item){
+            if (!this._rowLevelIndices) {
+                this._rowLevelIndices = groupCells.map(function(index, item) {
                     $(item).attr("data-row-level", index);
                     return index;
                 }).toArray().reverse();
@@ -2133,7 +2133,7 @@ var __meta__ = { // jshint ignore:line
 
             groupCells = groupCells.toArray().reverse();
 
-            for(var i = 0; i <= groupCells.length; i++) {
+            for (var i = 0; i <= groupCells.length; i++) {
                 $(groupCells[i]).attr("data-row-level", this._rowLevelIndices[i]);
             }
         },
@@ -2240,7 +2240,7 @@ var __meta__ = { // jshint ignore:line
                 dateGroup.closest("tr").addClass("k-scheduler-date-group");
             }
 
-            if (this._isMobile())  {
+            if (this._isMobile()) {
                 thElm.addClass("k-mobile-header");
                 thElm.addClass("k-mobile-" + this._groupOrientation() + "-header");
             }
@@ -2259,10 +2259,10 @@ var __meta__ = { // jshint ignore:line
         _scroller: function() {
             var that = this;
 
-            this.content.on("scroll" + NS, function () {
+            this.content.on("scroll" + NS, function() {
                 kendo.scrollLeft(that.datesHeader.find(">.k-scheduler-header-wrap"), this.scrollLeft);
                 that.times.scrollTop(this.scrollTop);
-                if(that._isVirtualized()) {
+                if (that._isVirtualized()) {
                     that._tryRenderContent();
                 }
             });
@@ -2282,7 +2282,7 @@ var __meta__ = { // jshint ignore:line
                 touchScroller.movable.bind("change", function(e) {
                     kendo.scrollLeft(that.datesHeader.find(">.k-scheduler-header-wrap"), -e.sender.x);
                     that.times.scrollTop(-e.sender.y);
-                    if(that._isVirtualized()) {
+                    if (that._isVirtualized()) {
                         that._tryRenderContent();
                     }
                 });
@@ -2442,15 +2442,15 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _eventOptionsForMove: function () {
+        _eventOptionsForMove: function() {
             return {};
         },
 
-        _updateEventForResize: function () {
+        _updateEventForResize: function() {
             return;
         },
 
-        _updateEventForSelection: function (event) {
+        _updateEventForSelection: function(event) {
             return event;
         },
 
@@ -2461,22 +2461,22 @@ var __meta__ = { // jshint ignore:line
                         innerEls = el[type],
                         current, innerCollection, i;
 
-                    if(innerSpan) {
+                    if (innerSpan) {
                         count += innerSpan;
                         return;
                     }
 
-                    if(!innerEls || innerEls.length === 0) {
+                    if (!innerEls || innerEls.length === 0) {
                         count += 1;
                         return;
                     }
 
-                    for(i = 0; i < innerEls.length; i++) {
+                    for (i = 0; i < innerEls.length; i++) {
                         current = innerEls[i];
                         innerCollection = current[type];
 
-                        if(innerCollection && innerCollection[0]) {
-                            if(!innerCollection[0][type] || innerCollection[0][type].length === 0) {
+                        if (innerCollection && innerCollection[0]) {
+                            if (!innerCollection[0][type] || innerCollection[0][type].length === 0) {
                                 count += innerCollection.length;
                             } else {
                                 countInner(current);
@@ -2546,7 +2546,7 @@ var __meta__ = { // jshint ignore:line
                     var column = level[columnIndex];
                     var colspan = that._innerElements(column, "columns", "colspan");
 
-                    th.push('<th colspan="' + (column.colspan || colspan) + '" class="' + (column.className || "")  + '">' + column.text + "</th>");
+                    th.push('<th colspan="' + (column.colspan || colspan) + '" class="' + (column.className || "") + '">' + column.text + "</th>");
                 }
 
                 dateTableRows.push(th.join(""));
@@ -2560,7 +2560,7 @@ var __meta__ = { // jshint ignore:line
                 var cellContent = allDaySlot.cellContent;
 
                 for (columnIndex = 0; columnIndex < lastLevel.length; columnIndex++) {
-                    td.push('<td class="' + (lastLevel[columnIndex].className || "")  + '">' + (cellContent ? cellContent(columnIndex) : '&nbsp;') + '</td>');
+                    td.push('<td class="' + (lastLevel[columnIndex].className || "") + '">' + (cellContent ? cellContent(columnIndex) : '&nbsp;') + '</td>');
                 }
 
                 allDayTableRows.push(td.join(""));
@@ -2581,20 +2581,20 @@ var __meta__ = { // jshint ignore:line
                 sameDate = kendo.date.getDate(start).getTime() === kendo.date.getDate(end).getTime(),
                 labelText;
 
-            if(typeof(labelMessages) === "string") {
+            if (typeof(labelMessages) === "string") {
                 return kendo.format(labelMessages, title, start, start);
             }
 
             labelText = (labelMessages.prefix + SPACE + title + SPACE + labelMessages.on + SPACE + kendo.toString(start, "D")).trim();
 
-            if(isAllDay && sameDate) {
+            if (isAllDay && sameDate) {
                 return labelText + SPACE + labelMessages.allDay;
-            } else if(isAllDay) {
+            } else if (isAllDay) {
                 return labelText + SPACE + labelMessages.to + SPACE + kendo.toString(end, "D") + SPACE + labelMessages.allDay;
             } else {
                 labelText = labelText + SPACE + labelMessages.at + SPACE + kendo.toString(start, "t") + SPACE + labelMessages.to + SPACE;
 
-                if(sameDate) {
+                if (sameDate) {
                     return labelText + kendo.toString(end, "t");
                 } else {
                     return labelText + kendo.toString(end, "D") + SPACE + labelMessages.at + SPACE + kendo.toString(end, "t");
@@ -2610,7 +2610,7 @@ var __meta__ = { // jshint ignore:line
             overlaps,
             endIndex;
 
-        for (idx = elements.length-1; idx >= 0; idx--) {
+        for (idx = elements.length - 1; idx >= 0; idx--) {
             index = rangeIndex(elements[idx]);
             startIndex = index.start;
             endIndex = index.end;
@@ -2821,7 +2821,7 @@ var __meta__ = { // jshint ignore:line
                 className: className
             };
 
-            if(times && !item.minorTicks){
+            if (times && !item.minorTicks) {
                 obj[name] = createDateLayoutConfiguration(name, item.columns, inner, times);
             } else {
                 obj[name] = inner;
@@ -2913,5 +2913,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

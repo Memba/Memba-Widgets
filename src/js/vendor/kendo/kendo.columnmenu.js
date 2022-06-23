@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.columnmenu',[ "kendo.popup", "kendo.filtermenu", "kendo.menu", "kendo.expansionpanel" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "columnmenu",
@@ -34,7 +34,7 @@ var __meta__ = { // jshint ignore:line
         OPEN = "open",
         SELECT = "select",
         STICK = "stick",
-        UNSTICK= "unstick",
+        UNSTICK = "unstick",
         POPUP = "kendoPopup",
         FILTERMENU = "kendoFilterMenu",
         MENU = "kendoMenu",
@@ -329,20 +329,20 @@ var __meta__ = { // jshint ignore:line
             };
 
             that.wrapper.find(".k-columns-item")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title:'<span class="k-icon k-i-columns"></span><span>' + options.messages.columns + '</span>'
+                title: '<span class="k-icon k-i-columns"></span><span>' + options.messages.columns + '</span>'
             }));
             that.wrapper.find(".k-column-menu-filter")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title:'<span class="k-icon k-i-filter"></span><span>' + options.messages.filter + '</span>'
+                title: '<span class="k-icon k-i-filter"></span><span>' + options.messages.filter + '</span>'
             }));
             that.wrapper.find(".k-column-menu-position")[EXPANSIONPANEL]($.extend(true, {}, expanderOptions,{
-                title:'<span class="k-icon k-i-set-column-position"></span><span>' + options.messages.setColumnPosition + '</span>'
+                title: '<span class="k-icon k-i-set-column-position"></span><span>' + options.messages.setColumnPosition + '</span>'
             }));
         },
 
-        _syncMenuCols: function (menuCols, ownerCols) {
+        _syncMenuCols: function(menuCols, ownerCols) {
             var length = ownerCols.length;
             var ownerCol;
-            var menuColsFields = menuCols.map(function (col) {
+            var menuColsFields = menuCols.map(function(col) {
                 return col.field;
             });
 
@@ -354,7 +354,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _flattenMenuCols: function (cols) {
+        _flattenMenuCols: function(cols) {
             var result = [];
             var length = cols.length;
 
@@ -492,11 +492,11 @@ var __meta__ = { // jshint ignore:line
 
         _angularItems: function(action) {
             var that = this;
-            that.angular(action, function(){
-                var items = that.wrapper.find(".k-columns-item input[" + kendo.attr("field") + "]").map(function(){
+            that.angular(action, function() {
+                var items = that.wrapper.find(".k-columns-item input[" + kendo.attr("field") + "]").map(function() {
                     return $(this).closest("li");
                 });
-                var data = map(that._ownerColumns(), function(col){
+                var data = map(that._ownerColumns(), function(col) {
                     return { column: col._originalObject };
                 });
                 return {
@@ -624,7 +624,7 @@ var __meta__ = { // jshint ignore:line
             that._updateDataIndexes();
         },
 
-        _updateDataIndexes: function () {
+        _updateDataIndexes: function() {
             var that = this;
             var renderedList = that._isMobile && that.view ?
                 $(that.view.element).find(".k-columns-item").children("ul") :
@@ -634,7 +634,7 @@ var __meta__ = { // jshint ignore:line
                 });
 
             renderedList.find("span." + (this._isMobile ? "k-listgroup-form-field-wrapper" : "k-menu-link") +
-                " input").each(function (i) {
+                " input").each(function(i) {
                 var columns;
                 var index;
                 if (that.options.columns.sort) {
@@ -663,7 +663,7 @@ var __meta__ = { // jshint ignore:line
 
                 return result;
             }).map(function(col) {
-                return  {
+                return {
                      field: col.field,
                      title: col.title,
                      matchesMedia: col.matchesMedia
@@ -737,7 +737,7 @@ var __meta__ = { // jshint ignore:line
         _activate: function() {
             if (this.menu) {
                 this.menu.element.trigger("focus");
-            } else{
+            } else {
                 this.popup.element.find('[tabindex=0]').eq(0).trigger("focus");
             }
 
@@ -854,7 +854,7 @@ var __meta__ = { // jshint ignore:line
                 }
                 sort.push({ field: that.field, dir: dir, compare: compare });
             } else {
-                sort = [ { field: that.field, dir: dir, compare: compare} ];
+                sort = [ { field: that.field, dir: dir, compare: compare } ];
             }
 
             dataSource.sort(sort);
@@ -876,11 +876,11 @@ var __meta__ = { // jshint ignore:line
                 that.owner.bind(["columnUnlock", "columnLock" ], that._updateColumnsLockedStateHandler);
 
                 if (that._isModernComponentType()) {
-                    that.wrapper.on("click" + NS, '.k-columns-item .k-button:not(.k-button-solid-primary)', function () {
+                    that.wrapper.on("click" + NS, '.k-columns-item .k-button:not(.k-button-solid-primary)', function() {
                         that._updateColumnsMenu();
                     });
                     that.wrapper.on("click" + NS, '.k-columns-item .k-button.k-button-solid-primary', that._applyColumnVisibility.bind(that));
-                    that.wrapper.on("click" + NS, '.k-columns-item .k-checkbox', function () {
+                    that.wrapper.on("click" + NS, '.k-columns-item .k-checkbox', function() {
                         that._updateColumnsMenu(true);
                     });
                 } else {
@@ -914,7 +914,7 @@ var __meta__ = { // jshint ignore:line
                             return;
                         }
 
-                        colIdx = columns.map(function (col) {
+                        colIdx = columns.map(function(col) {
                             return col.headerAttributes.id;
                         }).indexOf(input.attr(uidAttr));
                         column = columns[colIdx];
@@ -929,7 +929,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _applyColumnVisibility: function () {
+        _applyColumnVisibility: function() {
             var that = this;
             var fieldAttr = kendo.attr("field");
             var uidAttr = kendo.attr("uid");
@@ -955,7 +955,7 @@ var __meta__ = { // jshint ignore:line
 
             for (idx = 0; idx < length; idx++) {
                 checkbox = $(checkboxes[idx]);
-                colIdx = columnsInMenu.map(function (col) {
+                colIdx = columnsInMenu.map(function(col) {
                     return col.headerAttributes.id;
                 }).indexOf(checkbox.attr(uidAttr));
                 column = columnsInMenu[colIdx];
@@ -1033,7 +1033,7 @@ var __meta__ = { // jshint ignore:line
                 locked = current.attr(lockedAttr) === "true";
                 checked = false;
                 switchWidget = current.data("kendoSwitch");
-                colIdx = columnsInMenu.map(function (col) {
+                colIdx = columnsInMenu.map(function(col) {
                     return col.headerAttributes.id;
                 }).indexOf(current.attr(uidAttr));
 
@@ -1056,7 +1056,7 @@ var __meta__ = { // jshint ignore:line
                         }
                     }
 
-                    if ((columnsNotInMenu.length === 0 || (columnsNotInMenu.length ===  hiddenColumnsNotInMenu.length)) && nonLockedCount == 1 && !locked) {
+                    if ((columnsNotInMenu.length === 0 || (columnsNotInMenu.length === hiddenColumnsNotInMenu.length)) && nonLockedCount == 1 && !locked) {
                         current.prop("disabled", true);
 
                         if (switchWidget) {
@@ -1169,7 +1169,7 @@ var __meta__ = { // jshint ignore:line
 
         _stickableHandler: function(e) {
             var that = this;
-            var item = e.item ? $(e.item) :$(e.target);
+            var item = e.item ? $(e.item) : $(e.target);
             var field = that.field;
             var columns = that.owner.columns;
             var column = grep(columns, function(column) {
@@ -1234,7 +1234,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             var sticky = column.sticky === true;
-            var stickable  = column.stickable  === true;
+            var stickable = column.stickable === true;
             var locked = column.locked === true;
             var length = grep(columns, function(column) {
                 return !column.hidden && ((column.locked && locked) || (!column.locked && !locked));
@@ -1297,7 +1297,7 @@ var __meta__ = { // jshint ignore:line
         }
     });
 
-    var modernTemplate =    '#if(sortable){#'+
+    var modernTemplate = '#if(sortable){#' +
                                 '<div class="k-columnmenu-item-wrapper">' +
                                     '<div>' +
                                         '<div class="k-columnmenu-item k-sort-asc" tabindex="0">' +
@@ -1310,22 +1310,22 @@ var __meta__ = { // jshint ignore:line
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
-                            '#}#'+
-                            '#if(showColumns){#'+
+                            '#}#' +
+                            '#if(showColumns){#' +
                                 '<div class="k-columnmenu-item-wrapper">' +
                                     '<div>' +
                                         '<div class="k-columnmenu-item-content k-columns-item">' +
-                                            '<div class="k-column-list-wrapper">'+
+                                            '<div class="k-column-list-wrapper">' +
                                                 '<div class="k-column-list" role="menu">' +
-                                                '#for (var idx = 0; idx < columns.length; idx++) {#'+
+                                                '#for (var idx = 0; idx < columns.length; idx++) {#' +
                                                     '#if(columns[idx].groupHeader){#' +
-                                                        '<span class="k-column-menu-group-header"><span class="k-column-menu-group-header-text">#=columns[idx].title#</span></span>'+
+                                                        '<span class="k-column-menu-group-header"><span class="k-column-menu-group-header-text">#=columns[idx].title#</span></span>' +
                                                     '#} else {#' +
-                                                        '<label class="k-column-list-item" role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input class="k-checkbox k-checkbox-md k-rounded-md" type="checkbox" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/><span class="k-checkbox-label"> #=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</span></label>'+
-                                                    '#}#'+
-                                                '#}#'+
+                                                        '<label class="k-column-list-item" role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input class="k-checkbox k-checkbox-md k-rounded-md" type="checkbox" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/><span class="k-checkbox-label"> #=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</span></label>' +
+                                                    '#}#' +
+                                                '#}#' +
                                                 '</div>' +
-                                            '</div>'+
+                                            '</div>' +
                                             '<div class="k-columnmenu-actions">' +
                                                 '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base" type="button">${messages.reset}</button>' +
                                                 '<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary" type="button">${messages.apply}</button>' +
@@ -1333,82 +1333,82 @@ var __meta__ = { // jshint ignore:line
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
-                            '#}#'+
-                            '#if(filterable){#'+
+                            '#}#' +
+                            '#if(filterable){#' +
                                 '<div class="k-columnmenu-item-wrapper">' +
                                     '<div class="k-columnmenu-item-content k-column-menu-filter">' +
                                         '<div class="k-filterable"></div>' +
                                     '</div>' +
                                 '</div>' +
-                            '#}#'+
-                            '#if(hasLockableColumns || hasStickableColumns){#'+
+                            '#}#' +
+                            '#if(hasLockableColumns || hasStickableColumns){#' +
                                 '<div class="k-columnmenu-item-wrapper">' +
                                     '<div class="k-column-menu-position">' +
-                                        '#if(hasLockableColumns){#'+
+                                        '#if(hasLockableColumns){#' +
                                             '<div class="k-columnmenu-item k-lock" tabindex="0">' +
                                                 '<span class="k-icon k-i-lock"></span>${messages.lock}' +
                                             '</div>' +
                                             '<div class="k-columnmenu-item k-unlock" tabindex="0">' +
                                                 '<span class="k-icon k-i-unlock"></span>${messages.unlock}' +
                                             '</div>' +
-                                        '#}#'+
-                                        '#if(hasStickableColumns){#'+
+                                        '#}#' +
+                                        '#if(hasStickableColumns){#' +
                                             '<div class="k-columnmenu-item k-stick" tabindex="0">' +
                                                 '<span class="k-icon k-i-stick"></span>${messages.stick}' +
                                             '</div>' +
                                             '<div class="k-columnmenu-item k-unstick" tabindex="0">' +
                                                 '<span class="k-icon k-i-unstick"></span>${messages.unstick}' +
                                             '</div>' +
-                                        '#}#'+
+                                        '#}#' +
                                     '</div>' +
                                 '</div>' +
                             '#}#';
 
-    var template = '<ul id="#=uid#">'+
-                          '#if(sortable){#'+
-                              '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-menu-link-text">${messages.sortAscending}</span></span></li>'+
-                              '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-menu-link-text">${messages.sortDescending}</span></span></li>'+
-                              '#if(showColumns || filterable){#'+
-                                  '<li class="k-separator k-menu-separator" role="presentation"></li>'+
-                              '#}#'+
-                          '#}#'+
-                          '#if(showColumns){#'+
-                              '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span><span class="k-menu-link-text">${messages.columns}</span></span><ul>'+
-                              '#for (var idx = 0; idx < columns.length; idx++) {#'+
+    var template = '<ul id="#=uid#">' +
+                          '#if(sortable){#' +
+                              '<li class="k-item k-menu-item k-sort-asc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-asc-sm"></span><span class="k-menu-link-text">${messages.sortAscending}</span></span></li>' +
+                              '<li class="k-item k-menu-item k-sort-desc"><span class="k-link k-menu-link"><span class="k-icon k-i-sort-desc-sm"></span><span class="k-menu-link-text">${messages.sortDescending}</span></span></li>' +
+                              '#if(showColumns || filterable){#' +
+                                  '<li class="k-separator k-menu-separator" role="presentation"></li>' +
+                              '#}#' +
+                          '#}#' +
+                          '#if(showColumns){#' +
+                              '<li class="k-item k-menu-item k-columns-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-columns"></span><span class="k-menu-link-text">${messages.columns}</span></span><ul>' +
+                              '#for (var idx = 0; idx < columns.length; idx++) {#' +
                                   '#if(columns[idx].groupHeader){#' +
-                                      '<li class="k-column-menu-group-header" #=omitWrapAttribute#="true" ><span class="k-column-menu-group-header-text">#=columns[idx].title#</span></li>'+
+                                      '<li class="k-column-menu-group-header" #=omitWrapAttribute#="true" ><span class="k-column-menu-group-header-text">#=columns[idx].title#</span></li>' +
                                   '#} else {#' +
-                                      '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</li>'+
-                                  '#}#'+
-                              '#}#'+
-                              '</ul></li>'+
-                              '#if(filterable || hasLockableColumns || hasStickableColumns){#'+
-                                  '<li class="k-separator k-menu-separator" role="presentation"></li>'+
-                              '#}#'+
-                          '#}#'+
-                          '#if(filterable){#'+
-                              '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span><span class="k-menu-link-text">${messages.filter}</span></span><ul>'+
-                                  '<li><div class="k-filterable"></div></li>'+
-                              '</ul></li>'+
-                              '#if(hasLockableColumns || hasStickableColumns){#'+
-                                  '<li class="k-separator k-menu-separator" role="presentation"></li>'+
-                              '#}#'+
-                          '#}#'+
-                          '#if(hasLockableColumns || hasStickableColumns){#'+
-                              '<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span><span class="k-menu-link-text">${messages.setColumnPosition}</span></span><ul>'+
-                                  '#if(hasLockableColumns){#'+
-                                      '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span><span class="k-menu-link-text">${messages.lock}</span></span></li>'+
-                                      '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span><span class="k-menu-link-text">${messages.unlock}</span></span></li>'+
-                                      '#if(hasStickableColumns){#'+
-                                          '<li class="k-separator k-menu-separator" role="presentation"></li>'+
-                                      '#}#'+
-                                  '#}#'+
-                                  '#if(hasStickableColumns){#'+
-                                      '<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span><span class="k-menu-link-text">${messages.stick}</span></span></li>'+
-                                      '<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span><span class="k-menu-link-text">${messages.unstick}</span></span></li>'+
-                                  '#}#'+
-                              '</ul></li>'+
-                          '#}#'+
+                                      '<li role="menuitemcheckbox" aria-checked="false" #=columns[idx].matchesMedia === false ? "style=\'display:none;\'" : ""#><input type="checkbox" class="k-checkbox k-checkbox-md k-rounded-md" title="#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#" data-#=ns#field="#=columns[idx].field.replace(/\"/g,"&\\#34;")#" data-#=ns#index="#=columns[idx].index#" data-#=ns#locked="#=columns[idx].locked#" data-#=ns#uid="#=columns[idx].uid#"/>#=encodeTitles ? kendo.htmlEncode(columns[idx].title) : columns[idx].title#</li>' +
+                                  '#}#' +
+                              '#}#' +
+                              '</ul></li>' +
+                              '#if(filterable || hasLockableColumns || hasStickableColumns){#' +
+                                  '<li class="k-separator k-menu-separator" role="presentation"></li>' +
+                              '#}#' +
+                          '#}#' +
+                          '#if(filterable){#' +
+                              '<li class="k-item k-menu-item k-filter-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-filter"></span><span class="k-menu-link-text">${messages.filter}</span></span><ul>' +
+                                  '<li><div class="k-filterable"></div></li>' +
+                              '</ul></li>' +
+                              '#if(hasLockableColumns || hasStickableColumns){#' +
+                                  '<li class="k-separator k-menu-separator" role="presentation"></li>' +
+                              '#}#' +
+                          '#}#' +
+                          '#if(hasLockableColumns || hasStickableColumns){#' +
+                              '<li class="k-item k-menu-item k-position-item" aria-haspopup="true"><span class="k-link k-menu-link"><span class="k-icon k-i-set-column-position"></span><span class="k-menu-link-text">${messages.setColumnPosition}</span></span><ul>' +
+                                  '#if(hasLockableColumns){#' +
+                                      '<li class="k-item k-menu-item k-lock"><span class="k-link k-menu-link"><span class="k-icon k-i-lock"></span><span class="k-menu-link-text">${messages.lock}</span></span></li>' +
+                                      '<li class="k-item k-menu-item k-unlock"><span class="k-link k-menu-link"><span class="k-icon k-i-unlock"></span><span class="k-menu-link-text">${messages.unlock}</span></span></li>' +
+                                      '#if(hasStickableColumns){#' +
+                                          '<li class="k-separator k-menu-separator" role="presentation"></li>' +
+                                      '#}#' +
+                                  '#}#' +
+                                  '#if(hasStickableColumns){#' +
+                                      '<li class="k-item k-menu-item k-stick"><span class="k-link k-menu-link"><span class="k-icon k-i-stick"></span><span class="k-menu-link-text">${messages.stick}</span></span></li>' +
+                                      '<li class="k-item k-menu-item k-unstick"><span class="k-link k-menu-link"><span class="k-icon k-i-unstick"></span><span class="k-menu-link-text">${messages.unstick}</span></span></li>' +
+                                  '#}#' +
+                              '</ul></li>' +
+                          '#}#' +
                     '</ul>';
 
     var mobileTemplate =
@@ -1491,9 +1491,9 @@ var __meta__ = { // jshint ignore:line
                                         '</li>' +
                                     '#}#' +
                                     '</ul>' +
-                                '#}#'+
-                            '</li>'+
-                        '#}#'+
+                                '#}#' +
+                            '</li>' +
+                        '#}#' +
                         '<li class="k-item k-clear-wrap">' +
                             '<ul class="k-listgroup k-listgroup-flush">' +
                                 '<li class="k-listgroup-item">' +
@@ -1504,7 +1504,7 @@ var __meta__ = { // jshint ignore:line
                             '</ul>' +
                         '</li>' +
                     '</ul>' +
-                '</div>'+
+                '</div>' +
             '</div>';
 
     var MobileMenu = Widget.extend({
@@ -1711,5 +1711,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

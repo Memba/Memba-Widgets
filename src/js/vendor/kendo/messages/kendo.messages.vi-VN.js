@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -871,10 +871,10 @@ $.extend(true, kendo.spreadsheet.messages.filterMenu,{
       "endswith": "Văn bản kết thúc với"
     },
     "date": {
-      "eq":  "Là ngày",
+      "eq": "Là ngày",
       "neq": "Ngày khác",
-      "lt":  "Này trước đó",
-      "gt":  "Ngày sau đó"
+      "lt": "Này trước đó",
+      "gt": "Ngày sau đó"
     },
     "number": {
       "eq": "Bằng với",
@@ -1063,7 +1063,7 @@ $.extend(true, kendo.ui.TreeView.prototype.options.messages,{
 /* Upload messages */
 
 if (kendo.ui.Upload) {
-kendo.ui.Upload.prototype.options.localization=
+kendo.ui.Upload.prototype.options.localization =
 $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "select": "Lựa chọn tập tin...",
   "cancel": "Hủy",

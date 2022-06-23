@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function (f, define) {
+(function(f, define) {
     define('kendo.mediaplayer',["kendo.slider", "kendo.toolbar", "kendo.dropdownlist", "kendo.tooltip"], f);
-})(function () {
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "mediaplayer",
@@ -18,7 +18,7 @@
         depends: ["slider", "toolbar", "dropdownlist", "tooltip"]
     };
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             END = "end",
             PAUSE = "pause",
@@ -69,7 +69,7 @@
             };
 
         var MediaPlayer = Widget.extend({
-            init: function (element, options) {
+            init: function(element, options) {
                 this.wrapper = $(element);
 
                 Widget.fn.init.call(this, element, options);
@@ -136,18 +136,18 @@
                 }
             },
 
-            _msToTime: function (ms) {
+            _msToTime: function(ms) {
                 var time = new Date(baseTime.getTime());
                 time.setSeconds(ms);
                 return time;
             },
 
-            _timeToSec: function (time) {
+            _timeToSec: function(time) {
                 var curTime = new Date(time).getTime();
                 return curTime / 1000;
             },
 
-            _createTitlebar: function () {
+            _createTitlebar: function() {
                 this._titleBar = this.wrapper.find(DOT + TITLEBAR);
                 if (this._titleBar.length === 0) {
                     this.wrapper.append(templates.titleBar);
@@ -155,7 +155,7 @@
                 }
             },
 
-            _createSlider: function () {
+            _createSlider: function() {
                 var sliderElement = this.wrapper.find(DOT + SLIDER);
                 if (!this._slider) {
                     this._sliderDragChangeHandler = this._sliderDragChange.bind(this);
@@ -176,7 +176,7 @@
                 }
             },
 
-            _createVolumeSlider: function () {
+            _createVolumeSlider: function() {
                 var volumeSliderElement = this.wrapper.find(DOT + VOLUME_SLIDER);
                 if (!this._volumeSlider) {
                     this._volumeDraggingHandler = this._volumeDragging.bind(this);
@@ -197,7 +197,7 @@
                 }
             },
 
-            _resetTime: function () {
+            _resetTime: function() {
                 if (this._youTubeVideo) {
                     this._ytmedia.seekTo(0, true);
                 } else {
@@ -205,19 +205,19 @@
                 }
 
                 this._mediaTimeUpdate();
-                $.grep(this._toolBar.options.items, function (e) { return !!e.template; }).template = templates.toolBarTime;
+                $.grep(this._toolBar.options.items, function(e) { return !!e.template; }).template = templates.toolBarTime;
             },
 
-            _currentUrl: function () {
+            _currentUrl: function() {
                 var media = this.media();
                 return isArray(media.source) ? media.source[this._currentIndex].url : media.source;
             },
 
-            _isYouTubeUrl: function () {
+            _isYouTubeUrl: function() {
                 return !!this._currentUrl().match("youtube.com/|youtu.be/");
             },
 
-            _setPlayerUrl: function () {
+            _setPlayerUrl: function() {
                 var oldPlayer = this._youTubeVideo;
                 this.stop();
 
@@ -261,7 +261,7 @@
                 }
             },
 
-            _createToolbar: function () {
+            _createToolbar: function() {
                 var toolBarElement = this.wrapper.find(DOT + TOOLBAR);
                 if (toolBarElement.length === 0) {
                     this._toolbarClickHandler = this._toolbarClick.bind(this);
@@ -339,7 +339,7 @@
                 }
             },
 
-            _createDropDown: function () {
+            _createDropDown: function() {
                 var dropDownElement = this.wrapper.find(DOT + VIDEO_QUALITY);
                 var media = this.media();
                 if (typeof dropDownElement.data("kendoDropDownList") === "undefined") {
@@ -375,14 +375,14 @@
                 }
             },
 
-            _dropDownSelect: function (e) {
+            _dropDownSelect: function(e) {
                 if (this._currentIndex !== e.item.index()) {
                     this._currentIndex = e.item.index();
                     this._setPlayerUrl();
                 }
             },
 
-            _toolbarClick: function (e) {
+            _toolbarClick: function(e) {
                 var target = $(e.target).children().first();
                 var isPaused = target.hasClass(STATE_PLAY);
 
@@ -419,7 +419,7 @@
                 }
             },
 
-            _sliderDragging: function () {
+            _sliderDragging: function() {
                 if (!this.media()) {
                     return;
                 }
@@ -427,7 +427,7 @@
                 this._isDragging = true;
             },
 
-            _sliderDragChange: function (e) {
+            _sliderDragChange: function(e) {
                 var that = this;
                 var slider = e.sender;
                 var tzOffset = timeZoneSec * 1000;
@@ -440,7 +440,7 @@
                 that._isDragging = false;
 
                 if (!this.options.forwardSeek && slider.value() > this._seekBarLastPosition) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         slider.value(that._seekBarLastPosition);
                     }, 1);
                 } else if (this._youTubeVideo) {
@@ -452,7 +452,7 @@
                 that._preventPlay = true;
             },
 
-            _changeVolumeButtonImage: function (volume) {
+            _changeVolumeButtonImage: function(volume) {
                 var volumeButton = this._volumeButton;
                 var volumeElement = volumeButton.find("span");
                 var cssClass = volumeElement.attr("class");
@@ -473,7 +473,7 @@
                 }
             },
 
-            _volumeDragging: function (e) {
+            _volumeDragging: function(e) {
                 if (!this.media()) {
                     return;
                 }
@@ -482,7 +482,7 @@
                 this.trigger(VOLUMECHANGE);
             },
 
-            _volumeChange: function (e) {
+            _volumeChange: function(e) {
                 if (!this.media()) {
                     return;
                 }
@@ -491,7 +491,7 @@
                 this.trigger(VOLUMECHANGE);
             },
 
-            _mediaTimeUpdate: function () {
+            _mediaTimeUpdate: function() {
                 var currentTime = (this._youTubeVideo) ? this._ytmedia.getCurrentTime() : this._media.currentTime;
                 currentTime = currentTime ? currentTime : 0;
                 var timeInMs = this._msToTime(currentTime);
@@ -504,7 +504,7 @@
                 return this.isPlaying();
             },
 
-            _playStateToggle: function (play) {
+            _playStateToggle: function(play) {
                 if (typeof play === "undefined") {
                     play = this._playButtonSpan.is(DOT + STATE_PLAY);
                 }
@@ -525,22 +525,22 @@
                 }
             },
 
-            _mediaEnded: function () {
+            _mediaEnded: function() {
                 this._playStateToggle(false);
                 this._currentTimeElement.text(kendo.toString(this._msToTime(0), this._timeFormat));
                 this._slider.value((0 + timeZoneSec) * 1000);
                 this.trigger(END);
             },
 
-            _mediaPlay: function () {
+            _mediaPlay: function() {
                 this.trigger(PLAY);
             },
 
-            _mediaReady: function () {
+            _mediaReady: function() {
                 this.trigger(READY);
             },
 
-            _mediaDurationChange: function () {
+            _mediaDurationChange: function() {
                 var durationTime = this._msToTime((this._youTubeVideo) ? this._ytmedia.getDuration() : this._media.duration);
 
                 this._timeFormat = durationTime.getHours() === 0 ? timeFormats.shortTime : timeFormats.longTime;
@@ -557,7 +557,7 @@
                 }
             },
 
-            _createYoutubePlayer: function () {
+            _createYoutubePlayer: function() {
                 this._mediaTimeUpdateHandler = this._mediaTimeUpdate.bind(this);
                 this._mediaDurationChangeHandler = this._mediaDurationChange.bind(this);
 
@@ -574,7 +574,7 @@
                         window.onYouTubeIframeAPIReadyRegister = [];
                         $.getScript("https://www.youtube.com/iframe_api");
                         window.onYouTubeIframeAPIReady =
-                            function () {
+                            function() {
                                 if (window.onYouTubeIframeAPIReadyRegister) {
                                     for (var i = 0; i < window.onYouTubeIframeAPIReadyRegister.length; i++) {
                                         window.onYouTubeIframeAPIReadyRegister[i]._youtubeApiReady();
@@ -591,14 +591,14 @@
                 }
             },
 
-            _poll: function (name, callback, interval, context) {
+            _poll: function(name, callback, interval, context) {
                 var that = this;
 
                 if (that._timers[name] !== null) {
                     clearTimeout(that._timers[name]);
                 }
 
-                that._timers[name] = setTimeout((function (context) {
+                that._timers[name] = setTimeout((function(context) {
                     return function callLater() {
                         if (callback.call(context)) {
                             that._timers[name] = setTimeout(callLater, interval);
@@ -609,11 +609,11 @@
                 return that._timers[name];
             },
 
-            _youtubeApiReady: function () {
+            _youtubeApiReady: function() {
                 this._configurePlayer();
             },
 
-            _configurePlayer: function () {
+            _configurePlayer: function() {
                 var vars = {
                     'autoplay': +this.options.autoPlay,
                     'wmode': 'transparent',
@@ -640,7 +640,7 @@
                 });
             },
 
-            _onYouTubePlayerReady: function (event) {
+            _onYouTubePlayerReady: function(event) {
                 this._ytmedia = event.target;
                 this._ytmedia.getIframe().style.width = "100%";
                 this._ytmedia.getIframe().style.height = "100%";
@@ -662,11 +662,11 @@
                 this.trigger(READY);
             },
 
-            _updateTitle: function () {
+            _updateTitle: function() {
                 this.titlebar().text(this.media().title || this.media().source);
             },
 
-            _onPlayerStateChange: function (event) {
+            _onPlayerStateChange: function(event) {
 
                 if (event.data === 0) {
                     this._slider.value(0);
@@ -701,7 +701,7 @@
                 }
             },
 
-            _getMediaId: function () {
+            _getMediaId: function() {
                 var result = this._currentUrl();
                 var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
                 var match = result.match(regExp);
@@ -713,7 +713,7 @@
                 return result;
             },
 
-            _mouseClick: function () {
+            _mouseClick: function() {
                 if (this.isPaused()) {
                     this.play();
                 } else {
@@ -721,7 +721,7 @@
                 }
             },
 
-            _initializePlayer: function () {
+            _initializePlayer: function() {
                 if (!this._mouseMoveHandler) {
                     this._mouseMoveHandler = this._mouseMove.bind(this);
                     this._mouseInHandler = this._mouseIn.bind(this);
@@ -741,7 +741,7 @@
                 }
             },
 
-            _createHtmlPlayer: function () {
+            _createHtmlPlayer: function() {
                 if (!this._videoOverlay) {
                     this._mouseClickHanlder = this._mouseClick.bind(this);
                     this.wrapper.append("<div class='" + OVERLAY + "'></div>");
@@ -774,27 +774,27 @@
                 this._media.loop = this.options.autoRepeat;
             },
 
-            _mouseIn: function () {
+            _mouseIn: function() {
                 this._uiDisplay(true);
             },
 
-            _mouseOut: function () {
+            _mouseOut: function() {
                 this._poll("mouseIdle", this._mouseIdle, 3000, this);
             },
 
-            _mouseIdle: function () {
+            _mouseIdle: function() {
                 this._uiDisplay(false);
                 return false;
             },
 
-            _mouseMove: function () {
+            _mouseMove: function() {
                 if (!(this._titleBar.is(':animated') || this._toolBar.element.is(':animated') || this._slider.wrapper.is(':animated'))) {
                     this._uiDisplay(true);
                 }
                 this._poll("mouseIdle", this._mouseIdle, 3000, this);
             },
 
-            _uiDisplay: function (state) {
+            _uiDisplay: function(state) {
                 var animationSpeed = 'slow';
                 var uiElements = this._titleBar
                     .add(this._toolBar.element.parent());
@@ -810,11 +810,11 @@
                 }
             },
 
-            setOptions: function (options) {
+            setOptions: function(options) {
                 Widget.fn.setOptions.call(this, options);
             },
 
-            destroy: function () {
+            destroy: function() {
                 Widget.fn.destroy.call(this);
 
                 if (!this.isPaused()) {
@@ -860,7 +860,7 @@
                 kendo.destroy(this.element);
             },
 
-            seek: function (ms) {
+            seek: function(ms) {
                 if (typeof ms === 'undefined') {
                     return 1000 * (this._youTubeVideo) ? this._ytmedia.getCurrentTime() : (this._media ? this._media.currentTime : 0);
                 }
@@ -879,7 +879,7 @@
                 return this;
             },
 
-            play: function () {
+            play: function() {
                 if (this._youTubeVideo) {
                     this._ytmedia.playVideo();
                 } else {
@@ -895,7 +895,7 @@
                 return this;
             },
 
-            stop: function () {
+            stop: function() {
                 if (this._youTubeVideo && this._ytmedia) {
                     this._ytmedia.stopVideo();
                 } else if (this._media && !this._youTubeVideo) {
@@ -911,7 +911,7 @@
                 return this;
             },
 
-            pause: function () {
+            pause: function() {
                 if (this._youTubeVideo) {
                     this._ytmedia.pauseVideo();
                 } else {
@@ -926,19 +926,19 @@
                 return this;
             },
 
-            toolbar: function () {
+            toolbar: function() {
                 return this._toolBar;
             },
 
-            dropdown: function () {
+            dropdown: function() {
                 return this._dropDown;
             },
 
-            titlebar: function () {
+            titlebar: function() {
                 return this._titleBar;
             },
 
-            fullScreen: function (enterFullScreen) {
+            fullScreen: function(enterFullScreen) {
                 if (typeof enterFullScreen === 'undefined') {
                     return this._isInFullScreen || false;
                 }
@@ -978,7 +978,7 @@
                 this._slider.resize();
             },
 
-            volume: function (value) {
+            volume: function(value) {
                 if (typeof value === 'undefined') {
                     return (typeof this._volume !== 'undefined') ? this._volume : this._volume = this.options.volume;
                 }
@@ -994,7 +994,7 @@
                 this._volumeSlider.value(value);
             },
 
-            mute: function (muted) {
+            mute: function(muted) {
                 var currentState = this._youTubeVideo ? (this._ytmedia && this._ytmedia.isMuted()) : (this._media && this._media.muted);
                 if (typeof muted === 'undefined' || muted === currentState) {
                     return currentState;
@@ -1021,7 +1021,7 @@
                 this._changeVolumeButtonImage(this._volumeSlider.value());
             },
 
-            isEnded: function () {
+            isEnded: function() {
                 if (this._youTubeVideo) {
                     return this._ytmedia.getPlayerState() === 0;
                 } else {
@@ -1029,7 +1029,7 @@
                 }
             },
 
-            media: function (value) {
+            media: function(value) {
                 var dropdown = this.dropdown();
                 if (typeof value === 'undefined') {
                     return (typeof this._mediaData !== 'undefined') ? this._mediaData : this._mediaData = this.options.media;
@@ -1050,21 +1050,21 @@
                 this._setPlayerUrl();
             },
 
-            isPaused: function () {
+            isPaused: function() {
                 return this._paused;
             },
 
-            isPlaying: function () {
+            isPlaying: function() {
                 return !this.isEnded() && !this._paused;
             },
 
-            _aria: function () {
+            _aria: function() {
                 this.wrapper.attr("role", "region");
                 //this.wrapper.attr("aria-labelledby", "mediaplayerTitleBar");
                 //add onfocus with aria active descendant
             },
 
-            _navigatable: function () {
+            _navigatable: function() {
                 this._fullscreenHandler = this._fullscreen.bind(this);
                 $(document)
                     .on("webkitfullscreenchange mozfullscreenchange fullscreenchange" + ns, this._fullscreenHandler);
@@ -1077,7 +1077,7 @@
                 }
             },
 
-            _fullscreen: function () {
+            _fullscreen: function() {
                 var isFullScreen = document.fullScreen ||
                     document.mozFullScreen ||
                     document.webkitIsFullScreen;
@@ -1093,7 +1093,7 @@
                 }
             },
 
-            _keyDown: function (e) {
+            _keyDown: function(e) {
                 e.preventDefault();
                 var fsButton = this.wrapper.find('span[class*="k-i-fullscreen"]');
                 if (e.keyCode === keys.SPACEBAR) {
@@ -1122,10 +1122,10 @@
                 }
             },
 
-            _error: function () {
+            _error: function() {
             },
 
-            _progress: function () {
+            _progress: function() {
             }
 
         });
@@ -1136,5 +1136,5 @@
 
     return window.kendo;
 
-}, typeof define === 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
+}, typeof define === 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

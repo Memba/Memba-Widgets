@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.gantt.timeline',[ "kendo.dom", "kendo.touch", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "gantt.timeline",
@@ -275,7 +275,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _adjustHeight: function() {
-            if(this.content){
+            if (this.content) {
                 this.content.height(this.element.height() - outerHeight(this.header));
             }
         },
@@ -285,7 +285,7 @@ var __meta__ = { // jshint ignore:line
             var colgroup = this._colgroup();
             var tree = this._headerTree;
             var header = kendoDomElement("tbody", null, headers);
-            var table = kendoDomElement("table", { style: { width: this._tableWidth + "px"}, role: "presentation" }, [colgroup, header]);
+            var table = kendoDomElement("table", { style: { width: this._tableWidth + "px" }, role: "presentation" }, [colgroup, header]);
 
             tree.render([table]);
 
@@ -392,7 +392,7 @@ var __meta__ = { // jshint ignore:line
 
             row = kendoDomElement("tr", null, cells);
 
-            return this._createTable(totalSpan, [row], { className: styles.columnsTable});
+            return this._createTable(totalSpan, [row], { className: styles.columnsTable });
         },
 
         _tasksTable: function(tasks) {
@@ -439,7 +439,7 @@ var __meta__ = { // jshint ignore:line
 
                 position = this._taskPosition(task);
 
-                if(showPlannedTasks) {
+                if (showPlannedTasks) {
                     plannedPosition = this._taskPositionPlanned(task);
                     plannedPosition.borderWidth = taskBorderWidth;
                 }
@@ -602,7 +602,7 @@ var __meta__ = { // jshint ignore:line
                 taskWrapAttr.style.height = calculatedSize.cell + "px";
             }
 
-            if(plannedPosition) {
+            if (plannedPosition) {
                 if (task.isMilestone()) {
                     plannedElement = this._renderPlannedMilestone(position, plannedPosition);
                 } else {
@@ -611,7 +611,7 @@ var __meta__ = { // jshint ignore:line
 
                 children.push(plannedElement);
 
-                if(isRtl && plannedPosition.left <= position.left) {
+                if (isRtl && plannedPosition.left <= position.left) {
                     taskWrapAttr.style.left = plannedPosition.left + "px";
                 }
             }
@@ -626,14 +626,14 @@ var __meta__ = { // jshint ignore:line
                 taskElement = this._renderSingleTask(task, position, plannedPosition);
             }
 
-            if(plannedPosition && !task.isMilestone() && task.plannedStart < task.end && task.plannedEnd > task.start && task.plannedEnd < task.end) {
-                if(isRtl){
+            if (plannedPosition && !task.isMilestone() && task.plannedStart < task.end && task.plannedEnd > task.start && task.plannedEnd < task.end) {
+                if (isRtl) {
                     taskFullWidth = position.left + position.width - plannedPosition.left;
                 } else {
                     taskFullWidth = plannedPosition.left + plannedPosition.width - position.left;
                 }
 
-                if(isRtl) {
+                if (isRtl) {
                     offsetWidth = plannedPosition.left - position.left;
                 } else {
                     offsetWidth = position.left + position.width - (plannedPosition.left + plannedPosition.width);
@@ -644,8 +644,8 @@ var __meta__ = { // jshint ignore:line
                     style: { width: offsetWidth - 2 * plannedPosition.borderWidth + "px" }
                 });
 
-                if(editable && editable.resize !== false && editable.update !== false && !task.summary) {
-                    if(editable.destroy !== false) {
+                if (editable && editable.resize !== false && editable.update !== false && !task.summary) {
+                    if (editable.destroy !== false) {
                         offsetElement.children.push(kendoDomElement("span", { className: styles.taskActions }, [
                             kendoDomElement("a", { className: styles.link + " " + styles.taskDelete, href: "#", "aria-label": "Delete" }, [
                                 kendoDomElement("span", { className: styles.icon + " " + styles.iconDelete })
@@ -653,7 +653,7 @@ var __meta__ = { // jshint ignore:line
                         ]));
                     }
 
-                    if(isRtl) {
+                    if (isRtl) {
                         offsetElement.children.push(kendoDomElement("span", {
                             className: styles.taskResizeHandle + " " + styles.taskResizeHandleWest,
                             style: {
@@ -672,7 +672,7 @@ var __meta__ = { // jshint ignore:line
                 }, [ taskElement, offsetElement ]);
 
                 children.push(taskOffsetWrap);
-            } else if(plannedPosition) {
+            } else if (plannedPosition) {
                 children.push(kendoDomElement("div", {
                     className: styles.taskInnerWrap
                 }, [ taskElement ]));
@@ -683,7 +683,7 @@ var __meta__ = { // jshint ignore:line
             taskWrapper = kendoDomElement("div", taskWrapAttr, children);
 
             if (editable && editable.dependencyCreate !== false) {
-                if(plannedPosition && task.plannedEnd > task.end) {
+                if (plannedPosition && task.plannedEnd > task.end) {
                     endTaskDotRight = plannedPosition.left + plannedPosition.width - position.left - position.width - 3 + "px";
                 }
 
@@ -691,9 +691,9 @@ var __meta__ = { // jshint ignore:line
                     className: styles.taskDot + " " + styles.taskDotStart
                 }));
 
-                if(isRtl) {
+                if (isRtl) {
                     endTaskDotRight = "auto";
-                    if(plannedPosition && task.plannedEnd > task.end) {
+                    if (plannedPosition && task.plannedEnd > task.end) {
                         endTaskDotLeft = position.left - plannedPosition.left + "px";
                     }
                 }
@@ -723,13 +723,13 @@ var __meta__ = { // jshint ignore:line
             var classes = styles.task + " " + styles.taskSingle;
             var widthExceptDelay = position.width;
 
-            if(plannedPosition) {
-                if(task.plannedEnd && task.plannedEnd <= task.start) {
+            if (plannedPosition) {
+                if (task.plannedEnd && task.plannedEnd <= task.start) {
                     classes += " " + styles.taskDelayed;
                 } else if (task.plannedEnd && task.plannedEnd > task.end) {
                     classes += " " + styles.taskAdvanced;
-                } else if(task.plannedEnd && task.plannedEnd < task.end) {
-                    if(!isRtl){
+                } else if (task.plannedEnd && task.plannedEnd < task.end) {
+                    if (!isRtl) {
                         widthExceptDelay = widthExceptDelay - (position.left + position.width - plannedPosition.left - plannedPosition.width);
                     } else {
                         widthExceptDelay = widthExceptDelay + position.left - plannedPosition.left;
@@ -786,7 +786,7 @@ var __meta__ = { // jshint ignore:line
             var classes = styles.task + " " + styles.taskMilestone;
             var showPlanned = this.options.showPlannedTasks;
 
-            if(showPlanned && task.plannedEnd && task.plannedEnd < task.start) {
+            if (showPlanned && task.plannedEnd && task.plannedEnd < task.start) {
                 classes += " " + styles.taskDelayed;
             } else if (task.plannedStart && task.plannedStart > task.end) {
                 classes += " " + styles.taskAdvanced;
@@ -801,13 +801,13 @@ var __meta__ = { // jshint ignore:line
             var progressWidth;
             var classes = styles.task + " " + styles.taskSummary;
 
-            if(plannedPosition) {
-                if(task.plannedEnd && task.plannedEnd <= task.start) {
+            if (plannedPosition) {
+                if (task.plannedEnd && task.plannedEnd <= task.start) {
                     classes += " " + styles.taskDelayed;
                 } else if (task.plannedEnd && task.plannedEnd > task.end) {
                     classes += " " + styles.taskAdvanced;
-                } else if(task.plannedEnd && task.plannedEnd < task.end) {
-                    if(!isRtl){
+                } else if (task.plannedEnd && task.plannedEnd < task.end) {
+                    if (!isRtl) {
                         widthExceptDelay = widthExceptDelay - (position.left + position.width - plannedPosition.left - plannedPosition.width);
                     } else {
                         widthExceptDelay = widthExceptDelay + position.left - plannedPosition.left;
@@ -831,7 +831,7 @@ var __meta__ = { // jshint ignore:line
             var children = [];
             var style = {};
 
-            if(task.plannedStart && task.plannedEnd) {
+            if (task.plannedStart && task.plannedEnd) {
                 children.push(kendoDomElement("div", { className: styles.taskPlannedMoment + " " + styles.taskPlannedMomentLeft }));
                 children.push(kendoDomElement("div", {
                     className: styles.taskPlannedDuration, style:
@@ -844,7 +844,7 @@ var __meta__ = { // jshint ignore:line
                 children.push(kendoDomElement("div", { className: styles.taskPlannedMoment, style: { "margin-left": Math.max(plannedPosition.width - 5, 0) + "px" } }));
             }
 
-            if(isRtl) {
+            if (isRtl) {
                 style = {
                     "margin-right": position.left - plannedPosition.left + position.width - plannedPosition.width + "px"
                 };
@@ -867,7 +867,7 @@ var __meta__ = { // jshint ignore:line
             var style = {};
             var element;
 
-            if(isRtl) {
+            if (isRtl) {
                 style = {
                     "margin-right": position.left - plannedPosition.left + "px"
                 };
@@ -1274,7 +1274,7 @@ var __meta__ = { // jshint ignore:line
                 "visibility": "hidden"
             });
 
-            if(isRtl && element.find(DOT + styles.taskAdvanced).length > 0) {
+            if (isRtl && element.find(DOT + styles.taskAdvanced).length > 0) {
                 plannedElement.css({
                     "margin-right": "auto",
                     "width": 0
@@ -1524,22 +1524,22 @@ var __meta__ = { // jshint ignore:line
             var offsetText = minutes + " " + plannedTasksMessages.minutes;
             var hours, days;
 
-            if(offsetValue >= 60) {
+            if (offsetValue >= 60) {
                 hours = offsetValue = Math.floor(offsetValue / 60);
 
                 offsetText = hours + " " + plannedTasksMessages.hours;
 
-                if(minutes !== 0) {
+                if (minutes !== 0) {
                     offsetText += (" " + minutes + " " + plannedTasksMessages.minutes);
                 }
 
-                if(offsetValue >= 24) {
+                if (offsetValue >= 24) {
                     hours = offsetValue % 24;
                     days = offsetValue = Math.floor(offsetValue / 24);
 
                     offsetText = days + " " + plannedTasksMessages.days;
 
-                    if(hours !== 0) {
+                    if (hours !== 0) {
                         offsetText += (" " + hours + " " + plannedTasksMessages.hours);
                     }
                 }
@@ -1663,7 +1663,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _scrollToDate: function (date) {
+        _scrollToDate: function(date) {
             var viewStart = this.start;
             var viewEnd = this.end;
             var offset;
@@ -2313,7 +2313,7 @@ var __meta__ = { // jshint ignore:line
             var styles = GanttTimeline.styles;
             var that = this;
             var options = this.options;
-            var calculateSize = function () {
+            var calculateSize = function() {
                 var rowHeight = typeof options.rowHeight === STRING ? options.rowHeight :
                     options.rowHeight + "px";
                 var table = $(kendo.format(SIZE_CALCULATION_TEMPLATE, rowHeight));
@@ -2476,7 +2476,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _range: function (tasks) {
+        _range: function(tasks) {
             var startOrder = {
                 field: "start",
                 dir: "asc"
@@ -2736,10 +2736,10 @@ var __meta__ = { // jshint ignore:line
             };
 
             var updateElement = function(width) {
-                var taskDragHandle =  taskElement.siblings(DOT + styles.taskDragHandle);
+                var taskDragHandle = taskElement.siblings(DOT + styles.taskDragHandle);
 
-                if(!taskDragHandle.length) {
-                    taskDragHandle =  taskElement.closest(DOT + styles.taskWrap).find(DOT + styles.taskDragHandle);
+                if (!taskDragHandle.length) {
+                    taskDragHandle = taskElement.closest(DOT + styles.taskWrap).find(DOT + styles.taskDragHandle);
                 }
 
                 taskDragHandle.css(isRtl ? "right" : "left", width);
@@ -2768,7 +2768,7 @@ var __meta__ = { // jshint ignore:line
 
                     taskElement = e.currentTarget.siblings(DOT + styles.task);
 
-                    if(!taskElement.length) {
+                    if (!taskElement.length) {
                         taskElement = e.currentTarget.closest(DOT + styles.taskWrap).find(DOT + styles.task);
                     }
 
@@ -2918,13 +2918,13 @@ var __meta__ = { // jshint ignore:line
                         var type = fromStart ? (toStart ? 3 : 2) : (toStart ? 1 : 0);
 
                         var predecessorElement = originalHandle.siblings(DOT + styles.task);
-                        if(!predecessorElement.length) {
+                        if (!predecessorElement.length) {
                             predecessorElement = originalHandle.closest(DOT + styles.taskWrap).find(DOT + styles.task);
                         }
                         var predecessor = that._taskByUid(predecessorElement.attr("data-uid"));
 
                         var successorElement = hoveredHandle.siblings(DOT + styles.task);
-                        if(!successorElement.length) {
+                        if (!successorElement.length) {
                             successorElement = hoveredHandle.closest(DOT + styles.taskWrap).find(DOT + styles.task);
                         }
                         var successor = that._taskByUid(successorElement.attr("data-uid"));
@@ -2955,7 +2955,7 @@ var __meta__ = { // jshint ignore:line
 
                         var uid = $(this).attr("data-uid");
 
-                        if(!uid) {
+                        if (!uid) {
                             uid = $(this).closest(DOT + styles.taskWrap).find(DOT + styles.task).data("uid");
                         }
 
@@ -3208,7 +3208,7 @@ var __meta__ = { // jshint ignore:line
                             var currentPosition = e.touch.x.client;
                             var task;
 
-                            if(!element.hasClass(styles.task)) {
+                            if (!element.hasClass(styles.task)) {
                                 task = that._taskByUid(element.closest(DOT + styles.taskWrap).find(DOT + styles.task).attr("data-uid"));
                                 if (that.view()._offsetTooltip) {
                                     that.view()._removeOffsetTooltip();
@@ -3243,5 +3243,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

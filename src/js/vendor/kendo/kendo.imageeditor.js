@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('imageeditor/toolbar',["kendo.toolbar", "kendo.dropdownlist"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -40,19 +40,19 @@
 
         defaultTools: {
             open: { type: "button", icon: "upload", name: "open", command: "OpenImageEditorCommand", showText: "overflow" },
-            save: { type: "button", icon: "download", name: "save", command: "SaveImageEditorCommand", showText: "overflow", toggleCondition:"canExport" },
+            save: { type: "button", icon: "download", name: "save", command: "SaveImageEditorCommand", showText: "overflow", toggleCondition: "canExport" },
             separator: { type: "separator" },
-            undo: { type: "button", icon: "undo", name: "undo", command: "UndoImageEditorCommand", showText: "overflow", toggleCondition:"undo" },
-            redo: { type: "button", icon: "redo", name: "redo", command: "RedoImageEditorCommand", showText: "overflow", toggleCondition:"redo" },
+            undo: { type: "button", icon: "undo", name: "undo", command: "UndoImageEditorCommand", showText: "overflow", toggleCondition: "undo" },
+            redo: { type: "button", icon: "redo", name: "redo", command: "RedoImageEditorCommand", showText: "overflow", toggleCondition: "redo" },
             separator1: { type: "separator" },
-            crop: { type: "button", icon: "crop", name: "crop", command: "OpenPaneImageEditorCommand", options: "crop", showText: "overflow", toggleCondition:"canExport"  },
-            resize: { type: "button", icon: "image-resize", name: "resize", command: "OpenPaneImageEditorCommand", options: "resize", showText: "overflow", toggleCondition:"canExport"  },
-            zoomIn: { type: "button", icon: "zoom-in", name: "zoomIn", command: "ZoomImageEditorCommand", showText: "overflow", options: "zoomIn", toggleCondition:"enable"  },
-            zoomOut: { type: "button", icon: "zoom-out", name: "zoomOut", command: "ZoomImageEditorCommand", showText: "overflow", options: "zoomOut", toggleCondition:"enable"  },
-            zoomDropdown: { type: "imageEditorZoomDropDown", name: "zoomDropdown", command: "ZoomImageEditorCommand", text: "Zoom options", toggleCondition:"enable" , items: [
+            crop: { type: "button", icon: "crop", name: "crop", command: "OpenPaneImageEditorCommand", options: "crop", showText: "overflow", toggleCondition: "canExport" },
+            resize: { type: "button", icon: "image-resize", name: "resize", command: "OpenPaneImageEditorCommand", options: "resize", showText: "overflow", toggleCondition: "canExport" },
+            zoomIn: { type: "button", icon: "zoom-in", name: "zoomIn", command: "ZoomImageEditorCommand", showText: "overflow", options: "zoomIn", toggleCondition: "enable" },
+            zoomOut: { type: "button", icon: "zoom-out", name: "zoomOut", command: "ZoomImageEditorCommand", showText: "overflow", options: "zoomOut", toggleCondition: "enable" },
+            zoomDropdown: { type: "imageEditorZoomDropDown", name: "zoomDropdown", command: "ZoomImageEditorCommand", text: "Zoom options", toggleCondition: "enable" , items: [
                 { name: "zoomActualSize", icon: "zoom-actual-size", text: "Show actual size", options: "actualSize" },
                 { name: "zoomFitToScreen", icon: "zoom-best-fit", text: "Fit to screen", options: "fitToScreen" }
-            ]}
+            ] }
         },
 
         _attachEvents: function() {
@@ -79,8 +79,8 @@
                 return;
             }
 
-            return tools.map(function (tool) {
-                var isBuiltInTool =  $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name,
+            return tools.map(function(tool) {
+                var isBuiltInTool = $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name,
                     toolOptions, text;
 
                 tool = isBuiltInTool ? tool.name : tool;
@@ -102,7 +102,7 @@
                     overflow: toolOptions.overflow
                 });
 
-                if(toolOptions.type === "imageEditorZoomDropDown") {
+                if (toolOptions.type === "imageEditorZoomDropDown") {
                     toolOptions.items = that._extendToolsOptions(toolOptions.items);
                 }
 
@@ -124,7 +124,7 @@
             });
         },
 
-        _dropDownChange: function (ev) {
+        _dropDownChange: function(ev) {
             if (!ev.command) {
                 return;
             }
@@ -135,15 +135,15 @@
             });
         },
 
-        action: function (args) {
+        action: function(args) {
             this.trigger(ACTION, args);
         },
 
-        toggleTools: function (conditions) {
+        toggleTools: function(conditions) {
             var that = this,
                 tools = that.element.find("[data-toggle]");
 
-            tools.each(function(index, elm){
+            tools.each(function(index, elm) {
                 var tool = $(elm),
                     widget = null,
                     condition = tool.data("toggle"),
@@ -153,7 +153,7 @@
                     widget = kendo.widgetInstance(tool);
                 }
 
-                if (widget && widget.enable){
+                if (widget && widget.enable) {
                     widget.enable(toToggle || false);
                 } else {
                     that.enable(tool, toToggle);
@@ -161,7 +161,7 @@
             });
         },
 
-        destroy: function () {
+        destroy: function() {
             var that = this;
 
             if (that.zoomDropdown) {
@@ -175,7 +175,7 @@
     var ImageEditorZoomDropDown = Item.extend({
         init: function(options, toolbar) {
             var that = this,
-                element =  $("<div></div>"),
+                element = $("<div></div>"),
                 input = $("<input />").attr(options.attributes),
                 template = "<span class=\"k-icon k-i-#:icon#\"></span> #:text#";
 
@@ -196,14 +196,14 @@
 
                 that.toolbar.zoomDropdown = that;
         },
-        _change: function (ev) {
+        _change: function(ev) {
             var that = this;
             that.toolbar.trigger(DROPDOWNCHANGE, {
                 command: ev.sender.element.data("command"),
                 options: ev.sender.dataItem().options
             });
         },
-        destroy: function(){
+        destroy: function() {
             this.dropDown.destroy();
         }
     });
@@ -221,12 +221,12 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function (f, define) {
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('imageeditor/pane',["kendo.core", "kendo.form", "kendo.buttongroup", "kendo.draganddrop"], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             extend = $.extend,
             Class = kendo.Class,
@@ -250,7 +250,7 @@ return window.kendo;
         };
 
         var Pane = Class.extend({
-            init: function (imageeditor) {
+            init: function(imageeditor) {
                 var that = this;
 
                 that.imageeditor = imageeditor;
@@ -261,7 +261,7 @@ return window.kendo;
 
                 that.element = $("<div></div>").addClass(paneStyles.form);
             },
-            open: function () {
+            open: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     commonMessages = imageeditor.options.messages.common;
@@ -280,7 +280,7 @@ return window.kendo;
                 imageeditor.paneWrapper.show();
                 imageeditor.currentPaneTool = that;
             },
-            bindButtonEvents: function () {
+            bindButtonEvents: function() {
                 var that = this,
                     formWidget = that.formWidget,
                     buttons = formWidget.element.find("." + paneStyles.button);
@@ -289,25 +289,25 @@ return window.kendo;
 
                 buttons.on(CLICK + NS, that._clickHandler);
             },
-            _click: function (ev) {
+            _click: function(ev) {
                 var that = this,
                     target = $(ev.target).closest("." + paneStyles.button),
                     action = target.data("action");
 
-                if(that[action]) {
+                if (that[action]) {
                     that[action]();
                 }
             },
-            cancel: function () {
+            cancel: function() {
                 this.destroy();
             },
-            confirm: function () {
+            confirm: function() {
                 window.console.error("Pane's confirm method is not implemented!");
                 this.destroy();
             },
-            refresh: function () {
+            refresh: function() {
             },
-            destroy: function () {
+            destroy: function() {
                 var that = this,
                     imageeditor = that.imageeditor;
 
@@ -320,39 +320,39 @@ return window.kendo;
         });
 
         var CropPane = Pane.extend({
-            init: function (imageeditor) {
+            init: function(imageeditor) {
                 var that = this;
                 Pane.fn.init.call(that, imageeditor);
                 that.buildCropModel();
                 that.canvasUI();
             },
-            confirm: function () {
+            confirm: function() {
                 var that = this,
                     model = that.formWidget._model.toJSON();
 
                 that.destroy();
 
-                that.imageeditor.executeCommand({command: "CropImageEditorCommand", options: model });
+                that.imageeditor.executeCommand({ command: "CropImageEditorCommand", options: model });
             },
-            formSettings: function () {
+            formSettings: function() {
                 var that = this,
                     cropMessages = that.imageeditor.options.messages.panes.crop,
                     commonMessages = that.imageeditor.options.messages.common,
                     aspectRatioItems = cropMessages.aspectRatioItems,
                     aspectRatioDS = [];
 
-                if(aspectRatioItems) {
+                if (aspectRatioItems) {
                     for (var key in aspectRatioItems) {
-                        aspectRatioDS.push({value: key, text: aspectRatioItems[key]});
+                        aspectRatioDS.push({ value: key, text: aspectRatioItems[key] });
                     }
                 } else {
                     aspectRatioDS = [
-                        { value: "originalRatio", text: "Original ratio"},
-                        { value: "1:1", text: "1:1 (Square)"},
-                        { value: "4:5", text: "4:5 (8:10)"},
-                        { value: "5:7", text: "5:7"},
-                        { value: "2:3", text: "2:3 (4:6)"},
-                        { value: "16:9", text: "16:9"}
+                        { value: "originalRatio", text: "Original ratio" },
+                        { value: "1:1", text: "1:1 (Square)" },
+                        { value: "4:5", text: "4:5 (8:10)" },
+                        { value: "5:7", text: "5:7" },
+                        { value: "2:3", text: "2:3 (4:6)" },
+                        { value: "16:9", text: "16:9" }
                     ];
                 }
 
@@ -410,7 +410,7 @@ return window.kendo;
                     }]
                 };
             },
-            _orientationEditor: function(container, options){
+            _orientationEditor: function(container, options) {
                 var that = this,
                     cropMessages = that.imageeditor.options.messages.panes.crop,
                     value = options.model[options.field];
@@ -420,15 +420,15 @@ return window.kendo;
                     .kendoButtonGroup({
                         items: [
                             { text: cropMessages.portrait || "Portrait", attributes: { "data-value": "portrait" }, selected: value === "portrait" },
-                            { text: cropMessages.landscape || "Landscape", attributes: { "data-value": "landscape" }, selected : value === "landscape" }
+                            { text: cropMessages.landscape || "Landscape", attributes: { "data-value": "landscape" }, selected: value === "landscape" }
                         ],
-                        select: function (ev) {
+                        select: function(ev) {
                             var value = ev.sender.wrapper.find(".k-selected").data("value");
                             options.model.set(options.field, value);
                         }
                     }).data("kendoButtonGroup");
             },
-            buildCropModel: function () {
+            buildCropModel: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     canvas = imageeditor.getCanvasElement(),
@@ -445,7 +445,7 @@ return window.kendo;
                         lockAspectRatio: true
                     };
             },
-            canvasUI: function () {
+            canvasUI: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     canvasContainer = that.imageeditor.canvasContainer,
@@ -478,7 +478,7 @@ return window.kendo;
                 that.cropElement.css({
                     width: width,
                     height: height,
-                    backgroundImage: "url('"+ imageeditor._image.src + "')",
+                    backgroundImage: "url('" + imageeditor._image.src + "')",
                     backgroundSize: kendo.format("{0}px {1}px", width, height),
                     backgroundClip: "content-box",
                     backgroundPosition: kendo.format("-{0}px -{0}px", borderWidth)
@@ -486,12 +486,12 @@ return window.kendo;
 
                 that.cropElement.kendoDraggable({
                     ignore: "." + paneStyles.resizeHandle,
-                    drag: function (ev) {
+                    drag: function(ev) {
                         that._adjustTopLeft(ev.target.offsetTop + ev.y.delta, ev.target.offsetLeft + ev.x.delta);
                     }
                 });
             },
-            refresh: function () {
+            refresh: function() {
                 var that = this,
                     newModel = that.formWidget._model,
                     zoomLevel = that.imageeditor.getZoomLevel(),
@@ -510,11 +510,11 @@ return window.kendo;
                     backgroundPosition: kendo.format("-{0}px -{1}px", left + borderWidth, top + borderWidth)
                 });
             },
-            _initResizeHandle: function (handle) {
+            _initResizeHandle: function(handle) {
                 var that = this;
 
                 handle.kendoDraggable({
-                    drag: function (ev) {
+                    drag: function(ev) {
                         var $target = $(ev.sender.element),
                             newModel = that.formWidget._model,
                             oldModel = that._model,
@@ -534,40 +534,40 @@ return window.kendo;
                         if (orientation.indexOf("n") >= 0) {
                             adjustments.top = that.cropElement[0].offsetTop + ev.y.delta;
                             adjustments.height = that.cropElement[0].offsetHeight - ev.y.delta;
-                        } else if(orientation.indexOf("s") >= 0) {
+                        } else if (orientation.indexOf("s") >= 0) {
                             adjustments.height = that.cropElement[0].offsetHeight + ev.y.delta;
                         }
 
-                        if(adjustments.width && ((adjustments.left || correctedLeft) + adjustments.width <= oldModel.width * zoomLevel)) {
+                        if (adjustments.width && ((adjustments.left || correctedLeft) + adjustments.width <= oldModel.width * zoomLevel)) {
                             newModel.set("width", Math.round(adjustments.width / zoomLevel));
                         }
 
-                        if(adjustments.height && ((adjustments.top || correctedTop) + adjustments.height <= oldModel.height * zoomLevel)) {
+                        if (adjustments.height && ((adjustments.top || correctedTop) + adjustments.height <= oldModel.height * zoomLevel)) {
                             newModel.set("height", Math.round(adjustments.height / zoomLevel));
                         }
 
-                        if(adjustments.top || adjustments.left) {
+                        if (adjustments.top || adjustments.left) {
                             that._adjustTopLeft(adjustments.top, adjustments.left);
                         }
                     }
                 });
             },
-            _adjustTopLeft: function (top, left, compare) {
+            _adjustTopLeft: function(top, left, compare) {
                 var that = this,
                     compareModel = compare || that.formWidget._model,
                     newModel = that.formWidget._model,
                     oldModel = that._model,
                     zoomLevel = that.imageeditor.getZoomLevel();
 
-                if(top >= 0 && (top / zoomLevel) + compareModel.height <= oldModel.height) {
+                if (top >= 0 && (top / zoomLevel) + compareModel.height <= oldModel.height) {
                     newModel.set("top", Math.round(top / zoomLevel));
                 }
 
-                if(left >= 0 && (left / zoomLevel) + compareModel.width <= oldModel.width) {
+                if (left >= 0 && (left / zoomLevel) + compareModel.width <= oldModel.width) {
                     newModel.set("left", Math.round(left / zoomLevel));
                 }
             },
-            onChange: function (ev) {
+            onChange: function(ev) {
                 var that = this,
                     zoomLevel = that.imageeditor.getZoomLevel(),
                     newModel = ev.sender._model,
@@ -577,9 +577,9 @@ return window.kendo;
                     originalRatio = oldModel.width + ":" + oldModel.height,
                     gcd = that._gcd(oldModel.width, oldModel.height);
 
-                originalRatio = oldModel.width/gcd + ":" + oldModel.height/gcd;
+                originalRatio = oldModel.width / gcd + ":" + oldModel.height / gcd;
 
-                if(ev.field === "aspectRatio" && ev.value === "originalRatio") {
+                if (ev.field === "aspectRatio" && ev.value === "originalRatio") {
                     newModel.set("top", 0);
                     newModel.set("left", 0);
                     newModel.set("orientation", oldModel.orientation);
@@ -596,7 +596,7 @@ return window.kendo;
                     newModel.set("width", newSize.width);
                     newModel.set("height", newSize.height);
                     that._orientationWidget.select(ev.value === "portrait" ? 0 : 1);
-                } else if(newModel.lockAspectRatio) {
+                } else if (newModel.lockAspectRatio) {
                     var force = ev.field;
                     var size = that._calcSize(newModel, originalRatio, maxWidth, maxHeight, force);
                     newModel.set("width", size.width);
@@ -617,24 +617,24 @@ return window.kendo;
                     backgroundPosition: kendo.format("-{0}px -{1}px", left + borderWidth, top + borderWidth)
                 });
             },
-            _calcSize: function (model, originalRatio, maxWidth, maxHeight, force) {
+            _calcSize: function(model, originalRatio, maxWidth, maxHeight, force) {
                 var width = Math.min(model.width, maxWidth),
                     height = Math.min(model.height, maxHeight),
                     isPortrait = model.orientation === "portrait",
                     ratios = model.aspectRatio;
 
-                if(ratios.indexOf(":") < 0) {
+                if (ratios.indexOf(":") < 0) {
                     ratios = originalRatio;
                 }
 
-                ratios = ratios.split(":").map(function (value) {
+                ratios = ratios.split(":").map(function(value) {
                     return parseInt(value, 10);
                 });
 
                 var wRatio = isPortrait ? Math.min(ratios[0], ratios[1]) : Math.max(ratios[0], ratios[1]);
                 var hRatio = !isPortrait ? Math.min(ratios[0], ratios[1]) : Math.max(ratios[0], ratios[1]);
-                var expectedRatio = round(wRatio/hRatio);
-                var realRatio = round(width/height);
+                var expectedRatio = round(wRatio / hRatio);
+                var realRatio = round(width / height);
 
                 var sizeByRatio = {
                     width: Math.round(height * expectedRatio),
@@ -657,7 +657,7 @@ return window.kendo;
 
                 if (realRatio > expectedRatio) {
                     width = sizeByRatio.width;
-                } else if (realRatio < expectedRatio){
+                } else if (realRatio < expectedRatio) {
                     height = sizeByRatio.height;
                 }
 
@@ -666,10 +666,10 @@ return window.kendo;
                     height: height
                 };
             },
-            _gcd: function (a, b) {
-                return (b === 0) ? a : this._gcd (b, a%b);
+            _gcd: function(a, b) {
+                return (b === 0) ? a : this._gcd (b, a % b);
             },
-            destroy: function () {
+            destroy: function() {
                 kendo.destroy(this._canvasUI);
                 this._canvasUI.remove();
                 Pane.fn.destroy.call(this);
@@ -677,25 +677,25 @@ return window.kendo;
         });
 
         var ResizePane = Pane.extend({
-            init: function (imageeditor) {
+            init: function(imageeditor) {
                 Pane.fn.init.call(this, imageeditor);
                 this.buildResizeModel();
             },
-            confirm: function () {
+            confirm: function() {
                 var that = this,
                     originalWidth = that._model.width,
                     originalHeight = that._model.height,
                     model = that.formWidget._model.toJSON();
 
-                if(model.measure === "percents") {
+                if (model.measure === "percents") {
                     model.width = originalWidth * (model.width / 100);
                     model.height = originalHeight * (model.height / 100);
                 }
 
-                that.imageeditor.executeCommand({command: "ResizeImageEditorCommand", options: model });
+                that.imageeditor.executeCommand({ command: "ResizeImageEditorCommand", options: model });
                 that.destroy();
             },
-            formSettings: function () {
+            formSettings: function() {
                 var that = this,
                     resizeMessages = that.imageeditor.options.messages.panes.resize,
                     commonMessages = that.imageeditor.options.messages.common;
@@ -764,7 +764,7 @@ return window.kendo;
                     }]
                 };
             },
-            buildResizeModel: function () {
+            buildResizeModel: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     canvas = imageeditor.getCanvasElement(),
@@ -778,10 +778,10 @@ return window.kendo;
                         measureW: "pixels",
                         measureH: "pixels",
                         lockAspectRatio: true,
-                        ratio: round(width/height)
+                        ratio: round(width / height)
                     };
             },
-            onChange: function (ev) {
+            onChange: function(ev) {
                 var that = this,
                     newModel = ev.sender._model,
                     aspectRatioLocked = newModel.lockAspectRatio;
@@ -798,9 +798,9 @@ return window.kendo;
                     newModel.set("width", newModel.height * newModel.ratio);
                 }
 
-                newModel.set("ratio", round(newModel.width/newModel.height));
+                newModel.set("ratio", round(newModel.width / newModel.height));
             },
-            resetNumericsTo: function (type) {
+            resetNumericsTo: function(type) {
                 var that = this,
                     originalWidth = that._model.width,
                     originalHeight = that._model.height,
@@ -817,7 +817,6 @@ return window.kendo;
                             format: "n0"
                         }
                     };
-
 
 
                 widthNumeric.setOptions(options[type]);
@@ -842,29 +841,29 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
-(function (f, define) {
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('imageeditor/commands',["./pane", "kendo.upload"], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             imageeditorNS = kendo.ui.imageeditor,
             extend = $.extend,
             Class = kendo.Class;
 
         var Command = Class.extend({
-            init: function (options) {
+            init: function(options) {
                 this.options = extend({}, options, this.options);
                 this.imageeditor = options.imageeditor;
             }
         });
 
         var OpenPaneImageEditorCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     pane = new imageeditorNS.panes[that.options.value](imageeditor);
@@ -878,10 +877,10 @@ return window.kendo;
                 zoomStep: 0.05,
                 spacing: 20
             },
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     value = options.value,
@@ -890,7 +889,7 @@ return window.kendo;
                     currentZoom = imageeditor.getZoomLevel(),
                     newHeight = imgHeight;
 
-                    if(!isNaN(value)) {
+                    if (!isNaN(value)) {
                         value = parseFloat(value);
                     } else if (typeof value === "string") {
                         value = that._processStringValue(value, currentZoom);
@@ -898,7 +897,7 @@ return window.kendo;
 
                     newHeight = Math.round(imgHeight * value);
 
-                    if(newHeight > 0) {
+                    if (newHeight > 0) {
                         $(imageeditor._canvas).css("height", newHeight);
                         imageeditor._zoomLevel = value;
                     }
@@ -907,7 +906,7 @@ return window.kendo;
                         imageeditor.currentPaneTool.refresh();
                     }
             },
-            _processStringValue: function (value, initialZoom) {
+            _processStringValue: function(value, initialZoom) {
                 var that = this,
                     options = that.options,
                     imageeditor = that.imageeditor,
@@ -929,10 +928,10 @@ return window.kendo;
         });
 
         var CropImageEditorCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     imageeditor = that.imageeditor,
@@ -945,19 +944,19 @@ return window.kendo;
                 canvas.height = options.height;
                 ctx.putImageData(croppedImage, 0, 0);
 
-                imageeditor.drawImage(canvas.toDataURL()).done(function(image){
+                imageeditor.drawImage(canvas.toDataURL()).done(function(image) {
                     imageeditor.drawCanvas(image);
-                }).fail(function (ev) {
+                }).fail(function(ev) {
                     imageeditor.trigger("error", ev);
                 });
             }
         });
 
         var ResizeImageEditorCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     imageeditor = that.imageeditor,
@@ -970,23 +969,23 @@ return window.kendo;
                 canvas.height = options.height;
                 ctx.drawImage(image, 0, 0, options.width, options.height);
 
-                imageeditor.drawImage(canvas.toDataURL()).done(function(image){
+                imageeditor.drawImage(canvas.toDataURL()).done(function(image) {
                     imageeditor.drawCanvas(image);
-                }).fail(function (ev) {
+                }).fail(function(ev) {
                     imageeditor.trigger("error", ev);
                 });
             }
         });
 
         var UndoImageEditorCommand = Command.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     canvas = imageeditor.getCanvasElement(),
                     ctx = imageeditor.getCurrent2dContext(),
                     image = imageeditor.undoStack.pop();
 
-                if(image) {
+                if (image) {
                     imageeditor.redoStack.push(imageeditor.getCurrentImage());
                     delete imageeditor._image;
 
@@ -995,9 +994,9 @@ return window.kendo;
                     canvas.height = image.height;
                     ctx.drawImage(image, 0, 0, image.width, image.height);
 
-                    imageeditor.drawImage(canvas.toDataURL()).done(function(image){
+                    imageeditor.drawImage(canvas.toDataURL()).done(function(image) {
                         imageeditor.drawCanvas(image);
-                    }).fail(function (ev) {
+                    }).fail(function(ev) {
                         imageeditor.trigger("error", ev);
                     });
                 }
@@ -1005,14 +1004,14 @@ return window.kendo;
         });
 
         var RedoImageEditorCommand = Command.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     canvas = imageeditor.getCanvasElement(),
                     ctx = imageeditor.getCurrent2dContext(),
                     image = imageeditor.redoStack.pop();
 
-                if(image) {
+                if (image) {
                     imageeditor.undoStack.push(imageeditor.getCurrentImage());
                     delete imageeditor._image;
 
@@ -1021,9 +1020,9 @@ return window.kendo;
                     canvas.height = image.height;
                     ctx.drawImage(image, 0, 0, image.width, image.height);
 
-                    imageeditor.drawImage(canvas.toDataURL()).done(function(image){
+                    imageeditor.drawImage(canvas.toDataURL()).done(function(image) {
                         imageeditor.drawCanvas(image);
-                    }).fail(function (ev) {
+                    }).fail(function(ev) {
                         imageeditor.trigger("error", ev);
                     });
                 }
@@ -1031,7 +1030,7 @@ return window.kendo;
         });
 
         var SaveImageEditorCommand = Command.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     canvas = imageeditor.getCanvasElement();
@@ -1043,7 +1042,7 @@ return window.kendo;
         });
 
         var OpenImageEditorCommand = Command.extend({
-            exec: function () {
+            exec: function() {
                 var that = this,
                     imageeditor = that.imageeditor,
                     upload = imageeditor._upload;
@@ -1065,20 +1064,20 @@ return window.kendo;
 
                 upload.element.click();
             },
-            onSelect: function (ev) {
+            onSelect: function(ev) {
                 var that = this,
                     imageeditor = that.imageeditor,
                     file = ev.files[0].rawFile,
                     reader = new FileReader();
 
-                reader.addEventListener("load", function () {
-                    imageeditor.drawImage(reader.result).done(function(image){
+                reader.addEventListener("load", function() {
+                    imageeditor.drawImage(reader.result).done(function(image) {
                         if (!imageeditor.trigger("imageLoaded", { image: image })) {
                             imageeditor.drawCanvas(image);
                             imageeditor._initUndoRedoStack();
                             imageeditor._toggleTools();
                         }
-                    }).fail(function (ev) {
+                    }).fail(function(ev) {
                         imageeditor.trigger("error", ev);
                     });
                 }, false);
@@ -1089,9 +1088,9 @@ return window.kendo;
                 }
 
             },
-            onError: function(ev){
+            onError: function(ev) {
                 var that = this,
-                    imageeditor= that.imageeditor;
+                    imageeditor = that.imageeditor;
 
                 imageeditor.trigger("error", ev);
             }
@@ -1103,7 +1102,7 @@ return window.kendo;
                 OpenPaneImageEditorCommand: OpenPaneImageEditorCommand,
                 ZoomImageEditorCommand: ZoomImageEditorCommand,
                 CropImageEditorCommand: CropImageEditorCommand,
-                ResizeImageEditorCommand:ResizeImageEditorCommand,
+                ResizeImageEditorCommand: ResizeImageEditorCommand,
                 UndoImageEditorCommand: UndoImageEditorCommand,
                 RedoImageEditorCommand: RedoImageEditorCommand,
                 SaveImageEditorCommand: SaveImageEditorCommand,
@@ -1115,22 +1114,22 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
-(function (f, define) {
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.imageeditor',[
         "./imageeditor/toolbar",
         "./imageeditor/commands"
     ], f);
-})(function () {
+})(function() {
 
-var __meta__ = {// jshint ignore:line
+var __meta__ = { // jshint ignore:line
     id: "imageeditor",
     name: "ImageEditor",
     category: "web",
     depends: ["core"]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
         isPlainObject = $.isPlainObject,
@@ -1157,7 +1156,7 @@ var __meta__ = {// jshint ignore:line
     };
 
     var ImageEditor = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
 
             Widget.fn.init.call(that, element, options);
@@ -1168,7 +1167,7 @@ var __meta__ = {// jshint ignore:line
             that._contentWrapper();
             that._keyHandler();
 
-            if(options.imageUrl) {
+            if (options.imageUrl) {
                 that._drawCanvas();
             }
 
@@ -1263,7 +1262,7 @@ var __meta__ = {// jshint ignore:line
             });
         },
 
-        _renderHeader: function () {
+        _renderHeader: function() {
             var that = this,
                 options = that.options;
 
@@ -1276,7 +1275,7 @@ var __meta__ = {// jshint ignore:line
             that.wrapper.append(that.header);
         },
 
-        _initToolbar: function () {
+        _initToolbar: function() {
             var that = this,
                 options = that.options,
                 toolbarElement = $("<div></div>").addClass(imageEditorStyles.toolbar),
@@ -1290,7 +1289,7 @@ var __meta__ = {// jshint ignore:line
             return that.toolbar;
         },
 
-        _contentWrapper: function () {
+        _contentWrapper: function() {
             var that = this,
                 contentWrapper = $("<div></div>").addClass(imageEditorStyles.contentWrapper),
                 canvasWrapper = $("<div></div>").addClass(imageEditorStyles.canvasWrapper),
@@ -1310,12 +1309,12 @@ var __meta__ = {// jshint ignore:line
             that.wrapper.append(contentWrapper);
         },
 
-        _keyHandler: function () {
+        _keyHandler: function() {
             var that = this,
                 prevent = false;
 
-            that.wrapper.on("keydown" + NS, function(ev){
-                if(ev.ctrlKey){
+            that.wrapper.on("keydown" + NS, function(ev) {
+                if (ev.ctrlKey) {
                     switch (ev.keyCode) {
                         case 48: // ctrl+0
                             that.executeCommand({ command: "ZoomImageEditorCommand", options: "fitToScreen" });
@@ -1339,34 +1338,34 @@ var __meta__ = {// jshint ignore:line
                             break;
                     }
 
-                    if(prevent) {
+                    if (prevent) {
                         ev.preventDefault();
                     }
                 }
             });
         },
 
-        _drawCanvas: function () {
+        _drawCanvas: function() {
             var that = this;
             var imageUrl = that.options.imageUrl;
 
-            that.drawImage(imageUrl).done(function (image) {
-                if(!that.trigger(IMAGELOADED, {image: image})){
+            that.drawImage(imageUrl).done(function(image) {
+                if (!that.trigger(IMAGELOADED, { image: image })) {
                     that.drawCanvas(image);
                 }
-            }).fail(function (ev) {
+            }).fail(function(ev) {
                 that.trigger(ERROR, ev);
             });
         },
 
-        _initUndoRedoStack: function () {
+        _initUndoRedoStack: function() {
             var that = this;
 
             that.undoStack = [];
             that.redoStack = [];
         },
 
-        _toggleTools: function () {
+        _toggleTools: function() {
             var that = this,
                 canRedo = that.redoStack.length > 0,
                 canUndo = that.undoStack.length > 0,
@@ -1387,7 +1386,7 @@ var __meta__ = {// jshint ignore:line
             });
         },
 
-        drawImage: function (imageUrl) {
+        drawImage: function(imageUrl) {
             var that = this,
                 deferred = new $.Deferred(),
                 image = new Image();
@@ -1409,7 +1408,7 @@ var __meta__ = {// jshint ignore:line
             return deferred.promise();
         },
 
-        drawCanvas: function (image) {
+        drawCanvas: function(image) {
             var that = this;
             var canvas = $("<canvas>Canvas element</canvas>")[0];
             var ctx = canvas.getContext('2d');
@@ -1418,7 +1417,7 @@ var __meta__ = {// jshint ignore:line
                 $(that._canvas).remove();
             }
 
-            if(that._image) {
+            if (that._image) {
                 that.undoStack.push(that._image);
             }
 
@@ -1433,7 +1432,7 @@ var __meta__ = {// jshint ignore:line
 
             that.canvasContainer.append(canvas);
 
-            if(image.height > that.canvasWrapper.height()) {
+            if (image.height > that.canvasWrapper.height()) {
                 that.executeCommand({ command: "ZoomImageEditorCommand", options: "fitToScreen" });
             } else {
                 that.executeCommand({ command: "ZoomImageEditorCommand", options: that.getZoomLevel() });
@@ -1448,30 +1447,30 @@ var __meta__ = {// jshint ignore:line
             that._toggleTools();
         },
 
-        getCanvasElement: function () {
+        getCanvasElement: function() {
             return this._canvas;
         },
 
-        getCurrent2dContext: function () {
+        getCurrent2dContext: function() {
             return this._ctx;
         },
 
-        getCurrentImage: function () {
+        getCurrentImage: function() {
             return this._image;
         },
 
         executeCommand: function(args) {
             var commandName = args.command,
-                commandOptions = extend({ imageeditor: this }, isPlainObject(args.options) ? args.options : {value: args.options}),
+                commandOptions = extend({ imageeditor: this }, isPlainObject(args.options) ? args.options : { value: args.options }),
                 command = new ui.imageeditor.commands[commandName](commandOptions);
 
-            if(!this.trigger(EXECUTE, args)) {
+            if (!this.trigger(EXECUTE, args)) {
                 this._toggleTools();
                 return command.exec();
             }
         },
 
-        getZoomLevel: function(){
+        getZoomLevel: function() {
             return this._zoomLevel || 1;
         },
 
@@ -1484,11 +1483,11 @@ var __meta__ = {// jshint ignore:line
                 that.currentPaneTool.destroy();
             }
 
-            if(that.toolbar) {
+            if (that.toolbar) {
                 that.toolbar.destroy();
             }
 
-            if(that._upload) {
+            if (that._upload) {
                 that._upload.destroy();
             }
 
@@ -1501,5 +1500,5 @@ var __meta__ = {// jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,12 +1,12 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.grid',[
         "kendo.data",
         "kendo.columnsorter",
@@ -31,7 +31,7 @@
         "kendo.switch",
         "kendo.html.button"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "grid",
@@ -180,7 +180,7 @@ var __meta__ = { // jshint ignore:line
         SORTED_CLASS = "k-sorted",
         HEADER_COLUMN_MENU_CLASS = "k-header-column-menu",
         FILTER_MENU_CLASS = "k-grid-filter",
-        STICKY_CELL_CLASS= "k-grid-content-sticky",
+        STICKY_CELL_CLASS = "k-grid-content-sticky",
         STICKY_HEADER_CLASS = "k-grid-header-sticky",
         STICKY_FOOTER_CLASS = "k-grid-footer-sticky",
         STICKY_HEADER_NO_BORDER_CLASS = "k-grid-no-left-border",
@@ -246,7 +246,7 @@ var __meta__ = { // jshint ignore:line
 
     if (ui.Pager) {
         GroupsPager = ui.Pager.extend({
-            init: function (element, options) {
+            init: function(element, options) {
                 ui.Pager.fn.init.call(this, element, extend(true, {}, options));
                 this.dataSource.options.useRanges = true;
                 this.dataSource._omitPrefetch = true;
@@ -255,19 +255,19 @@ var __meta__ = { // jshint ignore:line
                 name: "GroupsPager"
             },
 
-            totalPages: function () {
+            totalPages: function() {
                 var that = this;
 
                 return Math.ceil((that._collapsedTotal() || 0) / (that.pageSize() || 1));
             },
-            _collapsedTotal: function () {
+            _collapsedTotal: function() {
                 var dataSource = this.dataSource;
                 return dataSource ? (dataSource.groupsTotal(true) || 0) : 0;
             }
         });
     }
 
-    var VirtualScrollable =  Widget.extend({
+    var VirtualScrollable = Widget.extend({
         init: function(element, options) {
             var that = this;
 
@@ -381,7 +381,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _wheelScroll: function (e) {
+        _wheelScroll: function(e) {
             if (e.ctrlKey) {
                 return;
             }
@@ -537,7 +537,7 @@ var __meta__ = { // jshint ignore:line
 
             if (containerScroll > elementOffset) {
                 this.verticalScrollbar[0].scrollTop -= containerHeight / 2;
-            } else if (elementOffset + elementHeight >=  containerScroll + containerHeight) {
+            } else if (elementOffset + elementHeight >= containerScroll + containerHeight) {
                 this.verticalScrollbar[0].scrollTop += containerHeight / 2;
             }
         },
@@ -658,7 +658,7 @@ var __meta__ = { // jshint ignore:line
 
             totalHeight = (dataSource._isGroupPaged() ? dataSource.groupsTotal(true) : dataSource.total()) * itemHeight + addScrollBarHeight;
 
-            for (idx = 0; idx < math.floor(totalHeight / maxHeight) ; idx++) {
+            for (idx = 0; idx < math.floor(totalHeight / maxHeight); idx++) {
                 html += '<div style="width:1px;height:' + maxHeight + 'px"></div>';
             }
 
@@ -850,16 +850,16 @@ var __meta__ = { // jshint ignore:line
                 column.locked = locked;
             }
 
-            column.headerAttributes = extend({headers: parentIds}, column.headerAttributes);
+            column.headerAttributes = extend({ headers: parentIds }, column.headerAttributes);
             if (!column.headerAttributes.id) {
-                column.headerAttributes = extend({id: uid}, column.headerAttributes);
+                column.headerAttributes = extend({ id: uid }, column.headerAttributes);
                 column.uid = uid;
             } else {
                 uid = column.headerAttributes.id;
             }
 
             if (column.columns) {
-                column.columns = normalizeColumns(column.columns, encoded, hidden, column.locked, parentIds ? (parentIds + " " + uid): uid);
+                column.columns = normalizeColumns(column.columns, encoded, hidden, column.locked, parentIds ? (parentIds + " " + uid) : uid);
             }
             return extend({ encoded: encoded, hidden: hidden, locked: locked }, column);
         });
@@ -1121,7 +1121,7 @@ var __meta__ = { // jshint ignore:line
             target = columns[index];
             index += rtl ? 1 : -1;
             targetLocked = !!target.locked;
-        } while(target && index > -1 && index < columns.length && target != source && !target.columns && targetLocked === locked);
+        } while (target && index > -1 && index < columns.length && target != source && !target.columns && targetLocked === locked);
 
         return target;
     }
@@ -1152,7 +1152,7 @@ var __meta__ = { // jshint ignore:line
             var sourceIndex = inArray(source, parentColumns);
             target = findParentColumnWithChildren(parentColumns, index, source, sourceIndex > index);
             var targetIndex = inArray(target, masterColumns);
-            if (target.columns && (!targetIndex || targetIndex === parentColumns.length -1)) {
+            if (target.columns && (!targetIndex || targetIndex === parentColumns.length - 1)) {
                 return null;
             }
 
@@ -1600,11 +1600,11 @@ var __meta__ = { // jshint ignore:line
         attr = attr || {};
         var style = attr.style;
 
-        if(!style) {
+        if (!style) {
             style = "display:none";
         } else {
             style = style.replace(/display:[^;]*/i, "display:none");
-            if(!style.match(/display:/i)) {
+            if (!style.match(/display:/i)) {
                 style = style.replace(/(.*)?/i, "display:none;$1");
             }
         }
@@ -1623,7 +1623,7 @@ var __meta__ = { // jshint ignore:line
         attr = attr || {};
         var style = attr.style;
 
-        if(style) {
+        if (style) {
             attr.style = style.replace(/(display\s*:\s*none\s*;?)*/ig, "");
         }
 
@@ -1636,7 +1636,7 @@ var __meta__ = { // jshint ignore:line
             cols = map(visibleColumns, function(column) {
                     width = column.width;
                     if (width && parseInt(width, 10) !== 0) {
-                        return kendo.format('<col style="width:{0}"/>', typeof width === STRING? width : width + "px");
+                        return kendo.format('<col style="width:{0}"/>', typeof width === STRING ? width : width + "px");
                     }
 
                     return "<col />";
@@ -1789,7 +1789,7 @@ var __meta__ = { // jshint ignore:line
                 if (row.hasClass("k-grid-edit-row") && (cell = row.children(".k-edit-container")[0])) {
                     cell = $(cell);
                     cell.attr("colspan", parseInt(cell.attr("colspan"), 10) + 1);
-                    normalizeCols(cell.find(">form>table"), visibleColumns(columns), false,  0);
+                    normalizeCols(cell.find(">form>table"), visibleColumns(columns), false, 0);
                     row = cell.find("tr").first();
                 }
 
@@ -1844,7 +1844,7 @@ var __meta__ = { // jshint ignore:line
 
             if (that._foreignKeyPromises) {
                 $.when.apply(null, that._foreignKeyPromises)
-                    .then(function () {
+                    .then(function() {
                         that._foreignKeyPromises = null;
                         that._continueInit();
                     });
@@ -1853,7 +1853,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _continueInit: function () {
+        _continueInit: function() {
             var that = this;
 
             that._dataSource();
@@ -1899,7 +1899,7 @@ var __meta__ = { // jshint ignore:line
 
             if (that.lockedContent) {
                 that.wrapper.addClass("k-grid-lockedcolumns");
-                that._resizeHandler = function () {
+                that._resizeHandler = function() {
                     that.resize();
                 };
                 $(window).on("resize" + NS, that._resizeHandler);
@@ -2310,7 +2310,7 @@ var __meta__ = { // jshint ignore:line
         _items: function(container, includeGroupRows) {
             return container.children().filter(function() {
                 var tr = $(this);
-                return  (includeGroupRows ? !tr.hasClass("k-detail-row") : !tr.hasClass("k-grouping-row")) && !tr.hasClass("k-detail-row") && !tr.hasClass("k-group-footer");
+                return (includeGroupRows ? !tr.hasClass("k-detail-row") : !tr.hasClass("k-grouping-row")) && !tr.hasClass("k-detail-row") && !tr.hasClass("k-group-footer");
             });
         },
 
@@ -2336,11 +2336,11 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            this.angular("cleanup", function(){
+            this.angular("cleanup", function() {
                 return { elements: that.thead.get() };
             });
 
-            that.thead.add(that.lockedHeader).find("th").each(function(){
+            that.thead.add(that.lockedHeader).find("th").each(function() {
                 var th = $(this),
                     filterMenu = th.data("kendoFilterMenu"),
                     sortable = th.data("kendoColumnSorter"),
@@ -2435,7 +2435,7 @@ var __meta__ = { // jshint ignore:line
 
             scrollLeft = kendo.scrollLeft(container);
 
-            if(isRtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
+            if (isRtl && (browser.mozilla || (browser.webkit && browser.version >= 85))) {
                 scrollLeft = scrollLeft * -1;
             }
 
@@ -2451,7 +2451,7 @@ var __meta__ = { // jshint ignore:line
                     headerWrap = th.closest(".k-grid-header-wrap, .k-grid-header-locked");
                     invisibleSpace = headerWrap[0].scrollWidth - headerWrap[0].offsetWidth; // the difference between the entire width and the visible area
                     leftMargin = parseFloat(headerWrap.css("marginLeft"));
-                    ieCorrection = browser.msie ? 2*kendo.scrollLeft(headerWrap) + leftBorderWidth - leftMargin - rtlCorrection: 0;
+                    ieCorrection = browser.msie ? 2 * kendo.scrollLeft(headerWrap) + leftBorderWidth - leftMargin - rtlCorrection : 0;
                     webkitCorrection = -rtlCorrection;
                     firefoxCorrection = browser.mozilla ? leftBorderWidth - leftMargin - rtlCorrection : 0;
 
@@ -2470,7 +2470,7 @@ var __meta__ = { // jshint ignore:line
             .data("th", th)
             .show();
 
-            resizeHandle.off("dblclick" + NS).on("dblclick" + NS, function () {
+            resizeHandle.off("dblclick" + NS).on("dblclick" + NS, function() {
                 that._autoFitLeafColumn(parseInt(th.attr(kendo.attr("index")), 10));
             });
         },
@@ -2479,7 +2479,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 lockedHead = that.lockedHeader ? that.lockedHeader.find("thead").first() : $();
 
-            that.thead.add(lockedHead).on("mousemove" + NS, "tr:not(.k-filter-row) > th", function (e) {
+            that.thead.add(lockedHead).on("mousemove" + NS, "tr:not(.k-filter-row) > th", function(e) {
                 var button = typeof e.buttons !== "undefined" ? e.buttons : (e.which || e.button);
 
                 var th = $(this);
@@ -2588,7 +2588,7 @@ var __meta__ = { // jshint ignore:line
             var options = this.options;
             var scrollbar = !kendo.support.mobileOS ? kendo.support.scrollbar() : 0;
             var index = isLocked ? inArray(column, visibleLockedColumns(visibleLeafColumns(that.columns))) : inArray(column, visibleNonLockedColumns(visibleLeafColumns(that.columns)));
-            var contentTable =  isLocked ? that.lockedTable : that.table;
+            var contentTable = isLocked ? that.lockedTable : that.table;
             var footer = that.footer || $();
             var header = isLocked ? that.lockedHeader.find("table") : that.thead.closest("table");
             var columnMinWidth = column.minResizableWidth || 10;
@@ -2705,7 +2705,7 @@ var __meta__ = { // jshint ignore:line
 
                         isLocked = header.parent().hasClass("k-grid-header-locked");
 
-                        var contentTable =  isLocked ? that.lockedTable : that.table,
+                        var contentTable = isLocked ? that.lockedTable : that.table,
                             footer = that.footer || $();
 
                         if (that.footer && that.lockedContent) {
@@ -2850,7 +2850,7 @@ var __meta__ = { // jshint ignore:line
                     autoScroll: true,
                     filter: that.content ? ".k-grid-header:first " + HEADERCELLS : "table:first>.k-grid-header " + HEADERCELLS,
                     dragstart: function() {
-                        header.children(".k-grid-header-wrap").off("scroll" + NS + "scrolling").on("scroll" + NS + "scrolling", function (e) {
+                        header.children(".k-grid-header-wrap").off("scroll" + NS + "scrolling").on("scroll" + NS + "scrolling", function(e) {
                             if (that.virtualScrollable) {
                                 kendo.scrollLeft(that.content.find(">.k-virtual-scrollable-wrap"), this.scrollLeft);
                             } else {
@@ -2982,7 +2982,7 @@ var __meta__ = { // jshint ignore:line
             headerCol = footerCol = colDest;
 
             if (destination.hidden) {
-                var columnsArray = isLocked ? lockedColumns(that.columns): nonLockedColumns(that.columns);
+                var columnsArray = isLocked ? lockedColumns(that.columns) : nonLockedColumns(that.columns);
 
                 if (visibleColumns(columnsArray).length > 0) {
                     headerCol = footerCol = colDest = this._findClosestVisibleColumnIndex(columnsArray, destIndex);
@@ -3055,15 +3055,15 @@ var __meta__ = { // jshint ignore:line
             return inArray(closestVisibleColumn, visibleColumns(this.columns));
         },
 
-        _autoFitLeafColumn: function (leafIndex) {
+        _autoFitLeafColumn: function(leafIndex) {
             this.autoFitColumn(leafColumns(this.columns)[leafIndex]);
         },
 
-        _hasReorderableRows: function () {
+        _hasReorderableRows: function() {
             return this._hasDragHandleColumn || (this.options.reorderable && this.options.reorderable.rows);
         },
 
-        _draggableRows: function () {
+        _draggableRows: function() {
             var that = this,
                 selectable = that._checkBoxSelection ||
                             (that.options.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell);
@@ -3075,8 +3075,8 @@ var __meta__ = { // jshint ignore:line
             that._draggableRowsInstance = that.tbody.kendoDraggable({
                 group: "row-draggable",
                 autoScroll: true,
-                filter: (selectable ? " > .k-state-selected" : " > "+ ITEMROW) + (that._hasDragHandleColumn ? " > .k-drag-cell" : ""),
-                hint: function (target) {
+                filter: (selectable ? " > .k-state-selected" : " > " + ITEMROW) + (that._hasDragHandleColumn ? " > .k-drag-cell" : ""),
+                hint: function(target) {
                     var hint = $('<div class="k-reorder-clue k-drag-clue"><span class="k-icon k-drag-status k-i-cancel"></span></div>');
 
                     if (selectable && that.select().length > 1) {
@@ -3084,7 +3084,7 @@ var __meta__ = { // jshint ignore:line
                     } else {
                         var clone = target.closest(ITEMROW).clone();
                         clone.find("td.k-command-cell").remove();
-                        clone.find("td").each(function(index, elm){
+                        clone.find("td").each(function(index, elm) {
                             hint.append("<span>" + elm.innerText + "&nbsp;</span>");
                         });
                     }
@@ -3123,21 +3123,21 @@ var __meta__ = { // jshint ignore:line
 
                     return true;
                 },
-                dropFilter: ITEMROW,
+                dropFilter: "> " + ITEMROW,
                 allowIcon: "k-i-insert-middle",
                 orientation: "vertical",
                 reorderDropCue: $('<div class="k-drop-hint k-drop-hint-h"><div class="k-drop-hint-start"></div><div class="k-drop-hint-line"></div></div>'),
-                positionDropCue: function (reorderDropCue, dropTarget) {
+                positionDropCue: function(reorderDropCue, dropTarget) {
                     var firstCellLeft = kendo.getOffset(dropTarget.children(DATA_CELL).eq(0)).left;
                     reorderDropCue.css({
                         transform: "translate(0,-50%)",
                         left: firstCellLeft
                     });
                 },
-                externalDraggable: function(e){
+                externalDraggable: function(e) {
                     var draggable = e.draggable;
 
-                    if(draggable) {
+                    if (draggable) {
                         return draggable;
                     }
                 },
@@ -3147,7 +3147,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _triggerRowRorder: function (e) {
+        _triggerRowRorder: function(e) {
             var that = this,
                 args = {
                     newIndex: e.position === "after" ? e.newIndex + 1 : e.newIndex,
@@ -3167,17 +3167,17 @@ var __meta__ = { // jshint ignore:line
                 });
             }
 
-            if(!that.trigger(ROWREORDER, args)) {
+            if (!that.trigger(ROWREORDER, args)) {
                 that.reorderRows(selectable ? that.select() : row, args.newIndex);
             }
         },
 
-        reorderRows: function (rows, index) {
+        reorderRows: function(rows, index) {
             var that = this,
                 dataSource = that.dataSource,
                 rowsLength = that.tbody.children(ITEMROW).length,
                 targetItem = that.dataItem(that.tbody.children(ITEMROW).eq(index)),
-                items = rows.toArray().map(function(row){
+                items = rows.toArray().map(function(row) {
                     return that.dataItem(row);
                 });
 
@@ -3189,14 +3189,14 @@ var __meta__ = { // jshint ignore:line
                 index = dataSource.indexOf(targetItem);
             }
 
-            if(index >= 0) {
+            if (index >= 0) {
                 that._rowDropping = true;
                 dataSource.pushMove(index, items);
                 that._rowDropping = false;
             }
         },
 
-        autoFitColumns: function (columns) {
+        autoFitColumns: function(columns) {
             var that = this;
 
             columns = columns || that.columns;
@@ -3212,7 +3212,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        autoFitColumn: function (column) {
+        autoFitColumn: function(column) {
             var that = this,
                 options = that.options,
                 columns = that.columns,
@@ -3234,11 +3234,11 @@ var __meta__ = { // jshint ignore:line
             if (typeof column == "number") {
                 column = columns[column];
             } else if (isPlainObject(column)) {
-                column = grep(flatColumns(columns), function (item) {
+                column = grep(flatColumns(columns), function(item) {
                     return item === column;
                 })[0];
             } else {
-                column = grep(flatColumns(columns), function (item) {
+                column = grep(flatColumns(columns), function(item) {
                     return item.field === column;
                 })[0];
             }
@@ -3353,7 +3353,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (totalWidth) {
-                    tables.each(function () {
+                    tables.each(function() {
                         this.style.width = totalWidth + "px";
                     });
                 }
@@ -3455,7 +3455,7 @@ var __meta__ = { // jshint ignore:line
                 that.refresh();
             }
 
-            if(!lockChanged) {
+            if (!lockChanged) {
                 return;
             }
 
@@ -3635,7 +3635,7 @@ var __meta__ = { // jshint ignore:line
                 var mode = that._editMode();
                 if (mode === "incell") {
                     that.table.add(that.lockedTable)
-                        .on("mousedown" + NS, NAVROW + ">" + NAVCELL, function (e) {
+                        .on("mousedown" + NS, NAVROW + ">" + NAVCELL, function(e) {
                             var target = $(e.target);
                             if (that._editMode() === "incell" && target.hasClass("k-checkbox") && target.prev().attr(kendo.attr("bind"))) {
                                 e.preventDefault();
@@ -3823,7 +3823,7 @@ var __meta__ = { // jshint ignore:line
             this.lockedContent.height(content[0].offsetHeight - scrollbar);
         },
 
-        _syncLockedScroll: function () {
+        _syncLockedScroll: function() {
             this.lockedContent[0].scrollTop = this.content[0].scrollTop;
             if (this.virtualScrollable) {
                 this.lockedContent[0].scrollTop = this.wrapper.find(".k-virtual-scrollable-wrap")[0].scrollTop;
@@ -3981,7 +3981,7 @@ var __meta__ = { // jshint ignore:line
 
             cell.empty().html(tmpl(dataItem));
 
-            that.angular("compile", function(){
+            that.angular("compile", function() {
                 return {
                     elements: cell,
                     data: [ { dataItem: dataItem } ]
@@ -4023,7 +4023,7 @@ var __meta__ = { // jshint ignore:line
             model = that._modelForContainer(row);
 
             if (model && !that.trigger(REMOVE, { row: row, model: model })) {
-                schema =  that.dataSource.options.schema;
+                schema = that.dataSource.options.schema;
                 if (that._selectedIds && schema && schema.model) {
                     modelId = isFunction(that.dataSource.options.schema.model) ? that.dataSource.options.schema.model.fn.idField : that.dataSource.options.schema.model.id;
                     key = model[modelId];
@@ -4308,7 +4308,7 @@ var __meta__ = { // jshint ignore:line
                             (that.options.messages.commands.edit || "Edit") +
                             '<a href="\\#" class="k-header-done k-link k-grid-update" title="#=messages.done#" ' +
                             'aria-label="#=messages.done#"><span class="k-icon k-i-check"></span></a>' +
-                        '</div>'+
+                        '</div>' +
                         '<div data-' + kendo.ns + 'role="content" class="' + classNames.content + '">' +
                             html +
                         '</div>' +
@@ -4494,10 +4494,10 @@ var __meta__ = { // jshint ignore:line
                     that._relatedRow(row.last()).replaceWith(related);
                 }
 
-                that.angular("cleanup", function(){ return { elements: row.get() }; });
+                that.angular("cleanup", function() { return { elements: row.get() }; });
 
                 newRow = $((isAlt ? that.altRowTemplate : that.rowTemplate)(model));
-                if(!row.is(":visible")) {
+                if (!row.is(":visible")) {
                     newRow.hide();
                 }
                 row.replaceWith(newRow);
@@ -4516,7 +4516,7 @@ var __meta__ = { // jshint ignore:line
                     angularData.push({ dataItem: model });
                 }
 
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     return {
                         elements: angularElements.get(),
                         data: angularData
@@ -4545,6 +4545,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (!that._isMobile) {
+                // eslint-disable-next-line no-alert
                 return window.confirm(messages.title);
             }
 
@@ -4559,7 +4560,7 @@ var __meta__ = { // jshint ignore:line
                     okText: messages.confirmDelete,
                     cancel: messages.cancelDelete
                 },
-                open: function () {
+                open: function() {
                     if (that.content) {
                         that.content.data(OVERFLOW, that.content.css(OVERFLOW));
                         that.content.css(OVERFLOW, HIDDEN);
@@ -4834,7 +4835,7 @@ var __meta__ = { // jshint ignore:line
                         .html(toolbar({}))
                         .prependTo(wrapper);
 
-                    that.angular("compile", function(){
+                    that.angular("compile", function() {
                         return { elements: container.get() };
                     });
                 }
@@ -4855,8 +4856,8 @@ var __meta__ = { // jshint ignore:line
                     e.preventDefault();
 
                     var promise = that.saveAsPDF();
-                    if(promise) {
-                        promise.done(function () {
+                    if (promise) {
+                        promise.done(function() {
                             that._pdfInitialized = false;
                         });
                     }
@@ -4865,11 +4866,11 @@ var __meta__ = { // jshint ignore:line
                 container.on(INPUT + NS, ".k-grid-search input", function(e) {
                     var input = e.currentTarget;
                     clearTimeout(that._searchTimeOut);
-                    that._searchTimeOut = setTimeout(function () {
+                    that._searchTimeOut = setTimeout(function() {
                         that._searchTimeOut = null;
                         var options = that.options;
                         var searchFields = options.search ? options.search.fields : null;
-                        var expression = { filters:[], logic:"or" };
+                        var expression = { filters: [], logic: "or" };
                         var value = input.value;
 
                         if (!searchFields) {
@@ -4896,7 +4897,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _pushExpression: function (filters, field, value) {
+        _pushExpression: function(filters, field, value) {
             var that = this,
                 isServerFiltering = that.dataSource.options.serverFiltering,
                 defaultOperators = {
@@ -4917,14 +4918,14 @@ var __meta__ = { // jshint ignore:line
                     value: value
                 };
 
-            if((operator || isServerFiltering) && fieldInfo && kendo.isFunction(parseFn) && parseFn(value) !== null) {
+            if ((operator || isServerFiltering) && fieldInfo && kendo.isFunction(parseFn) && parseFn(value) !== null) {
                 extend(expression, {
                     operator: operator || defaultOperators[fieldInfo.type],
                     value: parseFn(value)
                 });
             }
 
-            if(isServerFiltering && fieldInfo && kendo.isFunction(parseFn) && parseFn(value) === null) {
+            if (isServerFiltering && fieldInfo && kendo.isFunction(parseFn) && parseFn(value) === null) {
                 return;
             }
 
@@ -4951,7 +4952,7 @@ var __meta__ = { // jshint ignore:line
                         html += "<span class='k-spacer'></span>";
                         html += "<span class='k-searchbox k-input k-input-md k-rounded-md k-input-solid k-grid-search'>";
                         html += "<span class='k-input-icon k-icon k-i-search'></span>";
-                        html += "<input autocomplete='off' placeholder='" + searchText + "' title='"+ searchText + "' class='k-input-inner' />";
+                        html += "<input autocomplete='off' placeholder='" + searchText + "' title='" + searchText + "' class='k-input-inner' />";
                         html += "</span>";
                     } else {
                         html += that._createButton(commands[idx]);
@@ -4971,7 +4972,7 @@ var __meta__ = { // jshint ignore:line
                 messages = this.options.messages.commands,
                 attributeClassMatch;
 
-            if (!commandName && !(isPlainObject(command) && command.template))  {
+            if (!commandName && !(isPlainObject(command) && command.template)) {
                 throw new Error("Custom commands should have name specified");
             }
 
@@ -5016,7 +5017,7 @@ var __meta__ = { // jshint ignore:line
 
             button = kendo.template(template)(options);
 
-            if(!command.template) {
+            if (!command.template) {
                 return kendo.html.renderButton($(button), options);
             } else {
                 return button;
@@ -5042,12 +5043,12 @@ var __meta__ = { // jshint ignore:line
 
                     var group = that._groupRows ? that._groupRows[that.wrapper.find(".k-grouping-row").index(groupRow)] : { };
 
-                    if(element.hasClass('k-i-collapse')) {
-                        if (!that.trigger("groupCollapse", { group: group, element: groupRow})) {
+                    if (element.hasClass('k-i-collapse')) {
+                        if (!that.trigger("groupCollapse", { group: group, element: groupRow })) {
                             that.collapseGroup(groupRow);
                         }
                     } else {
-                        if (!that.trigger("groupExpand",  { group: group, element: groupRow})) {
+                        if (!that.trigger("groupExpand", { group: group, element: groupRow })) {
                             that.expandGroup(groupRow);
                         }
                     }
@@ -5070,11 +5071,11 @@ var __meta__ = { // jshint ignore:line
                 wrapper = that.wrapper,
                 groupable = that.options.groupable,
                 draggables = HEADERCELLS + "[" + kendo.attr("field") + "]",
-                filter = that.content ? ".k-grid-header:first " + draggables  : "table:first>.k-grid-header " + draggables;
+                filter = that.content ? ".k-grid-header:first " + draggables : "table:first>.k-grid-header " + draggables;
 
             if (groupable && groupable.enabled !== false) {
 
-                if(!wrapper.has("div.k-grouping-header")[0]) {
+                if (!wrapper.has("div.k-grouping-header")[0]) {
                     $("<div>&nbsp;</div>").addClass("k-grouping-header").prependTo(wrapper);
                 }
 
@@ -5095,7 +5096,7 @@ var __meta__ = { // jshint ignore:line
                     filter: filter,
                     allowDrag: that.options.reorderable,
                     change: function(e) {
-                        if(that.trigger("group", { groups: e.groups })) {
+                        if (that.trigger("group", { groups: e.groups })) {
                             e.preventDefault();
                         } else {
                             that._clearEditableState();
@@ -5110,7 +5111,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _resetEndless: function () {
+        _resetEndless: function() {
             var that = this;
             that.dataSource.options.endless = null;
             that._endlessPageSize = that.dataSource.options.pageSize;
@@ -5252,7 +5253,7 @@ var __meta__ = { // jshint ignore:line
                             }
                         }
 
-                        if(e.event) {
+                        if (e.event) {
                             that.trigger(CHANGE);
                         }
                     },
@@ -5277,7 +5278,7 @@ var __meta__ = { // jshint ignore:line
                     continuousItems: function() {
                         return that._continuousItems(filter, cell);
                     },
-                    ignoreOverlapped: that.options.selectable &&  that.options.selectable.ignoreOverlapped,
+                    ignoreOverlapped: that.options.selectable && that.options.selectable.ignoreOverlapped,
                     addIdToRanges: true
                 });
 
@@ -5285,7 +5286,7 @@ var __meta__ = { // jshint ignore:line
                     elements.on("keydown" + NS, function(e) {
                         var current = that.current();
                         var target = e.target;
-                        var eventObject = {event: e};
+                        var eventObject = { event: e };
                         if (!current) {
                             return;
                         }
@@ -5300,11 +5301,11 @@ var __meta__ = { // jshint ignore:line
                                     current = current.add(that._relatedRow(current));
                                 }
 
-                                if(multi) {
-                                    if(!e.ctrlKey) {
+                                if (multi) {
+                                    if (!e.ctrlKey) {
                                         that.selectable.clear();
                                     } else {
-                                        if(current.hasClass(SELECTED)) {
+                                        if (current.hasClass(SELECTED)) {
                                             that._deselectCheckRows(current);
                                             return;
                                         }
@@ -5316,12 +5317,12 @@ var __meta__ = { // jshint ignore:line
                                     that.selectable._lastActive = current;
                                 }
                                 that.selectable.value(current, eventObject);
-                        } else if(!cell &&
+                        } else if (!cell &&
                             ($(target).is("td") || ($(target).is("table") && inArray(target, this._navigatableTables))) &&
-                          ((e.shiftKey && e.keyCode == keys.LEFT)||
-                           (e.shiftKey && e.keyCode == keys.RIGHT)||
-                           (e.shiftKey && e.keyCode == keys.UP)||
-                           (e.shiftKey && e.keyCode == keys.DOWN)||
+                          ((e.shiftKey && e.keyCode == keys.LEFT) ||
+                           (e.shiftKey && e.keyCode == keys.RIGHT) ||
+                           (e.shiftKey && e.keyCode == keys.UP) ||
+                           (e.shiftKey && e.keyCode == keys.DOWN) ||
                            (e.keyCode === keys.SPACEBAR && e.shiftKey))) {
                             e.preventDefault();
                             e.stopPropagation();
@@ -5332,7 +5333,7 @@ var __meta__ = { // jshint ignore:line
                             }
 
                             if (multi) {
-                                if(!that.selectable._lastActive) {
+                                if (!that.selectable._lastActive) {
                                     that.selectable._lastActive = current;
                                 }
                                 that.selectable.selectRange(that.selectable._firstSelectee(), current, eventObject);
@@ -5362,7 +5363,7 @@ var __meta__ = { // jshint ignore:line
                         .on("mousedown" + NS, NAVROW + ">" + NAVCELL, tableClick.bind(grid));
                 }
                 grid.copyHandler = grid.copySelection.bind(grid);
-                grid.updateClipBoardState = function () {
+                grid.updateClipBoardState = function() {
                     if (grid.areaClipBoard) {
                         grid.areaClipBoard.val(grid.getTSV()).trigger("focus").select();
                     }
@@ -5374,7 +5375,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        copySelectionToClipboard: function (includeHeaders) {
+        copySelectionToClipboard: function(includeHeaders) {
             this._createAreaClipBoard();
             this.areaClipBoard.val(this.getTSV(includeHeaders)).trigger("focus").select();
             document.execCommand('copy');
@@ -5393,14 +5394,14 @@ var __meta__ = { // jshint ignore:line
 
         },
 
-        _createAreaClipBoard: function () {
+        _createAreaClipBoard: function() {
             if (!this.areaClipBoard) {
                 this.areaClipBoard =
                     $("<textarea />")
                     .css({
                         position: "fixed",
                         top: "50%",
-                        left:"50%",
+                        left: "50%",
                         opacity: 0,
                         width: 0,
                         height: 0
@@ -5437,7 +5438,7 @@ var __meta__ = { // jshint ignore:line
                 var field;
                 var columns = visibleLeafColumns(this.columns);
 
-                $.each(selected, function (idx, cell) {
+                $.each(selected, function(idx, cell) {
                     cell = $(cell);
                     field = grid._getCellField(cell, hasLockedCols);
 
@@ -5469,7 +5470,7 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 var rowsOffset = result.length;
-                result = $.each(result, function (idx, val) {
+                result = $.each(result, function(idx, val) {
                     if (val) {
                         result[idx] = val.slice(cellsOffset);
                         if (rowsOffset > idx) {
@@ -5479,7 +5480,7 @@ var __meta__ = { // jshint ignore:line
                 });
 
                 if (includeHeaders && fields.length) {
-                    result.splice(rowsOffset, 0, fields.map(function (field) {
+                    result.splice(rowsOffset, 0, fields.map(function(field) {
                         return getTitle(field, columns);
                     }));
 
@@ -5490,18 +5491,18 @@ var __meta__ = { // jshint ignore:line
                     result[headerIndex] = result[headerIndex].slice(cellsOffset);
                 }
 
-                $.each(result.slice(rowsOffset), function (idx, val) {
+                $.each(result.slice(rowsOffset), function(idx, val) {
                     if (val) {
                         text += val.join(delimeter) + "\r\n";
                     } else {
-                        text +=  "\r\n";
+                        text += "\r\n";
                     }
                 });
             }
             return text;
         },
 
-        clearArea: function (e) {
+        clearArea: function(e) {
             var table;
             if (this.areaClipBoard && e && e.target === this.areaClipBoard[0]) {
                 if (this.options.navigatable) {
@@ -5683,7 +5684,7 @@ var __meta__ = { // jshint ignore:line
             return this._iterateMinScreenCols(cols, screenWidth);
         },
 
-        _iterateMinScreenCols: function (cols, screenWidth) {
+        _iterateMinScreenCols: function(cols, screenWidth) {
             var any = false;
 
             for (var i = 0; i < cols.length; i++) {
@@ -5730,11 +5731,11 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _updateStickyFilterCells: function () {
+        _updateStickyFilterCells: function() {
             var that = this;
             var filterCells = that.thead.find(".k-filter-row").find("th:not(.k-group-cell,.k-hierarchy-cell)");
             if (filterCells.length) {
-                filterCells.each(function () {
+                filterCells.each(function() {
                     var th = $(this);
                     var column = th.data("column");
                     var style = th.attr("style") || "";
@@ -5791,7 +5792,7 @@ var __meta__ = { // jshint ignore:line
                 columnWidth = that._sumColumnWidth(column);
                 nextColumnLeft = columnWidth + stickyWidths[left][i];
 
-                stickyWidths[left][i+1] = nextColumnLeft;
+                stickyWidths[left][i + 1] = nextColumnLeft;
             }
 
             for (i = columns.length - 1; i > 0; i--) {
@@ -5799,7 +5800,7 @@ var __meta__ = { // jshint ignore:line
                 columnWidth = that._sumColumnWidth(column);
                 nextColumnRight = columnWidth + stickyWidths[right][i];
 
-                stickyWidths[right][i-1] = nextColumnRight;
+                stickyWidths[right][i - 1] = nextColumnRight;
             }
 
             return stickyWidths;
@@ -6050,11 +6051,11 @@ var __meta__ = { // jshint ignore:line
             return width;
         },
 
-        _belongsToGrid: function (element) {
+        _belongsToGrid: function(element) {
             return this.wrapper[0] === element.closest(WRAPPER)[0];
         },
 
-        getSelectedData: function () {
+        getSelectedData: function() {
             var that = this;
             var selectedRanges = that.selectable.selectedRanges();
             var selectedRangeNames = Object.keys(selectedRanges);
@@ -6073,7 +6074,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        exportSelectedToExcel: function (includeHeaders) {
+        exportSelectedToExcel: function(includeHeaders) {
             if (!kendo.excel || !kendo.ooxml) {
                 throw new Error("The excel export functionality depends on both kendo.excel.js and kendo.ooxml.js scripts, please make sure they are included.");
             }
@@ -6082,7 +6083,7 @@ var __meta__ = { // jshint ignore:line
             var excel = this.options.excel || {};
             var visibleColumns = visibleLeafColumns(that.columns);
             var exporter = new kendo.excel.ExcelExporter({});
-            var columnHandler = function(){return { autoWidth: true };};
+            var columnHandler = function() {return { autoWidth: true };};
             var book = {
                 sheets: [{
                     columns: Array.apply(0, Array(visibleColumns.length)).map(columnHandler),
@@ -6119,7 +6120,7 @@ var __meta__ = { // jshint ignore:line
             if (book.sheets[0].rows.length) {
                 var workbook = new kendo.ooxml.Workbook(book);
 
-                if(!workbook.options) {
+                if (!workbook.options) {
                     workbook.options = {};
                 }
                 workbook.options.skipCustomHeight = true;
@@ -6135,7 +6136,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _addSingleSelectionRows: function (book, exporter, data, includeHeaders) {
+        _addSingleSelectionRows: function(book, exporter, data, includeHeaders) {
             var idx = 0;
             var visibleColumns = visibleLeafColumns(this.columns);
             var item;
@@ -6148,7 +6149,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _addRangeSelectionRows: function (book, exporter, data, includeHeaders) {
+        _addRangeSelectionRows: function(book, exporter, data, includeHeaders) {
             var visibleColumns = visibleLeafColumns(this.columns);
 
             exporter.data = data;
@@ -6156,17 +6157,17 @@ var __meta__ = { // jshint ignore:line
             this._createExportRows(book, exporter, includeHeaders);
         },
 
-        _createExportRows: function (book, exporter, includeHeaders) {
+        _createExportRows: function(book, exporter, includeHeaders) {
             book.sheets[0].rows = book.sheets[0].rows.concat(includeHeaders ? exporter._rows() : exporter._dataRows(exporter.data, 0));
         },
 
-        _setExporterColumns: function (exporter, columns, item) {
-            exporter.columns = exporter.options.columns = $.map(columns.filter(function (col) {
+        _setExporterColumns: function(exporter, columns, item) {
+            exporter.columns = exporter.options.columns = $.map(columns.filter(function(col) {
                 return Object.keys(item).indexOf(col.field) >= 0;
             }), exporter._prepareColumn);
         },
 
-        _mapSelectionToData: function (elements, visibleColumns, columnsFilter) {
+        _mapSelectionToData: function(elements, visibleColumns, columnsFilter) {
             var that = this;
             var elementType = elements[0][0].nodeName;
             var isRowSelection = elementType === 'TR';
@@ -6175,7 +6176,7 @@ var __meta__ = { // jshint ignore:line
             var element;
             var curr;
             var field;
-            var columnMapHandler = function (col) {
+            var columnMapHandler = function(col) {
                 var result = {};
 
                 if (!col.field || (columnsFilter && !columnsFilter(col))) {
@@ -6217,19 +6218,19 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            return Object.keys(result).map(function (id) {
+            return Object.keys(result).map(function(id) {
                 result[id].uid = id;
                 return result[id];
             });
         },
 
-        _getCellField: function (cell, hasLockedCols) {
+        _getCellField: function(cell, hasLockedCols) {
             var grid = this;
             var inLockedArea = hasLockedCols && $.contains(grid.lockedTable[0], cell[0]);
             var fieldAttr = kendo.attr('field');
 
             if (hasLockedCols) {
-                return grid.element.find(".k-grid-header-" + (inLockedArea ? "locked" : "wrap") +  " th").eq(cell.index()).attr(fieldAttr);
+                return grid.element.find(".k-grid-header-" + (inLockedArea ? "locked" : "wrap") + " th").eq(cell.index()).attr(fieldAttr);
             } else {
                 return grid.thead.find("th").eq(cell.index()).attr(fieldAttr);
             }
@@ -6294,8 +6295,8 @@ var __meta__ = { // jshint ignore:line
                 cell = selectableoptions.cell;
 
             items = that.table.add(that.lockedTable).find(items);
-            if(items.length) {
-                if(selectable && !selectable.options.multiple) {
+            if (items.length) {
+                if (selectable && !selectable.options.multiple) {
                     selectable.clear();
                     items = items.first();
                 }
@@ -6311,11 +6312,11 @@ var __meta__ = { // jshint ignore:line
                     }));
                 }
 
-                if(selectable && !that._checkBoxSelection) {
+                if (selectable && !that._checkBoxSelection) {
                    selectable.value(items);
                 } else {
                     that._checkRows(items);
-                    if(that.select().length === that.items().length) {
+                    if (that.select().length === that.items().length) {
                         that._toggleHeaderCheckState(true);
                     }
 
@@ -6334,7 +6335,7 @@ var __meta__ = { // jshint ignore:line
 
         _toggleHeaderCheckState: function(checked) {
             var that = this;
-            if(checked) {
+            if (checked) {
                 that.thead.add(that.lockedHeader).find("tr " + CHECKBOXINPUT)
                     .prop("checked", true).attr("aria-checked", true)
                     .attr("aria-label", "Deselect all rows");
@@ -6345,8 +6346,8 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _uncheckCheckBoxes: function () {
-            var that= this;
+        _uncheckCheckBoxes: function() {
+            var that = this;
             var tables = that.table.add(that.lockedTable);
 
             tables.find("tbody " + CHECKBOXINPUT).attr("aria-checked", false)
@@ -6403,7 +6404,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if(!kendo.ui.Selectable.parseOptions(that.options.selectable).multiple && !that._checkBoxSelection) {
+            if (!kendo.ui.Selectable.parseOptions(that.options.selectable).multiple && !that._checkBoxSelection) {
                 that._selectedIds = {};
             }
 
@@ -6415,7 +6416,7 @@ var __meta__ = { // jshint ignore:line
             for (var i = 0; i < allRows.length; i ++) {
                 dataItem = that.dataItem(allRows[i]);
                 key = dataItem[modelId];
-                if(selectedViewIds[key]) {
+                if (selectedViewIds[key]) {
                     that._selectedIds[key] = true;
                 } else {
                     delete that._selectedIds[key];
@@ -6443,10 +6444,10 @@ var __meta__ = { // jshint ignore:line
                 .closest("table")
                 .removeAttr("aria-activedescendant");
 
-            if(headerId){
+            if (headerId) {
                 headerId = headerId.replace(this._cellId, "");
                 $(current).attr("id", headerId);
-            }else{
+            } else {
                 $(current).removeAttr("id");
             }
 
@@ -6558,7 +6559,7 @@ var __meta__ = { // jshint ignore:line
 
         _scrollTo: function(element, container) {
             var elementToLowercase = element.tagName.toLowerCase();
-            var isHorizontal =  elementToLowercase === "td" || elementToLowercase === "th";
+            var isHorizontal = elementToLowercase === "td" || elementToLowercase === "th";
             var table = $(element).closest("table")[0];
             var elementOffsetDir = element[isHorizontal ? "offsetWidth" : "offsetHeight"];
             var containerScroll = container[isHorizontal ? "scrollLeft" : "scrollTop"];
@@ -6685,7 +6686,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _findCellIndex: function (columns, startIndex, reversed) {
+        _findCellIndex: function(columns, startIndex, reversed) {
             var cellIndex;
             var i;
 
@@ -6708,7 +6709,7 @@ var __meta__ = { // jshint ignore:line
             return cellIndex;
         },
 
-        _scrollToColumn: function (key, e) {
+        _scrollToColumn: function(key, e) {
             if (this._virtualCellIndex === undefined) {
                 return false;
             }
@@ -6718,7 +6719,7 @@ var __meta__ = { // jshint ignore:line
             var leafsCols = leafColumns(nonLockedColumns(that.columns));
             var scrollWidth = 0;
 
-            if (key == (isRtl ? keys.LEFT : keys.RIGHT) && (cellIndex !== leafsCols.length -1)) {
+            if (key == (isRtl ? keys.LEFT : keys.RIGHT) && (cellIndex !== leafsCols.length - 1)) {
                 cellIndex = that._findCellIndex(leafsCols, cellIndex + 1);
             } else if (key == (isRtl ? keys.RIGHT : keys.LEFT) && cellIndex) {
                 cellIndex = that._findCellIndex(leafsCols,cellIndex - 1, true);
@@ -6934,7 +6935,7 @@ var __meta__ = { // jshint ignore:line
                 index = this.tbody.children(ITEMROW).index(next);
                 oldIndex = this.tbody.children(ITEMROW).index(current.parent());
 
-                if(index >= 0 && !this.trigger(ROWREORDER, {oldIndex: oldIndex, newIndex: index, row: current.parent() })) {
+                if (index >= 0 && !this.trigger(ROWREORDER, { oldIndex: oldIndex, newIndex: index, row: current.parent() })) {
                     this.reorderRows(current.parent(), index);
                     next = this.tbody.children(ITEMROW).eq(index).children().eq(cellIndex);
                 }
@@ -6967,7 +6968,7 @@ var __meta__ = { // jshint ignore:line
             if (shiftKey) {
                 next = current.parent();
                 next = next.nextAll(ITEMROW).first();
-                next = current.parent().is(ITEMROW)? next.children().eq(current.index()) : next.children(DATA_CELL).first();
+                next = current.parent().is(ITEMROW) ? next.children().eq(current.index()) : next.children(DATA_CELL).first();
             } else if (ctrlKey && current.parent().is(ITEMROW) && this._hasReorderableRows()) {
                 cellIndex = current.index();
                 next = current.parent();
@@ -6975,7 +6976,7 @@ var __meta__ = { // jshint ignore:line
                 index = this.tbody.children(ITEMROW).index(next);
                 oldIndex = this.tbody.children(ITEMROW).index(current.parent());
 
-                if(index >= 0 && !this.trigger(ROWREORDER, {oldIndex: oldIndex, newIndex: index, row: current.parent() })) {
+                if (index >= 0 && !this.trigger(ROWREORDER, { oldIndex: oldIndex, newIndex: index, row: current.parent() })) {
                     this.reorderRows(current.parent(), index + 1);
                     next = this.tbody.children(ITEMROW).eq(index).children().eq(cellIndex);
                 }
@@ -7002,7 +7003,7 @@ var __meta__ = { // jshint ignore:line
 
             var columns = visibleColumns(flatColumnsInDomOrder(this.columns));
             var oldIndex = elements.index($(current));
-            var offset = isLeft ? - 1: 1;
+            var offset = isLeft ? - 1 : 1;
             var column = columns[oldIndex];
             var newIndex = targetParentContainerIndex(columns, this.columns, oldIndex, oldIndex + offset);
             if (newIndex >= 0) {
@@ -7197,7 +7198,7 @@ var __meta__ = { // jshint ignore:line
                 });
                 label += " " + that.options.messages.ungroupHeader;
             } else {
-                descriptors = $.grep(descriptors, function (item)
+                descriptors = $.grep(descriptors, function(item)
                 {
                     return item.field !== field;
                 });
@@ -7376,7 +7377,7 @@ var __meta__ = { // jshint ignore:line
                     return leafDataCells(container).filter(isCellVisible).eq(index);
                 }
             } else {
-                row =  rowIndex === 0 ? $() : rows.eq(rowIndex - 1);
+                row = rowIndex === 0 ? $() : rows.eq(rowIndex - 1);
             }
 
             cells = row.children(DATA_CELL);
@@ -7427,7 +7428,7 @@ var __meta__ = { // jshint ignore:line
             if (this._currentDataIndex(container, current) !== undefined) {
                 var currentRowCells = row.children(":not(.k-group-cell):not(.k-hierarchy-cell)");
                 var hiddenColumns = currentRowCells.filter(":hidden");
-                for(var idx = 0, length = hiddenColumns.length; idx < length; idx++) {
+                for (var idx = 0, length = hiddenColumns.length; idx < length; idx++) {
                     if (currentRowCells.index(hiddenColumns[idx]) < index) {
                         tmpIndex--;
                     }
@@ -7483,7 +7484,7 @@ var __meta__ = { // jshint ignore:line
             return this._navigatableTables.eq(index).find("thead, tbody");
         },
 
-        _tabNext: function (current, currentTable, back) {
+        _tabNext: function(current, currentTable, back) {
             var switchRow = true;
             var next = back ? current.prevAll(DATA_CELL).first() : current.nextAll(":visible").first();
 
@@ -7500,7 +7501,7 @@ var __meta__ = { // jshint ignore:line
                     }
                     next = next[back ? "prevAll" : "nextAll"]("tr:not(.k-grouping-row):not(.k-detail-row):visible").first();
                 }
-                if(back) {
+                if (back) {
                     next = next.children(DATA_CELL).last();
                 } else {
                     next = next.children(DATA_CELL).first();
@@ -7640,7 +7641,7 @@ var __meta__ = { // jshint ignore:line
                     e.stopPropagation();
                 });
 
-                that.wrapper.on("contextmenu" + NS, "th a", function (e) {
+                that.wrapper.on("contextmenu" + NS, "th a", function(e) {
                     e.preventDefault();
                     return false;
                 });
@@ -7748,14 +7749,14 @@ var __meta__ = { // jshint ignore:line
                     that.scrollables = that.scrollables.add(footer.children(".k-grid-footer-wrap"));
                 }
 
-                headerWrap.off("scroll" + NS).on("scroll" + NS, function (e) {
+                headerWrap.off("scroll" + NS).on("scroll" + NS, function(e) {
                     if (that._scrollLeft !== this.scrollLeft) {
                         kendo.scrollLeft(that.scrollables.not(e.currentTarget), this.scrollLeft);
                     }
                 });
 
                 if (virtualScroll && virtualScroll.rows) {
-                    that.content.find(">.k-virtual-scrollable-wrap").off("scroll" + NS).on("scroll" + NS, function () {
+                    that.content.find(">.k-virtual-scrollable-wrap").off("scroll" + NS).on("scroll" + NS, function() {
                         var isScrollingLeft = this.scrollLeft != that._scrollLeft;
                         that._scrollLeft = this.scrollLeft;
                         kendo.scrollLeft(that.scrollables, this.scrollLeft);
@@ -7772,7 +7773,7 @@ var __meta__ = { // jshint ignore:line
                     if (endless) {
                         that._endlessPageSize = originalPageSize;
                     }
-                    that.content.off("scroll" + NS).on("scroll" + NS, function (e) {
+                    that.content.off("scroll" + NS).on("scroll" + NS, function(e) {
                         var isScrollingLeft = this.scrollLeft != that._scrollLeft;
                         that._scrollLeft = this.scrollLeft;
                         kendo.scrollLeft(that.scrollables.not(e.currentTarget), that._scrollLeft);
@@ -7783,7 +7784,7 @@ var __meta__ = { // jshint ignore:line
                             if ((this.scrollTop + this.clientHeight - this.scrollHeight >= -10) &&
                                 !that._endlessFetchInProgress &&
                                 that._endlessPageSize < that.dataSource.total()) {
-                                that._skipRerenderItemsCount =  that._endlessPageSize;
+                                that._skipRerenderItemsCount = that._endlessPageSize;
                                 that._endlessPageSize = that._endlessPageSize + originalPageSize;
                                 that.dataSource.options.endless = true;
                                 that._endlessFetchInProgress = true;
@@ -7815,7 +7816,7 @@ var __meta__ = { // jshint ignore:line
                             }
                         });
 
-                        that.one(DATABOUND, function (e) {
+                        that.one(DATABOUND, function(e) {
                             e.sender.wrapper.addClass("k-grid-backface");
                         });
                     }
@@ -7839,10 +7840,10 @@ var __meta__ = { // jshint ignore:line
                 scroll: function() {
                     that._focusEditable();
                 },
-                loadStart: function () {
+                loadStart: function() {
                     that._progress(true);
                 },
-                loadEnd: function () {
+                loadEnd: function() {
                     that._progress(false);
                 }
             });
@@ -7878,8 +7879,8 @@ var __meta__ = { // jshint ignore:line
             return this.virtualScrollable && this._editMode() === "popup";
         },
 
-        _hasVirtualColumns: function () {
-            return (this.virtualScroll || {}).columns ? true: false;
+        _hasVirtualColumns: function() {
+            return (this.virtualScroll || {}).columns ? true : false;
         },
 
         _scrollVirtualWrapper: function() {
@@ -7979,7 +7980,7 @@ var __meta__ = { // jshint ignore:line
                     //out of the virtual view with the mousewheel right after editing
                     active.change();
 
-                    widget =  kendo.widgetInstance(active, kendo.ui);
+                    widget = kendo.widgetInstance(active, kendo.ui);
 
                     if (widget && isFunction(widget.value) && active.is(INPUT)) {
                         widget.value(active.val());
@@ -8001,7 +8002,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _clearSortClasses: function () {
+        _clearSortClasses: function() {
             var that = this,
                 content = that.content || that.table,
                 lockedContent = that.lockedContent;
@@ -8042,7 +8043,7 @@ var __meta__ = { // jshint ignore:line
                 var noRecordsElement = that.table.parent().children('.' + NORECORDSCLASS);
 
                 if (noRecordsElement.length) {
-                    that.angular("cleanup", function(){
+                    that.angular("cleanup", function() {
                         return { elements: noRecordsElement.get() };
                     });
 
@@ -8052,7 +8053,7 @@ var __meta__ = { // jshint ignore:line
                 if (!that.dataSource || !that.dataSource.view().length) {
                     noRecordsElement = $(that.noRecordsTemplate({})).insertAfter(that.table);
 
-                    that.angular("compile", function(){
+                    that.angular("compile", function() {
                         return {
                             elements: noRecordsElement.get(),
                             data: [{}]
@@ -8169,11 +8170,11 @@ var __meta__ = { // jshint ignore:line
                     height -= outerHeight(that.pager.element);
                 }
 
-                if(options.groupable) {
+                if (options.groupable) {
                     height -= outerHeight(that.wrapper.children(".k-grouping-header"));
                 }
 
-                if(options.toolbar) {
+                if (options.toolbar) {
                     height -= outerHeight(that.wrapper.children(".k-grid-toolbar"));
                 }
 
@@ -8289,7 +8290,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 tbody = that.tbody,
                 model = e.model,
-                row = that.tbody.find("tr[" + kendo.attr("uid") + "=" + model.uid +"]"),
+                row = that.tbody.find("tr[" + kendo.attr("uid") + "=" + model.uid + "]"),
                 relatedRow,
                 cell,
                 column,
@@ -8333,7 +8334,7 @@ var __meta__ = { // jshint ignore:line
                     relatedRow.replaceWith(tmp);
                 }
 
-                that.angular("cleanup", function(){ return { elements: selectableRow.get() }; });
+                that.angular("cleanup", function() { return { elements: selectableRow.get() }; });
 
                 tmp = (isAlt ? that.altRowTemplate : that.rowTemplate)(model);
 
@@ -8353,7 +8354,7 @@ var __meta__ = { // jshint ignore:line
                     angularData.push({ dataItem: model });
                 }
 
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     return {
                         elements: tmp.get(),
                         data: angularData
@@ -8407,7 +8408,7 @@ var __meta__ = { // jshint ignore:line
                 if (typeof pageable === "object" && pageable instanceof kendo.ui.Pager) {
                     that.pager = pageable;
                 } else {
-                    if(that.dataSource._groupPaging){
+                    if (that.dataSource._groupPaging) {
                         that.pager = new GroupsPager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource, navigatable: navigatable }));
                     } else {
                         that.pager = new kendo.ui.Pager(pagerWrap, extend({}, pageable, { dataSource: that.dataSource, navigatable: navigatable }));
@@ -8439,7 +8440,7 @@ var __meta__ = { // jshint ignore:line
                 if (footer.length) {
                     var tmp = html;
 
-                    that.angular("cleanup", function(){
+                    that.angular("cleanup", function() {
                         return { elements: footer.get() };
                     });
 
@@ -8453,10 +8454,10 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
 
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     return {
                         elements: footer.find("td:not(.k-group-cell, .k-hierarchy-cell)").get(),
-                        data: map(that.columns, function(col){
+                        data: map(that.columns, function(col) {
                             return {
                                 column: col,
                                 aggregate: aggregates[col.field]
@@ -8650,7 +8651,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _hasFilterMenu: function () {
+        _hasFilterMenu: function() {
             var filterable = this.options.filterable;
             if (filterable && typeof filterable.mode == STRING && filterable.mode.indexOf("menu") == -1) {
                 return false;
@@ -8800,7 +8801,7 @@ var __meta__ = { // jshint ignore:line
                         customDataSource = true;
                     }
                     if (col.filterable && col.filterable.operators) {
-                        operators =  col.filterable.operators;
+                        operators = col.filterable.operators;
                     }
 
                     settings = {
@@ -8868,7 +8869,7 @@ var __meta__ = { // jshint ignore:line
                             sorterInstance.destroy();
                         }
 
-                        cell.attr("data-" + kendo.ns +"field", column.field)
+                        cell.attr("data-" + kendo.ns + "field", column.field)
                             .kendoColumnSorter(
                                 extend({}, sortable, column.sortable, {
                                     dataSource: that.dataSource,
@@ -8942,16 +8943,16 @@ var __meta__ = { // jshint ignore:line
 
             that.columns = normalizeColumns(columns, encoded);
 
-            if($.grep(leafColumns(that.columns), function (col) { return col.selectable ;}).length) {
+            if ($.grep(leafColumns(that.columns), function(col) { return col.selectable;}).length) {
                 that._selectedIds = {};
                 that._checkBoxSelection = true;
                 that.wrapper.on(CLICK + NS, "tbody > tr " + CHECKBOXINPUT, that._checkboxClick.bind(that));
                 that.wrapper.on(CLICK + NS, "thead > tr " + CHECKBOXINPUT, that._headerCheckboxClick.bind(that));
             }
 
-            draggableColumns = $.grep(leafColumns(that.columns), function (col) { return col.draggable ;});
+            draggableColumns = $.grep(leafColumns(that.columns), function(col) { return col.draggable;});
 
-            if(draggableColumns.length) {
+            if (draggableColumns.length) {
                 that._hasDragHandleColumn = true;
 
                 for (var i = 0; i < draggableColumns.length; i++) {
@@ -8964,7 +8965,7 @@ var __meta__ = { // jshint ignore:line
             that._foreignKeyBindings(that.columns);
         },
 
-        _foreignKeyBindings: function (columns) {
+        _foreignKeyBindings: function(columns) {
             var that = this;
             var length = columns.length;
             var column;
@@ -8978,7 +8979,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _fetchForeignKeyValues: function (column) {
+        _fetchForeignKeyValues: function(column) {
             var that = this;
             var promise = $.Deferred();
 
@@ -8990,9 +8991,9 @@ var __meta__ = { // jshint ignore:line
             }
 
             that._foreignKeyPromises.push(promise);
-            column.dataSource.fetch().then(function () {
+            column.dataSource.fetch().then(function() {
                 var data = column.dataSource.data();
-                column.values = data.map(function (item) {
+                column.values = data.map(function(item) {
                     return {
                         value: item[column.dataValueField],
                         text: item[column.dataTextField]
@@ -9003,7 +9004,7 @@ var __meta__ = { // jshint ignore:line
 
         },
 
-        _updateColumnIDs: function (columns, tr) {
+        _updateColumnIDs: function(columns, tr) {
 
             if (!columns.length) {
                 return;
@@ -9011,7 +9012,7 @@ var __meta__ = { // jshint ignore:line
 
             var ths = tr.find("th:not(.k-group-cell):not(.k-hierarchy-cell)");
             var id;
-            for (var i = 0; i<columns.length; i++) {
+            for (var i = 0; i < columns.length; i++) {
                 id = ths.eq(i).attr("id");
                 if (id) {
                     columns[i].headerAttributes = extend(columns[i].headerAttributes, { id: id });
@@ -9039,10 +9040,10 @@ var __meta__ = { // jshint ignore:line
 
         _checkboxClick: function(e) {
             var that = this,
-                row =  $(e.target).closest("tr"),
+                row = $(e.target).closest("tr"),
                 isSelecting = !row.hasClass(SELECTED);
 
-            if(!that._belongsToGrid(row)) {
+            if (!that._belongsToGrid(row)) {
                 return;
             }
 
@@ -9125,7 +9126,7 @@ var __meta__ = { // jshint ignore:line
                         }
                     }
 
-                    if (column.colSpan && column.colSpan > 0 && hasHiddenStyle(column.attributes)) {  //virtual cell should be visible at all times
+                    if (column.colSpan && column.colSpan > 0 && hasHiddenStyle(column.attributes)) { //virtual cell should be visible at all times
                         column.attributes = removeHiddenStyle(column.attributes);
                     } else if (!column.colSpan && column.hidden) {
                         column.attributes = addHiddenStyle(column.attributes);
@@ -9235,7 +9236,7 @@ var __meta__ = { // jshint ignore:line
             if (column.command) {
                 if (isArray(column.command)) {
                     for (idx = 0, length = column.command.length; idx < length; idx++) {
-                        if(column.command[idx].visible) {
+                        if (column.command[idx].visible) {
                             html += kendo.format("#= {0}(data)? '{1}':'' #",column.command[idx].visible, that._createButton(column.command[idx]).replace(templateHashRegExp, "\\#").replace(/'/ig,"\\'"));
                         } else {
                             html += that._createButton(column.command[idx]).replace(templateHashRegExp, "\\#");
@@ -9246,11 +9247,11 @@ var __meta__ = { // jshint ignore:line
                 return that._createButton(column.command).replace(templateHashRegExp, "\\#");
             }
 
-            if(column.selectable) {
+            if (column.selectable) {
                 return SELECTCOLUMNTMPL;
             }
 
-            if(column.draggable) {
+            if (column.draggable) {
                 return DRAGHANDLECOLUMNTMPL;
             }
 
@@ -9308,7 +9309,7 @@ var __meta__ = { // jshint ignore:line
             return "";
         },
 
-        _virtualCols: function (columns) {
+        _virtualCols: function(columns) {
             var that = this;
             var widths = $.map(columns, function(c) { return c.hidden ? 0 : parseInt(c.width, 10); });
             var scrollLeft = that.virtualScrollable ? kendo.scrollLeft(that.content.find(">.k-virtual-scrollable-wrap")) : kendo.scrollLeft(that.content);
@@ -9324,7 +9325,7 @@ var __meta__ = { // jshint ignore:line
 
             for (idx = 0; idx < columns.length; idx++) {
                 considerNext = (idx < widths.length - 1) ? widths[idx + 1] : 0;
-                if (widthOfHiddenColumns + widths[idx] + 2*considerNext < scrollLeft) {
+                if (widthOfHiddenColumns + widths[idx] + 2 * considerNext < scrollLeft) {
                     if (widths[idx]) {
                         hiddenColumns++;
                     }
@@ -9355,7 +9356,7 @@ var __meta__ = { // jshint ignore:line
                             delete columns[j].colSpan;
                         }
                     }
-                    colsToRender[0].colSpan =  firstColspan;
+                    colsToRender[0].colSpan = firstColspan;
                     colsToRender[colsToRender.length - 1].colSpan = lastColspan;
                     break;
                 }
@@ -9429,7 +9430,7 @@ var __meta__ = { // jshint ignore:line
                 }
             } else {
                 that.groupHeaderColumnTemplate = null;
-                that.lockedGroupHeaderColumnTemplate  = null;
+                that.lockedGroupHeaderColumnTemplate = null;
             }
 
                 if (that.options.noRecords) {
@@ -9437,7 +9438,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _noRecordsTmpl: function () {
+        _noRecordsTmpl: function() {
             var wrapper = '<div class="{0}">{1}</div>';
             var defaultTemplate = '<div class="k-grid-norecords-template"{1}>{0}</div>';
             var scrollableNoGridHeightStyles = (this.options.scrollable && !this.wrapper[0].style.height) ? ' style="margin:0 auto;position:static;"' : '';
@@ -9641,7 +9642,7 @@ var __meta__ = { // jshint ignore:line
             if (groups > 0) {
                 html += groupCells(groups);
             }
-            html += '<td class="k-hierarchy-cell"></td><td class="k-detail-cell"' + (colspan? ' colspan="' + colspan + '"' : '') + ">";
+            html += '<td class="k-hierarchy-cell"></td><td class="k-detail-cell"' + (colspan ? ' colspan="' + colspan + '"' : '') + ">";
 
             if (type === FUNCTION) {
                 templateFunctionStorage["tmpl" + templateFunctionCount] = template;
@@ -9665,7 +9666,7 @@ var __meta__ = { // jshint ignore:line
         _hasDetails: function() {
             var that = this;
 
-            return that.options.detailTemplate !== null  || (that._events[DETAILINIT] || []).length;
+            return that.options.detailTemplate !== null || (that._events[DETAILINIT] || []).length;
         },
         _hasFilterRow: function() {
             var filterable = this.options.filterable;
@@ -9700,7 +9701,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _toggleDetails: function(button, omitAnimation){
+        _toggleDetails: function(button, omitAnimation) {
             var that = this,
             cell = button.closest("td.k-hierarchy-cell"),
             expanding = button.hasClass("k-i-expand"),
@@ -9727,7 +9728,7 @@ var __meta__ = { // jshint ignore:line
                     .addClass(masterRow.hasClass("k-alt") ? "k-alt" : "")
                     .insertAfter(masterRow);
 
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     return {
                         elements: detailRow.get(),
                         data: [ { dataItem: data } ]
@@ -9737,9 +9738,9 @@ var __meta__ = { // jshint ignore:line
                 that.trigger(DETAILINIT, { masterRow: masterRow, detailRow: detailRow, data: data, detailCell: detailRow.find(".k-detail-cell") });
             }
 
-            that.trigger(expanding ? DETAILEXPAND : DETAILCOLLAPSE, { masterRow: masterRow, detailRow: detailRow});
+            that.trigger(expanding ? DETAILEXPAND : DETAILCOLLAPSE, { masterRow: masterRow, detailRow: detailRow });
 
-            if(omitAnimation){
+            if (omitAnimation) {
                 toggleRow(detailRow, expanding);
             } else {
                 detailRow.toggle(expanding);
@@ -9818,7 +9819,7 @@ var __meta__ = { // jshint ignore:line
                     if (index > -1) {
                         html += kendo.attr("index") + "='" + index + "'";
                     }
-                    text = th.headerTemplate ? text: kendo.template(SELECTCOLUMNHEADERTMPL)({});
+                    text = th.headerTemplate ? text : kendo.template(SELECTCOLUMNHEADERTMPL)({});
                     html += ">" + text + "</th>";
                 } else if (th.draggable) {
                     html += "<th class='k-header k-drag-cell' scope='col'" + stringifyAttributes(th.headerAttributes);
@@ -9832,7 +9833,7 @@ var __meta__ = { // jshint ignore:line
                     }
                     text = th.headerTemplate ? text : "";
                     html += ">" + text + "</th>";
-                } else if(th.command) {
+                } else if (th.command) {
                     html += "<th scope='col'" + stringifyAttributes(th.headerAttributes);
 
                     if (rowSpan && !columns[idx].colSpan) {
@@ -10160,12 +10161,12 @@ var __meta__ = { // jshint ignore:line
 
                 tr.html(html);
             } else if (hasDetails && !tr.find(".k-hierarchy-cell")[0]) {
-                tr.prepend('<th class="k-hierarchy-cell" scope="col">'+ (headerContent ? headerContent:'&nbsp;') +'</th>');
+                tr.prepend('<th class="k-hierarchy-cell" scope="col">' + (headerContent ? headerContent : '&nbsp;') + '</th>');
             }
 
             tr.attr("role", "row").find("th").addClass("k-header");
 
-            if(!that.options.scrollable) {
+            if (!that.options.scrollable) {
                 thead.addClass("k-grid-header");
             }
 
@@ -10175,13 +10176,13 @@ var __meta__ = { // jshint ignore:line
                 that._destroyColumnAttachments();
             }
 
-            this.angular("cleanup", function(){
+            this.angular("cleanup", function() {
                 return {
                     elements: thead.find("th" + NAVCELL).get()
                 };
             });
 
-            this.angular("compile", function(){
+            this.angular("compile", function() {
                 return {
                     elements: thead.find(HEADERCELLS).get(),
                     data: map(columns, function(col) { return { column: col }; })
@@ -10213,7 +10214,7 @@ var __meta__ = { // jshint ignore:line
 
                 if (kendo.support.touch) {
                     that._lockedContentUserEvents = new kendo.UserEvents(that.lockedContent, {
-                        move: function (e) {
+                        move: function(e) {
                             that.content.scrollTop(that.content.scrollTop() + (-e.y.delta));
                             e.preventDefault();
                         }
@@ -10258,7 +10259,7 @@ var __meta__ = { // jshint ignore:line
             if (rows.length && columns[0]) {
                 var column = columns[0];
 
-                while(column.columns && column.columns.length) {
+                while (column.columns && column.columns.length) {
                     column = column.columns[0];
                     rows = rows.filter(":not(:first)");
                 }
@@ -10321,7 +10322,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _wheelScroll: function (e) {
+        _wheelScroll: function(e) {
             if (e.ctrlKey) {
                 return;
             }
@@ -10387,14 +10388,14 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _updateHeadersAttr: function (columns) {
+        _updateHeadersAttr: function(columns) {
             if (!columns.length) {
                 return;
             }
 
             var that = this;
 
-            for (var i = 0 ;i < columns.length; i++) {
+            for (var i = 0; i < columns.length; i++) {
                 if (columns[i].headerAttributes) {
                     var th = that.element.find("[id='" + columns[i].headerAttributes.id + "']");
                     th.attr("headers", columns[i].headerAttributes.headers);
@@ -10438,7 +10439,7 @@ var __meta__ = { // jshint ignore:line
                 encoded = !(that.table.find("tbody tr").length > 0 && (!that.dataSource || !that.dataSource.transport));
 
                 for (field in schema) {
-                    that.columns.push({ field: field, encoded: encoded, headerAttributes: {id: kendo.guid()} });
+                    that.columns.push({ field: field, encoded: encoded, headerAttributes: { id: kendo.guid() } });
                 }
 
                 that._thead();
@@ -10494,7 +10495,7 @@ var __meta__ = { // jshint ignore:line
             return extend({}, footerData, headerData);
         },
 
-        _removeGroupIfEmpty: function (row) {
+        _removeGroupIfEmpty: function(row) {
             var that = this,
                 itemsCount,
                 subgroupsCount,
@@ -10540,13 +10541,13 @@ var __meta__ = { // jshint ignore:line
                 groupData = that._groupData(group, false, !column.groupHeaderTemplate && visibleColumns(that.columns)[0].groupHeaderColumnTemplate ? visibleColumns(that.columns)[0] : false);
             }
             if (template && !skipColspan) {
-                text  = typeof template === FUNCTION ? template(groupData) : kendo.template(template)(groupData);
+                text = typeof template === FUNCTION ? template(groupData) : kendo.template(template)(groupData);
             }
 
             if (!that._skipRerenderItemsCount) {
-                if(!group.excludeHeader) {
+                if (!group.excludeHeader) {
                     html += groupHtmlBuilder(groupHeaderColumnTemplate, groupHeaderBuilder, colspan, groups - level, groupData, level, text, expanded, group, isGroupPaged);
-                } else if(isLocked) {
+                } else if (isLocked) {
                     group.excludeHeader = isLockedTable ? false : true;
                 } else {
                     group.excludeHeader = false;
@@ -10589,7 +10590,7 @@ var __meta__ = { // jshint ignore:line
                 that = this,
                 groupToCollapse = group,
                 groupable = this.options.groupable,
-                showFooter =  groupable.showFooter,
+                showFooter = groupable.showFooter,
                 footerCount = showFooter ? 0 : 1,
                 offset,
                 relatedGroup = $(),
@@ -10610,7 +10611,7 @@ var __meta__ = { // jshint ignore:line
                 groupCountAfterCollapse = that.dataSource._calculateGroupsTotal([groupObject], true);
                 that.dataSource._serverGroupsTotal -= currentGroupCount - groupCountAfterCollapse;
                 that._progress(true);
-                that.dataSource.range(that.dataSource._currentRangeStart, that.dataSource.take(), function () {
+                that.dataSource.range(that.dataSource._currentRangeStart, that.dataSource.take(), function() {
                     that._progress(false);
                 }, "collapseGroup");
                 return;
@@ -10657,14 +10658,14 @@ var __meta__ = { // jshint ignore:line
 
             if (this.options.scrollable.endless && this.content) {
                 clearTimeout(that._collapseGroupsTimeOut);
-                that._collapseGroupsTimeOut = setTimeout(function () {
+                that._collapseGroupsTimeOut = setTimeout(function() {
                     that.content.scroll();
                     that._groupToCollapse = groupToCollapse;
                 });
             }
         },
 
-        expandGroup: function (group) {
+        expandGroup: function(group) {
                 group = $(group);
 
             var that = this,
@@ -10683,17 +10684,17 @@ var __meta__ = { // jshint ignore:line
             if (this.dataSource._isGroupPaged()) {
                 var groupUid = group.attr("data-group-uid");
                 var groupObject = that.dataSource._getGroupByUid(groupUid);
-                var groupCount =  that.dataSource._calculateGroupsTotal([groupObject], true);
+                var groupCount = that.dataSource._calculateGroupsTotal([groupObject], true);
                 var groupCountAfterExpand;
 
                 that.dataSource._groupsState[groupUid] = true;
-                if(groupObject.items && groupObject.items.length){
+                if (groupObject.items && groupObject.items.length) {
                     groupCountAfterExpand = that.dataSource._calculateGroupsTotal([groupObject], true);
                     that.dataSource._serverGroupsTotal += groupCountAfterExpand - groupCount;
                 }
 
                 that._progress(true);
-                that.dataSource.range(that.dataSource._currentRangeStart, that.dataSource.take(), function () {
+                that.dataSource.range(that.dataSource._currentRangeStart, that.dataSource.take(), function() {
                     that._progress(false);
                 }, "expandGroup");
                 return;
@@ -10771,25 +10772,25 @@ var __meta__ = { // jshint ignore:line
                     return !$(this).children(":visible").length;
                 });
 
-            if(groups > length) {
+            if (groups > length) {
                 $(new Array(groups - length + 1).join('<th class="k-group-cell k-header" scope="col">' + that.options.messages.expandCollapseColumnHeader + '</th>')).prependTo(container.children("tr:not(.k-filter-row)"));
                 if (that.element.is(":visible")) {
                     rows.find("th.k-group-cell").hide();
                 }
-            } else if(groups < length) {
+            } else if (groups < length) {
                 container.find("tr").each(function() {
                     $(this).find("th.k-group-cell").eq(groups).remove();
                     $(this).find("th.k-group-cell").slice(groups).remove();
                 });
             }
-            if(groups > filterCells) {
+            if (groups > filterCells) {
                 $(new Array(groups - filterCells + 1).join('<th class="k-group-cell k-header" scope="col">&nbsp;</th>')).prependTo(container.find(".k-filter-row"));
             }
         },
 
         _firstDataItem: function(data, grouped) {
-            if(data && grouped) {
-                if(data.hasSubgroups) {
+            if (data && grouped) {
+                if (data.hasSubgroups) {
                     data = this._firstDataItem(data.items[0], grouped);
                 } else {
                     data = data.items[0];
@@ -11001,7 +11002,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _updateContentWidth: function () {
+        _updateContentWidth: function() {
             var that = this;
             var tables = that.table.add(that.thead.parent());
 
@@ -11035,7 +11036,7 @@ var __meta__ = { // jshint ignore:line
                 columnIndex = column;
                 column = columns[column];
             } else if (isPlainObject(column)) {
-                $.each(flatColumns(columns), function (index, item) {
+                $.each(flatColumns(columns), function(index, item) {
                     if (item === column) {
                         column = item;
                         columnIndex = index;
@@ -11043,7 +11044,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 });
             } else {
-                $.each(flatColumns(columns), function (index, item) {
+                $.each(flatColumns(columns), function(index, item) {
                     if (item.field === column) {
                         column = item;
                         columnIndex = index;
@@ -11059,7 +11060,7 @@ var __meta__ = { // jshint ignore:line
             var setColumnVisibility = that._columnVisibilitySetter(column);
 
             if (column.columns && column.columns.length) {
-                position =  columnPosition(column, columns);
+                position = columnPosition(column, columns);
                 originalColumn = flatColumns(that.options.columns)[columnIndex];
 
                 setColumnVisibility(column, true);
@@ -11180,7 +11181,7 @@ var __meta__ = { // jshint ignore:line
         },
 
 
-        _buildSkeleton: function () {
+        _buildSkeleton: function() {
             var visibleColumns = this.virtualCols ? this.virtualCols : visibleLeafColumns(this.columns);
             var pageSize = this.dataSource.pageSize() || this.dataSource.total();
             var loaderHTML = "";
@@ -11196,11 +11197,11 @@ var __meta__ = { // jshint ignore:line
                 colspan = parseInt(this.content.find("tr").first().find("td").first().attr("colspan"), 10);
             }
 
-            for (var i = 0; i< pageSize; i++) {
+            for (var i = 0; i < pageSize; i++) {
                 loaderHTML += "<tr>";
                 for (var j = 0; j < columnsCount; j++) {
                     if (colspan && !j) {
-                        loaderHTML += "<td colspan='"+colspan+"'><span class='k-skeleton k-skeleton-text k-skeleton-pulse'></span></td>";
+                        loaderHTML += "<td colspan='" + colspan + "'><span class='k-skeleton k-skeleton-text k-skeleton-pulse'></span></td>";
                     } else {
                         loaderHTML += "<td><span class='k-skeleton k-skeleton-text k-skeleton-pulse'></span></td>";
                     }
@@ -11342,7 +11343,7 @@ var __meta__ = { // jshint ignore:line
 
             if (that.options.scrollable && that.options.scrollable.endless && !that._pdfInitialized) {
                 clearTimeout(that._progressTimeOut);
-                that._progressTimeOut = setTimeout(function(){
+                that._progressTimeOut = setTimeout(function() {
                     if (!that._endlessFetchInProgress) {
                         that._progress(false);
                     }
@@ -11362,7 +11363,7 @@ var __meta__ = { // jshint ignore:line
 
             that._group = groups > 0 || that._group;
 
-            if(that._group) {
+            if (that._group) {
                 that._templates();
                 that._updateCols();
                 that._updateLockedCols();
@@ -11407,7 +11408,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            if(!that._endlessFetchInProgress && !that._rowDropping) {
+            if (!that._endlessFetchInProgress && !that._rowDropping) {
                 that._restoreCurrent(currentIndex, isCurrentInHeader);
             }
 
@@ -11427,7 +11428,7 @@ var __meta__ = { // jshint ignore:line
                 that._toggleHeaderCheckState(false);
             }
 
-            if(that.options.persistSelection &&
+            if (that.options.persistSelection &&
                 ((that.selectable && !kendo.ui.Selectable.parseOptions(that.options.selectable).cell) || that._checkBoxSelection) &&
                 (that.items().length || that.dataSource._isGroupPaged())) {
                 that._restoreSelection();
@@ -11511,7 +11512,7 @@ var __meta__ = { // jshint ignore:line
 
             selectedRows = grep(allRows, function(row) {
                  var dataItemKey = that.dataItem(row)[id];
-                 if(that._selectedIds[dataItemKey]) {
+                 if (that._selectedIds[dataItemKey]) {
                     return row;
                  }
             });
@@ -11553,10 +11554,10 @@ var __meta__ = { // jshint ignore:line
            }
 
            if (that._group) {
-              that.angular(cmd, function(){
+              that.angular(cmd, function() {
                    return {
                        elements: container.children(".k-grouping-row"),
-                       data: $.map(groupRows(that.dataSource.view()), function(dataItem){
+                       data: $.map(groupRows(that.dataSource.view()), function(dataItem) {
                            return { dataItem: dataItem };
                        })
                    };
@@ -11577,7 +11578,7 @@ var __meta__ = { // jshint ignore:line
                that.angular(cmd, function() {
                    return {
                        elements: container.find(".k-group-footer"),
-                       data: $.map(groupFooters(that.dataSource.view()), function(dataItem){
+                       data: $.map(groupFooters(that.dataSource.view()), function(dataItem) {
                            return { dataItem: dataItem };
                        })
                    };
@@ -11609,7 +11610,7 @@ var __meta__ = { // jshint ignore:line
             }
             endlessAppend = that._skipRerenderItemsCount > 0;
             colspan = isLocked ? colspan - visibleLeafColumns(visibleLockedColumns(that.columns)).length : colspan;
-            if(groups > 0) {
+            if (groups > 0) {
 
                 colspan = isLocked ? colspan - groups : colspan;
 
@@ -11637,7 +11638,7 @@ var __meta__ = { // jshint ignore:line
             if (endlessAppend) {
                 that.tbody.append(html);
                 clearTimeout(that._endlessFetchTimeOut);
-                that._endlessFetchTimeOut = setTimeout(function () {
+                that._endlessFetchTimeOut = setTimeout(function() {
                     if (that._groupToCollapse) {
                         that.collapseGroup(that._groupToCollapse);
                         that._groupToCollapse = null;
@@ -11649,7 +11650,7 @@ var __meta__ = { // jshint ignore:line
             }
        },
 
-       _renderGroupRows : function() {
+       _renderGroupRows: function() {
         var that = this,
         data = that._groupRows,
         groupRows = that.wrapper.find(".k-grouping-row"),
@@ -11681,7 +11682,7 @@ var __meta__ = { // jshint ignore:line
             level = currentRow.find("." + GROUPCELLCLASS).length;
             if (isLocked) {
                 groupRowBuilderFunc = isInLockedContainer ? groupRowBuilder : groupRowLockedContentBuilder;
-                colspan = isInLockedContainer ? columns.length + groups - level  : columns.length;
+                colspan = isInLockedContainer ? columns.length + groups - level : columns.length;
             }
             else {
                 groupRowBuilderFunc = groupRowBuilder;
@@ -11699,13 +11700,13 @@ var __meta__ = { // jshint ignore:line
             groupHeaderColumnTemplate = isInLockedContainer ? that.lockedGroupHeaderColumnTemplate : that.groupHeaderColumnTemplate;
 
             if (template) {
-                text  = typeof template === FUNCTION ? template(groupHeaderData) : kendo.template(template)(groupHeaderData);
+                text = typeof template === FUNCTION ? template(groupHeaderData) : kendo.template(template)(groupHeaderData);
             }
 
             prevElement = currentRow.prev().length ? currentRow.prev() : currentRow.parent();
 
             newGroupRowElement = $(groupHeaderColumnTemplate ?
-                groupHeaderColumnTemplate(extend({}, groupHeaderData, { groupCells: level, colspan: groups - level, text: text})) :
+                groupHeaderColumnTemplate(extend({}, groupHeaderData, { groupCells: level, colspan: groups - level, text: text })) :
                 groupRowBuilderFunc(colspan, level, text)
             );
 
@@ -11876,14 +11877,14 @@ var __meta__ = { // jshint ignore:line
                    }
                });
                kendo.drawing.drawDOM(clone, options)
-                   .always(function(){
+                   .always(function() {
                        cont.remove();
                    })
-                   .then(function(group){
+                   .then(function(group) {
                        result.resolve(group);
                        grid.toggleUnexportableColumns(grid.columns, true);
                    })
-                   .fail(function(err){
+                   .fail(function(err) {
                        result.reject(err);
                    });
            }
@@ -11910,7 +11911,7 @@ var __meta__ = { // jshint ignore:line
            return result.promise();
        };
 
-       Grid.prototype.toggleUnexportableColumns = function (columns, restore) {
+       Grid.prototype.toggleUnexportableColumns = function(columns, restore) {
            var length = columns.length;
            var column;
            var exportable;
@@ -12143,19 +12144,19 @@ var __meta__ = { // jshint ignore:line
    }
 
    function isGroupedBy(groups, field) {
-       return !!$.grep(groups, function (item) {
+       return !!$.grep(groups, function(item) {
            return item.field === field;
        }).length;
    }
 
    function isColumnEditable(column, model) {
-       if(!column.field || column.selectable) {
+       if (!column.field || column.selectable) {
            return false;
        }
-       if(model.editable && !model.editable(column.field)) {
+       if (model.editable && !model.editable(column.field)) {
            return false;
        }
-       if(column.editable && !column.editable(model)) {
+       if (column.editable && !column.editable(model)) {
            return false;
        }
        return true;
@@ -12294,7 +12295,7 @@ var __meta__ = { // jshint ignore:line
     }
 
    function groupCellBuilder(headerTemplateIndex) {
-    return '<td colspan="#=data.colspan +'+ headerTemplateIndex + '#">' +
+    return '<td colspan="#=data.colspan +' + headerTemplateIndex + '#">' +
     '<p class="k-reset">' +
     '<a class="k-icon k-i-collapse" href="\\#" tabindex="-1" ' +
     ARIALABEL + '="' + COLLAPSE +
@@ -12303,7 +12304,7 @@ var __meta__ = { // jshint ignore:line
    }
 
    function groupCellLockedContentBuilder(headerTemplateIndex) {
-    return '<td colspan="'+ headerTemplateIndex + '">' +
+    return '<td colspan="' + headerTemplateIndex + '">' +
     '<p class="k-reset">&nbsp;</p></td>';
    }
 
@@ -12311,7 +12312,7 @@ var __meta__ = { // jshint ignore:line
     return '<tr role="row"' + (includeAdditionalData ? 'data-group-uid="' + uid + '"' : '') + 'class="k-grouping-row">' + groupCells(level) +
         '<td colspan="' + colspan + '" aria-expanded="' + !!expanded + '">' +
         '<p class="k-reset">' +
-        '<a class="k-icon '+ (expanded ? 'k-i-collapse' : 'k-i-expand') + '" href="#" tabindex="-1" ' + ARIALABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>' + text +
+        '<a class="k-icon ' + (expanded ? 'k-i-collapse' : 'k-i-expand') + '" href="#" tabindex="-1" ' + ARIALABEL + '="' + (expanded ? COLLAPSE : EXPAND) + '"></a>' + text +
     '</p></td></tr>';
    }
 
@@ -12341,7 +12342,7 @@ var __meta__ = { // jshint ignore:line
            .replace(ampRegExp, "&amp;")
            .replace(ltRegExp, "&lt;")
            .replace(gtRegExp, "&gt;")
-           .replace(quoteRegExp, function (match) {
+           .replace(quoteRegExp, function(match) {
                if (backslashEscapeQuotes) {
                    return "\\" + match;
                }
@@ -12351,7 +12352,7 @@ var __meta__ = { // jshint ignore:line
    }
 
    function getTitle(field, columns) {
-        return columns.filter(function (col) {
+        return columns.filter(function(col) {
             return col.field === field;
         })[0].title || field;
     }
@@ -12371,5 +12372,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

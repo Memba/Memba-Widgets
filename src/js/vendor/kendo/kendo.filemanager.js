@@ -1,33 +1,33 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function (f, define) {
+(function(f, define) {
     define('filemanager/commands',["kendo.core"], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             extend = $.extend,
             deferred = $.Deferred,
             Class = kendo.Class;
 
         var Command = Class.extend({
-            init: function (options) {
+            init: function(options) {
                 this.options = options;
                 this.filemanager = options.filemanager;
             }
         });
 
         var CreateFolderCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
@@ -39,7 +39,7 @@
                 commandStack.push({ item: that._item.toJSON() }).fail(removeProxy);
                 dataSource.add(that._item);
             },
-            _remove: function () {
+            _remove: function() {
                 var that = this,
                     filemanager = that.filemanager,
                     dataSource = filemanager._viewDataSource || filemanager.dataSource;
@@ -49,24 +49,24 @@
         });
 
         var RenameCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     target = that.options.target,
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
                     viewItem = filemanager._view.widgetComponent.dataItem(target);
 
-                if(target && viewItem){
+                if (target && viewItem) {
                     commandStack.push({ target: target, item: viewItem });
                     that.filemanager._view.edit(target);
                 } else {
                     that._renameTreeViewItem(target);
                 }
             },
-            _renameTreeViewItem: function(target){
+            _renameTreeViewItem: function(target) {
                 var that = this,
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
@@ -78,7 +78,7 @@
                     type: "rename",
                     defaultInput: realItem.name,
                     target: target
-                }).done(function(newName){
+                }).done(function(newName) {
                     commandStack.push({ target: target, item: realItem });
                     realItem.set("name", newName);
                 });
@@ -86,10 +86,10 @@
         });
 
         var DeleteCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     target = that.options.target,
                     filemanager = that.filemanager,
@@ -97,11 +97,11 @@
                     viewItem = that.filemanager._view.widgetComponent.dataItem(target),
                     itemsToRemove;
 
-                if(target && target.is(".k-state-selected") && items && items.length) {
+                if (target && target.is(".k-state-selected") && items && items.length) {
                     itemsToRemove = items;
-                } else if(target && viewItem) {
+                } else if (target && viewItem) {
                     itemsToRemove = viewItem;
-                } else if(target) {
+                } else if (target) {
                     var uid = target.data("uid");
                     var item = that.filemanager.treeView.widgetComponent.dataSource.getByUid(uid);
                     var realItem = that.filemanager.dataSource.get(item.id);
@@ -113,7 +113,7 @@
                     type: "delete",
                     target: target
                 })
-                .done(function () {
+                .done(function() {
                     that.removeItems(itemsToRemove);
                 });
             },
@@ -124,7 +124,7 @@
 
                 that._removeItem();
             },
-            _removeItem: function(){
+            _removeItem: function() {
                 var that = this,
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
@@ -141,10 +141,10 @@
         });
 
         var CopyCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                 filemanager = that.filemanager,
                 dataSource = filemanager.dataSource,
@@ -163,12 +163,12 @@
         });
 
         var MoveCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 var that = this;
                 Command.fn.init.call(that, options);
                 that._itemsToRemove = [];
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
@@ -192,11 +192,11 @@
 
                 kendo.whenAll(promises).always(that._removeItem.bind(that));
             },
-            _delete: function(data){
+            _delete: function(data) {
                 var that = this;
                 that._itemsToRemove.push(data.item);
             },
-            _removeItem: function(){
+            _removeItem: function() {
                 var that = this,
                     filemanager = that.filemanager,
                     commandStack = filemanager._commandStack,
@@ -213,10 +213,10 @@
         });
 
         var SortCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     filemanager = that.filemanager,
@@ -232,10 +232,10 @@
         });
 
         var SearchCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     filemanager = that.filemanager,
@@ -250,10 +250,10 @@
         });
 
         var ChangeViewCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     options = that.options,
                     filemanager = that.filemanager;
@@ -264,10 +264,10 @@
         });
 
         var OpenDialogCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
-            exec: function () {
+            exec: function() {
                 var that = this,
                     filemanager = that.filemanager,
                     dialog = filemanager[that.options.type];
@@ -281,7 +281,7 @@
         });
 
         var TogglePaneCommand = Command.extend({
-            init: function (options) {
+            init: function(options) {
                 Command.fn.init.call(this, options);
             },
             exec: function() {
@@ -314,13 +314,13 @@
         });
 
         var CommandStack = Class.extend({
-            init: function(){
+            init: function() {
                 var that = this;
 
                 that._stack = {};
                 that._keys = [];
             },
-            push: function(data){
+            push: function(data) {
                 var that = this,
                     guid = kendo.guid();
 
@@ -333,27 +333,27 @@
 
                 return that._stack[guid].deferred;
             },
-            next: function () {
+            next: function() {
                 var that = this,
                     key = that.keys().splice(0,1),
                     nextCommand = that._stack[key];
 
                 return nextCommand;
             },
-            resolve: function(command){
+            resolve: function(command) {
                 var that = this;
                 delete that._stack[command.guid];
                 command.deferred.resolve(command.data);
             },
-            reject: function(command){
+            reject: function(command) {
                 var that = this;
                 delete that._stack[command.guid];
                 command.deferred.reject(command.data);
             },
-            keys: function () {
+            keys: function() {
                 return this._keys;
             },
-            empty: function(){
+            empty: function() {
                 return this.keys().length === 0;
             }
         });
@@ -381,10 +381,10 @@
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('filemanager/view',["kendo.listview", "kendo.treeview"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
 
@@ -423,7 +423,7 @@
             that.element = element;
             that.options = options;
 
-            if(widget) {
+            if (widget) {
                 that.widgetComponent = new widget(element, options);
             } else {
                 throw new Error("The widget for the ViewComponent is not available! Please add the corresponding scripts!");
@@ -432,28 +432,28 @@
             Observable.fn.init.call(that);
         },
 
-        _bindEvents: function(){
+        _bindEvents: function() {
             this.widgetComponent.bind("dataBinding", this._binding.bind(this));
             this.widgetComponent.bind("dataBound", this._bound.bind(this));
         },
 
-        _binding: function(ev){
-            if(this.trigger("dataBinding", ev)) {
+        _binding: function(ev) {
+            if (this.trigger("dataBinding", ev)) {
                 ev.preventDefault();
             }
         },
 
-        _bound: function(){
+        _bound: function() {
             this.trigger("dataBound");
         },
 
-        _setDSOptions: function (options, dataSourceOptions) {
-            if(!options.dataSource && dataSourceOptions) {
+        _setDSOptions: function(options, dataSourceOptions) {
+            if (!options.dataSource && dataSourceOptions) {
                 options.dataSource = dataSourceOptions;
             }
         },
 
-        _initDragAndDrop: function (element, filter) {
+        _initDragAndDrop: function(element, filter) {
             var that = this;
 
             filter = filter || that.options.dropFilter;
@@ -473,32 +473,32 @@
             that.droptarget = element.kendoDropTargetArea({
                 filter: filter,
                 drop: that._onDrop.bind(that),
-                dragenter: function(ev){
+                dragenter: function(ev) {
                     ev.dropTarget.addClass("k-filemanager-drop-target");
                 },
-                dragleave: function(ev){
+                dragleave: function(ev) {
                     ev.dropTarget.removeClass("k-filemanager-drop-target");
                 }
             }).data("kendoDraggable");
         },
 
-        _hold: function (ev){
+        _hold: function(ev) {
             var that = this,
                 target = ev.currentTarget;
 
-            if(!target.is(".k-state-selected")) {
-                if(that.widgetComponent.selectable) {
+            if (!target.is(".k-state-selected")) {
+                if (that.widgetComponent.selectable) {
                     that.widgetComponent.selectable.clear();
                 }
                 that.widgetComponent.select(target);
             }
 
-            if(that.widgetComponent.selectable) {
+            if (that.widgetComponent.selectable) {
                 that.widgetComponent.selectable.userEvents.cancel();
             }
         },
 
-        _hint: function(target){
+        _hint: function(target) {
             var that = this,
                 item = that.widgetComponent.dataItem(target),
                 selectedItems = that.widgetComponent.select();
@@ -506,20 +506,20 @@
             fileManagerDragOrigin = that.widgetComponent;
             fileManagerDraggables = selectedItems;
 
-            if(selectedItems.length > 1) {
+            if (selectedItems.length > 1) {
                 return kendo.format("<div class='k-filemanager-drag-hint'><span class='k-icon k-i-{0}'></span> <span>{1} {2}</span></div>", "file", selectedItems.length, that.options.messages.items);
             }
 
             return kendo.format("<div class='k-filemanager-drag-hint'><span class='k-icon k-i-{0}'></span> <span>{1}</span></div>", (item.isDirectory ? "folder" : "file"), item.name);
         },
 
-        _onDrop: function (ev){
+        _onDrop: function(ev) {
             var that = this,
                 target = that.widgetComponent.dataItem(ev.dropTarget),
                 targetId = target.id,
                 itemIds = [];
 
-            if(!target.isDirectory) {
+            if (!target.isDirectory) {
                 return;
             }
 
@@ -528,14 +528,14 @@
                 itemIds.push(id);
             }
 
-            this.trigger("drop",{target: targetId, items: itemIds});
+            this.trigger("drop",{ target: targetId, items: itemIds });
         },
 
-        getSelected: function(){
+        getSelected: function() {
             throw new Error("Not Implemented!");
         },
 
-        refresh: function (dataSource) {
+        refresh: function(dataSource) {
             this.widgetComponent.setDataSource(dataSource);
         },
 
@@ -570,7 +570,7 @@
             that.listView = that.widgetComponent;
             that._bindEvents();
 
-            if(explicitOptions.draggable !== false && !dataSourceOptions.isLocalBinding) {
+            if (explicitOptions.draggable !== false && !dataSourceOptions.isLocalBinding) {
                 that._initDragAndDrop();
             }
         },
@@ -594,7 +594,7 @@
             navigatable: true
         },
 
-        _bindEvents: function (){
+        _bindEvents: function() {
             var that = this,
                 listView = that.listView;
 
@@ -604,34 +604,34 @@
             listView.element.on(KEYDOWN + NS, ".k-edit-item", that._keydown.bind(that));
             listView.element.on(KEYDOWN + NS, that._keydownAction.bind(that));
 
-            listView.bind("edit", function(ev){
+            listView.bind("edit", function(ev) {
                 var sender = ev.sender;
                 var input = ev.item.find("input");
 
-                input.on("blur", function(){
+                input.on("blur", function() {
                     var isDirty = sender._modelFromElement(sender.editable.element).dirty;
                     sender._closeEditable();
-                    if(!isDirty) {
+                    if (!isDirty) {
                         that.trigger("cancel");
                     }
                 });
             });
 
-            listView.bind("cancel", function(){
+            listView.bind("cancel", function() {
                 that.trigger("cancel");
             });
 
             Component.fn._bindEvents.call(this);
         },
 
-        _select: function () {
+        _select: function() {
             var that = this,
                 dataItems = that.getSelected();
 
-            that.trigger(SELECT, {entries: dataItems});
+            that.trigger(SELECT, { entries: dataItems });
         },
 
-        _keydown: function(ev){
+        _keydown: function(ev) {
             var that = this;
             if (ev.keyCode === kendo.keys.ESC) {
                 that.listView._closeEditable();
@@ -643,30 +643,30 @@
             var that = this,
                 target = $(ev.target).find(".k-state-focused");
 
-            if(target.length && !target.is(".k-edit-item")) {
+            if (target.length && !target.is(".k-edit-item")) {
                 that.trigger(KEYDOWNACTION, { target: target, keyCode: ev.keyCode });
             }
         },
 
-        _mousedown: function(ev){
+        _mousedown: function(ev) {
             var that = this,
                 node = $(ev.target).closest(".k-listview-item");
 
-            if(ev.which === 3 && !node.is(".k-state-selected")) {
+            if (ev.which === 3 && !node.is(".k-state-selected")) {
                 that.listView.selectable.clear();
                 that.listView.select(node);
             }
         },
 
-        _kendoKeydown : function (ev) {
+        _kendoKeydown: function(ev) {
             var that = this;
 
-            if(ev.keyCode === keys.ENTER && !ev.preventKendoKeydown){
+            if (ev.keyCode === keys.ENTER && !ev.preventKendoKeydown) {
                 that._handleEnterKey(ev);
             }
         },
 
-        _handleEnterKey: function(ev){
+        _handleEnterKey: function(ev) {
             var that = this,
                 target = $(ev.target),
                 node = that.listView.current();
@@ -674,46 +674,46 @@
             if (that.widgetComponent.editable && target.is("input")) {
                 // Force blur to update item and close editable (cross browser)
                 target.trigger("blur");
-            } else if(!that.widgetComponent.editable) {
+            } else if (!that.widgetComponent.editable) {
                 that._triggerOpen(node);
             }
 
             ev.preventKendoKeydown = true;
         },
 
-        _dblClick: function(ev){
+        _dblClick: function(ev) {
             var that = this,
                 node = $(ev.target).closest(".k-listview-item");
 
             that._triggerOpen(node);
         },
 
-        _triggerOpen: function (node){
+        _triggerOpen: function(node) {
             var that = this;
 
-            if(node.is(".k-edit-item")) {
+            if (node.is(".k-edit-item")) {
                 return;
             }
 
             var item = that.listView.dataItem(node);
 
-            if(item) {
+            if (item) {
                 that.trigger(OPEN, { entry: item });
             }
         },
 
-        addFolder: function () {
+        addFolder: function() {
             this.listView.add();
         },
 
-        edit: function (target) {
+        edit: function(target) {
             var that = this,
                 selected = that.listView.select();
 
             that.listView.edit(target || selected);
         },
 
-        getSelected: function(){
+        getSelected: function() {
             var that = this,
             items = that.listView.select(),
             dataItems = [];
@@ -751,7 +751,7 @@
             that.treeView = that.widgetComponent;
             that._bindEvents();
 
-            if(explicitOptions.draggable !== false && !explicitOptions.isLocalBinding) {
+            if (explicitOptions.draggable !== false && !explicitOptions.isLocalBinding) {
                 that._initDragAndDrop();
             }
         },
@@ -761,7 +761,7 @@
             dropFilter: ".k-item"
         },
 
-        _refreshDataSource: function(ev){
+        _refreshDataSource: function(ev) {
             var that = this,
                 treeView = that.treeView,
                 action = ev.action,
@@ -769,9 +769,9 @@
                 parentNode = null,
                 treeEl = treeView.element,
                 activeDescendant = treeEl.attr("aria-activedescendant"),
-                items = ev.items.filter(function(item){
+                items = ev.items.filter(function(item) {
                     return item.isDirectory;
-                }).map(function(item){
+                }).map(function(item) {
                     return extend({}, item.toJSON(), {
                         id: item.id || kendo.guid(),
                         hasChildren: item.hasChildren,
@@ -784,12 +784,12 @@
                 treeView._progress(parentNode, false);
             }
 
-            if(!items.length) {
+            if (!items.length) {
                 return;
             }
 
             if (action == "itemloaded" || (parentNode && action === "sync")) {
-                parentNode.find(".k-item").each(function(index, item){
+                parentNode.find(".k-item").each(function(index, item) {
                     treeView.remove(item);
                 });
                 treeView.append(items, parentNode);
@@ -803,7 +803,7 @@
             } else if (action == "itemchange") {
                 var existingItem = treeView.dataSource.get(items[0].id);
 
-                if(existingItem) {
+                if (existingItem) {
                     existingItem.set(ev.field, items[0][ev.field]);
                 } else {
                     treeView.append(items[0], parentNode);
@@ -811,7 +811,7 @@
             } else if (!treeView.dataSource.data().length) {
                 treeView.append(items);
             } else if (action === "sync" || (action === undefined && !parentNode)) {
-                treeView.items().each(function(index, item){
+                treeView.items().each(function(index, item) {
                     treeView.remove(item);
                 });
                 treeView.append(items);
@@ -827,20 +827,20 @@
             }
         },
 
-        _remove: function(id){
+        _remove: function(id) {
             var that = this,
                 treeView = that.treeView,
                 dataSource = treeView.dataSource,
                 item = dataSource.get(id),
                 node;
 
-            if(item) {
+            if (item) {
                 node = treeView.findByUid(item.uid);
                 treeView.remove(node);
             }
         },
 
-        _bindEvents: function () {
+        _bindEvents: function() {
             var that = this;
 
             that.treeView.bind(SELECT, that._navigate.bind(that));
@@ -848,14 +848,14 @@
             that.treeView.element.on(KEYDOWN, that._keydownAction.bind(that));
         },
 
-        _keydownAction: function (ev) {
+        _keydownAction: function(ev) {
             var that = this,
                 target = $(ev.target).find(".k-focus").closest(".k-item");
 
             that.trigger(KEYDOWNACTION, { target: target, keyCode: ev.keyCode });
         },
 
-        _expand: function (ev) {
+        _expand: function(ev) {
             var that = this,
                 treeView = that.treeView,
                 entry = treeView.dataItem(ev.node);
@@ -864,20 +864,20 @@
             that.trigger(LOAD, { entryId: entry.id });
         },
 
-        _navigate: function (ev) {
-            var that= this,
+        _navigate: function(ev) {
+            var that = this,
                 node = ev.node,
                 entry = that.treeView.dataItem(node),
                 path = entry.id;
 
             ev.preventDefault();
 
-            that.trigger(NAVIGATE, {path: path, entry: entry.toJSON()});
+            that.trigger(NAVIGATE, { path: path, entry: entry.toJSON() });
         },
 
         _hold: $.noop,
 
-        getSelected: function () {
+        getSelected: function() {
             var that = this,
                 selectedItem = that.treeView.element.find(".k-selected").closest(".k-item"),
                 item = that.treeView.dataItem(selectedItem);
@@ -885,26 +885,26 @@
             return item;
         },
 
-        refresh: function (id) {
+        refresh: function(id) {
             var that = this,
                 treeView = that.treeView,
                 entry = treeView.dataSource.get(id),
                 node = entry && treeView.findByUid(entry.uid);
 
-            if(entry && node) {
+            if (entry && node) {
                 treeView.element.find(".k-selected").removeClass("k-selected");
                 node.find("> div .k-in").removeClass("k-hover").addClass("k-selected");
             }
         },
 
-        reload: function () {
+        reload: function() {
             this.treeView.dataSource.read();
         }
     });
 
     ui.filemanager.registerViewComponent("tree", TreeView);
 
-    if(kendo.ui.Grid) {
+    if (kendo.ui.Grid) {
         var Grid = Component.extend({
             init: function(element, options, explicitOptions) {
                 var that = this,
@@ -924,7 +924,7 @@
                 that.grid = that.widgetComponent;
                 that._bindEvents();
 
-                if(explicitOptions.draggable !== false && !dataSourceOptions.isLocalBinding) {
+                if (explicitOptions.draggable !== false && !dataSourceOptions.isLocalBinding) {
                     that._initDragAndDrop();
                 }
             },
@@ -940,8 +940,8 @@
                 navigatable: true
             },
 
-            _setupColumns: function (options, messages) {
-                if(!options.columns) {
+            _setupColumns: function(options, messages) {
+                if (!options.columns) {
                     options.columns = [
                         { field: "name", title: messages.nameField || "Name", template: function(item) {
                             var icon = !item.isDirectory ? kendo.getFileGroup(item.extension, true) : "folder";
@@ -952,10 +952,10 @@
                                             "<div class='file-name'>" + kendo.htmlEncode(item.name + item.extension) + "<div>";
 
                             return template;
-                        }},
+                        } },
                         { field: "created", title: messages.dateCreatedField , format: "{0:G}" },
-                        { field: "size", title: messages.sizeField, template: function(item){
-                            if(item.size > 0) {
+                        { field: "size", title: messages.sizeField, template: function(item) {
+                            if (item.size > 0) {
                                 return kendo.getFileSizeMessage(item.size);
                             } else {
                                 return "";
@@ -965,7 +965,7 @@
                 }
             },
 
-            _bindEvents: function (){
+            _bindEvents: function() {
                 var that = this,
                     grid = that.grid;
 
@@ -975,11 +975,11 @@
                 grid.table.on(KEYDOWN + NS, ".k-grid-edit-row", that._keydown.bind(that));
                 grid.table.on(KEYDOWN + NS, that._keydownAction.bind(that));
 
-                grid.bind("edit", function(){
+                grid.bind("edit", function() {
                     that._toggleFocusable(true);
                 });
 
-                grid.bind("cancel", function(){
+                grid.bind("cancel", function() {
                     that.trigger("cancel");
                 });
 
@@ -988,17 +988,17 @@
                 Component.fn._bindEvents.call(this);
             },
 
-            _kendoKeydown : function(ev){
+            _kendoKeydown: function(ev) {
                 var that = this,
                     current = that.grid.current(),
                     node = current ? current.closest("tr[data-uid]") : null;
 
-                if(node && ev.keyCode === keys.ENTER && !ev.preventKendoKeydown){
+                if (node && ev.keyCode === keys.ENTER && !ev.preventKendoKeydown) {
                     that._triggerOpen(node);
                     ev.preventKendoKeydown = true;
                 }
 
-                if(ev.keyCode === keys.F2) {
+                if (ev.keyCode === keys.F2) {
                     ev.preventKendoKeydown = true;
                 }
             },
@@ -1007,12 +1007,12 @@
                 var that = this,
                     target = $(ev.target).find(".k-state-focused").closest("tr");
 
-                if(target.length && !target.is(".k-grid-edit-row")) {
+                if (target.length && !target.is(".k-grid-edit-row")) {
                     that.trigger(KEYDOWNACTION, { target: target, keyCode: ev.keyCode });
                 }
             },
 
-            _keydown: function(ev){
+            _keydown: function(ev) {
                 var that = this,
                     grid = that.grid;
 
@@ -1020,8 +1020,8 @@
                     return;
                 }
 
-                if(ev.keyCode === kendo.keys.ENTER) {
-                    setTimeout(function(){
+                if (ev.keyCode === kendo.keys.ENTER) {
+                    setTimeout(function() {
                         var editorContainer = that.grid._editContainer || $();
 
                         // force blur event for inputs
@@ -1039,19 +1039,19 @@
                 }
             },
 
-            _mousedown: function(ev){
+            _mousedown: function(ev) {
                 var that = this,
                     node = $(ev.target).closest("tr[data-uid]");
 
-                if(ev.which === 1 && that.grid.editable) {
-                    setTimeout(function(){
+                if (ev.which === 1 && that.grid.editable) {
+                    setTimeout(function() {
                         that._closeEditable();
                     });
 
                     that._tryCancel();
                 }
 
-                if(ev.which === 3 && !node.is(".k-state-selected")) {
+                if (ev.which === 3 && !node.is(".k-state-selected")) {
                     that.grid.selectable.clear();
                     that.grid.select(node);
                 }
@@ -1082,11 +1082,11 @@
                 grid.table.find("tr,td").children().addBack().toggleClass("k-focusable", state);
             },
 
-            _closeEditable: function(){
+            _closeEditable: function() {
                 var that = this,
                     container;
 
-                if(that.grid.editable && !that.grid.editable.options.model.dirty){
+                if (that.grid.editable && !that.grid.editable.options.model.dirty) {
                     container = that.grid._editContainer;
                     that.grid._destroyEditable();
                     that.grid._displayRow(container);
@@ -1094,35 +1094,35 @@
                 }
             },
 
-            _select: function () {
+            _select: function() {
                 var that = this,
                     dataItems = that.getSelected();
 
-                that.trigger(SELECT, {entries: dataItems});
+                that.trigger(SELECT, { entries: dataItems });
             },
 
-            _dblClick: function(ev){
+            _dblClick: function(ev) {
                 var that = this,
                     node = $(ev.target).closest("tr[data-uid]");
 
                 that._triggerOpen(node);
             },
 
-            _triggerOpen: function (node) {
+            _triggerOpen: function(node) {
                 var that = this;
 
-                if(node.is(".k-grid-edit-row")) {
+                if (node.is(".k-grid-edit-row")) {
                     return;
                 }
 
                 var item = that.grid.dataItem(node);
 
-                if(item) {
+                if (item) {
                     that.trigger(OPEN, { entry: item });
                 }
             },
 
-            getSelected: function(){
+            getSelected: function() {
                 var that = this,
                 items = that.grid.select(),
                 dataItems = [];
@@ -1134,18 +1134,18 @@
                 return dataItems;
             },
 
-            addFolder: function () {
+            addFolder: function() {
                 this.grid.addRow();
             },
 
-            edit: function (target) {
+            edit: function(target) {
                 var that = this,
                     selected = that.grid.select();
 
                 that.grid.editRow(target || selected);
             },
 
-            destroy: function(){
+            destroy: function() {
                 this.grid.table.off(NS);
                 this.grid.element.off(NS);
                 Component.fn.destroy.call(this);
@@ -1159,11 +1159,11 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('filemanager/toolbar',["kendo.toolbar", "kendo.switch"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1195,8 +1195,8 @@ return window.kendo;
 
         defaultTools: {
             createFolder: { type: "button", text: "New Folder", name: "createFolder", command: "CreateFolderCommand", rules: "{ \"remote\": true }" },
-            upload: { type: "button",  text: "Upload", name: "upload", command: "OpenDialogCommand", options: "{ \"type\": \"uploadDialog\" }", rules: "{ \"remote\": true }" },
-            sortDirection: { type: "buttonGroup", text: "Sort Direction", name:"sortDirection",
+            upload: { type: "button", text: "Upload", name: "upload", command: "OpenDialogCommand", options: "{ \"type\": \"uploadDialog\" }", rules: "{ \"remote\": true }" },
+            sortDirection: { type: "buttonGroup", text: "Sort Direction", name: "sortDirection",
                 buttons: [
                     { name: "sortDirectionAsc", icon: "sort-asc-sm", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"asc\" }", selected: true },
                     { name: "sortDirectionDesc", icon: "sort-desc-sm", togglable: true, group: "sortDirection", command: "SortCommand", options: "{ \"dir\": \"desc\" }" }
@@ -1209,14 +1209,14 @@ return window.kendo;
                 { name: "dateCreatedField", text: "Date created", options: "{\"field\": \"createdUtc\"}", command: "SortCommand" },
                 { name: "dateModifiedField", text: "Date modified", options: "{\"field\": \"modifiedUtc\"}", command: "SortCommand" }
             ] },
-            changeView: { type: "buttonGroup", text: "Change View", name:"changeView",
+            changeView: { type: "buttonGroup", text: "Change View", name: "changeView",
                 buttons: [
                     { name: "gridView", icon: "grid-layout", togglable: true, group: "changeView", command: "ChangeViewCommand", options: "grid" },
                     { name: "listView", icon: "grid", togglable: true, group: "changeView", command: "ChangeViewCommand", options: "list" }
                 ]
             },
             spacer: { type: "spacer" },
-            details: { type: "fileManagerDetailsToggle", text: "View Details", name: "details", overflow: "never", command: "TogglePaneCommand", options: "{ \"type\": \"preview\" }"},
+            details: { type: "fileManagerDetailsToggle", text: "View Details", name: "details", overflow: "never", command: "TogglePaneCommand", options: "{ \"type\": \"preview\" }" },
             search: { type: "fileManagerSearch", text: "Search", name: "search", command: "SearchCommand", icon: "search", overflow: "never", options: "{ \"field\": \"name\", \"operator\": \"startswith\" }" }
         },
 
@@ -1246,8 +1246,8 @@ return window.kendo;
                 return;
             }
 
-            return tools.map(function (tool) {
-                var isBuiltInTool =  $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name,
+            return tools.map(function(tool) {
+                var isBuiltInTool = $.isPlainObject(tool) && Object.keys(tool).length === 1 && tool.name,
                     toolOptions, toolRules, attributes;
 
                 tool = isBuiltInTool ? tool.name : tool;
@@ -1272,12 +1272,12 @@ return window.kendo;
                     overflow: toolOptions.overflow
                 });
 
-                if(toolOptions.type === "buttonGroup") {
+                if (toolOptions.type === "buttonGroup") {
                     delete toolOptions.attributes["aria-label"];
                     toolOptions.buttons = toolOptions.buttons.map(that._mapButtonGroups.bind(that));
                 }
 
-                if(toolOptions.type === "splitButton") {
+                if (toolOptions.type === "splitButton") {
                     toolOptions.menuButtons = toolOptions.menuButtons.map(that._mapMenuButtons.bind(that));
                 }
 
@@ -1293,7 +1293,7 @@ return window.kendo;
             var that = this,
                 messages = that.options.messages;
 
-            if(button.group === "changeView" && button.options === that.options.filemanager.options.initialView) {
+            if (button.group === "changeView" && button.options === that.options.filemanager.options.initialView) {
                 button.selected = true;
             }
 
@@ -1336,7 +1336,7 @@ return window.kendo;
             });
         },
 
-        _change: function (ev) {
+        _change: function(ev) {
             var command = $(ev.target).data("command"),
                 options = $(ev.target).data("options");
 
@@ -1357,7 +1357,7 @@ return window.kendo;
                 options = that.options,
                 found = false;
 
-            for(var i = 0; i < options.items.length; i++) {
+            for (var i = 0; i < options.items.length; i++) {
                 if (options.items[i].name == toolName) {
                     found = true;
                     break;
@@ -1367,12 +1367,12 @@ return window.kendo;
             return options.items[toolName] || found;
         },
 
-        action: function (args) {
+        action: function(args) {
             this.trigger(ACTION, args);
         },
 
-        destroy: function () {
-            if(this.fileManagerSearch) {
+        destroy: function() {
+            if (this.fileManagerSearch) {
                 this.fileManagerSearch.destroy();
             }
 
@@ -1413,7 +1413,7 @@ return window.kendo;
             that._bindEvents();
             that.toolbar.fileManagerSearch = that;
         },
-        attributes: function () {
+        attributes: function() {
             if (this.options.attributes) {
                 this.input.attr(this.options.attributes);
             }
@@ -1423,14 +1423,14 @@ return window.kendo;
                 this.icon.addClass("k-icon k-i-" + this.options.icon);
             }
         },
-        _bindEvents: function(){
+        _bindEvents: function() {
             this._inputHandler = this._input.bind(this);
             this.input.on("input" + NS, this._inputHandler);
         },
-        _input: function (ev) {
-            this.toolbar.trigger(CHANGE, {target: ev.target});
+        _input: function(ev) {
+            this.toolbar.trigger(CHANGE, { target: ev.target });
         },
-        destroy: function(){
+        destroy: function() {
             this.element.off(NS);
         }
     });
@@ -1442,7 +1442,7 @@ return window.kendo;
             var that = this,
                 element = $("<div class='k-filemanager-details-toggle'></div>"),
                 label = $("<label>" + options.text + "</label>"),
-                switchElement = $("<input title='"+ options.text +"' />");
+                switchElement = $("<input title='" + options.text + "' />");
 
             that.element = element;
             that.input = switchElement;
@@ -1472,7 +1472,7 @@ return window.kendo;
 
             that.toolbar.fileManagerDetailsToggle = that;
         },
-        _change: function (ev) {
+        _change: function(ev) {
             this.toolbar.trigger(CHANGE, { target: ev.sender.wrapper.parent() });
         },
         _click: function(ev) {
@@ -1495,10 +1495,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('filemanager/data',["kendo.data"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1518,15 +1518,15 @@ return window.kendo;
                     id: "path",
                     hasChildren: "hasDirectories",
                     fields: {
-                        name: {editable: true, type: "string", defaultValue: "New Folder" },
-                        size: {editable: false, type: "number"},
-                        path: {editable: false, type: "string"},
-                        extension: {editable: false, type: "string"},
-                        isDirectory: {editable: false, defaultValue: true, type: "boolean"},
-                        hasDirectories: {editable: false, defaultValue: false, type: "boolean"},
-                        created: { type: "date", editable: false},
+                        name: { editable: true, type: "string", defaultValue: "New Folder" },
+                        size: { editable: false, type: "number" },
+                        path: { editable: false, type: "string" },
+                        extension: { editable: false, type: "string" },
+                        isDirectory: { editable: false, defaultValue: true, type: "boolean" },
+                        hasDirectories: { editable: false, defaultValue: false, type: "boolean" },
+                        created: { type: "date", editable: false },
                         createdUtc: { type: "date", editable: false },
-                        modified: { type: "date", editable: false},
+                        modified: { type: "date", editable: false },
                         modifiedUtc: { type: "date", editable: false }
                     }
                 }
@@ -1535,22 +1535,22 @@ return window.kendo;
     });
 
     var FileEntry = Node.define({
-        init: function(value){
+        init: function(value) {
             var that = this,
                 isDirectory = this.isDirectory;
 
             Node.fn.init.call(this, value);
 
-            if(typeof isDirectory === "string"){
+            if (typeof isDirectory === "string") {
             isDirectory = kendo.getter(isDirectory);
             }
 
             if (kendo.isFunction(isDirectory)) {
                 var isDirectoryObject = isDirectory.call(that, that);
 
-                if(isDirectoryObject && isDirectoryObject.length === 0){
+                if (isDirectoryObject && isDirectoryObject.length === 0) {
                     that.isDirectory = false;
-                } else{
+                } else {
                     that.isDirectory = !!isDirectoryObject;
                 }
             }
@@ -1570,7 +1570,7 @@ return window.kendo;
                 parameterMap = transport.parameterMap;
 
                 transport.parameterMap = function(data, type) {
-                    if(type === "read" || type === "create") {
+                    if (type === "read" || type === "create") {
                         data.target = that.id;
                     }
 
@@ -1581,16 +1581,16 @@ return window.kendo;
                     return data;
                 };
 
-                children.parent = function(){
+                children.parent = function() {
                     return that;
                 };
 
-                children.bind("change", function(e){
+                children.bind("change", function(e) {
                     e.node = e.node || that;
                     that.trigger("change", e);
                 });
 
-                children.bind("error", function(e){
+                children.bind("error", function(e) {
                     var collection = that.parent();
 
                     if (collection) {
@@ -1603,7 +1603,7 @@ return window.kendo;
             }
         },
         isNew: function() {
-            if(this.fileManagerNewItem) {
+            if (this.fileManagerNewItem) {
                 delete this.fileManagerNewItem;
                 return true;
             }
@@ -1619,7 +1619,7 @@ return window.kendo;
                 children: options
             });
 
-            if(options.filter && !options.serverFiltering){
+            if (options.filter && !options.serverFiltering) {
                 this._hierarchicalFilter = options.filter;
                 options.filter = null;
             }
@@ -1634,7 +1634,7 @@ return window.kendo;
             var parentNode = this.parent();
 
             if (parentNode && parentNode._initChildren) {
-                if(model && model.isDirectory) {
+                if (model && model.isDirectory) {
                     parentNode.hasDirectories = true;
                 }
                 parentNode.hasChildren = true;
@@ -1643,7 +1643,7 @@ return window.kendo;
 
             return DataSource.fn.insert.call(this, index, model);
         },
-        remove: function(node){
+        remove: function(node) {
             var that = this,
                 parentNode = node.parentNode(),
                 dataSource = that,
@@ -1659,13 +1659,13 @@ return window.kendo;
 
             if (parentNode && (dataSource.data() && !dataSource.data().length)) {
                 parentNode.hasChildren = false;
-            } else if(parentNode && !this._hasDirectories(parentNode)) {
+            } else if (parentNode && !this._hasDirectories(parentNode)) {
                 parentNode.hasDirectories = false;
             }
 
             return result;
         },
-        _cleanDestroyed: function(node){
+        _cleanDestroyed: function(node) {
             var that = this,
                 dataSource = that;
 
@@ -1678,14 +1678,14 @@ return window.kendo;
                 dataSource._destroyed = [];
             }
         },
-        _hasDirectories: function(node){
+        _hasDirectories: function(node) {
             var result;
 
-            if(!node.children.data()) {
+            if (!node.children.data()) {
                 return false;
             }
 
-            result = node.children.data().filter(function(item){
+            result = node.children.data().filter(function(item) {
                 return item.isDirectory;
             });
 
@@ -1730,10 +1730,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('filemanager/contextmenu',["kendo.menu"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -1757,7 +1757,7 @@ return window.kendo;
             that.bind("open", that._onOpen.bind(that));
         },
 
-        _overrideTemplates: function(){
+        _overrideTemplates: function() {
             this.templates.sprite = template("#if(spriteCssClass) {#<span class='#= spriteCssClass #'></span>#}#");
         },
 
@@ -1778,24 +1778,24 @@ return window.kendo;
             ACTION
         ]),
 
-        _extendItems: function(){
+        _extendItems: function() {
             var that = this,
                 items = that.options.items,
                 item, isBuiltInTool;
 
-            if(items && items.length){
+            if (items && items.length) {
                 for (var i = 0; i < items.length; i++) {
                     item = items[i];
-                    isBuiltInTool =  $.isPlainObject(item) && Object.keys(item).length === 1 && item.name;
+                    isBuiltInTool = $.isPlainObject(item) && Object.keys(item).length === 1 && item.name;
 
-                    if(isBuiltInTool){
+                    if (isBuiltInTool) {
                         item = item.name;
                     }
 
-                    if($.isPlainObject(item) ) {
+                    if ($.isPlainObject(item) ) {
                         that._extendItem(item);
                         that.append(item);
-                    } else if (that.defaultItems[item]){
+                    } else if (that.defaultItems[item]) {
                         item = that.defaultItems[item];
                         that._extendItem(item);
                         that.append(item);
@@ -1846,7 +1846,7 @@ return window.kendo;
             }
         },
 
-        action: function (args) {
+        action: function(args) {
             this.trigger(ACTION, args);
         }
     });
@@ -1859,8 +1859,8 @@ return window.kendo;
 
     return window.kendo;
 
-    }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+    }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.filemanager',[
         "./filemanager/commands",
         "./filemanager/view",
@@ -1873,7 +1873,7 @@ return window.kendo;
         "kendo.dialog",
         "kendo.resizable"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "filemanager",
@@ -1976,7 +1976,7 @@ var __meta__ = { // jshint ignore:line
             '</div>' +
             '<span class="#:styles.fileName#">#:selection[0].name#</span>' +
             '#if(metaFields){#' +
-                '<dl class="#:styles.fileMeta#">'+
+                '<dl class="#:styles.fileMeta#">' +
                     '#for(var i = 0; i < metaFields.length; i+=1){#' +
                         '#var field = metaFields[i]#' +
                         '<dt class="#:styles.metaLabel#">#:messages[field]#: </dt>' +
@@ -1990,7 +1990,7 @@ var __meta__ = { // jshint ignore:line
                             '#} else {#' +
                                 ' #:selection[0][field]#' +
                             '#}#' +
-                        '</dd>'+
+                        '</dd>' +
                         '<dd class="k-line-break"></dd>' +
                     '# } #' +
                 '</dl>' +
@@ -2169,7 +2169,7 @@ var __meta__ = { // jshint ignore:line
             COMMAND
         ],
 
-        _dataSource: function () {
+        _dataSource: function() {
             var that = this,
                 options = that.options,
                 dataSourceOptions = options.dataSource || {},
@@ -2178,7 +2178,7 @@ var __meta__ = { // jshint ignore:line
                 dataSource;
 
             if (!(dataSourceOptions instanceof kendo.data.FileManagerDataSource)) {
-                if(isArray(dataSourceOptions)){
+                if (isArray(dataSourceOptions)) {
                     dataSource = {
                         data: dataSourceOptions,
                         autoSync: false,
@@ -2213,8 +2213,8 @@ var __meta__ = { // jshint ignore:line
                 .bind(CHANGE, that._changeHandler);
         },
 
-        _error: function (ev) {
-            if(!this.trigger(ERROR, ev)) {
+        _error: function(ev) {
+            if (!this.trigger(ERROR, ev)) {
                 window.console.warn('Error! The requested URL returned ' + ev.xhr.status + ' - ' + ev.xhr.statusText);
             }
         },
@@ -2241,7 +2241,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _renderHeader: function () {
+        _renderHeader: function() {
             var that = this,
                 options = that.options;
 
@@ -2262,7 +2262,7 @@ var __meta__ = { // jshint ignore:line
             that.wrapper.append(that.contentContainer);
         },
 
-        _initContextMenu: function(){
+        _initContextMenu: function() {
             var that = this,
                 options = that.options,
                 menuOptions = extend({}, options.contextMenu, {
@@ -2274,7 +2274,7 @@ var __meta__ = { // jshint ignore:line
                     isLocalBinding: that.dataSource.isLocalBinding
                 });
 
-            if(options.contextMenu === false) {
+            if (options.contextMenu === false) {
                 return;
             }
 
@@ -2361,7 +2361,7 @@ var __meta__ = { // jshint ignore:line
             that.previewContainer.html(previewTemplate);
         },
 
-        _initToolbar: function () {
+        _initToolbar: function() {
             var that = this,
                 options = that.options,
                 toolbarElement = $("<div />").addClass(fileManagerStyles.toolbar),
@@ -2397,36 +2397,36 @@ var __meta__ = { // jshint ignore:line
             return that.treeView;
         },
 
-        _drop: function (ev) {
+        _drop: function(ev) {
             var that = this;
 
-            if(!that.trigger(DROP, ev) && ev.items.indexOf(ev.target) < 0) {
+            if (!that.trigger(DROP, ev) && ev.items.indexOf(ev.target) < 0) {
                 that._confirm({
                     type: "move",
                     target: ev.target
-                }).done(function(){
-                    that.executeCommand({command: "CopyCommand", options: ev});
-                }).fail(function(){
-                    that.executeCommand({command: "MoveCommand", options: ev});
+                }).done(function() {
+                    that.executeCommand({ command: "CopyCommand", options: ev });
+                }).fail(function() {
+                    that.executeCommand({ command: "MoveCommand", options: ev });
                 });
             }
         },
 
-        _keydownAction: function (ev) {
+        _keydownAction: function(ev) {
             var that = this,
                 keyCode = ev.keyCode,
                 keys = kendo.keys;
 
             if (keyCode === keys.DELETE) {
-                that.executeCommand({command: "DeleteCommand", options: { target: ev.target } });
+                that.executeCommand({ command: "DeleteCommand", options: { target: ev.target } });
             }
 
             if (keyCode === keys.F2) {
-                that.executeCommand({command: "RenameCommand", options: { target: ev.target } });
+                that.executeCommand({ command: "RenameCommand", options: { target: ev.target } });
             }
         },
 
-        _confirm: function(options){
+        _confirm: function(options) {
             var that = this,
                 messages = that.options.messages.dialogs[options.type + "Confirm"];
 
@@ -2446,7 +2446,7 @@ var __meta__ = { // jshint ignore:line
             return confirm.result;
         },
 
-        _prompt: function(options){
+        _prompt: function(options) {
             var that = this,
                 messages = this.options.messages.dialogs[options.type + "Prompt"];
 
@@ -2480,7 +2480,7 @@ var __meta__ = { // jshint ignore:line
             that.treeView._shouldFocus = false;
 
             if ((treeView.current() && treeView.current().find(".k-state-focused").length) ||
-                activeElement.hasClass(fileManagerStyles.treeview)){
+                activeElement.hasClass(fileManagerStyles.treeview)) {
                 that.treeView._shouldFocus = true;
                 view._focusElement = activeElement;
                 return;
@@ -2523,7 +2523,7 @@ var __meta__ = { // jshint ignore:line
                 breadcrumbElement = $("<nav />").addClass(fileManagerStyles.breadcrumb),
                 breadcrumbOptions = extend({}, {
                     items: [
-                        {type:"rootitem", text: "" }
+                        { type: "rootitem", text: "" }
                     ],
                     change: that._breadcrumbChange.bind(that)
                 }, options.breadcrumb);
@@ -2533,7 +2533,7 @@ var __meta__ = { // jshint ignore:line
             return that.breadcrumb;
         },
 
-        _breadcrumbChange: function(ev){
+        _breadcrumbChange: function(ev) {
             var entry = ev.sender.items().filter(function(item) {
                 return item.path === ev.value.substring(1);
             }).shift();
@@ -2612,7 +2612,7 @@ var __meta__ = { // jshint ignore:line
             ev.data = extend(ev.data, { path: this.path() });
         },
 
-        _success: function(){
+        _success: function() {
             this._view.widgetComponent.dataSource.read();
         },
 
@@ -2630,17 +2630,17 @@ var __meta__ = { // jshint ignore:line
                 upload = that.upload;
 
             if (upload) {
-                upload.setOptions({ dropZone: zone});
+                upload.setOptions({ dropZone: zone });
             }
         },
 
-        _binding: function (ev){
-            if(this.trigger(DATABINDING, { source: "view", action: ev.action, items: ev.items, index: ev.index })){
+        _binding: function(ev) {
+            if (this.trigger(DATABINDING, { source: "view", action: ev.action, items: ev.items, index: ev.index })) {
                 ev.preventDefault();
             }
         },
 
-        _bound: function (){
+        _bound: function() {
             if (this.options.previewPane) {
                 this._setPreviewPaneContent();
             }
@@ -2656,7 +2656,7 @@ var __meta__ = { // jshint ignore:line
 
             splitBar.append(icon);
 
-            splitBar.hover(function () {
+            splitBar.hover(function() {
                 $(this).toggleClass(fileManagerStyles.splitBarHover);
             });
 
@@ -2678,7 +2678,7 @@ var __meta__ = { // jshint ignore:line
                 .end()
                 .kendoResizable({
                     handle: DOT + fileManagerStyles.splitBarNavigation,
-                    start: function () {
+                    start: function() {
                         contentWrapperWidth = contentWrapper.width();
                         navigationWrapperWidth = navigationWrapper.width();
                     },
@@ -2717,7 +2717,7 @@ var __meta__ = { // jshint ignore:line
                 .end()
                 .kendoResizable({
                     handle: DOT + fileManagerStyles.splitBarPreview,
-                    start: function () {
+                    start: function() {
                         contentWrapperWidth = contentWrapper.width();
                         previewWrapperWidth = previewWrapper.width();
                     },
@@ -2764,15 +2764,15 @@ var __meta__ = { // jshint ignore:line
                     draggable: that.options.draggable
                 });
 
-            if(type === undefined) {
+            if (type === undefined) {
                 return that._view;
             }
 
-            if(!ui.filemanager.ViewComponents[type]) {
+            if (!ui.filemanager.ViewComponents[type]) {
                 throw new Error(kendo.format("There is no {0} ViewComponent registered!", type));
             }
 
-            if(that._view && that._view.destroy) {
+            if (that._view && that._view.destroy) {
                 that._view.destroy();
                 that.viewWrapper.empty();
             }
@@ -2803,29 +2803,29 @@ var __meta__ = { // jshint ignore:line
 
         executeCommand: function(args) {
             var commandName = args.command,
-                commandOptions = extend({ filemanager: this }, isPlainObject(args.options) ? args.options : {value: args.options}),
+                commandOptions = extend({ filemanager: this }, isPlainObject(args.options) ? args.options : { value: args.options }),
                 command = new ui.filemanager.commands[commandName](commandOptions);
 
-            if(!this.trigger(EXECUTE, args)) {
+            if (!this.trigger(EXECUTE, args)) {
                 return command.exec();
             }
         },
 
-        _navigate: function(ev){
+        _navigate: function(ev) {
             var that = this,
                 path = ev.path;
 
-            if(!that.trigger(NAVIGATE, { path: path })) {
+            if (!that.trigger(NAVIGATE, { path: path })) {
                 that.navigate(path);
             }
         },
 
-        _load: function(ev){
+        _load: function(ev) {
             var entry = this.dataSource.get(ev.entryId);
             entry.load();
         },
 
-        _select: function (ev) {
+        _select: function(ev) {
             if (this.options.previewPane) {
                 this._setPreviewPaneContent();
             }
@@ -2833,18 +2833,18 @@ var __meta__ = { // jshint ignore:line
             this.trigger(SELECT, { entries: ev.entries });
         },
 
-        _open: function (ev) {
+        _open: function(ev) {
             var that = this,
                 entry = ev.entry;
 
             that.trigger(OPEN, { entry: entry });
 
-            if(entry.isDirectory) {
+            if (entry.isDirectory) {
                 that._navigate({ path: entry.id });
             }
         },
 
-        _cancel: function () {
+        _cancel: function() {
             var that = this,
                 commandStack = that._commandStack,
                 command = commandStack.next();
@@ -2853,59 +2853,59 @@ var __meta__ = { // jshint ignore:line
             that.trigger(COMMAND, { status: "cancel", action: "itemchange", data: command.data });
         },
 
-        _change: function (ev) {
+        _change: function(ev) {
             var that = this,
                 commandStack = that._commandStack,
                 targetDataSource = ev.node ? ev.node.children : that.dataSource;
 
-            if(that.trigger(DATABINDING, { source: "tree", action: ev.action, items: ev.items, index: ev.index })){
+            if (that.trigger(DATABINDING, { source: "tree", action: ev.action, items: ev.items, index: ev.index })) {
                 return;
             }
 
             that.treeView._refreshDataSource(ev);
 
-            if(ev.action === "remove" || ev.action === "itemchange" || ev.action === "add") {
+            if (ev.action === "remove" || ev.action === "itemchange" || ev.action === "add") {
                 if (commandStack.empty()) {
                     targetDataSource.sync();
                 } else {
                     var command = commandStack.next();
 
-                    targetDataSource.sync().then(function(res){
+                    targetDataSource.sync().then(function(res) {
                         commandStack.resolve(command);
                         that.trigger(COMMAND, { status: "success", action: ev.action, data: command.data, response: res });
-                    }).fail(function(res){
+                    }).fail(function(res) {
                         commandStack.reject(command);
                         that.trigger(COMMAND, { status: "fail", action: ev.action, data: command.data, response: res });
                     });
                 }
             }
 
-            if(ev.action === "remove" && that._viewDataSource && that._viewDataSource.parent() && ev.items[0] === that._viewDataSource.parent()) {
+            if (ev.action === "remove" && that._viewDataSource && that._viewDataSource.parent() && ev.items[0] === that._viewDataSource.parent()) {
                 that._navigateToParent(ev.items[0]);
             }
 
-            if(ev.action == "itemchange" && that._viewDataSource && that._viewDataSource.parent() && that.path().indexOf(ev.items[0].id) >= 0) {
+            if (ev.action == "itemchange" && that._viewDataSource && that._viewDataSource.parent() && that.path().indexOf(ev.items[0].id) >= 0) {
                 that._navigateToParent(ev.items[0]);
             }
 
-            if(ev.action === "itemchange") {
+            if (ev.action === "itemchange") {
                 ev.items[0].loaded(false);
             }
         },
 
-        _navigateToParent: function(item){
+        _navigateToParent: function(item) {
             var that = this;
             var parent = item.parentNode();
             var parentNodePath = parent ? parent.id : "";
-            that._navigate({path: parentNodePath});
+            that._navigate({ path: parentNodePath });
         },
 
-        _buildBreadcrumbPath: function (entry){
+        _buildBreadcrumbPath: function(entry) {
             var that = this,
                 breadcrumb = that.breadcrumb,
                 items = [];
 
-            while(entry) {
+            while (entry) {
                 items.push({
                     id: entry.id,
                     text: entry.name,
@@ -2915,7 +2915,7 @@ var __meta__ = { // jshint ignore:line
                 entry = entry.parentNode && entry.parentNode();
             }
 
-            items.push({ type: "rootItem", id: "", text: ""  });
+            items.push({ type: "rootItem", id: "", text: "" });
 
             breadcrumb.items(items.reverse());
         },
@@ -2965,27 +2965,27 @@ var __meta__ = { // jshint ignore:line
             that.options.dataSource = dataSource;
             that._dataSource();
 
-            if(that.toolbar) {
+            if (that.toolbar) {
                 that.toolbar.destroy();
                 that.header.empty();
                 that.header.append(that._initToolbar().element);
             }
 
-            if(that.treeView){
+            if (that.treeView) {
                 that.treeView.destroy();
                 that.navigation.empty();
                 that.navigation.append(that._initTreeView().element);
             }
 
-            if(that._view) {
-                that.view(that._viewType|| that.options.initialView);
+            if (that._view) {
+                that.view(that._viewType || that.options.initialView);
             }
 
             that._initContextMenu();
 
         },
 
-        refresh: function (){
+        refresh: function() {
             var that = this,
                 dataSource = that._viewDataSource || that.dataSource;
 
@@ -2996,27 +2996,27 @@ var __meta__ = { // jshint ignore:line
             return kendo.dimensions(this.wrapper);
         },
 
-        getSelected: function(){
+        getSelected: function() {
             var that = this,
                 items = that._view.getSelected(),
                 treeView = that.treeView;
 
-            if(items && items.length) {
+            if (items && items.length) {
                 return items;
             }
 
             var item = treeView.getSelected();
 
-            if(item) {
+            if (item) {
                 return [ that.dataSource.get(item.id) ];
             }
         },
 
-        path: function () {
+        path: function() {
             return this._path || "";
         },
 
-        navigate: function (path) {
+        navigate: function(path) {
             var that = this,
                 dataSource = that.dataSource,
                 entry = dataSource.get(path.replace(/^\//, "")),
@@ -3025,22 +3025,22 @@ var __meta__ = { // jshint ignore:line
                 breadcrumb = that.breadcrumb,
                 isRoot = path === "" || path === "/";
 
-            if(!entry && !isRoot) {
+            if (!entry && !isRoot) {
                 window.console.warn('Error! Could not navigate to the folder at the requested path(' + path + '). Make sure that the parent folder of the target folder has already been loaded.');
                 return;
             }
 
             that._path = path;
 
-            if(that.trigger(DATABINDING, { source: "navigation", action: "rebind", items: [entry] })){
+            if (that.trigger(DATABINDING, { source: "navigation", action: "rebind", items: [entry] })) {
                 return;
             }
 
-            if(breadcrumb) {
+            if (breadcrumb) {
                 that._buildBreadcrumbPath(entry);
             }
 
-            if(isRoot) {
+            if (isRoot) {
                 dataSource.sort([ that.folderSortOption, that.defaultSortOption ]);
                 that._viewDataSource = dataSource;
                 view.refresh(that._viewDataSource);
@@ -3053,17 +3053,17 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if(entry.loaded && !entry.loaded()) {
+            if (entry.loaded && !entry.loaded()) {
                 entry.load();
             }
 
-            if(view) {
+            if (view) {
                 that._viewDataSource = entry.children;
                 that._viewDataSource._sort = [ that.folderSortOption, that.defaultSortOption ];
                 view.refresh(that._viewDataSource);
             }
 
-            if(treeView) {
+            if (treeView) {
                 treeView.refresh(entry.id);
             }
 
@@ -3072,7 +3072,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        items: function () {
+        items: function() {
             var that = this;
 
             return that.treeView.widgetComponent.items().add(that._view.widgetComponent.items());
@@ -3126,4 +3126,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

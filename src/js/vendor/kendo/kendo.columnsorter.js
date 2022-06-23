@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.columnsorter',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "columnsorter",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     advanced: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo;
     var ui = kendo.ui;
     var Widget = ui.Widget;
@@ -34,7 +34,7 @@ var __meta__ = { // jshint ignore:line
     var ARIASORT = "aria-sort";
 
     var ColumnSorter = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
 
             var that = this, link;
 
@@ -69,7 +69,7 @@ var __meta__ = { // jshint ignore:line
 
         events: ["change"],
 
-        destroy: function () {
+        destroy: function() {
             var that = this;
 
             Widget.fn.destroy.call(that);
@@ -80,7 +80,7 @@ var __meta__ = { // jshint ignore:line
             that._refreshHandler = that.element = that.link = that.dataSource = null;
         },
 
-        refresh: function (e) {
+        refresh: function(e) {
             if (e && (e.action === "itemchange" || e.action === "sync")) {
                 return;
             }
@@ -142,7 +142,7 @@ var __meta__ = { // jshint ignore:line
             return directions[0] === dir ? directions[1] : directions[0];
         },
 
-        _click: function (e) {
+        _click: function(e) {
             var that = this,
                 element = that.element,
                 field = element.attr(kendo.attr(FIELD)),
@@ -232,5 +232,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

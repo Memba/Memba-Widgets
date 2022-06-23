@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.bottomnavigation',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "bottomnavigation",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
@@ -35,7 +35,7 @@ var __meta__ = { // jshint ignore:line
 
         SELECT = "select";
 
-    var isString = function (value) {
+    var isString = function(value) {
         return typeof value === "string";
     };
 
@@ -107,7 +107,7 @@ var __meta__ = { // jshint ignore:line
                 cachedTabIndex = element.attr("data-" + kendo.ns + TABINDEX),
                 tabindex = target.attr(TABINDEX) || element.attr(TABINDEX) || cachedTabIndex;
 
-            if(!cachedTabIndex) {
+            if (!cachedTabIndex) {
                 element.removeAttr(TABINDEX);
                 element.attr("data-" + kendo.ns + TABINDEX, tabindex);
             }
@@ -115,7 +115,7 @@ var __meta__ = { // jshint ignore:line
             target.attr(TABINDEX, !isNaN(tabindex) ? tabindex : 0);
         },
 
-        _updateCssClasses: function () {
+        _updateCssClasses: function() {
             var that = this,
                 options = that.options,
                 styles = bottomNavigationStyles;
@@ -136,15 +136,15 @@ var __meta__ = { // jshint ignore:line
             that._itemFlow(options.itemFlow);
         },
 
-        _itemFlow: function (orientation) {
+        _itemFlow: function(orientation) {
             var that = this,
                 orientationStyles = bottomNavigationStyles.itemFlow;
 
             that._toggleClassGroup(that.element, orientation, orientationStyles);
         },
 
-        _toggleClassGroup: function (element, value, group) {
-            if(isString(group[value])) {
+        _toggleClassGroup: function(element, value, group) {
+            if (isString(group[value])) {
                 for (var key in group) {
                     element.removeClass(group[key]);
                 }
@@ -153,7 +153,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _items: function () {
+        _items: function() {
             var that = this,
                 options = that.options,
                 items = options.items,
@@ -165,7 +165,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _renderItem: function (item) {
+        _renderItem: function(item) {
             var that = this,
                 itemTemplate = item.template || that.options.template,
                 isLink = item.url && isString(item.url),
@@ -183,7 +183,7 @@ var __meta__ = { // jshint ignore:line
 
             that._tabindex(elm);
 
-            if(!elm.attr("role") && !isLink) {
+            if (!elm.attr("role") && !isLink) {
                 elm.attr("role", "link");
             }
 
@@ -208,7 +208,7 @@ var __meta__ = { // jshint ignore:line
             return elm;
         },
 
-        _bindEvents: function () {
+        _bindEvents: function() {
             var that = this,
                 clickProxy = that._click.bind(that),
                 keydownProxy = that._keydown.bind(that);
@@ -217,7 +217,7 @@ var __meta__ = { // jshint ignore:line
                         .on("keydown" + NS, DOT + bottomNavigationStyles.item, keydownProxy);
         },
 
-        _click: function (ev) {
+        _click: function(ev) {
             var that = this,
                 item = $(ev.target).closest(DOT + bottomNavigationStyles.item);
 
@@ -229,27 +229,27 @@ var __meta__ = { // jshint ignore:line
             that._triggerSelect(item, ev);
         },
 
-        _triggerSelect: function (item, ev) {
+        _triggerSelect: function(item, ev) {
             var that = this;
 
             if (item.is(DOT + bottomNavigationStyles.disabled)) {
                 return;
             }
 
-            if(that.trigger(SELECT, { originalEvent: ev, item: item, data: item.data() })) {
+            if (that.trigger(SELECT, { originalEvent: ev, item: item, data: item.data() })) {
                 return;
             }
 
             that.select(item);
         },
 
-        _keydown: function (ev) {
+        _keydown: function(ev) {
             var that = this,
                 target = $(ev.target),
                 key = ev.keyCode;
 
             if (key === keys.ENTER || key === keys.SPACEBAR) {
-                if(that._isItem(target)) {
+                if (that._isItem(target)) {
                     that._triggerSelect(target, ev);
 
                     if (key === keys.SPACEBAR) {
@@ -267,13 +267,13 @@ var __meta__ = { // jshint ignore:line
             return item.is(DOT + bottomNavigationStyles.item) && !!that.element.find(item).length;
         },
 
-        items: function () {
+        items: function() {
             var that = this;
 
             return that.element.children();
         },
 
-        select: function (item, state) {
+        select: function(item, state) {
             var that = this,
                 selectedItem = that.items().filter(DOT + bottomNavigationStyles.selected);
 
@@ -283,13 +283,13 @@ var __meta__ = { // jshint ignore:line
 
             state = state !== false;
 
-            if(that._isItem(item)) {
+            if (that._isItem(item)) {
                 selectedItem.removeClass(bottomNavigationStyles.selected);
                 $(item).toggleClass(bottomNavigationStyles.selected, state);
             }
         },
 
-        enable: function (item, state) {
+        enable: function(item, state) {
             var that = this;
 
             state = state === false;
@@ -300,7 +300,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        item: function (index) {
+        item: function(index) {
             var that = this;
 
             if (isNaN(index)) {
@@ -310,36 +310,36 @@ var __meta__ = { // jshint ignore:line
             return that.items().eq(index);
         },
 
-        itemById: function (id) {
+        itemById: function(id) {
             var that = this;
 
             return that.element.find("#" + id);
         },
 
-        add: function (item, before) {
+        add: function(item, before) {
             var that = this,
                 method = "append",
                 targetElement = that.element;
 
-            if(before && that._isItem(before)) {
+            if (before && that._isItem(before)) {
                 method = "before";
                 targetElement = $(before);
             }
 
-            if(item && isPlainObject(item) && !isEmptyObject(item)) {
+            if (item && isPlainObject(item) && !isEmptyObject(item)) {
                 targetElement[method](that._renderItem(item));
             }
         },
 
-        remove: function (item) {
+        remove: function(item) {
             var that = this;
 
-            if(item && that._isItem(item)) {
+            if (item && that._isItem(item)) {
                 item.remove();
             }
         },
 
-        showText: function (toggle) {
+        showText: function(toggle) {
             var that = this,
                 textItems = that.items().find(DOT + bottomNavigationStyles.text);
 
@@ -348,7 +348,7 @@ var __meta__ = { // jshint ignore:line
             textItems.toggle(toggle);
         },
 
-        setOptions: function (options) {
+        setOptions: function(options) {
             var that = this;
 
             Widget.fn.setOptions.call(this, options);
@@ -366,4 +366,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

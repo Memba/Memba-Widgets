@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.validator',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "validator",
@@ -63,7 +63,7 @@ var __meta__ = { // jshint ignore:line
             return true;
         },
         hasAttribute = function(input, name) {
-            if (input.length)  {
+            if (input.length) {
                 return input[0].attributes[name] != null;
             }
             return false;
@@ -203,7 +203,7 @@ var __meta__ = { // jshint ignore:line
                         quote = !!name && name.indexOf("'") > -1 ? '\"' : "'",
                         namedCheckbox = input.attr("name") && !this.element.find("input[name=" + quote + input.attr("name") + quote + "]:checked").length,
                         checkbox = input.filter("[type=checkbox]").length && (noNameCheckbox || namedCheckbox),
-                        radio = input.filter("[type=radio]").length && !this.element.find("input[name="  + quote + input.attr("name") + quote + "]:checked").length,
+                        radio = input.filter("[type=radio]").length && !this.element.find("input[name=" + quote + input.attr("name") + quote + "]:checked").length,
                         value = input.val();
 
                     return !(hasAttribute(input, "required") && (!value || value === "" || value.length === 0 || checkbox || radio));
@@ -242,9 +242,9 @@ var __meta__ = { // jshint ignore:line
 
                         if (decimals) {
                             raise = Math.pow(10, decimals);
-                            return ((Math.floor((val-min)*raise))%(step*raise)) / Math.pow(100, decimals) === 0;
+                            return ((Math.floor((val - min) * raise)) % (step * raise)) / Math.pow(100, decimals) === 0;
                         }
-                        return ((val-min)%step) === 0;
+                        return ((val - min) % step) === 0;
                     }
                     return true;
                 },
@@ -260,29 +260,29 @@ var __meta__ = { // jshint ignore:line
                     }
                     return true;
                 },
-                captcha: function (input) {
+                captcha: function(input) {
                     if (input.filter("[" + kendo.attr("role") + "=captcha]").length) {
                         var that = this,
                             captcha = kendo.widgetInstance(input),
-                            isValidated = function(isValid){
+                            isValidated = function(isValid) {
                                 return typeof(isValid) !== 'undefined' && isValid !== null;
                             };
 
                         if (!input.data("captcha_validating") && !isValidated(captcha.isValid()) && !!captcha.getCaptchaId()) {
                             input.data("captcha_validating", true);
                             that._validating = true;
-                            captcha.validate().done(function(){
+                            captcha.validate().done(function() {
                                 that._validating = false;
                                 that._checkElement(input);
-                            }).fail(function(data){
+                            }).fail(function(data) {
                                 that._validating = false;
-                                if(data.error && data.error === "handler_not_defined") {
+                                if (data.error && data.error === "handler_not_defined") {
                                     window.console.warn("Captcha's validationHandler is not defined! You should either define a proper validation endpoint or declare a callback function to ensure the required behavior.");
                                 }
                             });
                         }
 
-                        if (isValidated(captcha.isValid())){
+                        if (isValidated(captcha.isValid())) {
                             input.removeData("captcha_validating");
                             return captcha.isValid();
                         }
@@ -460,12 +460,12 @@ var __meta__ = { // jshint ignore:line
                     var prevElement = input.prev().get(0);
 
                     // Get the instance of the RadioGroup which is not initialized on the input element
-                    if(!widgetInstance && input.is("[type=radio]")) {
+                    if (!widgetInstance && input.is("[type=radio]")) {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-radio-list"));
                     }
 
                     // Get the instance of the CheckBoxGroup which is not initialized on the input element
-                    if(!widgetInstance && input.is("[type=checkbox]")) {
+                    if (!widgetInstance && input.is("[type=checkbox]")) {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-checkbox-list"));
                     }
 
@@ -661,7 +661,7 @@ var __meta__ = { // jshint ignore:line
                     // Add current name if:
                     // - not present so far;
                     // - present but not part of CheckBoxGroup or RadioGroup.
-                    if(sorted.indexOf(input.attr(NAME)) === -1 ||
+                    if (sorted.indexOf(input.attr(NAME)) === -1 ||
                         (input.closest(".k-checkbox-list").length === 0 &&
                         input.closest(".k-radio-list").length === 0)) {
                             sorted.push(input.attr(NAME));
@@ -747,7 +747,7 @@ var __meta__ = { // jshint ignore:line
 
             var that = this,
                 link = $(e.target),
-                target = that.element.find("[name='" + link.data("field") +  "']"),
+                target = that.element.find("[name='" + link.data("field") + "']"),
                 nextFocusable;
 
             if (!target.length) {
@@ -797,5 +797,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)();  });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

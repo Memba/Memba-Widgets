@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@ var __meta__ = { // jshint ignore:line
     id: "pivot.configurator",
     name: "PivotConfigurator",
     category: "web",
-    depends: [ "dropdownlist", "treeview", "treeview.draganddrop", "pivot.fieldmenu", "html.chip", "html.chiplist", "pivot.common"  ],
+    depends: [ "dropdownlist", "treeview", "treeview.draganddrop", "pivot.fieldmenu", "html.chip", "html.chiplist", "pivot.common" ],
     hidden: true
 };
 

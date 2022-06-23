@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -50,7 +50,7 @@ var __meta__ = { // jshint ignore:line
         RENDER = "render",
         DOT = ".",
 
-        defaultDateFormat = "{0:" + kendo.getCulture().calendar.patterns.d +"}",
+        defaultDateFormat = "{0:" + kendo.getCulture().calendar.patterns.d + "}",
 
         titleFromField = {
             "title": "Title",
@@ -140,7 +140,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         insertAfter: function(nodeData, referenceNode) {
-            if(!nodeData || !referenceNode) {
+            if (!nodeData || !referenceNode) {
                 return;
             }
 
@@ -162,7 +162,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         insertBefore: function(nodeData, referenceNode) {
-            if(!nodeData || !referenceNode) {
+            if (!nodeData || !referenceNode) {
                 return;
             }
 
@@ -271,7 +271,7 @@ var __meta__ = { // jshint ignore:line
                                 that._mouseDownHandler(e.touch);
                             },
                             doubletap: function(e) {
-                                if(e.event.target.classList.contains("k-icon")) {
+                                if (e.event.target.classList.contains("k-icon")) {
                                     return;
                                 }
                                 that._openEditorHandler(e.touch);
@@ -308,8 +308,8 @@ var __meta__ = { // jshint ignore:line
 
             that._hasExpandable = false;
 
-            columns.forEach(function(item){
-                if(item.expandable) {
+            columns.forEach(function(item) {
+                if (item.expandable) {
                     that._hasExpandable = true;
                 }
             });
@@ -380,12 +380,12 @@ var __meta__ = { // jshint ignore:line
                 return formatedValue.join(", ");
             };
 
-            if(column.columns) {
+            if (column.columns) {
                 that.hasNestedColumns = true;
                 column.columns = map(column.columns, this._eachColumn.bind(this));
             }
 
-            if(typeof column === STRING) {
+            if (typeof column === STRING) {
                 column = {
                     field: column,
                     title: titleFromField[column]
@@ -402,11 +402,11 @@ var __meta__ = { // jshint ignore:line
                 };
             }
 
-            if(column.field === "start" || column.field === "end") {
+            if (column.field === "start" || column.field === "end") {
                 column.format = kendo.getCulture().calendar.patterns[column.format] || column.format || defaultDateFormat;
 
-                if(!column.editor) {
-                    if(column.format === defaultDateFormat || column.format.toLowerCase().indexOf("h") > -1) {
+                if (!column.editor) {
+                    if (column.format === defaultDateFormat || column.format.toLowerCase().indexOf("h") > -1) {
                         column.editor = that._columnEditor(column);
                     }
                 }
@@ -415,11 +415,11 @@ var __meta__ = { // jshint ignore:line
                 column.sortable = false;
                 column.template = column.template || formatResources;
             }
-            if(!that._hasExpandable && column.field === "title") {
+            if (!that._hasExpandable && column.field === "title") {
                 column.expandable = true;
             }
 
-            if(isSortable && !column.sortable) {
+            if (isSortable && !column.sortable) {
                 column.sortable = false;
             }
 
@@ -564,11 +564,11 @@ var __meta__ = { // jshint ignore:line
         _renderTree: function(taskTree) {
             TreeList.fn._render.call(this);
 
-            if(this.hasNestedColumns) {
+            if (this.hasNestedColumns) {
                 this.element.addClass("k-gantt-treelist-nested-columns");
             }
 
-            if(taskTree && taskTree.length && !taskTree.editedColumn) {
+            if (taskTree && taskTree.length && !taskTree.editedColumn) {
                 if (this.options.rowHeight) {
                     this._rowHeight(taskTree);
                 }
@@ -609,5 +609,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

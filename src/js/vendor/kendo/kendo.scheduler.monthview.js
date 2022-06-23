@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.scheduler.monthview',[ "kendo.scheduler.view" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "scheduler.monthview",
@@ -19,7 +19,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-(function($){
+(function($) {
     var kendo = window.kendo,
         ui = kendo.ui,
         SchedulerView = ui.SchedulerView,
@@ -157,7 +157,7 @@ var __meta__ = { // jshint ignore:line
             return view._columnCountForLevel(level) / view._columnOffsetForResource(level);
         },
 
-        _positionMobileEvent: function(event, group, range, rangeCount, start, end, rangeIndex){
+        _positionMobileEvent: function(event, group, range, rangeCount, start, end, rangeIndex) {
             var view = this._view;
 
             if (rangeCount > 1) {
@@ -176,7 +176,7 @@ var __meta__ = { // jshint ignore:line
             view._positionMobileEvent(range, view._createEventElement(occurrence), group);
         },
 
-        _positionEvent: function(event, group, range, rangeCount, start, end, rangeIndex){
+        _positionEvent: function(event, group, range, rangeCount, start, end, rangeIndex) {
             var view = this._view;
 
             if (rangeCount > 1) {
@@ -230,7 +230,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _changePeriodGroupIndex: function(reverse){
+        _changePeriodGroupIndex: function(reverse) {
             var view = this._view;
 
             return reverse ? view.groups.length - 1 : 0;
@@ -403,7 +403,7 @@ var __meta__ = { // jshint ignore:line
             return view._columnCountForLevel(level) / NUMBER_OF_COLUMNS;
         },
 
-        _positionMobileEvent: function(event, group, range, rangeCount, start, end){
+        _positionMobileEvent: function(event, group, range, rangeCount, start, end) {
             var view = this._view;
             var startIndex = range.start.index;
             var endIndex = range.end.index;
@@ -413,7 +413,7 @@ var __meta__ = { // jshint ignore:line
                 var dateRange = group.daySlotRanges(currentSlot.start, currentSlot.start, true)[0];
 
                 var occurrence = event.clone({
-                    start: i === startIndex ? start: currentSlot.startDate(),
+                    start: i === startIndex ? start : currentSlot.startDate(),
                     end: i === endIndex ? end : currentSlot.endDate(),
                     head: i !== endIndex || range.head,
                     tail: i !== startIndex || range.tail });
@@ -422,7 +422,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _positionEvent: function(event, group, range, rangeCount, start, end){
+        _positionEvent: function(event, group, range, rangeCount, start, end) {
             var view = this._view;
             var startIndex = range.start.index;
             var endIndex = range.end.index;
@@ -432,7 +432,7 @@ var __meta__ = { // jshint ignore:line
                 var dateRange = group.daySlotRanges(currentSlot.start, currentSlot.start, true)[0];
 
                 var occurrence = event.clone({
-                    start: i === startIndex ? start: currentSlot.startDate(),
+                    start: i === startIndex ? start : currentSlot.startDate(),
                     end: i === endIndex ? end : currentSlot.endDate(),
                     head: i !== endIndex || range.head,
                     tail: i !== startIndex || range.tail });
@@ -479,10 +479,10 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _changePeriodGroupIndex: function(reverse, vertical, selectionGroupIndex){
+        _changePeriodGroupIndex: function(reverse, vertical, selectionGroupIndex) {
             var view = this._view;
 
-            if (vertical && view._isVerticallyGrouped()){
+            if (vertical && view._isVerticallyGrouped()) {
                 return reverse ? view.groups.length - 1 : 0;
             }
 
@@ -603,8 +603,8 @@ var __meta__ = { // jshint ignore:line
 
         name: "month",
 
-        _getGroupedView: function(){
-            if (this._isGroupedByDate()){
+        _getGroupedView: function() {
+            if (this._isGroupedByDate()) {
                 return new kendo.ui.scheduler.MonthGroupedByDateView(this);
             } else {
                 return new kendo.ui.scheduler.MonthGroupedView(this);
@@ -640,7 +640,7 @@ var __meta__ = { // jshint ignore:line
                 index = slot.collectionIndex - 1;
 
                 if (index >= 0) {
-                    return  collections[index]._slots[collections[index]._slots.length - 1];
+                    return collections[index]._slots[collections[index]._slots.length - 1];
                 }
             } else {
                 collections = group._getCollections(group.daySlotCollectionCount());
@@ -648,12 +648,12 @@ var __meta__ = { // jshint ignore:line
                 var slotIndex = 0;
 
                 if (collections[index] && collections[index]._slots[slotIndex]) {
-                    return  collections[index]._slots[slotIndex];
+                    return collections[index]._slots[slotIndex];
                 }
             }
         },
 
-        _getNextHorizontalRange: function(group, method, horizontalRange){
+        _getNextHorizontalRange: function(group, method, horizontalRange) {
             var isVertical = this._isVerticallyGrouped();
 
             horizontalRange.startSlot = group[method](horizontalRange.startSlot, isVertical);
@@ -662,7 +662,7 @@ var __meta__ = { // jshint ignore:line
             return horizontalRange;
         },
 
-        _getNextVerticalRange: function(group, method, verticalRange, multiple){
+        _getNextVerticalRange: function(group, method, verticalRange, multiple) {
             var isVertical = this._isVerticallyGrouped() && this._isGroupedByDate();
 
             verticalRange.startSlot = group[method](verticalRange.startSlot, multiple, isVertical);
@@ -679,10 +679,10 @@ var __meta__ = { // jshint ignore:line
                 pad *= -1;
             }
 
-            newStart =  kendo.date.addDays(selection.start, pad);
+            newStart = kendo.date.addDays(selection.start, pad);
             newEnd = kendo.date.addDays(selection.end, pad);
 
-            if (this._isInRange(newStart, newEnd)){
+            if (this._isInRange(newStart, newEnd)) {
                 return false;
             }
 
@@ -774,7 +774,7 @@ var __meta__ = { // jshint ignore:line
             return kendo.format(this.options.selectedShortDateFormat, this._firstDayOfMonth, this._lastDayOfMonth);
         },
 
-        mobileDateForTitle: function () {
+        mobileDateForTitle: function() {
             return kendo.format(this.options.selectedMobileDateFormat, this._firstDayOfMonth, this._lastDayOfMonth);
         },
 
@@ -811,7 +811,7 @@ var __meta__ = { // jshint ignore:line
 
             this.refreshLayout();
 
-            if(this._isVirtualized()) {
+            if (this._isVirtualized()) {
                 this._tryRenderContent();
             }
 
@@ -934,7 +934,7 @@ var __meta__ = { // jshint ignore:line
             this.content.find("table").html(html);
         },
 
-        _virtualContent: function(){
+        _virtualContent: function() {
             var that = this;
             var html = '';
 
@@ -1127,12 +1127,12 @@ var __meta__ = { // jshint ignore:line
                     slot.clientHeight = weekHeight - 1;
                 });
 
-            }.bind(this));
+            });
         },
 
         _createCalendar: function(verticalGroupIndex) {
             var start = this.startDate();
-            var cellCount = NUMBER_OF_COLUMNS*NUMBER_OF_ROWS;
+            var cellCount = NUMBER_OF_COLUMNS * NUMBER_OF_ROWS;
             var cellsPerRow = NUMBER_OF_COLUMNS;
             var weekStartDates = [start];
             var html = '';
@@ -1157,7 +1157,7 @@ var __meta__ = { // jshint ignore:line
 
                 weekStartDates.push(start);
 
-                var startIdx = rowIdx*cellsPerRow;
+                var startIdx = rowIdx * cellsPerRow;
 
                 html += groupedView._createRows(start, startIdx, horizontalGroupCount, verticalGroupIndex);
                 start = groupedView._adjustStartDate(start, rowIdx === calendarRowsLength - 1);
@@ -1216,7 +1216,7 @@ var __meta__ = { // jshint ignore:line
         _layout: function() {
             var calendarInfo = this.calendarInfo();
 
-            var weekDayNames = this._isMobile() ? calendarInfo.days.namesShort.map(function (name) {
+            var weekDayNames = this._isMobile() ? calendarInfo.days.namesShort.map(function(name) {
                 return name[0];
             }) : calendarInfo.days.names;
 
@@ -1232,11 +1232,11 @@ var __meta__ = { // jshint ignore:line
                     for (var idx = 0; idx < 6; idx++) {
                         inner.push({ text: "<div>&nbsp;</div>", className: "k-hidden k-slot-cell" });
                     }
-                    rows =  groupedView._createRowsLayout(resources, inner, this.groupHeaderTemplate, columns);
-                    columns =  groupedView._createVerticalColumnsLayout(resources, inner, this.groupHeaderTemplate, columns);
+                    rows = groupedView._createRowsLayout(resources, inner, this.groupHeaderTemplate, columns);
+                    columns = groupedView._createVerticalColumnsLayout(resources, inner, this.groupHeaderTemplate, columns);
 
                 } else {
-                    columns =  groupedView._createColumnsLayout(resources, columns, this.groupHeaderTemplate, columns);
+                    columns = groupedView._createColumnsLayout(resources, columns, this.groupHeaderTemplate, columns);
                 }
             }
 
@@ -1263,7 +1263,7 @@ var __meta__ = { // jshint ignore:line
                 ariaLabel: this._formatEventAriaLabel(event.title, event.start, event.end, event.isAllDay)
             })));
 
-            this.angular("compile", function(){
+            this.angular("compile", function() {
                 return {
                     elements: element,
                     data: [ { dataItem: event } ]
@@ -1308,7 +1308,7 @@ var __meta__ = { // jshint ignore:line
             var eventCount = 3;
             var events = SchedulerView.collidingEvents(slotRange.events(), startIndex, endIndex);
 
-            events.push({element: element, start: startIndex, end: endIndex });
+            events.push({ element: element, start: startIndex, end: endIndex });
 
             var rows = SchedulerView.createRows(events);
 
@@ -1336,7 +1336,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (rows.length <= eventCount) {
-                slotRange.addEvent({element: element, start: startIndex, end: endIndex, groupIndex: startSlot.groupIndex });
+                slotRange.addEvent({ element: element, start: startIndex, end: endIndex, groupIndex: startSlot.groupIndex });
 
                 group._continuousEvents.push({
                     element: element,
@@ -1364,7 +1364,7 @@ var __meta__ = { // jshint ignore:line
             var events = SchedulerView.collidingEvents(slotRange.events(), startIndex, endIndex);
             var rightOffset = startIndex !== endIndex ? 3 : 2;
 
-            events.push({element: element, start: startIndex, end: endIndex });
+            events.push({ element: element, start: startIndex, end: endIndex });
 
             var rows = SchedulerView.createRows(events);
 
@@ -1419,7 +1419,7 @@ var __meta__ = { // jshint ignore:line
                     this.content[0].appendChild(slot.more[0]);
                 }
             } else {
-                slotRange.addEvent({element: element, start: startIndex, end: endIndex, groupIndex: startSlot.groupIndex });
+                slotRange.addEvent({ element: element, start: startIndex, end: endIndex, groupIndex: startSlot.groupIndex });
 
                 element[0].style.width = slotRange.innerWidth() - rightOffset + "px";
                 element[0].style.left = startSlot.offsetLeft + 2 + "px";
@@ -1539,7 +1539,7 @@ var __meta__ = { // jshint ignore:line
         },
 
 
-        addDaySlot: function(collection, cell, startDate, cellCount){
+        addDaySlot: function(collection, cell, startDate, cellCount) {
             var start = kendo.date.addDays(startDate, cellCount);
             var end = kendo.date.MS_PER_DAY;
             var eventsPerDay = this.options.eventsPerDay;
@@ -1590,7 +1590,7 @@ var __meta__ = { // jshint ignore:line
             var view = this._groupedView._view;
             var isMobile = view._isMobile();
 
-            if(!group) {
+            if (!group) {
                 return;
             }
 
@@ -1612,7 +1612,7 @@ var __meta__ = { // jshint ignore:line
 
                     while (rangeStart.getTime() <= rangeEnd &&
                         event.end >= kendo.timezone.toLocalDate(rangeStart) &&
-                        event.start <= kendo.timezone.toLocalDate(rangeEnd)){
+                        event.start <= kendo.timezone.toLocalDate(rangeEnd)) {
                         var dateRange = group.daySlotRanges(newStart.getTime(), newEnd.getTime(), true)[0];
                         newEnd.setDate(newEnd.getDate() + 1);
                         newStart.setDate(newStart.getDate() + 1);
@@ -1698,7 +1698,7 @@ var __meta__ = { // jshint ignore:line
             return this._columnCountForLevel(index) / this._columnCountForLevel(index - 1);
         },
 
-        destroy: function(){
+        destroy: function() {
             if (this.table) {
                 this.table.removeClass("k-scheduler-monthview");
             }
@@ -1769,5 +1769,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

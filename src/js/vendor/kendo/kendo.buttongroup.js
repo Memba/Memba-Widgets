@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.buttongroup',[ "kendo.core", "kendo.badge" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "buttongroup",
@@ -99,7 +99,7 @@ var __meta__ = { // jshint ignore:line
                 .addClass(KWIDGET + " " + KBUTTONGROUP)
                 .attr("role", "group")
                 .attr("tabindex", that.element.attr("tabindex") || "0")
-                .children().each(function () {
+                .children().each(function() {
                     var item = $(this);
                     that._updateClasses.bind(that)(item);
                 });
@@ -147,10 +147,10 @@ var __meta__ = { // jshint ignore:line
                 .on(MOUSEDOWN + NS, that._mouseDown.bind(that));
         },
 
-        _renderItems: function (items) {
+        _renderItems: function(items) {
             var that = this;
 
-            items.forEach(function (item) {
+            items.forEach(function(item) {
                 var renderedItem = $(templates.item({
                     image: item.imageUrl ? templates.image : templates.empty,
                     icon: !item.imageUrl && (item.iconClass || item.icon) ? templates.icon : templates.empty,
@@ -179,7 +179,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _mouseDown: function (e) {
+        _mouseDown: function(e) {
             var x = e.clientX,
                 y = e.clientY,
                 elementMouseIsOver = document.elementFromPoint(x, y);
@@ -189,12 +189,12 @@ var __meta__ = { // jshint ignore:line
                 this.preventFocusOut = true;
             }
             // Manually trigger focus in IE
-            if(isIE) {
+            if (isIE) {
                 this._focus();
             }
         },
 
-        _focus: function () {
+        _focus: function() {
             var element = $(this.element);
 
             element.removeAttr("tabindex");
@@ -216,26 +216,26 @@ var __meta__ = { // jshint ignore:line
             var that = this;
             var wrapper = that.wrapper;
 
-            if(this.preventFocusOut) {
+            if (this.preventFocusOut) {
                 this.preventFocusOut = false;
                 return;
             }
 
             setTimeout(function() {
-                if(!wrapper[0].contains(document.activeElement)) {
+                if (!wrapper[0].contains(document.activeElement)) {
                     wrapper.attr("tabindex", "0");
                     wrapper.find("[role='button']").removeAttr("tabindex");
                 }
             });
         },
 
-        _keyDown: function (e) {
+        _keyDown: function(e) {
             var that = this;
             var buttonGroup = $(that.element);
             var focusableItems = buttonGroup.find("." + KBUTTON);
             var focusedElement = buttonGroup.find(":focus");
             var currentIndex = focusableItems.index(focusedElement);
-            var isRtl =  kendo.support.isRtl(that.element);
+            var isRtl = kendo.support.isRtl(that.element);
             var itemToFocus;
 
             if ((e.keyCode === keys.LEFT && !isRtl) || (e.keyCode === keys.RIGHT && isRtl)) {
@@ -252,7 +252,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        select: function (button) {
+        select: function(button) {
             var that = this,
                 ariaPressed,
                 index = -1;
@@ -307,7 +307,7 @@ var __meta__ = { // jshint ignore:line
 
             badge = button.children(".k-badge").eq(0).data('kendoBadge');
             if (!badge && validValue) {
-                createBadge({ text: kendo.htmlEncode(value)}, button);
+                createBadge({ text: kendo.htmlEncode(value) }, button);
                 return kendo.htmlEncode(value);
             }
 
@@ -323,7 +323,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         enable: function(enable) {
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
@@ -340,7 +340,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.element.off(NS);
-            that.element.find('.k-badge').each(function(){
+            that.element.find('.k-badge').each(function() {
                 $(this).data('kendoBadge').destroy();
             });
 
@@ -382,7 +382,7 @@ var __meta__ = { // jshint ignore:line
                 .contents()
                 .filter(function() {
                     return !$(this).hasClass("k-icon") && !$(this).hasClass("k-image");
-                }).each(function(){
+                }).each(function() {
                     if (this.nodeType == 1 || this.nodeType == 3 && kendo.trim(this.nodeValue).length > 0) {
                         isEmpty = false;
                     }
@@ -409,7 +409,7 @@ var __meta__ = { // jshint ignore:line
             this._select(target);
         },
 
-        _select: function (target) {
+        _select: function(target) {
             var button = target;
 
             if (!this._enable || button.is("." + DISABLED)) {
@@ -417,7 +417,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             this.select(target[0]);
-            this.trigger(SELECT, { indices: this.selectedIndices});
+            this.trigger(SELECT, { indices: this.selectedIndices });
         }
     });
 
@@ -426,4 +426,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

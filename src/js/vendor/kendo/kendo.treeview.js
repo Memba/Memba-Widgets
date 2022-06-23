@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -707,17 +707,17 @@ var __meta__ = { // jshint ignore:line
             that.dataSource.bind(ITEMSLOADED, that._loadCompletedHandler);
         },
 
-        _loadCompleted: function (e) {
+        _loadCompleted: function(e) {
             var that = this;
             that._loadedNodes = that._loadedNodes.concat(e.nodes);
 
-            if(!that.dataSource.loading() && that.options.loadOnDemand === false) {
-                that.trigger(LOADCOMPLETED, {nodes: that._loadedNodes});
+            if (!that.dataSource.loading() && that.options.loadOnDemand === false) {
+                that.trigger(LOADCOMPLETED, { nodes: that._loadedNodes });
                 that._loadedNodes = [];
             }
         },
 
-        _attemptLoadCompleted: function () { // If there are no items to be loaded ensure event is triggered on dataBound
+        _attemptLoadCompleted: function() { // If there are no items to be loaded ensure event is triggered on dataBound
             var that = this,
                 items = that.dataSource.view();
 
@@ -728,7 +728,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
 
-                that.trigger(LOADCOMPLETED, {nodes: []});
+                that.trigger(LOADCOMPLETED, { nodes: [] });
             }
         },
 

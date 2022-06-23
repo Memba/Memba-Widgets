@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.gantt.data',["kendo.data", "kendo.treelist"], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "gantt.data",
@@ -70,7 +70,7 @@ var __meta__ = { // jshint ignore:line
                 return true;
             }
 
-            if(field.indexOf("planned") >= 0) {
+            if (field.indexOf("planned") >= 0) {
                 dates.plannedStart = model.plannedStart;
                 dates.plannedEnd = model.plannedEnd;
             } else {
@@ -80,7 +80,7 @@ var __meta__ = { // jshint ignore:line
 
             dates[field] = picker ? picker.value() : kendo.parseDate(input.val());
 
-            if(field.indexOf("planned") >= 0) {
+            if (field.indexOf("planned") >= 0) {
                 return dates.plannedStart <= dates.plannedEnd;
             } else {
                 return dates.start <= dates.end;
@@ -158,7 +158,7 @@ var __meta__ = { // jshint ignore:line
                     message: "End date should be after or equal to the start date"
                 }
             },
-            percentComplete: { type: "number", validation: { required: true, min:0, max: 1, step: 0.01 } },
+            percentComplete: { type: "number", validation: { required: true, min: 0, max: 1, step: 0.01 } },
             summary: { type: "boolean" },
             expanded: { type: "boolean", defaultValue: true },
             plannedStart: { type: "date", defaultValue: null, nullable: true },
@@ -184,7 +184,7 @@ var __meta__ = { // jshint ignore:line
             var end = this.plannedEnd,
                 start = this.plannedStart;
 
-            if(end && start) {
+            if (end && start) {
                 return end - start;
             }
 
@@ -318,7 +318,7 @@ var __meta__ = { // jshint ignore:line
             };
             var taskId, data;
 
-            if(fromView) {
+            if (fromView) {
                 data = this.view();
             } else {
                 data = this.data();
@@ -423,7 +423,7 @@ var __meta__ = { // jshint ignore:line
                     case "plannedStart":
                         that._resolveSummaryPlannedStart(that.taskParent(model));
 
-                        if(model.get(field) && oldValue) {
+                        if (model.get(field) && oldValue) {
                             offsetChildrenPlanned(model, model.get(field).getTime() - oldValue.getTime());
                         }
                         break;
@@ -464,7 +464,7 @@ var __meta__ = { // jshint ignore:line
                     // Update plannedStart and plannedEnd only when oldValue is not undefined or new value is not null
                     // That limitation is needed to avoid redundant update requests when custom edit template is used
                     // and the plannedStart and plannedEnd fields are not updated upon edit
-                    if(oldValue !== undefined || taskInfo[field] !== null) {
+                    if (oldValue !== undefined || taskInfo[field] !== null) {
                         task.set(field, taskInfo[field]);
                     }
                 } else if (field === "start" || field === "end") {
@@ -555,7 +555,7 @@ var __meta__ = { // jshint ignore:line
                     currentMin;
 
                 for (var i = 0, l = children.length; i < l; i++) {
-                    if(children[i].plannedStart) {
+                    if (children[i].plannedStart) {
                         currentMin = children[i].plannedStart.getTime();
                         if (!min || currentMin < min) {
                             min = currentMin;
@@ -563,7 +563,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
 
-                if(!min) {
+                if (!min) {
                     return null;
                 }
 
@@ -581,7 +581,7 @@ var __meta__ = { // jshint ignore:line
                     currentMax;
 
                 for (var i = 0, l = children.length; i < l; i++) {
-                    if(children[i].plannedEnd) {
+                    if (children[i].plannedEnd) {
                         currentMax = children[i].plannedEnd.getTime();
                         if (!max || currentMax > max) {
                             max = currentMax;
@@ -589,7 +589,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 }
 
-                if(!max) {
+                if (!max) {
                     return null;
                 }
 
@@ -622,7 +622,7 @@ var __meta__ = { // jshint ignore:line
                 newIndex = direction ? startIndex : startIndex + 1,
                 siblings = this.taskSiblings(task);
 
-            if(!siblings.length){
+            if (!siblings.length) {
                 return;
             }
 
@@ -687,5 +687,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

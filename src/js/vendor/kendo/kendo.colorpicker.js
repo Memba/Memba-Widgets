@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1554,7 +1554,7 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.colorpicker',[
         "kendo.core",
         "kendo.color",
@@ -1570,7 +1570,7 @@ return window.kendo;
         "./colorpicker/colorselector",
         "./colorpicker/flatcolorpicker"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "colorpicker",
@@ -1580,7 +1580,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core", "color", "popup", "slider", "userevents", "button", "binder", "textbox", "numerictextbox", "html.button" ]
 };
 
-(function($, undefined){
+(function($, undefined) {
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
     /*jshint eqnull:true  */
@@ -1592,8 +1592,8 @@ var __meta__ = { // jshint ignore:line
         KEYS = kendo.keys,
         BACKGROUNDCOLOR = "background-color",
         MESSAGES = {
-            apply  : "Apply",
-            cancel : "Cancel",
+            apply: "Apply",
+            cancel: "Cancel",
             noColor: "no color",
             clearColor: "Clear color",
             previewInput: null,
@@ -1622,8 +1622,8 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             // Legacy support for the cases where only palette is defined
-            if(options && options.palette && !options.view){
-                options.view ="palette";
+            if (options && options.palette && !options.view) {
+                options.view = "palette";
             }
 
             Widget.fn.init.call(that, element, options);
@@ -1662,7 +1662,7 @@ var __meta__ = { // jshint ignore:line
                 if (id) {
                     label = label.add('label[for="' + id + '"]');
                 }
-                label.on("click", function(ev){
+                label.on("click", function(ev) {
                     that.open();
                     ev.preventDefault();
                 });
@@ -1678,7 +1678,7 @@ var __meta__ = { // jshint ignore:line
                 content.attr("accesskey", accesskey);
             }
 
-            that.bind("activate", function(ev){
+            that.bind("activate", function(ev) {
                 if (!ev.isDefaultPrevented()) {
                     that.toggle();
                 }
@@ -1716,13 +1716,13 @@ var __meta__ = { // jshint ignore:line
             if (enable) {
                 wrapper.removeClass("k-disabled")
                     .attr("tabIndex", that._tabIndex)
-                    .on("mouseenter" + NS, function () { wrapper.addClass("k-hover"); })
-                    .on("mouseleave" + NS, function () { wrapper.removeClass("k-hover"); })
-                    .on("focus" + NS, function () { wrapper.addClass("k-focus"); })
-                    .on("blur" + NS, function () { wrapper.removeClass("k-focus"); })
+                    .on("mouseenter" + NS, function() { wrapper.addClass("k-hover"); })
+                    .on("mouseleave" + NS, function() { wrapper.removeClass("k-hover"); })
+                    .on("focus" + NS, function() { wrapper.addClass("k-focus"); })
+                    .on("blur" + NS, function() { wrapper.removeClass("k-focus"); })
                     .on(KEYDOWN_NS, bind(that._keydown, that))
                     .on(CLICK_NS, ".k-input-button", bind(that.toggle, that))
-                    .on(CLICK_NS, ".k-input-inner", function () {
+                    .on(CLICK_NS, ".k-input-inner", function() {
                         that.trigger("activate");
                     });
             } else {
@@ -1757,7 +1757,7 @@ var __meta__ = { // jshint ignore:line
             buttons: true,
             preview: true,
             clearButton: false,
-            input      : true,
+            input: true,
             format: "hex",
             formats: ["rgb", "hex"],
             view: "gradient",
@@ -1771,37 +1771,37 @@ var __meta__ = { // jshint ignore:line
 
         events: [ "activate", "change", "select", "open", "close" ],
 
-        open: function () {
+        open: function() {
             if (!this.element.prop("disabled")) {
                 this._getPopup().open();
             }
         },
-        close: function () {
+        close: function() {
             var selOptions = (this._selector && this._selector.options) || {};
             selOptions._closing = true;
             this._getPopup().close();
 
             delete selOptions._closing;
         },
-        toggle: function () {
+        toggle: function() {
             if (!this.element.prop("disabled")) {
                 this._getPopup().toggle();
             }
         },
-        setBackgroundColor: function (color) {
+        setBackgroundColor: function(color) {
             var that = this,
-                handler = function () { that._selector.setBackgroundColor(color); };
+                handler = function() { that._selector.setBackgroundColor(color); };
 
             that.options.contrastTool.backgroundColor = color;
 
-            if(that._selector && (that._popup && that._popup.visible())) {
+            if (that._selector && (that._popup && that._popup.visible())) {
                 that._selector.setBackgroundColor(color);
             } else if (that._popup) {
                 that._popup.unbind("activate", handler);
                 that._popup.bind("activate", handler);
             }
         },
-        _noColorIcon: function(){
+        _noColorIcon: function() {
             return this.wrapper.find(".k-color-preview");
         },
         color: ColorSelector.fn.color,
@@ -1877,7 +1877,7 @@ var __meta__ = { // jshint ignore:line
 
                 var id = kendo.guid();
 
-                var selectorWrapper = $('<div id="' + id +'" class="k-colorpicker-popup"></div>').appendTo(document.body);
+                var selectorWrapper = $('<div id="' + id + '" class="k-colorpicker-popup"></div>').appendTo(document.body);
                 var selector = that._selector = new selectorType($('<div></div>').appendTo(selectorWrapper), options);
 
                 that.wrapper.attr("aria-owns", id);
@@ -1888,10 +1888,10 @@ var __meta__ = { // jshint ignore:line
                 }).data("kendoPopup");
 
                 selector.bind({
-                    select: function(ev){
+                    select: function(ev) {
                         that._updateUI(parseColor(ev.value), true);
                     },
-                    change: function(ev){
+                    change: function(ev) {
                         if (that.options.buttons) {
                             that._select(selector.color());
                         } else {
@@ -1907,7 +1907,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 });
                 popup.bind({
-                    close: function(ev){
+                    close: function(ev) {
                         if (that.trigger("close")) {
                             ev.preventDefault();
                             return;
@@ -1933,7 +1933,7 @@ var __meta__ = { // jshint ignore:line
                             $(event.target).parents(".k-colorpicker-popup").length === 0;
 
                         if (!clickedOutside) {
-                            setTimeout(function () {
+                            setTimeout(function() {
                                 if (that.wrapper && !that.wrapper.is("[unselectable='on']")) {
                                     that.wrapper.trigger("focus");
                                 }
@@ -1947,7 +1947,7 @@ var __meta__ = { // jshint ignore:line
                             that.wrapper.addClass("k-focus");
                         }
                     },
-                    activate: function(){
+                    activate: function() {
                         var hsvColor,
                             selectedColor = that.color();
 
@@ -1988,5 +1988,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.rating',[ "kendo.core", "kendo.dom" ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "rating",
@@ -207,7 +207,7 @@
                     wrapper = that.wrapper,
                     element = that.element,
                     id = element.attr("id"),
-                    labelFor = $("label[for=\"" + id  + "\"]"),
+                    labelFor = $("label[for=\"" + id + "\"]"),
                     ariaLabel = element.attr(ARIA_LABEL),
                     ariaLabelledBy = element.attr(ARIA_LABELLEDBY),
                     min = parseFloat(that.element.attr(MIN)) || that.options.min,
@@ -222,9 +222,9 @@
 
                 if (ariaLabel) {
                     wrapper.attr(ARIA_LABEL, ariaLabel);
-                } else if (ariaLabelledBy){
+                } else if (ariaLabelledBy) {
                     wrapper.attr(ARIA_LABELLEDBY, ariaLabelledBy);
-                } else if (labelFor.length){
+                } else if (labelFor.length) {
                     var labelId = labelFor.attr("id");
 
                     if (!labelId) {
@@ -347,7 +347,7 @@
                     .on(MOUSEDOWN, that._mousedown.bind(that));
 
                 if (isHalfPrecision) {
-                    that.container.on(MOUSEMOVE, DOT + KITEM,  that._mousemove.bind(that));
+                    that.container.on(MOUSEMOVE, DOT + KITEM, that._mousemove.bind(that));
                 }
             },
 
@@ -408,7 +408,7 @@
                     focusableItems = container.find(DOT + KITEM),
                     focusedElement = container.find(DOT + FOCUSED),
                     currentIndex = focusableItems.index(focusedElement),
-                    isRtl =  kendo.support.isRtl(that.wrapper),
+                    isRtl = kendo.support.isRtl(that.wrapper),
                     isEmpty = isNaN(currentValue),
                     keyCode = e.keyCode,
                     left, right, itemToFocus, itemValue;
@@ -451,7 +451,7 @@
 
                 if (that.options[type]) {
                     template = kendo.template(that.options[type]);
-                }  else {
+                } else {
                     template = RATING_ITEM_TEMPLATE;
                 }
 
@@ -649,7 +649,7 @@
                 var that = this,
                     complement = item.find(DOT + PRECISION_COMPLEMENT),
                     iconElement = item.children().first(),
-                    isRtl =  kendo.support.isRtl(that.wrapper),
+                    isRtl = kendo.support.isRtl(that.wrapper),
                     dir = !isRtl ? "left" : "right";
 
                 if (!complement.length) {
@@ -660,7 +660,7 @@
 
                 complement.width(isHalf ? that._getItemWidth(item) / 2 : 0);
 
-                complement.css(dir, isHalf || isRtl  ? "50%" : 0);
+                complement.css(dir, isHalf || isRtl ? "50%" : 0);
             },
 
             _calculateItemWidthFromStyles: function(item) {
@@ -683,11 +683,11 @@
                 var that = this,
                     itemPart = item.find(DOT + PRECISION_PART),
                     itemValue = kendo.parseFloat(item.data(ratingItemAttributes.value)),
-                    isRtl =  kendo.support.isRtl(this.wrapper),
+                    isRtl = kendo.support.isRtl(this.wrapper),
                     itemWidth = item.width(),
                     halfWidth = itemWidth / 2,
                     halfOffset = parseFloat(item.outerWidth() / 2),
-                    isHalf =  !isRtl ? partSize < halfOffset : partSize > halfOffset;
+                    isHalf = !isRtl ? partSize < halfOffset : partSize > halfOffset;
 
                 if (item.length && itemPart.length) {
                     itemPart.width(isHalf ? halfWidth : itemWidth);
@@ -722,7 +722,7 @@
                     updateTemplate = value === null ? "item" : SELECTED,
                     valueItem = value === null ?
                         that.container.find(DOT + ratingItemStates.selected).last() :
-                        that.container.find(DOT + KITEM + "[data-value='"+ Math.ceil(value)  +"']");
+                        that.container.find(DOT + KITEM + "[data-value='" + Math.ceil(value) + "']");
 
                 if (value === null ) {
                     that.container.find(DOT + KITEM).removeClass(ratingItemStates.selected);
@@ -832,7 +832,7 @@
                 that._setState();
             },
 
-            setOptions: function (options) {
+            setOptions: function(options) {
                 var that = this;
 
                 that.options = $.extend(that.options, options);
@@ -885,5 +885,5 @@
 
   return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.userevents',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "userevents",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         support = kendo.support,
         Class = kendo.Class,
@@ -70,7 +70,7 @@ var __meta__ = { // jshint ignore:line
                y: (y1 + y2) / 2
             },
 
-            distance: Math.sqrt(dx*dx + dy*dy)
+            distance: Math.sqrt(dx * dx + dy * dy)
         };
     }
 
@@ -84,7 +84,7 @@ var __meta__ = { // jshint ignore:line
 
         if (e.api) {
             touches.push({
-                id: 2,  // hardcoded ID for API call;
+                id: 2, // hardcoded ID for API call;
                 event: e,
                 target: e.target,
                 currentTarget: e.target,
@@ -313,7 +313,7 @@ var __meta__ = { // jshint ignore:line
                     event: jQueryEvent
                 };
 
-            if(that.userEvents.notify(name, data)) {
+            if (that.userEvents.notify(name, data)) {
                 jQueryEvent.preventDefault();
             }
         },
@@ -331,7 +331,7 @@ var __meta__ = { // jshint ignore:line
             idx = 0,
             length = downEvents.length;
 
-        for(; idx < length; idx ++) {
+        for (; idx < length; idx ++) {
             callback(downEvents[idx]);
         }
     }
@@ -467,7 +467,7 @@ var __meta__ = { // jshint ignore:line
                 touches = that.touches;
 
             if (this._isMultiTouch()) {
-                switch(eventName) {
+                switch (eventName) {
                     case MOVE:
                         eventName = GESTURECHANGE;
                         break;
@@ -479,10 +479,10 @@ var __meta__ = { // jshint ignore:line
                         break;
                 }
 
-                extend(data, {touches: touches}, touchDelta(touches[0], touches[1]));
+                extend(data, { touches: touches }, touchDelta(touches[0], touches[1]));
             }
 
-            return this.trigger(eventName, extend(data, {type: eventName}));
+            return this.trigger(eventName, extend(data, { type: eventName }));
         },
 
         // API
@@ -535,7 +535,7 @@ var __meta__ = { // jshint ignore:line
                 touch,
                 which = e.which;
 
-            if ((which && which > 1) || (that._maxTouchesReached())){
+            if ((which && which > 1) || (that._maxTouchesReached())) {
                 return;
             }
 
@@ -663,5 +663,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

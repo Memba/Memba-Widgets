@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -403,7 +403,7 @@ $.extend(true, kendo.spreadsheet.messages.borderPalette,{
   "allBorders": "Alle grenzen",
   "insideBorders": "Binnen grenzen",
   "insideHorizontalBorders": "Binnen horizontale randen",
-  "insideVerticalBorders": "Binnen verticale randen",    
+  "insideVerticalBorders": "Binnen verticale randen",
   "outsideBorders": "buiten grenzen",
   "leftBorder": "Linkerrand",
   "topBorder": "Bovenrand",
@@ -561,7 +561,7 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
     }
   },
   "unsupportedSelectionDialog": {
-    "errorMessage": "Die actie kan niet worden uitgevoerd op meervoudige selectie."     
+    "errorMessage": "Die actie kan niet worden uitgevoerd op meervoudige selectie."
   },
   "insertCommentDialog": {
     "title": "Opmerking invoegen",
@@ -627,7 +627,7 @@ $.extend(true, kendo.spreadsheet.messages.colorPicker,{
   "cancel": "Annuleren"
 });
 }
-  
+
 if (kendo.spreadsheet && kendo.spreadsheet.messages.toolbar) {
 kendo.spreadsheet.messages.toolbar =
 $.extend(true, kendo.spreadsheet.messages.toolbar,{

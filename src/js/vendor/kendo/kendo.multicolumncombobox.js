@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.multicolumncombobox',[ "kendo.combobox" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "multicolumncombobox",
@@ -66,7 +66,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _allColumnsWidthsAreSet: function (options) {
+        _allColumnsWidthsAreSet: function(options) {
             var columns = options.columns;
 
             if (!columns || !columns.length) {
@@ -75,7 +75,7 @@ var __meta__ = { // jshint ignore:line
 
             for (var i = 0; i < columns.length; i++) {
                 var currentWidth = columns[i].width;
-                if(!currentWidth  || isNaN(parseInt(currentWidth, 10)) || percentageUnitsRegex.test(currentWidth)){
+                if (!currentWidth || isNaN(parseInt(currentWidth, 10)) || percentageUnitsRegex.test(currentWidth)) {
                     return false;
                 }
             }
@@ -83,7 +83,7 @@ var __meta__ = { // jshint ignore:line
             return true;
         },
 
-        _calculateDropDownWidth: function (options) {
+        _calculateDropDownWidth: function(options) {
             var columns = options.columns;
             var totalWidth = kendo.support.scrollbar();
 
@@ -113,5 +113,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

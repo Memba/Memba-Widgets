@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.buttongroup',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.buttongroup",
@@ -25,7 +25,7 @@ var __meta__ = { // jshint ignore:line
         ACTIVE = "state-active",
         DISABLE = "state-disabled",
         SELECT = "select",
-        SELECTOR = "li:not(.km-" + ACTIVE +")";
+        SELECTOR = "li:not(.km-" + ACTIVE + ")";
 
     function className(name) {
         return "k-" + name + " km-" + name;
@@ -48,7 +48,7 @@ var __meta__ = { // jshint ignore:line
             that._enable = true;
             that.select(that.options.index);
 
-            if(!that.options.enable) {
+            if (!that.options.enable) {
                 that._enable = false;
                 that.wrapper.addClass(className(DISABLE));
             }
@@ -69,7 +69,7 @@ var __meta__ = { // jshint ignore:line
             return this.element.find(".km-" + ACTIVE);
         },
 
-        select: function (li) {
+        select: function(li) {
             var that = this,
                 index = -1;
 
@@ -115,7 +115,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         enable: function(enable) {
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
@@ -161,5 +161,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

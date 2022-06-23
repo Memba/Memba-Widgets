@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -161,11 +161,11 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/location',[ "kendo.drawing", "../../util/main" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var math = Math,
         abs = math.abs,
@@ -435,8 +435,8 @@ return window.kendo;
             var nw = this.nw,
                 se = this.se;
 
-            return {nw: this.nw, ne: new Location(nw.lat, se.lng),
-                    se: this.se, sw: new Location(se.lat, nw.lng)};
+            return { nw: this.nw, ne: new Location(nw.lat, se.lng),
+                    se: this.se, sw: new Location(se.lat, nw.lng) };
         },
 
         toArray: function() {
@@ -475,11 +475,11 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/attribution',[ "kendo.drawing" ], f);
-})(function(){
+})(function() {
 
 (function() {
     var kendo = window.kendo,
@@ -599,13 +599,13 @@ return window.kendo;
     kendo.dataviz.ui.plugin(Attribution);
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/navigator',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
@@ -709,12 +709,12 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/map/zoom',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
@@ -804,13 +804,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/crs',[ "./location", "kendo.drawing" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var math = Math,
         atan = math.atan,
@@ -845,10 +845,10 @@ return window.kendo;
 
     // Coordinate reference systems ===========================================
     var WGS84 = {
-        a: 6378137,                 // Semi-major radius
-        b: 6356752.314245179,       // Semi-minor radius
-        f: 0.0033528106647474805,   // Flattening
-        e: 0.08181919084262149      // Eccentricity
+        a: 6378137, // Semi-major radius
+        b: 6356752.314245179, // Semi-minor radius
+        f: 0.0033528106647474805, // Flattening
+        e: 0.08181919084262149 // Eccentricity
     };
 
     // WGS 84 / World Mercator
@@ -978,7 +978,7 @@ return window.kendo;
             var c = this.c = 2 * PI * proj.options.datum.a;
 
             // Scale circumference to 1, mirror Y and shift origin to top left
-            this._tm = g.transform().translate(0.5, 0.5).scale(1/c, -1/c);
+            this._tm = g.transform().translate(0.5, 0.5).scale(1 / c, -1 / c);
 
             // Inverse transform matrix
             this._itm = g.transform().scale(c, -c).translate(-0.5, -0.5);
@@ -1053,13 +1053,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/base',[ "kendo.core", "../location" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         Class = kendo.Class,
@@ -1180,13 +1180,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/shape',["./base", "../location"], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         Class = kendo.Class,
@@ -1461,7 +1461,7 @@ return window.kendo;
             var i;
             var path;
 
-            switch(geometry.type) {
+            switch (geometry.type) {
                 case "LineString":
                     path = this._loadPolygon(container, [coords], dataItem);
                     this._setLineFill(path);
@@ -1591,13 +1591,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/bubble',["./shape" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         getter = kendo.getter,
@@ -1720,7 +1720,7 @@ return window.kendo;
     });
 
     var Symbols = {
-        circle: function (args) {
+        circle: function(args) {
             var geo = new g.Circle(args.center, args.size / 2);
             return new d.Circle(geo, args.style);
         },
@@ -1756,13 +1756,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('dataviz/map/layers/tile',[ "./base", "../location" ], f);
 })(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var math = Math,
 
@@ -1814,7 +1814,7 @@ return window.kendo;
         _reset: function(e) {
             var tileTitle;
 
-            if(e) {
+            if (e) {
                 tileTitle = e.tileTitle;
             } else {
                 tileTitle = "";
@@ -2223,13 +2223,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('dataviz/map/layers/bing',[ "./tile" ], f);
 })(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
 
@@ -2403,14 +2403,14 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/marker',[ "./base", "../location",
              "kendo.data", "kendo.tooltip" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var doc = document,
         math = Math,
@@ -2502,7 +2502,7 @@ return window.kendo;
             }
         },
 
-        bind: function (options, dataItem) {
+        bind: function(options, dataItem) {
             var marker = map.Marker.create(options, this.options);
             marker.dataItem = dataItem;
 
@@ -2691,13 +2691,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/main',["./crs", "./location"], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var doc = document,
         math = Math,
@@ -2823,7 +2823,7 @@ return window.kendo;
             }
         },
 
-        events:[
+        events: [
             "beforeReset",
             "click",
             "markerActivate",
@@ -2915,7 +2915,7 @@ return window.kendo;
         layerToLocation: function(point, zoom) {
             var clamp = !this.options.wraparound;
             point = Point.create(point);
-            return  this.crs.toLocation(point, this._layerSize(zoom), clamp);
+            return this.crs.toLocation(point, this._layerSize(zoom), clamp);
         },
 
         locationToView: function(location) {
@@ -3190,7 +3190,7 @@ return window.kendo;
             var origin = this.locationToLayer(this._viewOrigin).round();
             var movable = e.sender.movable;
 
-            var offset = new g.Point(movable.x, movable.y).scale(-1).scale(1/movable.scale);
+            var offset = new g.Point(movable.x, movable.y).scale(-1).scale(1 / movable.scale);
             origin.x += offset.x;
             origin.y += offset.y;
 
@@ -3379,9 +3379,9 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.map',[
         "kendo.data", "kendo.userevents", "kendo.tooltip", "kendo.mobile.scroller", "kendo.draganddrop",
         "kendo.dataviz.core",
@@ -3399,7 +3399,7 @@ return window.kendo;
         "./dataviz/map/layers/marker",
         "./dataviz/map/main"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "dataviz.map",
@@ -3411,5 +3411,5 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

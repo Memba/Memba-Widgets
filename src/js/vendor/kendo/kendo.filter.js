@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.filter',[ "kendo.core", "kendo.buttongroup"], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "filter",
@@ -33,14 +33,14 @@ var defaultValues = {
 
 var operatorsTemplate =
     "<select data-#=ns#bind='value: operator' title='#=operatorsLabel#' data-#=ns#role='dropdownlist'>" +
-        "#for(var op in operators){#"+
+        "#for(var op in operators){#" +
             "<option value='#=op#'>#=operators[op].text || operators[op]#</option>" +
         "#}#" +
     "</select>";
 
 var logicTemplate =
     "<div data-#=ns#bind='value: logic' data-#=ns#role='filterbuttongroup'>" +
-        "#for(var op in operators){#"+
+        "#for(var op in operators){#" +
             "<span value='#=op#'>#=operators[op]#</span>" +
         "#}#" +
     "</div>";
@@ -52,7 +52,7 @@ var mainContainer =
 
 var mainLogicTemplate =
     "<div class='k-filter-toolbar'>" +
-        "<div class='k-toolbar' id='#=uid#'>" +
+        "<div role='toolbar' aria-label='#=mainFilterLogicLabel#' class='k-toolbar' id='#=uid#'>" +
             "<div class='k-filter-toolbar-item'>" +
                 logicTemplate +
             "</div>" +
@@ -75,12 +75,12 @@ var mainLogicTemplate =
                 "</button>" +
             "</div>" +
         "</div>" +
-    "</div>" ;
+    "</div>";
 
 var logicItemTemplate =
 "<li class='k-filter-item'>" +
     "<div class='k-filter-toolbar'>" +
-        "<div class='k-toolbar'>" +
+        "<div role='toolbar' aria-label='#=filterLogicLabel#' class='k-toolbar'>" +
             "<div class='k-filter-toolbar-item'>" +
                 logicTemplate +
             "</div>" +
@@ -109,7 +109,7 @@ var logicItemTemplate =
 var expressionItemTemplate =
 "<li class='k-filter-item'>" +
     "<div class='k-filter-toolbar'>" +
-       "<div class='k-toolbar' id='#=uid#'>" +
+       "<div role='group' aria-label='#=filterExpressionLabel#' class='k-toolbar' id='#=uid#'>" +
          "<div class='k-filter-toolbar-item k-filter-field'>" +
             "<select data-#=ns#bind='value: field' title='#=fieldsLabel#' class='k-filter-dropdown' data-auto-width='true' data-#=ns#role='dropdownlist'>" +
                 "#for(var current in fields){#" +
@@ -128,7 +128,7 @@ var expressionItemTemplate =
             "</button>" +
          "</div>" +
        "</div>" +
-    "</div>"+
+    "</div>" +
 "</li>";
 
 
@@ -152,7 +152,7 @@ var expressionItemTemplate =
             name: "FilterButtonGroup"
         },
 
-        value: function (value) {
+        value: function(value) {
             if (value === undefined) {
                 return this._value;
             }
@@ -161,7 +161,7 @@ var expressionItemTemplate =
             this.trigger(CHANGE);
         },
 
-        select: function (button) {
+        select: function(button) {
             if (button !== -1) {
                 this.value($(button).attr("value"));
             }
@@ -215,6 +215,9 @@ var expressionItemTemplate =
                 close: "Close",
                 addExpression: "Add Expression",
                 fields: "Fields",
+                filterExpressionLabel: "filter expression",
+                filterLogicLabel: "filter logic",
+                mainFilterLogicLabel: "main filter logic",
                 operators: "Operators",
                 addGroup: "Add Group"
             },
@@ -260,10 +263,10 @@ var expressionItemTemplate =
             }
         },
 
-        applyFilter: function () {
+        applyFilter: function() {
             var filter = this.filterModel.toJSON();
 
-            if(this._hasCustomOperators){
+            if (this._hasCustomOperators) {
                 this._mapOperators(filter);
             }
             if (this._hasFieldsFilter(filter.filters || [])) {
@@ -298,7 +301,7 @@ var expressionItemTemplate =
             return result;
         },
 
-        _addExpressionTree: function (model) {
+        _addExpressionTree: function(model) {
             if (model.filters) {
                 var parent = this.element.find("[id=" + model.uid + "]");
                 for (var i = 0; i < model.filters.length; i++) {
@@ -314,13 +317,13 @@ var expressionItemTemplate =
             }
         },
 
-        _attachEvents: function () {
+        _attachEvents: function() {
             var that = this;
 
-            that.element.on("click" + NS, "button.k-button" , function (e) {
+            that.element.on("click" + NS, "button.k-button" , function(e) {
                 e.preventDefault();
 
-                var button  = $(e.currentTarget);
+                var button = $(e.currentTarget);
                 var icon = button.find("span");
                 var command = (icon.length ? icon : button).attr("class").split("-").pop();
 
@@ -336,10 +339,10 @@ var expressionItemTemplate =
             });
         },
 
-        _addExpression: function (parentContainer, model) {
+        _addExpression: function(parentContainer, model) {
             var that = this;
             var parentUID = parentContainer.attr("id");
-            var itemsContainer  = parentContainer.closest(".k-filter-toolbar").next("ul.k-filter-lines");
+            var itemsContainer = parentContainer.closest(".k-filter-toolbar").next("ul.k-filter-lines");
             var field = model ? that._fields[model.field] : that._defaultField;
             var expressionModel;
             var itemHTML = "";
@@ -366,7 +369,8 @@ var expressionItemTemplate =
                 close: that.options.messages.close,
                 fieldsLabel: that.options.messages.fields,
                 uid: expressionModel.uid,
-                ns: kendo.ns
+                ns: kendo.ns,
+                filterExpressionLabel: that.options.messages.filterExpressionLabel
             })).appendTo(itemsContainer);
 
             that._addExpressionControls(itemHTML.find(".k-toolbar"), field, expressionModel);
@@ -376,7 +380,7 @@ var expressionItemTemplate =
             }
         },
 
-        _addExpressionControls: function (container, field, filterModel) {
+        _addExpressionControls: function(container, field, filterModel) {
             var items = container.find(".k-filter-toolbar-item");
             var operatorsContainer = items.eq(1);
             var editorContainer = items.eq(2);
@@ -392,7 +396,7 @@ var expressionItemTemplate =
             this._showHideEditor(container, filterModel);
         },
 
-        _appendOperators: function (container, field) {
+        _appendOperators: function(container, field) {
             $(kendo.template(operatorsTemplate)({
                 operators: field.operators && field.operators[field.type] ? field.operators[field.type] : this.operators[field.type],
                 operatorsLabel: this.options.messages.operators,
@@ -400,15 +404,15 @@ var expressionItemTemplate =
             })).appendTo(container);
         },
 
-        _appendEditor: function (container, field) {
+        _appendEditor: function(container, field) {
             if (kendo.isFunction(field.editor)) {
                 field.editor(container, $.extend(true, {}, { field: field.name }));
             } else {
-                $(kendo.template(field.editor)({ns: kendo.ns, field: field.name, id: kendo.guid()})).appendTo(container);
+                $(kendo.template(field.editor)({ ns: kendo.ns, field: field.name, id: kendo.guid() })).appendTo(container);
             }
         },
 
-        _addNewModel: function (parent, field) {
+        _addNewModel: function(parent, field) {
             var filterModel;
             var type = field.type;
             var operators = field.operators;
@@ -428,11 +432,11 @@ var expressionItemTemplate =
             return filterModel;
         },
 
-        _addGroup: function (parent, model) {
+        _addGroup: function(parent, model) {
             var that = this;
             var filterModel = that.filterModel;
             var parentUID = parent.attr("id");
-            var itemsContainer  = parent.closest(".k-filter-toolbar").next("ul.k-filter-lines");
+            var itemsContainer = parent.closest(".k-filter-toolbar").next("ul.k-filter-lines");
             var logicHTML;
 
             if (model) {
@@ -454,13 +458,14 @@ var expressionItemTemplate =
 
             logicHTML = $(kendo.template(logicItemTemplate)({
                 operators: {
-                    and : that.options.messages.and,
-                    or : that.options.messages.or
+                    and: that.options.messages.and,
+                    or: that.options.messages.or
                 },
                 addExpression: that.options.messages.addExpression,
                 addGroup: that.options.messages.addGroup,
                 close: that.options.messages.close,
-                ns: kendo.ns
+                ns: kendo.ns,
+                filterLogicLabel: that.options.messages.filterLogicLabel
             })).appendTo(itemsContainer);
 
             that._bindModel(logicHTML.find(".k-toolbar"), filterModel);
@@ -470,7 +475,7 @@ var expressionItemTemplate =
             }
         },
 
-        _bindModel: function (container, model) {
+        _bindModel: function(container, model) {
             container.attr("id", model.uid);
 
             model.bind("change", this._modelChangeHandler);
@@ -479,7 +484,7 @@ var expressionItemTemplate =
             container.parent().attr(kendo.attr("stop"), true);
         },
 
-        _createPreview:  function (filter) {
+        _createPreview: function(filter) {
             var html = "";
             var createdField = false;
             var haveFields = this._hasFieldsFilter(filter.filters || []);
@@ -491,7 +496,7 @@ var expressionItemTemplate =
                 return "";
             }
             html += '<span class="k-filter-preview-bracket">(</span>';
-            for (var i = 0 ; i < filter.filters.length; i++) {
+            for (var i = 0; i < filter.filters.length; i++) {
                 current = filter.filters[i];
 
                 if (current.filters) {
@@ -537,7 +542,7 @@ var expressionItemTemplate =
             that.trigger(CHANGE, { expression: filter });
         },
 
-        _getOperatorText: function (field, operator) {
+        _getOperatorText: function(field, operator) {
             var type = this._fields[field].type;
             var operators = this._fields[field].operators;
 
@@ -552,10 +557,10 @@ var expressionItemTemplate =
             var that = this;
             fieldInfo = $.extend(true, {}, {
                 name: fieldInfo.name || field,
-                editor : fieldInfo.editorTemplate || editors[fieldInfo.type || "string"],
-                defaultValue : (fieldInfo.defaultValue || fieldInfo.defaultValue === false || fieldInfo.defaultValue === 0) ? fieldInfo.defaultValue : defaultValues[fieldInfo.type || "string"],
-                type : fieldInfo.type || "string",
-                label : fieldInfo.label || fieldInfo.name || field,
+                editor: fieldInfo.editorTemplate || editors[fieldInfo.type || "string"],
+                defaultValue: (fieldInfo.defaultValue || fieldInfo.defaultValue === false || fieldInfo.defaultValue === 0) ? fieldInfo.defaultValue : defaultValues[fieldInfo.type || "string"],
+                type: fieldInfo.type || "string",
+                label: fieldInfo.label || fieldInfo.name || field,
                 operators: fieldInfo.operators,
                 previewFormat: fieldInfo.previewFormat
             });
@@ -565,7 +570,7 @@ var expressionItemTemplate =
             }
         },
 
-        _getFieldsInfo: function () {
+        _getFieldsInfo: function() {
             var that = this;
             var fieldsCollection = that.options.fields.length ? that.options.fields : (that.options.dataSource.options.schema.model || {}).fields;
             var fieldInfo;
@@ -585,10 +590,10 @@ var expressionItemTemplate =
             }
         },
 
-        _hasFieldsFilter: function (filters, haveField) {
+        _hasFieldsFilter: function(filters, haveField) {
             haveField = !!haveField;
 
-            for (var i = 0 ; i < filters.length; i++) {
+            for (var i = 0; i < filters.length; i++) {
                 if (filters[i].filters) {
                     haveField = this._hasFieldsFilter(filters[i].filters, haveField);
                 }
@@ -600,7 +605,7 @@ var expressionItemTemplate =
             return haveField;
         },
 
-        _removeEmptyGroups: function (filters) {
+        _removeEmptyGroups: function(filters) {
             if (!filters) {
                 return;
             }
@@ -616,7 +621,7 @@ var expressionItemTemplate =
             }
         },
 
-        _modelChange: function (e) {
+        _modelChange: function(e) {
             var that = this;
             var container = that.element.find("[id=" + e.sender.uid + "]");
 
@@ -657,20 +662,21 @@ var expressionItemTemplate =
 
             $(kendo.template(mainLogicTemplate)({
                 operators: {
-                    and : that.options.messages.and,
-                    or : that.options.messages.or
+                    and: that.options.messages.and,
+                    or: that.options.messages.or
                 },
                 addExpression: that.options.messages.addExpression,
                 addGroup: that.options.messages.addGroup,
                 close: that.options.messages.close,
                 uid: that.filterModel.uid,
-                ns: kendo.ns
+                ns: kendo.ns,
+                mainFilterLogicLabel: that.options.messages.mainFilterLogicLabel
             })).appendTo(that.element.find("li").first());
 
             that._bindModel(that.element.find(".k-toolbar").first(), that.filterModel);
         },
 
-        _removeExpression: function (parent) {
+        _removeExpression: function(parent) {
             var that = this;
             var parentUID = parent.attr("id");
             var itemContainer = parent.closest("li");
@@ -714,7 +720,7 @@ var expressionItemTemplate =
             }
         },
 
-        _showHideEditor: function (container, model) {
+        _showHideEditor: function(container, model) {
             if (model.logic) {
                 return;
             }
@@ -729,10 +735,10 @@ var expressionItemTemplate =
             }
         },
 
-        _mapOperators: function (expression) {
+        _mapOperators: function(expression) {
             var that = this;
             if (expression.filters) {
-                expression.filters.forEach(function (filter) {
+                expression.filters.forEach(function(filter) {
                     if (filter.filters) {
                         that._mapOperators(filter);
                     } else {
@@ -753,7 +759,7 @@ var expressionItemTemplate =
             }
         },
 
-        hasCustomOperators: function () {
+        hasCustomOperators: function() {
             var operators = $.extend(true, {}, this.operators);
 
             for (var field in this._fields) {
@@ -782,7 +788,7 @@ var expressionItemTemplate =
         }
 
         if (model.filters) {
-            for(var i = 0; i < model.filters.length; i++) {
+            for (var i = 0; i < model.filters.length; i++) {
                 var temp = findModel(model.filters[i], uid);
                 if (temp) {
                     return temp;
@@ -797,5 +803,5 @@ var expressionItemTemplate =
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

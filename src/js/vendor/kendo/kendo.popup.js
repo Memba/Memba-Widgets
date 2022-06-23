@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.popup',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "popup",
@@ -99,7 +99,7 @@ var __meta__ = { // jshint ignore:line
             that.element.hide()
                 .addClass("k-popup k-group k-reset")
                 .toggleClass("k-rtl", !!options.isRtl)
-                .css({ position : ABSOLUTE })
+                .css({ position: ABSOLUTE })
                 .appendTo(options.appendTo)
                 .attr("aria-hidden", true)
                 .on("mouseenter" + NS, function() {
@@ -433,7 +433,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 // Close all inclusive popups.
-                that.element.find(".k-popup").each(function () {
+                that.element.find(".k-popup").each(function() {
                     var that = $(this),
                         popup = that.data("kendoPopup");
 
@@ -523,7 +523,7 @@ var __meta__ = { // jshint ignore:line
                 mobile = popup.parent().parent(".km-shim").length;
 
             popup = popup[0];
-            if (!mobile && popup && popup !== that.element[0]){
+            if (!mobile && popup && popup !== that.element[0]) {
                 return;
             }
 
@@ -675,7 +675,7 @@ var __meta__ = { // jshint ignore:line
 
             var flipPos = extend({}, location);
             var elementHeight = outerHeight(element);
-            var wrapperHeight =  outerHeight(wrapper);
+            var wrapperHeight = outerHeight(wrapper);
 
             if (!wrapper.height() && elementHeight) {
                 wrapperHeight = wrapperHeight + elementHeight;
@@ -784,7 +784,7 @@ var __meta__ = { // jshint ignore:line
             this.element = undefined;
         },
 
-        shouldTrap: function () {
+        shouldTrap: function() {
             return true;
         },
 
@@ -801,8 +801,8 @@ var __meta__ = { // jshint ignore:line
 
             e.preventDefault();
         },
-        _focusableElements: function(){
-            var elements = this.element.find(focusableNodesSelector).filter(function(i, item){
+        _focusableElements: function() {
+            var elements = this.element.find(focusableNodesSelector).filter(function(i, item) {
                 return item.tabIndex >= 0 && $(item).is(':visible') && !$(item).is('[disabled]');
             });
 
@@ -812,7 +812,7 @@ var __meta__ = { // jshint ignore:line
 
             return elements;
         },
-        _sortFocusableElements: function(elements){
+        _sortFocusableElements: function(elements) {
             var sortedElements;
 
             if (stableSort) {
@@ -821,7 +821,7 @@ var __meta__ = { // jshint ignore:line
                 });
             } else {
                 var attrName = "__k_index";
-                elements.each(function(i, item){
+                elements.each(function(i, item) {
                     item.setAttribute(attrName, i);
                 });
 
@@ -836,13 +836,13 @@ var __meta__ = { // jshint ignore:line
 
             return sortedElements;
         },
-        _nextFocusable: function(e, elements){
+        _nextFocusable: function(e, elements) {
             var count = elements.length;
             var current = elements.index(e.target);
 
             return elements.get((current + (e.shiftKey ? -1 : 1)) % count);
         },
-        _focus: function(element){
+        _focus: function(element) {
             if (element.nodeName == "IFRAME") {
                 element.contentWindow.document.body.focus();
                 return;
@@ -854,7 +854,7 @@ var __meta__ = { // jshint ignore:line
                 element.setSelectionRange(0, element.value.length);
             }
         },
-        _haveSelectionRange: function(element){
+        _haveSelectionRange: function(element) {
             var elementType = element.type.toLowerCase();
 
             return elementType === "text" || elementType === "search" ||
@@ -866,8 +866,7 @@ var __meta__ = { // jshint ignore:line
 })(window.kendo.jQuery);
 
 
-
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

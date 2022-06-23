@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.button',[ "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.button",
@@ -100,7 +100,7 @@ var __meta__ = { // jshint ignore:line
             enable: true
         },
 
-        badge: function (value) {
+        badge: function(value) {
             var badge = this.badgeElement = this.badgeElement || createBadge(value).appendTo(this.element);
 
             if (value || value === 0) {
@@ -120,13 +120,13 @@ var __meta__ = { // jshint ignore:line
         enable: function(enable) {
             var element = this.element;
 
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
             this.options.enable = enable;
 
-            if(enable) {
+            if (enable) {
                 element.prop(DISABLED, false);
             } else {
                 element.attr(DISABLED, DISABLED);
@@ -145,7 +145,7 @@ var __meta__ = { // jshint ignore:line
             var activeElement = document.activeElement,
                 nodeName = activeElement ? activeElement.nodeName : "";
 
-            if(this.options.enable) {
+            if (this.options.enable) {
                 highlightButton(this, e, true);
 
                 if (nodeName == "INPUT" || nodeName == "TEXTAREA") {
@@ -161,12 +161,12 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if(!that.options.enable) {
+            if (!that.options.enable) {
                 e.preventDefault();
                 return;
             }
 
-            if (that.trigger(CLICK, {target: $(e.target), button: that.element})) {
+            if (that.trigger(CLICK, { target: $(e.target), button: that.element })) {
                 e.preventDefault();
             }
         },
@@ -273,5 +273,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

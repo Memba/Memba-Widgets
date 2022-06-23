@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.form',[ "kendo.editable" ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "form",
@@ -161,7 +161,7 @@
                                         "# } #" +
                                         "# if (label.optional) { # <span class='#:styles.optional#'>#:optional#</span>  #}#" +
                                     "</label>" +
-                                "# } #"  +
+                                "# } #" +
                                 "<div class='k-form-field-wrap' data-container-for='#:field#'></div>" +
                             "</div>",
 
@@ -172,7 +172,7 @@
             _buttonsTemplate: "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-primary #:styles.submit#' type='submit'><span class='k-button-text'>#:messages.submit#</span></button>" +
                               "<button class='k-button k-button-md k-rounded-md k-button-solid k-button-solid-base #:styles.clear#'><span class='k-button-text'>#:messages.clear#</span></button>",
 
-            _errorTemplate:  "<span class='k-form-error' id='#=field#-form-error'><div>#=message#</div></span>",
+            _errorTemplate: "<span class='k-form-error' id='#=field#-form-error'><div>#=message#</div></span>",
 
             _hintTemplate: "<div class='k-form-hint' id='#=id#-form-hint'><span>#=message#</span></div>",
 
@@ -270,7 +270,7 @@
                 return defaultFormDataFields;
             },
 
-            _setFields: function () {
+            _setFields: function() {
                 var that = this,
                     defaultFields = that._flattenFields(that._defaultFields()),
                     formData = that.options.formData || {},
@@ -288,7 +288,7 @@
                     editor = kendo.isFunction(fieldInfo.editor) ? fieldInfo.editor :
                          ui.Editable.fn.options.editors[type] ? "" : fieldInfo.editor;
 
-                    if(!that._isHidden(fieldInfo.editor)) {
+                    if (!that._isHidden(fieldInfo.editor)) {
                         if (fieldInfo.label) {
                             attributes = {
                                 "aria-labelledby": fieldInfo.id || fieldInfo.field + "-form-label"
@@ -318,7 +318,7 @@
                     options = that.options,
                     formData = options.formData || {};
 
-                if(options.formData instanceof kendo.data.ObservableObject) {
+                if (options.formData instanceof kendo.data.ObservableObject) {
                     that._model = formData;
                     return;
                 }
@@ -376,11 +376,11 @@
                 return template;
             },
 
-            _isHidden: function (editor) {
+            _isHidden: function(editor) {
                 return typeof editor === "string" && editor === "hidden";
             },
 
-            _isAntiForgeryToken: function (field) {
+            _isAntiForgeryToken: function(field) {
                 return field === ui.Editable.antiForgeryTokenName;
 
             },
@@ -601,7 +601,7 @@
 
                 that._toggleHint(data.input, !data.valid);
 
-                if(that.trigger(VALIDATEFIELD, data)){
+                if (that.trigger(VALIDATEFIELD, data)) {
                     ev.preventDefault();
                 }
             },
@@ -632,7 +632,7 @@
                 var that = this,
                     jsonModel = that._model.toJSON();
 
-                if(that.trigger(SUBMIT, { model: jsonModel })){
+                if (that.trigger(SUBMIT, { model: jsonModel })) {
                     ev.preventDefault();
                 }
             },
@@ -673,13 +673,13 @@
                         .unbind(EQUAL_SET);
                 }
 
-                for(var i = 0; i < fields.length; i += 1) {
+                for (var i = 0; i < fields.length; i += 1) {
                     var field = fields[i].field;
                     var element = that.wrapper.find("[name='" + field + "']");
                     var widgetInstance = kendo.widgetInstance(element);
                     var isHiddenInput = element.is("input[type=hidden]");
 
-                    if(!element.is(DATA_ROLE_CHECKBOX_GROUP) && !element.is(DATA_ROLE_RADIO_GROUP) && !isHiddenInput) {
+                    if (!element.is(DATA_ROLE_CHECKBOX_GROUP) && !element.is(DATA_ROLE_RADIO_GROUP) && !isHiddenInput) {
                         element.val("");
                     }
 
@@ -748,5 +748,5 @@
 
   return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -12,11 +12,11 @@
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
      define('dataviz/themes/chart-base-theme',[ "kendo.dataviz.core" ], f);
-})(function(){
+})(function() {
 
-(function () {
+(function() {
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 
@@ -30,7 +30,7 @@ var SANS16 = '16px ' + SANS;
 var TRANSPARENT = 'transparent';
 var WHITE = '#fff';
 
-var notes = function () { return ({
+var notes = function() { return ({
     icon: {
         border: {
             width: 1
@@ -47,7 +47,7 @@ var notes = function () { return ({
     visible: true
 }); };
 
-var axisDefaults = function () { return ({
+var axisDefaults = function() { return ({
     labels: {
         font: SANS12
     },
@@ -58,7 +58,7 @@ var axisDefaults = function () { return ({
     }
 }); };
 
-var areaSeries = function () { return ({
+var areaSeries = function() { return ({
     highlight: {
         markers: {
             border: {}
@@ -75,7 +75,7 @@ var areaSeries = function () { return ({
     opacity: 0.4
 }); };
 
-var rangeAreaSeries = function () { return ({
+var rangeAreaSeries = function() { return ({
     highlight: {
         markers: {
             border: {}
@@ -92,12 +92,12 @@ var rangeAreaSeries = function () { return ({
     opacity: 0.4
 }); };
 
-var barSeries = function () { return ({
+var barSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var boxPlotSeries = function () { return ({
+var boxPlotSeries = function() { return ({
     outliersField: "",
     meanField: "",
     border: {
@@ -133,7 +133,7 @@ var boxPlotSeries = function () { return ({
     }
 }); };
 
-var bubbleSeries = function () { return ({
+var bubbleSeries = function() { return ({
     border: {
         width: 0
     },
@@ -143,7 +143,7 @@ var bubbleSeries = function () { return ({
     opacity: 0.6
 }); };
 
-var bulletSeries = function () { return ({
+var bulletSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING,
     target: {
@@ -151,7 +151,7 @@ var bulletSeries = function () { return ({
     }
 }); };
 
-var candlestickSeries = function () { return ({
+var candlestickSeries = function() { return ({
     border: {
         _brightness: 0.8,
         width: 1
@@ -174,20 +174,20 @@ var candlestickSeries = function () { return ({
     spacing: 0.3
 }); };
 
-var columnSeries = function () { return ({
+var columnSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var donutSeries = function () { return ({
+var donutSeries = function() { return ({
     margin: 1
 }); };
 
-var lineSeries = function () { return ({
+var lineSeries = function() { return ({
     width: 2
 }); };
 
-var ohlcSeries = function () { return ({
+var ohlcSeries = function() { return ({
     gap: 1,
     highlight: {
         line: {
@@ -201,7 +201,7 @@ var ohlcSeries = function () { return ({
     spacing: 0.3
 }); };
 
-var radarAreaSeries = function () { return ({
+var radarAreaSeries = function() { return ({
     line: {
         opacity: 1,
         width: 0
@@ -213,28 +213,28 @@ var radarAreaSeries = function () { return ({
     opacity: 0.5
 }); };
 
-var radarLineSeries = function () { return ({
+var radarLineSeries = function() { return ({
     markers: {
         visible: false
     },
     width: 2
 }); };
 
-var rangeBarSeries = function () { return ({
+var rangeBarSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var rangeColumnSeries = function () { return ({
+var rangeColumnSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var scatterLineSeries = function () { return ({
+var scatterLineSeries = function() { return ({
     width: 1
 }); };
 
-var waterfallSeries = function () { return ({
+var waterfallSeries = function() { return ({
     gap: 0.5,
     line: {
         color: BLACK,
@@ -243,7 +243,7 @@ var waterfallSeries = function () { return ({
     spacing: BAR_SPACING
 }); };
 
-var pieSeries = function () { return ({
+var pieSeries = function() { return ({
     labels: {
         background: '',
         color: '',
@@ -256,7 +256,7 @@ var pieSeries = function () { return ({
     }
 }); };
 
-var funnelSeries = function () { return ({
+var funnelSeries = function() { return ({
     labels: {
         background: '',
         color: '',
@@ -269,7 +269,7 @@ var funnelSeries = function () { return ({
     }
 }); };
 
-var heatmapSeries = function () { return ({
+var heatmapSeries = function() { return ({
     labels: {
         color: '',
         background: TRANSPARENT,
@@ -282,7 +282,7 @@ var heatmapSeries = function () { return ({
     }
 }); };
 
-var seriesDefaults = function (options) { return ({
+var seriesDefaults = function(options) { return ({
     visible: true,
     labels: {
         font: SANS11
@@ -321,17 +321,17 @@ var seriesDefaults = function (options) { return ({
     waterfall: waterfallSeries()
 }); };
 
-var title = function () { return ({
+var title = function() { return ({
     font: SANS16
 }); };
 
-var legend = function () { return ({
+var legend = function() { return ({
     labels: {
         font: SANS12
     }
 }); };
 
-var baseTheme = function (options) {
+var baseTheme = function(options) {
     if (options === void 0) { options = {}; }
 
     return ({
@@ -361,10 +361,10 @@ kendo.deepExtend(kendo.dataviz, {
 
 })();
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
      define('dataviz/themes/auto-theme',[ "kendo.dataviz.core" ], f);
-})(function(){
+})(function() {
 
 (function($) {
     var cache;
@@ -603,13 +603,13 @@ kendo.deepExtend(kendo.dataviz, {
     kendo.dataviz.autoTheme = autoTheme;
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/themes/themes',[ "./chart-base-theme" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     // Imports ================================================================
     var kendo = window.kendo,
@@ -3717,7 +3717,7 @@ kendo.deepExtend(kendo.dataviz, {
         }
     });
 
-    (function () {
+    (function() {
         var TEXT = "#333333";
         var INACTIVE = "#7f7f7f";
         var INACTIVE_SHAPE = "#bdbdbd";
@@ -3929,15 +3929,15 @@ kendo.deepExtend(kendo.dataviz, {
     })();
 
     (function() {
-        var TEXT            = "#4e4e4e";
-        var INACTIVE        = "#7f7f7f";
-        var INACTIVE_SHAPE  = "#bdbdbd";
-        var AXIS            = "#c8c8c8";
-        var AXIS_MINOR      = "#e5e5e5";
-        var SERIES          = ["#0072c6", "#5db2ff", "#008a17", "#82ba00", "#ff8f32", "#ac193d"];
-        var SERIES_LIGHT    = ["#cbe2f3", "#deeffe", "#cbe7d0", "#e5f0cb", "#fee8d5", "#eed0d7"];
-        var PRIMARY         = SERIES[0];
-        var DIAGRAM_HOVER   = WHITE;
+        var TEXT = "#4e4e4e";
+        var INACTIVE = "#7f7f7f";
+        var INACTIVE_SHAPE = "#bdbdbd";
+        var AXIS = "#c8c8c8";
+        var AXIS_MINOR = "#e5e5e5";
+        var SERIES = ["#0072c6", "#5db2ff", "#008a17", "#82ba00", "#ff8f32", "#ac193d"];
+        var SERIES_LIGHT = ["#cbe2f3", "#deeffe", "#cbe7d0", "#e5f0cb", "#fee8d5", "#eed0d7"];
+        var PRIMARY = SERIES[0];
+        var DIAGRAM_HOVER = WHITE;
 
         function noteStyle() {
             return {
@@ -4139,7 +4139,7 @@ kendo.deepExtend(kendo.dataviz, {
         });
     })();
 
-        (function () {
+        (function() {
         var TEXT = "#32364c";
         var INACTIVE = "#7f7f7f";
         var INACTIVE_SHAPE = "#bdbdbd";
@@ -4350,7 +4350,7 @@ kendo.deepExtend(kendo.dataviz, {
         });
     })();
 
-    (function () {
+    (function() {
         var SERIES = ["#ff6358", "#ffd246", "#78d237", "#28b4c8", "#2d73f5", "#aa46be"];
         var SERIES_LIGHT = ["#ffd9dc", "#ffeced", "#cceef3", "#e6f8fb", "#fff2da", "#fff7e8"];
 
@@ -4367,8 +4367,7 @@ kendo.deepExtend(kendo.dataviz, {
     })();
 
 
-
-    (function () {
+    (function() {
         var TEXT = "#292b2c";
         var AXIS = "rgba(0, 0, 0, .04)";
         var SERIES = ["#0275d8", "#5bc0de", "#5cb85c", "#f0ad4e", "#e67d4a", "#d9534f"];
@@ -4416,16 +4415,16 @@ kendo.deepExtend(kendo.dataviz, {
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.themes',[
         "kendo.dataviz.core",
         "./dataviz/themes/chart-base-theme",
         "./dataviz/themes/auto-theme",
         "./dataviz/themes/themes"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.themes",
@@ -4436,5 +4435,5 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

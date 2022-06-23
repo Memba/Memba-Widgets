@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.core',['jquery'], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "core",
@@ -131,7 +131,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2022.2.510".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2022.2.621".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -139,7 +139,7 @@ var packageMetadata = {
         var base = function() {},
             member,
             that = this,
-            subclass = proto && proto.init ? proto.init : function () {
+            subclass = proto && proto.init ? proto.init : function() {
                 that.apply(this, arguments);
             },
             fn;
@@ -385,7 +385,7 @@ var packageMetadata = {
                 fn = new Function(argumentName, functionBody);
                 fn._slotCount = Math.floor(parts.length / 2);
                 return fn;
-            } catch(e) {
+            } catch (e) {
                 throw new Error(kendo.format("Invalid template:'{0}' Generated code:'{1}'", template, functionBody));
             }
         }
@@ -414,7 +414,7 @@ function pad(number, digits, end) {
             "\n": "\\n",
             "\f": "\\f",
             "\r": "\\r",
-            "\"" : '\\"',
+            "\"": '\\"',
             "\\": "\\\\"
         },
         rep,
@@ -423,26 +423,26 @@ function pad(number, digits, end) {
 
     if (typeof Date.prototype.toJSON !== FUNCTION) {
 
-        Date.prototype.toJSON = function () {
+        Date.prototype.toJSON = function() {
             var that = this;
 
             return isFinite(that.valueOf()) ?
                 pad(that.getUTCFullYear(), 4) + "-" +
-                pad(that.getUTCMonth() + 1)   + "-" +
-                pad(that.getUTCDate())        + "T" +
-                pad(that.getUTCHours())       + ":" +
-                pad(that.getUTCMinutes())     + ":" +
-                pad(that.getUTCSeconds())     + "Z" : null;
+                pad(that.getUTCMonth() + 1) + "-" +
+                pad(that.getUTCDate()) + "T" +
+                pad(that.getUTCHours()) + ":" +
+                pad(that.getUTCMinutes()) + ":" +
+                pad(that.getUTCSeconds()) + "Z" : null;
         };
 
-        String.prototype.toJSON = Number.prototype.toJSON = Boolean.prototype.toJSON = function () {
+        String.prototype.toJSON = Number.prototype.toJSON = Boolean.prototype.toJSON = function() {
             return this.valueOf();
         };
     }
 
     function quote(string) {
         escapable.lastIndex = 0;
-        return escapable.test(string) ? "\"" + string.replace(escapable, function (a) {
+        return escapable.test(string) ? "\"" + string.replace(escapable, function(a) {
             var c = meta[a];
             return typeof c === STRING ? c :
                 "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
@@ -522,7 +522,7 @@ function pad(number, digits, end) {
     }
 
     if (typeof JSON.stringify !== FUNCTION) {
-        JSON.stringify = function (value, replacer, space) {
+        JSON.stringify = function(value, replacer, space) {
             var i;
             gap = "";
             indent = "";
@@ -541,7 +541,7 @@ function pad(number, digits, end) {
                 throw new Error("JSON.stringify");
             }
 
-            return str("", {"": value});
+            return str("", { "": value });
         };
     }
 })();
@@ -549,7 +549,7 @@ function pad(number, digits, end) {
 // Date and Number formatting
 (function() {
     var dateFormatRegExp = /dddd|ddd|dd|d|MMMM|MMM|MM|M|yyyy|yy|HH|H|hh|h|mm|m|fff|ff|f|tt|ss|s|zzz|zz|z|"[^"]*"|'[^']*'/g,
-        standardFormatRegExp =  /^(n|c|p|e)(\d*)$/i,
+        standardFormatRegExp = /^(n|c|p|e)(\d*)$/i,
         literalRegExp = /(\\.)|(['][^']*[']?)|(["][^"]*["]?)/g,
         commaRegExp = /\,/g,
         EMPTY = "",
@@ -678,7 +678,7 @@ function pad(number, digits, end) {
 
         format = calendar.patterns[format] || format;
 
-        return format.replace(dateFormatRegExp, function (match) {
+        return format.replace(dateFormatRegExp, function(match) {
             var minutes;
             var result;
             var sign;
@@ -881,7 +881,7 @@ function pad(number, digits, end) {
         //separate format by sections.
 
         if (format.indexOf("'") > -1 || format.indexOf("\"") > -1 || format.indexOf("\\") > -1) {
-            format = format.replace(literalRegExp, function (match) {
+            format = format.replace(literalRegExp, function(match) {
                 var quoteChar = match.charAt(0).replace("\\", ""),
                     literal = match.slice(1).replace(quoteChar, "");
 
@@ -1169,7 +1169,7 @@ function pad(number, digits, end) {
         });
     };
 
-    kendo._extractFormat = function (format) {
+    kendo._extractFormat = function(format) {
         if (format.slice(0,3) === "{0:") {
             format = format.slice(3, format.length - 1);
         }
@@ -1180,14 +1180,14 @@ function pad(number, digits, end) {
     kendo._activeElement = function() {
         try {
             return document.activeElement;
-        } catch(e) {
+        } catch (e) {
             return document.documentElement.activeElement;
         }
     };
 
     kendo._round = round;
-    kendo._outerWidth = function (element, includeMargin) { return $(element).outerWidth(includeMargin || false) || 0; };
-    kendo._outerHeight = function (element, includeMargin) { return $(element).outerHeight(includeMargin || false) || 0; };
+    kendo._outerWidth = function(element, includeMargin) { return $(element).outerWidth(includeMargin || false) || 0; };
+    kendo._outerHeight = function(element, includeMargin) { return $(element).outerHeight(includeMargin || false) || 0; };
     kendo.toString = toString;
 })();
 
@@ -1278,7 +1278,7 @@ function pad(number, digits, end) {
             return null;
         }
 
-        var lookAhead = function (match) {
+        var lookAhead = function(match) {
                 var i = 0;
                 while (format[idx] === match) {
                     i++;
@@ -1300,7 +1300,7 @@ function pad(number, digits, end) {
                 }
                 return null;
             },
-            getIndexByName = function (names, lower) {
+            getIndexByName = function(names, lower) {
                 var i = 0,
                     length = names.length,
                     name, nameLength,
@@ -1644,7 +1644,7 @@ function pad(number, digits, end) {
             formats = getDefaultFormats(culture);
         }
 
-        formats = isArray(formats) ? formats: [formats];
+        formats = isArray(formats) ? formats : [formats];
         length = formats.length;
 
         for (; idx < length; idx++) {
@@ -1800,7 +1800,7 @@ function pad(number, digits, end) {
             wrapResize(element, autosize);
         }
 
-        if(windowOuterWidth < outerWidth(parent)){
+        if (windowOuterWidth < outerWidth(parent)) {
             parent.addClass("k-animation-container-sm");
 
             wrapResize(element, autosize);
@@ -1871,7 +1871,7 @@ function pad(number, digits, end) {
             if (propInit &&
                 propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray &&
                 propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp &&
-                (!kendo.isFunction(window.ArrayBuffer) || propInit !== ArrayBuffer)) {
+                (!kendo.isFunction(window.ArrayBuffer) || propInit !== ArrayBuffer) && !(propValue instanceof HTMLElement)) {
 
                 if (propValue instanceof Date) {
                     destination[property] = new Date(propValue.getTime());
@@ -1904,13 +1904,13 @@ function pad(number, digits, end) {
     }
 
     function toHyphens(str) {
-        return str.replace(/([a-z][A-Z])/g, function (g) {
+        return str.replace(/([a-z][A-Z])/g, function(g) {
             return g.charAt(0) + '-' + g.charAt(1).toLowerCase();
         });
     }
 
     function toCamelCase(str) {
-        return str.replace(/\-(\w)/g, function (strMatch, g1) {
+        return str.replace(/\-(\w)/g, function(strMatch, g1) {
             return g1.toUpperCase();
         });
     }
@@ -1958,7 +1958,7 @@ function pad(number, digits, end) {
         var browserVersion = support.browser.version;
         var el, isRtl;
 
-        if(element instanceof $ && value !== undefined) {
+        if (element instanceof $ && value !== undefined) {
             element.each(function(i, e) {
                 scrollLeft(e, value);
             });
@@ -1993,10 +1993,10 @@ function pad(number, digits, end) {
         }
     }
 
-    (function () {
+    (function() {
         support._scrollbar = undefined;
 
-        support.scrollbar = function (refresh) {
+        support.scrollbar = function(refresh) {
             if (!isNaN(support._scrollbar) && !refresh) {
                 return support._scrollbar;
             } else {
@@ -2040,7 +2040,7 @@ function pad(number, digits, end) {
         support.hasHW3D = ("WebKitCSSMatrix" in window && "m11" in new window.WebKitCSSMatrix()) || "MozPerspective" in docStyle || "msPerspective" in docStyle;
         support.cssFlexbox = ("flexWrap" in docStyle) || ("WebkitFlexWrap" in docStyle) || ("msFlexWrap" in docStyle);
 
-        each([ "Moz", "webkit", "O", "ms" ], function () {
+        each([ "Moz", "webkit", "O", "ms" ], function() {
             var prefix = this.toString(),
                 hasTransitions = typeof table.style[prefix + "Transition"] === STRING;
 
@@ -2072,13 +2072,13 @@ function pad(number, digits, end) {
         try {
             support.screenWidth = window.outerWidth || window.screen ? window.screen.availWidth : window.innerWidth;
             support.screenHeight = window.outerHeight || window.screen ? window.screen.availHeight : window.innerHeight;
-        } catch(e) {
+        } catch (e) {
             //window.outerWidth throws error when in IE showModalDialog.
             support.screenWidth = window.screen.availWidth;
             support.screenHeight = window.screen.availHeight;
         }
 
-        support.detectOS = function (ua) {
+        support.detectOS = function(ua) {
             var os = false, minorVersion, match = [],
                 notAndroidPhone = !/mobile safari/i.test(ua),
                 agentRxs = {
@@ -2214,7 +2214,7 @@ function pad(number, digits, end) {
                         if (browser.chrome) {
                             chromiumEdgeMatch = ua.match(/(edg)[ \/]([\w.]+)/i);
 
-                            if(chromiumEdgeMatch) {
+                            if (chromiumEdgeMatch) {
                                 browser.chromiumEdge = true;
                             }
                         }
@@ -2241,13 +2241,13 @@ function pad(number, digits, end) {
             var commands = {
                 copy: document.queryCommandSupported ? document.queryCommandSupported("copy") : false,
                 cut: document.queryCommandSupported ? document.queryCommandSupported("cut") : false,
-                paste : document.queryCommandSupported ? document.queryCommandSupported("paste") : false
+                paste: document.queryCommandSupported ? document.queryCommandSupported("paste") : false
             };
 
             if (support.browser.chrome) {
                 //not using queryCommandSupported due to chromium issues 476508 and 542948
                 commands.paste = false;
-                if(support.browser.version >= 43) {
+                if (support.browser.version >= 43) {
                     commands.copy = true;
                     commands.cut = true;
                 }
@@ -2270,7 +2270,7 @@ function pad(number, digits, end) {
 
                 return support.touch ? (docEl.clientWidth / window.innerWidth) :
                        browser.msie && browser.version >= 10 ? (((top || window).document.documentElement.offsetWidth + ie11WidthCorrection) / (top || window).innerWidth) : 1;
-            } catch(e) {
+            } catch (e) {
                 return 1;
             }
         };
@@ -2517,7 +2517,7 @@ function pad(number, digits, end) {
                 reverse = false;
             }
 
-            if (typeof duration === BOOLEAN){
+            if (typeof duration === BOOLEAN) {
                 reverse = duration;
                 duration = 400;
             }
@@ -2579,14 +2579,14 @@ function pad(number, digits, end) {
                 return animate(this, options, duration, reverse, complete);
             },
 
-            kendoAddClass: function(classes, options){
+            kendoAddClass: function(classes, options) {
                 return kendo.toggleClass(this, classes, options, true);
             },
 
-            kendoRemoveClass: function(classes, options){
+            kendoRemoveClass: function(classes, options) {
                 return kendo.toggleClass(this, classes, options, false);
             },
-            kendoToggleClass: function(classes, options, toggle){
+            kendoToggleClass: function(classes, options, toggle) {
                 return kendo.toggleClass(this, classes, options, toggle);
             }
         });
@@ -2606,7 +2606,7 @@ function pad(number, digits, end) {
 
         try {
             template = window.decodeURIComponent(value);
-        } catch(error) {
+        } catch (error) {
             // If the string contains Unicode characters
             // the decodeURIComponent() will throw an error.
             // Therefore: convert to UTF-8 character
@@ -2618,7 +2618,7 @@ function pad(number, digits, end) {
         return template;
     }
 
-    var eventTarget = function (e) {
+    var eventTarget = function(e) {
         return e.target;
     };
 
@@ -2993,7 +2993,7 @@ function pad(number, digits, end) {
         _destroy: function() {
             this.destroy();
         },
-        angular: function(){},
+        angular: function() {},
 
         _muteAngularRebind: function(callback) {
             this._muteRebind = true;
@@ -3076,15 +3076,15 @@ function pad(number, digits, end) {
                 el = element || this.wrapper || this.element,
                 i, prop, widgetName;
 
-            if(!kendo.cssProperties.propertyDictionary[protoOptions.name]) {
+            if (!kendo.cssProperties.propertyDictionary[protoOptions.name]) {
                 return;
             }
 
-            for(i = 0; i < cssPropertiesNames.length; i++) {
+            for (i = 0; i < cssPropertiesNames.length; i++) {
                 prop = cssPropertiesNames[i];
                 widgetName = this.options._altname || protoOptions.name;
 
-                if(protoOptions.hasOwnProperty(prop) && newOptions.hasOwnProperty(prop)) {
+                if (protoOptions.hasOwnProperty(prop) && newOptions.hasOwnProperty(prop)) {
                     if (prop === "themeColor") {
                         el.removeClass(kendo.cssProperties.getValidClass({
                             widget: widgetName,
@@ -3112,7 +3112,7 @@ function pad(number, digits, end) {
             }
         },
 
-        _generateLabelId: function(label, inputId){
+        _generateLabelId: function(label, inputId) {
             var labelId = inputId + LABELIDPART;
 
             label.attr("id", labelId);
@@ -3129,10 +3129,10 @@ function pad(number, digits, end) {
 
         _angularItems: function(cmd) {
             var that = this;
-            that.angular(cmd, function(){
+            that.angular(cmd, function() {
                 return {
                     elements: that.items(),
-                    data: $.map(that.dataItems(), function(dataItem){
+                    data: $.map(that.dataItems(), function(dataItem) {
                         return { dataItem: dataItem };
                     })
                 };
@@ -3197,10 +3197,10 @@ function pad(number, digits, end) {
             if (value !== undefined) {
 
                 if (templateRegExp.test(option) && role != "drawer") {
-                    if(typeof value === "string") {
-                        if($("#" + value).length){
+                    if (typeof value === "string") {
+                        if ($("#" + value).length) {
                             value = kendo.template($("#" + value).html());
-                        }else if (source){
+                        } else if (source) {
                             value = kendo.template(source[value]);
                         }
                     } else {
@@ -3263,7 +3263,7 @@ function pad(number, digits, end) {
             widgetKeyRegExp = new RegExp("^" + widgetKey + "$", "i");
         }
 
-        for(var key in data) {
+        for (var key in data) {
             if (key.match(widgetKeyRegExp)) {
                 // we have detected a widget of the same kind - save its reference, we will set its options
                 if (key === widgetKey) {
@@ -3328,13 +3328,13 @@ function pad(number, digits, end) {
     kendo.init = function(element) {
         var roles = kendo.rolesFromNamespaces(slice.call(arguments, 1));
 
-        $(element).find("[data-" + kendo.ns + "role]").addBack().each(function(){
+        $(element).find("[data-" + kendo.ns + "role]").addBack().each(function() {
             kendo.initWidget(this, {}, roles);
         });
     };
 
     kendo.destroy = function(element) {
-        $(element).find("[data-" + kendo.ns + "role]").addBack().each(function(){
+        $(element).find("[data-" + kendo.ns + "role]").addBack().each(function() {
             var data = $(this).data();
 
             for (var key in data) {
@@ -3366,7 +3366,7 @@ function pad(number, digits, end) {
         widgetsArray.sort(containmentComparer);
 
         // resize widgets
-        $.each(widgetsArray, function () {
+        $.each(widgetsArray, function() {
             var widget = kendo.widgetInstance($(this));
             if (widget) {
                 widget.resize(force);
@@ -3440,7 +3440,7 @@ function pad(number, digits, end) {
                 if (typeof options === STRING) {
                     args = slice.call(arguments, 1);
 
-                    this.each(function(){
+                    this.each(function() {
                         var widget = $.data(this, name),
                             method,
                             result;
@@ -3483,7 +3483,7 @@ function pad(number, digits, end) {
         loading: "Loading..."
     };
 
-    var ContainerNullObject = { bind: function () { return this; }, nullObject: true, options: {} };
+    var ContainerNullObject = { bind: function() { return this; }, nullObject: true, options: {} };
 
     var MobileWidget = Widget.extend({
         init: function(element, options) {
@@ -3558,7 +3558,7 @@ function pad(number, digits, end) {
 
     kendo.touchScroller = function(elements, options) {
         // return the first touch scroller
-        if (!options){ options = {}; }
+        if (!options) { options = {}; }
 
         options.useNative = true;
 
@@ -3613,7 +3613,7 @@ function pad(number, digits, end) {
                 }
             }
             else {
-                widgets = [ kendo.ui.roles[role], kendo.dataviz.ui.roles[role],  kendo.mobile.ui.roles[role] ];
+                widgets = [ kendo.ui.roles[role], kendo.dataviz.ui.roles[role], kendo.mobile.ui.roles[role] ];
             }
 
             if (role.indexOf(".") >= 0) {
@@ -3665,7 +3665,7 @@ function pad(number, digits, end) {
 
         return (/input|select|textarea|button|object/.test(nodeName) ?
                 !element.disabled :
-                "a" === nodeName ?
+                nodeName === "a" ?
                 element.href || isTabIndexNotNaN :
                 isTabIndexNotNaN
                ) &&
@@ -3815,7 +3815,7 @@ function pad(number, digits, end) {
     kendo.keyDownHandler = function(e, widget) {
         var events = widget._events.kendoKeydown;
 
-        if(!events){
+        if (!events) {
             return true;
         }
 
@@ -3876,11 +3876,11 @@ function pad(number, digits, end) {
             var context = that,
                 args = slice.call(arguments);
 
-            if (typeof args[args.length -1] === UNDEFINED) {
+            if (typeof args[args.length - 1] === UNDEFINED) {
                 args.pop();
             }
 
-            var callback =  args[args.length - 1],
+            var callback = args[args.length - 1],
                 events = kendo.applyEventMap(args[0], ns);
 
             // setup mouse trap
@@ -3901,12 +3901,12 @@ function pad(number, digits, end) {
                     });
             }
 
-            if(arguments[0].indexOf("keydown") !== -1 && args[1] && args[1].options){
+            if (arguments[0].indexOf("keydown") !== -1 && args[1] && args[1].options) {
                 args[0] = events;
                 var widget = args[1];
                 var keyDownCallBack = args[args.length - 1];
-                args[args.length - 1]= function(e){
-                    if(kendo.keyDownHandler(e, widget)){
+                args[args.length - 1] = function(e) {
+                    if (kendo.keyDownHandler(e, widget)) {
                        return keyDownCallBack.apply(this, [e]);
                     }
                 };
@@ -3944,8 +3944,8 @@ function pad(number, digits, end) {
     kendo.jQuery = kendoJQuery;
     kendo.eventMap = eventMap;
 
-    kendo.timezone = (function(){
-        var months =  { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    kendo.timezone = (function() {
+        var months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
         var days = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
         function ruleToDate(year, rule) {
@@ -4087,7 +4087,7 @@ function pad(number, digits, end) {
             var zone = info.zone;
             var rule = info.rule;
 
-            return kendo.parseFloat(rule? zone[0] - rule[6] : zone[0]);
+            return kendo.parseFloat(rule ? zone[0] - rule[6] : zone[0]);
         }
 
         function abbr(utcTime, timezone) {
@@ -4157,7 +4157,7 @@ function pad(number, digits, end) {
         };
     })();
 
-    kendo.date = (function(){
+    kendo.date = (function() {
         var MS_PER_MINUTE = 60000,
             MS_PER_DAY = 86400000;
 
@@ -4235,7 +4235,7 @@ function pad(number, digits, end) {
         }
 
         function weekInYear(date, weekStartDay) {
-            if(weekStartDay === undefined) {
+            if (weekStartDay === undefined) {
                 weekStartDay = kendo.culture().calendar.firstDay;
             }
 
@@ -4428,12 +4428,12 @@ function pad(number, digits, end) {
         }
     };
 
-    var animationFrame  = window.requestAnimationFrame       ||
+    var animationFrame = window.requestAnimationFrame ||
                           window.webkitRequestAnimationFrame ||
-                          window.mozRequestAnimationFrame    ||
-                          window.oRequestAnimationFrame      ||
-                          window.msRequestAnimationFrame     ||
-                          function(callback){ setTimeout(callback, 1000 / 60); };
+                          window.mozRequestAnimationFrame ||
+                          window.oRequestAnimationFrame ||
+                          window.msRequestAnimationFrame ||
+                          function(callback) { setTimeout(callback, 1000 / 60); };
 
     kendo.animationFrame = function(callback) {
         animationFrame.call(window, callback);
@@ -4467,7 +4467,7 @@ function pad(number, digits, end) {
             idx = 0;
 
         for (; idx < length; idx += 2) {
-            if(paramParts[idx] !== "") {
+            if (paramParts[idx] !== "") {
                 params[decodeURIComponent(paramParts[idx])] = decodeURIComponent(paramParts[idx + 1]);
             }
         }
@@ -4539,7 +4539,7 @@ function pad(number, digits, end) {
     };
 
 
-    kendo.caret = function (element, start, end) {
+    kendo.caret = function(element, start, end) {
         var rangeElement;
         var isPosition = start !== undefined;
 
@@ -4560,7 +4560,7 @@ function pad(number, digits, end) {
                 if (isPosition) {
                     element.focus();
                     var mobile = support.mobileOS;
-                    if(mobile.wp || mobile.android) {// without the timeout the caret is at the end of the input
+                    if (mobile.wp || mobile.android) {// without the timeout the caret is at the end of the input
                         setTimeout(function() { element.setSelectionRange(start, end); }, 0);
                     }
                     else {
@@ -4593,7 +4593,7 @@ function pad(number, digits, end) {
                     start = [selectionStart, selectionEnd];
                 }
             }
-        } catch(e) {
+        } catch (e) {
             /* element is not focused or it is not in the DOM */
             start = [];
         }
@@ -4687,12 +4687,12 @@ function pad(number, digits, end) {
         });
     };
 
-    kendo.focusNextElement = function () {
+    kendo.focusNextElement = function() {
         if (document.activeElement) {
             var focussable = $(":kendoFocusable");
             var index = focussable.index(document.activeElement);
 
-            if(index > -1) {
+            if (index > -1) {
                var nextElement = focussable[index + 1] || focussable[0];
                nextElement.focus();
             }
@@ -4700,7 +4700,7 @@ function pad(number, digits, end) {
     };
 
     kendo.trim = function(value) {
-        if(!!value) {
+        if (!!value) {
             return value.toString().trim();
         } else {
             return "";
@@ -4725,7 +4725,7 @@ function pad(number, digits, end) {
         return target;
     };
 
-    kendo.addAttribute =  function(element, attribute, value) {
+    kendo.addAttribute = function(element, attribute, value) {
         var current = element.attr(attribute) || "";
 
         if (current.indexOf(value) < 0) {
@@ -4814,7 +4814,7 @@ function pad(number, digits, end) {
     };
 
     kendo.selectorFromClasses = function(classes) {
-        return "."+classes.split(" ").join(".");
+        return "." + classes.split(" ").join(".");
     };
 
     // Standardized Properties and CSS classes
@@ -4852,7 +4852,7 @@ function pad(number, digits, end) {
                 prop = args[i].prop;
                 newValues = args[i].values;
 
-                if(!dict[widget][prop]) {
+                if (!dict[widget][prop]) {
                     dict[widget][prop] = {};
                 }
 
@@ -4898,7 +4898,7 @@ function pad(number, digits, end) {
                 widgetProperties = cssProperties.propertyDictionary[widget],
                 widgetValues, validValue, prefix;
 
-            if(!widgetProperties) {
+            if (!widgetProperties) {
                 return "";
             }
 
@@ -4953,7 +4953,7 @@ function pad(number, digits, end) {
     }());
 
     //To do: delete below after implementing new styles and classes for BottomNavigation
-    kendo.registerCssClass = function (propName, value, shorthand) {
+    kendo.registerCssClass = function(propName, value, shorthand) {
         if (!kendo.propertyToCssClassMap[propName]) {
             kendo.propertyToCssClassMap[propName] = {};
         }
@@ -4961,7 +4961,7 @@ function pad(number, digits, end) {
         kendo.propertyToCssClassMap[propName][value] = shorthand || value;
     };
 
-    kendo.registerCssClasses = function (propName, arr) {
+    kendo.registerCssClasses = function(propName, arr) {
         for (var i = 0; i < arr.length; i++) {
             if (isArray(arr[i])) {
                 kendo.registerCssClass(propName, arr[i][0], arr[i][1]);
@@ -4971,7 +4971,7 @@ function pad(number, digits, end) {
         }
     };
 
-    kendo.getValidCssClass = function (prefix, propName, value) {
+    kendo.getValidCssClass = function(prefix, propName, value) {
         var validValue = kendo.propertyToCssClassMap[propName][value];
 
         if (validValue) {
@@ -5004,9 +5004,9 @@ function pad(number, digits, end) {
             resolveContexts = Array(length),
             value;
 
-        function updateFunc (index, contexts, values) {
+        function updateFunc(index, contexts, values) {
             return function() {
-                if(values != resolveValues) {
+                if (values != resolveValues) {
                     failed++;
                 }
 
@@ -5104,7 +5104,7 @@ function pad(number, digits, end) {
                 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 
             fileSaver.dispatchEvent(e);
-            setTimeout(function(){
+            setTimeout(function() {
                 URL.revokeObjectURL(dataURI);
             });
         }
@@ -5216,7 +5216,7 @@ function pad(number, digits, end) {
         };
     }());
 
-    var KendoLicensing={validatePackage:function(){},setScriptKey:function(){}};
+    var KendoLicensing = { validatePackage: function() {},setScriptKey: function() {} };
 
     window.KendoLicensing = {
         setScriptKey: KendoLicensing.setScriptKey
@@ -5230,11 +5230,11 @@ function pad(number, digits, end) {
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.fx',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "fx",
@@ -5371,13 +5371,13 @@ var __meta__ = { // jshint ignore:line
                 return this;
             };
 
-            $.fx.step[value] = function (fx) {
+            $.fx.step[value] = function(fx) {
                 $(fx.elem)[value](fx.now);
             };
         });
 
         var curProxy = $.fx.prototype.cur;
-        $.fx.prototype.cur = function () {
+        $.fx.prototype.cur = function() {
             if (transform2d.indexOf(this.prop) != -1) {
                 return parseFloat($(this.elem)[this.prop]());
             }
@@ -5832,7 +5832,7 @@ var __meta__ = { // jshint ignore:line
 
                         each(transformProps, function(idx, value) { // remove transforms to avoid IE and older browsers confusion
                             var params,
-                                currentValue = properties ? properties[value]+ " " : null; // We need to match
+                                currentValue = properties ? properties[value] + " " : null; // We need to match
 
                             if (currentValue) {
                                 var single = properties;
@@ -6371,10 +6371,10 @@ var __meta__ = { // jshint ignore:line
     };
 
     var ROTATIONS = {
-        top:    { start: "rotatex(0deg)", end: "rotatex(180deg)" },
+        top: { start: "rotatex(0deg)", end: "rotatex(180deg)" },
         bottom: { start: "rotatex(-180deg)", end: "rotatex(0deg)" },
-        left:   { start: "rotatey(0deg)", end: "rotatey(-180deg)" },
-        right:  { start: "rotatey(180deg)", end: "rotatey(0deg)" }
+        left: { start: "rotatey(0deg)", end: "rotatey(-180deg)" },
+        right: { start: "rotatey(180deg)", end: "rotatey(0deg)" }
     };
 
     function clipInHalf(container, direction) {
@@ -6649,7 +6649,7 @@ var __meta__ = { // jshint ignore:line
 
             this.container = container;
             this.deferred = deferred;
-            this.isAbsolute = originalPosition  == "absolute";
+            this.isAbsolute = originalPosition == "absolute";
 
             if (!this.isAbsolute) {
                 both.css(POSITION, "absolute");
@@ -6778,13 +6778,13 @@ var __meta__ = { // jshint ignore:line
     });
 
     extend(Transition, {
-        easeOutExpo: function (t, b, c, d) {
-            return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+        easeOutExpo: function(t, b, c, d) {
+            return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
         },
 
-        easeOutBack: function (t, b, c, d, s) {
+        easeOutBack: function(t, b, c, d, s) {
             s = 1.70158;
-            return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+            return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
         }
     });
 
@@ -6821,11 +6821,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.router',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "router",
@@ -7067,7 +7067,7 @@ var __meta__ = { // jshint ignore:line
             adapter.change(this._checkUrl.bind(this));
         },
 
-        createAdapter:function(options) {
+        createAdapter: function(options) {
            return support.pushState && options.pushState ? new PushStateAdapter(options.root) : new HashAdapter(options.hashBang);
         },
 
@@ -7292,6 +7292,7 @@ var __meta__ = { // jshint ignore:line
                 root: that.root
             });
 
+            // eslint-disable-next-line no-undef
             var initEventObject = { url: history.current || "/", preventDefault: $.noop };
 
             if (!that.trigger(INIT, initEventObject)) {
@@ -7362,11 +7363,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.data.odata',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "data.odata",
@@ -7389,7 +7390,7 @@ var __meta__ = { // jshint ignore:line
             gte: "ge",
             lt: "lt",
             lte: "le",
-            contains : "substringof",
+            contains: "substringof",
             doesnotcontain: "substringof",
             endswith: "endswith",
             startswith: "startswith",
@@ -7477,7 +7478,7 @@ var __meta__ = { // jshint ignore:line
 
                 if (operator === "isnullorempty") {
                     filter = kendo.format("{0} {1} null or {0} {1} ''", field, filter);
-                } else if(operator === "isnotnullorempty") {
+                } else if (operator === "isnotnullorempty") {
                     filter = kendo.format("{0} {1} null and {0} {1} ''", field, filter);
                 } else if (operator === "isnull" || operator === "isnotnull") {
                     filter = kendo.format("{0} {1} null", field, filter);
@@ -7540,7 +7541,7 @@ var __meta__ = { // jshint ignore:line
 
     function stripMetadata(obj) {
         for (var name in obj) {
-            if(name.indexOf("@odata") === 0) {
+            if (name.indexOf("@odata") === 0) {
                 delete obj[name];
             }
         }
@@ -7858,7 +7859,7 @@ var __meta__ = { // jshint ignore:line
 
 					if (result && result.$filter) {
 						// Remove the single quotation marks around the GUID (OData v4).
-						result.$filter = result.$filter.replace(/('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')/ig, function (x) {
+						result.$filter = result.$filter.replace(/('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')/ig, function(x) {
 							return x.substring(1, x.length - 1);
 						});
 					}
@@ -7875,7 +7876,7 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     $.ajax(extend(true, {}, {
-                        success: function (response) {
+                        success: function(response) {
                             var responses = parseBatchResponse(response);
                             var index = 0;
                             var current;
@@ -7904,7 +7905,7 @@ var __meta__ = { // jshint ignore:line
                                 }
                             }
                         },
-                        error: function (response, status, error) {
+                        error: function(response, status, error) {
                             e.error(response, status, error);
                         }
                     }, options));
@@ -7917,11 +7918,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.data.xml',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "data.xml",
@@ -7973,7 +7974,7 @@ var __meta__ = { // jshint ignore:line
                     if (id) {
                         var idField = {};
 
-                        idField[that.xpathToMember(id, true)] = { field : that.getter(id) };
+                        idField[that.xpathToMember(id, true)] = { field: that.getter(id) };
                         model.fields = extend(idField, model.fields);
                         model.id = that.xpathToMember(id);
                     }
@@ -7989,7 +7990,7 @@ var __meta__ = { // jshint ignore:line
                     that.total = function(data) {
                         return parseInt(total(data), 10);
                     };
-                } else if (typeof total == "function"){
+                } else if (typeof total == "function") {
                     that.total = total;
                 }
             }
@@ -8000,7 +8001,7 @@ var __meta__ = { // jshint ignore:line
                     that.errors = function(data) {
                         return errors(data) || null;
                     };
-                } else if (typeof errors == "function"){
+                } else if (typeof errors == "function") {
                     that.errors = errors;
                 }
             }
@@ -8159,12 +8160,12 @@ var __meta__ = { // jshint ignore:line
 
             if (member.indexOf("@") >= 0) {
                 // replace @attribute with '["@attribute"]'
-                return member.replace(/\.?(@.*)/, raw? '$1':'["$1"]');
+                return member.replace(/\.?(@.*)/, raw ? '$1' : '["$1"]');
             }
 
             if (member.indexOf("text()") >= 0) {
                 // replace ".text()" with '["#text"]'
-                return member.replace(/(\.?text\(\))/, raw? '#text':'["#text"]');
+                return member.replace(/(\.?text\(\))/, raw ? '#text' : '["#text"]');
             }
 
             return member;
@@ -8184,11 +8185,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.data',[ "kendo.core", "kendo.data.odata", "kendo.data.xml" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "data",
@@ -8284,7 +8285,7 @@ var __meta__ = { // jshint ignore:line
         toJSON: function(serializeFunctions) {
             var idx, length = this.length, value, json = new Array(length);
 
-            for (idx = 0; idx < length; idx++){
+            for (idx = 0; idx < length; idx++) {
                 value = this[idx];
 
                 if (value instanceof ObservableObject) {
@@ -8341,18 +8342,18 @@ var __meta__ = { // jshint ignore:line
                     });
                 });
 
-                object.bind(ITEMLOAD, function (e) {
+                object.bind(ITEMLOAD, function(e) {
                     that._loadPromises.push(e.promise);
                     that._loading = true;
 
-                    e.promise.done(function(){
+                    e.promise.done(function() {
                         that._loadedNodes.push(e.node);
                         var index = that._loadPromises.indexOf(e.promise);
                         that._loadPromises.splice(index, 1);
 
-                        if(!that._loadPromises.length){
+                        if (!that._loadPromises.length) {
                             that._loading = false;
-                            that.trigger(ITEMSLOADED, {collection: that, nodes: that._loadedNodes});
+                            that.trigger(ITEMSLOADED, { collection: that, nodes: that._loadedNodes });
                             that._loadedNodes = [];
                         }
                     });
@@ -8362,7 +8363,7 @@ var __meta__ = { // jshint ignore:line
             return object;
         },
 
-        loading: function () {
+        loading: function() {
             return this._loading;
         },
 
@@ -8397,7 +8398,7 @@ var __meta__ = { // jshint ignore:line
                 this.trigger(CHANGE, {
                     action: "remove",
                     index: length - 1,
-                    items:[result]
+                    items: [result]
                 });
             }
 
@@ -8445,7 +8446,7 @@ var __meta__ = { // jshint ignore:line
                 this.trigger(CHANGE, {
                     action: "remove",
                     index: 0,
-                    items:[result]
+                    items: [result]
                 });
             }
 
@@ -8621,7 +8622,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     var LazyObservableArray = ObservableArray.extend({
-        init: function (data, type, events) {
+        init: function(data, type, events) {
             var parentFn = function() { return this; };
 
             Observable.fn.init.call(this);
@@ -8674,19 +8675,19 @@ var __meta__ = { // jshint ignore:line
         };
     }
 
-    function ownKeys (value, ignoreObjectKeys) {
+    function ownKeys(value, ignoreObjectKeys) {
         var props = [];
         var keys, filteredObjectKeys;
 
         value = value || {};
 
         keys = Object.getOwnPropertyNames(value);
-        filteredObjectKeys = objectKeys.filter(function(key){
+        filteredObjectKeys = objectKeys.filter(function(key) {
             return keys.indexOf(key) < 0;
         });
 
         while (value) {
-            Object.getOwnPropertyNames(value).forEach(function (prop) {
+            Object.getOwnPropertyNames(value).forEach(function(prop) {
                 if (props.indexOf(prop) === -1 && (!ignoreObjectKeys || filteredObjectKeys.indexOf(prop) < 0)) {
                     props.push(prop);
                 }
@@ -8712,7 +8713,7 @@ var __meta__ = { // jshint ignore:line
 
             this._handlers = {};
 
-            keys.forEach(function(field){
+            keys.forEach(function(field) {
                 member = value[field];
 
                 if (typeof member === "object" && member && !member.getTime && field.charAt(0) != "_") {
@@ -8737,7 +8738,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        toJSON: function (serializeFunctions) {
+        toJSON: function(serializeFunctions) {
             var result = {}, value, field;
 
             for (field in this) {
@@ -8985,7 +8986,7 @@ var __meta__ = { // jshint ignore:line
         shouldSerialize: function(field) {
             return ObservableObject.fn.shouldSerialize.call(this, field) &&
                 field !== "uid" && !(this.idField !== "id" && field === "id") &&
-                field !== "dirty" &&  field !== "dirtyFields" && field !== "_accessors";
+                field !== "dirty" && field !== "dirtyFields" && field !== "_accessors";
         },
 
         _parse: function(field, value) {
@@ -9166,7 +9167,7 @@ var __meta__ = { // jshint ignore:line
 
         compare: function(field) {
             var selector = this.selector(field);
-            return function (a, b) {
+            return function(a, b) {
                 a = selector(a);
                 b = selector(b);
 
@@ -9220,7 +9221,7 @@ var __meta__ = { // jshint ignore:line
     var StableComparer = extend({}, Comparer, {
         asc: function(field) {
             var selector = this.selector(field);
-            return function (a, b) {
+            return function(a, b) {
                 var valueA = selector(a);
                 var valueB = selector(b);
 
@@ -9251,7 +9252,7 @@ var __meta__ = { // jshint ignore:line
 
         desc: function(field) {
             var selector = this.selector(field);
-            return function (a, b) {
+            return function(a, b) {
                 var valueA = selector(a);
                 var valueB = selector(b);
 
@@ -9284,7 +9285,7 @@ var __meta__ = { // jshint ignore:line
         }
     });
 
-    map = function (array, callback) {
+    map = function(array, callback) {
         var idx, length = array.length, result = new Array(length);
 
         for (idx = 0; idx < length; idx++) {
@@ -9294,7 +9295,7 @@ var __meta__ = { // jshint ignore:line
         return result;
     };
 
-    var operators = (function(){
+    var operators = (function() {
 
         function quote(str) {
             if (typeof str == "string") {
@@ -9307,7 +9308,7 @@ var __meta__ = { // jshint ignore:line
             return function(a, b, ignore, accentFoldingFiltering) {
                 b += "";
                 if (ignore) {
-                    a = "(" + a + " + '').toString()" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering  +"')" : ".toLowerCase()");
+                    a = "(" + a + " + '').toString()" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering + "')" : ".toLowerCase()");
                     b = ((accentFoldingFiltering) ? b.toLocaleLowerCase(accentFoldingFiltering) : b.toLowerCase());
                 }
                 return impl(a, quote(b), ignore);
@@ -9322,7 +9323,7 @@ var __meta__ = { // jshint ignore:line
                         b = new Date(+date[1]);
                     } else if (ignore) {
                         b = quote(((accentFoldingFiltering) ? b.toLocaleLowerCase(accentFoldingFiltering) : b.toLowerCase()));
-                        a = "((" + a + " || '')+'')" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering  +"')" : ".toLowerCase()");
+                        a = "((" + a + " || '')+'')" + ((accentFoldingFiltering) ? ".toLocaleLowerCase('" + accentFoldingFiltering + "')" : ".toLowerCase()");
                     } else {
                         b = quote(b);
                     }
@@ -9413,11 +9414,11 @@ var __meta__ = { // jshint ignore:line
             doesnotcontain: textOp(function(a, b) {
                 return a + ".indexOf(" + b + ") == -1";
             }),
-            matches: textOp(function(a, b){
+            matches: textOp(function(a, b) {
                 b = b.substring(1, b.length - 1);
                 return getMatchRegexp(b) + ".test(" + a + ")";
             }),
-            doesnotmatch: textOp(function(a, b){
+            doesnotmatch: textOp(function(a, b) {
                 b = b.substring(1, b.length - 1);
                 return "!" + getMatchRegexp(b) + ".test(" + a + ")";
             }),
@@ -9481,7 +9482,7 @@ var __meta__ = { // jshint ignore:line
                 fieldFunctions.push.apply(fieldFunctions, expr.fields);
             } else {
                 if (typeof field === FUNCTION) {
-                    expr = "__f[" + fieldFunctions.length +"](d)";
+                    expr = "__f[" + fieldFunctions.length + "](d)";
                     fieldFunctions.push(field);
                 } else {
                     expr = kendo.expr(field);
@@ -9491,14 +9492,14 @@ var __meta__ = { // jshint ignore:line
                     filter = "__o[" + operatorFunctions.length + "](" + expr + ", " + operators.quote(filter.value) + ")";
                     operatorFunctions.push(operator);
                 } else {
-                    filter = operators[(operator || "eq").toLowerCase()](expr, filter.value, filter.ignoreCase !== undefined? filter.ignoreCase : true, expression.accentFoldingFiltering);
+                    filter = operators[(operator || "eq").toLowerCase()](expr, filter.value, filter.ignoreCase !== undefined ? filter.ignoreCase : true, expression.accentFoldingFiltering);
                 }
             }
 
             expressions.push(filter);
         }
 
-        return  { expression: "(" + expressions.join(logic[expression.logic]) + ")", fields: fieldFunctions, operators: operatorFunctions };
+        return { expression: "(" + expressions.join(logic[expression.logic]) + ")", fields: fieldFunctions, operators: operatorFunctions };
     };
 
     function normalizeSort(field, dir) {
@@ -9667,7 +9668,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function normalizeGroup(field, dir, compare, skipItemSorting) {
-        var descriptor = typeof field === STRING ? { field: field, dir: dir, compare: compare, skipItemSorting : skipItemSorting } : field,
+        var descriptor = typeof field === STRING ? { field: field, dir: dir, compare: compare, skipItemSorting: skipItemSorting } : field,
         descriptors = isArray(descriptor) ? descriptor : (descriptor !== undefined ? [descriptor] : []);
 
         return map(descriptors, function(d) {
@@ -9704,19 +9705,19 @@ var __meta__ = { // jshint ignore:line
     }
 
     Query.prototype = {
-        toArray: function () {
+        toArray: function() {
             return this.data;
         },
         range: function(index, count) {
             return new Query(this.data.slice(index, index + count));
         },
-        skip: function (count) {
+        skip: function(count) {
             return new Query(this.data.slice(count));
         },
-        take: function (count) {
+        take: function(count) {
             return new Query(this.data.slice(0, count));
         },
-        select: function (selector) {
+        select: function(selector) {
             return new Query(map(this.data, selector));
         },
         order: function(selector, dir, inPlace) {
@@ -9804,7 +9805,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         group: function(descriptors, allData, options) {
-            descriptors =  normalizeGroup(descriptors || []);
+            descriptors = normalizeGroup(descriptors || []);
             allData = allData || this.data;
 
             var that = this,
@@ -9815,7 +9816,7 @@ var __meta__ = { // jshint ignore:line
                 descriptor = descriptors[0];
 
                 if (options && options.groupPaging) {
-                    result = new Query(allData).groupAllData(descriptor, allData).select(function (group) {
+                    result = new Query(allData).groupAllData(descriptor, allData).select(function(group) {
                         var data = new Query(allData).filter([{
                             field: group.field,
                             operator: "eq",
@@ -9873,10 +9874,10 @@ var __meta__ = { // jshint ignore:line
                 len,
                 result = [group];
 
-            for(idx = 0, len = sorted.length; idx < len; idx++) {
+            for (idx = 0, len = sorted.length; idx < len; idx++) {
                 item = sorted[idx];
                 currentValue = accessor.get(item, field);
-                if(!groupValueComparer(groupValue, currentValue)) {
+                if (!groupValueComparer(groupValue, currentValue)) {
                     groupValue = currentValue;
                     group = {
                         field: field,
@@ -9893,7 +9894,7 @@ var __meta__ = { // jshint ignore:line
             return new Query(result);
         },
 
-        groupAllData: function (descriptor, allData) {
+        groupAllData: function(descriptor, allData) {
             if (isEmptyObject(descriptor) || this.data && !this.data.length) {
                 return new Query([]);
             }
@@ -9963,14 +9964,14 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        aggregate: function (aggregates) {
+        aggregate: function(aggregates) {
             var idx,
                 len,
                 result = {},
                 state = {};
 
             if (aggregates && aggregates.length) {
-                for(idx = 0, len = this.data.length; idx < len; idx++) {
+                for (idx = 0, len = this.data.length; idx < len; idx++) {
                     calculateAggregate(result, aggregates, this.data[idx], idx, len, state);
                 }
             }
@@ -10035,7 +10036,7 @@ var __meta__ = { // jshint ignore:line
                 state.count++;
             }
 
-            if(index == length - 1 && isNumber(accumulator)) {
+            if (index == length - 1 && isNumber(accumulator)) {
                 accumulator = accumulator / state.count;
             }
             return accumulator;
@@ -10047,7 +10048,7 @@ var __meta__ = { // jshint ignore:line
                 accumulator = value;
             }
 
-            if(accumulator < value && (isNumber(value) || isDate(value))) {
+            if (accumulator < value && (isNumber(value) || isDate(value))) {
                 accumulator = value;
             }
             return accumulator;
@@ -10059,7 +10060,7 @@ var __meta__ = { // jshint ignore:line
                 accumulator = value;
             }
 
-            if(accumulator > value && (isNumber(value) || isDate(value))) {
+            if (accumulator > value && (isNumber(value) || isDate(value))) {
                 accumulator = value;
             }
             return accumulator;
@@ -10195,7 +10196,7 @@ var __meta__ = { // jshint ignore:line
                 }
             });
 
-            that.cache = options.cache? Cache.create(options.cache) : {
+            that.cache = options.cache ? Cache.create(options.cache) : {
                 find: noop,
                 add: noop
             };
@@ -10255,7 +10256,7 @@ var __meta__ = { // jshint ignore:line
 
             result = cache.find(options.data);
 
-            if(result !== undefined) {
+            if (result !== undefined) {
                 success(result);
             } else {
                 options.success = function(result) {
@@ -10302,7 +10303,7 @@ var __meta__ = { // jshint ignore:line
             this._store = {};
         },
         add: function(key, data) {
-            if(key !== undefined) {
+            if (key !== undefined) {
                 this._store[stringify(key)] = data;
             }
         },
@@ -10842,7 +10843,7 @@ var __meta__ = { // jshint ignore:line
             that._pristineTotal = 0;
             that._destroyed = [];
             that._pageSize = options.pageSize;
-            that._page = options.page  || (options.pageSize ? 1 : undefined);
+            that._page = options.page || (options.pageSize ? 1 : undefined);
             that._sort = normalizeSort(options.sort);
             that._sortFields = sortFields(options.sort);
             that._filter = normalizeFilter(options.filter);
@@ -10950,11 +10951,11 @@ var __meta__ = { // jshint ignore:line
             return this.options.serverGrouping && group.length;
         },
 
-        _isServerGroupPaged: function(){
+        _isServerGroupPaged: function() {
             return this._isServerGrouped() && this._groupPaging;
         },
 
-        _isGroupPaged: function(){
+        _isGroupPaged: function() {
             var group = this._group || [];
 
             return this._groupPaging && group.length;
@@ -11245,7 +11246,7 @@ var __meta__ = { // jshint ignore:line
                     var model = this._createNewModel(item);
                     var found = false;
 
-                    this._eachItem(this._data, function(items){
+                    this._eachItem(this._data, function(items) {
                         for (var idx = 0; idx < items.length; idx++) {
                             var item = items.at(idx);
                             if (item.id === model.id) {
@@ -11280,7 +11281,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _moveItems: function (index, items) {
+        _moveItems: function(index, items) {
             if (!isArray(items)) {
                 items = [items];
             }
@@ -11294,7 +11295,7 @@ var __meta__ = { // jshint ignore:line
                     var item = items[i];
                     var model = this._createNewModel(item);
 
-                    this._eachItem(this._data, function(dataItems){
+                    this._eachItem(this._data, function(dataItems) {
                         for (var idx = 0; idx < dataItems.length; idx++) {
                             var dataItem = dataItems.at(idx);
                             if (dataItem.id === model.id) {
@@ -11319,7 +11320,7 @@ var __meta__ = { // jshint ignore:line
                 hasGroups = that._isServerGrouped();
 
             if (hasGroups && model.uid && (!model.isNew || !model.isNew())) {
-                that._destroyed.push(model);
+                that._pushInDestroyed(model);
             }
 
             this._eachItem(that._data, function(items) {
@@ -11399,7 +11400,7 @@ var __meta__ = { // jshint ignore:line
                  .then(function() {
                     var idx, length;
 
-                    for (idx = 0, length = arguments.length; idx < length; idx++){
+                    for (idx = 0, length = arguments.length; idx < length; idx++) {
                         if (arguments[idx]) {
                             that._accept(arguments[idx]);
                         }
@@ -11776,7 +11777,7 @@ var __meta__ = { // jshint ignore:line
                                 deferred.reject.apply(deferred, args);
                             }
                         });
-                    } else if (that.options.offlineStorage != null){
+                    } else if (that.options.offlineStorage != null) {
                         that.success(that.offlineData(), params);
 
                         deferred.resolve();
@@ -11850,7 +11851,7 @@ var __meta__ = { // jshint ignore:line
                     var state = item.__state__;
                     if (state == "destroy") {
                         if (!itemIds[item[idField]]) {
-                            this._destroyed.push(this._createNewModel(item));
+                            this._pushInDestroyed(this._createNewModel(item));
                         }
                     } else {
                         items.push(item);
@@ -11969,7 +11970,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _addRange: function (data, skip) {
+        _addRange: function(data, skip) {
             var that = this,
                 start = typeof (skip) !== "undefined" ? skip : (that._skip || 0),
                 end,
@@ -12001,7 +12002,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _appendToGroupsFlat: function (data) {
+        _appendToGroupsFlat: function(data) {
             var length = data.length;
 
             for (var i = 0; i < length; i++) {
@@ -12009,7 +12010,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _getGroupByUid: function(uid){
+        _getGroupByUid: function(uid) {
             var length = this._groupsFlat.length;
             var group;
 
@@ -12035,7 +12036,7 @@ var __meta__ = { // jshint ignore:line
 
         _params: function(data) {
             var that = this,
-                options =  extend({
+                options = extend({
                     take: that.take(),
                     skip: that.skip(),
                     page: that.page(),
@@ -12178,13 +12179,22 @@ var __meta__ = { // jshint ignore:line
             that._total = total;
         },
 
+        _pushInDestroyed: function(model) {
+            var isPushed = this._destroyed.find(function(item) {
+                return item.uid === model.uid;
+            });
+            if (!isPushed) {
+                this._destroyed.push(model);
+            }
+        },
+
         _change: function(e) {
             var that = this, idx, length, action = e ? e.action : "";
 
             if (action === "remove") {
                 for (idx = 0, length = e.items.length; idx < length; idx++) {
                     if (!e.items[idx].isNew || !e.items[idx].isNew()) {
-                        that._destroyed.push(e.items[idx]);
+                        that._pushInDestroyed(e.items[idx]);
                     }
                 }
             }
@@ -12209,7 +12219,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _calculateAggregates: function (data, options) {
+        _calculateAggregates: function(data, options) {
             options = options || {};
 
             var query = new Query(data),
@@ -12223,7 +12233,7 @@ var __meta__ = { // jshint ignore:line
             return query.aggregate(aggregates);
         },
 
-        _process: function (data, e) {
+        _process: function(data, e) {
             var that = this,
                 options = {},
                 result;
@@ -12232,7 +12242,7 @@ var __meta__ = { // jshint ignore:line
                 options.skip = that._skip;
                 options.take = that._take || that._pageSize;
 
-                if(options.skip === undefined && that._page !== undefined && that._pageSize !== undefined) {
+                if (options.skip === undefined && that._page !== undefined && that._pageSize !== undefined) {
                     options.skip = (that._page - 1) * that._pageSize;
                 }
 
@@ -12271,6 +12281,20 @@ var __meta__ = { // jshint ignore:line
                 result = that._queryProcess(data, options);
             }
 
+            if (that._filter && e && e.action === "add") {
+                var model = e.items[0],
+                    resultData = result.data;
+
+                var modelIsInView = resultData.find(function(item) {
+                    return item.uid === model.uid;
+                });
+
+                if (!modelIsInView) {
+                    result.data.splice(model.index, 0, model);
+                    result.total++;
+                }
+            }
+
             if (that.options.serverAggregates !== true) {
                 // for performance reasons, calculate aggregates for part of the data only after query process
                 // this is necessary in the TreeList when paging
@@ -12288,7 +12312,7 @@ var __meta__ = { // jshint ignore:line
             that.trigger(CHANGE, e);
         },
 
-        _setView: function (result, options, e) {
+        _setView: function(result, options, e) {
             var that = this;
 
             if (that._isGroupPaged() && !that._isServerGrouped()) {
@@ -12313,12 +12337,12 @@ var __meta__ = { // jshint ignore:line
         },
 
         _clearEmptyGroups: function(data) {
-            for (var idx = data.length - 1; idx >=0; idx--) {
+            for (var idx = data.length - 1; idx >= 0; idx--) {
                 var group = data[idx];
                 if (group.hasSubgroups) {
                     this._clearEmptyGroups(group.items);
                 }
-                
+
                 if (group.items && !group.items.length && !group.itemCount) {
                     splice.apply(group.parent(), [idx, 1]);
                 }
@@ -12347,17 +12371,17 @@ var __meta__ = { // jshint ignore:line
                 that._skip = that._currentRangeStart = options.skip;
                 that._take = options.take;
 
-                if(that._skip === undefined) {
+                if (that._skip === undefined) {
                     that._skip = that._currentRangeStart = that.skip();
                     options.skip = that.skip();
                 }
 
-                if(that._take === undefined && that._pageSize !== undefined) {
+                if (that._take === undefined && that._pageSize !== undefined) {
                     that._take = that._pageSize;
                     options.take = that._take;
                 }
 
-                if(that.options.virtual) {
+                if (that.options.virtual) {
                     options.virtual = that.options.virtual;
                 }
 
@@ -12367,7 +12391,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (options.filter) {
-                    that._filter = options.filter = (that.options.accentFoldingFiltering && !$.isEmptyObject(options.filter)) ? $.extend({}, normalizeFilter(options.filter), { accentFoldingFiltering: that.options.accentFoldingFiltering}) : normalizeFilter(options.filter);
+                    that._filter = options.filter = (that.options.accentFoldingFiltering && !$.isEmptyObject(options.filter)) ? $.extend({}, normalizeFilter(options.filter), { accentFoldingFiltering: that.options.accentFoldingFiltering }) : normalizeFilter(options.filter);
                 }
 
                 if (options.group) {
@@ -12418,7 +12442,7 @@ var __meta__ = { // jshint ignore:line
             return $.Deferred().resolve(isPrevented).promise();
         },
 
-        _hasExpandedSubGroups: function (group) {
+        _hasExpandedSubGroups: function(group) {
             var result = false;
             var length = group.items ? group.items.length : 0;
 
@@ -12435,7 +12459,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        _findGroupedRange: function (data, result, options, parents, callback) {
+        _findGroupedRange: function(data, result, options, parents, callback) {
             var that = this;
             var length = data.length;
             var group;
@@ -12528,7 +12552,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _expandedSubGroupItemsCount: function (group, end, includeCurrentItems) {
+        _expandedSubGroupItemsCount: function(group, end, includeCurrentItems) {
             var that = this;
             var result = 0;
             var subGroup;
@@ -12652,15 +12676,15 @@ var __meta__ = { // jshint ignore:line
             }
 
             clearTimeout(that._timeout);
-            that._timeout = setTimeout(function () {
-                that._queueRequest(data, function () {
+            that._timeout = setTimeout(function() {
+                that._queueRequest(data, function() {
                     if (!that.trigger(REQUESTSTART, {
                             type: "read"
                         })) {
                         that.transport.read({
                             data: data,
                             success: that._groupItemsSuccessHandler(group, options.skip, that.take(), callback, groupItemsSkip),
-                            error: function () {
+                            error: function() {
                                 var args = slice.call(arguments);
                                 that.error.apply(that, args);
                             }
@@ -12678,7 +12702,7 @@ var __meta__ = { // jshint ignore:line
             callback = isFunction(callback) ? callback : noop;
             var totalField = that.options.schema && that.options.schema.total ? that.options.schema.total : "Total";
 
-            return function (data) {
+            return function(data) {
                 var temp;
                 var model = Model.define(that.options.schema.model);
                 var totalCount;
@@ -12703,7 +12727,7 @@ var __meta__ = { // jshint ignore:line
                     group.subgroupCount = totalCount;
                 } else {
                     temp = that.reader.data(data);
-                    temp = temp.map(function (item) {
+                    temp = temp.map(function(item) {
                         return new model(item);
                     });
                 }
@@ -12737,7 +12761,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         findSubgroups: function(group) {
-            var indexOfCurrentGroup = this._group.map(function (g) {
+            var indexOfCurrentGroup = this._group.map(function(g) {
                 return g.field;
             }).indexOf(group.field);
 
@@ -12820,10 +12844,11 @@ var __meta__ = { // jshint ignore:line
                 for (var i = 0; i < length; i++) {
                     currentSubGroup = group.items[i];
                     indexes.push(i);
-                    if (currentSubGroup.uid === subgroup.uid) {
+                    if (currentSubGroup.uid === subgroup.uid ||
+                            (currentSubGroup.hasSubgroups &&
+                            currentSubGroup.items.length &&
+                            that._containsSubGroup(currentSubGroup, subgroup, indexes))) {
                         return true;
-                    } else if (currentSubGroup.hasSubgroups && currentSubGroup.items.length) {
-                        return that._containsSubGroup(currentSubGroup, subgroup, indexes);
                     }
                     indexes.pop();
                 }
@@ -12836,7 +12861,7 @@ var __meta__ = { // jshint ignore:line
             group = typeof group.toJSON == "function" ? group.toJSON() : group;
 
             if (group.items && group.items.length) {
-                group.items = group.items.map(function (item) {
+                group.items = group.items.map(function(item) {
                     return that._cloneGroup(item);
                 });
             }
@@ -12925,7 +12950,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
             skip;
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 val = math.max(math.min(math.max(val, 1), that.totalPages()), 1);
                 var take = that.take();
 
@@ -12956,7 +12981,7 @@ var __meta__ = { // jshint ignore:line
         sort: function(val) {
             var that = this;
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 that.trigger("sort");
                 that._query({ sort: val });
                 return;
@@ -12982,13 +13007,13 @@ var __meta__ = { // jshint ignore:line
 
             if (that._groupPaging) {
                 // clear ranges if ungrouping is performed
-                if (val!== undefined && (!val || !val.length) ) {
+                if (val !== undefined && (!val || !val.length) ) {
                     that._ranges = [];
                 }
                 options.page = 1;
             }
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 that._query(options);
                 return;
             }
@@ -12996,7 +13021,7 @@ var __meta__ = { // jshint ignore:line
             return that._group;
         },
 
-        getGroupsFlat: function (data) {
+        getGroupsFlat: function(data) {
             var idx,
                 result = [],
                 length;
@@ -13017,7 +13042,7 @@ var __meta__ = { // jshint ignore:line
             return parseInt(this._total || 0, 10);
         },
 
-        groupsTotal: function (includeExpanded) {
+        groupsTotal: function(includeExpanded) {
             var that = this;
 
             if (!that._group.length) {
@@ -13036,7 +13061,7 @@ var __meta__ = { // jshint ignore:line
             return that._calculateGroupsTotal(that._ranges.length ? that._ranges[0].data : [], includeExpanded);
         },
 
-        _calculateGroupsTotal: function (groups, includeExpanded, itemsField, ignoreState) {
+        _calculateGroupsTotal: function(groups, includeExpanded, itemsField, ignoreState) {
             var that = this;
             itemsField = itemsField || "items";
             var total;
@@ -13057,7 +13082,7 @@ var __meta__ = { // jshint ignore:line
             return that._groupsTotal;
         },
 
-        groupCount: function (group, includeExpanded, itemsField, ignoreState) {
+        groupCount: function(group, includeExpanded, itemsField, ignoreState) {
             var that = this;
             var total = 0;
 
@@ -13066,7 +13091,7 @@ var __meta__ = { // jshint ignore:line
                     total += 1;
                 }
 
-                group[itemsField].forEach(function (subgroup) {
+                group[itemsField].forEach(function(subgroup) {
                     total += that.groupCount(subgroup, includeExpanded, itemsField, ignoreState);
                 });
             } else {
@@ -13082,7 +13107,7 @@ var __meta__ = { // jshint ignore:line
             return total;
         },
 
-        countGroupRange: function (range) {
+        countGroupRange: function(range) {
             var total = 0;
             var length = range.length;
 
@@ -13096,7 +13121,7 @@ var __meta__ = { // jshint ignore:line
         aggregate: function(val) {
             var that = this;
 
-            if(val !== undefined) {
+            if (val !== undefined) {
                 that._query({ aggregate: val });
                 return;
             }
@@ -13120,11 +13145,11 @@ var __meta__ = { // jshint ignore:line
             if (!isEmptyObject(aggregates)) {
                 var aggregate = {};
 
-                if (!isArray(aggregates)){
+                if (!isArray(aggregates)) {
                     aggregates = [aggregates];
                 }
 
-                for (var idx = 0; idx <aggregates.length; idx++) {
+                for (var idx = 0; idx < aggregates.length; idx++) {
                     aggregate[aggregates[idx].aggregate] = 0;
                     result[aggregates[idx].field] = aggregate;
                 }
@@ -13144,7 +13169,7 @@ var __meta__ = { // jshint ignore:line
                 idx,
                 length;
 
-            for (idx = groups.length-1, length = 0; idx >= length; idx--) {
+            for (idx = groups.length - 1, length = 0; idx >= length; idx--) {
                 group = groups[idx];
                 parent = {
                     value: model.get ? model.get(group.field) : model[group.field],
@@ -13375,7 +13400,7 @@ var __meta__ = { // jshint ignore:line
             return [];
         },
 
-        _getRangesMismatch: function (pageSkip) {
+        _getRangesMismatch: function(pageSkip) {
             var that = this;
             var ranges = that._ranges;
             var mismatch = 0;
@@ -13453,7 +13478,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             if (that._skip === undefined) {
-                return (that._page !== undefined ? (that._page  - 1) * (that.take() || 1) : undefined);
+                return (that._page !== undefined ? (that._page - 1) * (that.take() || 1) : undefined);
             }
             return that._skip;
         },
@@ -13466,7 +13491,7 @@ var __meta__ = { // jshint ignore:line
             return this._take || this._pageSize;
         },
 
-        _prefetchSuccessHandler: function (skip, size, callback, force) {
+        _prefetchSuccessHandler: function(skip, size, callback, force) {
             var that = this;
             var timestamp = that._timeStamp();
 
@@ -13594,7 +13619,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _adjustPageSkip: function (start, take) {
+        _adjustPageSkip: function(start, take) {
             var that = this;
             var prevRange = that._getPrevRange(start);
             var result;
@@ -13622,7 +13647,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        _getNextRange: function (end) {
+        _getNextRange: function(end) {
             var that = this,
                 ranges = that._ranges,
                 idx,
@@ -13635,7 +13660,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _getPrevRange: function (start) {
+        _getPrevRange: function(start) {
             var that = this,
                 ranges = that._ranges,
                 idx,
@@ -13668,7 +13693,7 @@ var __meta__ = { // jshint ignore:line
             return false;
         },
 
-        _groupRangeExists: function (start, end) {
+        _groupRangeExists: function(start, end) {
             var that = this,
                 ranges = that._ranges,
                 idx,
@@ -13798,7 +13823,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _updateOuterRangesLength: function () {
+        _updateOuterRangesLength: function() {
             var that = this;
             var ranges = that._ranges || [];
             var rangesLength = ranges.length;
@@ -13901,7 +13926,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (!isEmptyObject(model)) {
-                dataSource.schema = extend(true, dataSource.schema, { model:  { fields: model } });
+                dataSource.schema = extend(true, dataSource.schema, { model: { fields: model } });
             }
         }
 
@@ -13983,12 +14008,12 @@ var __meta__ = { // jshint ignore:line
 
             for (fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
                 cell = cells[fieldIndex];
-                if(cell.nodeName.toLowerCase() !== "th") {
+                if (cell.nodeName.toLowerCase() !== "th") {
                     empty = false;
                     record[fields[fieldIndex].field] = cell.innerHTML;
                 }
             }
-            if(!empty) {
+            if (!empty) {
                 data.push(record);
             }
         }
@@ -14039,9 +14064,9 @@ var __meta__ = { // jshint ignore:line
             if (isFunction(hasChildren)) {
                 var hasChildrenObject = hasChildren.call(that, that);
 
-                if(hasChildrenObject && hasChildrenObject.length === 0){
+                if (hasChildrenObject && hasChildrenObject.length === 0) {
                     that.hasChildren = false;
-                } else{
+                } else {
                     that.hasChildren = !!hasChildrenObject;
                 }
             }
@@ -14075,16 +14100,16 @@ var __meta__ = { // jshint ignore:line
                     return data;
                 };
 
-                children.parent = function(){
+                children.parent = function() {
                     return that;
                 };
 
-                children.bind(CHANGE, function(e){
+                children.bind(CHANGE, function(e) {
                     e.node = e.node || that;
                     that.trigger(CHANGE, e);
                 });
 
-                children.bind(ERROR, function(e){
+                children.bind(ERROR, function(e) {
                     var collection = that.parent();
 
                     if (collection) {
@@ -14093,7 +14118,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 });
 
-                children.bind(ITEMSLOADED, function (e) {
+                children.bind(ITEMSLOADED, function(e) {
                     var collection = that.parent();
 
                     if (collection) {
@@ -14156,13 +14181,13 @@ var __meta__ = { // jshint ignore:line
 
                 children.one(CHANGE, this._childrenLoaded.bind(this));
 
-                if(this._matchFilter){
+                if (this._matchFilter) {
                     options.filter = { field: '_matchFilter', operator: 'eq', value: true };
                 }
 
                 promise = children[method](options);
                 if (!this._loaded) {
-                    this.trigger(ITEMLOAD, {promise: promise, node: this});
+                    this.trigger(ITEMLOAD, { promise: promise, node: this });
                 }
             } else {
                 this.loaded(true);
@@ -14213,7 +14238,7 @@ var __meta__ = { // jshint ignore:line
                 children: options
             });
 
-            if(options.filter && !options.serverFiltering){
+            if (options.filter && !options.serverFiltering) {
                 this._hierarchicalFilter = options.filter;
                 options.filter = null;
             }
@@ -14235,17 +14260,17 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        loading: function () {
-            if(this._data) {
+        loading: function() {
+            if (this._data) {
                 return this._data.loading() || this._childrenLoading();
             }
             return false;
         },
 
-        _childrenLoading: function () {
+        _childrenLoading: function() {
             var isLoading = false;
-            this._data.forEach(function (node) {
-                if(node.hasChildren && node.children.loading()) {
+            this._data.forEach(function(node) {
+                if (node.hasChildren && node.children.loading()) {
                     isLoading = true;
                 }
             });
@@ -14255,10 +14280,10 @@ var __meta__ = { // jshint ignore:line
         read: function(data) {
             var result = DataSource.fn.read.call(this, data);
 
-            if(this._hierarchicalFilter){
-                if(this._data && this._data.length > 0){
+            if (this._hierarchicalFilter) {
+                if (this._data && this._data.length > 0) {
                     this.filter(this._hierarchicalFilter);
-                }else{
+                } else {
                     this.options.filter = this._hierarchicalFilter;
                     this._filter = normalizeFilter(this.options.filter);
                     this._hierarchicalFilter = null;
@@ -14268,7 +14293,7 @@ var __meta__ = { // jshint ignore:line
             return result;
         },
 
-        remove: function(node){
+        remove: function(node) {
             var parentNode = node.parentNode(),
                 dataSource = this,
                 result;
@@ -14306,15 +14331,15 @@ var __meta__ = { // jshint ignore:line
                  return this._filter;
             }
 
-            if(!this.options.serverFiltering && this._markHierarchicalQuery(val)){
-                val = { logic: "or", filters: [val, {field:'_matchFilter', operator: 'equals', value: true }]};
+            if (!this.options.serverFiltering && this._markHierarchicalQuery(val)) {
+                val = { logic: "or", filters: [val, { field: '_matchFilter', operator: 'equals', value: true }] };
             }
 
             this.trigger("reset");
             this._query({ filter: val, page: 1 });
         },
 
-        _markHierarchicalQuery: function(expressions){
+        _markHierarchicalQuery: function(expressions) {
             var compiled;
             var predicate;
             var fields;
@@ -14322,10 +14347,10 @@ var __meta__ = { // jshint ignore:line
             var filter;
             var accentFoldingFiltering = this.options.accentFoldingFiltering;
 
-            expressions = accentFoldingFiltering ? $.extend({}, normalizeFilter(expressions), { accentFoldingFiltering: accentFoldingFiltering}) : normalizeFilter(expressions);
+            expressions = accentFoldingFiltering ? $.extend({}, normalizeFilter(expressions), { accentFoldingFiltering: accentFoldingFiltering }) : normalizeFilter(expressions);
 
             if (!expressions || expressions.filters.length === 0) {
-                this._updateHierarchicalFilter(function(){return true;});
+                this._updateHierarchicalFilter(function() {return true;});
                 return false;
             }
 
@@ -14345,7 +14370,7 @@ var __meta__ = { // jshint ignore:line
             return true;
         },
 
-         _updateHierarchicalFilter: function(filter){
+         _updateHierarchicalFilter: function(filter) {
             var current;
             var data = this._data;
             var result = false;
@@ -14353,16 +14378,16 @@ var __meta__ = { // jshint ignore:line
             for (var idx = 0; idx < data.length; idx++) {
                  current = data[idx];
 
-                 if(current.hasChildren){
+                 if (current.hasChildren) {
                      current._matchFilter = current.children._updateHierarchicalFilter(filter);
-                    if(!current._matchFilter){
+                    if (!current._matchFilter) {
                         current._matchFilter = filter(current);
                     }
-                }else{
+                } else {
                     current._matchFilter = filter(current);
                 }
 
-                if(current._matchFilter){
+                if (current._matchFilter) {
                     result = true;
                 }
             }
@@ -14526,12 +14551,12 @@ var __meta__ = { // jshint ignore:line
             this._recalculate();
         },
 
-        at: function(index)  {
+        at: function(index) {
             var pageSize = this.pageSize,
                 itemPresent = true;
 
             if (index >= this.total()) {
-                this.trigger("endreached", {index: index });
+                this.trigger("endreached", { index: index });
                 return null;
             }
 
@@ -14730,20 +14755,20 @@ var __meta__ = { // jshint ignore:line
             this.buffer = new Buffer(dataSource, batchSize * 3);
 
             this.buffer.bind({
-                "endreached": function (e) {
+                "endreached": function(e) {
                     batchBuffer.trigger("endreached", { index: e.index });
                 },
-                "prefetching": function (e) {
+                "prefetching": function(e) {
                     batchBuffer.trigger("prefetching", { skip: e.skip, take: e.take });
                 },
-                "prefetched": function (e) {
+                "prefetched": function(e) {
                     batchBuffer.trigger("prefetched", { skip: e.skip, take: e.take });
                 },
-                "reset": function () {
+                "reset": function() {
                     batchBuffer._total = 0;
                     batchBuffer.trigger("reset");
                 },
-                "resize": function () {
+                "resize": function() {
                     batchBuffer._total = Math.ceil(this.length / batchBuffer.batchSize);
                     batchBuffer.trigger("resize", { total: batchBuffer.total(), offset: this.offset });
                 }
@@ -14812,11 +14837,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.binder',[ "kendo.core", "kendo.data" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "binder",
@@ -14827,7 +14852,7 @@ var __meta__ = { // jshint ignore:line
 };
 
 /*jshint eqnull: true */
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Observable = kendo.Observable,
         ObservableObject = kendo.data.ObservableObject,
@@ -14849,7 +14874,7 @@ var __meta__ = { // jshint ignore:line
 
         try {
             delete a.test;
-        } catch(e) {
+        } catch (e) {
             deleteExpando = false;
         }
     })();
@@ -15019,7 +15044,7 @@ var __meta__ = { // jshint ignore:line
         destroy: function() {
             if (this.observable) {
                 this.source.unbind(CHANGE, this._change);
-                if(this.currentSource) {
+                if (this.currentSource) {
                     this.currentSource.unbind(CHANGE, this._change);
                 }
             }
@@ -15108,18 +15133,18 @@ var __meta__ = { // jshint ignore:line
             return this._parseValue(this.element.value, this.dataType());
         },
 
-        _parseValue: function (value, dataType){
+        _parseValue: function(value, dataType) {
             if (dataType == "date") {
                 value = kendo.parseDate(value, "yyyy-MM-dd");
             } else if (dataType == "datetime-local") {
                 value = kendo.parseDate(value, ["yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm"] );
             } else if (dataType == "number") {
                 value = kendo.parseFloat(value);
-            } else if (dataType == "boolean"){
+            } else if (dataType == "boolean") {
                 value = value.toLowerCase();
-                if(kendo.parseFloat(value) !== null){
+                if (kendo.parseFloat(value) !== null) {
                     value = Boolean(kendo.parseFloat(value));
-                }else{
+                } else {
                     value = (value.toLowerCase() === "true");
                 }
             }
@@ -15142,9 +15167,9 @@ var __meta__ = { // jshint ignore:line
             var element = $(this.element),
                 binding = this.bindings.css[className],
                 hasClass = this.classes[className] = binding.get();
-            if(hasClass){
+            if (hasClass) {
                 element.addClass(className);
-            }else{
+            } else {
                 element.removeClass(className);
             }
         }
@@ -15465,13 +15490,13 @@ var __meta__ = { // jshint ignore:line
                     if (source instanceof ObservableArray) {
                         value = this.parsedValue();
                         if (value instanceof Date) {
-                            for(var i = 0; i < source.length; i++){
-                                if(source[i] instanceof Date && +source[i] === +value){
+                            for (var i = 0; i < source.length; i++) {
+                                if (source[i] instanceof Date && +source[i] === +value) {
                                     index = i;
                                     break;
                                 }
                             }
-                        }else{
+                        } else {
                             index = source.indexOf(value);
                         }
                         if (index > -1) {
@@ -15495,18 +15520,18 @@ var __meta__ = { // jshint ignore:line
                     if (source instanceof ObservableArray) {
                         var index = -1;
                         value = this.parsedValue();
-                        if(value instanceof Date){
-                            for(var i = 0; i < source.length; i++){
-                                if(source[i] instanceof Date && +source[i] === +value){
+                        if (value instanceof Date) {
+                            for (var i = 0; i < source.length; i++) {
+                                if (source[i] instanceof Date && +source[i] === +value) {
                                     index = i;
                                     break;
                                 }
                             }
-                        }else{
+                        } else {
                             index = source.indexOf(value);
                         }
                         element.checked = (index >= 0);
-                    }else{
+                    } else {
                         element.checked = source;
                     }
                 } else if (element.type == "radio") {
@@ -15554,10 +15579,10 @@ var __meta__ = { // jshint ignore:line
                         that.remove(e.index, e.items);
                     } else if (e.action == "itemchange" || e.action === undefined) {
                         that.render();
-                        if(that.bindings.value){
+                        if (that.bindings.value) {
                             if (that.bindings.value) {
                                 var val = retrievePrimitiveValues(that.bindings.value.get(), $(that.element).data("valueField"));
-                                if(val === null) {
+                                if (val === null) {
                                     that.element.selectedIndex = -1;
                                 } else {
                                     that.element.value = val;
@@ -15578,7 +15603,7 @@ var __meta__ = { // jshint ignore:line
                 $(this.element).change(this._change);
             },
 
-            parsedValue : function() {
+            parsedValue: function() {
                 var dataType = this.dataType();
                 var values = [];
                 var value, option, idx, length;
@@ -15803,9 +15828,9 @@ var __meta__ = { // jshint ignore:line
                             multiselect = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect;
                             dropdowntree = kendo.ui.DropDownTree && widget instanceof kendo.ui.DropDownTree;
 
-                            if(!dropdowntree){
+                            if (!dropdowntree) {
                                 widget[fieldName].data(source);
-                            }else{
+                            } else {
                                 widget.treeview[fieldName].data(source);
                             }
 
@@ -15828,7 +15853,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     binders.widget = {
-        events : Binder.extend({
+        events: Binder.extend({
             init: function(widget, bindings, options) {
                 Binder.fn.init.call(this, widget.element[0], bindings, options);
                 this.widget = widget;
@@ -15918,8 +15943,8 @@ var __meta__ = { // jshint ignore:line
             refresh: function() {
                 var that = this;
                 var start = this.bindings.start.get();
-                var end = that.widget._range ? that.widget._range.end: null;
-                this.widget.range({start: start, end: end});
+                var end = that.widget._range ? that.widget._range.end : null;
+                this.widget.range({ start: start, end: end });
             },
 
             destroy: function() {
@@ -15942,8 +15967,8 @@ var __meta__ = { // jshint ignore:line
             refresh: function() {
                 var that = this;
                 var end = this.bindings.end.get();
-                var start = that.widget._range ? that.widget._range.start: null;
-                this.widget.range({start: start, end: end});
+                var start = that.widget._range ? that.widget._range.start : null;
+                this.widget.range({ start: start, end: end });
             },
 
             destroy: function() {
@@ -16176,12 +16201,12 @@ var __meta__ = { // jshint ignore:line
                         oldValues = that.bindings[VALUE].get(),
                         valuePrimitive = that.options.valuePrimitive,
                         selectedNode = that.widget.treeview.select(),
-                        nonPrimitiveValues = that.widget._isMultipleSelection() ? that.widget._getAllChecked(): (that.widget.treeview.dataItem(selectedNode) || that.widget.value()),
+                        nonPrimitiveValues = that.widget._isMultipleSelection() ? that.widget._getAllChecked() : (that.widget.treeview.dataItem(selectedNode) || that.widget.value()),
                         newValues = (valuePrimitive || that.widget.options.autoBind === false) ? that.widget.value() : nonPrimitiveValues;
 
                     var field = this.options.dataValueField || this.options.dataTextField;
 
-                    newValues = newValues.slice ? newValues.slice(0): newValues;
+                    newValues = newValues.slice ? newValues.slice(0) : newValues;
 
                     that._initChange = true;
 
@@ -16714,7 +16739,7 @@ var __meta__ = { // jshint ignore:line
 
     function bindElement(element, source, roles, parents) {
 
-        if(!element || element.getAttribute("data-" + kendo.ns + "stop")){
+        if (!element || element.getAttribute("data-" + kendo.ns + "stop")) {
             return;
         }
 
@@ -16741,7 +16766,7 @@ var __meta__ = { // jshint ignore:line
             bind = parseBindings(bind.replace(whiteSpaceRegExp, ""));
 
             if (!target) {
-                options = kendo.parseOptions(element, {textField: "", valueField: "", template: "", valueUpdate: CHANGE, valuePrimitive: false, autoBind: true}, source);
+                options = kendo.parseOptions(element, { textField: "", valueField: "", template: "", valueUpdate: CHANGE, valuePrimitive: false, autoBind: true }, source);
                 options.roles = roles;
                 target = new BindingTarget(element, options);
             }
@@ -16833,7 +16858,7 @@ var __meta__ = { // jshint ignore:line
             }
         }
 
-        if(destroyWidget) {
+        if (destroyWidget) {
             var widget = kendo.widgetInstance($(element));
             if (widget && typeof widget.destroy === FUNCTION) {
                 widget.destroy();
@@ -16946,15 +16971,15 @@ var __meta__ = { // jshint ignore:line
 return window.kendo;
 
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.view',[
         "kendo.core",
         "kendo.binder",
         "kendo.fx"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "view",
@@ -16967,7 +16992,7 @@ var __meta__ = { // jshint ignore:line
 
 (function($, undefined) {
     var kendo = window.kendo,
-        attr =  kendo.attr,
+        attr = kendo.attr,
         ui = kendo.ui,
         attrValue = kendo.attrValue,
         directiveSelector = kendo.directiveSelector,
@@ -17096,11 +17121,11 @@ var __meta__ = { // jshint ignore:line
             this.hide();
         },
 
-        beforeTransition: function(type){
+        beforeTransition: function(type) {
             this.trigger(TRANSITION_START, { type: type });
         },
 
-        afterTransition: function(type){
+        afterTransition: function(type) {
             this.trigger(TRANSITION_END, { type: type });
         },
 
@@ -17159,12 +17184,12 @@ var __meta__ = { // jshint ignore:line
                 if (content[0].tagName === SCRIPT) {
                     content = content.html();
                 }
-            } catch(e) {
+            } catch (e) {
                 if (sizzleErrorRegExp.test(e.message)) {
                     content = that.content;
                 }
             }
-            
+
             if (typeof content === "string") {
                 content = content.replace(/^\s+|\s+$/g, '');
                 if (that._evalTemplate) {
@@ -17347,7 +17372,7 @@ var __meta__ = { // jshint ignore:line
     var transitionRegExp = /^(\w+)(:(\w+))?( (\w+))?$/;
 
     function parseTransition(transition) {
-        if (!transition){
+        if (!transition) {
             return {};
         }
 
@@ -17371,7 +17396,7 @@ var __meta__ = { // jshint ignore:line
 
         after: function() {
             this.running = false;
-            this.trigger("complete", {view: this.view});
+            this.trigger("complete", { view: this.view });
             this.trigger("after");
         },
 
@@ -17675,11 +17700,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.data.signalr',[ "kendo.data" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "data.signalr",
@@ -17702,7 +17727,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     var transport = kendo.data.RemoteTransport.extend({
-        init: function (options) {
+        init: function(options) {
             var signalr = options && options.signalr ? options.signalr : {};
 
             var promise = signalr.promise;
@@ -17807,11 +17832,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.userevents',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "userevents",
@@ -17821,7 +17846,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         support = kendo.support,
         Class = kendo.Class,
@@ -17873,7 +17898,7 @@ var __meta__ = { // jshint ignore:line
                y: (y1 + y2) / 2
             },
 
-            distance: Math.sqrt(dx*dx + dy*dy)
+            distance: Math.sqrt(dx * dx + dy * dy)
         };
     }
 
@@ -17887,7 +17912,7 @@ var __meta__ = { // jshint ignore:line
 
         if (e.api) {
             touches.push({
-                id: 2,  // hardcoded ID for API call;
+                id: 2, // hardcoded ID for API call;
                 event: e,
                 target: e.target,
                 currentTarget: e.target,
@@ -18116,7 +18141,7 @@ var __meta__ = { // jshint ignore:line
                     event: jQueryEvent
                 };
 
-            if(that.userEvents.notify(name, data)) {
+            if (that.userEvents.notify(name, data)) {
                 jQueryEvent.preventDefault();
             }
         },
@@ -18134,7 +18159,7 @@ var __meta__ = { // jshint ignore:line
             idx = 0,
             length = downEvents.length;
 
-        for(; idx < length; idx ++) {
+        for (; idx < length; idx ++) {
             callback(downEvents[idx]);
         }
     }
@@ -18270,7 +18295,7 @@ var __meta__ = { // jshint ignore:line
                 touches = that.touches;
 
             if (this._isMultiTouch()) {
-                switch(eventName) {
+                switch (eventName) {
                     case MOVE:
                         eventName = GESTURECHANGE;
                         break;
@@ -18282,10 +18307,10 @@ var __meta__ = { // jshint ignore:line
                         break;
                 }
 
-                extend(data, {touches: touches}, touchDelta(touches[0], touches[1]));
+                extend(data, { touches: touches }, touchDelta(touches[0], touches[1]));
             }
 
-            return this.trigger(eventName, extend(data, {type: eventName}));
+            return this.trigger(eventName, extend(data, { type: eventName }));
         },
 
         // API
@@ -18338,7 +18363,7 @@ var __meta__ = { // jshint ignore:line
                 touch,
                 which = e.which;
 
-            if ((which && which > 1) || (that._maxTouchesReached())){
+            if ((which && which > 1) || (that._maxTouchesReached())) {
                 return;
             }
 
@@ -18466,11 +18491,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.draganddrop',[ "kendo.core", "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "draganddrop",
@@ -18480,7 +18505,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core", "userevents" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         support = kendo.support,
         document = window.document,
@@ -18714,8 +18739,8 @@ var __meta__ = { // jshint ignore:line
 
             Observable.fn.init.call(that);
 
-            that.x = new PaneDimension(extend({horizontal: true}, options));
-            that.y = new PaneDimension(extend({horizontal: false}, options));
+            that.x = new PaneDimension(extend({ horizontal: true }, options));
+            that.y = new PaneDimension(extend({ horizontal: false }, options));
             that.container = options.container;
             that.forcedMinScale = options.minScale;
             that.maxScale = options.maxScale || 100;
@@ -18784,7 +18809,7 @@ var __meta__ = { // jshint ignore:line
                 resistance,
                 movable;
 
-            extend(that, {elastic: true}, options);
+            extend(that, { elastic: true }, options);
 
             resistance = that.elastic ? 0.5 : 0;
             movable = that.movable;
@@ -18881,11 +18906,11 @@ var __meta__ = { // jshint ignore:line
 
     if (support.hasHW3D) {
         translate = function(x, y, scale) {
-            return "translate3d(" + x + "px," + y +"px,0) scale(" + scale + ")";
+            return "translate3d(" + x + "px," + y + "px,0) scale(" + scale + ")";
         };
     } else {
         translate = function(x, y, scale) {
-            return "translate(" + x + "px," + y +"px) scale(" + scale + ")";
+            return "translate(" + x + "px," + y + "px) scale(" + scale + ")";
         };
     }
 
@@ -19090,7 +19115,7 @@ var __meta__ = { // jshint ignore:line
     });
 
     var Draggable = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
 
             Widget.fn.init.call(that, element, options);
@@ -19198,7 +19223,7 @@ var __meta__ = { // jshint ignore:line
         _start: function(e) {
             var that = this,
                 options = that.options,
-                container = options.container ? $(options.container): null,
+                container = options.container ? $(options.container) : null,
                 hint = options.hint;
 
             if (this._shouldIgnoreTarget(e.touch.initialTouch) || (options.holdToDrag && !that._activated)) {
@@ -19227,7 +19252,7 @@ var __meta__ = { // jshint ignore:line
                 })
                 .appendTo(document.body);
 
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     that.hint.removeAttr("ng-repeat");
                     var scopeTarget = $(e.target);
 
@@ -19295,7 +19320,7 @@ var __meta__ = { // jshint ignore:line
                     if (velocity.y === 0 && velocity.x === 0) {
                         clearInterval(this._scrollInterval);
                         this._scrollInterval = null;
-                    } else if(!this._scrollInterval) {
+                    } else if (!this._scrollInterval) {
                         this._scrollInterval = setInterval(this._autoScroll.bind(this), 50);
                     }
                 }
@@ -19537,7 +19562,7 @@ var __meta__ = { // jshint ignore:line
         } else {
             offset = element.offset();
             offset.bottom = offset.top + element.height();
-            offset.right =  offset.left + element.width();
+            offset.right = offset.left + element.width();
             return offset;
         }
     }
@@ -19597,11 +19622,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.scroller',[ "kendo.fx", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.scroller",
@@ -19721,12 +19746,12 @@ var __meta__ = { // jshint ignore:line
             if (!that.dimension.enabled) { return; }
 
             if (that.paneAxis.outOfBounds()) {
-                if(that.transition._started){
+                if (that.transition._started) {
                     that.transition.cancel();
                     that.velocity = Math.min(e.touch[that.axis].velocity * that.velocityMultiplier, MAX_VELOCITY);
 
                     Animation.fn.start.call(that);
-                }else{
+                } else {
                     that._snapBack();
                 }
             } else {
@@ -19832,7 +19857,7 @@ var __meta__ = { // jshint ignore:line
                 horizontal = options.axis === "x",
                 element = $('<div role="scrollbar" aria-controls="' + options.controlsId + '" class="km-touch-scrollbar km-' + (horizontal ? "horizontal" : "vertical") + '-scrollbar" />');
 
-            if(horizontal) {
+            if (horizontal) {
                 element.attr("aria-orientation", "horizontal");
             }
 
@@ -19886,19 +19911,19 @@ var __meta__ = { // jshint ignore:line
         },
 
         show: function() {
-            this.element.css({opacity: SCROLLBAR_OPACITY, visibility: "visible"});
+            this.element.css({ opacity: SCROLLBAR_OPACITY, visibility: "visible" });
         },
 
         hide: function() {
             if (!this.alwaysVisible) {
-                this.element.css({opacity: 0});
+                this.element.css({ opacity: 0 });
             }
         },
 
         _ariaValue: function(current, total) {
             var element = this.element;
 
-            if(current > total) {
+            if (current > total) {
                 current = total;
             }
 
@@ -19960,7 +19985,7 @@ var __meta__ = { // jshint ignore:line
 
                         var velocityX = abs(e.x.velocity),
                             velocityY = abs(e.y.velocity),
-                            horizontalSwipe  = velocityX * 2 >= velocityY,
+                            horizontalSwipe = velocityX * 2 >= velocityY,
                             originatedFromFixedContainer = $.contains(that.fixedContainer[0], e.event.target),
                             verticalSwipe = velocityY * 2 >= velocityX;
 
@@ -20004,7 +20029,7 @@ var __meta__ = { // jshint ignore:line
             });
 
             if (that.options.mousewheelScrolling) {
-                element.on("DOMMouseScroll mousewheel",  this._wheelScroll.bind(this));
+                element.on("DOMMouseScroll mousewheel", this._wheelScroll.bind(this));
             }
 
             extend(that, {
@@ -20124,7 +20149,7 @@ var __meta__ = { // jshint ignore:line
             if (this._native) {
                 this.scrollElement.scrollTop(0);
             } else {
-                this.movable.moveTo({x: 0, y: 0});
+                this.movable.moveTo({ x: 0, y: 0 });
                 this._scale(1);
             }
         },
@@ -20161,7 +20186,7 @@ var __meta__ = { // jshint ignore:line
                 this.scrollElement.scrollTop(abs(y));
             } else {
                 this.dimensions.refresh();
-                this.movable.moveTo({x: x, y: y});
+                this.movable.moveTo({ x: x, y: y });
             }
         },
 
@@ -20169,7 +20194,7 @@ var __meta__ = { // jshint ignore:line
             var from,
                 to;
 
-            if(this._native) {
+            if (this._native) {
                 this.scrollTo(x, y);
             } else {
                 from = { x: this.movable.x, y: this.movable.y };
@@ -20221,7 +20246,7 @@ var __meta__ = { // jshint ignore:line
         _dragEnd: function() {
             var that = this;
 
-            if(!that.pulled) {
+            if (!that.pulled) {
                 return;
             }
 
@@ -20257,7 +20282,7 @@ var __meta__ = { // jshint ignore:line
                 paneAxis = that.pane[axis],
                 scrollBar;
 
-            if(!elementId) {
+            if (!elementId) {
                 elementId = kendo.guid();
                 that.element.attr("id", elementId);
             }
@@ -20306,11 +20331,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.popup',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "popup",
@@ -20401,7 +20426,7 @@ var __meta__ = { // jshint ignore:line
             that.element.hide()
                 .addClass("k-popup k-group k-reset")
                 .toggleClass("k-rtl", !!options.isRtl)
-                .css({ position : ABSOLUTE })
+                .css({ position: ABSOLUTE })
                 .appendTo(options.appendTo)
                 .attr("aria-hidden", true)
                 .on("mouseenter" + NS, function() {
@@ -20735,7 +20760,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 // Close all inclusive popups.
-                that.element.find(".k-popup").each(function () {
+                that.element.find(".k-popup").each(function() {
                     var that = $(this),
                         popup = that.data("kendoPopup");
 
@@ -20825,7 +20850,7 @@ var __meta__ = { // jshint ignore:line
                 mobile = popup.parent().parent(".km-shim").length;
 
             popup = popup[0];
-            if (!mobile && popup && popup !== that.element[0]){
+            if (!mobile && popup && popup !== that.element[0]) {
                 return;
             }
 
@@ -20977,7 +21002,7 @@ var __meta__ = { // jshint ignore:line
 
             var flipPos = extend({}, location);
             var elementHeight = outerHeight(element);
-            var wrapperHeight =  outerHeight(wrapper);
+            var wrapperHeight = outerHeight(wrapper);
 
             if (!wrapper.height() && elementHeight) {
                 wrapperHeight = wrapperHeight + elementHeight;
@@ -21086,7 +21111,7 @@ var __meta__ = { // jshint ignore:line
             this.element = undefined;
         },
 
-        shouldTrap: function () {
+        shouldTrap: function() {
             return true;
         },
 
@@ -21103,8 +21128,8 @@ var __meta__ = { // jshint ignore:line
 
             e.preventDefault();
         },
-        _focusableElements: function(){
-            var elements = this.element.find(focusableNodesSelector).filter(function(i, item){
+        _focusableElements: function() {
+            var elements = this.element.find(focusableNodesSelector).filter(function(i, item) {
                 return item.tabIndex >= 0 && $(item).is(':visible') && !$(item).is('[disabled]');
             });
 
@@ -21114,7 +21139,7 @@ var __meta__ = { // jshint ignore:line
 
             return elements;
         },
-        _sortFocusableElements: function(elements){
+        _sortFocusableElements: function(elements) {
             var sortedElements;
 
             if (stableSort) {
@@ -21123,7 +21148,7 @@ var __meta__ = { // jshint ignore:line
                 });
             } else {
                 var attrName = "__k_index";
-                elements.each(function(i, item){
+                elements.each(function(i, item) {
                     item.setAttribute(attrName, i);
                 });
 
@@ -21138,13 +21163,13 @@ var __meta__ = { // jshint ignore:line
 
             return sortedElements;
         },
-        _nextFocusable: function(e, elements){
+        _nextFocusable: function(e, elements) {
             var count = elements.length;
             var current = elements.index(e.target);
 
             return elements.get((current + (e.shiftKey ? -1 : 1)) % count);
         },
-        _focus: function(element){
+        _focus: function(element) {
             if (element.nodeName == "IFRAME") {
                 element.contentWindow.document.body.focus();
                 return;
@@ -21156,7 +21181,7 @@ var __meta__ = { // jshint ignore:line
                 element.setSelectionRange(0, element.value.length);
             }
         },
-        _haveSelectionRange: function(element){
+        _haveSelectionRange: function(element) {
             var elementType = element.type.toLowerCase();
 
             return elementType === "text" || elementType === "search" ||
@@ -21168,14 +21193,13 @@ var __meta__ = { // jshint ignore:line
 })(window.kendo.jQuery);
 
 
-
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.tooltip',[ "kendo.core", "kendo.popup", "kendo.fx" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "tooltip",
@@ -21266,7 +21290,7 @@ var __meta__ = { // jshint ignore:line
         };
 
     function restoreTitle(element) {
-        while(element.length) {
+        while (element.length) {
             if (restoreTitleAttributeForElement(element)) {
                 break;
             }
@@ -21293,7 +21317,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function saveTitleAttributes(element) {
-        while(element.length && !element.is("body")) {
+        while (element.length && !element.is("body")) {
             if (saveTitleAttributeForElement(element)) {
                 break;
             }
@@ -21391,15 +21415,15 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _isShownOnFocus: function(){
+        _isShownOnFocus: function() {
             return this.options.showOn && this.options.showOn.match(/focus/);
         },
 
-        _isShownOnMouseEnter: function(){
+        _isShownOnMouseEnter: function() {
             return this.options.showOn && this.options.showOn.match(/mouseenter/);
         },
 
-        _isShownOnClick: function(){
+        _isShownOnClick: function() {
             return this.options.showOn && this.options.showOn.match(/click/);
         },
 
@@ -21434,13 +21458,13 @@ var __meta__ = { // jshint ignore:line
             that.popup.wrapper.css(marginRule, offset * direction + "px");
         },
 
-        _addDescribedBy: function () {
+        _addDescribedBy: function() {
             var that = this,
                 anchor = that.popup.options.anchor,
                 ariaId = anchor[0].id || that.element[0].id || kendo.guid(),
                 describedBy = [];
 
-            if(anchor.attr(DESCRIBEDBY)) {
+            if (anchor.attr(DESCRIBEDBY)) {
                 describedBy.push(anchor.attr(DESCRIBEDBY));
             }
 
@@ -21457,19 +21481,19 @@ var __meta__ = { // jshint ignore:line
                 currentDescribedBy = target.attr(DESCRIBEDBY),
                 arrayAttr, finalArray, finalDescribedbyAttr;
 
-            if(!currentDescribedBy) {
+            if (!currentDescribedBy) {
                 return;
             }
 
             arrayAttr = currentDescribedBy.split(" ");
 
-            if(arrayAttr && arrayAttr.length > 0) {
-                finalArray = arrayAttr.filter(function (val) {
+            if (arrayAttr && arrayAttr.length > 0) {
+                finalArray = arrayAttr.filter(function(val) {
                     return val !== tooltipId;
                 });
             }
 
-            if(finalArray && finalArray.length > 0) {
+            if (finalArray && finalArray.length > 0) {
                 finalDescribedbyAttr = finalArray.join(" ");
                 target.attr(DESCRIBEDBY, finalDescribedbyAttr);
             } else {
@@ -21548,7 +21572,7 @@ var __meta__ = { // jshint ignore:line
             saveTitleAttributes($(e.currentTarget));
         },
 
-        _saveTitle:function (target) {
+        _saveTitle: function(target) {
             saveTitleAttributes(target);
         },
 
@@ -21586,7 +21610,7 @@ var __meta__ = { // jshint ignore:line
 
                     element.find("." + KCONTENTFRAME)
                         .off("load" + NS)
-                        .on("load" + NS, function(){
+                        .on("load" + NS, function() {
                             that.trigger(CONTENTLOAD);
                             element.show();
                         });
@@ -21598,32 +21622,32 @@ var __meta__ = { // jshint ignore:line
                 element.html(contentOptions);
             }
 
-            that.angular("compile", function(){
+            that.angular("compile", function() {
                 return { elements: element };
             });
         },
 
         _ajaxRequest: function(options) {
             var that = this,
-                successFn = function (data) {
+                successFn = function(data) {
                     kendo.ui.progress(that.content, false);
 
                     that.content.html(data);
 
-                    that.contentLoading = false;
+                    if (kendo._outerHeight(that.popup.element) > kendo._outerHeight(that.popup.wrapper)) {
+                        that.popup.wrapper.css("height", kendo._outerHeight(that.popup.element) + "px");
+                        that.popup.position();
+                        that._positionCallout();
+                    }
 
                     that.trigger(CONTENTLOAD);
-
-                    that._openPopup();
                 };
-
-            that.contentLoading = true;
 
             jQuery.ajax(extend({
                 type: "GET",
                 dataType: "html",
                 cache: false,
-                error: function (xhr, status) {
+                error: function(xhr, status) {
                     kendo.ui.progress(that.content, false);
 
                     that.trigger(ERROR, { status: status, xhr: xhr });
@@ -21677,9 +21701,7 @@ var __meta__ = { // jshint ignore:line
                 DOCUMENT.off("keydown" + NS, that._documentKeyDownHandler);
             });
 
-            if (!that.contentLoading) {
-                that._openPopup();
-            }
+            that._openPopup();
         },
 
         _initPopup: function() {
@@ -21692,7 +21714,7 @@ var __meta__ = { // jshint ignore:line
                 }));
 
             that.popup = new Popup(wrapper, extend({
-                autosize:true,
+                autosize: true,
                 activate: function() {
                     that._addDescribedBy();
 
@@ -21746,11 +21768,11 @@ var __meta__ = { // jshint ignore:line
             }, that.options.hideAfter);
         },
 
-        _blur: function(e){
+        _blur: function(e) {
             this._closePopup(e.currentTarget);
         },
 
-        _closePopup: function(target){
+        _closePopup: function(target) {
             if (this.popup && !this.popup._hovered) {
                 this.popup.close();
             } else {
@@ -21772,11 +21794,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('drawing/util',['kendo.core'], f);
-})(function(){
+})(function() {
 
 (function($) {
 
@@ -21817,16 +21839,16 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
  * your modifications will eventually be lost.  The source code is in
  * `kendo-drawing` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.color',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "color",
@@ -21898,18 +21920,18 @@ var namedColors = {
 
 var browser = support.browser;
 
-var matchNamedColor = function (color) {
+var matchNamedColor = function(color) {
     var colorNames = Object.keys(namedColors);
     colorNames.push("transparent");
 
     var regexp = new RegExp("^(" + colorNames.join("|") + ")(\\W|$)", "i");
-    matchNamedColor = function (color) { return regexp.exec(color); };
+    matchNamedColor = function(color) { return regexp.exec(color); };
 
     return regexp.exec(color);
 };
 
 var BaseColor = Class.extend({
-    init: function() {  },
+    init: function() { },
 
     toHSV: function() { return this; },
 
@@ -22400,7 +22422,7 @@ kendo.deepExtend(kendo, {
     Color: Color
 });
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
  * your modifications will eventually be lost.  The source code is in
@@ -22610,11 +22632,11 @@ kendo.deepExtend(kendo.util, {
  * `kendo-drawing` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('drawing/kendo-drawing',[ "./util", "kendo.color", '../util/text-metrics' ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
 /* jshint eqnull:true */
 /* jshint -W058 */
@@ -22635,8 +22657,8 @@ var supportBrowser = support.browser;
 var createPromise = kendoDrawingUtil.createPromise;
 var promiseAll = kendoDrawingUtil.promiseAll;
 
-var HasObservers = (function (Class$$1) {
-    function HasObservers () {
+var HasObservers = (function(Class$$1) {
+    function HasObservers() {
         Class$$1.apply(this, arguments);
     }
 
@@ -22646,12 +22668,12 @@ var HasObservers = (function (Class$$1) {
     HasObservers.fn = HasObservers.prototype;
     HasObservers.fn.init = HasObservers.fn.constructor;
 
-    HasObservers.prototype.observers = function observers () {
+    HasObservers.prototype.observers = function observers() {
         this._observers = this._observers || [];
         return this._observers;
     };
 
-    HasObservers.prototype.addObserver = function addObserver (element) {
+    HasObservers.prototype.addObserver = function addObserver(element) {
         if (!this._observers) {
             this._observers = [ element ];
         } else {
@@ -22660,7 +22682,7 @@ var HasObservers = (function (Class$$1) {
         return this;
     };
 
-    HasObservers.prototype.removeObserver = function removeObserver (element) {
+    HasObservers.prototype.removeObserver = function removeObserver(element) {
         var observers = this.observers();
         var index = observers.indexOf(element);
         if (index !== -1) {
@@ -22669,7 +22691,7 @@ var HasObservers = (function (Class$$1) {
         return this;
     };
 
-    HasObservers.prototype.trigger = function trigger (methodName, event) {
+    HasObservers.prototype.trigger = function trigger(methodName, event) {
         var observers = this._observers;
 
         if (observers && !this._suspended) {
@@ -22683,30 +22705,30 @@ var HasObservers = (function (Class$$1) {
         return this;
     };
 
-    HasObservers.prototype.optionsChange = function optionsChange (e) {
+    HasObservers.prototype.optionsChange = function optionsChange(e) {
         if (e === void 0) { e = {}; }
 
         e.element = this;
         this.trigger("optionsChange", e);
     };
 
-    HasObservers.prototype.geometryChange = function geometryChange () {
+    HasObservers.prototype.geometryChange = function geometryChange() {
         this.trigger("geometryChange", {
             element: this
         });
     };
 
-    HasObservers.prototype.suspend = function suspend () {
+    HasObservers.prototype.suspend = function suspend() {
         this._suspended = (this._suspended || 0) + 1;
         return this;
     };
 
-    HasObservers.prototype.resume = function resume () {
+    HasObservers.prototype.resume = function resume() {
         this._suspended = Math.max((this._suspended || 0) - 1, 0);
         return this;
     };
 
-    HasObservers.prototype._observerField = function _observerField (field, value) {
+    HasObservers.prototype._observerField = function _observerField(field, value) {
         if (this[field]) {
             this[field].removeObserver(this);
         }
@@ -33665,11 +33687,11 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 })(window.kendo.jQuery);
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+(function(f, define) {
     define('drawing/surface-tooltip',[ "kendo.popup", "./kendo-drawing" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     var NS = ".kendo";
     var kendo = window.kendo;
@@ -33783,7 +33805,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         },
 
         _tooltipShape: function(shape) {
-            while(shape && !shape.options.tooltip) {
+            while (shape && !shape.options.tooltip) {
                 shape = shape.parent;
             }
             return shape;
@@ -33856,7 +33878,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
             delete this._current;
             clearTimeout(this._showTimeout);
             if (popup && popup.visible() && current &&
-                !this.surface.trigger("tooltipClose", { element: current.shape, target: current.target, popup: popup})) {
+                !this.surface.trigger("tooltipClose", { element: current.shape, target: current.target, popup: popup })) {
                 popup.close();
             }
         },
@@ -33894,7 +33916,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                     elementSize: elementSize,
                     shape: shape,
                     target: target,
-                    position: this._position(options.shared ? shape: target, options, elementSize, event)
+                    position: this._position(options.shared ? shape : target, options, elementSize, event)
                 };
 
                 if (delay) {
@@ -33988,7 +34010,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
                 if (options.position == "cursor") {
                     var position = this._position(e.element, options, current.elementSize, e.originalEvent);
                     current.position = position;
-                    this.getPopup().wrapper.css({left: position.left, top: position.top});
+                    this.getPopup().wrapper.css({ left: position.left, top: position.top });
                 }
             }
         },
@@ -34019,12 +34041,12 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('drawing/surface',[ "./kendo-drawing", "./surface-tooltip" ], f);
-})(function(){
+})(function() {
 
-(function ($) {  // jshint ignore:line
+(function($) { // jshint ignore:line
 
     var kendo = window.kendo;
     var draw = kendo.drawing;
@@ -34176,12 +34198,12 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('drawing/html',[ "./kendo-drawing" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     var kendo = window.kendo;
     var drawing = kendo.drawing;
@@ -34197,9 +34219,9 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.drawing',[
         "./drawing/util",
         "./drawing/kendo-drawing",
@@ -34207,7 +34229,7 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         "./drawing/surface",
         "./drawing/html"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "drawing",
@@ -34217,21 +34239,21 @@ kendo.util.encodeBase64 = kendo.drawing.util.encodeBase64;
         depends: [ "core", "color", "popup" ]
     };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
  * your modifications will eventually be lost.  The source code is in
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/core/kendo-core',[
         "kendo.core",
         "kendo.drawing"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 /* jshint curly:false */
 /* jshint -W058 */
 
@@ -34504,15 +34526,15 @@ var HashMap = function HashMap() {
     this._map = {};
 };
 
-HashMap.prototype.get = function get (name) {
+HashMap.prototype.get = function get(name) {
     return this._map[this._key(name)];
 };
 
-HashMap.prototype.set = function set (name, value) {
+HashMap.prototype.set = function set(name, value) {
     this._map[this._key(name)] = value;
 };
 
-HashMap.prototype._key = function _key (name) {
+HashMap.prototype._key = function _key(name) {
     return name instanceof Date ? name.getTime() : name;
 };
 
@@ -34550,7 +34572,7 @@ var InstanceObserver = Class.extend({
 
     callObserver: function(fnName) {
         var args = [], len = arguments.length - 1;
-        while ( len-- > 0 ) args[ len ] = arguments[ len + 1 ];
+        while ( len-- > 0 ) {args[ len ] = arguments[ len + 1 ];}
 
         return this.observer[fnName].apply(this.observer, args);
     },
@@ -34724,7 +34746,7 @@ function parseMatrix(matrixString) {
         return Matrix.unit();
     }
 
-    var members = match[1].split(',').map(function (x) { return parseFloat(x); });
+    var members = match[1].split(',').map(function(x) { return parseFloat(x); });
     return new (Function.prototype.bind.apply( Matrix, [ null ].concat( members) ));
 }
 
@@ -34779,7 +34801,7 @@ var LegacySet = Class.extend({
     },
 
     values: function() {
-        return this._values.filter(function (item) { return item !== DELETED; });
+        return this._values.filter(function(item) { return item !== DELETED; });
     },
 
     has: function(value) {
@@ -34854,7 +34876,7 @@ if (Object.defineProperties) {
 }
 
 // TODO: Drop LegacySet when removing support for IE10
-var supportsSet = function () {
+var supportsSet = function() {
     var supported = false;
 
     if (typeof Set === 'function') {
@@ -35653,7 +35675,7 @@ var ChartElement = Class.extend({
             if (customVisual) {
                 highlight = this._highlight = customVisual(
                     $.extend(this.highlightVisualArgs(), {
-                        createVisual: function () { return this$1.createHighlight(highlightOptions); },
+                        createVisual: function() { return this$1.createHighlight(highlightOptions); },
                         sender: this.getSender(),
                         series: this.series,
                         dataItem: this.dataItem,
@@ -35730,7 +35752,7 @@ var BoxElement = ChartElement.extend({
         var borderWidth = options.border.width;
         var box;
 
-        var reflowPaddingBox = function () {
+        var reflowPaddingBox = function() {
             this$1.align(targetBox, X, options.align);
             this$1.align(targetBox, Y, options.vAlign);
             this$1.paddingBox = box.clone().unpad(margin).unpad(borderWidth);
@@ -35912,7 +35934,7 @@ var ShapeElement = BoxElement.extend({
                 category: pointData.category,
                 rect: this.paddingBox.toRect(),
                 options: this.visualOptions(),
-                createVisual: function () { return this$1.getElement(); }
+                createVisual: function() { return this$1.getElement(); }
             });
         } else {
             visual = this.getElement();
@@ -36544,7 +36566,7 @@ var TextBox = BoxElement.extend({
             rect: targetBox.toRect(),
             sender: this.getSender(),
             options: this.options,
-            createVisual: function () {
+            createVisual: function() {
                 this$1._boxReflow = true;
                 this$1.reflow(targetBox);
                 this$1._boxReflow = false;
@@ -36769,7 +36791,7 @@ var Note = BoxElement.extend({
             var label = options.label;
             var icon = options.icon;
             var box = new Box();
-            var childAlias = function () { return this$1; };
+            var childAlias = function() { return this$1; };
             var size = icon.size;
             var text = this.fields.text;
             var width, height;
@@ -36929,7 +36951,7 @@ var Note = BoxElement.extend({
                     position: options.position,
                     visible: options.visible
                 },
-                createVisual: function () {
+                createVisual: function() {
                     this$1.createVisual();
                     this$1.renderChildren();
                     var defaultVisual = this$1.visual;
@@ -37013,13 +37035,13 @@ setDefaultOptions(Note, {
 });
 
 var defaultImplementation = {
-    format: function (format, value) { return value; },
+    format: function(format, value) { return value; },
 
-    toString: function (value) { return value; },
+    toString: function(value) { return value; },
 
-    parseDate: function (value) { return new Date(value); },
+    parseDate: function(value) { return new Date(value); },
 
-    firstDay: function () { return 0; }
+    firstDay: function() { return 0; }
 };
 
 var current$1 = defaultImplementation;
@@ -37051,7 +37073,7 @@ var FormatService = Class.extend({
 
     auto: function(formatString) {
         var values = [], len = arguments.length - 1;
-        while ( len-- > 0 ) values[ len ] = arguments[ len + 1 ];
+        while ( len-- > 0 ) {values[ len ] = arguments[ len + 1 ];}
 
         var intl = this.intl;
 
@@ -37307,7 +37329,7 @@ var Axis = ChartElement.extend({
     },
 
     clearLabels: function() {
-        this.children = grep(this.children, function (child) { return !(child instanceof AxisLabel); });
+        this.children = grep(this.children, function(child) { return !(child instanceof AxisLabel); });
         this.labels = [];
     },
 
@@ -37315,7 +37337,7 @@ var Axis = ChartElement.extend({
         var this$1 = this;
 
         if (this.title) {
-            this.children = grep(this.children, function (child) { return child !== this$1.title; });
+            this.children = grep(this.children, function(child) { return child !== this$1.title; });
             this.title = undefined;
         }
     },
@@ -37540,7 +37562,7 @@ var Axis = ChartElement.extend({
             zIndex: -1
         });
 
-        var altAxis = grep(this.pane.axes, function (axis) { return axis.options.vertical !== this$1.options.vertical; })[0];
+        var altAxis = grep(this.pane.axes, function(axis) { return axis.options.vertical !== this$1.options.vertical; })[0];
 
         for (var idx = 0; idx < plotBands.length; idx++) {
             var item = plotBands[idx];
@@ -37913,7 +37935,7 @@ var Axis = ChartElement.extend({
 
         var text;
         var tmpl = getTemplate(options);
-        var defaultText = function () {
+        var defaultText = function() {
             if (!options.format) {
                 return value;
             }
@@ -38694,7 +38716,7 @@ var CategoryAxis = Axis.extend({
         }
 
         var axis = this.options.vertical ? Y : X;
-        var inRange = function (position) { return lineBox[axis + 1] <= position && position <= lineBox[axis + 2]; };
+        var inRange = function(position) { return lineBox[axis + 1] <= position && position <= lineBox[axis + 2]; };
 
         var end = positions.length - 1;
         var startIndex = 0;
@@ -39873,7 +39895,7 @@ var DateCategoryAxis = CategoryAxis.extend({
         var unitFormat = labelOptions.dateFormats[this.divisionRange.options.baseUnit];
         labelOptions.format = labelOptions.format || unitFormat;
 
-        var createLabel = function (index, date, text) {
+        var createLabel = function(index, date, text) {
             if (text) {
                 var label = new AxisLabel(date, text, index, null, labelOptions);
                 this$1.append(label);
@@ -39896,7 +39918,7 @@ var DateCategoryAxis = CategoryAxis.extend({
             return;
         }
 
-        var rotateLabel = function (label, tickPositions, index) {
+        var rotateLabel = function(label, tickPositions, index) {
             var width = Math.abs(tickPositions[index + 1] - tickPositions[index]) * 2;
             var angle = this$1.autoRotateLabelAngle(label.box, width);
             if (angle !== 0) {
@@ -40857,7 +40879,7 @@ var LogarithmicAxis = Axis.extend({
     getMajorTickPositions: function() {
         var ticks = [];
 
-        this.traverseMajorTicksPositions(function (position) {
+        this.traverseMajorTicksPositions(function(position) {
             ticks.push(position);
         }, { step: 1, skip: 0 });
 
@@ -41208,7 +41230,7 @@ var GridLinesMixin = {
         var options = altAxis.options;
         var altAxisVisible = options.visible && (options.line || {}).visible !== false;
 
-        return map(divs, function (d) {
+        return map(divs, function(d) {
             var alpha = this$1.intervalAngle(d);
 
             if (!altAxisVisible || alpha !== 90) {
@@ -41296,7 +41318,7 @@ var RadarCategoryAxis = CategoryAxis.extend({
     majorAngles: function() {
         var this$1 = this;
 
-        return map(this.majorIntervals(), function (interval) { return this$1.intervalAngle(interval); });
+        return map(this.majorIntervals(), function(interval) { return this$1.intervalAngle(interval); });
     },
 
     createLine: function() {
@@ -42251,14 +42273,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/core/core',[
         "./kendo-core"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     var dataviz = kendo.dataviz;
     var services = dataviz.services;
@@ -42351,13 +42373,13 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.dataviz.core',[
         "./dataviz/core/kendo-core",
         "./dataviz/core/core"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.core",
@@ -42368,18 +42390,18 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
  * your modifications will eventually be lost.  The source code is in
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
      define('dataviz/themes/chart-base-theme',[ "kendo.dataviz.core" ], f);
-})(function(){
+})(function() {
 
-(function () {
+(function() {
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 
@@ -42393,7 +42415,7 @@ var SANS16 = '16px ' + SANS;
 var TRANSPARENT = 'transparent';
 var WHITE = '#fff';
 
-var notes = function () { return ({
+var notes = function() { return ({
     icon: {
         border: {
             width: 1
@@ -42410,7 +42432,7 @@ var notes = function () { return ({
     visible: true
 }); };
 
-var axisDefaults = function () { return ({
+var axisDefaults = function() { return ({
     labels: {
         font: SANS12
     },
@@ -42421,7 +42443,7 @@ var axisDefaults = function () { return ({
     }
 }); };
 
-var areaSeries = function () { return ({
+var areaSeries = function() { return ({
     highlight: {
         markers: {
             border: {}
@@ -42438,7 +42460,7 @@ var areaSeries = function () { return ({
     opacity: 0.4
 }); };
 
-var rangeAreaSeries = function () { return ({
+var rangeAreaSeries = function() { return ({
     highlight: {
         markers: {
             border: {}
@@ -42455,12 +42477,12 @@ var rangeAreaSeries = function () { return ({
     opacity: 0.4
 }); };
 
-var barSeries = function () { return ({
+var barSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var boxPlotSeries = function () { return ({
+var boxPlotSeries = function() { return ({
     outliersField: "",
     meanField: "",
     border: {
@@ -42496,7 +42518,7 @@ var boxPlotSeries = function () { return ({
     }
 }); };
 
-var bubbleSeries = function () { return ({
+var bubbleSeries = function() { return ({
     border: {
         width: 0
     },
@@ -42506,7 +42528,7 @@ var bubbleSeries = function () { return ({
     opacity: 0.6
 }); };
 
-var bulletSeries = function () { return ({
+var bulletSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING,
     target: {
@@ -42514,7 +42536,7 @@ var bulletSeries = function () { return ({
     }
 }); };
 
-var candlestickSeries = function () { return ({
+var candlestickSeries = function() { return ({
     border: {
         _brightness: 0.8,
         width: 1
@@ -42537,20 +42559,20 @@ var candlestickSeries = function () { return ({
     spacing: 0.3
 }); };
 
-var columnSeries = function () { return ({
+var columnSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var donutSeries = function () { return ({
+var donutSeries = function() { return ({
     margin: 1
 }); };
 
-var lineSeries = function () { return ({
+var lineSeries = function() { return ({
     width: 2
 }); };
 
-var ohlcSeries = function () { return ({
+var ohlcSeries = function() { return ({
     gap: 1,
     highlight: {
         line: {
@@ -42564,7 +42586,7 @@ var ohlcSeries = function () { return ({
     spacing: 0.3
 }); };
 
-var radarAreaSeries = function () { return ({
+var radarAreaSeries = function() { return ({
     line: {
         opacity: 1,
         width: 0
@@ -42576,28 +42598,28 @@ var radarAreaSeries = function () { return ({
     opacity: 0.5
 }); };
 
-var radarLineSeries = function () { return ({
+var radarLineSeries = function() { return ({
     markers: {
         visible: false
     },
     width: 2
 }); };
 
-var rangeBarSeries = function () { return ({
+var rangeBarSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var rangeColumnSeries = function () { return ({
+var rangeColumnSeries = function() { return ({
     gap: BAR_GAP,
     spacing: BAR_SPACING
 }); };
 
-var scatterLineSeries = function () { return ({
+var scatterLineSeries = function() { return ({
     width: 1
 }); };
 
-var waterfallSeries = function () { return ({
+var waterfallSeries = function() { return ({
     gap: 0.5,
     line: {
         color: BLACK,
@@ -42606,7 +42628,7 @@ var waterfallSeries = function () { return ({
     spacing: BAR_SPACING
 }); };
 
-var pieSeries = function () { return ({
+var pieSeries = function() { return ({
     labels: {
         background: '',
         color: '',
@@ -42619,7 +42641,7 @@ var pieSeries = function () { return ({
     }
 }); };
 
-var funnelSeries = function () { return ({
+var funnelSeries = function() { return ({
     labels: {
         background: '',
         color: '',
@@ -42632,7 +42654,7 @@ var funnelSeries = function () { return ({
     }
 }); };
 
-var heatmapSeries = function () { return ({
+var heatmapSeries = function() { return ({
     labels: {
         color: '',
         background: TRANSPARENT,
@@ -42645,7 +42667,7 @@ var heatmapSeries = function () { return ({
     }
 }); };
 
-var seriesDefaults = function (options) { return ({
+var seriesDefaults = function(options) { return ({
     visible: true,
     labels: {
         font: SANS11
@@ -42684,17 +42706,17 @@ var seriesDefaults = function (options) { return ({
     waterfall: waterfallSeries()
 }); };
 
-var title = function () { return ({
+var title = function() { return ({
     font: SANS16
 }); };
 
-var legend = function () { return ({
+var legend = function() { return ({
     labels: {
         font: SANS12
     }
 }); };
 
-var baseTheme = function (options) {
+var baseTheme = function(options) {
     if (options === void 0) { options = {}; }
 
     return ({
@@ -42724,10 +42746,10 @@ kendo.deepExtend(kendo.dataviz, {
 
 })();
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
      define('dataviz/themes/auto-theme',[ "kendo.dataviz.core" ], f);
-})(function(){
+})(function() {
 
 (function($) {
     var cache;
@@ -42966,13 +42988,13 @@ kendo.deepExtend(kendo.dataviz, {
     kendo.dataviz.autoTheme = autoTheme;
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/themes/themes',[ "./chart-base-theme" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
     // Imports ================================================================
     var kendo = window.kendo,
@@ -46080,7 +46102,7 @@ kendo.deepExtend(kendo.dataviz, {
         }
     });
 
-    (function () {
+    (function() {
         var TEXT = "#333333";
         var INACTIVE = "#7f7f7f";
         var INACTIVE_SHAPE = "#bdbdbd";
@@ -46292,15 +46314,15 @@ kendo.deepExtend(kendo.dataviz, {
     })();
 
     (function() {
-        var TEXT            = "#4e4e4e";
-        var INACTIVE        = "#7f7f7f";
-        var INACTIVE_SHAPE  = "#bdbdbd";
-        var AXIS            = "#c8c8c8";
-        var AXIS_MINOR      = "#e5e5e5";
-        var SERIES          = ["#0072c6", "#5db2ff", "#008a17", "#82ba00", "#ff8f32", "#ac193d"];
-        var SERIES_LIGHT    = ["#cbe2f3", "#deeffe", "#cbe7d0", "#e5f0cb", "#fee8d5", "#eed0d7"];
-        var PRIMARY         = SERIES[0];
-        var DIAGRAM_HOVER   = WHITE;
+        var TEXT = "#4e4e4e";
+        var INACTIVE = "#7f7f7f";
+        var INACTIVE_SHAPE = "#bdbdbd";
+        var AXIS = "#c8c8c8";
+        var AXIS_MINOR = "#e5e5e5";
+        var SERIES = ["#0072c6", "#5db2ff", "#008a17", "#82ba00", "#ff8f32", "#ac193d"];
+        var SERIES_LIGHT = ["#cbe2f3", "#deeffe", "#cbe7d0", "#e5f0cb", "#fee8d5", "#eed0d7"];
+        var PRIMARY = SERIES[0];
+        var DIAGRAM_HOVER = WHITE;
 
         function noteStyle() {
             return {
@@ -46502,7 +46524,7 @@ kendo.deepExtend(kendo.dataviz, {
         });
     })();
 
-        (function () {
+        (function() {
         var TEXT = "#32364c";
         var INACTIVE = "#7f7f7f";
         var INACTIVE_SHAPE = "#bdbdbd";
@@ -46713,7 +46735,7 @@ kendo.deepExtend(kendo.dataviz, {
         });
     })();
 
-    (function () {
+    (function() {
         var SERIES = ["#ff6358", "#ffd246", "#78d237", "#28b4c8", "#2d73f5", "#aa46be"];
         var SERIES_LIGHT = ["#ffd9dc", "#ffeced", "#cceef3", "#e6f8fb", "#fff2da", "#fff7e8"];
 
@@ -46730,8 +46752,7 @@ kendo.deepExtend(kendo.dataviz, {
     })();
 
 
-
-    (function () {
+    (function() {
         var TEXT = "#292b2c";
         var AXIS = "rgba(0, 0, 0, .04)";
         var SERIES = ["#0275d8", "#5bc0de", "#5cb85c", "#f0ad4e", "#e67d4a", "#d9534f"];
@@ -46779,16 +46800,16 @@ kendo.deepExtend(kendo.dataviz, {
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.themes',[
         "kendo.dataviz.core",
         "./dataviz/themes/chart-base-theme",
         "./dataviz/themes/auto-theme",
         "./dataviz/themes/themes"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.themes",
@@ -46799,7 +46820,7 @@ var __meta__ = { // jshint ignore:line
     hidden: true
 };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
@@ -46807,16 +46828,16 @@ var __meta__ = { // jshint ignore:line
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/chart/kendo-chart',[
         "kendo.core",
         "kendo.color",
         "kendo.drawing",
         "kendo.dataviz.core"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 /* jshint expr: true */
 
 window.kendo.dataviz = window.kendo.dataviz || {};
@@ -47585,7 +47606,7 @@ var ErrorBarBase = ChartElement.extend({
                     color: options.color,
                     line: options.line
                 },
-                createVisual: function () {
+                createVisual: function() {
                     this$1.createDefaultVisual();
                     var defaultVisual = this$1.visual;
                     delete this$1.visual;
@@ -48052,7 +48073,7 @@ var CategoricalChart = ChartElement.extend({
         var categoryAxis = this.categoryAxis;
         var pointIx = 0;
 
-        this.traverseDataPoints(function (data, fields) {
+        this.traverseDataPoints(function(data, fields) {
             var categoryIx = fields.categoryIx;
             var currentSeries = fields.series;
 
@@ -48661,7 +48682,7 @@ var LineSegment = ChartElement.extend({
                 points: this.toGeometryPoints(this.linePoints),
                 series: this.series,
                 sender: this.getSender(),
-                createVisual: function () {
+                createVisual: function() {
                     this$1.segmentVisual();
 
                     return this$1.visual;
@@ -49123,7 +49144,7 @@ var AreaSegment = LineSegment.extend({
     },
 
     segmentsFromPoints: function(points) {
-        return points.map(function (point) { return new geometry.Segment(point); });
+        return points.map(function(point) { return new geometry.Segment(point); });
     },
 
     createStroke: function(style) {
@@ -49604,7 +49625,7 @@ var Bar = ChartElement.extend({
                     runningTotal: this.runningTotal,
                     total: this.total,
                     rect: box.toRect(),
-                    createVisual: function () {
+                    createVisual: function() {
                         var group = new Group();
                         this$1.createRect(group);
                         return group;
@@ -49819,7 +49840,7 @@ var ClusterLayout = ChartElement.extend({
         var slotSize = (vertical ? box.height() : box.width()) / slots;
         var position = box[axis + 1] + slotSize * (gap / 2);
 
-        this.forEach(children, function (child, idx) {
+        this.forEach(children, function(child, idx) {
             var childBox = (child.box || box).clone();
 
             childBox[axis + 1] = position;
@@ -51065,7 +51086,7 @@ var ScatterChart = ChartElement.extend({
         var limit = !this.options.clip;
         var pointIx = 0;
 
-        this.traverseDataPoints(function (value, fields) {
+        this.traverseDataPoints(function(value, fields) {
             var point = chartPoints[pointIx++];
             var seriesAxes = this$1.seriesAxes(fields.series);
             var slotX = seriesAxes.x.getSlot(value.x, value.x, limit);
@@ -53405,7 +53426,7 @@ var PlotAreaBase = ChartElement.extend({
 });
 
 function isSingleAxis(axis) {
-    return !axis.pane.axes.some(function (a) { return a.options.vertical === axis.options.vertical && a !== axis && a.options.visible !== false; }
+    return !axis.pane.axes.some(function(a) { return a.options.vertical === axis.options.vertical && a !== axis && a.options.visible !== false; }
     );
 }
 
@@ -53443,7 +53464,7 @@ function isTransparent(color) {
     return color === "" || color === null || color === "none" || color === "transparent" || !defined(color);
 }
 
-var allPaneAxes = function (panes) { return panes.reduce(function (acc, pane) { return acc.concat(pane.axes); }, []); };
+var allPaneAxes = function(panes) { return panes.reduce(function(acc, pane) { return acc.concat(pane.axes); }, []); };
 
 setDefaultOptions(PlotAreaBase, {
     series: [],
@@ -54013,11 +54034,11 @@ var RangeAreaSegment = AreaSegment.extend({
     },
 
     fromPoints: function() {
-        return this.linePoints.map(function (point) { return point.fromPoint; });
+        return this.linePoints.map(function(point) { return point.fromPoint; });
     },
 
     toPoints: function() {
-        return this.linePoints.map(function (point) { return point.toPoint; });
+        return this.linePoints.map(function(point) { return point.toPoint; });
     }
 });
 
@@ -54576,11 +54597,11 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         currentSeries.data = (currentSeries.data || []).slice(range.min, range.max + 1);
 
         if (outOfRangePoints) {
-            createOutOfRangePoints(currentSeries, range, dataLength, function (idx) { return ({
+            createOutOfRangePoints(currentSeries, range, dataLength, function(idx) { return ({
                 item: series.data[idx],
                 category: categoryAxis.categoryAt(idx, true),
                 categoryIx: idx - range.min
-            }); }, function (idx) { return defined(series.data[idx]); });
+            }); }, function(idx) { return defined(series.data[idx]); });
         }
 
         return currentSeries;
@@ -54642,7 +54663,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         var dataItems = categoryAxis.options.dataItems || [];
 
         var range = categoryAxis.currentRangeIndices();
-        var categoryItem = function (idx) {
+        var categoryItem = function(idx) {
             var categoryIdx = idx - range.min;
             var point = srcPoints[idx];
             if (!point) {
@@ -54670,7 +54691,7 @@ var CategoricalPlotArea = PlotAreaBase.extend({
         }
 
         if (inArray(result.type, OUT_OF_RANGE_SERIES)) {
-            createOutOfRangePoints(result, range, categoryAxis.totalCount(), categoryItem, function (idx) { return srcPoints[idx]; });
+            createOutOfRangePoints(result, range, categoryAxis.totalCount(), categoryItem, function(idx) { return srcPoints[idx]; });
         }
 
         categoryAxis.options.dataItems = dataItems;
@@ -55747,7 +55768,7 @@ var LegendItem = BoxElement.extend({
                     markers: this.markerOptions(),
                     labels: options.labels
                 },
-                createVisual: function () {
+                createVisual: function() {
                     this$1.createVisual();
                     this$1.renderChildren();
                     this$1.renderComplete();
@@ -56470,7 +56491,7 @@ var Selection = Class.extend({
                 clearTimeout(this._mwTimeout);
             }
 
-            this._mwTimeout = setTimeout(function () {
+            this._mwTimeout = setTimeout(function() {
                 this$1._end();
             }, MOUSEWHEEL_DELAY);
         }
@@ -57321,7 +57342,7 @@ var PieSegment = ChartElement.extend({
                     endAngle: startAngle + sector.angle,
                     options: options,
                     sender: this.getSender(),
-                    createVisual: function () {
+                    createVisual: function() {
                         var group = new Group();
                         this$1.createSegmentVisual(group);
 
@@ -57981,7 +58002,7 @@ var PieChart = ChartElement.extend({
     renderVisual: function() {
         ChartElement.fn.renderVisual.call(this);
 
-        if (dataviz.find(this.options.series, function (options) { return options.autoFit; })) {
+        if (dataviz.find(this.options.series, function(options) { return options.autoFit; })) {
             var targetBox = this.targetBox;
             var pieCenter = this.box.center();
             var bbox = this.visual.bbox();
@@ -58727,7 +58748,7 @@ var RadarClusterLayout = ChartElement.extend({
         var slotAngle = sector.angle / slots;
         var angle = sector.startAngle + slotAngle * (gap / 2);
 
-        this.forEach(children, function (child) {
+        this.forEach(children, function(child) {
             var slotSector = sector.clone();
             slotSector.startAngle = angle;
             slotSector.angle = slotAngle;
@@ -59002,7 +59023,7 @@ var FunnelSegment = ChartElement.extend({
                 points: this.points,
                 options: options,
                 sender: this.getSender(),
-                createVisual: function () { return this$1.createPath(); }
+                createVisual: function() { return this$1.createPath(); }
             });
         } else {
             visual = this.createPath();
@@ -59366,13 +59387,13 @@ var FunnelPlotArea = PlotAreaBase.extend({
 });
 
 // Linear color scale from the given color to white minus minimum lightness offset.
-var colorScale = function (color, minLightnessOffset) {
+var colorScale = function(color, minLightnessOffset) {
     if (minLightnessOffset === void 0) { minLightnessOffset = 0.05; }
 
     var baseColor = kendo.parseColor(color);
     var offset = 1 - minLightnessOffset;
 
-    return function (value) {
+    return function(value) {
         var hsl = baseColor.toHSL();
         var range = 100 - hsl.l;
         var point = offset - value;
@@ -59771,7 +59792,7 @@ var HeatmapChart = ChartElement.extend({
         var limit = !this.options.clip;
         var pointIx = 0;
 
-        this.traverseDataPoints(function (value, fields) {
+        this.traverseDataPoints(function(value, fields) {
             var point = chartPoints[pointIx++];
             var ref = this$1.seriesAxes(fields.series);
             var xAxis = ref.xAxis;
@@ -59965,7 +59986,7 @@ var HeatmapPlotArea = PlotAreaBase.extend({
         var xAxisOptions = [].concat(options.xAxis);
         var xAxisName = series.xAxis;
         if (xAxisName) {
-            xAxis = xAxisOptions.find(function (axis) { return axis.name === xAxisName; });
+            xAxis = xAxisOptions.find(function(axis) { return axis.name === xAxisName; });
         } else {
             xAxis = xAxisOptions[0];
         }
@@ -59973,7 +59994,7 @@ var HeatmapPlotArea = PlotAreaBase.extend({
         var yAxisOptions = [].concat(options.yAxis);
         var yAxisName = series.yAxis;
         if (yAxisName) {
-            yAxis = yAxisOptions.find(function (axis) { return axis.name === yAxisName; });
+            yAxis = yAxisOptions.find(function(axis) { return axis.name === yAxisName; });
         } else {
             yAxis = yAxisOptions[0];
         }
@@ -60296,7 +60317,7 @@ var Chart = Class.extend({
         this._initSurface();
 
         this.bindCategories();
-        dataviz.FontLoader.preloadFonts(userOptions, function () {
+        dataviz.FontLoader.preloadFonts(userOptions, function() {
             this$1.fontLoaded = true;
             if (!this$1._destroyed) {
                 this$1.trigger('init');
@@ -60360,7 +60381,7 @@ var Chart = Class.extend({
             this._size = size;
             this._resize(size, force);
             this.trigger("resize", size);
-        } else if (hasSize && this._selections && dataviz.find(this._selections, function (s) { return !s.visible; })) {
+        } else if (hasSize && this._selections && dataviz.find(this._selections, function(s) { return !s.visible; })) {
             this._destroySelections();
             this._setupSelection();
         }
@@ -61069,7 +61090,7 @@ var Chart = Class.extend({
                     mousewheelZoom.zoom();
                 }
 
-                this._mwTimeout = setTimeout(function () {
+                this._mwTimeout = setTimeout(function() {
                     this$1.trigger(ZOOM_END, args);
                     this$1._zooming = false;
                     if (this$1.surface) {
@@ -61111,7 +61132,7 @@ var Chart = Class.extend({
                     clearTimeout(this._mwTimeout);
                 }
 
-                this._mwTimeout = setTimeout(function () {
+                this._mwTimeout = setTimeout(function() {
                     this$1._endNavigation(e, ZOOM_END);
                 }, MOUSEWHEEL_DELAY);
             }
@@ -61250,7 +61271,7 @@ var Chart = Class.extend({
 
         //part of fix for hover issue on windows touch
         this.handlingTap = true;
-        setTimeout(function () {
+        setTimeout(function() {
             this$1.handlingTap = false;
         }, 0);
     },
@@ -61350,7 +61371,7 @@ var Chart = Class.extend({
     _getInactivePoints: function(activePoint, chartInstance) {
         var allPoints = this._getAllPointsOfType(chartInstance, activePoint.constructor);
 
-        return allPoints.filter(function (point) { return point !== activePoint; });
+        return allPoints.filter(function(point) { return point !== activePoint; });
     },
 
     _getAllPointsOfType: function(container, type) {
@@ -61446,7 +61467,7 @@ var Chart = Class.extend({
 
     _hasInactiveOpacity: function() {
         var hasDefaultInactiveOpacity = this.options.seriesDefaults.highlight.inactiveOpacity !== undefined;
-        var hasInactiveOpacity = this.options.series.filter(function (s) { return s.highlight.inactiveOpacity !== undefined; } ).length > 0;
+        var hasInactiveOpacity = this.options.series.filter(function(s) { return s.highlight.inactiveOpacity !== undefined; } ).length > 0;
         return hasDefaultInactiveOpacity || hasInactiveOpacity;
     },
 
@@ -62216,8 +62237,8 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/chart/chart',[
         "./kendo-chart",
         "kendo.data",
@@ -62226,9 +62247,9 @@ kendo.deepExtend(kendo.dataviz, {
         "kendo.drawing",
         "kendo.userevents"
     ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
 
     var NS = ".kendoChart";
     var kendo = window.kendo;
@@ -62329,7 +62350,7 @@ kendo.deepExtend(kendo.dataviz, {
                 delete userOptions.dataSource;
             }
 
-            this.options =  deepExtend({}, this.options, userOptions);
+            this.options = deepExtend({}, this.options, userOptions);
 
             this.wrapper = this.element;
             this._attachEvents();
@@ -62346,7 +62367,7 @@ kendo.deepExtend(kendo.dataviz, {
             kendo.notify(this, dataviz.ui);
         },
 
-        events:[
+        events: [
             DATABOUND,
             SERIES_CLICK,
             SERIES_HOVER,
@@ -63106,7 +63127,7 @@ kendo.deepExtend(kendo.dataviz, {
                     "opacity: #= d.opacity #;'>" +
                     '<div class="k-tooltip-content"></div>' +
                     '#if (!d.autoHide) {# <div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close" title="Close"></a></div> #}#' +
-                    "</div>", { useWithBlock: false, paramName: "d"});
+                    "</div>", { useWithBlock: false, paramName: "d" });
             }
 
             tooltip.element = $(tooltip.template(tooltip.options));
@@ -63246,7 +63267,7 @@ kendo.deepExtend(kendo.dataviz, {
         },
 
         show: function(e) {
-            var tooltip  = this;
+            var tooltip = this;
 
             this.anchor = e.anchor;
             this.element.css(normalizeStyle(e.style));
@@ -63284,7 +63305,7 @@ kendo.deepExtend(kendo.dataviz, {
             }
         },
 
-        _closeTooltip: function (e) {
+        _closeTooltip: function(e) {
             var target = $(e.target);
 
             if (!target.is(".k-chart-tooltip, .k-tooltip-content")) {
@@ -63355,7 +63376,7 @@ kendo.deepExtend(kendo.dataviz, {
             var element = this.element;
             if (element) {
                 element.fadeOut({
-                    always: function(){
+                    always: function() {
                         if (!tooltip.visible) {
                             element.off(MOUSELEAVE_NS).remove();
                         }
@@ -63625,14 +63646,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.chart',[
         "./dataviz/chart/kendo-chart",
         "./dataviz/chart/chart"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.chart",
@@ -63650,7 +63671,7 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
@@ -63658,16 +63679,16 @@ return window.kendo;
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/gauge/kendo-gauges',[
         "kendo.core",
         "kendo.color",
         "kendo.drawing",
         "kendo.dataviz.core"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -65975,14 +65996,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/gauge/main',[
         "./kendo-gauges"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var dataviz = kendo.dataviz;
@@ -65997,7 +66018,7 @@ kendo.deepExtend(kendo.dataviz, {
         var themeName = options.theme || "";
         var lowerName = themeName.toLowerCase();
 
-        if(dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
+        if (dataviz.SASS_THEMES.indexOf(lowerName) != -1) {
             return dataviz.autoTheme().gauge;
         }
 
@@ -66243,11 +66264,11 @@ kendo.deepExtend(kendo.dataviz, {
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.gauge',[ "./dataviz/gauge/main", "kendo.dataviz.themes" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.gauge",
@@ -66259,11 +66280,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.barcode',[ "kendo.dataviz.core", "kendo.drawing" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.barcode",
@@ -66273,7 +66294,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "dataviz.core" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
 
@@ -66296,23 +66317,23 @@ var __meta__ = { // jshint ignore:line
         alphanumericRegex = /^[a-z0-9]+$/i,
         InvalidCharacterErrorTemplate = "Character '{0}' is not valid for symbology {1}";
 
-    function getNext(value, index, count){
+    function getNext(value, index, count) {
         return value.substring(index, index + count);
     }
 
-    var Encoding  = kendo.Class.extend({
-        init: function (options) {
+    var Encoding = kendo.Class.extend({
+        init: function(options) {
             this.setOptions(options);
         },
-        setOptions: function(options){
+        setOptions: function(options) {
             var that = this;
             that.options = extend({}, that.options, options);
             that.quietZoneLength = that.options.addQuietZone ? 2 * that.options.quietZoneLength : 0;
         },
-        encode: function (value, width, height) {
+        encode: function(value, width, height) {
             var that = this;
             if (defined(value)) {
-                value+='';
+                value += '';
             }
 
             that.initValue(value, width, height);
@@ -66337,13 +66358,13 @@ var __meta__ = { // jshint ignore:line
             addQuietZone: true,
             addCheckSum: true
         },
-        initValue: function () {},
-        addQuietZone: function () {
+        initValue: function() {},
+        addQuietZone: function() {
             this.pattern.push(this.options.quietZoneLength || DEFAULT_QUIETZONE_LENGTH);
         },
-        addData: function () {
+        addData: function() {
         },
-        invalidCharacterError: function(character){
+        invalidCharacterError: function(character) {
             throw new Error(kendo.format(InvalidCharacterErrorTemplate, character, this.name));
         }
     });
@@ -66352,90 +66373,90 @@ var __meta__ = { // jshint ignore:line
 
     var code39Base = Encoding.extend({
         minBaseUnitLength: 0.7,
-        addData: function(){
+        addData: function() {
             var that = this,
-                value  = that.value;
+                value = that.value;
 
             that.addStart();
 
-            for(var idx = 0; idx < value.length; idx++){
+            for (var idx = 0; idx < value.length; idx++) {
                 that.addCharacter(value.charAt(idx));
             }
 
-            if(that.options.addCheckSum){
+            if (that.options.addCheckSum) {
                 that.pushCheckSum();
             }
 
             that.addStop();
             that.prepareValues();
         },
-        addCharacter: function(character){
+        addCharacter: function(character) {
             var that = this,
                 charData = that.characterMap[character];
-            if(!charData){
+            if (!charData) {
                 that.invalidCharacterError(character);
             }
             that.addBase(charData);
         },
-        addBase: function(){}
+        addBase: function() {}
     });
 
     var code39ExtendedBase = {
-        addCharacter: function(character){
+        addCharacter: function(character) {
             var that = this;
-            if(that.characterMap[character]){
+            if (that.characterMap[character]) {
                 that.addBase(that.characterMap[character]);
             }
-            else if(character.charCodeAt(0) > 127){
+            else if (character.charCodeAt(0) > 127) {
                 that.invalidCharacterError(character);
             }
-            else{
+            else {
                 that.addExtended(character.charCodeAt(0));
             }
         },
-        addExtended: function(code){
+        addExtended: function(code) {
             var that = this,
                 patterns;
-            for(var i = 0; i < that.extendedMappings.length; i++){
-                if((patterns = that.extendedMappings[i].call(that, code))){
-                    for(var j = 0; j < patterns.length; j++){
+            for (var i = 0; i < that.extendedMappings.length; i++) {
+                if ((patterns = that.extendedMappings[i].call(that, code))) {
+                    for (var j = 0; j < patterns.length; j++) {
                         that.addBase(patterns[j]);
                     }
-                    that.dataLength+= patterns.length - 1;
+                    that.dataLength += patterns.length - 1;
                     return;
                 }
             }
         },
         extendedMappings: [
-            function(code){
-                if(97 <= code && code <= 122){
+            function(code) {
+                if (97 <= code && code <= 122) {
                     var that = this;
                     return [that.characterMap[that.shiftCharacters[0]], that.characterMap[String.fromCharCode(code - 32)]];
                 }
             },
-            function(code){
-                if(33 <= code && code <= 58){
+            function(code) {
+                if (33 <= code && code <= 58) {
                     var that = this;
                     return [that.characterMap[that.shiftCharacters[1]], that.characterMap[String.fromCharCode(code + 32)]];
                 }
             },
-            function(code){
-                if(1 <= code && code <= 26){
+            function(code) {
+                if (1 <= code && code <= 26) {
                     var that = this;
                     return [that.characterMap[that.shiftCharacters[2]], that.characterMap[String.fromCharCode(code + 64)]];
                 }
             },
-            function(code){
+            function(code) {
                 var that = this,
                     result,
                     dataCharacter;
-                if(!that.specialAsciiCodes[code]){
-                    dataCharacter =  Math.floor(code / 32) * 6 + (code - 27) % 32 + 64;
+                if (!that.specialAsciiCodes[code]) {
+                    dataCharacter = Math.floor(code / 32) * 6 + (code - 27) % 32 + 64;
                     result = [that.characterMap[that.shiftCharacters[3]], that.characterMap[String.fromCharCode(dataCharacter)]];
                 }
-                else{
+                else {
                     result = [];
-                    for(var i = 0; i < that.specialAsciiCodes[code].length; i++){
+                    for (var i = 0; i < that.specialAsciiCodes[code].length; i++) {
                         result.push(that.characterMap[that.shiftCharacters[3]]);
                         result.push(that.characterMap[that.specialAsciiCodes[code][i]]);
                     }
@@ -66450,7 +66471,7 @@ var __meta__ = { // jshint ignore:line
             "96": ["W"],
             "127": ["T","X","Y","Z"]
         },
-        shiftValuesAsciiCodes:{
+        shiftValuesAsciiCodes: {
             "39": 36,
             "40": 47,
             "41": 43,
@@ -66465,14 +66486,14 @@ var __meta__ = { // jshint ignore:line
         shiftCharacters: ["SHIFT0", "SHIFT1", "SHIFT2", "SHIFT3"]
     };
 
-    encodings.code39 =  code39Base.extend({
+    encodings.code39 = code39Base.extend({
         name: "Code 39",
         checkSumMod: 43,
         minRatio: 2.5,
         maxRatio: 3,
         gapWidth: 1,
         splitCharacter: "|",
-        initValue: function (value, width, height) {
+        initValue: function(value, width, height) {
             var that = this;
             that.width = width;
             that.height = height;
@@ -66481,7 +66502,7 @@ var __meta__ = { // jshint ignore:line
             that.pattern = [];
             that.patternString = "";
         },
-        prepareValues: function(){
+        prepareValues: function() {
             var that = this,
                 baseUnit,
                 minBaseUnit = that.minBaseUnitLength,
@@ -66492,11 +66513,11 @@ var __meta__ = { // jshint ignore:line
                 throw new Error("Insufficient Height. The minimum height for value: " + that.value + " is: " + minHeight);
             }
 
-            while((baseUnit = that.getBaseUnit(ratio)) < minBaseUnit && ratio > minRatio){
+            while ((baseUnit = that.getBaseUnit(ratio)) < minBaseUnit && ratio > minRatio) {
                 ratio = parseFloat((ratio - 0.1).toFixed(1));
             }
 
-            if(baseUnit < minBaseUnit){
+            if (baseUnit < minBaseUnit) {
                 var minWidth = Math.ceil(that.getBaseWidth(minRatio) * minBaseUnit);
                 throw new Error("Insufficient width. The minimum width for value: " + that.value + " is: " + minWidth);
             }
@@ -66506,34 +66527,34 @@ var __meta__ = { // jshint ignore:line
             that.patternString = that.patternString.substring(0, that.patternString.length - 1);
             that.pattern = that.pattern.concat(that.patternString.replace(/ratio/g, ratio).split(that.splitCharacter));
         },
-        getBaseUnit: function(ratio){
+        getBaseUnit: function(ratio) {
             return this.width / this.getBaseWidth(ratio);
         },
-        getBaseWidth: function(ratio){
+        getBaseWidth: function(ratio) {
             var that = this,
                 characterLength = 3 * (ratio + 2);
             return that.quietZoneLength + characterLength * (that.dataLength + 2) + that.gapWidth * (that.dataLength + 1);
         },
-        addStart: function () {
+        addStart: function() {
             var that = this;
             that.addPattern(that.characterMap.START.pattern);
             that.addCharacterGap();
         },
-        addBase: function(character){
+        addBase: function(character) {
             this.addPattern(character.pattern);
             this.addCharacterGap();
         },
-        addStop: function () {
+        addStop: function() {
             this.addPattern(this.characterMap.START.pattern);
         },
-        addPattern: function (pattern) {
+        addPattern: function(pattern) {
             for (var i = 0; i < pattern.length; i++) {
-                 this.patternString+= this.patternMappings[pattern.charAt(i)];
+                 this.patternString += this.patternMappings[pattern.charAt(i)];
             }
         },
-        addCharacterGap: function () {
+        addCharacterGap: function() {
             var that = this;
-            that.patternString+=that.gapWidth + that.splitCharacter;
+            that.patternString += that.gapWidth + that.splitCharacter;
         },
         patternMappings: {
             "b": "1|",
@@ -66542,50 +66563,50 @@ var __meta__ = { // jshint ignore:line
             "W": "ratio|"
         },
         characterMap: {
-            "0":{"pattern":"bwbWBwBwb","value":0},
-            "1":{"pattern":"BwbWbwbwB","value":1},
-            "2":{"pattern":"bwBWbwbwB","value":2},
-            "3":{"pattern":"BwBWbwbwb","value":3},
-            "4":{"pattern":"bwbWBwbwB","value":4},
-            "5":{"pattern":"BwbWBwbwb","value":5},
-            "6":{"pattern":"bwBWBwbwb","value":6},
-            "7":{"pattern":"bwbWbwBwB","value":7},
-            "8":{"pattern":"BwbWbwBwb","value":8},
-            "9":{"pattern":"bwBWbwBwb","value":9},
-            "A":{"pattern":"BwbwbWbwB","value":10},
-            "B":{"pattern":"bwBwbWbwB","value":11},
-            "C":{"pattern":"BwBwbWbwb","value":12},
-            "D":{"pattern":"bwbwBWbwB","value":13},
-            "E":{"pattern":"BwbwBWbwb","value":14},
-            "F":{"pattern":"bwBwBWbwb","value":15},
-            "G":{"pattern":"bwbwbWBwB","value":16},
-            "H":{"pattern":"BwbwbWBwb","value":17},
-            "I":{"pattern":"bwBwbWBwb","value":18},
-            "J":{"pattern":"bwbwBWBwb","value":19},
-            "K":{"pattern":"BwbwbwbWB","value":20},
-            "L":{"pattern":"bwBwbwbWB","value":21},
-            "M":{"pattern":"BwBwbwbWb","value":22},
-            "N":{"pattern":"bwbwBwbWB","value":23},
-            "O":{"pattern":"BwbwBwbWb","value":24},
-            "P":{"pattern":"bwBwBwbWb","value":25},
-            "Q":{"pattern":"bwbwbwBWB","value":26},
-            "R":{"pattern":"BwbwbwBWb","value":27},
-            "S":{"pattern":"bwBwbwBWb","value":28},
-            "T":{"pattern":"bwbwBwBWb","value":29},
-            "U":{"pattern":"BWbwbwbwB","value":30},
-            "V":{"pattern":"bWBwbwbwB","value":31},
-            "W":{"pattern":"BWBwbwbwb","value":32},
-            "X":{"pattern":"bWbwBwbwB","value":33},
-            "Y":{"pattern":"BWbwBwbwb","value":34},
-            "Z":{"pattern":"bWBwBwbwb","value":35},
-            "-":{"pattern":"bWbwbwBwB","value":36},
-            ".":{"pattern":"BWbwbwBwb","value":37},
-            " ":{"pattern":"bWBwbwBwb","value":38},
-            "$":{"pattern":"bWbWbWbwb","value":39},
-            "/":{"pattern":"bWbWbwbWb","value":40},
-            "+":{"pattern":"bWbwbWbWb","value":41},
-            "%":{"pattern":"bwbWbWbWb","value":42},
-            START: { pattern: "bWbwBwBwb"}
+            "0": { "pattern": "bwbWBwBwb","value": 0 },
+            "1": { "pattern": "BwbWbwbwB","value": 1 },
+            "2": { "pattern": "bwBWbwbwB","value": 2 },
+            "3": { "pattern": "BwBWbwbwb","value": 3 },
+            "4": { "pattern": "bwbWBwbwB","value": 4 },
+            "5": { "pattern": "BwbWBwbwb","value": 5 },
+            "6": { "pattern": "bwBWBwbwb","value": 6 },
+            "7": { "pattern": "bwbWbwBwB","value": 7 },
+            "8": { "pattern": "BwbWbwBwb","value": 8 },
+            "9": { "pattern": "bwBWbwBwb","value": 9 },
+            "A": { "pattern": "BwbwbWbwB","value": 10 },
+            "B": { "pattern": "bwBwbWbwB","value": 11 },
+            "C": { "pattern": "BwBwbWbwb","value": 12 },
+            "D": { "pattern": "bwbwBWbwB","value": 13 },
+            "E": { "pattern": "BwbwBWbwb","value": 14 },
+            "F": { "pattern": "bwBwBWbwb","value": 15 },
+            "G": { "pattern": "bwbwbWBwB","value": 16 },
+            "H": { "pattern": "BwbwbWBwb","value": 17 },
+            "I": { "pattern": "bwBwbWBwb","value": 18 },
+            "J": { "pattern": "bwbwBWBwb","value": 19 },
+            "K": { "pattern": "BwbwbwbWB","value": 20 },
+            "L": { "pattern": "bwBwbwbWB","value": 21 },
+            "M": { "pattern": "BwBwbwbWb","value": 22 },
+            "N": { "pattern": "bwbwBwbWB","value": 23 },
+            "O": { "pattern": "BwbwBwbWb","value": 24 },
+            "P": { "pattern": "bwBwBwbWb","value": 25 },
+            "Q": { "pattern": "bwbwbwBWB","value": 26 },
+            "R": { "pattern": "BwbwbwBWb","value": 27 },
+            "S": { "pattern": "bwBwbwBWb","value": 28 },
+            "T": { "pattern": "bwbwBwBWb","value": 29 },
+            "U": { "pattern": "BWbwbwbwB","value": 30 },
+            "V": { "pattern": "bWBwbwbwB","value": 31 },
+            "W": { "pattern": "BWBwbwbwb","value": 32 },
+            "X": { "pattern": "bWbwBwbwB","value": 33 },
+            "Y": { "pattern": "BWbwBwbwb","value": 34 },
+            "Z": { "pattern": "bWBwBwbwb","value": 35 },
+            "-": { "pattern": "bWbwbwBwB","value": 36 },
+            ".": { "pattern": "BWbwbwBwb","value": 37 },
+            " ": { "pattern": "bWBwbwBwb","value": 38 },
+            "$": { "pattern": "bWbWbWbwb","value": 39 },
+            "/": { "pattern": "bWbWbwbWb","value": 40 },
+            "+": { "pattern": "bWbwbWbWb","value": 41 },
+            "%": { "pattern": "bwbWbWbWb","value": 42 },
+            START: { pattern: "bWbwBwBwb" }
         },
         options: {
             addCheckSum: false
@@ -66595,10 +66616,10 @@ var __meta__ = { // jshint ignore:line
     encodings.code39extended = encodings.code39.extend(deepExtend({}, code39ExtendedBase, {
         name: "Code 39 extended",
         characterMap: {
-            SHIFT0: {"pattern":"bWbwbWbWb","value":41},
-            SHIFT1: {"pattern":"bWbWbwbWb","value":40},
-            SHIFT2: {"pattern":"bWbWbWbwb","value":39},
-            SHIFT3: {"pattern":"bwbWbWbWb","value":42}
+            SHIFT0: { "pattern": "bWbwbWbWb","value": 41 },
+            SHIFT1: { "pattern": "bWbWbwbWb","value": 40 },
+            SHIFT2: { "pattern": "bWbWbWbwb","value": 39 },
+            SHIFT3: { "pattern": "bwbWbWbWb","value": 42 }
         }
     }));
 
@@ -66607,7 +66628,7 @@ var __meta__ = { // jshint ignore:line
         cCheckSumTotal: 20,
         kCheckSumTotal: 15,
         checkSumMod: 47,
-        initValue: function(value, width, height){
+        initValue: function(value, width, height) {
             var that = this;
             that.value = value;
             that.width = width;
@@ -66616,7 +66637,7 @@ var __meta__ = { // jshint ignore:line
             that.values = [];
             that.dataLength = value.length;
         },
-        prepareValues: function(){
+        prepareValues: function() {
             var that = this,
                 minHeight = Math.max(0.15 * that.width, 24);
             if (that.height < minHeight) {
@@ -66625,40 +66646,40 @@ var __meta__ = { // jshint ignore:line
 
             that.setBaseUnit();
 
-            if(that.baseUnit < that.minBaseUnitLength){
+            if (that.baseUnit < that.minBaseUnitLength) {
                 throw new Error("Insufficient Width");
             }
         },
-        setBaseUnit: function(){
+        setBaseUnit: function() {
             var that = this,
                 checkSumLength = 2;
             that.baseUnit = that.width / (9 * (that.dataLength + 2 + checkSumLength) + that.quietZoneLength + 1);
         },
-        addStart: function(){
+        addStart: function() {
             var pattern = this.characterMap.START.pattern;
             this.addPattern(pattern);
         },
-        addStop: function(){
+        addStop: function() {
             var that = this;
             that.addStart();
             that.pattern.push(that.characterMap.TERMINATION_BAR);
         },
-        addBase: function(charData){
+        addBase: function(charData) {
             this.addPattern(charData.pattern);
             this.values.push(charData.value);
         },
-        pushCheckSum: function(){
+        pushCheckSum: function() {
             var that = this,
                 checkValues = that._getCheckValues(),
                 charData;
 
             that.checksum = checkValues.join("");
-            for(var i = 0; i < checkValues.length; i++){
+            for (var i = 0; i < checkValues.length; i++) {
                 charData = that.characterMap[that._findCharacterByValue(checkValues[i])];
                 that.addPattern(charData.pattern);
             }
         },
-        _getCheckValues: function(){
+        _getCheckValues: function() {
             var that = this,
                 values = that.values,
                 length = values.length,
@@ -66667,105 +66688,105 @@ var __meta__ = { // jshint ignore:line
                 kValue,
                 idx;
 
-            for(idx = length - 1; idx >= 0; idx--){
+            for (idx = length - 1; idx >= 0; idx--) {
                 wightedSum += that.weightedValue(values[idx],length - idx, that.cCheckSumTotal);
             }
             cValue = wightedSum % that.checkSumMod;
 
             wightedSum = that.weightedValue(cValue, 1, that.kCheckSumTotal);
-            for(idx = length - 1; idx >= 0; idx--){
+            for (idx = length - 1; idx >= 0; idx--) {
                 wightedSum += that.weightedValue(values[idx], length - idx + 1, that.kCheckSumTotal);
             }
 
             kValue = wightedSum % that.checkSumMod;
             return [cValue, kValue];
         },
-        _findCharacterByValue: function (value) {
+        _findCharacterByValue: function(value) {
             for (var character in this.characterMap) {
                 if (this.characterMap[character].value === value) {
                     return character;
                 }
             }
         },
-        weightedValue: function(value, index, total){
+        weightedValue: function(value, index, total) {
             return (index % total || total) * value;
         },
-        addPattern: function(pattern){
+        addPattern: function(pattern) {
             var value;
 
-            for(var i = 0; i < pattern.length; i++){
+            for (var i = 0; i < pattern.length; i++) {
                 value = parseInt(pattern.charAt(i),10);
                 this.pattern.push(value);
             }
         },
         characterMap: {
-            "0":{"pattern":"131112","value":0},
-            "1":{"pattern":"111213","value":1},
-            "2":{"pattern":"111312","value":2},
-            "3":{"pattern":"111411","value":3},
-            "4":{"pattern":"121113","value":4},
-            "5":{"pattern":"121212","value":5},
-            "6":{"pattern":"121311","value":6},
-            "7":{"pattern":"111114","value":7},
-            "8":{"pattern":"131211","value":8},
-            "9":{"pattern":"141111","value":9},
-            "A":{"pattern":"211113","value":10},
-            "B":{"pattern":"211212","value":11},
-            "C":{"pattern":"211311","value":12},
-            "D":{"pattern":"221112","value":13},
-            "E":{"pattern":"221211","value":14},
-            "F":{"pattern":"231111","value":15},
-            "G":{"pattern":"112113","value":16},
-            "H":{"pattern":"112212","value":17},
-            "I":{"pattern":"112311","value":18},
-            "J":{"pattern":"122112","value":19},
-            "K":{"pattern":"132111","value":20},
-            "L":{"pattern":"111123","value":21},
-            "M":{"pattern":"111222","value":22},
-            "N":{"pattern":"111321","value":23},
-            "O":{"pattern":"121122","value":24},
-            "P":{"pattern":"131121","value":25},
-            "Q":{"pattern":"212112","value":26},
-            "R":{"pattern":"212211","value":27},
-            "S":{"pattern":"211122","value":28},
-            "T":{"pattern":"211221","value":29},
-            "U":{"pattern":"221121","value":30},
-            "V":{"pattern":"222111","value":31},
-            "W":{"pattern":"112122","value":32},
-            "X":{"pattern":"112221","value":33},
-            "Y":{"pattern":"122121","value":34},
-            "Z":{"pattern":"123111","value":35},
-            "-":{"pattern":"121131","value":36},
-            ".":{"pattern":"311112","value":37},
-            " ":{"pattern":"311211","value":38},
-            "$":{"pattern":"321111","value":39},
-            "/":{"pattern":"112131","value":40},
-            "+":{"pattern":"113121","value":41},
-            "%":{"pattern":"211131","value":42},
-            SHIFT0:{"pattern":"122211","value":46},
-            SHIFT1:{"pattern":"311121","value":45},
-            SHIFT2:{"pattern":"121221","value":43},
-            SHIFT3:{"pattern":"312111","value":44},
-            START: {"pattern":"111141"},
+            "0": { "pattern": "131112","value": 0 },
+            "1": { "pattern": "111213","value": 1 },
+            "2": { "pattern": "111312","value": 2 },
+            "3": { "pattern": "111411","value": 3 },
+            "4": { "pattern": "121113","value": 4 },
+            "5": { "pattern": "121212","value": 5 },
+            "6": { "pattern": "121311","value": 6 },
+            "7": { "pattern": "111114","value": 7 },
+            "8": { "pattern": "131211","value": 8 },
+            "9": { "pattern": "141111","value": 9 },
+            "A": { "pattern": "211113","value": 10 },
+            "B": { "pattern": "211212","value": 11 },
+            "C": { "pattern": "211311","value": 12 },
+            "D": { "pattern": "221112","value": 13 },
+            "E": { "pattern": "221211","value": 14 },
+            "F": { "pattern": "231111","value": 15 },
+            "G": { "pattern": "112113","value": 16 },
+            "H": { "pattern": "112212","value": 17 },
+            "I": { "pattern": "112311","value": 18 },
+            "J": { "pattern": "122112","value": 19 },
+            "K": { "pattern": "132111","value": 20 },
+            "L": { "pattern": "111123","value": 21 },
+            "M": { "pattern": "111222","value": 22 },
+            "N": { "pattern": "111321","value": 23 },
+            "O": { "pattern": "121122","value": 24 },
+            "P": { "pattern": "131121","value": 25 },
+            "Q": { "pattern": "212112","value": 26 },
+            "R": { "pattern": "212211","value": 27 },
+            "S": { "pattern": "211122","value": 28 },
+            "T": { "pattern": "211221","value": 29 },
+            "U": { "pattern": "221121","value": 30 },
+            "V": { "pattern": "222111","value": 31 },
+            "W": { "pattern": "112122","value": 32 },
+            "X": { "pattern": "112221","value": 33 },
+            "Y": { "pattern": "122121","value": 34 },
+            "Z": { "pattern": "123111","value": 35 },
+            "-": { "pattern": "121131","value": 36 },
+            ".": { "pattern": "311112","value": 37 },
+            " ": { "pattern": "311211","value": 38 },
+            "$": { "pattern": "321111","value": 39 },
+            "/": { "pattern": "112131","value": 40 },
+            "+": { "pattern": "113121","value": 41 },
+            "%": { "pattern": "211131","value": 42 },
+            SHIFT0: { "pattern": "122211","value": 46 },
+            SHIFT1: { "pattern": "311121","value": 45 },
+            SHIFT2: { "pattern": "121221","value": 43 },
+            SHIFT3: { "pattern": "312111","value": 44 },
+            START: { "pattern": "111141" },
             TERMINATION_BAR: "1"
         }
     });
 
     encodings.code93extended = encodings.code93.extend(deepExtend({}, code39ExtendedBase, {
         name: "Code 93 extended",
-        pushCheckSum: function(){
+        pushCheckSum: function() {
             var that = this,
                 checkValues = that._getCheckValues(),
                 value;
 
             that.checksum = checkValues.join("");
 
-            for(var i = 0; i < checkValues.length; i++){
+            for (var i = 0; i < checkValues.length; i++) {
                 value = checkValues[i];
-                if(that.shiftValuesAsciiCodes[value]){
+                if (that.shiftValuesAsciiCodes[value]) {
                     that.addExtended(that.shiftValuesAsciiCodes[value]);
                 }
-                else{
+                else {
                     that.addPattern(that.characterMap[that._findCharacterByValue(value)].pattern);
                 }
             }
@@ -66773,88 +66794,88 @@ var __meta__ = { // jshint ignore:line
     }));
 
     var state128 = kendo.Class.extend({
-        init: function(encoding){
+        init: function(encoding) {
             this.encoding = encoding;
         },
-        addStart: function(){},
-        is: function (){},
-        move: function (){},
-        pushState: function(){}
+        addStart: function() {},
+        is: function() {},
+        move: function() {},
+        pushState: function() {}
     });
 
     var state128AB = state128.extend({
         FNC4: "FNC4",
-        init: function(encoding, states){
+        init: function(encoding, states) {
             var that = this;
             that.encoding = encoding;
             that.states = states;
             that._initMoves(states);
         },
-        addStart: function(){
+        addStart: function() {
             this.encoding.addPattern(this.START);
         },
-        is: function (value, index){
+        is: function(value, index) {
             var code = value.charCodeAt(index);
             return this.isCode(code);
         },
-        move: function(encodingState){
+        move: function(encodingState) {
             var that = this,
                 idx = 0;
 
-            while(!that._moves[idx].call(that, encodingState) && idx < that._moves.length){
+            while (!that._moves[idx].call(that, encodingState) && idx < that._moves.length) {
                 idx++;
             }
         },
-        pushState: function(encodingState){
+        pushState: function(encodingState) {
             var that = this,
                 states = that.states,
                 value = encodingState.value,
                 maxLength = value.length,
                 code;
 
-            if(inArray("C", states) >= 0){
+            if (inArray("C", states) >= 0) {
                 var numberMatch = value.substr(encodingState.index).match(/\d{4,}/g);
-                if(numberMatch){
+                if (numberMatch) {
                     maxLength = value.indexOf(numberMatch[0], encodingState.index);
                 }
             }
 
-            while((code = encodingState.value.charCodeAt(encodingState.index)) >= 0 &&
-                that.isCode(code) && encodingState.index < maxLength){
+            while ((code = encodingState.value.charCodeAt(encodingState.index)) >= 0 &&
+                that.isCode(code) && encodingState.index < maxLength) {
                 that.encoding.addPattern(that.getValue(code));
                 encodingState.index++;
             }
         },
-        _initMoves: function(states){
+        _initMoves: function(states) {
             var that = this;
             that._moves = [];
 
-            if(inArray(that.FNC4, states) >= 0){
+            if (inArray(that.FNC4, states) >= 0) {
                 that._moves.push(that._moveFNC);
             }
 
-            if(inArray(that.shiftKey, states) >= 0){
+            if (inArray(that.shiftKey, states) >= 0) {
                 that._moves.push(that._shiftState);
             }
             that._moves.push(that._moveState);
         },
-        _moveFNC: function(encodingState){
-            if(encodingState.fnc){
+        _moveFNC: function(encodingState) {
+            if (encodingState.fnc) {
                 encodingState.fnc = false;
                 return encodingState.previousState == this.key;
             }
         },
-        _shiftState: function(encodingState){
+        _shiftState: function(encodingState) {
             var that = this;
-            if(encodingState.previousState == that.shiftKey &&
+            if (encodingState.previousState == that.shiftKey &&
                 (encodingState.index + 1 >= encodingState.value.length ||
-                    that.encoding[that.shiftKey].is(encodingState.value, encodingState.index + 1))){
+                    that.encoding[that.shiftKey].is(encodingState.value, encodingState.index + 1))) {
                 that.encoding.addPattern(that.SHIFT);
                 encodingState.shifted = true;
                 return true;
             }
         },
-        _moveState: function(){
+        _moveState: function() {
             this.encoding.addPattern(this.MOVE);
             return true;
         },
@@ -66866,11 +66887,11 @@ var __meta__ = { // jshint ignore:line
     states128.A = state128AB.extend({
         key: "A",
         shiftKey: "B",
-        isCode: function(code){
-            return 0 <= code && code < 96;
+        isCode: function(code) {
+            return code >= 0 && code < 96;
         },
-        getValue: function(code){
-            if(code < 32){
+        getValue: function(code) {
+            if (code < 32) {
                 return code + 64;
             }
 
@@ -66883,10 +66904,10 @@ var __meta__ = { // jshint ignore:line
     states128.B = state128AB.extend({
         key: "B",
         shiftKey: "A",
-        isCode: function(code){
-            return 32 <= code && code < 128;
+        isCode: function(code) {
+            return code >= 32 && code < 128;
         },
-        getValue: function(code){
+        getValue: function(code) {
             return code - 32;
         },
         MOVE: 100,
@@ -66895,26 +66916,26 @@ var __meta__ = { // jshint ignore:line
 
     states128.C = state128.extend({
         key: "C",
-        addStart: function(){
+        addStart: function() {
             this.encoding.addPattern(this.START);
         },
-        is: function (value, index){
+        is: function(value, index) {
             var next4 = getNext(value, index, 4);
             return (index + 4 <= value.length || value.length == 2) && numberRegex.test(next4);
         },
-        move: function (){
+        move: function() {
             this.encoding.addPattern(this.MOVE);
         },
-        pushState: function(encodingState){
+        pushState: function(encodingState) {
             var code;
-            while(( code = getNext(encodingState.value, encodingState.index, 2)) &&
+            while (( code = getNext(encodingState.value, encodingState.index, 2)) &&
                 numberRegex.test(code) && code.length == 2)
             {
                 this.encoding.addPattern(parseInt(code, 10));
-                encodingState.index+=2;
+                encodingState.index += 2;
             }
         },
-        getValue: function(code){
+        getValue: function(code) {
             return code;
         },
         MOVE: 99,
@@ -66924,36 +66945,36 @@ var __meta__ = { // jshint ignore:line
     states128.FNC4 = state128.extend({
         key: "FNC4",
         dependentStates: ["A","B"],
-        init: function(encoding, states){
+        init: function(encoding, states) {
             this.encoding = encoding;
             this._initSubStates(states);
         },
-        addStart: function(encodingState){
+        addStart: function(encodingState) {
             var code = encodingState.value.charCodeAt(0) - 128,
                 subState = this._getSubState(code);
 
             this.encoding[subState].addStart();
         },
-        is: function(value, index){
+        is: function(value, index) {
             var code = value.charCodeAt(index);
             return this.isCode(code);
         },
-        isCode: function(code){
-            return 128 <= code && code < 256;
+        isCode: function(code) {
+            return code >= 128 && code < 256;
         },
-        pushState: function(encodingState){
+        pushState: function(encodingState) {
             var that = this,
                 subState = that._initSubState(encodingState),
                 encoding = that.encoding,
                 length = subState.value.length;
             encodingState.index += length;
 
-            if(length < 3){
+            if (length < 3) {
                 var code;
-                for(; subState.index < length; subState.index++){
+                for (; subState.index < length; subState.index++) {
                     code = subState.value.charCodeAt(subState.index);
                     subState.state = that._getSubState(code);
-                    if(subState.previousState != subState.state){
+                    if (subState.previousState != subState.state) {
                         subState.previousState = subState.state;
                         encoding[subState.state].move(subState);
                     }
@@ -66961,13 +66982,13 @@ var __meta__ = { // jshint ignore:line
                     encoding.addPattern(encoding[subState.state].getValue(code));
                 }
             }
-            else{
-                if(subState.state != subState.previousState){
+            else {
+                if (subState.state != subState.previousState) {
                     encoding[subState.state].move(subState);
                 }
                 that._pushStart(subState);
                 encoding.pushData(subState, that.subStates);
-                if(encodingState.index < encodingState.value.length){
+                if (encodingState.index < encodingState.value.length) {
                     that._pushStart(subState);
                 }
             }
@@ -66975,12 +66996,12 @@ var __meta__ = { // jshint ignore:line
             encodingState.fnc = true;
             encodingState.state = subState.state;
         },
-        _pushStart: function(subState){
+        _pushStart: function(subState) {
             var that = this;
             that.encoding.addPattern(that.encoding[subState.state].MOVE);
             that.encoding.addPattern(that.encoding[subState.state].MOVE);
         },
-        _initSubState: function(encodingState){
+        _initSubState: function(encodingState) {
             var that = this,
                 subState = {
                     value: that._getAll(encodingState.value, encodingState.index),
@@ -66991,27 +67012,27 @@ var __meta__ = { // jshint ignore:line
                 subState.state : encodingState.previousState;
             return subState;
         },
-        _initSubStates: function(states){
+        _initSubStates: function(states) {
             var that = this;
             that.subStates = [];
-            for(var i = 0; i < states.length; i++){
-                if(inArray(states[i], that.dependentStates) >= 0){
+            for (var i = 0; i < states.length; i++) {
+                if (inArray(states[i], that.dependentStates) >= 0) {
                     that.subStates.push(states[i]);
                 }
             }
         },
-        _getSubState: function(code){
+        _getSubState: function(code) {
             var that = this;
-            for(var i = 0; i < that.subStates.length; i++){
-                if(that.encoding[that.subStates[i]].isCode(code)){
+            for (var i = 0; i < that.subStates.length; i++) {
+                if (that.encoding[that.subStates[i]].isCode(code)) {
                     return that.subStates[i];
                 }
             }
         },
-        _getAll: function(value, index){
+        _getAll: function(value, index) {
             var code,
                 result = "";
-            while((code = value.charCodeAt(index++)) && this.isCode(code)){
+            while ((code = value.charCodeAt(index++)) && this.isCode(code)) {
                 result += String.fromCharCode(code - 128);
             }
             return result;
@@ -67024,23 +67045,23 @@ var __meta__ = { // jshint ignore:line
         dependentStates: ["C","B"],
         startAI: "(",
         endAI: ")",
-        init: function(encoding, states){
+        init: function(encoding, states) {
             this.encoding = encoding;
             this.states = states;
         },
-        addStart: function(){
+        addStart: function() {
             this.encoding[this.startState].addStart();
         },
-        is: function(){
+        is: function() {
             return inArray(this.key, this.states) >= 0;
         },
-        pushState: function(encodingState){
+        pushState: function(encodingState) {
             var that = this,
                 encoding = that.encoding,
                 value = encodingState.value.replace(/\s/g, ""),
-                regexSeparators = new RegExp("[" +  that.startAI + that.endAI + "]", "g"),
+                regexSeparators = new RegExp("[" + that.startAI + that.endAI + "]", "g"),
                 index = encodingState.index,
-                subState= {
+                subState = {
                     state: that.startState
                 },
                 current,
@@ -67049,18 +67070,18 @@ var __meta__ = { // jshint ignore:line
 
             encoding.addPattern(that.START);
 
-            while(true){
+            while (true) {
                 subState.index = 0;
 
                 separatorLength = value.charAt(index) === that.startAI ? 2 : 0;
                 current = separatorLength > 0 ? that.getBySeparator(value, index) : that.getByLength(value, index);
-                if(current.ai.length){
+                if (current.ai.length) {
                     nextStart = index + separatorLength + current.id.length + current.ai.length;
                 }
-                else{
+                else {
                     nextStart = value.indexOf(that.startAI, index + 1);
-                    if(nextStart < 0){
-                        if(index + current.ai.max + current.id.length + separatorLength < value.length){
+                    if (nextStart < 0) {
+                        if (index + current.ai.max + current.id.length + separatorLength < value.length) {
                             throw new Error("Separators are required after variable length identifiers");
                         }
                         nextStart = value.length;
@@ -67071,54 +67092,54 @@ var __meta__ = { // jshint ignore:line
 
                 encoding.pushData(subState, that.dependentStates);
 
-                if(nextStart >= value.length){
+                if (nextStart >= value.length) {
                     break;
                 }
 
                 index = nextStart;
 
-                if(subState.state != that.startState){
+                if (subState.state != that.startState) {
                     encoding[that.startState].move(subState);
                     subState.state = that.startState;
                 }
 
-                if(!current.ai.length){
+                if (!current.ai.length) {
                     encoding.addPattern(that.START);
                 }
             }
             encodingState.index = encodingState.value.length;
         },
-        validate: function(current, value){
+        validate: function(current, value) {
             var code = value.substr(current.id.length),
                 ai = current.ai;
-            if(!ai.type && !numberRegex.test(code)){
-                throw new Error("Application identifier " + current.id+ " is numeric only but contains non numeric character(s).");
+            if (!ai.type && !numberRegex.test(code)) {
+                throw new Error("Application identifier " + current.id + " is numeric only but contains non numeric character(s).");
             }
 
-            if(ai.type == "alphanumeric" && !alphanumericRegex.test(code)){
-                 throw new Error("Application identifier " + current.id+ " is alphanumeric only but contains non alphanumeric character(s).");
+            if (ai.type == "alphanumeric" && !alphanumericRegex.test(code)) {
+                 throw new Error("Application identifier " + current.id + " is alphanumeric only but contains non alphanumeric character(s).");
             }
 
-            if(ai.length && ai.length !== code.length){
+            if (ai.length && ai.length !== code.length) {
                  throw new Error("Application identifier " + current.id + " must be " + ai.length + " characters long.");
             }
 
-            if(ai.min && ai.min > code.length){
+            if (ai.min && ai.min > code.length) {
                  throw new Error("Application identifier " + current.id + " must be at least " + ai.min + " characters long.");
             }
 
-            if(ai.max && ai.max < code.length){
+            if (ai.max && ai.max < code.length) {
                  throw new Error("Application identifier " + current.id + " must be at most " + ai.max + " characters long.");
             }
         },
-        getByLength: function(value, index){
+        getByLength: function(value, index) {
             var that = this,
                 id,
                 ai;
-            for(var i = 2; i <= 4; i++){
+            for (var i = 2; i <= 4; i++) {
                 id = getNext(value, index, i);
                 ai = that.getAI(id) || that.getAI(id.substring(0, id.length - 1));
-                if(ai){
+                if (ai) {
                     return {
                         id: id,
                         ai: ai
@@ -67127,16 +67148,16 @@ var __meta__ = { // jshint ignore:line
             }
             that.unsupportedAIError(id);
         },
-        unsupportedAIError: function(id){
+        unsupportedAIError: function(id) {
             throw new Error(kendo.format("'{0}' is not a supported Application Identifier"),id);
         },
-        getBySeparator: function(value, index){
+        getBySeparator: function(value, index) {
             var that = this,
                 start = value.indexOf(that.startAI, index),
                 end = value.indexOf(that.endAI, start),
                 id = value.substring(start + 1,end),
                 ai = that.getAI(id) || that.getAI(id.substr(id.length - 1));
-            if(!ai){
+            if (!ai) {
                 that.unsupportedAIError(id);
             }
 
@@ -67145,21 +67166,21 @@ var __meta__ = { // jshint ignore:line
                 id: id
             };
         },
-        getAI: function(id){
+        getAI: function(id) {
             var ai = this.applicationIdentifiers,
                 multiKey = ai.multiKey;
-            if(ai[id]){
+            if (ai[id]) {
                 return ai[id];
             }
 
-            for(var i = 0; i < multiKey.length; i++){
-                if(multiKey[i].ids && inArray(id, multiKey[i].ids) >= 0){
+            for (var i = 0; i < multiKey.length; i++) {
+                if (multiKey[i].ids && inArray(id, multiKey[i].ids) >= 0) {
                     return multiKey[i].type;
                 }
-                else if(multiKey[i].ranges){
+                else if (multiKey[i].ranges) {
                     var ranges = multiKey[i].ranges;
-                    for(var j = 0; j < ranges.length; j++){
-                        if(ranges[j][0] <= id && id <= ranges[j][1]){
+                    for (var j = 0; j < ranges.length; j++) {
+                        if (ranges[j][0] <= id && id <= ranges[j][1]) {
                             return multiKey[i].type;
                         }
                     }
@@ -67167,15 +67188,15 @@ var __meta__ = { // jshint ignore:line
             }
         },
         applicationIdentifiers: {
-            "22": {max: 29, type: "alphanumeric"},
-            "402": {length: 17},
-            "7004": {max: 4, type: "alphanumeric"},
-            "242": {max: 6, type: "alphanumeric"},
-            "8020": {max: 25, type: "alphanumeric"},
-            "703": { min: 3, max: 30, type: "alphanumeric"},
-            "8008": { min: 8, max: 12, type: "alphanumeric"},
-            "253": { min: 13, max: 17, type: "alphanumeric"},
-            "8003": { min: 14, max: 30, type: "alphanumeric"},
+            "22": { max: 29, type: "alphanumeric" },
+            "402": { length: 17 },
+            "7004": { max: 4, type: "alphanumeric" },
+            "242": { max: 6, type: "alphanumeric" },
+            "8020": { max: 25, type: "alphanumeric" },
+            "703": { min: 3, max: 30, type: "alphanumeric" },
+            "8008": { min: 8, max: 12, type: "alphanumeric" },
+            "253": { min: 13, max: 17, type: "alphanumeric" },
+            "8003": { min: 14, max: 30, type: "alphanumeric" },
             multiKey: [{
                 ids: ["15", "17", "8005", "8100"],
                 ranges: [
@@ -67184,65 +67205,65 @@ var __meta__ = { // jshint ignore:line
                     [320, 336],
                     [340, 369]
                 ],
-                type: { length: 6}
+                type: { length: 6 }
             },{
                 ids: ["240", "241", "250", "251", "400", "401", "403", "7002", "8004", "8007", "8110"],
-                ranges: [[90-99]],
-                type: {max: 30, type: "alphanumeric"}
+                ranges: [[90 - 99]],
+                type: { max: 30, type: "alphanumeric" }
             },{
                 ids: ["7001"],
                 ranges: [[410, 414]],
-                type: { length: 13}
+                type: { length: 13 }
             },{
                 ids: ["10","21", "254", "420", "8002"],
-                type: {max: 20, type: "alphanumeric"}
+                type: { max: 20, type: "alphanumeric" }
             },{
                 ids: ["00", "8006", "8017", "8018"],
-                type: {length: 18}
+                type: { length: 18 }
             },{
                 ids: ["01", "02", "8001"],
-                type: { length: 14}
+                type: { length: 14 }
             },{
                 ids: ["422"],
                 ranges: [
                     [424, 426]
                 ],
-                type: {length: 3}
+                type: { length: 3 }
             },{
                 ids: ["20", "8102"],
-                type: { length: 2}
+                type: { length: 2 }
             },{
                 ids: ["30","37"],
-                type: {max: 8, type: "alphanumeric"}
+                type: { max: 8, type: "alphanumeric" }
             },{
                 ids: ["390","392"],
-                type: {max: 15, type: "alphanumeric"}
+                type: { max: 15, type: "alphanumeric" }
             },{
                 ids: ["421", "423"],
-                type: { min: 3, max: 15, type: "alphanumeric"}
+                type: { min: 3, max: 15, type: "alphanumeric" }
             }, {
                 ids: ["391", "393"],
-                type: { min: 3, max: 18, type: "alphanumeric"}
+                type: { min: 3, max: 18, type: "alphanumeric" }
             },{
                 ids: ["7003", "8101"],
-                type: {length: 10}
+                type: { length: 10 }
             }]
         },
         START: 102
     });
 
     var code128Base = Encoding.extend({
-        init: function (options) {
+        init: function(options) {
             Encoding.fn.init.call(this, options);
             this._initStates();
         },
-        _initStates: function(){
+        _initStates: function() {
             var that = this;
-            for(var i = 0; i < that.states.length; i++){
-                that[that.states[i]]  = new states128[that.states[i]](that, that.states);
+            for (var i = 0; i < that.states.length; i++) {
+                that[that.states[i]] = new states128[that.states[i]](that, that.states);
             }
         },
-        initValue: function (value, width, height) {
+        initValue: function(value, width, height) {
            var that = this;
            that.pattern = [];
            that.value = value;
@@ -67253,14 +67274,14 @@ var __meta__ = { // jshint ignore:line
            that.index = 0;
            that.position = 1;
         },
-        addData: function(){
+        addData: function() {
             var that = this,
                 encodingState = {
                     value: that.value,
                     index: 0,
                     state: ""
                 };
-            if(that.value.length === 0){
+            if (that.value.length === 0) {
                 return;
             }
 
@@ -67275,20 +67296,20 @@ var __meta__ = { // jshint ignore:line
             that.addStop();
             that.setBaseUnit();
         },
-        pushData: function(encodingState, states){
+        pushData: function(encodingState, states) {
             var that = this;
-            while(true){
+            while (true) {
                 that[encodingState.state].pushState(encodingState);
-                if(encodingState.index >= encodingState.value.length){
+                if (encodingState.index >= encodingState.value.length) {
                     break;
                 }
 
-                if(!encodingState.shifted){
+                if (!encodingState.shifted) {
                     encodingState.previousState = encodingState.state;
-                    encodingState.state  = that.getNextState(encodingState, states);
+                    encodingState.state = that.getNextState(encodingState, states);
                     that[encodingState.state].move(encodingState);
                 }
-                else{
+                else {
                    var temp = encodingState.state;
                    encodingState.state = encodingState.previousState;
                    encodingState.previousState = temp;
@@ -67296,38 +67317,38 @@ var __meta__ = { // jshint ignore:line
                 }
             }
         },
-        addStart: function(encodingState){
+        addStart: function(encodingState) {
             this[encodingState.state].addStart(encodingState);
             this.position = 1;
         },
-        addCheckSum: function(){
+        addCheckSum: function() {
             var that = this;
 
             that.checksum = that.checkSum % 103;
             that.addPattern(that.checksum);
         },
-        addStop: function(){
+        addStop: function() {
             this.addPattern(this.STOP);
         },
-        setBaseUnit: function(){
+        setBaseUnit: function() {
             var that = this;
             that.baseUnit = that.width / (that.totalUnits + that.quietZoneLength);
         },
-        addPattern: function(code){
+        addPattern: function(code) {
             var that = this,
                 pattern = that.characterMap[code].toString(),
                 value;
 
-            for(var i = 0; i < pattern.length; i++){
+            for (var i = 0; i < pattern.length; i++) {
                 value = parseInt(pattern.charAt(i),10);
                 that.pattern.push(value);
                 that.totalUnits += value;
             }
             that.checkSum += code * that.position++;
         },
-        getNextState: function(encodingState, states){
-            for(var i = 0; i < states.length; i++){
-                if(this[states[i]].is(encodingState.value, encodingState.index)){
+        getNextState: function(encodingState, states) {
+            for (var i = 0; i < states.length; i++) {
+                if (this[states[i]].is(encodingState.value, encodingState.index)) {
                     return states[i];
                 }
             }
@@ -67376,50 +67397,50 @@ var __meta__ = { // jshint ignore:line
     });
 
     var msiBase = Encoding.extend({
-        initValue: function(value, width){
+        initValue: function(value, width) {
             var that = this;
             that.pattern = [];
             that.value = value;
             that.checkSumLength = 0;
             that.width = width;
         },
-        setBaseUnit: function(){
+        setBaseUnit: function() {
             var that = this,
                 startStopLength = 7;
 
             that.baseUnit = that.width /
                     ( 12 * (that.value.length + that.checkSumLength) + that.quietZoneLength + startStopLength);
         },
-        addData:  function(){
+        addData: function() {
             var that = this,
                 value = that.value;
             that.addPattern(that.START);
 
-            for(var i = 0; i < value.length; i++){
+            for (var i = 0; i < value.length; i++) {
                 that.addCharacter(value.charAt(i));
             }
 
-            if(that.options.addCheckSum){
+            if (that.options.addCheckSum) {
                 that.addCheckSum();
             }
 
             that.addPattern(that.STOP);
             that.setBaseUnit();
         },
-        addCharacter: function(character){
+        addCharacter: function(character) {
             var that = this,
                 pattern = that.characterMap[character];
-            if(!pattern){
+            if (!pattern) {
                 that.invalidCharacterError(character);
             }
             that.addPattern(pattern);
         },
-        addPattern: function(pattern){
-            for(var i = 0; i < pattern.length; i++){
+        addPattern: function(pattern) {
+            for (var i = 0; i < pattern.length; i++) {
                 this.pattern.push(parseInt(pattern.charAt(i),10));
             }
         },
-        addCheckSum: function(){
+        addCheckSum: function() {
             var that = this,
                 checkSumFunction = that.checkSums[that.checkSumType],
                 checkValues;
@@ -67427,57 +67448,57 @@ var __meta__ = { // jshint ignore:line
             checkValues = checkSumFunction.call(that.checkSums, that.value);
 
             that.checksum = checkValues.join("");
-            for(var i = 0; i < checkValues.length; i++){
+            for (var i = 0; i < checkValues.length; i++) {
                 that.checkSumLength++;
                 that.addPattern(that.characterMap[checkValues[i]]);
             }
         },
         checkSums: {
-            Modulo10: function(value){
+            Modulo10: function(value) {
                 var checkValues = [0, ""],
                 odd = value.length % 2,
                 idx,
                 evenSum,
                 oddSum;
 
-                for(idx = 0; idx < value.length; idx++){
+                for (idx = 0; idx < value.length; idx++) {
                     checkValues[(idx + odd) % 2] += parseInt(value.charAt(idx),10);
                 }
 
                 oddSum = checkValues[0];
                 evenSum = (checkValues[1] * 2).toString();
 
-                for(idx = 0; idx < evenSum.length; idx++){
+                for (idx = 0; idx < evenSum.length; idx++) {
                     oddSum += parseInt(evenSum.charAt(idx),10);
                 }
 
                 return [(10 - (oddSum % 10)) % 10];
             },
-            Modulo11: function(value){
+            Modulo11: function(value) {
                 var weightedSum = 0,
                     mod = 11,
                     length = value.length,
                     weight,
                     checkValue;
 
-                for(var i = 0; i < length; i++){
+                for (var i = 0; i < length; i++) {
                     weight = ((length - i) % 6 || 6) + 1;
-                    weightedSum +=  weight * value.charAt(i);
+                    weightedSum += weight * value.charAt(i);
                 }
                 checkValue = (mod - weightedSum % mod) % mod;
-                if(checkValue != 10){
+                if (checkValue != 10) {
                     return [checkValue];
                 }
                 return [1, 0];
             },
-            Modulo11Modulo10: function(value){
+            Modulo11Modulo10: function(value) {
                 var checkValues = this.Modulo11(value),
                     mod11Value;
                 mod11Value = value + checkValues[0];
 
                 return checkValues.concat(this.Modulo10(mod11Value));
             },
-            Modulo10Modulo10: function(value){
+            Modulo10Modulo10: function(value) {
                 var checkValues = this.Modulo10(value),
                     mod10Value;
                 mod10Value = value + checkValues[0];
@@ -67521,34 +67542,34 @@ var __meta__ = { // jshint ignore:line
         DASH: "-",
         START: "112211",
         STOP: "11221",
-        initValue: function(value, width){
+        initValue: function(value, width) {
             var that = this;
             that.pattern = [];
             that.value = value;
             that.width = width;
             that.totalUnits = 0;
         },
-        addData:  function(){
+        addData: function() {
             var that = this;
             var value = that.value;
             that.addPattern(that.START);
 
-            for(var i = 0; i < value.length; i++){
+            for (var i = 0; i < value.length; i++) {
                 that.addCharacter(value.charAt(i));
             }
 
-            if(that.options.addCheckSum){
+            if (that.options.addCheckSum) {
                 that.addCheckSum();
             }
 
             that.addPattern(that.STOP);
             that.setBaseUnit();
         },
-        setBaseUnit: function(){
+        setBaseUnit: function() {
             var that = this;
             that.baseUnit = that.width / (that.totalUnits + that.quietZoneLength);
         },
-        addCheckSum: function(){
+        addCheckSum: function() {
             var that = this,
                 value = that.value,
                 length = value.length,
@@ -67559,46 +67580,46 @@ var __meta__ = { // jshint ignore:line
             that.addPattern(that.characterMap[cValue]);
 
             length++;
-            if(length >= that.kCheckSumMinLength){
+            if (length >= that.kCheckSumMinLength) {
                 var kValue = (cValue + that.getWeightedSum(value, length, that.kCheckSumTotal)) % that.checkSumMod;
                 that.checksum += kValue;
                 that.addPattern(that.characterMap[kValue]);
             }
         },
-        getWeightedSum: function(value, length, total){
+        getWeightedSum: function(value, length, total) {
             var weightedSum = 0;
-            for(var i = 0; i < value.length; i++){
-                weightedSum+= this.weightedValue(this.getValue(value.charAt(i)), length, i, total);
+            for (var i = 0; i < value.length; i++) {
+                weightedSum += this.weightedValue(this.getValue(value.charAt(i)), length, i, total);
             }
 
             return weightedSum;
         },
-        weightedValue: function(value, length, index, total){
+        weightedValue: function(value, length, index, total) {
             var weight = (length - index) % total || total;
             return weight * value;
         },
-        getValue: function(character){
+        getValue: function(character) {
             var that = this;
-            if(!isNaN(character)){
+            if (!isNaN(character)) {
                 return parseInt(character,10);
             }
-            else if(character !== that.DASH){
+            else if (character !== that.DASH) {
                 that.invalidCharacterError(character);
             }
             return that.DASH_VALUE;
         },
-        addCharacter: function(character){
+        addCharacter: function(character) {
             var that = this,
                 value = that.getValue(character),
                 pattern = that.characterMap[value];
             that.addPattern(pattern);
         },
-        addPattern: function(pattern){
+        addPattern: function(pattern) {
             var value;
-            for(var i = 0; i < pattern.length; i++){
+            for (var i = 0; i < pattern.length; i++) {
                 value = parseInt(pattern.charAt(i),10);
                 this.pattern.push(value);
-                this.totalUnits+=value;
+                this.totalUnits += value;
             }
         },
         characterMap: ["111121", "211121", "121121", "221111", "112121", "212111", "122111", "111221", "211211", "211111", "112111"],
@@ -67612,65 +67633,65 @@ var __meta__ = { // jshint ignore:line
         START: "2",
         VALID_CODE_LENGTHS: [5,9, 11],
         DIGIT_SEPARATOR: "-",
-        initValue: function(value, width, height){
+        initValue: function(value, width, height) {
             var that = this;
             that.height = height;
             that.width = width;
-            that.baseHeight = height /2;
+            that.baseHeight = height / 2;
             that.value = value.replace(new RegExp(that.DIGIT_SEPARATOR,"g"), "");
             that.pattern = [];
             that.validate(that.value);
             that.checkSum = 0;
             that.setBaseUnit();
         },
-        addData:  function(){
+        addData: function() {
             var that = this,
                 value = that.value;
             that.addPattern(that.START);
 
-            for(var i = 0; i < value.length; i++){
+            for (var i = 0; i < value.length; i++) {
                 that.addCharacter(value.charAt(i));
             }
 
-            if(that.options.addCheckSum){
+            if (that.options.addCheckSum) {
                 that.addCheckSum();
             }
 
             that.addPattern(that.START);
             that.pattern.pop();
         },
-        addCharacter: function(character){
+        addCharacter: function(character) {
             var that = this,
                 pattern = that.characterMap[character];
-            that.checkSum+= parseInt(character,10);
+            that.checkSum += parseInt(character,10);
             that.addPattern(pattern);
         },
-        addCheckSum: function(){
+        addCheckSum: function() {
             var that = this;
             that.checksum = (10 - (that.checkSum % 10)) % 10;
             that.addCharacter(that.checksum);
         },
-        setBaseUnit: function(){
-            var that=this,
+        setBaseUnit: function() {
+            var that = this,
                 startStopLength = 3;
-            that.baseUnit = that.width / ((that.value.length + 1) * 10 +  startStopLength + that.quietZoneLength);
+            that.baseUnit = that.width / ((that.value.length + 1) * 10 + startStopLength + that.quietZoneLength);
         },
-        validate: function(value){
+        validate: function(value) {
             var that = this;
 
-            if(!numberRegex.test(value)){
+            if (!numberRegex.test(value)) {
                 that.invalidCharacterError(value.match(/[^0-9]/)[0]);
             }
-            if(inArray(value.length, that.VALID_CODE_LENGTHS) < 0){
+            if (inArray(value.length, that.VALID_CODE_LENGTHS) < 0) {
                 throw new Error("Invalid value length. Valid lengths for the Postnet symbology are " + that.VALID_CODE_LENGTHS.join(","));
             }
         },
-        addPattern: function(pattern){
+        addPattern: function(pattern) {
             var that = this,
                 y1;
-            for(var i = 0; i < pattern.length; i++){
+            for (var i = 0; i < pattern.length; i++) {
                 y1 = that.height - that.baseHeight * pattern.charAt(i);
-                that.pattern.push({width: 1, y1: y1, y2: that.height});
+                that.pattern.push({ width: 1, y1: y1, y2: that.height });
                 that.pattern.push(1);
             }
         },
@@ -67678,24 +67699,24 @@ var __meta__ = { // jshint ignore:line
     });
 
     encodings.ean13 = Encoding.extend({
-        initValue: function(value, width, height){
-            value+="";
+        initValue: function(value, width, height) {
+            value += "";
 
-            if(value.length!=12 || /\D/.test(value)){
+            if (value.length != 12 || /\D/.test(value)) {
                 throw new Error('The value of the "EAN13" encoding should be 12 symbols');
             }
 
             var that = this;
             that.pattern = [];
             that.options.height = height;
-            that.baseUnit = width /(95 + that.quietZoneLength);
+            that.baseUnit = width / (95 + that.quietZoneLength);
             that.value = value;
             that.checksum = that.calculateChecksum();
             that.leftKey = value[0];
             that.leftPart = value.substr(1,6);
-            that.rightPart = value.substr(7)+that.checksum;
+            that.rightPart = value.substr(7) + that.checksum;
         },
-        addData:  function(){
+        addData: function() {
             var that = this;
             that.addPieces(that.characterMap.start);
             that.addSide(that.leftPart,that.leftKey);
@@ -67703,46 +67724,46 @@ var __meta__ = { // jshint ignore:line
             that.addSide(that.rightPart);
             that.addPieces(that.characterMap.start);
         },
-        addSide:function(leftPart,key){
+        addSide: function(leftPart,key) {
             var that = this;
-            for(var i = 0; i < leftPart.length; i++){
-                if(key && parseInt(that.keyTable[key].charAt(i),10)){
+            for (var i = 0; i < leftPart.length; i++) {
+                if (key && parseInt(that.keyTable[key].charAt(i),10)) {
                     that.addPieces(Array.prototype.slice.call(that.characterMap.digits[leftPart.charAt(i)]).reverse(),true);
-                }else{
+                } else {
                     that.addPieces(that.characterMap.digits[leftPart.charAt(i)],true);
                 }
             }
         },
-        addPieces:function(arrToAdd,limitedHeight){
+        addPieces: function(arrToAdd,limitedHeight) {
             var that = this;
-            for(var i=0;i<arrToAdd.length;i++){
-                if(limitedHeight){
+            for (var i = 0; i < arrToAdd.length; i++) {
+                if (limitedHeight) {
                     that.pattern.push({
-                        y1:0,
-                        y2:that.options.height*0.95,
-                        width:arrToAdd[i]
+                        y1: 0,
+                        y2: that.options.height * 0.95,
+                        width: arrToAdd[i]
                     });
-                }else{
+                } else {
                     that.pattern.push(arrToAdd[i]);
                 }
             }
         },
-        calculateChecksum: function (){
+        calculateChecksum: function() {
             var odd = 0,
                 even = 0,
                 value = this.value.split("").reverse().join("");
-            for(var i = 0;i < value.length;i++){
-                if(i%2){
+            for (var i = 0; i < value.length; i++) {
+                if (i % 2) {
                     even += parseInt(value.charAt(i),10);
                 }
-                else{
+                else {
                     odd += parseInt(value.charAt(i),10);
                 }
             }
-            var checksum = (10 - ((3*odd + even)%10))%10;
+            var checksum = (10 - ((3 * odd + even) % 10)) % 10;
             return checksum;
         },
-        keyTable:[
+        keyTable: [
             '000000',
             '001011',
             '001101',
@@ -67755,7 +67776,7 @@ var __meta__ = { // jshint ignore:line
             '011010'
         ],
         characterMap: {
-            digits:[
+            digits: [
                 [3,2,1,1],
                 [2,2,2,1],
                 [2,1,2,2],
@@ -67773,23 +67794,23 @@ var __meta__ = { // jshint ignore:line
     });
 
     encodings.ean8 = encodings.ean13.extend({
-        initValue: function(value, width, height){
+        initValue: function(value, width, height) {
             var that = this;
-            if(value.length!=7 || /\D/.test(value)){
+            if (value.length != 7 || /\D/.test(value)) {
                 throw new Error('Invalid value provided');
             }
             that.value = value;
             that.options.height = height;
             that.checksum = that.calculateChecksum(that.value);
-            that.leftPart  = that.value.substr(0,4);
+            that.leftPart = that.value.substr(0,4);
             that.rightPart = that.value.substr(4) + that.checksum;
             that.pattern = [];
-            that.baseUnit = width /(67 + that.quietZoneLength);
+            that.baseUnit = width / (67 + that.quietZoneLength);
         }
     });
 
     var Barcode = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
              var that = this;
              Widget.fn.init.call(that, element, options);
              that.element = $(element);
@@ -67805,12 +67826,12 @@ var __meta__ = { // jshint ignore:line
              }
         },
 
-        setOptions: function (options) {
+        setOptions: function(options) {
             this._setOptions(options);
             this.redraw();
         },
 
-        redraw: function () {
+        redraw: function() {
             var size = this._getSize();
 
             this.surface.clear();
@@ -67911,7 +67932,7 @@ var __meta__ = { // jshint ignore:line
             that.redraw();
         },
 
-        _getBands: function (pattern, baseUnit) {
+        _getBands: function(pattern, baseUnit) {
             var that = this,
                 contentBox = that.contentBox,
                 position = contentBox.x1,
@@ -67928,7 +67949,7 @@ var __meta__ = { // jshint ignore:line
 
                 step = item.width * baseUnit;
 
-                if (i%2) {
+                if (i % 2) {
                     var rect = geom.Rect.fromPoints(
                         new geom.Point(position, item.y1 + contentBox.y1),
                         new geom.Point(position + step, item.y2 + contentBox.y1)
@@ -67950,7 +67971,7 @@ var __meta__ = { // jshint ignore:line
             return group;
         },
 
-        _getBackground: function (size) {
+        _getBackground: function(size) {
             var that = this,
                 options = that.options,
                 border = options.border || {};
@@ -67987,16 +68008,16 @@ var __meta__ = { // jshint ignore:line
             return text.visual;
         },
 
-        _setOptions: function (options) {
+        _setOptions: function(options) {
             var that = this;
             that.type = (options.type || that.options.type).toLowerCase();
 
-            if (that.type=="upca") { //extend instead
+            if (that.type == "upca") { //extend instead
                 that.type = "ean13";
                 options.value = '0' + options.value;
             }
 
-            if (that.type=="upce") {
+            if (that.type == "upce") {
                 that.type = "ean8";
                 options.value = '0' + options.value;
             }
@@ -68057,11 +68078,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.qrcode',[ "kendo.dataviz.core", "kendo.drawing" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.qrcode",
@@ -68071,7 +68092,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "dataviz.core", "drawing" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         extend = $.extend,
         draw = kendo.drawing,
@@ -68082,41 +68103,41 @@ var __meta__ = { // jshint ignore:line
         NUMERIC = "numeric",
         ALPHA_NUMERIC = "alphanumeric",
         BYTE = "byte",
-        powersOfTwo = {"1": 0},
-        powersOfTwoResult = {"0": 1},
+        powersOfTwo = { "1": 0 },
+        powersOfTwoResult = { "0": 1 },
         generatorPolynomials = [[1,0],[1,25,0]],
-        irregularAlignmentPatternsStartDistance = {15:20,16:20,18:24,19:24,22:20,24:22,26:24,28:20,30:20,31:24,32:28,33:24,36:18,37:22,39:20,40:24},
-        versionsCodewordsInformation = [{L:{groups:[[1,19]],totalDataCodewords:19,errorCodewordsPerBlock:7},M:{groups:[[1,16]],totalDataCodewords:16,errorCodewordsPerBlock:10},Q:{groups:[[1,13]],totalDataCodewords:13,errorCodewordsPerBlock:13},H:{groups:[[1,9]],totalDataCodewords:9,errorCodewordsPerBlock:17}},{L:{groups:[[1,34]],totalDataCodewords:34,errorCodewordsPerBlock:10},M:{groups:[[1,28]],totalDataCodewords:28,errorCodewordsPerBlock:16},Q:{groups:[[1,22]],totalDataCodewords:22,errorCodewordsPerBlock:22},H:{groups:[[1,16]],totalDataCodewords:16,errorCodewordsPerBlock:28}},{L:{groups:[[1,55]],totalDataCodewords:55,errorCodewordsPerBlock:15},M:{groups:[[1,44]],totalDataCodewords:44,errorCodewordsPerBlock:26},Q:{groups:[[2,17]],totalDataCodewords:34,errorCodewordsPerBlock:18},H:{groups:[[2,13]],totalDataCodewords:26,errorCodewordsPerBlock:22}},{L:{groups:[[1,80]],totalDataCodewords:80,errorCodewordsPerBlock:20},M:{groups:[[2,32]],totalDataCodewords:64,errorCodewordsPerBlock:18},Q:{groups:[[2,24]],totalDataCodewords:48,errorCodewordsPerBlock:26},H:{groups:[[4,9]],totalDataCodewords:36,errorCodewordsPerBlock:16}},{L:{groups:[[1,108]],totalDataCodewords:108,errorCodewordsPerBlock:26},M:{groups:[[2,43]],totalDataCodewords:86,errorCodewordsPerBlock:24},Q:{groups:[[2,15],[2,16]],totalDataCodewords:62,errorCodewordsPerBlock:18},H:{groups:[[2,11],[2,12]],totalDataCodewords:46,errorCodewordsPerBlock:22}},{L:{groups:[[2,68]],totalDataCodewords:136,errorCodewordsPerBlock:18},M:{groups:[[4,27]],totalDataCodewords:108,errorCodewordsPerBlock:16},Q:{groups:[[4,19]],totalDataCodewords:76,errorCodewordsPerBlock:24},H:{groups:[[4,15]],totalDataCodewords:60,errorCodewordsPerBlock:28}},{L:{groups:[[2,78]],totalDataCodewords:156,errorCodewordsPerBlock:20},M:{groups:[[4,31]],totalDataCodewords:124,errorCodewordsPerBlock:18},Q:{groups:[[2,14],[4,15]],totalDataCodewords:88,errorCodewordsPerBlock:18},H:{groups:[[4,13],[1,14]],totalDataCodewords:66,errorCodewordsPerBlock:26}},{L:{groups:[[2,97]],totalDataCodewords:194,errorCodewordsPerBlock:24},M:{groups:[[2,38],[2,39]],totalDataCodewords:154,errorCodewordsPerBlock:22},Q:{groups:[[4,18],[2,19]],totalDataCodewords:110,errorCodewordsPerBlock:22},H:{groups:[[4,14],[2,15]],totalDataCodewords:86,errorCodewordsPerBlock:26}},{L:{groups:[[2,116]],totalDataCodewords:232,errorCodewordsPerBlock:30},M:{groups:[[3,36],[2,37]],totalDataCodewords:182,errorCodewordsPerBlock:22},Q:{groups:[[4,16],[4,17]],totalDataCodewords:132,errorCodewordsPerBlock:20},H:{groups:[[4,12],[4,13]],totalDataCodewords:100,errorCodewordsPerBlock:24}},{L:{groups:[[2,68],[2,69]],totalDataCodewords:274,errorCodewordsPerBlock:18},M:{groups:[[4,43],[1,44]],totalDataCodewords:216,errorCodewordsPerBlock:26},Q:{groups:[[6,19],[2,20]],totalDataCodewords:154,errorCodewordsPerBlock:24},H:{groups:[[6,15],[2,16]],totalDataCodewords:122,errorCodewordsPerBlock:28}},{L:{groups:[[4,81]],totalDataCodewords:324,errorCodewordsPerBlock:20},M:{groups:[[1,50],[4,51]],totalDataCodewords:254,errorCodewordsPerBlock:30},Q:{groups:[[4,22],[4,23]],totalDataCodewords:180,errorCodewordsPerBlock:28},H:{groups:[[3,12],[8,13]],totalDataCodewords:140,errorCodewordsPerBlock:24}},{L:{groups:[[2,92],[2,93]],totalDataCodewords:370,errorCodewordsPerBlock:24},M:{groups:[[6,36],[2,37]],totalDataCodewords:290,errorCodewordsPerBlock:22},Q:{groups:[[4,20],[6,21]],totalDataCodewords:206,errorCodewordsPerBlock:26},H:{groups:[[7,14],[4,15]],totalDataCodewords:158,errorCodewordsPerBlock:28}},{L:{groups:[[4,107]],totalDataCodewords:428,errorCodewordsPerBlock:26},M:{groups:[[8,37],[1,38]],totalDataCodewords:334,errorCodewordsPerBlock:22},Q:{groups:[[8,20],[4,21]],totalDataCodewords:244,errorCodewordsPerBlock:24},H:{groups:[[12,11],[4,12]],totalDataCodewords:180,errorCodewordsPerBlock:22}},{L:{groups:[[3,115],[1,116]],totalDataCodewords:461,errorCodewordsPerBlock:30},M:{groups:[[4,40],[5,41]],totalDataCodewords:365,errorCodewordsPerBlock:24},Q:{groups:[[11,16],[5,17]],totalDataCodewords:261,errorCodewordsPerBlock:20},H:{groups:[[11,12],[5,13]],totalDataCodewords:197,errorCodewordsPerBlock:24}},{L:{groups:[[5,87],[1,88]],totalDataCodewords:523,errorCodewordsPerBlock:22},M:{groups:[[5,41],[5,42]],totalDataCodewords:415,errorCodewordsPerBlock:24},Q:{groups:[[5,24],[7,25]],totalDataCodewords:295,errorCodewordsPerBlock:30},H:{groups:[[11,12],[7,13]],totalDataCodewords:223,errorCodewordsPerBlock:24}},{L:{groups:[[5,98],[1,99]],totalDataCodewords:589,errorCodewordsPerBlock:24},M:{groups:[[7,45],[3,46]],totalDataCodewords:453,errorCodewordsPerBlock:28},Q:{groups:[[15,19],[2,20]],totalDataCodewords:325,errorCodewordsPerBlock:24},H:{groups:[[3,15],[13,16]],totalDataCodewords:253,errorCodewordsPerBlock:30}},{L:{groups:[[1,107],[5,108]],totalDataCodewords:647,errorCodewordsPerBlock:28},M:{groups:[[10,46],[1,47]],totalDataCodewords:507,errorCodewordsPerBlock:28},Q:{groups:[[1,22],[15,23]],totalDataCodewords:367,errorCodewordsPerBlock:28},H:{groups:[[2,14],[17,15]],totalDataCodewords:283,errorCodewordsPerBlock:28}},{L:{groups:[[5,120],[1,121]],totalDataCodewords:721,errorCodewordsPerBlock:30},M:{groups:[[9,43],[4,44]],totalDataCodewords:563,errorCodewordsPerBlock:26},Q:{groups:[[17,22],[1,23]],totalDataCodewords:397,errorCodewordsPerBlock:28},H:{groups:[[2,14],[19,15]],totalDataCodewords:313,errorCodewordsPerBlock:28}},{L:{groups:[[3,113],[4,114]],totalDataCodewords:795,errorCodewordsPerBlock:28},M:{groups:[[3,44],[11,45]],totalDataCodewords:627,errorCodewordsPerBlock:26},Q:{groups:[[17,21],[4,22]],totalDataCodewords:445,errorCodewordsPerBlock:26},H:{groups:[[9,13],[16,14]],totalDataCodewords:341,errorCodewordsPerBlock:26}},{L:{groups:[[3,107],[5,108]],totalDataCodewords:861,errorCodewordsPerBlock:28},M:{groups:[[3,41],[13,42]],totalDataCodewords:669,errorCodewordsPerBlock:26},Q:{groups:[[15,24],[5,25]],totalDataCodewords:485,errorCodewordsPerBlock:30},H:{groups:[[15,15],[10,16]],totalDataCodewords:385,errorCodewordsPerBlock:28}},{L:{groups:[[4,116],[4,117]],totalDataCodewords:932,errorCodewordsPerBlock:28},M:{groups:[[17,42]],totalDataCodewords:714,errorCodewordsPerBlock:26},Q:{groups:[[17,22],[6,23]],totalDataCodewords:512,errorCodewordsPerBlock:28},H:{groups:[[19,16],[6,17]],totalDataCodewords:406,errorCodewordsPerBlock:30}},{L:{groups:[[2,111],[7,112]],totalDataCodewords:1006,errorCodewordsPerBlock:28},M:{groups:[[17,46]],totalDataCodewords:782,errorCodewordsPerBlock:28},Q:{groups:[[7,24],[16,25]],totalDataCodewords:568,errorCodewordsPerBlock:30},H:{groups:[[34,13]],totalDataCodewords:442,errorCodewordsPerBlock:24}},{L:{groups:[[4,121],[5,122]],totalDataCodewords:1094,errorCodewordsPerBlock:30},M:{groups:[[4,47],[14,48]],totalDataCodewords:860,errorCodewordsPerBlock:28},Q:{groups:[[11,24],[14,25]],totalDataCodewords:614,errorCodewordsPerBlock:30},H:{groups:[[16,15],[14,16]],totalDataCodewords:464,errorCodewordsPerBlock:30}},{L:{groups:[[6,117],[4,118]],totalDataCodewords:1174,errorCodewordsPerBlock:30},M:{groups:[[6,45],[14,46]],totalDataCodewords:914,errorCodewordsPerBlock:28},Q:{groups:[[11,24],[16,25]],totalDataCodewords:664,errorCodewordsPerBlock:30},H:{groups:[[30,16],[2,17]],totalDataCodewords:514,errorCodewordsPerBlock:30}},{L:{groups:[[8,106],[4,107]],totalDataCodewords:1276,errorCodewordsPerBlock:26},M:{groups:[[8,47],[13,48]],totalDataCodewords:1000,errorCodewordsPerBlock:28},Q:{groups:[[7,24],[22,25]],totalDataCodewords:718,errorCodewordsPerBlock:30},H:{groups:[[22,15],[13,16]],totalDataCodewords:538,errorCodewordsPerBlock:30}},{L:{groups:[[10,114],[2,115]],totalDataCodewords:1370,errorCodewordsPerBlock:28},M:{groups:[[19,46],[4,47]],totalDataCodewords:1062,errorCodewordsPerBlock:28},Q:{groups:[[28,22],[6,23]],totalDataCodewords:754,errorCodewordsPerBlock:28},H:{groups:[[33,16],[4,17]],totalDataCodewords:596,errorCodewordsPerBlock:30}},{L:{groups:[[8,122],[4,123]],totalDataCodewords:1468,errorCodewordsPerBlock:30},M:{groups:[[22,45],[3,46]],totalDataCodewords:1128,errorCodewordsPerBlock:28},Q:{groups:[[8,23],[26,24]],totalDataCodewords:808,errorCodewordsPerBlock:30},H:{groups:[[12,15],[28,16]],totalDataCodewords:628,errorCodewordsPerBlock:30}},{L:{groups:[[3,117],[10,118]],totalDataCodewords:1531,errorCodewordsPerBlock:30},M:{groups:[[3,45],[23,46]],totalDataCodewords:1193,errorCodewordsPerBlock:28},Q:{groups:[[4,24],[31,25]],totalDataCodewords:871,errorCodewordsPerBlock:30},H:{groups:[[11,15],[31,16]],totalDataCodewords:661,errorCodewordsPerBlock:30}},{L:{groups:[[7,116],[7,117]],totalDataCodewords:1631,errorCodewordsPerBlock:30},M:{groups:[[21,45],[7,46]],totalDataCodewords:1267,errorCodewordsPerBlock:28},Q:{groups:[[1,23],[37,24]],totalDataCodewords:911,errorCodewordsPerBlock:30},H:{groups:[[19,15],[26,16]],totalDataCodewords:701,errorCodewordsPerBlock:30}},{L:{groups:[[5,115],[10,116]],totalDataCodewords:1735,errorCodewordsPerBlock:30},M:{groups:[[19,47],[10,48]],totalDataCodewords:1373,errorCodewordsPerBlock:28},Q:{groups:[[15,24],[25,25]],totalDataCodewords:985,errorCodewordsPerBlock:30},H:{groups:[[23,15],[25,16]],totalDataCodewords:745,errorCodewordsPerBlock:30}},{L:{groups:[[13,115],[3,116]],totalDataCodewords:1843,errorCodewordsPerBlock:30},M:{groups:[[2,46],[29,47]],totalDataCodewords:1455,errorCodewordsPerBlock:28},Q:{groups:[[42,24],[1,25]],totalDataCodewords:1033,errorCodewordsPerBlock:30},H:{groups:[[23,15],[28,16]],totalDataCodewords:793,errorCodewordsPerBlock:30}},{L:{groups:[[17,115]],totalDataCodewords:1955,errorCodewordsPerBlock:30},M:{groups:[[10,46],[23,47]],totalDataCodewords:1541,errorCodewordsPerBlock:28},Q:{groups:[[10,24],[35,25]],totalDataCodewords:1115,errorCodewordsPerBlock:30},H:{groups:[[19,15],[35,16]],totalDataCodewords:845,errorCodewordsPerBlock:30}},{L:{groups:[[17,115],[1,116]],totalDataCodewords:2071,errorCodewordsPerBlock:30},M:{groups:[[14,46],[21,47]],totalDataCodewords:1631,errorCodewordsPerBlock:28},Q:{groups:[[29,24],[19,25]],totalDataCodewords:1171,errorCodewordsPerBlock:30},H:{groups:[[11,15],[46,16]],totalDataCodewords:901,errorCodewordsPerBlock:30}},{L:{groups:[[13,115],[6,116]],totalDataCodewords:2191,errorCodewordsPerBlock:30},M:{groups:[[14,46],[23,47]],totalDataCodewords:1725,errorCodewordsPerBlock:28},Q:{groups:[[44,24],[7,25]],totalDataCodewords:1231,errorCodewordsPerBlock:30},H:{groups:[[59,16],[1,17]],totalDataCodewords:961,errorCodewordsPerBlock:30}},{L:{groups:[[12,121],[7,122]],totalDataCodewords:2306,errorCodewordsPerBlock:30},M:{groups:[[12,47],[26,48]],totalDataCodewords:1812,errorCodewordsPerBlock:28},Q:{groups:[[39,24],[14,25]],totalDataCodewords:1286,errorCodewordsPerBlock:30},H:{groups:[[22,15],[41,16]],totalDataCodewords:986,errorCodewordsPerBlock:30}},{L:{groups:[[6,121],[14,122]],totalDataCodewords:2434,errorCodewordsPerBlock:30},M:{groups:[[6,47],[34,48]],totalDataCodewords:1914,errorCodewordsPerBlock:28},Q:{groups:[[46,24],[10,25]],totalDataCodewords:1354,errorCodewordsPerBlock:30},H:{groups:[[2,15],[64,16]],totalDataCodewords:1054,errorCodewordsPerBlock:30}},{L:{groups:[[17,122],[4,123]],totalDataCodewords:2566,errorCodewordsPerBlock:30},M:{groups:[[29,46],[14,47]],totalDataCodewords:1992,errorCodewordsPerBlock:28},Q:{groups:[[49,24],[10,25]],totalDataCodewords:1426,errorCodewordsPerBlock:30},H:{groups:[[24,15],[46,16]],totalDataCodewords:1096,errorCodewordsPerBlock:30}},{L:{groups:[[4,122],[18,123]],totalDataCodewords:2702,errorCodewordsPerBlock:30},M:{groups:[[13,46],[32,47]],totalDataCodewords:2102,errorCodewordsPerBlock:28},Q:{groups:[[48,24],[14,25]],totalDataCodewords:1502,errorCodewordsPerBlock:30},H:{groups:[[42,15],[32,16]],totalDataCodewords:1142,errorCodewordsPerBlock:30}},{L:{groups:[[20,117],[4,118]],totalDataCodewords:2812,errorCodewordsPerBlock:30},M:{groups:[[40,47],[7,48]],totalDataCodewords:2216,errorCodewordsPerBlock:28},Q:{groups:[[43,24],[22,25]],totalDataCodewords:1582,errorCodewordsPerBlock:30},H:{groups:[[10,15],[67,16]],totalDataCodewords:1222,errorCodewordsPerBlock:30}},{L:{groups:[[19,118],[6,119]],totalDataCodewords:2956,errorCodewordsPerBlock:30},M:{groups:[[18,47],[31,48]],totalDataCodewords:2334,errorCodewordsPerBlock:28},Q:{groups:[[34,24],[34,25]],totalDataCodewords:1666,errorCodewordsPerBlock:30},H:{groups:[[20,15],[61,16]],totalDataCodewords:1276,errorCodewordsPerBlock:30}}],
+        irregularAlignmentPatternsStartDistance = { 15: 20,16: 20,18: 24,19: 24,22: 20,24: 22,26: 24,28: 20,30: 20,31: 24,32: 28,33: 24,36: 18,37: 22,39: 20,40: 24 },
+        versionsCodewordsInformation = [{ L: { groups: [[1,19]],totalDataCodewords: 19,errorCodewordsPerBlock: 7 },M: { groups: [[1,16]],totalDataCodewords: 16,errorCodewordsPerBlock: 10 },Q: { groups: [[1,13]],totalDataCodewords: 13,errorCodewordsPerBlock: 13 },H: { groups: [[1,9]],totalDataCodewords: 9,errorCodewordsPerBlock: 17 } },{ L: { groups: [[1,34]],totalDataCodewords: 34,errorCodewordsPerBlock: 10 },M: { groups: [[1,28]],totalDataCodewords: 28,errorCodewordsPerBlock: 16 },Q: { groups: [[1,22]],totalDataCodewords: 22,errorCodewordsPerBlock: 22 },H: { groups: [[1,16]],totalDataCodewords: 16,errorCodewordsPerBlock: 28 } },{ L: { groups: [[1,55]],totalDataCodewords: 55,errorCodewordsPerBlock: 15 },M: { groups: [[1,44]],totalDataCodewords: 44,errorCodewordsPerBlock: 26 },Q: { groups: [[2,17]],totalDataCodewords: 34,errorCodewordsPerBlock: 18 },H: { groups: [[2,13]],totalDataCodewords: 26,errorCodewordsPerBlock: 22 } },{ L: { groups: [[1,80]],totalDataCodewords: 80,errorCodewordsPerBlock: 20 },M: { groups: [[2,32]],totalDataCodewords: 64,errorCodewordsPerBlock: 18 },Q: { groups: [[2,24]],totalDataCodewords: 48,errorCodewordsPerBlock: 26 },H: { groups: [[4,9]],totalDataCodewords: 36,errorCodewordsPerBlock: 16 } },{ L: { groups: [[1,108]],totalDataCodewords: 108,errorCodewordsPerBlock: 26 },M: { groups: [[2,43]],totalDataCodewords: 86,errorCodewordsPerBlock: 24 },Q: { groups: [[2,15],[2,16]],totalDataCodewords: 62,errorCodewordsPerBlock: 18 },H: { groups: [[2,11],[2,12]],totalDataCodewords: 46,errorCodewordsPerBlock: 22 } },{ L: { groups: [[2,68]],totalDataCodewords: 136,errorCodewordsPerBlock: 18 },M: { groups: [[4,27]],totalDataCodewords: 108,errorCodewordsPerBlock: 16 },Q: { groups: [[4,19]],totalDataCodewords: 76,errorCodewordsPerBlock: 24 },H: { groups: [[4,15]],totalDataCodewords: 60,errorCodewordsPerBlock: 28 } },{ L: { groups: [[2,78]],totalDataCodewords: 156,errorCodewordsPerBlock: 20 },M: { groups: [[4,31]],totalDataCodewords: 124,errorCodewordsPerBlock: 18 },Q: { groups: [[2,14],[4,15]],totalDataCodewords: 88,errorCodewordsPerBlock: 18 },H: { groups: [[4,13],[1,14]],totalDataCodewords: 66,errorCodewordsPerBlock: 26 } },{ L: { groups: [[2,97]],totalDataCodewords: 194,errorCodewordsPerBlock: 24 },M: { groups: [[2,38],[2,39]],totalDataCodewords: 154,errorCodewordsPerBlock: 22 },Q: { groups: [[4,18],[2,19]],totalDataCodewords: 110,errorCodewordsPerBlock: 22 },H: { groups: [[4,14],[2,15]],totalDataCodewords: 86,errorCodewordsPerBlock: 26 } },{ L: { groups: [[2,116]],totalDataCodewords: 232,errorCodewordsPerBlock: 30 },M: { groups: [[3,36],[2,37]],totalDataCodewords: 182,errorCodewordsPerBlock: 22 },Q: { groups: [[4,16],[4,17]],totalDataCodewords: 132,errorCodewordsPerBlock: 20 },H: { groups: [[4,12],[4,13]],totalDataCodewords: 100,errorCodewordsPerBlock: 24 } },{ L: { groups: [[2,68],[2,69]],totalDataCodewords: 274,errorCodewordsPerBlock: 18 },M: { groups: [[4,43],[1,44]],totalDataCodewords: 216,errorCodewordsPerBlock: 26 },Q: { groups: [[6,19],[2,20]],totalDataCodewords: 154,errorCodewordsPerBlock: 24 },H: { groups: [[6,15],[2,16]],totalDataCodewords: 122,errorCodewordsPerBlock: 28 } },{ L: { groups: [[4,81]],totalDataCodewords: 324,errorCodewordsPerBlock: 20 },M: { groups: [[1,50],[4,51]],totalDataCodewords: 254,errorCodewordsPerBlock: 30 },Q: { groups: [[4,22],[4,23]],totalDataCodewords: 180,errorCodewordsPerBlock: 28 },H: { groups: [[3,12],[8,13]],totalDataCodewords: 140,errorCodewordsPerBlock: 24 } },{ L: { groups: [[2,92],[2,93]],totalDataCodewords: 370,errorCodewordsPerBlock: 24 },M: { groups: [[6,36],[2,37]],totalDataCodewords: 290,errorCodewordsPerBlock: 22 },Q: { groups: [[4,20],[6,21]],totalDataCodewords: 206,errorCodewordsPerBlock: 26 },H: { groups: [[7,14],[4,15]],totalDataCodewords: 158,errorCodewordsPerBlock: 28 } },{ L: { groups: [[4,107]],totalDataCodewords: 428,errorCodewordsPerBlock: 26 },M: { groups: [[8,37],[1,38]],totalDataCodewords: 334,errorCodewordsPerBlock: 22 },Q: { groups: [[8,20],[4,21]],totalDataCodewords: 244,errorCodewordsPerBlock: 24 },H: { groups: [[12,11],[4,12]],totalDataCodewords: 180,errorCodewordsPerBlock: 22 } },{ L: { groups: [[3,115],[1,116]],totalDataCodewords: 461,errorCodewordsPerBlock: 30 },M: { groups: [[4,40],[5,41]],totalDataCodewords: 365,errorCodewordsPerBlock: 24 },Q: { groups: [[11,16],[5,17]],totalDataCodewords: 261,errorCodewordsPerBlock: 20 },H: { groups: [[11,12],[5,13]],totalDataCodewords: 197,errorCodewordsPerBlock: 24 } },{ L: { groups: [[5,87],[1,88]],totalDataCodewords: 523,errorCodewordsPerBlock: 22 },M: { groups: [[5,41],[5,42]],totalDataCodewords: 415,errorCodewordsPerBlock: 24 },Q: { groups: [[5,24],[7,25]],totalDataCodewords: 295,errorCodewordsPerBlock: 30 },H: { groups: [[11,12],[7,13]],totalDataCodewords: 223,errorCodewordsPerBlock: 24 } },{ L: { groups: [[5,98],[1,99]],totalDataCodewords: 589,errorCodewordsPerBlock: 24 },M: { groups: [[7,45],[3,46]],totalDataCodewords: 453,errorCodewordsPerBlock: 28 },Q: { groups: [[15,19],[2,20]],totalDataCodewords: 325,errorCodewordsPerBlock: 24 },H: { groups: [[3,15],[13,16]],totalDataCodewords: 253,errorCodewordsPerBlock: 30 } },{ L: { groups: [[1,107],[5,108]],totalDataCodewords: 647,errorCodewordsPerBlock: 28 },M: { groups: [[10,46],[1,47]],totalDataCodewords: 507,errorCodewordsPerBlock: 28 },Q: { groups: [[1,22],[15,23]],totalDataCodewords: 367,errorCodewordsPerBlock: 28 },H: { groups: [[2,14],[17,15]],totalDataCodewords: 283,errorCodewordsPerBlock: 28 } },{ L: { groups: [[5,120],[1,121]],totalDataCodewords: 721,errorCodewordsPerBlock: 30 },M: { groups: [[9,43],[4,44]],totalDataCodewords: 563,errorCodewordsPerBlock: 26 },Q: { groups: [[17,22],[1,23]],totalDataCodewords: 397,errorCodewordsPerBlock: 28 },H: { groups: [[2,14],[19,15]],totalDataCodewords: 313,errorCodewordsPerBlock: 28 } },{ L: { groups: [[3,113],[4,114]],totalDataCodewords: 795,errorCodewordsPerBlock: 28 },M: { groups: [[3,44],[11,45]],totalDataCodewords: 627,errorCodewordsPerBlock: 26 },Q: { groups: [[17,21],[4,22]],totalDataCodewords: 445,errorCodewordsPerBlock: 26 },H: { groups: [[9,13],[16,14]],totalDataCodewords: 341,errorCodewordsPerBlock: 26 } },{ L: { groups: [[3,107],[5,108]],totalDataCodewords: 861,errorCodewordsPerBlock: 28 },M: { groups: [[3,41],[13,42]],totalDataCodewords: 669,errorCodewordsPerBlock: 26 },Q: { groups: [[15,24],[5,25]],totalDataCodewords: 485,errorCodewordsPerBlock: 30 },H: { groups: [[15,15],[10,16]],totalDataCodewords: 385,errorCodewordsPerBlock: 28 } },{ L: { groups: [[4,116],[4,117]],totalDataCodewords: 932,errorCodewordsPerBlock: 28 },M: { groups: [[17,42]],totalDataCodewords: 714,errorCodewordsPerBlock: 26 },Q: { groups: [[17,22],[6,23]],totalDataCodewords: 512,errorCodewordsPerBlock: 28 },H: { groups: [[19,16],[6,17]],totalDataCodewords: 406,errorCodewordsPerBlock: 30 } },{ L: { groups: [[2,111],[7,112]],totalDataCodewords: 1006,errorCodewordsPerBlock: 28 },M: { groups: [[17,46]],totalDataCodewords: 782,errorCodewordsPerBlock: 28 },Q: { groups: [[7,24],[16,25]],totalDataCodewords: 568,errorCodewordsPerBlock: 30 },H: { groups: [[34,13]],totalDataCodewords: 442,errorCodewordsPerBlock: 24 } },{ L: { groups: [[4,121],[5,122]],totalDataCodewords: 1094,errorCodewordsPerBlock: 30 },M: { groups: [[4,47],[14,48]],totalDataCodewords: 860,errorCodewordsPerBlock: 28 },Q: { groups: [[11,24],[14,25]],totalDataCodewords: 614,errorCodewordsPerBlock: 30 },H: { groups: [[16,15],[14,16]],totalDataCodewords: 464,errorCodewordsPerBlock: 30 } },{ L: { groups: [[6,117],[4,118]],totalDataCodewords: 1174,errorCodewordsPerBlock: 30 },M: { groups: [[6,45],[14,46]],totalDataCodewords: 914,errorCodewordsPerBlock: 28 },Q: { groups: [[11,24],[16,25]],totalDataCodewords: 664,errorCodewordsPerBlock: 30 },H: { groups: [[30,16],[2,17]],totalDataCodewords: 514,errorCodewordsPerBlock: 30 } },{ L: { groups: [[8,106],[4,107]],totalDataCodewords: 1276,errorCodewordsPerBlock: 26 },M: { groups: [[8,47],[13,48]],totalDataCodewords: 1000,errorCodewordsPerBlock: 28 },Q: { groups: [[7,24],[22,25]],totalDataCodewords: 718,errorCodewordsPerBlock: 30 },H: { groups: [[22,15],[13,16]],totalDataCodewords: 538,errorCodewordsPerBlock: 30 } },{ L: { groups: [[10,114],[2,115]],totalDataCodewords: 1370,errorCodewordsPerBlock: 28 },M: { groups: [[19,46],[4,47]],totalDataCodewords: 1062,errorCodewordsPerBlock: 28 },Q: { groups: [[28,22],[6,23]],totalDataCodewords: 754,errorCodewordsPerBlock: 28 },H: { groups: [[33,16],[4,17]],totalDataCodewords: 596,errorCodewordsPerBlock: 30 } },{ L: { groups: [[8,122],[4,123]],totalDataCodewords: 1468,errorCodewordsPerBlock: 30 },M: { groups: [[22,45],[3,46]],totalDataCodewords: 1128,errorCodewordsPerBlock: 28 },Q: { groups: [[8,23],[26,24]],totalDataCodewords: 808,errorCodewordsPerBlock: 30 },H: { groups: [[12,15],[28,16]],totalDataCodewords: 628,errorCodewordsPerBlock: 30 } },{ L: { groups: [[3,117],[10,118]],totalDataCodewords: 1531,errorCodewordsPerBlock: 30 },M: { groups: [[3,45],[23,46]],totalDataCodewords: 1193,errorCodewordsPerBlock: 28 },Q: { groups: [[4,24],[31,25]],totalDataCodewords: 871,errorCodewordsPerBlock: 30 },H: { groups: [[11,15],[31,16]],totalDataCodewords: 661,errorCodewordsPerBlock: 30 } },{ L: { groups: [[7,116],[7,117]],totalDataCodewords: 1631,errorCodewordsPerBlock: 30 },M: { groups: [[21,45],[7,46]],totalDataCodewords: 1267,errorCodewordsPerBlock: 28 },Q: { groups: [[1,23],[37,24]],totalDataCodewords: 911,errorCodewordsPerBlock: 30 },H: { groups: [[19,15],[26,16]],totalDataCodewords: 701,errorCodewordsPerBlock: 30 } },{ L: { groups: [[5,115],[10,116]],totalDataCodewords: 1735,errorCodewordsPerBlock: 30 },M: { groups: [[19,47],[10,48]],totalDataCodewords: 1373,errorCodewordsPerBlock: 28 },Q: { groups: [[15,24],[25,25]],totalDataCodewords: 985,errorCodewordsPerBlock: 30 },H: { groups: [[23,15],[25,16]],totalDataCodewords: 745,errorCodewordsPerBlock: 30 } },{ L: { groups: [[13,115],[3,116]],totalDataCodewords: 1843,errorCodewordsPerBlock: 30 },M: { groups: [[2,46],[29,47]],totalDataCodewords: 1455,errorCodewordsPerBlock: 28 },Q: { groups: [[42,24],[1,25]],totalDataCodewords: 1033,errorCodewordsPerBlock: 30 },H: { groups: [[23,15],[28,16]],totalDataCodewords: 793,errorCodewordsPerBlock: 30 } },{ L: { groups: [[17,115]],totalDataCodewords: 1955,errorCodewordsPerBlock: 30 },M: { groups: [[10,46],[23,47]],totalDataCodewords: 1541,errorCodewordsPerBlock: 28 },Q: { groups: [[10,24],[35,25]],totalDataCodewords: 1115,errorCodewordsPerBlock: 30 },H: { groups: [[19,15],[35,16]],totalDataCodewords: 845,errorCodewordsPerBlock: 30 } },{ L: { groups: [[17,115],[1,116]],totalDataCodewords: 2071,errorCodewordsPerBlock: 30 },M: { groups: [[14,46],[21,47]],totalDataCodewords: 1631,errorCodewordsPerBlock: 28 },Q: { groups: [[29,24],[19,25]],totalDataCodewords: 1171,errorCodewordsPerBlock: 30 },H: { groups: [[11,15],[46,16]],totalDataCodewords: 901,errorCodewordsPerBlock: 30 } },{ L: { groups: [[13,115],[6,116]],totalDataCodewords: 2191,errorCodewordsPerBlock: 30 },M: { groups: [[14,46],[23,47]],totalDataCodewords: 1725,errorCodewordsPerBlock: 28 },Q: { groups: [[44,24],[7,25]],totalDataCodewords: 1231,errorCodewordsPerBlock: 30 },H: { groups: [[59,16],[1,17]],totalDataCodewords: 961,errorCodewordsPerBlock: 30 } },{ L: { groups: [[12,121],[7,122]],totalDataCodewords: 2306,errorCodewordsPerBlock: 30 },M: { groups: [[12,47],[26,48]],totalDataCodewords: 1812,errorCodewordsPerBlock: 28 },Q: { groups: [[39,24],[14,25]],totalDataCodewords: 1286,errorCodewordsPerBlock: 30 },H: { groups: [[22,15],[41,16]],totalDataCodewords: 986,errorCodewordsPerBlock: 30 } },{ L: { groups: [[6,121],[14,122]],totalDataCodewords: 2434,errorCodewordsPerBlock: 30 },M: { groups: [[6,47],[34,48]],totalDataCodewords: 1914,errorCodewordsPerBlock: 28 },Q: { groups: [[46,24],[10,25]],totalDataCodewords: 1354,errorCodewordsPerBlock: 30 },H: { groups: [[2,15],[64,16]],totalDataCodewords: 1054,errorCodewordsPerBlock: 30 } },{ L: { groups: [[17,122],[4,123]],totalDataCodewords: 2566,errorCodewordsPerBlock: 30 },M: { groups: [[29,46],[14,47]],totalDataCodewords: 1992,errorCodewordsPerBlock: 28 },Q: { groups: [[49,24],[10,25]],totalDataCodewords: 1426,errorCodewordsPerBlock: 30 },H: { groups: [[24,15],[46,16]],totalDataCodewords: 1096,errorCodewordsPerBlock: 30 } },{ L: { groups: [[4,122],[18,123]],totalDataCodewords: 2702,errorCodewordsPerBlock: 30 },M: { groups: [[13,46],[32,47]],totalDataCodewords: 2102,errorCodewordsPerBlock: 28 },Q: { groups: [[48,24],[14,25]],totalDataCodewords: 1502,errorCodewordsPerBlock: 30 },H: { groups: [[42,15],[32,16]],totalDataCodewords: 1142,errorCodewordsPerBlock: 30 } },{ L: { groups: [[20,117],[4,118]],totalDataCodewords: 2812,errorCodewordsPerBlock: 30 },M: { groups: [[40,47],[7,48]],totalDataCodewords: 2216,errorCodewordsPerBlock: 28 },Q: { groups: [[43,24],[22,25]],totalDataCodewords: 1582,errorCodewordsPerBlock: 30 },H: { groups: [[10,15],[67,16]],totalDataCodewords: 1222,errorCodewordsPerBlock: 30 } },{ L: { groups: [[19,118],[6,119]],totalDataCodewords: 2956,errorCodewordsPerBlock: 30 },M: { groups: [[18,47],[31,48]],totalDataCodewords: 2334,errorCodewordsPerBlock: 28 },Q: { groups: [[34,24],[34,25]],totalDataCodewords: 1666,errorCodewordsPerBlock: 30 },H: { groups: [[20,15],[61,16]],totalDataCodewords: 1276,errorCodewordsPerBlock: 30 } }],
         finderPattern = [1,0,1,1,1],
         alignmentPattern = [1,0,1],
-        errorCorrectionPatterns = {L: "01", M: "00", Q: "11", H: "10"},
+        errorCorrectionPatterns = { L: "01", M: "00", Q: "11", H: "10" },
         formatMaskPattern = "101010000010010",
         formatGeneratorPolynomial = "10100110111",
         versionGeneratorPolynomial = "1111100100101",
         paddingCodewords = ["11101100", "00010001"],
         finderPatternValue = 93,
         maskPatternConditions = [
-            function(row,column){return (row + column) % 2 === 0;},
-            function(row){return row % 2 === 0;},
-            function(row,column){return column % 3 === 0;},
-            function(row,column){return (row + column) % 3 === 0;},
-            function(row,column){return (Math.floor(row/2) + Math.floor(column/3)) % 2 === 0;},
-            function(row,column){return ((row * column) % 2) + ((row * column) % 3) === 0;},
-            function(row,column){return (((row * column) % 2) + ((row * column) % 3)) % 2 === 0;},
-            function(row,column){return (((row + column) % 2) + ((row * column) % 3)) % 2 === 0;}
+            function(row,column) {return (row + column) % 2 === 0;},
+            function(row) {return row % 2 === 0;},
+            function(row,column) {return column % 3 === 0;},
+            function(row,column) {return (row + column) % 3 === 0;},
+            function(row,column) {return (Math.floor(row / 2) + Math.floor(column / 3)) % 2 === 0;},
+            function(row,column) {return ((row * column) % 2) + ((row * column) % 3) === 0;},
+            function(row,column) {return (((row * column) % 2) + ((row * column) % 3)) % 2 === 0;},
+            function(row,column) {return (((row + column) % 2) + ((row * column) % 3)) % 2 === 0;}
         ],
         numberRegex = /^\d+/,
         alphaPattern = "A-Z0-9 $%*+./:-",
         alphaExclusiveSet = "A-Z $%*+./:-",
         alphaRegex = new RegExp("^[" + alphaExclusiveSet + "]+"),
-        alphaNumericRegex = new RegExp("^[" + alphaPattern+ "]+"),
-        byteRegex = new RegExp("^[^" + alphaPattern+ "]+"),
+        alphaNumericRegex = new RegExp("^[" + alphaPattern + "]+"),
+        byteRegex = new RegExp("^[^" + alphaPattern + "]+"),
         initMinNumericBeforeAlpha = 8,
         initMinNumericBeforeByte = 5,
         initMinAlphaBeforeByte = 8,
         minNumericBeforeAlpha = 17,
         minNumericBeforeByte = 9,
-        minAlphaBeforeByte =  16,
+        minAlphaBeforeByte = 16,
         round = Math.round,
         IMAGE = "image",
         SWISS_QR = "swiss",
@@ -68124,50 +68145,50 @@ var __meta__ = { // jshint ignore:line
         squarePattern = [[0,1],[1,1],[1,0]],
         DEFAULT_LOGO_SIZE = 7;
 
-        function toDecimal(value){
+        function toDecimal(value) {
             return parseInt(value, 2);
         }
 
-        function toBitsString(value, length){
+        function toBitsString(value, length) {
             var result = Number(value).toString(2);
-            if(result.length < length){
+            if (result.length < length) {
                 result = new Array(length - result.length + 1).join(0) + result;
             }
             return result;
         }
 
-        function splitInto(str, n){
+        function splitInto(str, n) {
             var result = [],
                 idx = 0;
-            while(idx < str.length){
+            while (idx < str.length) {
                 result.push(str.substring(idx, idx + n));
-                idx+= n;
+                idx += n;
             }
             return result;
         }
 
         var QRDataMode = kendo.Class.extend({
-            getVersionIndex: function(version){
-                if(version < 10){
+            getVersionIndex: function(version) {
+                if (version < 10) {
                     return 0;
                 }
-                else if(version > 26){
+                else if (version > 26) {
                     return 2;
                 }
 
                 return 1;
             },
-            getBitsCharacterCount: function(version){
+            getBitsCharacterCount: function(version) {
                 var mode = this;
                 return mode.bitsInCharacterCount[mode.getVersionIndex(version || 40)];
             },
-            getModeCountString: function(length, version){
+            getModeCountString: function(length, version) {
                 var mode = this;
                 return mode.modeIndicator + toBitsString(length, mode.getBitsCharacterCount(version));
             },
-            encode: function(){},
-            getStringBitsLength: function(){},
-            getValue: function(){},
+            encode: function() {},
+            getStringBitsLength: function() {},
+            getValue: function() {},
             modeIndicator: "",
             bitsInCharacterCount: []
         });
@@ -68176,38 +68197,38 @@ var __meta__ = { // jshint ignore:line
         modes[NUMERIC] = QRDataMode.extend({
             bitsInCharacterCount: [10, 12, 14],
             modeIndicator: "0001",
-            getValue: function(character){
+            getValue: function(character) {
                 return parseInt(character, 10);
             },
-            encode: function(str, version){
+            encode: function(str, version) {
                 var mode = this,
                     parts = splitInto(str, 3),
                     result = mode.getModeCountString(str.length, version);
 
-                for(var i = 0; i < parts.length - 1; i++){
+                for (var i = 0; i < parts.length - 1; i++) {
                     result += toBitsString(parts[i], 10);
                 }
                 return result + toBitsString(parts[i], 1 + 3 * parts[i].length);
             },
-            getStringBitsLength: function(inputLength, version){
+            getStringBitsLength: function(inputLength, version) {
                 var mod3 = inputLength % 3;
                 return 4 + this.getBitsCharacterCount(version) + 10 * Math.floor(inputLength / 3) + 3 * mod3 + (mod3 === 0 ? 0 : 1);
             }
         });
 
         modes[ALPHA_NUMERIC] = QRDataMode.extend({
-            characters: {"0":0,"1": 1,"2": 2,"3": 3,"4": 4,"5": 5,"6": 6,"7": 7,"8": 8,"9": 9,"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15,"G": 16,"H": 17,"I": 18,"J": 19,"K": 20,"L": 21,"M": 22,"N": 23,"O": 24,"P": 25,"Q": 26,"R": 27,"S": 28,"T": 29,"U": 30,"V": 31,"W": 32,"X": 33,"Y": 34,"Z": 35," ": 36,"$": 37,"%": 38,"*": 39,"+": 40,"-": 41,".": 42,"/": 43,":": 44},
+            characters: { "0": 0,"1": 1,"2": 2,"3": 3,"4": 4,"5": 5,"6": 6,"7": 7,"8": 8,"9": 9,"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15,"G": 16,"H": 17,"I": 18,"J": 19,"K": 20,"L": 21,"M": 22,"N": 23,"O": 24,"P": 25,"Q": 26,"R": 27,"S": 28,"T": 29,"U": 30,"V": 31,"W": 32,"X": 33,"Y": 34,"Z": 35," ": 36,"$": 37,"%": 38,"*": 39,"+": 40,"-": 41,".": 42,"/": 43,":": 44 },
             bitsInCharacterCount: [9,11,13],
             modeIndicator: "0010",
-            getValue: function(character){
+            getValue: function(character) {
                 return this.characters[character];
             },
-            encode: function(str, version){
+            encode: function(str, version) {
                 var mode = this,
                     parts = splitInto(str, 2),
                     result = mode.getModeCountString(str.length, version),
                     value;
-                for(var i = 0; i < parts.length - 1; i++){
+                for (var i = 0; i < parts.length - 1; i++) {
                     value = 45 * mode.getValue(parts[i].charAt(0)) + mode.getValue(parts[i].charAt(1));
                     result += toBitsString(value, 11);
                 }
@@ -68216,7 +68237,7 @@ var __meta__ = { // jshint ignore:line
                     mode.getValue(parts[i].charAt(0));
                 return result + toBitsString(value, 1 + 5 * parts[i].length);
             },
-            getStringBitsLength: function(inputLength, version){
+            getStringBitsLength: function(inputLength, version) {
                 return 4 + this.getBitsCharacterCount(version) + 11 * Math.floor(inputLength / 2) + 6 * (inputLength % 2);
             }
         });
@@ -68224,132 +68245,132 @@ var __meta__ = { // jshint ignore:line
         modes[BYTE] = QRDataMode.extend({
             bitsInCharacterCount: [8,16,16],
             modeIndicator: "0100",
-            getValue: function(character){
+            getValue: function(character) {
                 var code = character.charCodeAt(0);
-                if(code <= 127 || (160 <= code && code <= 255)){
+                if (code <= 127 || (160 <= code && code <= 255)) {
                     return code;
                 }
-                else{
+                else {
                     throw new Error("Unsupported character: " + character);
                 }
             },
-            encode: function(str, version){
+            encode: function(str, version) {
                 var mode = this,
                     result = mode.getModeCountString(str.length, version);
 
-                for(var i = 0; i < str.length; i++){
+                for (var i = 0; i < str.length; i++) {
                     result += toBitsString(mode.getValue(str.charAt(i)), 8);
                 }
                 return result;
             },
-            getStringBitsLength: function(inputLength, version){
+            getStringBitsLength: function(inputLength, version) {
                 return 4 + this.getBitsCharacterCount(version) + 8 * inputLength;
             }
         });
 
         var modeInstances = {};
-        for(var mode in modes){
+        for (var mode in modes) {
             modeInstances[mode] = new modes[mode]();
         }
 
-        var FreeCellVisitor = function (matrix){
+        var FreeCellVisitor = function(matrix) {
             var that = this,
                 row = matrix.length - 1,
                 column = matrix.length - 1,
                 startColumn = column,
                 dir = -1,
                 c = 0;
-            that.move = function(){
+            that.move = function() {
                 row += dir * c;
-                c^=1;
+                c ^= 1;
                 column = startColumn - c;
             };
-            that.getNextCell = function(){
-                while(matrix[row][column] !== undefined){
+            that.getNextCell = function() {
+                while (matrix[row][column] !== undefined) {
                     that.move();
-                    if(row < 0 || row >= matrix.length){
+                    if (row < 0 || row >= matrix.length) {
                         dir = -dir;
-                        startColumn-= startColumn != 8 ? 2 : 3;
+                        startColumn -= startColumn != 8 ? 2 : 3;
                         column = startColumn;
                         row = dir < 0 ? matrix.length - 1 : 0;
                     }
                 }
-                return {row: row, column: column};
+                return { row: row, column: column };
             };
-            that.getNextRemainderCell = function(){
+            that.getNextRemainderCell = function() {
                 that.move();
-                if(matrix[row][column] === undefined){
-                     return {row: row, column: column};
+                if (matrix[row][column] === undefined) {
+                     return { row: row, column: column };
                 }
             };
         };
 
-        function fillFunctionCell(matrices, bit, x, y){
-            for(var i = 0; i< matrices.length;i++){
+        function fillFunctionCell(matrices, bit, x, y) {
+            for (var i = 0; i < matrices.length; i++) {
                 matrices[i][x][y] = bit;
             }
         }
 
-        function fillDataCell(matrices, bit, x, y){
-            for(var i = 0; i < maskPatternConditions.length;i++){
+        function fillDataCell(matrices, bit, x, y) {
+            for (var i = 0; i < maskPatternConditions.length; i++) {
                 matrices[i][x][y] = maskPatternConditions[i](x,y) ? bit ^ 1 : parseInt(bit, 10);
             }
         }
 
-        var fillData = function (matrices, blocks){
+        var fillData = function(matrices, blocks) {
             var cellVisitor = new FreeCellVisitor(matrices[0]),
                 block,
                 codewordIdx,
                 cell;
 
-            for(var blockIdx = 0; blockIdx < blocks.length;blockIdx++){
+            for (var blockIdx = 0; blockIdx < blocks.length; blockIdx++) {
                 block = blocks[blockIdx];
                 codewordIdx = 0;
-                while(block.length > 0){
-                    for(var i = 0; i< block.length; i++){
-                         for(var j = 0; j < 8;j++){
+                while (block.length > 0) {
+                    for (var i = 0; i < block.length; i++) {
+                         for (var j = 0; j < 8; j++) {
                             cell = cellVisitor.getNextCell();
                             fillDataCell(matrices, block[i][codewordIdx].charAt(j), cell.row, cell.column);
                         }
                     }
 
                     codewordIdx++;
-                    while(block[0] && codewordIdx == block[0].length){
+                    while (block[0] && codewordIdx == block[0].length) {
                         block.splice(0,1);
                     }
                 }
             }
 
-            while((cell = cellVisitor.getNextRemainderCell())){
+            while ((cell = cellVisitor.getNextRemainderCell())) {
                 fillDataCell(matrices, 0, cell.row, cell.column);
             }
         };
 
-        var padDataString = function (dataString, totalDataCodewords){
+        var padDataString = function(dataString, totalDataCodewords) {
             var dataBitsCount = totalDataCodewords * 8,
                 terminatorIndex = 0,
                 paddingCodewordIndex = 0;
-            while(dataString.length < dataBitsCount && terminatorIndex < terminator.length){
-                dataString+=terminator.charAt(terminatorIndex++);
+            while (dataString.length < dataBitsCount && terminatorIndex < terminator.length) {
+                dataString += terminator.charAt(terminatorIndex++);
             }
 
-            if(dataString.length % 8 !== 0){
-                dataString+= new Array(9 - dataString.length % 8).join("0");
+            if (dataString.length % 8 !== 0) {
+                dataString += new Array(9 - dataString.length % 8).join("0");
             }
 
-            while(dataString.length < dataBitsCount){
-                dataString+= paddingCodewords[paddingCodewordIndex];
+            while (dataString.length < dataBitsCount) {
+                dataString += paddingCodewords[paddingCodewordIndex];
                 paddingCodewordIndex ^= 1;
             }
             return dataString;
         };
 
-        function generatePowersOfTwo(){
+        function generatePowersOfTwo() {
             var result;
-            for(var power = 1; power < 255; power++){
+            for (var power = 1; power < 255; power++) {
 
-                result =  powersOfTwoResult[power - 1] * 2;
-                if(result > 255){
+                result = powersOfTwoResult[power - 1] * 2;
+                if (result > 255) {
                     result = result ^ 285;
                 }
 
@@ -68358,29 +68379,29 @@ var __meta__ = { // jshint ignore:line
             }
 
             result = (powersOfTwoResult[power - 1] * 2) ^ 285;
-            powersOfTwoResult[power] =   result;
+            powersOfTwoResult[power] = result;
             powersOfTwoResult[-1] = 0;
         }
 
-        var xorPolynomials = function (x,y){
+        var xorPolynomials = function(x,y) {
             var result = [],
                 idx = x.length - 2;
-            for(var i = idx; i>=0; i--){
+            for (var i = idx; i >= 0; i--) {
                  result[i] = x[i] ^ y[i];
             }
 
             return result;
         };
 
-        var multiplyPolynomials = function (x, y){
+        var multiplyPolynomials = function(x, y) {
             var result = [];
-            for(var i = 0; i < x.length; i++){
-                for(var j = 0; j < y.length; j++){
-                    if(result[i+j] === undefined){
-                         result[i+j] = (x[i] + (y[j] >= 0 ? y[j] : 0)) % 255;
+            for (var i = 0; i < x.length; i++) {
+                for (var j = 0; j < y.length; j++) {
+                    if (result[i + j] === undefined) {
+                         result[i + j] = (x[i] + (y[j] >= 0 ? y[j] : 0)) % 255;
                     }
-                    else{
-                       result[i+j] = powersOfTwo[powersOfTwoResult[result[i+j]] ^ powersOfTwoResult[(x[i] + y[j]) % 255]];
+                    else {
+                       result[i + j] = powersOfTwo[powersOfTwoResult[result[i + j]] ^ powersOfTwoResult[(x[i] + y[j]) % 255]];
                     }
                 }
             }
@@ -68388,12 +68409,12 @@ var __meta__ = { // jshint ignore:line
             return result;
         };
 
-        function generateGeneratorPolynomials(){
+        function generateGeneratorPolynomials() {
             var maxErrorCorrectionCodeWordsCount = 68;
-            for(var idx = 2; idx <= maxErrorCorrectionCodeWordsCount; idx++){
+            for (var idx = 2; idx <= maxErrorCorrectionCodeWordsCount; idx++) {
                 var firstPolynomial = generatorPolynomials[idx - 1],
                     secondPolynomial = [idx, 0];
-                generatorPolynomials[idx] =  multiplyPolynomials(firstPolynomial, secondPolynomial);
+                generatorPolynomials[idx] = multiplyPolynomials(firstPolynomial, secondPolynomial);
             }
         }
 
@@ -68401,18 +68422,18 @@ var __meta__ = { // jshint ignore:line
         generatePowersOfTwo();
         generateGeneratorPolynomials();
 
-        function multiplyByConstant(polynomial, power){
+        function multiplyByConstant(polynomial, power) {
             var result = [],
                 idx = polynomial.length - 1;
-            do{
+            do {
                 result[idx] = powersOfTwoResult[(polynomial[idx] + power) % 255];
                 idx--;
-            }while(polynomial[idx] !== undefined);
+            } while (polynomial[idx] !== undefined);
 
             return result;
         }
 
-        var generateErrorCodewords = function (data, errorCodewordsCount){
+        var generateErrorCodewords = function(data, errorCodewordsCount) {
             var generator = generatorPolynomials[errorCodewordsCount - 1],
                 result = new Array(errorCodewordsCount).concat(data),
                 generatorPolynomial = new Array(result.length - generator.length).concat(generator),
@@ -68421,21 +68442,21 @@ var __meta__ = { // jshint ignore:line
                 divisor,
                 idx;
 
-            for(idx = 0; idx < steps; idx++){
+            for (idx = 0; idx < steps; idx++) {
                 divisor = multiplyByConstant(generatorPolynomial, powersOfTwo[result[result.length - 1]]);
                 generatorPolynomial.splice(0,1);
 
                 result = xorPolynomials(divisor, result);
             }
 
-            for(idx = result.length - 1; idx >= 0;idx--){
+            for (idx = result.length - 1; idx >= 0; idx--) {
                 errorCodewords[errorCodewordsCount - 1 - idx] = toBitsString(result[idx], 8);
             }
 
             return errorCodewords;
         };
 
-        var getBlocks = function (dataStream, versionCodewordsInformation){
+        var getBlocks = function(dataStream, versionCodewordsInformation) {
             var codewordStart = 0,
                 dataBlocks = [],
                 errorBlocks = [],
@@ -68446,17 +68467,17 @@ var __meta__ = { // jshint ignore:line
                 messagePolynomial,
                 codeword;
 
-            for(var groupIdx = 0; groupIdx < versionGroups.length; groupIdx++){
+            for (var groupIdx = 0; groupIdx < versionGroups.length; groupIdx++) {
                 groupBlocksCount = versionGroups[groupIdx][0];
-                for(var blockIdx = 0; blockIdx < groupBlocksCount;blockIdx++){
+                for (var blockIdx = 0; blockIdx < groupBlocksCount; blockIdx++) {
                     blockCodewordsCount = versionGroups[groupIdx][1];
                     dataBlock = [];
                     messagePolynomial = [];
-                    for(var codewordIdx = 1; codewordIdx <= blockCodewordsCount; codewordIdx++){
+                    for (var codewordIdx = 1; codewordIdx <= blockCodewordsCount; codewordIdx++) {
                         codeword = dataStream.substring(codewordStart, codewordStart + 8);
                         dataBlock.push(codeword);
                         messagePolynomial[blockCodewordsCount - codewordIdx] = toDecimal(codeword);
-                        codewordStart+=8;
+                        codewordStart += 8;
                     }
                     dataBlocks.push(dataBlock);
                     errorBlocks.push(generateErrorCodewords(messagePolynomial,
@@ -68466,7 +68487,7 @@ var __meta__ = { // jshint ignore:line
             return [dataBlocks, errorBlocks];
         };
 
-        var chooseMode = function (str, minNumericBeforeAlpha, minNumericBeforeByte, minAlphaBeforeByte, previousMode){
+        var chooseMode = function(str, minNumericBeforeAlpha, minNumericBeforeByte, minAlphaBeforeByte, previousMode) {
              var numeric = numberRegex.exec(str),
                 numericMatch = numeric ? numeric[0] : "",
                 alpha = alphaRegex.exec(str),
@@ -68476,23 +68497,23 @@ var __meta__ = { // jshint ignore:line
                 mode,
                 modeString;
 
-             if(numericMatch && (numericMatch.length >= minNumericBeforeAlpha ||
+             if (numericMatch && (numericMatch.length >= minNumericBeforeAlpha ||
                      str.length == numericMatch.length || (numericMatch.length >= minNumericBeforeByte &&
-                     !alphaNumericRegex.test(str.charAt(numericMatch.length))))){
+                     !alphaNumericRegex.test(str.charAt(numericMatch.length))))) {
                 mode = NUMERIC;
                 modeString = numericMatch;
              }
-             else if(alphaNumericMatch && (str.length == alphaNumericMatch.length ||
-                alphaNumericMatch.length >= minAlphaBeforeByte || previousMode == ALPHA_NUMERIC)){
+             else if (alphaNumericMatch && (str.length == alphaNumericMatch.length ||
+                alphaNumericMatch.length >= minAlphaBeforeByte || previousMode == ALPHA_NUMERIC)) {
                 mode = ALPHA_NUMERIC;
-                modeString =  numericMatch || alphaMatch;
+                modeString = numericMatch || alphaMatch;
              }
              else {
                 mode = BYTE;
-                if(alphaNumericMatch){
+                if (alphaNumericMatch) {
                     modeString = alphaNumericMatch + byteRegex.exec(str.substring(alphaNumericMatch.length))[0];
                 }
-                else{
+                else {
                     modeString = byteRegex.exec(str)[0];
                 }
              }
@@ -68503,7 +68524,7 @@ var __meta__ = { // jshint ignore:line
              };
         };
 
-        var getModes = function (str){
+        var getModes = function(str) {
             var modes = [],
                 previousMode,
                 idx = 0;
@@ -68511,14 +68532,14 @@ var __meta__ = { // jshint ignore:line
             previousMode = modes[0].mode;
             str = str.substr(modes[0].modeString.length);
 
-            while(str.length > 0){
+            while (str.length > 0) {
                var nextMode = chooseMode(str, minNumericBeforeAlpha, minNumericBeforeByte, minAlphaBeforeByte, previousMode);
-               if(nextMode.mode != previousMode){
+               if (nextMode.mode != previousMode) {
                     previousMode = nextMode.mode;
                     modes.push(nextMode);
                     idx++;
                }
-               else{
+               else {
                     modes[idx].modeString += nextMode.modeString;
                }
                str = str.substr(nextMode.modeString.length);
@@ -68527,69 +68548,69 @@ var __meta__ = { // jshint ignore:line
             return modes;
         };
 
-        var getDataCodewordsCount = function (modes){
+        var getDataCodewordsCount = function(modes) {
             var length = 0,
                 mode;
-            for(var i = 0; i < modes.length; i++){
+            for (var i = 0; i < modes.length; i++) {
                 mode = modeInstances[modes[i].mode];
-                length+= mode.getStringBitsLength(modes[i].modeString.length);
+                length += mode.getStringBitsLength(modes[i].modeString.length);
             }
 
             return Math.ceil(length / 8);
         };
 
-        var getVersion = function (dataCodewordsCount, errorCorrectionLevel){
+        var getVersion = function(dataCodewordsCount, errorCorrectionLevel) {
             var x = 0,
                 y = versionsCodewordsInformation.length - 1,
                 version = Math.floor(versionsCodewordsInformation.length / 2);
 
-            do{
-                if(dataCodewordsCount < versionsCodewordsInformation[version][errorCorrectionLevel].totalDataCodewords){
+            do {
+                if (dataCodewordsCount < versionsCodewordsInformation[version][errorCorrectionLevel].totalDataCodewords) {
                     y = version;
                 }
-                else{
+                else {
                     x = version;
                 }
                 version = x + Math.floor((y - x) / 2);
 
-            }while(y - x > 1);
+            } while (y - x > 1);
 
-            if(dataCodewordsCount <= versionsCodewordsInformation[x][errorCorrectionLevel].totalDataCodewords){
+            if (dataCodewordsCount <= versionsCodewordsInformation[x][errorCorrectionLevel].totalDataCodewords) {
                 return version + 1;
             }
             return y + 1;
         };
 
-        var getDataString = function (modes, version){
+        var getDataString = function(modes, version) {
             var dataString = "",
                 mode;
-            for(var i = 0; i < modes.length; i++){
+            for (var i = 0; i < modes.length; i++) {
                 mode = modeInstances[modes[i].mode];
-                dataString+= mode.encode(modes[i].modeString, version);
+                dataString += mode.encode(modes[i].modeString, version);
             }
 
             return dataString;
         };
 
         //fix case all zeros
-        var encodeFormatInformation = function (format){
+        var encodeFormatInformation = function(format) {
             var formatNumber = toDecimal(format),
                 encodedString,
                 result = "";
-            if(formatNumber === 0){
+            if (formatNumber === 0) {
                 return "101010000010010";
             }
-            else{
+            else {
                 encodedString = encodeBCH(toDecimal(format), formatGeneratorPolynomial, 15);
             }
-            for(var i = 0; i < encodedString.length; i++){
+            for (var i = 0; i < encodedString.length; i++) {
                 result += encodedString.charAt(i) ^ formatMaskPattern.charAt(i);
             }
 
             return result;
         };
 
-        var encodeBCH = function (value, generatorPolynomial, codeLength){
+        var encodeBCH = function(value, generatorPolynomial, codeLength) {
             var generatorNumber = toDecimal(generatorPolynomial),
                 polynomialLength = generatorPolynomial.length - 1,
                 valueNumber = value << polynomialLength,
@@ -68600,28 +68621,28 @@ var __meta__ = { // jshint ignore:line
             return result;
         };
 
-        var dividePolynomials = function (numberX,numberY){
+        var dividePolynomials = function(numberX,numberY) {
                 var yLength = numberY.toString(2).length,
                     xLength = numberX.toString(2).length;
-                do{
+                do {
                     numberX ^= numberY << xLength - yLength;
                     xLength = numberX.toString(2).length;
                 }
-                while(xLength >= yLength);
+                while (xLength >= yLength);
 
                 return numberX;
         };
 
-        function getNumberAt(str, idx){
+        function getNumberAt(str, idx) {
             return parseInt(str.charAt(idx), 10);
         }
 
-        var initMatrices = function (version){
+        var initMatrices = function(version) {
             var matrices = [],
-                modules =  17 + 4 * version;
-            for(var i = 0; i < maskPatternConditions.length; i++){
+                modules = 17 + 4 * version;
+            for (var i = 0; i < maskPatternConditions.length; i++) {
                 matrices[i] = new Array(modules);
-                for(var j = 0; j < modules; j++){
+                for (var j = 0; j < modules; j++) {
                     matrices[i][j] = new Array(modules);
                 }
             }
@@ -68629,41 +68650,41 @@ var __meta__ = { // jshint ignore:line
             return matrices;
         };
 
-        var addFormatInformation =function (matrices, formatString){
+        var addFormatInformation = function(matrices, formatString) {
             var matrix = matrices[0],
                 x,
                 y,
                 idx = 0,
                 length = formatString.length;
 
-            for(x=0, y=8; x <= 8;x++){
-                if(x!== 6){
+            for (x = 0, y = 8; x <= 8; x++) {
+                if (x !== 6) {
                     fillFunctionCell(matrices, getNumberAt(formatString, length - 1 - idx++), x, y);
                 }
             }
 
-            for(x=8, y=7; y>=0;y--){
-                if(y!== 6){
+            for (x = 8, y = 7; y >= 0; y--) {
+                if (y !== 6) {
                     fillFunctionCell(matrices, getNumberAt(formatString, length - 1 - idx++), x, y);
                 }
             }
-            idx=0;
-            for(y = matrix.length - 1, x = 8; y >= matrix.length - 8;y--){
+            idx = 0;
+            for (y = matrix.length - 1, x = 8; y >= matrix.length - 8; y--) {
                 fillFunctionCell(matrices,getNumberAt(formatString, length - 1 - idx++), x, y);
             }
 
             fillFunctionCell(matrices, 1, matrix.length - 8, 8);
 
-            for(x = matrix.length - 7, y = 8; x < matrix.length;x++){
+            for (x = matrix.length - 7, y = 8; x < matrix.length; x++) {
                 fillFunctionCell(matrices, getNumberAt(formatString, length - 1 - idx++), x, y);
             }
         };
 
-        var encodeVersionInformation = function (version){
+        var encodeVersionInformation = function(version) {
             return encodeBCH(version, versionGeneratorPolynomial, 18);
         };
 
-        var addVersionInformation = function (matrices, dataString){
+        var addVersionInformation = function(matrices, dataString) {
             var matrix = matrices[0],
                 modules = matrix.length,
                 x1 = 0,
@@ -68674,7 +68695,7 @@ var __meta__ = { // jshint ignore:line
                 mod,
                 value;
 
-            for(var idx =0; idx < dataString.length; idx++){
+            for (var idx = 0; idx < dataString.length; idx++) {
                 quotient = Math.floor(idx / 3);
                 mod = idx % 3;
                 value = getNumberAt(dataString, dataString.length - idx - 1);
@@ -68683,13 +68704,13 @@ var __meta__ = { // jshint ignore:line
             }
         };
 
-        var addCentricPattern = function (matrices, pattern, x, y){
+        var addCentricPattern = function(matrices, pattern, x, y) {
             var size = pattern.length + 2,
                 length = pattern.length + 1,
                 value;
 
-            for(var i = 0; i < pattern.length; i++){
-                for(var j = i; j < size - i; j++){
+            for (var i = 0; i < pattern.length; i++) {
+                for (var j = i; j < size - i; j++) {
                     value = pattern[i];
                     fillFunctionCell(matrices, value, x + j, y + i);
                     fillFunctionCell(matrices, value, x + i, y + j);
@@ -68699,20 +68720,20 @@ var __meta__ = { // jshint ignore:line
             }
         };
 
-        var addFinderSeparator = function (matrices, direction, x, y){
+        var addFinderSeparator = function(matrices, direction, x, y) {
             var nextX = x,
                 nextY = y,
                 matrix = matrices[0];
-            do{
+            do {
                 fillFunctionCell(matrices, 0, nextX, y);
                 fillFunctionCell(matrices, 0, x, nextY);
-                nextX+= direction[0];
-                nextY+= direction[1];
+                nextX += direction[0];
+                nextY += direction[1];
             }
-            while(nextX >=0 && nextX < matrix.length);
+            while (nextX >= 0 && nextX < matrix.length);
         };
 
-        var addFinderPatterns = function (matrices){
+        var addFinderPatterns = function(matrices) {
             var modules = matrices[0].length;
             addCentricPattern(matrices, finderPattern, 0, 0);
             addFinderSeparator(matrices, [-1,-1], 7,7);
@@ -68722,8 +68743,8 @@ var __meta__ = { // jshint ignore:line
             addFinderSeparator(matrices, [-1,1],7, modules - 8);
         };
 
-        var addAlignmentPatterns = function (matrices, version){
-            if(version < 2) {
+        var addAlignmentPatterns = function(matrices, version) {
+            if (version < 2) {
                 return;
             }
 
@@ -68735,41 +68756,41 @@ var __meta__ = { // jshint ignore:line
                 distance,
                 idx = 0;
 
-            if((startDistance = irregularAlignmentPatternsStartDistance[version])){
+            if ((startDistance = irregularAlignmentPatternsStartDistance[version])) {
                 distance = (modules - 13 - startDistance) / pointsCount;
             }
-            else{
+            else {
                 startDistance = distance = (modules - 13) / (pointsCount + 1);
             }
             points.push(points[idx++] + startDistance);
-            while((points[idx] + distance) < modules){
+            while ((points[idx] + distance) < modules) {
                 points.push(points[idx++] + distance);
             }
-            for(var i = 0; i < points.length;i++){
-                for(var j = 0; j < points.length; j++){
-                    if(matrix[points[i]][points[j]] === undefined){
+            for (var i = 0; i < points.length; i++) {
+                for (var j = 0; j < points.length; j++) {
+                    if (matrix[points[i]][points[j]] === undefined) {
                         addCentricPattern(matrices, alignmentPattern, points[i] - 2, points[j] - 2);
                     }
                 }
             }
         };
 
-        var addTimingFunctions = function (matrices){
+        var addTimingFunctions = function(matrices) {
             var row = 6,
                 column = 6,
                 value = 1,
                 modules = matrices[0].length;
-            for(var i = 8; i < modules - 8;i++){
+            for (var i = 8; i < modules - 8; i++) {
                 fillFunctionCell(matrices, value, row, i);
                 fillFunctionCell(matrices, value, i, column);
                 value ^= 1;
             }
         };
 
-        var scoreMaskMatrixes = function (matrices){
+        var scoreMaskMatrixes = function(matrices) {
             var scores = [],
                 previousBits = [],
-                darkModules =  [],
+                darkModules = [],
                 patterns = [],
                 adjacentSameBits = [],
                 matrix,
@@ -68779,21 +68800,21 @@ var __meta__ = { // jshint ignore:line
                 modules = matrices[0].length;
 
 
-            for(i = 0; i < matrices.length; i++){
+            for (i = 0; i < matrices.length; i++) {
                 scores[i] = 0;
                 darkModules[i] = 0;
                 adjacentSameBits[i] = [0,0];
                 patterns[i] = [0, 0];
                 previousBits[i] = [];
             }
-            for(i = 0; i < modules; i++){
-                for(var j = 0; j < modules; j++){
-                    for(var k = 0; k < matrices.length; k++){
+            for (i = 0; i < modules; i++) {
+                for (var j = 0; j < modules; j++) {
+                    for (var k = 0; k < matrices.length; k++) {
                         matrix = matrices[k];
-                        darkModules[k]+= parseInt(matrix[i][j], 10);
-                        if(previousBits[k][row] === matrix[i][j] && i + 1 < modules && j - 1 >= 0 &&
-                            matrix[i + 1][j] == previousBits[k][row] && matrix[i + 1][j - 1] == previousBits[k][row]){
-                            scores[k]+=3;
+                        darkModules[k] += parseInt(matrix[i][j], 10);
+                        if (previousBits[k][row] === matrix[i][j] && i + 1 < modules && j - 1 >= 0 &&
+                            matrix[i + 1][j] == previousBits[k][row] && matrix[i + 1][j - 1] == previousBits[k][row]) {
+                            scores[k] += 3;
                         }
                         scoreFinderPatternOccurance(k, patterns, scores, row, matrix[i][j]);
                         scoreFinderPatternOccurance(k, patterns, scores, column, matrix[j][i]);
@@ -68806,9 +68827,9 @@ var __meta__ = { // jshint ignore:line
                 minIdx,
                 min = Number.MAX_VALUE;
 
-            for(i = 0; i < scores.length; i++){
-                scores[i]+= calculateDarkModulesRatioScore(darkModules[i], total);
-                if(scores[i] < min){
+            for (i = 0; i < scores.length; i++) {
+                scores[i] += calculateDarkModulesRatioScore(darkModules[i], total);
+                if (scores[i] < min) {
                     min = scores[i];
                     minIdx = i;
                 }
@@ -68817,42 +68838,42 @@ var __meta__ = { // jshint ignore:line
             return minIdx;
         };
 
-        function scoreFinderPatternOccurance(idx, patterns, scores, rowColumn, bit){
+        function scoreFinderPatternOccurance(idx, patterns, scores, rowColumn, bit) {
             patterns[idx][rowColumn] = ((patterns[idx][rowColumn] << 1) ^ bit) % 128;
-            if(patterns[idx][rowColumn] == finderPatternValue){
+            if (patterns[idx][rowColumn] == finderPatternValue) {
                 scores[idx] += 40;
             }
         }
 
-        function scoreAdjacentSameBits(idx, scores, previousBits, bit, adjacentBits, rowColumn){
-            if(previousBits[idx][rowColumn] == bit){
+        function scoreAdjacentSameBits(idx, scores, previousBits, bit, adjacentBits, rowColumn) {
+            if (previousBits[idx][rowColumn] == bit) {
                 adjacentBits[idx][rowColumn]++;
             }
-            else{
+            else {
                 previousBits[idx][rowColumn] = bit;
-                if(adjacentBits[idx][rowColumn] >= 5){
-                    scores[idx]+= 3 + adjacentBits[idx][rowColumn] - 5;
+                if (adjacentBits[idx][rowColumn] >= 5) {
+                    scores[idx] += 3 + adjacentBits[idx][rowColumn] - 5;
                 }
                 adjacentBits[idx][rowColumn] = 1;
             }
         }
 
-        function calculateDarkModulesRatioScore(darkModules, total){
+        function calculateDarkModulesRatioScore(darkModules, total) {
             var percent = Math.floor((darkModules / total) * 100),
                 mod5 = percent % 5,
                 previous = Math.abs(percent - mod5 - 50),
-                next = Math.abs(percent +  5 - mod5 - 50),
+                next = Math.abs(percent + 5 - mod5 - 50),
                 score = 10 * Math.min(previous / 5, next / 5);
             return score;
         }
 
-        var EncodingResult = function(dataString, version){
+        var EncodingResult = function(dataString, version) {
             this.dataString = dataString;
             this.version = version;
         };
 
-        var IsoEncoder = function(){
-            this.getEncodingResult = function(inputString, errorCorrectionLevel){
+        var IsoEncoder = function() {
+            this.getEncodingResult = function(inputString, errorCorrectionLevel) {
                 var modes = getModes(inputString),
                 dataCodewordsCount = getDataCodewordsCount(modes),
                 version = getVersion(dataCodewordsCount, errorCorrectionLevel),
@@ -68862,7 +68883,7 @@ var __meta__ = { // jshint ignore:line
             };
         };
 
-        var UTF8Encoder = function(){
+        var UTF8Encoder = function() {
             this.mode = modeInstances[this.encodingMode];
         };
 
@@ -68870,7 +68891,7 @@ var __meta__ = { // jshint ignore:line
             encodingMode: BYTE,
             utfBOM: "111011111011101110111111",
             initialModeCountStringLength: 20,
-            getEncodingResult: function(inputString, errorCorrectionLevel){
+            getEncodingResult: function(inputString, errorCorrectionLevel) {
                 var that = this,
                     data = that.encode(inputString),
                     dataCodewordsCount = that.getDataCodewordsCount(data),
@@ -68879,33 +68900,33 @@ var __meta__ = { // jshint ignore:line
 
                 return new EncodingResult(dataString, version);
             },
-            getDataCodewordsCount: function(data){
+            getDataCodewordsCount: function(data) {
                 var that = this,
                     dataLength = data.length,
                     dataCodewordsCount = Math.ceil(( that.initialModeCountStringLength + dataLength) / 8);
 
                 return dataCodewordsCount;
             },
-            encode: function(str){
+            encode: function(str) {
                 var that = this,
                     result = that.utfBOM;
-                for(var i = 0; i < str.length; i++){
+                for (var i = 0; i < str.length; i++) {
                     result += that.encodeCharacter(str.charCodeAt(i));
                 }
                 return result;
             },
-            encodeCharacter: function(code){
+            encodeCharacter: function(code) {
                 var bytesCount = this.getBytesCount(code),
                     bc = bytesCount - 1,
                     result = "";
 
-                if(bytesCount == 1){
+                if (bytesCount == 1) {
                     result = toBitsString(code, 8);
                 }
-                else{
+                else {
                     var significantOnes = 8 - bytesCount;
 
-                    for(var i = 0; i < bc; i++){
+                    for (var i = 0; i < bc; i++) {
                         result = toBitsString(code >> (i * 6) & 63 | 128, 8) + result;
                     }
 
@@ -68913,10 +68934,10 @@ var __meta__ = { // jshint ignore:line
                 }
                 return result;
             },
-            getBytesCount: function(code){
+            getBytesCount: function(code) {
                 var ranges = this.ranges;
-                for(var i = 0; i < ranges.length;i++){
-                    if(code < ranges[i]){
+                for (var i = 0; i < ranges.length; i++) {
+                    if (code < ranges[i]) {
                         return i + 1;
                     }
                 }
@@ -68924,16 +68945,16 @@ var __meta__ = { // jshint ignore:line
             ranges: [128,2048,65536,2097152,67108864]
         };
 
-        var QRCodeDataEncoder = function(encoding){
-            if(encoding && encoding.toLowerCase().indexOf("utf_8") >= 0){
+        var QRCodeDataEncoder = function(encoding) {
+            if (encoding && encoding.toLowerCase().indexOf("utf_8") >= 0) {
                 return new UTF8Encoder();
             }
-            else{
+            else {
                 return new IsoEncoder();
             }
         };
 
-        var encodeData = function (inputString, errorCorrectionLevel, encoding){
+        var encodeData = function(inputString, errorCorrectionLevel, encoding) {
             var encoder = new QRCodeDataEncoder(encoding),
                 encodingResult = encoder.getEncodingResult(inputString, errorCorrectionLevel),
                 version = encodingResult.version,
@@ -68946,7 +68967,7 @@ var __meta__ = { // jshint ignore:line
             addAlignmentPatterns(matrices, version);
             addTimingFunctions(matrices);
 
-            if(version >= 7){
+            if (version >= 7) {
                 addVersionInformation(matrices, toBitsString(0, 18));
             }
 
@@ -68956,7 +68977,7 @@ var __meta__ = { // jshint ignore:line
             var minIdx = scoreMaskMatrixes(matrices),
                 optimalMatrix = matrices[minIdx];
 
-            if(version >= 7){
+            if (version >= 7) {
                 addVersionInformation([optimalMatrix], encodeVersionInformation(version));
             }
 
@@ -68966,17 +68987,17 @@ var __meta__ = { // jshint ignore:line
             return optimalMatrix;
         };
 
-        var QRCodeDefaults= {
+        var QRCodeDefaults = {
             DEFAULT_SIZE: 200,
             QUIET_ZONE_LENGTH: 4,
-            DEFAULT_ERROR_CORRECTION_LEVEL:"L",
+            DEFAULT_ERROR_CORRECTION_LEVEL: "L",
             DEFAULT_BACKGROUND: "#fff",
             DEFAULT_DARK_MODULE_COLOR: "#000",
             MIN_BASE_UNIT_SIZE: 1
         };
 
         var QRCode = Widget.extend({
-            init: function (element, options) {
+            init: function(element, options) {
                 var that = this;
 
                 Widget.fn.init.call(that, element, options);
@@ -68991,7 +69012,7 @@ var __meta__ = { // jshint ignore:line
                 that.setOptions(options);
             },
 
-            redraw: function(){
+            redraw: function() {
                 var size = this._getSize();
 
                 this.surfaceWrap.css({
@@ -69038,10 +69059,10 @@ var __meta__ = { // jshint ignore:line
 
                 var visual = new draw.Group();
 
-                if (value){
+                if (value) {
                     matrix = encodeData(value, that.options.errorCorrection, that.options.encoding);
                     size = that._getSize();
-                    contentSize = size - 2  * (borderWidth + padding);
+                    contentSize = size - 2 * (borderWidth + padding);
                     baseUnit = that._calculateBaseUnit(contentSize, matrix.length);
                     dataSize = matrix.length * baseUnit;
                     quietZoneSize = borderWidth + padding + (contentSize - dataSize) / 2;
@@ -69050,7 +69071,7 @@ var __meta__ = { // jshint ignore:line
                     visual.append(that._renderMatrix(matrix, baseUnit, quietZoneSize));
                     if (that._hasCustomLogo()) {
                         visual.append(that._renderLogo(size, baseUnit));
-                    } else if (that._isSwiss()){
+                    } else if (that._isSwiss()) {
                         visual.append(that._renderSwissCode(size, baseUnit));
                     }
                 }
@@ -69078,9 +69099,9 @@ var __meta__ = { // jshint ignore:line
                 return image;
             },
 
-            _renderSwissCode: function (qrSize, baseUnit) {
+            _renderSwissCode: function(qrSize, baseUnit) {
                 var logoSize = this._getLogoSize(baseUnit * DEFAULT_LOGO_SIZE);
-                logoSize =  Math.max(logoSize.width, logoSize.height);
+                logoSize = Math.max(logoSize.width, logoSize.height);
                 var crossSize = logoSize / 4;
                 var crossOffset = crossSize / 2;
                 var center = qrSize / 2;
@@ -69100,7 +69121,7 @@ var __meta__ = { // jshint ignore:line
                 return visual;
             },
 
-            _renderShape: function (start, step, pattern, color) {
+            _renderShape: function(start, step, pattern, color) {
                 var path = new draw.MultiPath({
                     fill: {
                         color: color
@@ -69117,17 +69138,17 @@ var __meta__ = { // jshint ignore:line
                 return path;
             },
 
-            _getSize: function(){
+            _getSize: function() {
                 var that = this,
                     size;
 
-                if (that.options.size){
+                if (that.options.size) {
                    size = parseInt(that.options.size, 10);
                 } else {
                     var element = that.element,
                         min = Math.min(element.width(), element.height());
 
-                    if (min > 0){
+                    if (min > 0) {
                         size = min;
                     } else {
                         size = QRCodeDefaults.DEFAULT_SIZE;
@@ -69137,22 +69158,22 @@ var __meta__ = { // jshint ignore:line
                 return size;
             },
 
-            _calculateBaseUnit: function(size, matrixSize){
-                var baseUnit = Math.floor(size/ matrixSize);
+            _calculateBaseUnit: function(size, matrixSize) {
+                var baseUnit = Math.floor(size / matrixSize);
 
-                if(baseUnit < QRCodeDefaults.MIN_BASE_UNIT_SIZE){
+                if (baseUnit < QRCodeDefaults.MIN_BASE_UNIT_SIZE) {
                     throw new Error("Insufficient size.");
                 }
 
-                if(baseUnit * matrixSize >= size &&
-                    baseUnit - 1 >= QRCodeDefaults.MIN_BASE_UNIT_SIZE){
+                if (baseUnit * matrixSize >= size &&
+                    baseUnit - 1 >= QRCodeDefaults.MIN_BASE_UNIT_SIZE) {
                     baseUnit--;
                 }
 
                 return baseUnit;
             },
 
-            _renderMatrix: function(matrix, baseUnit, quietZoneSize){
+            _renderMatrix: function(matrix, baseUnit, quietZoneSize) {
                 var path = new draw.MultiPath({
                     fill: {
                         color: this.options.color
@@ -69160,18 +69181,18 @@ var __meta__ = { // jshint ignore:line
                     stroke: null
                 });
 
-                for (var row = 0; row < matrix.length; row++){
+                for (var row = 0; row < matrix.length; row++) {
                     var y = quietZoneSize + row * baseUnit;
                     var column = 0;
 
-                    while (column < matrix.length){
-                        while (matrix[row][column] === 0 && column < matrix.length){
+                    while (column < matrix.length) {
+                        while (matrix[row][column] === 0 && column < matrix.length) {
                             column++;
                         }
 
-                        if (column < matrix.length){
+                        if (column < matrix.length) {
                             var x = column;
-                            while (matrix[row][column] == 1){
+                            while (matrix[row][column] == 1) {
                                 column++;
                             }
 
@@ -69192,7 +69213,7 @@ var __meta__ = { // jshint ignore:line
                 return path;
             },
 
-            _renderBackground: function (size, border) {
+            _renderBackground: function(size, border) {
                 var box = new Box2D(0,0, size, size).unpad(border.width / 2);
                 return draw.Path.fromRect(box.toRect(), {
                     fill: {
@@ -69205,7 +69226,7 @@ var __meta__ = { // jshint ignore:line
                 });
             },
 
-            setOptions: function (options) {
+            setOptions: function(options) {
                 var that = this;
                 options = options || {};
                 that.options = extend(that.options, options);
@@ -69214,7 +69235,7 @@ var __meta__ = { // jshint ignore:line
                 }
                 that.redraw();
             },
-            value: function(value){
+            value: function(value) {
                 var that = this;
                 if (value === undefined) {
                     return that._value;
@@ -69244,15 +69265,15 @@ var __meta__ = { // jshint ignore:line
                 }
             },
 
-            _hasCustomLogo: function () {
+            _hasCustomLogo: function() {
                 return !!this.options.overlay.imageUrl;
             },
 
-            _isSwiss: function () {
+            _isSwiss: function() {
                 return this.options.overlay.type === SWISS_QR;
             },
 
-            _getLogoSize: function (defautLogoSize) {
+            _getLogoSize: function(defautLogoSize) {
                 var width = this.options.overlay.width;
                 var height = this.options.overlay.height;
 
@@ -69318,7 +69339,7 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
@@ -69326,13 +69347,13 @@ return window.kendo;
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/stock/kendo-stock-chart',[
         "kendo.dataviz.chart"
     ], f);
-})(function(){
+})(function() {
 
-(function () {
+(function() {
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -69476,7 +69497,7 @@ var NavigatorHint = dataviz.Class.extend({
 
         this.clearHideTimeout();
 
-        this._hideTimeout = setTimeout(function () {
+        this._hideTimeout = setTimeout(function() {
             this$1._visible = false;
             this$1._hideAnimation = new FadeOutAnimation(this$1.element);
             this$1._hideAnimation.setup();
@@ -70200,14 +70221,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 })();
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/stock/stock-chart',[
         "./kendo-stock-chart"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {  // jshint ignore:line
+(function($) { // jshint ignore:line
 
     var kendo = window.kendo;
     var dataviz = kendo.dataviz;
@@ -70461,10 +70482,10 @@ kendo.deepExtend(kendo.dataviz, {
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.dataviz.stock',[ "./dataviz/stock/kendo-stock-chart", "./dataviz/stock/stock-chart" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.stockchart",
@@ -70474,7 +70495,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "dataviz.chart" ]
 };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 /***********************************************************************
  * WARNING: this file is auto-generated.  If you change it directly,
@@ -70482,13 +70503,13 @@ var __meta__ = { // jshint ignore:line
  * `kendo-charts` repository, you should make your changes there and
  * run `src-modules/sync.sh` in this repository.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/sparkline/kendo-sparkline',[
         "kendo.dataviz.chart"
     ], f);
-})(function(){
+})(function() {
 
-(function () {
+(function() {
 
 window.kendo.dataviz = window.kendo.dataviz || {};
 var dataviz = kendo.dataviz;
@@ -70775,14 +70796,14 @@ kendo.deepExtend(kendo.dataviz, {
 
 })();
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/sparkline/sparkline',[
         "./kendo-sparkline"
     ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
 
 var dataviz = kendo.dataviz;
 var Chart = dataviz.ui.Chart;
@@ -70901,11 +70922,11 @@ dataviz.SparklineTooltip = SparklineTooltip;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.sparkline',[ "./dataviz/sparkline/kendo-sparkline", "./dataviz/sparkline/sparkline" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.sparkline",
@@ -70915,7 +70936,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "dataviz.chart" ]
 };
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('util/main',[
@@ -71072,11 +71093,11 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/location',[ "kendo.drawing", "../../util/main" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var math = Math,
         abs = math.abs,
@@ -71346,8 +71367,8 @@ return window.kendo;
             var nw = this.nw,
                 se = this.se;
 
-            return {nw: this.nw, ne: new Location(nw.lat, se.lng),
-                    se: this.se, sw: new Location(se.lat, nw.lng)};
+            return { nw: this.nw, ne: new Location(nw.lat, se.lng),
+                    se: this.se, sw: new Location(se.lat, nw.lng) };
         },
 
         toArray: function() {
@@ -71386,11 +71407,11 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/attribution',[ "kendo.drawing" ], f);
-})(function(){
+})(function() {
 
 (function() {
     var kendo = window.kendo,
@@ -71510,13 +71531,13 @@ return window.kendo;
     kendo.dataviz.ui.plugin(Attribution);
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/navigator',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
@@ -71620,12 +71641,12 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('dataviz/map/zoom',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
-(function ($) {
+(function($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
@@ -71715,13 +71736,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/crs',[ "./location", "kendo.drawing" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var math = Math,
         atan = math.atan,
@@ -71756,10 +71777,10 @@ return window.kendo;
 
     // Coordinate reference systems ===========================================
     var WGS84 = {
-        a: 6378137,                 // Semi-major radius
-        b: 6356752.314245179,       // Semi-minor radius
-        f: 0.0033528106647474805,   // Flattening
-        e: 0.08181919084262149      // Eccentricity
+        a: 6378137, // Semi-major radius
+        b: 6356752.314245179, // Semi-minor radius
+        f: 0.0033528106647474805, // Flattening
+        e: 0.08181919084262149 // Eccentricity
     };
 
     // WGS 84 / World Mercator
@@ -71889,7 +71910,7 @@ return window.kendo;
             var c = this.c = 2 * PI * proj.options.datum.a;
 
             // Scale circumference to 1, mirror Y and shift origin to top left
-            this._tm = g.transform().translate(0.5, 0.5).scale(1/c, -1/c);
+            this._tm = g.transform().translate(0.5, 0.5).scale(1 / c, -1 / c);
 
             // Inverse transform matrix
             this._itm = g.transform().scale(c, -c).translate(-0.5, -0.5);
@@ -71964,13 +71985,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/base',[ "kendo.core", "../location" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         Class = kendo.Class,
@@ -72091,13 +72112,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/shape',["./base", "../location"], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         Class = kendo.Class,
@@ -72372,7 +72393,7 @@ return window.kendo;
             var i;
             var path;
 
-            switch(geometry.type) {
+            switch (geometry.type) {
                 case "LineString":
                     path = this._loadPolygon(container, [coords], dataItem);
                     this._setLineFill(path);
@@ -72502,13 +72523,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/bubble',["./shape" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         getter = kendo.getter,
@@ -72631,7 +72652,7 @@ return window.kendo;
     });
 
     var Symbols = {
-        circle: function (args) {
+        circle: function(args) {
             var geo = new g.Circle(args.center, args.size / 2);
             return new d.Circle(geo, args.style);
         },
@@ -72667,13 +72688,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('dataviz/map/layers/tile',[ "./base", "../location" ], f);
 })(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var math = Math,
 
@@ -72725,7 +72746,7 @@ return window.kendo;
         _reset: function(e) {
             var tileTitle;
 
-            if(e) {
+            if (e) {
                 tileTitle = e.tileTitle;
             } else {
                 tileTitle = "";
@@ -73134,13 +73155,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('dataviz/map/layers/bing',[ "./tile" ], f);
 })(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
 
@@ -73314,14 +73335,14 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/layers/marker',[ "./base", "../location",
              "kendo.data", "kendo.tooltip" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var doc = document,
         math = Math,
@@ -73413,7 +73434,7 @@ return window.kendo;
             }
         },
 
-        bind: function (options, dataItem) {
+        bind: function(options, dataItem) {
             var marker = map.Marker.create(options, this.options);
             marker.dataItem = dataItem;
 
@@ -73602,13 +73623,13 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/map/main',["./crs", "./location"], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var doc = document,
         math = Math,
@@ -73734,7 +73755,7 @@ return window.kendo;
             }
         },
 
-        events:[
+        events: [
             "beforeReset",
             "click",
             "markerActivate",
@@ -73826,7 +73847,7 @@ return window.kendo;
         layerToLocation: function(point, zoom) {
             var clamp = !this.options.wraparound;
             point = Point.create(point);
-            return  this.crs.toLocation(point, this._layerSize(zoom), clamp);
+            return this.crs.toLocation(point, this._layerSize(zoom), clamp);
         },
 
         locationToView: function(location) {
@@ -74101,7 +74122,7 @@ return window.kendo;
             var origin = this.locationToLayer(this._viewOrigin).round();
             var movable = e.sender.movable;
 
-            var offset = new g.Point(movable.x, movable.y).scale(-1).scale(1/movable.scale);
+            var offset = new g.Point(movable.x, movable.y).scale(-1).scale(1 / movable.scale);
             origin.x += offset.x;
             origin.y += offset.y;
 
@@ -74290,9 +74311,9 @@ return window.kendo;
 
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.map',[
         "kendo.data", "kendo.userevents", "kendo.tooltip", "kendo.mobile.scroller", "kendo.draganddrop",
         "kendo.dataviz.core",
@@ -74310,7 +74331,7 @@ return window.kendo;
         "./dataviz/map/layers/marker",
         "./dataviz/map/main"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "dataviz.map",
@@ -74322,13 +74343,13 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/utils',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram = {},
         deepExtend = kendo.deepExtend,
@@ -74340,50 +74361,50 @@ return window.kendo;
     };
 
     deepExtend(Utils, {
-        isNearZero: function (num) {
+        isNearZero: function(num) {
             return Math.abs(num) < EPSILON;
         },
-        isDefined: function (obj) {
+        isDefined: function(obj) {
             return typeof obj !== 'undefined';
         },
 
-        isUndefined: function (obj) {
+        isUndefined: function(obj) {
             return (typeof obj === 'undefined') || obj === null;
         },
         /**
          * Returns whether the given object is an object or a value.
          */
-        isObject: function (obj) {
+        isObject: function(obj) {
             return obj === Object(obj);
         },
         /**
          * Returns whether the object has a property with the given name.
          */
-        has: function (obj, key) {
+        has: function(obj, key) {
             return Object.hasOwnProperty.call(obj, key);
         },
         /**
          * Returns whether the given object is a string.
          */
-        isString: function (obj) {
+        isString: function(obj) {
             return Object.prototype.toString.call(obj) == '[object String]';
         },
-        isBoolean: function (obj) {
+        isBoolean: function(obj) {
             return Object.prototype.toString.call(obj) == '[object Boolean]';
         },
-        isType: function (obj, type) {
+        isType: function(obj, type) {
             return Object.prototype.toString.call(obj) == '[object ' + type + ']';
         },
         /**
          * Returns whether the given object is a number.
          */
-        isNumber: function (obj) {
+        isNumber: function(obj) {
             return !isNaN(parseFloat(obj)) && isFinite(obj);
         },
         /**
          * Return whether the given object (array or dictionary).
          */
-        isEmpty: function (obj) {
+        isEmpty: function(obj) {
             if (obj === null) {
                 return true;
             }
@@ -74398,11 +74419,11 @@ return window.kendo;
             return true;
         },
         simpleExtend: function(destination, source) {
-            if(!Utils.isObject(source)) {
+            if (!Utils.isObject(source)) {
                 return;
             }
 
-            for(var name in source) {
+            for (var name in source) {
                 destination[name] = source[name];
             }
         },
@@ -74419,7 +74440,7 @@ return window.kendo;
             }
             return array;
         },
-        serializePoints: function (points) {
+        serializePoints: function(points) {
             var res = [];
             for (var i = 0; i < points.length; i++) {
                 var p = points[i];
@@ -74427,7 +74448,7 @@ return window.kendo;
             }
             return res.join(";");
         },
-        deserializePoints: function (s) {
+        deserializePoints: function(s) {
             var v = s.split(";"), points = [];
             if (v.length % 2 !== 0) {
                 throw "Not an array of points.";
@@ -74446,13 +74467,13 @@ return window.kendo;
          * @param upper The exclusive upper bound.
          * @returns {number}
          */
-        randomInteger: function (lower, upper) {
+        randomInteger: function(lower, upper) {
             return parseInt(Math.floor(Math.random() * upper) + lower, 10);
         } ,
         /*
          Depth-first traversal of the given node.
          */
-        DFT: function (el, func) {
+        DFT: function(el, func) {
             func(el);
             if (el.childNodes) {
                 for (var i = 0; i < el.childNodes.length; i++) {
@@ -74464,7 +74485,7 @@ return window.kendo;
         /*
          Returns the angle in degrees for the given matrix
          */
-        getMatrixAngle: function (m) {
+        getMatrixAngle: function(m) {
             if (m === null || m.d === 0) {
                 return 0;
             }
@@ -74474,7 +74495,7 @@ return window.kendo;
         /*
          Returns the scaling factors for the given matrix.
          */
-        getMatrixScaling: function (m) {
+        getMatrixScaling: function(m) {
             var sX = Math.sqrt(m.a * m.a + m.c * m.c);
             var sY = Math.sqrt(m.b * m.b + m.d * m.d);
             return [sX, sY];
@@ -74572,7 +74593,7 @@ return window.kendo;
         return null;
     };
 
-    Utils.remove = function (arr, what) {
+    Utils.remove = function(arr, what) {
         var ax;
         while ((ax = Utils.indexOf(arr, what)) !== -1) {
             arr.splice(ax, 1);
@@ -74580,7 +74601,7 @@ return window.kendo;
         return arr;
     };
 
-    Utils.contains = function (arr, obj) {
+    Utils.contains = function(arr, obj) {
         return Utils.indexOf(arr, obj) !== -1;
     };
 
@@ -74588,7 +74609,7 @@ return window.kendo;
         return $.inArray(what, arr);
     };
 
-    Utils.fold = function (list, iterator, acc, context) {
+    Utils.fold = function(list, iterator, acc, context) {
         var initial = arguments.length > 2;
 
         for (var i = 0; i < list.length; i++) {
@@ -74609,9 +74630,9 @@ return window.kendo;
         return acc;
     };
 
-    Utils.find = function (arr, iterator, context) {
+    Utils.find = function(arr, iterator, context) {
         var result;
-        Utils.any(arr, function (value, index, list) {
+        Utils.any(arr, function(value, index, list) {
             if (iterator.call(context, value, index, list)) {
                 result = value;
                 return true;
@@ -74621,7 +74642,7 @@ return window.kendo;
         return result;
     };
 
-    Utils.first = function (arr, constraint, context) {
+    Utils.first = function(arr, constraint, context) {
         if (arr.length === 0) {
             return null;
         }
@@ -74635,12 +74656,12 @@ return window.kendo;
     /**
      * Inserts the given element at the specified position and returns the result.
      */
-    Utils.insert = function (arr, element, position) {
+    Utils.insert = function(arr, element, position) {
         arr.splice(position, 0, element);
         return arr;
     };
 
-    Utils.all = function (arr, iterator, context) {
+    Utils.all = function(arr, iterator, context) {
         var result = true;
         var value;
 
@@ -74656,7 +74677,7 @@ return window.kendo;
         return result;
     };
 
-    Utils.clear = function (arr) {
+    Utils.clear = function(arr) {
         arr.splice(0, arr.length);
     };
 
@@ -74666,7 +74687,7 @@ return window.kendo;
      * @param b
      * @param sortfunc (optiona) sorting function for the values in the first array
      */
-    Utils.bisort = function (a, b, sortfunc) {
+    Utils.bisort = function(a, b, sortfunc) {
         if (Utils.isUndefined(a)) {
             throw "First array is not specified.";
         }
@@ -74683,12 +74704,12 @@ return window.kendo;
             all.push({ 'x': a[i], 'y': b[i] });
         }
         if (Utils.isUndefined(sortfunc)) {
-            all.sort(function (m, n) {
+            all.sort(function(m, n) {
                 return m.x - n.x;
             });
         }
         else {
-            all.sort(function (m, n) {
+            all.sort(function(m, n) {
                 return sortfunc(m.x, n.x);
             });
         }
@@ -74702,12 +74723,12 @@ return window.kendo;
         }
     };
 
-    Utils.addRange = function (arr, range) {
+    Utils.addRange = function(arr, range) {
         arr.push.apply(arr, range);
     };
 
     var Easing = {
-        easeInOut: function (pos) {
+        easeInOut: function(pos) {
             return ((-Math.cos(pos * Math.PI) / 2) + 0.5);
         }
     };
@@ -74718,7 +74739,7 @@ return window.kendo;
      * @type {*}
      */
     var Ticker = kendo.Class.extend({
-        init: function () {
+        init: function() {
             this.adapters = [];
             this.target = 0;
             this.tick = 0;
@@ -74728,35 +74749,35 @@ return window.kendo;
             this.handlers = [];
             var _this = this;
             this.transition = Easing.easeInOut;
-            this.timerDelegate = function () {
+            this.timerDelegate = function() {
                 _this.onTimerEvent();
             };
         },
-        addAdapter: function (a) {
+        addAdapter: function(a) {
             this.adapters.push(a);
         },
-        onComplete: function (handler) {
+        onComplete: function(handler) {
             this.handlers.push(handler);
         },
-        removeHandler: function (handler) {
-            this.handlers = $.grep(this.handlers, function (h) {
+        removeHandler: function(handler) {
+            this.handlers = $.grep(this.handlers, function(h) {
                 return h !== handler;
             });
         },
-        trigger: function () {
+        trigger: function() {
             var _this = this;
             if (this.handlers) {
-                Utils.forEach(this.handlers, function (h) {
+                Utils.forEach(this.handlers, function(h) {
                     return h.call(_this.caller !== null ? _this.caller : _this);
                 });
             }
         },
-        onStep: function () {
+        onStep: function() {
         },
-        seekTo: function (to) {
+        seekTo: function(to) {
             this.seekFromTo(this.tick, to);
         },
-        seekFromTo: function (from, to) {
+        seekFromTo: function(from, to) {
             this.target = Math.max(0, Math.min(1, to));
             this.tick = Math.max(0, Math.min(1, from));
             this.lastTime = new Date().getTime();
@@ -74764,7 +74785,7 @@ return window.kendo;
                 this.intervalId = window.setInterval(this.timerDelegate, this.interval);
             }
         },
-        stop: function () {
+        stop: function() {
             if (this.intervalId) {
                 window.clearInterval(this.intervalId);
                 this.intervalId = null;
@@ -74774,7 +74795,7 @@ return window.kendo;
                 // this.next();
             }
         },
-        play: function (origin) {
+        play: function(origin) {
             if (this.adapters.length === 0) {
                 return;
             }
@@ -74784,10 +74805,10 @@ return window.kendo;
             this.initState();
             this.seekFromTo(0, 1);
         },
-        reverse: function () {
+        reverse: function() {
             this.seekFromTo(1, 0);
         },
-        initState: function () {
+        initState: function() {
             if (this.adapters.length === 0) {
                 return;
             }
@@ -74795,14 +74816,14 @@ return window.kendo;
                 this.adapters[i].initState();
             }
         },
-        propagate: function () {
+        propagate: function() {
             var value = this.transition(this.tick);
 
             for (var i = 0; i < this.adapters.length; i++) {
                 this.adapters[i].update(value);
             }
         },
-        onTimerEvent: function () {
+        onTimerEvent: function() {
             var now = new Date().getTime();
             var timePassed = now - this.lastTime;
             this.lastTime = now;
@@ -74825,7 +74846,7 @@ return window.kendo;
     });
 
     kendo.deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
 
@@ -74835,13 +74856,13 @@ return window.kendo;
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/math',[ "./utils", "kendo.dataviz.core" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram,
@@ -74859,37 +74880,37 @@ return window.kendo;
         EPSILON = 1e-06;
 
     deepExtend(Point.fn, {
-        plus: function (p) {
+        plus: function(p) {
             return new Point(this.x + p.x, this.y + p.y);
         },
-        minus: function (p) {
+        minus: function(p) {
             return new Point(this.x - p.x, this.y - p.y);
         },
-        offset: function (value) {
+        offset: function(value) {
             return new Point(this.x - value, this.y - value);
         },
-        times: function (s) {
+        times: function(s) {
             return new Point(this.x * s, this.y * s);
         },
-        normalize: function () {
+        normalize: function() {
             if (this.length() === 0) {
                 return new Point();
             }
             return this.times(1 / this.length());
         },
-        length: function () {
+        length: function() {
             return Math.sqrt(this.x * this.x + this.y * this.y);
         },
-        toString: function () {
+        toString: function() {
             return "(" + this.x + "," + this.y + ")";
         },
-        lengthSquared: function () {
+        lengthSquared: function() {
             return (this.x * this.x + this.y * this.y);
         },
         middleOf: function MiddleOf(p, q) {
             return new Point(q.x - p.x, q.y - p.y).times(0.5).plus(p);
         },
-        toPolar: function (useDegrees) {
+        toPolar: function(useDegrees) {
             var factor = 1;
             if (useDegrees) {
                 factor = 180 / Math.PI;
@@ -74933,7 +74954,7 @@ return window.kendo;
                 }
             }
         },
-        isOnLine: function (from, to) {
+        isOnLine: function(from, to) {
             if (from.x > to.x) { // from must be the leftmost point
                 var temp = to;
                 to = from;
@@ -74960,7 +74981,7 @@ return window.kendo;
     });
 
     deepExtend(Point, {
-        parse: function (str) {
+        parse: function(str) {
             var tempStr = str.slice(1, str.length - 1),
                 xy = tempStr.split(","),
                 x = parseInt(xy[0], 10),
@@ -74978,7 +74999,7 @@ return window.kendo;
      */
     var PathDefiner = Class.extend(
         {
-            init: function (p, left, right) {
+            init: function(p, left, right) {
                 this.point = p;
                 this.left = left;
                 this.right = right;
@@ -74990,16 +75011,16 @@ return window.kendo;
      * Defines a rectangular region.
      */
     var Rect = Class.extend({
-        init: function (x, y, width, height) {
+        init: function(x, y, width, height) {
             this.x = x || 0;
             this.y = y || 0;
             this.width = width || 0;
             this.height = height || 0;
         },
-        contains: function (point) {
+        contains: function(point) {
             return ((point.x >= this.x) && (point.x <= (this.x + this.width)) && (point.y >= this.y) && (point.y <= (this.y + this.height)));
         },
-        inflate: function (dx, dy) {
+        inflate: function(dx, dy) {
             if (dy === undefined) {
                 dy = dx;
             }
@@ -75010,7 +75031,7 @@ return window.kendo;
             this.height += 2 * dy + 1;
             return this;
         },
-        offset: function (dx, dy) {
+        offset: function(dx, dy) {
             var x = dx, y = dy;
             if (dx instanceof Point) {
                 x = dx.x;
@@ -75020,50 +75041,50 @@ return window.kendo;
             this.y += y;
             return this;
         },
-        union: function (r) {
+        union: function(r) {
             var x1 = Math.min(this.x, r.x);
             var y1 = Math.min(this.y, r.y);
             var x2 = Math.max((this.x + this.width), (r.x + r.width));
             var y2 = Math.max((this.y + this.height), (r.y + r.height));
             return new Rect(x1, y1, x2 - x1, y2 - y1);
         },
-        center: function () {
+        center: function() {
             return new Point(this.x + this.width / 2, this.y + this.height / 2);
         },
-        top: function () {
+        top: function() {
             return new Point(this.x + this.width / 2, this.y);
         },
-        right: function () {
+        right: function() {
             return new Point(this.x + this.width, this.y + this.height / 2);
         },
-        bottom: function () {
+        bottom: function() {
             return new Point(this.x + this.width / 2, this.y + this.height);
         },
-        left: function () {
+        left: function() {
             return new Point(this.x, this.y + this.height / 2);
         },
-        topLeft: function () {
+        topLeft: function() {
             return new Point(this.x, this.y);
         },
-        topRight: function () {
+        topRight: function() {
             return new Point(this.x + this.width, this.y);
         },
-        bottomLeft: function () {
+        bottomLeft: function() {
             return new Point(this.x, this.y + this.height);
         },
-        bottomRight: function () {
+        bottomRight: function() {
             return new Point(this.x + this.width, this.y + this.height);
         },
-        clone: function () {
+        clone: function() {
             return new Rect(this.x, this.y, this.width, this.height);
         },
-        isEmpty: function () {
+        isEmpty: function() {
             return !this.width && !this.height;
         },
-        equals: function (rect) {
+        equals: function(rect) {
             return this.x === rect.x && this.y === rect.y && this.width === rect.width && this.height === rect.height;
         },
-        rotatedBounds: function (angle) {
+        rotatedBounds: function(angle) {
             var rect = this.clone(),
                 points = this.rotatedPoints(angle),
                 tl = points[0],
@@ -75078,7 +75099,7 @@ return window.kendo;
 
             return rect;
         },
-        rotatedPoints: function (angle) {
+        rotatedPoints: function(angle) {
             var rect = this,
                 c = rect.center(),
                 br = rect.bottomRight().rotate(c, 360 - angle),
@@ -75088,12 +75109,12 @@ return window.kendo;
 
             return [tl, tr, br, bl];
         },
-        toString: function (delimiter) {
+        toString: function(delimiter) {
             delimiter = delimiter || " ";
 
             return this.x + delimiter + this.y + delimiter + this.width + delimiter + this.height;
         },
-        scale: function (scaleX, scaleY, staicPoint, adornerCenter, angle) {
+        scale: function(scaleX, scaleY, staicPoint, adornerCenter, angle) {
             var tl = this.topLeft();
             var thisCenter = this.center();
             tl.rotate(thisCenter, 360 - angle).rotate(adornerCenter, angle);
@@ -75129,7 +75150,7 @@ return window.kendo;
     });
 
     var Size = Class.extend({
-        init: function (width, height) {
+        init: function(width, height) {
             this.width = width;
             this.height = height;
         }
@@ -75137,7 +75158,7 @@ return window.kendo;
 
     Size.prototype.Empty = new Size(0, 0);
 
-    Rect.toRect = function (rect) {
+    Rect.toRect = function(rect) {
         if (!(rect instanceof Rect)) {
             rect = new Rect(rect.x, rect.y, rect.width, rect.height);
         }
@@ -75145,11 +75166,11 @@ return window.kendo;
         return rect;
     };
 
-    Rect.empty = function () {
+    Rect.empty = function() {
         return new Rect(0, 0, 0, 0);
     };
 
-    Rect.fromPoints = function (p, q) {
+    Rect.fromPoints = function(p, q) {
         if (isNaN(p.x) || isNaN(p.y) || isNaN(q.x) || isNaN(q.y)) {
             throw "Some values are NaN.";
         }
@@ -75184,19 +75205,19 @@ return window.kendo;
     }
 
     var Intersect = {
-        lines: function (start1, end1, start2, end2) {
+        lines: function(start1, end1, start2, end2) {
             return intersectLine(start1, end1, start2, end2);
         },
-        segments: function (start1, end1, start2, end2) {
+        segments: function(start1, end1, start2, end2) {
             return intersectLine(start1, end1, start2, end2, true);
         },
-        rectWithLine: function (rect, start, end) {
-            return  Intersect.segments(start, end, rect.topLeft(), rect.topRight()) ||
+        rectWithLine: function(rect, start, end) {
+            return Intersect.segments(start, end, rect.topLeft(), rect.topRight()) ||
                 Intersect.segments(start, end, rect.topRight(), rect.bottomRight()) ||
                 Intersect.segments(start, end, rect.bottomLeft(), rect.bottomRight()) ||
                 Intersect.segments(start, end, rect.topLeft(), rect.bottomLeft());
         },
-        rects: function (rect1, rect2, angle) {
+        rects: function(rect1, rect2, angle) {
             var tl = rect2.topLeft(),
                 tr = rect2.topRight(),
                 bl = rect2.bottomLeft(),
@@ -75246,11 +75267,11 @@ return window.kendo;
      * Aligns two rectangles, where one is the container and the other is content.
      */
     var RectAlign = Class.extend({
-        init: function (container) {
+        init: function(container) {
             this.container = Rect.toRect(container);
         },
 
-        align: function (content, alignment) {
+        align: function(content, alignment) {
             var alignValues = alignment.toLowerCase().split(" ");
 
             for (var i = 0; i < alignValues.length; i++) {
@@ -75259,7 +75280,7 @@ return window.kendo;
 
             return content;
         },
-        _singleAlign: function (content, alignment) {
+        _singleAlign: function(content, alignment) {
             if (isFunction(this[alignment])) {
                 return this[alignment](content);
             }
@@ -75268,53 +75289,53 @@ return window.kendo;
             }
         },
 
-        left: function (content) {
+        left: function(content) {
             return this._align(content, this._left);
         },
-        center: function (content) {
+        center: function(content) {
             return this._align(content, this._center);
         },
-        right: function (content) {
+        right: function(content) {
             return this._align(content, this._right);
         },
-        stretch: function (content) {
+        stretch: function(content) {
             return this._align(content, this._stretch);
         },
-        top: function (content) {
+        top: function(content) {
             return this._align(content, this._top);
         },
-        middle: function (content) {
+        middle: function(content) {
             return this._align(content, this._middle);
         },
-        bottom: function (content) {
+        bottom: function(content) {
             return this._align(content, this._bottom);
         },
 
-        _left: function (container, content) {
+        _left: function(container, content) {
             content.x = container.x;
         },
-        _center: function (container, content) {
+        _center: function(container, content) {
             content.x = ((container.width - content.width) / 2) || 0;
         },
-        _right: function (container, content) {
+        _right: function(container, content) {
             content.x = container.width - content.width;
         },
-        _top: function (container, content) {
+        _top: function(container, content) {
             content.y = container.y;
         },
-        _middle: function (container, content) {
+        _middle: function(container, content) {
             content.y = ((container.height - content.height) / 2) || 0;
         },
-        _bottom: function (container, content) {
+        _bottom: function(container, content) {
             content.y = container.height - content.height;
         },
-        _stretch: function (container, content) {
+        _stretch: function(container, content) {
             content.x = 0;
             content.y = 0;
             content.height = container.height;
             content.width = container.width;
         },
-        _align: function (content, alignCalc) {
+        _align: function(content, alignCalc) {
             content = Rect.toRect(content);
             alignCalc(this.container, content);
 
@@ -75323,7 +75344,7 @@ return window.kendo;
     });
 
     var Polar = Class.extend({
-        init: function (r, a) {
+        init: function(r, a) {
             this.r = r;
             this.angle = a;
         }
@@ -75333,7 +75354,7 @@ return window.kendo;
      * SVG transformation matrix.
      */
     var Matrix = Class.extend({
-        init: function (a, b, c, d, e, f) {
+        init: function(a, b, c, d, e, f) {
             this.a = a || 0;
             this.b = b || 0;
             this.c = c || 0;
@@ -75341,7 +75362,7 @@ return window.kendo;
             this.e = e || 0;
             this.f = f || 0;
         },
-        plus: function (m) {
+        plus: function(m) {
             this.a += m.a;
             this.b += m.b;
             this.c += m.c;
@@ -75349,7 +75370,7 @@ return window.kendo;
             this.e += m.e;
             this.f += m.f;
         },
-        minus: function (m) {
+        minus: function(m) {
             this.a -= m.a;
             this.b -= m.b;
             this.c -= m.c;
@@ -75357,7 +75378,7 @@ return window.kendo;
             this.e -= m.e;
             this.f -= m.f;
         },
-        times: function (m) {
+        times: function(m) {
             return new Matrix(
                 this.a * m.a + this.c * m.b,
                 this.b * m.a + this.d * m.b,
@@ -75367,19 +75388,19 @@ return window.kendo;
                 this.b * m.e + this.d * m.f + this.f
             );
         },
-        apply: function (p) {
+        apply: function(p) {
             return new Point(this.a * p.x + this.c * p.y + this.e, this.b * p.x + this.d * p.y + this.f);
         },
-        applyRect: function (r) {
+        applyRect: function(r) {
             return Rect.fromPoints(this.apply(r.topLeft()), this.apply(r.bottomRight()));
         },
-        toString: function () {
+        toString: function() {
             return "matrix(" + this.a + " " + this.b + " " + this.c + " " + this.d + " " + this.e + " " + this.f + ")";
         }
     });
 
     deepExtend(Matrix, {
-        fromSVGMatrix: function (vm) {
+        fromSVGMatrix: function(vm) {
             var m = new Matrix();
             m.a = vm.a;
             m.b = vm.b;
@@ -75389,7 +75410,7 @@ return window.kendo;
             m.f = vm.f;
             return m;
         },
-        fromMatrixVector: function (v) {
+        fromMatrixVector: function(v) {
             var m = new Matrix();
             m.a = v.a;
             m.b = v.b;
@@ -75399,7 +75420,7 @@ return window.kendo;
             m.f = v.f;
             return m;
         },
-        fromList: function (v) {
+        fromList: function(v) {
             if (v.length !== 6) {
                 throw "The given list should consist of six elements.";
             }
@@ -75412,7 +75433,7 @@ return window.kendo;
             m.f = v[5];
             return m;
         },
-        translation: function (x, y) {
+        translation: function(x, y) {
             var m = new Matrix();
             m.a = 1;
             m.b = 0;
@@ -75422,10 +75443,10 @@ return window.kendo;
             m.f = y;
             return m;
         },
-        unit: function () {
+        unit: function() {
             return new Matrix(1, 0, 0, 1, 0, 0);
         },
-        rotation: function (angle, x, y) {
+        rotation: function(angle, x, y) {
             var m = new Matrix();
             m.a = Math.cos(angle * Math.PI / 180);
             m.b = Math.sin(angle * Math.PI / 180);
@@ -75435,7 +75456,7 @@ return window.kendo;
             m.f = (y - y * m.a - x * m.b) || 0;
             return m;
         },
-        scaling: function (scaleX, scaleY) {
+        scaling: function(scaleX, scaleY) {
             var m = new Matrix();
             m.a = scaleX;
             m.b = 0;
@@ -75445,7 +75466,7 @@ return window.kendo;
             m.f = 0;
             return m;
         },
-        parse: function (v) {
+        parse: function(v) {
             var parts, nums;
             if (v) {
                 v = v.trim();
@@ -75454,13 +75475,13 @@ return window.kendo;
                     nums = v.slice(7, v.length - 1).trim();
                     parts = nums.split(",");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
                     parts = nums.split(" ");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
@@ -75472,7 +75493,7 @@ return window.kendo;
                 if (v.indexOf(",") > 0) {
                     parts = v.split(",");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
@@ -75480,7 +75501,7 @@ return window.kendo;
                 if (v.indexOf(" ") > 0) {
                     parts = v.split(" ");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
@@ -75494,7 +75515,7 @@ return window.kendo;
      * SVG transformation represented as a vector.
      */
     var MatrixVector = Class.extend({
-        init: function (a, b, c, d, e, f) {
+        init: function(a, b, c, d, e, f) {
             this.a = a || 0;
             this.b = b || 0;
             this.c = c || 0;
@@ -75556,7 +75577,7 @@ return window.kendo;
          * @param a An endpoint of the line or segment.
          * @param b The complementary endpoint of the line or segment.
          */
-        _distanceToLineSquared: function (p, a, b) {
+        _distanceToLineSquared: function(p, a, b) {
             function d2(pt1, pt2) {
                 return (pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y);
             }
@@ -75587,7 +75608,7 @@ return window.kendo;
          * @param a An endpoint of the line or segment.
          * @param b The complementary endpoint of the line or segment.
          */
-        distanceToLine: function (p, a, b) {
+        distanceToLine: function(p, a, b) {
             return Math.sqrt(this._distanceToLineSquared(p, a, b));
         },
 
@@ -75597,7 +75618,7 @@ return window.kendo;
          * @param points The points defining the polyline.
          * @returns {Number}
          */
-        distanceToPolyline: function (p, points) {
+        distanceToPolyline: function(p, points) {
             var minimum = Number.MAX_VALUE;
             if (Utils.isUndefined(points) || points.length === 0) {
                 return Number.MAX_VALUE;
@@ -75624,7 +75645,7 @@ return window.kendo;
      * See http://en.wikipedia.org/wiki/Hash_table
      */
     var HashTable = kendo.Class.extend({
-        init: function () {
+        init: function() {
             this._buckets = [];
             this.length = 0;
         },
@@ -75632,7 +75653,7 @@ return window.kendo;
         /**
          * Adds the literal object with the given key (of the form {key: key,....}).
          */
-        add: function (key, value) {
+        add: function(key, value) {
 
             var obj = this._createGetBucket(key);
             if (Utils.isDefined(value)) {
@@ -75644,7 +75665,7 @@ return window.kendo;
         /**
          * Gets the literal object with the given key.
          */
-        get: function (key) {
+        get: function(key) {
             if (this._bucketExists(key)) {
                 return this._createGetBucket(key);
             }
@@ -75656,14 +75677,14 @@ return window.kendo;
          * @param key The key of the entry.
          * @param value The value to set. If the key already exists the value will be overwritten.
          */
-        set: function (key, value) {
+        set: function(key, value) {
             this.add(key, value);
         },
 
         /**
          * Determines whether the HashTable contains a specific key.
          */
-        containsKey: function (key) {
+        containsKey: function(key) {
             return this._bucketExists(key);
         },
 
@@ -75671,7 +75692,7 @@ return window.kendo;
          * Removes the element with the specified key from the hashtable.
          * Returns the removed bucket.
          */
-        remove: function (key) {
+        remove: function(key) {
             if (this._bucketExists(key)) {
                 var hashId = this._hash(key);
                 delete this._buckets[hashId];
@@ -75684,7 +75705,7 @@ return window.kendo;
          * Foreach with an iterator working on the key-value pairs.
          * @param func
          */
-        forEach: function (func) {
+        forEach: function(func) {
             var hashes = this._hashes();
             for (var i = 0, len = hashes.length; i < len; i++) {
                 var hash = hashes[i];
@@ -75700,7 +75721,7 @@ return window.kendo;
          * Returns a (shallow) clone of the current HashTable.
          * @returns {HashTable}
          */
-        clone: function () {
+        clone: function() {
             var ht = new HashTable();
             var hashes = this._hashes();
             for (var i = 0, len = hashes.length; i < len; i++) {
@@ -75719,7 +75740,7 @@ return window.kendo;
          * @returns {Array}
          * @private
          */
-        _hashes: function () {
+        _hashes: function() {
             var hashes = [];
             for (var hash in this._buckets) {
                 if (this._buckets.hasOwnProperty(hash)) {
@@ -75729,7 +75750,7 @@ return window.kendo;
             return hashes;
         },
 
-        _bucketExists: function (key) {
+        _bucketExists: function(key) {
             var hashId = this._hash(key);
             return Utils.isDefined(this._buckets[hashId]);
         },
@@ -75739,7 +75760,7 @@ return window.kendo;
          * be created and returned.
          * A createGetBucket is a literal object of the form {key: key, ...}.
          */
-        _createGetBucket: function (key) {
+        _createGetBucket: function(key) {
             var hashId = this._hash(key);
             var bucket = this._buckets[hashId];
             if (Utils.isUndefined(bucket)) {
@@ -75753,7 +75774,7 @@ return window.kendo;
         /**
          * Hashing of the given key.
          */
-        _hash: function (key) {
+        _hash: function(key) {
             if (Utils.isNumber(key)) {
                 return key;
             }
@@ -75769,7 +75790,7 @@ return window.kendo;
         /**
          * Hashing of a string.
          */
-        _hashString: function (s) {
+        _hashString: function(s) {
             // see for example http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
             var result = 0;
             if (s.length === 0) {
@@ -75785,7 +75806,7 @@ return window.kendo;
         /**
          * Returns the unique identifier for an object. This is automatically assigned and add on the object.
          */
-        _objectHashId: function (key) {
+        _objectHashId: function(key) {
             var id = key._hashId;
             if (Utils.isUndefined(id)) {
                 id = randomId();
@@ -75806,7 +75827,7 @@ return window.kendo;
          * Initializes a new instance of the Dictionary class.
          * @param dictionary Loads the content of the given dictionary into this new one.
          */
-        init: function (dictionary) {
+        init: function(dictionary) {
             var that = this;
             kendo.Observable.fn.init.call(that);
             this._hashTable = new HashTable();
@@ -75817,7 +75838,7 @@ return window.kendo;
                         this.add(dictionary[i]);
                     }
                 } else {
-                    dictionary.forEach(function (k, v) {
+                    dictionary.forEach(function(k, v) {
                         this.add(k, v);
                     }, this);
                 }
@@ -75828,7 +75849,7 @@ return window.kendo;
          * Adds a key-value to the dictionary.
          * If the key already exists this will assign the given value to the existing entry.
          */
-        add: function (key, value) {
+        add: function(key, value) {
             var entry = this._hashTable.get(key);
             if (!entry) {
                 entry = this._hashTable.add(key);
@@ -75843,14 +75864,14 @@ return window.kendo;
          * @param key The key of the entry.
          * @param value The value to set. If the key already exists the value will be overwritten.
          */
-        set: function (key, value) {
+        set: function(key, value) {
             this.add(key, value);
         },
 
         /**
          * Gets the value associated with the given key in the dictionary.
          */
-        get: function (key) {
+        get: function(key) {
             var entry = this._hashTable.get(key);
             if (entry) {
                 return entry.value;
@@ -75861,14 +75882,14 @@ return window.kendo;
         /**
          * Returns whether the dictionary contains the given key.
          */
-        containsKey: function (key) {
+        containsKey: function(key) {
             return this._hashTable.containsKey(key);
         },
 
         /**
          * Removes the element with the specified key from the dictionary.
          */
-        remove: function (key) {
+        remove: function(key) {
             if (this.containsKey(key)) {
                 this.trigger("changed");
                 this.length--;
@@ -75879,8 +75900,8 @@ return window.kendo;
         /**
          * The functional gets the key and value as parameters.
          */
-        forEach: function (func, thisRef) {
-            this._hashTable.forEach(function (entry) {
+        forEach: function(func, thisRef) {
+            this._hashTable.forEach(function(entry) {
                 func.call(thisRef, entry.key, entry.value);
             });
         },
@@ -75888,8 +75909,8 @@ return window.kendo;
         /**
          * Same as forEach except that only the value is passed to the functional.
          */
-        forEachValue: function (func, thisRef) {
-            this._hashTable.forEach(function (entry) {
+        forEachValue: function(func, thisRef) {
+            this._hashTable.forEach(function(entry) {
                 func.call(thisRef, entry.value);
             });
         },
@@ -75897,8 +75918,8 @@ return window.kendo;
         /**
          * Calls a defined callback function for each key in the dictionary.
          */
-        forEachKey: function (func, thisRef) {
-            this._hashTable.forEach(function (entry) {
+        forEachKey: function(func, thisRef) {
+            this._hashTable.forEach(function(entry) {
                 func.call(thisRef, entry.key);
             });
         },
@@ -75906,9 +75927,9 @@ return window.kendo;
         /**
          * Gets an array with all keys in the dictionary.
          */
-        keys: function () {
+        keys: function() {
             var keys = [];
-            this.forEachKey(function (key) {
+            this.forEachKey(function(key) {
                 keys.push(key);
             });
             return keys;
@@ -75919,7 +75940,7 @@ return window.kendo;
 
     var Queue = kendo.Class.extend({
 
-        init: function () {
+        init: function() {
             this._tail = null;
             this._head = null;
             this.length = 0;
@@ -75928,7 +75949,7 @@ return window.kendo;
         /**
          * Enqueues an object to the end of the queue.
          */
-        enqueue: function (value) {
+        enqueue: function(value) {
             var entry = { value: value, next: null };
             if (!this._head) {
                 this._head = entry;
@@ -75944,7 +75965,7 @@ return window.kendo;
         /**
          * Removes and returns the object at top of the queue.
          */
-        dequeue: function () {
+        dequeue: function() {
             if (this.length < 1) {
                 throw new Error("The queue is empty.");
             }
@@ -75954,7 +75975,7 @@ return window.kendo;
             return value;
         },
 
-        contains: function (item) {
+        contains: function(item) {
             var current = this._head;
             while (current) {
                 if (current.value === item) {
@@ -75973,30 +75994,30 @@ return window.kendo;
      * @type {*}
      */
     var Set = kendo.Observable.extend({
-        init: function (resource) {
+        init: function(resource) {
             var that = this;
             kendo.Observable.fn.init.call(that);
             this._hashTable = new HashTable();
             this.length = 0;
             if (Utils.isDefined(resource)) {
                 if (resource instanceof HashTable) {
-                    resource.forEach(function (d) {
+                    resource.forEach(function(d) {
                         this.add(d);
                     });
                 }
                 else if (resource instanceof Dictionary) {
-                    resource.forEach(function (k, v) {
-                        this.add({key: k, value: v});
+                    resource.forEach(function(k, v) {
+                        this.add({ key: k, value: v });
                     }, this);
                 }
             }
         },
 
-        contains: function (item) {
+        contains: function(item) {
             return this._hashTable.containsKey(item);
         },
 
-        add: function (item) {
+        add: function(item) {
             var entry = this._hashTable.get(item);
             if (!entry) {
                 this._hashTable.add(item, item);
@@ -76005,7 +76026,7 @@ return window.kendo;
             }
         },
 
-        get: function (item) {
+        get: function(item) {
             if (this.contains(item)) {
                 return this._hashTable.get(item).value;
             }
@@ -76019,7 +76040,7 @@ return window.kendo;
          * @param item
          * @returns {*}
          */
-        hash: function (item) {
+        hash: function(item) {
             return this._hashTable._hash(item);
         },
 
@@ -76027,7 +76048,7 @@ return window.kendo;
          * Removes the given item from the set. No exception is thrown if the item is not in the Set.
          * @param item
          */
-        remove: function (item) {
+        remove: function(item) {
             if (this.contains(item)) {
                 this._hashTable.remove(item);
                 this.length--;
@@ -76038,14 +76059,14 @@ return window.kendo;
          * Foreach with an iterator working on the key-value pairs.
          * @param func
          */
-        forEach: function (func, context) {
-            this._hashTable.forEach(function (kv) {
+        forEach: function(func, context) {
+            this._hashTable.forEach(function(kv) {
                 func(kv.value);
             }, context);
         },
-        toArray: function () {
+        toArray: function() {
             var r = [];
-            this.forEach(function (d) {
+            this.forEach(function(d) {
                 r.push(d);
             });
             return r;
@@ -76059,7 +76080,7 @@ return window.kendo;
      */
     var Node = kendo.Class.extend({
 
-        init: function (id, shape) {
+        init: function(id, shape) {
 
             /**
              * Holds all the links incident with the current node.
@@ -76119,7 +76140,7 @@ return window.kendo;
         /**
          * Returns whether this node has no links attached.
          */
-        isIsolated: function () {
+        isIsolated: function() {
             return Utils.isEmpty(this.links);
         },
 
@@ -76127,7 +76148,7 @@ return window.kendo;
          * Gets or sets the bounding rectangle of this node.
          * This should be considered as runtime data, the property is not hotlinked to a SVG item.
          */
-        bounds: function (r) {
+        bounds: function(r) {
             if (!Utils.isDefined(r)) {
                 return new diagram.Rect(this.x, this.y, this.width, this.height);
             }
@@ -76142,9 +76163,9 @@ return window.kendo;
          * Returns whether there is at least one link with the given (complementary) node. This can be either an
          * incoming or outgoing link.
          */
-        isLinkedTo: function (node) {
+        isLinkedTo: function(node) {
             var that = this;
-            return Utils.any(that.links, function (link) {
+            return Utils.any(that.links, function(link) {
                 return link.getComplement(that) === node;
             });
         },
@@ -76153,7 +76174,7 @@ return window.kendo;
          * Gets the children of this node, defined as the adjacent nodes with a link from this node to the adjacent one.
          * @returns {Array}
          */
-        getChildren: function () {
+        getChildren: function() {
             if (this.outgoing.length === 0) {
                 return [];
             }
@@ -76169,7 +76190,7 @@ return window.kendo;
          * Gets the parents of this node, defined as the adjacent nodes with a link from the adjacent node to this one.
          * @returns {Array}
          */
-        getParents: function () {
+        getParents: function() {
             if (this.incoming.length === 0) {
                 return [];
             }
@@ -76185,7 +76206,7 @@ return window.kendo;
          * Returns a clone of the Node. Note that the identifier is not cloned since it's a different Node instance.
          * @returns {Node}
          */
-        clone: function () {
+        clone: function() {
             var copy = new Node();
             if (Utils.isDefined(this.weight)) {
                 copy.weight = this.weight;
@@ -76207,7 +76228,7 @@ return window.kendo;
         /**
          * Returns whether there is a link from the current node to the given node.
          */
-        adjacentTo: function (node) {
+        adjacentTo: function(node) {
             return this.isLinkedTo(node) !== null;
         },
 
@@ -76215,7 +76236,7 @@ return window.kendo;
          * Removes the given link from the link collection this node owns.
          * @param link
          */
-        removeLink: function (link) {
+        removeLink: function(link) {
             if (link.source === this) {
                 Utils.remove(this.links, link);
                 Utils.remove(this.outgoing, link);
@@ -76232,8 +76253,8 @@ return window.kendo;
         /**
          * Returns whether there is a (outgoing) link from the current node to the given one.
          */
-        hasLinkTo: function (node) {
-            return Utils.any(this.outgoing, function (link) {
+        hasLinkTo: function(node) {
+            return Utils.any(this.outgoing, function(link) {
                 return link.target === node;
             });
         },
@@ -76241,22 +76262,22 @@ return window.kendo;
         /**
          * Returns the degree of this node, i.e. the sum of incoming and outgoing links.
          */
-        degree: function () {
+        degree: function() {
             return this.links.length;
         },
 
         /**
          * Returns whether this node is either the source or the target of the given link.
          */
-        incidentWith: function (link) {
+        incidentWith: function(link) {
             return contains(this.links, link);
         },
 
         /**
          * Returns the links between this node and the given one.
          */
-        getLinksWith: function (node) {
-            return Utils.all(this.links, function (link) {
+        getLinksWith: function(node) {
+            return Utils.all(this.links, function(link) {
                 return link.getComplement(this) === node;
             }, this);
         },
@@ -76264,12 +76285,12 @@ return window.kendo;
         /**
          * Returns the nodes (either parent or child) which are linked to the current one.
          */
-        getNeighbors: function () {
+        getNeighbors: function() {
             var neighbors = [];
-            Utils.forEach(this.incoming, function (e) {
+            Utils.forEach(this.incoming, function(e) {
                 neighbors.push(e.getComplement(this));
             }, this);
-            Utils.forEach(this.outgoing, function (e) {
+            Utils.forEach(this.outgoing, function(e) {
                 neighbors.push(e.getComplement(this));
             }, this);
             return neighbors;
@@ -76281,7 +76302,7 @@ return window.kendo;
      */
     var Link = kendo.Class.extend({
 
-        init: function (source, target, id, connection) {
+        init: function(source, target, id, connection) {
             if (Utils.isUndefined(source)) {
                 throw "The source of the new link is not set.";
             }
@@ -76327,7 +76348,7 @@ return window.kendo;
         /**
          * Returns the complementary node of the given one, if any.
          */
-        getComplement: function (node) {
+        getComplement: function(node) {
             if (this.source !== node && this.target !== node) {
                 throw "The given node is not incident with this link.";
             }
@@ -76337,7 +76358,7 @@ return window.kendo;
         /**
          * Returns the overlap of the current link with the given one, if any.
          */
-        getCommonNode: function (link) {
+        getCommonNode: function(link) {
             if (this.source === link.source || this.source === link.target) {
                 return this.source;
             }
@@ -76350,21 +76371,21 @@ return window.kendo;
         /**
          * Returns whether the current link is bridging the given nodes.
          */
-        isBridging: function (v1, v2) {
+        isBridging: function(v1, v2) {
             return this.source === v1 && this.target === v2 || this.source === v2 && this.target === v1;
         },
 
         /**
          * Returns the source and target of this link as a tuple.
          */
-        getNodes: function () {
+        getNodes: function() {
             return [this.source, this.target];
         },
 
         /**
          * Returns whether the given node is either the source or the target of the current link.
          */
-        incidentWith: function (node) {
+        incidentWith: function(node) {
             return this.source === node || this.target === node;
         },
 
@@ -76372,14 +76393,14 @@ return window.kendo;
          * Returns whether the given link is a continuation of the current one. This can be both
          * via an incoming or outgoing link.
          */
-        adjacentTo: function (link) {
+        adjacentTo: function(link) {
             return contains(this.source.links, link) || contains(this.target.links, link);
         },
 
         /**
          * Changes the source-node of this link.
          */
-        changeSource: function (node) {
+        changeSource: function(node) {
             Utils.remove(this.source.links, this);
             Utils.remove(this.source.outgoing, this);
 
@@ -76393,7 +76414,7 @@ return window.kendo;
          * Changes the target-node of this link.
          * @param node
          */
-        changeTarget: function (node) {
+        changeTarget: function(node) {
             Utils.remove(this.target.links, this);
             Utils.remove(this.target.incoming, this);
 
@@ -76406,7 +76427,7 @@ return window.kendo;
         /**
          * Changes both the source and the target nodes of this link.
          */
-        changesNodes: function (v, w) {
+        changesNodes: function(v, w) {
             if (this.source === v) {
                 this.changeSource(w);
             }
@@ -76418,7 +76439,7 @@ return window.kendo;
         /**
          * Reverses the direction of this link.
          */
-        reverse: function () {
+        reverse: function() {
             var oldSource = this.source;
             var oldTarget = this.target;
 
@@ -76435,7 +76456,7 @@ return window.kendo;
         /**
          * Ensures that the given target defines the endpoint of this link.
          */
-        directTo: function (target) {
+        directTo: function(target) {
             if (this.source !== target && this.target !== target) {
                 throw "The given node is not incident with this link.";
             }
@@ -76447,7 +76468,7 @@ return window.kendo;
         /**
          * Returns a reversed clone of this link.
          */
-        createReverseEdge: function () {
+        createReverseEdge: function() {
             var r = this.clone();
             r.reverse();
             r.reversed = true;
@@ -76457,7 +76478,7 @@ return window.kendo;
         /**
          * Returns a clone of this link.
          */
-        clone: function () {
+        clone: function() {
             var clone = new Link(this.source, this.target);
             return clone;
         }
@@ -76470,7 +76491,7 @@ return window.kendo;
      * inside the Graph.
      */
     var Graph = kendo.Class.extend({
-        init: function (idOrDiagram) {
+        init: function(idOrDiagram) {
             /**
              * The links or edge collection of this Graph.
              * @type {Array}
@@ -76522,7 +76543,7 @@ return window.kendo;
          * properties.
          * @param forceRebuild If set to true the relational info will be rebuild even if already present.
          */
-        cacheRelationships: function (forceRebuild) {
+        cacheRelationships: function(forceRebuild) {
             if (Utils.isUndefined(forceRebuild)) {
                 forceRebuild = false;
             }
@@ -76545,7 +76566,7 @@ return window.kendo;
          * @param visited The collection of visited nodes.
          * @param offset The offset or starting counter of the level info.
          */
-        assignLevels: function (startNode, offset, visited) {
+        assignLevels: function(startNode, offset, visited) {
             if (!startNode) {
                 throw "Start node not specified.";
             }
@@ -76556,7 +76577,7 @@ return window.kendo;
             this.cacheRelationships();
             if (Utils.isUndefined(visited)) {
                 visited = new Dictionary();
-                Utils.forEach(this.nodes, function (n) {
+                Utils.forEach(this.nodes, function(n) {
                     visited.add(n, false);
                 });
             }
@@ -76578,11 +76599,11 @@ return window.kendo;
          * @param value
          * @returns {*}
          */
-        root: function (value) {
+        root: function(value) {
             if (Utils.isUndefined(value)) {
                 if (!this._root) {
                     // TODO: better to use the longest path for the most probable root?
-                    var found = Utils.first(this.nodes, function (n) {
+                    var found = Utils.first(this.nodes, function(n) {
                         return n.incoming.length === 0;
                     });
                     if (found) {
@@ -76605,7 +76626,7 @@ return window.kendo;
          * If you alter the items of the components you'll alter the original graph and vice versa.
          * @returns {Array}
          */
-        getConnectedComponents: function () {
+        getConnectedComponents: function() {
             this.componentIndex = 0;
             this.setItemIndices();
             var componentId = Utils.initArray(this.nodes.length, -1);
@@ -76626,17 +76647,17 @@ return window.kendo;
                 graph.addNodeAndOutgoings(this.nodes[i]);
             }
             // sorting the components in decreasing order of node count
-            components.sort(function (a, b) {
+            components.sort(function(a, b) {
                 return b.nodes.length - a.nodes.length;
             });
             return components;
         },
 
-        _collectConnectedNodes: function (setIds, nodeIndex) {
+        _collectConnectedNodes: function(setIds, nodeIndex) {
             setIds[nodeIndex] = this.componentIndex; // part of the current component
             var node = this.nodes[nodeIndex];
             Utils.forEach(node.links,
-                function (link) {
+                function(link) {
                     var next = link.getComplement(node);
                     var nextId = next.index;
                     if (setIds[nextId] === -1) {
@@ -76649,7 +76670,7 @@ return window.kendo;
          * Calculates the bounds of this Graph if the Nodes have spatial dimensions defined.
          * @returns {Rect}
          */
-        calcBounds: function () {
+        calcBounds: function() {
             if (this.isEmpty()) {
                 this.bounds = new Rect();
                 return this.bounds;
@@ -76676,7 +76697,7 @@ return window.kendo;
          * @param root The root of the spanning tree.
          * @returns {Graph}
          */
-        getSpanningTree: function (root) {
+        getSpanningTree: function(root) {
             var tree = new Graph();
             var map = new Dictionary(), source, target;
             tree.root = root.clone();
@@ -76740,7 +76761,7 @@ return window.kendo;
                 treeLevels.push([]);
             }
 
-            Utils.forEach(tree.nodes, function (node) {
+            Utils.forEach(tree.nodes, function(node) {
                 treeLevels[node.level].push(node);
             });
 
@@ -76755,7 +76776,7 @@ return window.kendo;
          * @param incidenceLessThan The maximum degree or incidence the random node should have.
          * @returns {*}
          */
-        takeRandomNode: function (excludedNodes, incidenceLessThan) {
+        takeRandomNode: function(excludedNodes, incidenceLessThan) {
             if (Utils.isUndefined(excludedNodes)) {
                 excludedNodes = [];
             }
@@ -76768,7 +76789,7 @@ return window.kendo;
             if (this.nodes.length === 1) {
                 return contains(excludedNodes, this.nodes[0]) ? null : this.nodes[0];
             }
-            var pool = $.grep(this.nodes, function (node) {
+            var pool = $.grep(this.nodes, function(node) {
                 return !contains(excludedNodes, node) && node.degree() <= incidenceLessThan;
             });
             if (Utils.isEmpty(pool)) {
@@ -76780,15 +76801,15 @@ return window.kendo;
         /**
          * Returns whether this is an empty graph.
          */
-        isEmpty: function () {
+        isEmpty: function() {
             return Utils.isEmpty(this.nodes);
         },
 
         /**
          * Checks whether the endpoints of the links are all in the nodes collection.
          */
-        isHealthy: function () {
-            return Utils.all(this.links, function (link) {
+        isHealthy: function() {
+            return Utils.all(this.links, function(link) {
                 return contains(this.nodes, link.source) && contains(this.nodes, link.target);
             }, this);
         },
@@ -76797,7 +76818,7 @@ return window.kendo;
          * Gets the parents of this node, defined as the adjacent nodes with a link from the adjacent node to this one.
          * @returns {Array}
          */
-        getParents: function (n) {
+        getParents: function(n) {
             if (!this.hasNode(n)) {
                 throw "The given node is not part of this graph.";
             }
@@ -76808,7 +76829,7 @@ return window.kendo;
          * Gets the children of this node, defined as the adjacent nodes with a link from this node to the adjacent one.
          * @returns {Array}
          */
-        getChildren: function (n) {
+        getChildren: function(n) {
             if (!this.hasNode(n)) {
                 throw "The given node is not part of this graph.";
             }
@@ -76818,7 +76839,7 @@ return window.kendo;
         /**
          * Adds a new link to the graph between the given nodes.
          */
-        addLink: function (sourceOrLink, target, owner) {
+        addLink: function(sourceOrLink, target, owner) {
 
             if (Utils.isUndefined(sourceOrLink)) {
                 throw "The source of the link is not defined.";
@@ -76862,7 +76883,7 @@ return window.kendo;
         /**
          * Removes all the links in this graph.
          */
-        removeAllLinks: function () {
+        removeAllLinks: function() {
             while (this.links.length > 0) {
                 var link = this.links[0];
                 this.removeLink(link);
@@ -76872,7 +76893,7 @@ return window.kendo;
         /**
          * Adds the given link to the current graph.
          */
-        addExistingLink: function (link) {
+        addExistingLink: function(link) {
 
             if (this.hasLink(link)) {
                 return;
@@ -76914,9 +76935,9 @@ return window.kendo;
          * @param linkOrId An identifier or a Link object.
          * @returns {*}
          */
-        hasLink: function (linkOrId) {
+        hasLink: function(linkOrId) {
             if (Utils.isString(linkOrId)) {
-                return Utils.any(this.links, function (link) {
+                return Utils.any(this.links, function(link) {
                     return link.id === linkOrId;
                 });
             }
@@ -76928,7 +76949,7 @@ return window.kendo;
         /**
          * Gets the node with the specified Id or null if not part of this graph.
          */
-        getNode: function (nodeOrId) {
+        getNode: function(nodeOrId) {
             var id = nodeOrId.id || nodeOrId;
             if (this._nodeMap.containsKey(id)) {
                 return this._nodeMap.get(id);
@@ -76938,7 +76959,7 @@ return window.kendo;
         /**
          * Returns whether the given node or node Id is part of this graph.
          */
-        hasNode: function (nodeOrId) {
+        hasNode: function(nodeOrId) {
             var id = nodeOrId.id || nodeOrId;
             return this._nodeMap.containsKey(id);
         },
@@ -76957,7 +76978,7 @@ return window.kendo;
          * Removes the given node from this graph.
          * The node can be specified as an object or as an identifier (string).
          */
-        removeNode: function (nodeOrId) {
+        removeNode: function(nodeOrId) {
             var n = nodeOrId;
             if (Utils.isString(nodeOrId)) {
                 n = this.getNode(nodeOrId);
@@ -76980,8 +77001,8 @@ return window.kendo;
         /**
          * Returns whether the given nodes are connected with a least one link independently of the direction.
          */
-        areConnected: function (n1, n2) {
-            return Utils.any(this.links, function (link) {
+        areConnected: function(n1, n2) {
+            return Utils.any(this.links, function(link) {
                 return link.source == n1 && link.target == n2 || link.source == n2 && link.target == n1;
             });
         },
@@ -76989,7 +77010,7 @@ return window.kendo;
         /**
          * Removes the given link from this graph.
          */
-        removeLink: function (link) {
+        removeLink: function(link) {
             /*    if (!this.links.contains(link)) {
              throw "The given link is not part of the Graph.";
              }
@@ -77007,7 +77028,7 @@ return window.kendo;
          * The node can be an existing Node or the identifier of a new node.
          * No error is thrown if the node is already there and the existing one is returned.
          */
-        addNode: function (nodeOrId, layoutRect, owner) {
+        addNode: function(nodeOrId, layoutRect, owner) {
 
             var newNode = null;
 
@@ -77043,14 +77064,14 @@ return window.kendo;
         /**
          * Adds the given Node and its outgoing links.
          */
-        addNodeAndOutgoings: function (node) {
+        addNodeAndOutgoings: function(node) {
             if (!this.hasNode(node)) {
                 this._addNode(node);
             }
 
             var newLinks = node.outgoing;
             node.outgoing = [];
-            Utils.forEach(newLinks, function (link) {
+            Utils.forEach(newLinks, function(link) {
                 this.addExistingLink(link);
             }, this);
         },
@@ -77058,7 +77079,7 @@ return window.kendo;
         /**
          * Sets the 'index' property on the links and nodes of this graph.
          */
-        setItemIndices: function () {
+        setItemIndices: function() {
             var i;
             for (i = 0; i < this.nodes.length; ++i) {
                 this.nodes[i].index = i;
@@ -77072,7 +77093,7 @@ return window.kendo;
         /**
          * Returns a clone of this graph.
          */
-        clone: function (saveMapping) {
+        clone: function(saveMapping) {
             var copy = new Graph();
             var save = Utils.isDefined(saveMapping) && saveMapping === true;
             if (save) {
@@ -77081,7 +77102,7 @@ return window.kendo;
             }
             // we need a map even if the saveMapping is not set
             var map = new Dictionary();
-            Utils.forEach(this.nodes, function (nOriginal) {
+            Utils.forEach(this.nodes, function(nOriginal) {
                 var nCopy = nOriginal.clone();
                 map.set(nOriginal, nCopy);
                 copy._addNode(nCopy);
@@ -77091,7 +77112,7 @@ return window.kendo;
                 }
             });
 
-            Utils.forEach(this.links, function (linkOriginal) {
+            Utils.forEach(this.links, function(linkOriginal) {
                 if (map.containsKey(linkOriginal.source) && map.containsKey(linkOriginal.target)) {
                     var linkCopy = copy.addLink(map.get(linkOriginal.source), map.get(linkOriginal.target));
                     if (save) {
@@ -77108,7 +77129,7 @@ return window.kendo;
          *  - ["n1->n2", "n2->n3"]: creates the three nodes and adds the links
          *  - ["n1->n2", {id: "QSDF"}, "n2->n3"]: same as previous but also performs a deep extend of the link between n1 and n2 with the given object.
          */
-        linearize: function (addIds) {
+        linearize: function(addIds) {
             return Graph.Utils.linearize(this, addIds);
         },
 
@@ -77117,7 +77138,7 @@ return window.kendo;
          * @param startNode a node or id of a node in this graph
          * @param action
          */
-        depthFirstTraversal: function (startNode, action) {
+        depthFirstTraversal: function(startNode, action) {
             if (Utils.isUndefined(startNode)) {
                 throw "You need to supply a starting node.";
             }
@@ -77132,7 +77153,7 @@ return window.kendo;
             this._dftIterator(foundNode, action, visited);
         },
 
-        _dftIterator: function (node, action, visited) {
+        _dftIterator: function(node, action, visited) {
 
             action(node);
             visited.push(node);
@@ -77151,7 +77172,7 @@ return window.kendo;
          * @param startNode a node or id of a node in this graph
          * @param action
          */
-        breadthFirstTraversal: function (startNode, action) {
+        breadthFirstTraversal: function(startNode, action) {
 
             if (Utils.isUndefined(startNode)) {
                 throw "You need to supply a starting node.";
@@ -77195,7 +77216,7 @@ return window.kendo;
          * @param index The counter of visited nodes used to assign the indices.
          * @private
          */
-        _stronglyConnectedComponents: function (excludeSingleItems, node, indices, lowLinks, connected, stack, index) {
+        _stronglyConnectedComponents: function(excludeSingleItems, node, indices, lowLinks, connected, stack, index) {
             indices.add(node, index);
             lowLinks.add(node, index);
             index++;
@@ -77233,7 +77254,7 @@ return window.kendo;
          * @param excludeSingleItems Whether isolated nodes should be excluded.
          * @returns {Array} The array of cycles found.
          */
-        findCycles: function (excludeSingleItems) {
+        findCycles: function(excludeSingleItems) {
             if (Utils.isUndefined(excludeSingleItems)) {
                 excludeSingleItems = true;
             }
@@ -77255,7 +77276,7 @@ return window.kendo;
          * Returns whether this graph is acyclic.
          * @returns {*}
          */
-        isAcyclic: function () {
+        isAcyclic: function() {
             return Utils.isEmpty(this.findCycles());
         },
 
@@ -77263,10 +77284,10 @@ return window.kendo;
          * Returns whether the given graph is a subgraph of this one.
          * @param other Another graph instance.
          */
-        isSubGraph: function (other) {
+        isSubGraph: function(other) {
             var otherArray = other.linearize();
             var thisArray = this.linearize();
-            return Utils.all(otherArray, function (s) {
+            return Utils.all(otherArray, function(s) {
                 return contains(thisArray, s);
             });
         },
@@ -77275,7 +77296,7 @@ return window.kendo;
          *  Makes an acyclic graph from the current (connected) one.
          * * @returns {Array} The reversed links.
          */
-        makeAcyclic: function () {
+        makeAcyclic: function() {
             // if empty or almost empty
             if (this.isEmpty() || this.nodes.length <= 1 || this.links.length <= 1) {
                 return [];
@@ -77309,7 +77330,7 @@ return window.kendo;
              * @param node
              * @returns {number}
              */
-            var flowIntensity = function (node) {
+            var flowIntensity = function(node) {
                 if (node.outgoing.length === 0) {
                     return (2 - N);
                 }
@@ -77326,7 +77347,7 @@ return window.kendo;
              * @param node
              * @param intensityCatalog
              */
-            var catalogEqualIntensity = function (node, intensityCatalog) {
+            var catalogEqualIntensity = function(node, intensityCatalog) {
                 var intensity = flowIntensity(node, N);
                 if (!intensityCatalog.containsKey(intensity)) {
                     intensityCatalog.set(intensity, []);
@@ -77334,7 +77355,7 @@ return window.kendo;
                 intensityCatalog.get(intensity).push(node);
             };
 
-            Utils.forEach(copy.nodes, function (v) {
+            Utils.forEach(copy.nodes, function(v) {
                 catalogEqualIntensity(v, intensityCatalog);
             });
 
@@ -77408,7 +77429,7 @@ return window.kendo;
             }
 
             var reversedEdges = [];
-            Utils.forEach(this.links, function (link) {
+            Utils.forEach(this.links, function(link) {
                 if (vertexOrder.get(link.source) > vertexOrder.get(link.target)) {
                     link.reverse();
                     reversedEdges.push(link);
@@ -77427,7 +77448,7 @@ return window.kendo;
          * @returns {*}
          * @constructor
          */
-        EightGraph: function () {
+        EightGraph: function() {
             return Graph.Utils.parse([ "1->2", "2->3", "3->4", "4->1", "3->5", "5->6", "6->7", "7->3"]);
         },
 
@@ -77436,7 +77457,7 @@ return window.kendo;
          * @returns {*}
          * @constructor
          */
-        Mindmap: function () {
+        Mindmap: function() {
             return Graph.Utils.parse(["0->1", "0->2", "0->3", "0->4", "0->5", "1->6", "1->7", "7->8", "2->9", "9->10", "9->11", "3->12",
                 "12->13", "13->14", "4->15", "4->16", "15->17", "15->18", "18->19", "18->20", "14->21", "14->22", "5->23", "23->24", "23->25", "6->26"]);
         },
@@ -77446,7 +77467,7 @@ return window.kendo;
          * @returns {*}
          * @constructor
          */
-        ThreeGraph: function () {
+        ThreeGraph: function() {
             return Graph.Utils.parse([ "1->2", "2->3", "3->1"]);
         },
 
@@ -77456,7 +77477,7 @@ return window.kendo;
          * @returns {diagram.Graph}
          * @constructor
          */
-        BinaryTree: function (levels) {
+        BinaryTree: function(levels) {
             if (Utils.isUndefined(levels)) {
                 levels = 5;
             }
@@ -77469,7 +77490,7 @@ return window.kendo;
          * @returns {diagram.Graph}
          * @constructor
          */
-        Linear: function (length) {
+        Linear: function(length) {
             if (Utils.isUndefined(length)) {
                 length = 10;
             }
@@ -77486,7 +77507,7 @@ return window.kendo;
          * @returns {diagram.Graph}
          * @constructor
          */
-        Tree: function (levels, siblingsCount) {
+        Tree: function(levels, siblingsCount) {
             return Graph.Utils.createBalancedTree(levels, siblingsCount);
         },
 
@@ -77501,7 +77522,7 @@ return window.kendo;
          * @returns {diagram.Graph}
          * @constructor
          */
-        Forest: function (levels, siblingsCount, trees) {
+        Forest: function(levels, siblingsCount, trees) {
             return Graph.Utils.createBalancedForest(levels, siblingsCount, trees);
         },
 
@@ -77510,7 +77531,7 @@ return window.kendo;
          * @returns {*}
          * @constructor
          */
-        Workflow: function () {
+        Workflow: function() {
             return Graph.Utils.parse(
                 ["0->1", "1->2", "2->3", "1->4", "4->3", "3->5", "5->6", "6->3", "6->7", "5->4"]
             );
@@ -77524,7 +77545,7 @@ return window.kendo;
          * @param m Vertical count of grid cells. If zero this will result in a linear graph.
          * @constructor
          */
-        Grid: function (n, m) {
+        Grid: function(n, m) {
             var g = new diagram.Graph();
             if (n <= 0 && m <= 0) {
                 return g;
@@ -77560,7 +77581,7 @@ return window.kendo;
          *  - ["n1->n2", "n2->n3"]: creates the three nodes and adds the links
          *  - ["n1->n2", {id: "id177"}, "n2->n3"]: same as previous but also performs a deep extend of the link between n1 and n2 with the given object.
          */
-        parse: function (graphString) {
+        parse: function(graphString) {
 
             var previousLink, graph = new diagram.Graph(), parts = graphString.slice();
             for (var i = 0, len = parts.length; i < len; i++) {
@@ -77591,7 +77612,7 @@ return window.kendo;
          * Returns a linearized representation of the given Graph.
          * See also the Graph.Utils.parse method for the inverse operation.
          */
-        linearize: function (graph, addIds) {
+        linearize: function(graph, addIds) {
             if (Utils.isUndefined(graph)) {
                 throw "Expected an instance of a Graph object in slot one.";
             }
@@ -77603,7 +77624,7 @@ return window.kendo;
                 var link = graph.links[i];
                 lin.push(link.source.id + "->" + link.target.id);
                 if (addIds) {
-                    lin.push({id: link.id});
+                    lin.push({ id: link.id });
                 }
             }
             return lin;
@@ -77618,7 +77639,7 @@ return window.kendo;
          * @returns {*}
          * @private
          */
-        _addShape: function (kendoDiagram, p, id, shapeDefaults) {
+        _addShape: function(kendoDiagram, p, id, shapeDefaults) {
             if (Utils.isUndefined(p)) {
                 p = new diagram.Point(0, 0);
             }
@@ -77650,7 +77671,7 @@ return window.kendo;
          * @returns {*}
          * @private
          */
-        _addConnection: function (diagram, from, to, options) {
+        _addConnection: function(diagram, from, to, options) {
             return diagram.connect(from, to, options);
         },
 
@@ -77659,7 +77680,7 @@ return window.kendo;
          * @param diagram The Kendo diagram where the diagram will be created.
          * @param graph The graph structure defining the diagram.
          */
-        createDiagramFromGraph: function (diagram, graph, doLayout, randomSize) {
+        createDiagramFromGraph: function(diagram, graph, doLayout, randomSize) {
 
             if (Utils.isUndefined(diagram)) {
                 throw "The diagram surface is undefined.";
@@ -77733,12 +77754,12 @@ return window.kendo;
                 if (Utils.isUndefined(targetShape)) {
                     continue;
                 }
-                this._addConnection(diagram, sourceShape, targetShape, {id: link.id});
+                this._addConnection(diagram, sourceShape, targetShape, { id: link.id });
 
             }
             if (doLayout) {
                 var l = new diagram.SpringLayout(diagram);
-                l.layoutGraph(graph, {limitToView: false});
+                l.layoutGraph(graph, { limitToView: false });
                 for (var shi = 0; shi < graph.nodes.length; shi++) {
                     node = graph.nodes[shi];
                     shape = map[node.id];
@@ -77756,7 +77777,7 @@ return window.kendo;
          * @param siblingsCount How many siblings each level should have.
          * @returns {diagram.Graph}
          */
-        createBalancedTree: function (levels, siblingsCount) {
+        createBalancedTree: function(levels, siblingsCount) {
             if (Utils.isUndefined(levels)) {
                 levels = 3;
             }
@@ -77797,7 +77818,7 @@ return window.kendo;
          * @returns {diagram.Graph}
          * @param treeCount The number of trees the forest should have.
          */
-        createBalancedForest: function (levels, siblingsCount, treeCount) {
+        createBalancedForest: function(levels, siblingsCount, treeCount) {
             if (Utils.isUndefined(levels)) {
                 levels = 3;
             }
@@ -77839,7 +77860,7 @@ return window.kendo;
          * @param isTree Whether the return graph should be a tree (default: false).
          * @returns {diagram.Graph}
          */
-        createRandomConnectedGraph: function (nodeCount, maxIncidence, isTree) {
+        createRandomConnectedGraph: function(nodeCount, maxIncidence, isTree) {
 
             /* Swa's Mathematica export of random Bernoulli graphs
              gr[n_,p_]:=Module[{g=RandomGraph[BernoulliGraphDistribution[n,p],VertexLabels->"Name",DirectedEdges->True]},
@@ -77903,14 +77924,14 @@ return window.kendo;
          * @param isTree Whether the generated diagram should be a tree
          * @param layoutType The optional layout type to apply after the diagram is generated.
          */
-        randomDiagram: function (diagram, shapeCount, maxIncidence, isTree, randomSize) {
+        randomDiagram: function(diagram, shapeCount, maxIncidence, isTree, randomSize) {
             var g = kendo.dataviz.diagram.Graph.Utils.createRandomConnectedGraph(shapeCount, maxIncidence, isTree);
             Graph.Utils.createDiagramFromGraph(diagram, g, false, randomSize);
         }
     };
 
     kendo.deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
 
@@ -77935,13 +77956,13 @@ return window.kendo;
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/svg',[ "kendo.drawing", "./math" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram,
@@ -77997,47 +78018,47 @@ return window.kendo;
     }
 
     var Scale = Class.extend({
-        init: function (x, y) {
+        init: function(x, y) {
             this.x = x;
             this.y = y;
         },
-        toMatrix: function () {
+        toMatrix: function() {
             return Matrix.scaling(this.x, this.y);
         },
-        toString: function () {
+        toString: function() {
             return kendo.format("scale({0},{1})", this.x, this.y);
         },
         invert: function() {
-            return new Scale(1/this.x, 1/this.y);
+            return new Scale(1 / this.x, 1 / this.y);
         }
     });
 
     var Translation = Class.extend({
-        init: function (x, y) {
+        init: function(x, y) {
             this.x = x;
             this.y = y;
         },
-        toMatrixVector: function () {
+        toMatrixVector: function() {
             return new MatrixVector(0, 0, 0, 0, this.x, this.y);
         },
-        toMatrix: function () {
+        toMatrix: function() {
             return Matrix.translation(this.x, this.y);
         },
-        toString: function () {
+        toString: function() {
             return kendo.format("translate({0},{1})", this.x, this.y);
         },
-        plus: function (delta) {
+        plus: function(delta) {
             this.x += delta.x;
             this.y += delta.y;
         },
-        times: function (factor) {
+        times: function(factor) {
             this.x *= factor;
             this.y *= factor;
         },
-        length: function () {
+        length: function() {
             return Math.sqrt(this.x * this.x + this.y * this.y);
         },
-        normalize: function () {
+        normalize: function() {
             if (this.Length === 0) {
                 return;
             }
@@ -78049,22 +78070,22 @@ return window.kendo;
     });
 
     var Rotation = Class.extend({
-        init: function (angle, x, y) {
+        init: function(angle, x, y) {
             this.x = x || 0;
             this.y = y || 0;
             this.angle = angle;
         },
-        toString: function () {
+        toString: function() {
             if (this.x && this.y) {
                 return kendo.format("rotate({0},{1},{2})", this.angle, this.x, this.y);
             } else {
                 return kendo.format("rotate({0})", this.angle);
             }
         },
-        toMatrix: function () {
+        toMatrix: function() {
             return Matrix.rotation(this.angle, this.x, this.y); // T*R*T^-1
         },
-        center: function () {
+        center: function() {
             return new Point(this.x, this.y);
         },
         invert: function() {
@@ -78074,11 +78095,11 @@ return window.kendo;
 
     Rotation.ZERO = new Rotation(0);
 
-    Rotation.create = function (rotation) {
+    Rotation.create = function(rotation) {
         return new Rotation(rotation.angle, rotation.x, rotation.y);
     };
 
-    Rotation.parse = function (str) {
+    Rotation.parse = function(str) {
         var values = str.slice(1, str.length - 1).split(","),
             angle = values[0],
             x = values[1],
@@ -78088,7 +78109,7 @@ return window.kendo;
     };
 
     var CompositeTransform = Class.extend({
-        init: function (x, y, scaleX, scaleY, angle, center) {
+        init: function(x, y, scaleX, scaleY, angle, center) {
             this.translate = new Translation(x, y);
             if (scaleX !== undefined && scaleY !== undefined) {
                 this.scale = new Scale(scaleX, scaleY);
@@ -78097,8 +78118,8 @@ return window.kendo;
                 this.rotate = center ? new Rotation(angle, center.x, center.y) : new Rotation(angle);
             }
         },
-        toString: function () {
-            var toString = function (transform) {
+        toString: function() {
+            var toString = function(transform) {
                 return transform ? transform.toString() : "";
             };
 
@@ -78107,12 +78128,12 @@ return window.kendo;
                 toString(this.scale);
         },
 
-        render: function (visual) {
+        render: function(visual) {
             visual._transform = this;
             visual._renderTransform();
         },
 
-        toMatrix: function () {
+        toMatrix: function() {
             var m = Matrix.unit();
 
             if (this.translate) {
@@ -78212,7 +78233,7 @@ return window.kendo;
     };
 
     var Element = Class.extend({
-        init: function (options) {
+        init: function(options) {
             var element = this;
             element.options = deepExtend({}, element.options, options);
             element.id = element.options.id;
@@ -78220,17 +78241,17 @@ return window.kendo;
             element._transform = new CompositeTransform();
         },
 
-        visible: function (value) {
+        visible: function(value) {
             return this.drawingContainer().visible(value);
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options && options.id) {
                  this.id = options.id;
             }
         },
 
-        position: function (x, y) {
+        position: function(x, y) {
             var options = this.options;
             if (!defined(x)) {
                return new Point(options.x, options.y);
@@ -78248,7 +78269,7 @@ return window.kendo;
             this._renderTransform();
         },
 
-        rotate: function (angle, center) {
+        rotate: function(angle, center) {
             if (defined(angle)) {
                 this._transform.rotate = new Rotation(angle, center.x, center.y);
                 this._renderTransform();
@@ -78260,16 +78281,16 @@ return window.kendo;
             return this.drawingElement;
         },
 
-        _renderTransform: function () {
+        _renderTransform: function() {
             var matrix = this._transform.toMatrix();
             this.drawingContainer().transform(new g.Matrix(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f));
         },
 
-        _hover: function () {},
+        _hover: function() {},
 
         _diffNumericOptions: diffNumericOptions,
 
-        _measure: function (force) {
+        _measure: function(force) {
             var rect;
             if (!this._measured || force) {
                 var box = this._boundingBox() || new g.Rect();
@@ -78324,7 +78345,7 @@ return window.kendo;
             });
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var stroke = options.stroke;
                 var fill = options.fill;
@@ -78339,7 +78360,7 @@ return window.kendo;
             }
         },
 
-        _hover: function (show) {
+        _hover: function(show) {
             var drawingElement = this.drawingElement;
             var options = this.options;
             var hover = options.hover;
@@ -78389,7 +78410,7 @@ return window.kendo;
     });
 
     var TextBlock = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             options = this._textColor(options);
             VisualBase.fn.init.call(this, options);
 
@@ -78454,11 +78475,11 @@ return window.kendo;
             }
         },
 
-        content: function (text) {
+        content: function(text) {
             return this.drawingElement.content(text);
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var sizeChanged = false;
                 var textOptions = this.options;
@@ -78494,7 +78515,7 @@ return window.kendo;
     deepExtend(TextBlock.fn, AutoSizeableMixin);
 
     var Rectangle = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this._initPath();
             this._setPosition();
@@ -78509,7 +78530,7 @@ return window.kendo;
             }
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 VisualBase.fn.redraw.call(this, options);
                 if (this._diffNumericOptions(options, [WIDTH, HEIGHT])) {
@@ -78622,7 +78643,7 @@ return window.kendo;
 
     var ArrowMarker = MarkerBase.extend({
         options: {
-            path: "M 0 0 L 10 5 L 0 10 L 3 5 z"           ,
+            path: "M 0 0 L 10 5 L 0 10 L 3 5 z" ,
             anchor: {
                 x: 10,
                 y: 5
@@ -78748,7 +78769,7 @@ return window.kendo;
 
             if (type == Markers.filledCircle) {
                 markerType = CircleMarker;
-            } else if (type == Markers.arrowStart || type == Markers.arrowEnd){
+            } else if (type == Markers.arrowStart || type == Markers.arrowEnd) {
                 markerType = ArrowMarker;
             } else {
                 this._removeMarker(position);
@@ -78764,7 +78785,7 @@ return window.kendo;
             }
         },
 
-        _positionMarker : function(position) {
+        _positionMarker: function(position) {
             var marker = this._markers[position];
 
             if (marker) {
@@ -78795,7 +78816,7 @@ return window.kendo;
                 if (optionsCap.type && pathCapType != optionsCap.type) {
                     this._removeMarker(position);
                     this._markers[position] = this._createMarker(pathOptions[cap], position);
-                    created  = true;
+                    created = true;
                 } else if (this._markers[position]) {
                    this._markers[position].redraw(optionsCap);
                 }
@@ -78806,7 +78827,7 @@ return window.kendo;
             return created;
         },
 
-        _redrawMarkers: function (pathChange, options) {
+        _redrawMarkers: function(pathChange, options) {
             if (!this._redrawMarker(pathChange, START, options) && pathChange) {
                 this._positionMarker(START);
             }
@@ -78817,7 +78838,7 @@ return window.kendo;
     };
 
     var Path = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this.container = new d.Group();
             this._createElements();
@@ -78832,7 +78853,7 @@ return window.kendo;
             return this.container;
         },
 
-        data: function (value) {
+        data: function(value) {
             var options = this.options;
             if (value) {
                 if (options.data != value) {
@@ -78846,7 +78867,7 @@ return window.kendo;
             }
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 VisualBase.fn.redraw.call(this, options);
 
@@ -78892,7 +78913,7 @@ return window.kendo;
     deepExtend(Path.fn, MarkerPathMixin);
 
     var Line = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this.container = new d.Group();
             this._initPath();
@@ -78903,7 +78924,7 @@ return window.kendo;
             return this.container;
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 options = options || {};
                 var from = options.from;
@@ -78954,7 +78975,7 @@ return window.kendo;
     deepExtend(Line.fn, MarkerPathMixin);
 
     var Polyline = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this.container = new d.Group();
             this._initPath();
@@ -78965,7 +78986,7 @@ return window.kendo;
             return this.container;
         },
 
-        points: function (points) {
+        points: function(points) {
             var options = this.options;
             if (points) {
                 options.points = points;
@@ -78975,7 +78996,7 @@ return window.kendo;
             }
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var points = options.points;
                 VisualBase.fn.redraw.call(this, options);
@@ -79040,13 +79061,13 @@ return window.kendo;
     deepExtend(Polyline.fn, MarkerPathMixin);
 
     var Image = Element.extend({
-        init: function (options) {
+        init: function(options) {
             Element.fn.init.call(this, options);
 
             this._initImage();
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 if (options.source) {
                     this.drawingElement.src(options.source);
@@ -79077,7 +79098,7 @@ return window.kendo;
     });
 
     var Group = Element.extend({
-        init: function (options) {
+        init: function(options) {
             this.children = [];
             Element.fn.init.call(this, options);
             this.drawingElement = new d.Group();
@@ -79088,13 +79109,13 @@ return window.kendo;
             autoSize: false
         },
 
-        append: function (visual) {
+        append: function(visual) {
             this.drawingElement.append(visual.drawingContainer());
             this.children.push(visual);
             this._childrenChange = true;
         },
 
-        remove: function (visual) {
+        remove: function(visual) {
             if (this._remove(visual)) {
                 this._childrenChange = true;
             }
@@ -79109,13 +79130,13 @@ return window.kendo;
             }
         },
 
-        clear: function () {
+        clear: function() {
             this.drawingElement.clear();
             this.children = [];
             this._childrenChange = true;
         },
 
-        toFront: function (visuals) {
+        toFront: function(visuals) {
             var visual;
 
             for (var i = 0; i < visuals.length; i++) {
@@ -79126,11 +79147,11 @@ return window.kendo;
             }
         },
         //TO DO: add drawing group support for moving and inserting children
-        toBack: function (visuals) {
+        toBack: function(visuals) {
             this._reorderChildren(visuals, 0);
         },
 
-        toIndex: function (visuals, indices) {
+        toIndex: function(visuals, indices) {
             this._reorderChildren(visuals, indices);
         },
 
@@ -79160,7 +79181,7 @@ return window.kendo;
             group.append.apply(group, drawingChildren);
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 if (this._childrenChange) {
                     this._childrenChange = false;
@@ -79200,7 +79221,7 @@ return window.kendo;
     deepExtend(Group.fn, AutoSizeableMixin);
 
     var Layout = Group.extend({
-        init: function (rect, options) {
+        init: function(rect, options) {
             this.children = [];
             Element.fn.init.call(this, options);
             this.drawingElement = new d.Layout(toDrawingRect(rect), options);
@@ -79222,20 +79243,20 @@ return window.kendo;
             this.drawingElement.reflow();
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             kendo.deepExtend(this.drawingElement.options, options);
             Group.fn.redraw.call(this, options);
         }
     });
 
     var Circle = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this._initCircle();
             this._initSize();
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var circleOptions = this.options;
 
@@ -79271,7 +79292,7 @@ return window.kendo;
                 options.radius = radius = Math.min(width, height) / 2;
             }
 
-            var center = options.center || {x: radius, y: radius};
+            var center = options.center || { x: radius, y: radius };
             this._center = new g.Point(center.x, center.y);
             this._circle = new g.Circle(this._center, radius);
             this.drawingElement = new d.Circle(this._circle, {
@@ -79284,7 +79305,7 @@ return window.kendo;
     deepExtend(Circle.fn, AutoSizeableMixin);
 
     var Canvas = Class.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             options = options || {};
             this.element = element;
             this.surface = d.Surface.create(element, options);
@@ -79297,12 +79318,12 @@ return window.kendo;
             this.size(this._viewBox);
         },
 
-        bounds: function () {
+        bounds: function() {
             var box = this.drawingElement.clippedBBox();
             return new Rect(0, 0, box.width(), box.height());
         },
 
-        size: function (size) {
+        size: function(size) {
             var viewBox = this._viewBox;
             if (defined(size)) {
                 viewBox.width = size.width;
@@ -79315,12 +79336,12 @@ return window.kendo;
             };
         },
 
-        _translate: function (x, y) {
+        _translate: function(x, y) {
             var viewBox = this._viewBox;
             if (defined(x) && defined(y)) {
                 viewBox.x = x;
                 viewBox.y = y;
-                this.surface.translate({x: x, y: y});
+                this.surface.translate({ x: x, y: y });
             }
             return {
                 x: viewBox.x,
@@ -79332,26 +79353,26 @@ return window.kendo;
             this.surface.draw(this.drawingElement);
         },
 
-        append: function (visual) {
+        append: function(visual) {
             this.drawingElement.append(visual.drawingContainer());
             return this;
         },
 
-        remove: function (visual) {
+        remove: function(visual) {
             this.drawingElement.remove(visual.drawingContainer());
         },
 
-        insertBefore: function () {
+        insertBefore: function() {
 
         },
 
-        clear: function () {
+        clear: function() {
             this.drawingElement.clear();
         },
 
         destroy: function(clearHtml) {
             this.surface.destroy();
-            if(clearHtml) {
+            if (clearHtml) {
                 $(this.element).remove();
             }
         }
@@ -79414,7 +79435,7 @@ return window.kendo;
 
     // Exports ================================================================
     kendo.deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
         diffNumericOptions: diffNumericOptions,
@@ -79440,13 +79461,13 @@ return window.kendo;
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function (f, define) {
+(function(f, define) {
     define('dataviz/diagram/services',[ "kendo.drawing", "./svg" ], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         // Imports ================================================================
         var kendo = window.kendo,
             dataviz = kendo.dataviz,
@@ -79518,11 +79539,11 @@ return window.kendo;
         diagram.Cursors = Cursors;
 
         var PositionAdapter = kendo.Class.extend({
-            init: function (layoutState) {
+            init: function(layoutState) {
                 this.layoutState = layoutState;
                 this.diagram = layoutState.diagram;
             },
-            initState: function () {
+            initState: function() {
                 this.froms = [];
                 this.tos = [];
                 this.subjects = [];
@@ -79537,7 +79558,7 @@ return window.kendo;
 
                 this.layoutState.nodeMap.forEach(pusher, this);
             },
-            update: function (tick) {
+            update: function(tick) {
                 if (this.subjects.length <= 0) {
                     return;
                 }
@@ -79551,7 +79572,7 @@ return window.kendo;
         });
 
         var LayoutUndoUnit = Class.extend({
-            init: function (initialState, finalState, animate) {
+            init: function(initialState, finalState, animate) {
                 if (isUndefined(animate)) {
                     this.animate = false;
                 }
@@ -79562,17 +79583,17 @@ return window.kendo;
                 this._finalState = finalState;
                 this.title = "Diagram layout";
             },
-            undo: function () {
+            undo: function() {
                 this.setState(this._initialState);
             },
-            redo: function () {
+            redo: function() {
                 this.setState(this._finalState);
             },
-            setState: function (state) {
+            setState: function(state) {
                 var diagram = state.diagram;
                 if (this.animate) {
                     state.linkMap.forEach(
-                        function (id, points) {
+                        function(id, points) {
                             var conn = diagram.getShapeById(id);
                             conn.visible(false);
                             if (conn) {
@@ -79582,9 +79603,9 @@ return window.kendo;
                     );
                     var ticker = new Ticker();
                     ticker.addAdapter(new PositionAdapter(state));
-                    ticker.onComplete(function () {
+                    ticker.onComplete(function() {
                         state.linkMap.forEach(
-                            function (id) {
+                            function(id) {
                                 var conn = diagram.getShapeById(id);
                                 conn.visible(true);
                             }
@@ -79593,14 +79614,14 @@ return window.kendo;
                     ticker.play();
                 }
                 else {
-                    state.nodeMap.forEach(function (id, bounds) {
+                    state.nodeMap.forEach(function(id, bounds) {
                         var shape = diagram.getShapeById(id);
                         if (shape) {
                             shape.position(bounds.topLeft());
                         }
                     });
                     state.linkMap.forEach(
-                        function (id, points) {
+                        function(id, points) {
                             var conn = diagram.getShapeById(id);
                             if (conn) {
                                 conn.points(points);
@@ -79612,22 +79633,22 @@ return window.kendo;
         });
 
         var CompositeUnit = Class.extend({
-            init: function (unit) {
+            init: function(unit) {
                 this.units = [];
                 this.title = "Composite unit";
                 if (unit !== undefined) {
                     this.units.push(unit);
                 }
             },
-            add: function (undoUnit) {
+            add: function(undoUnit) {
                 this.units.push(undoUnit);
             },
-            undo: function () {
+            undo: function() {
                 for (var i = 0; i < this.units.length; i++) {
                     this.units[i].undo();
                 }
             },
-            redo: function () {
+            redo: function() {
                 for (var i = 0; i < this.units.length; i++) {
                     this.units[i].redo();
                 }
@@ -79635,7 +79656,7 @@ return window.kendo;
         });
 
         var ConnectionEditUnit = Class.extend({
-            init: function (item, redoSource, redoTarget) {
+            init: function(item, redoSource, redoTarget) {
                 this.item = item;
                 this._redoSource = redoSource;
                 this._redoTarget = redoTarget;
@@ -79648,7 +79669,7 @@ return window.kendo;
                 }
                 this.title = "Connection Editing";
             },
-            undo: function () {
+            undo: function() {
                 if (this._undoSource !== undefined) {
                     this.item._updateConnector(this._undoSource, "source");
                 }
@@ -79659,7 +79680,7 @@ return window.kendo;
 
                 this.item.updateModel();
             },
-            redo: function () {
+            redo: function() {
                 if (this._redoSource !== undefined) {
                     this.item._updateConnector(this._redoSource, "source");
                 }
@@ -79673,7 +79694,7 @@ return window.kendo;
         });
 
         var ConnectionEditUndoUnit = Class.extend({
-            init: function (item, undoSource, undoTarget) {
+            init: function(item, undoSource, undoTarget) {
                 this.item = item;
                 this._undoSource = undoSource;
                 this._undoTarget = undoTarget;
@@ -79681,12 +79702,12 @@ return window.kendo;
                 this._redoTarget = item.target();
                 this.title = "Connection Editing";
             },
-            undo: function () {
+            undo: function() {
                 this.item._updateConnector(this._undoSource, "source");
                 this.item._updateConnector(this._undoTarget, "target");
                 this.item.updateModel();
             },
-            redo: function () {
+            redo: function() {
                 this.item._updateConnector(this._redoSource, "source");
                 this.item._updateConnector(this._redoTarget, "target");
                 this.item.updateModel();
@@ -79694,31 +79715,31 @@ return window.kendo;
         });
 
         var DeleteConnectionUnit = Class.extend({
-            init: function (connection) {
+            init: function(connection) {
                 this.connection = connection;
                 this.diagram = connection.diagram;
                 this.targetConnector = connection.targetConnector;
                 this.title = "Delete connection";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._addConnection(this.connection, false);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.remove(this.connection, false);
             }
         });
 
         var DeleteShapeUnit = Class.extend({
-            init: function (shape) {
+            init: function(shape) {
                 this.shape = shape;
                 this.diagram = shape.diagram;
                 this.title = "Deletion";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._addShape(this.shape, false);
                 this.shape.select(false);
             },
-            redo: function () {
+            redo: function() {
                 this.shape.select(false);
                 this.diagram.remove(this.shape, false);
             }
@@ -79728,7 +79749,7 @@ return window.kendo;
          * @type {*}
          */
         var TransformUnit = Class.extend({
-            init: function (shapes, undoStates, adorner) {
+            init: function(shapes, undoStates, adorner) {
                 this.shapes = shapes;
                 this.undoStates = undoStates;
                 this.title = "Transformation";
@@ -79739,7 +79760,7 @@ return window.kendo;
                     this.redoStates.push(shape.bounds());
                 }
             },
-            undo: function () {
+            undo: function() {
                 for (var i = 0; i < this.shapes.length; i++) {
                     var shape = this.shapes[i];
                     shape.bounds(this.undoStates[i]);
@@ -79753,7 +79774,7 @@ return window.kendo;
                     this.adorner.refresh();
                 }
             },
-            redo: function () {
+            redo: function() {
                 for (var i = 0; i < this.shapes.length; i++) {
                     var shape = this.shapes[i];
                     shape.bounds(this.redoStates[i]);
@@ -79772,55 +79793,55 @@ return window.kendo;
         });
 
         var AddConnectionUnit = Class.extend({
-            init: function (connection, diagram) {
+            init: function(connection, diagram) {
                 this.connection = connection;
                 this.diagram = diagram;
                 this.title = "New connection";
             },
 
-            undo: function () {
+            undo: function() {
                 this.diagram.remove(this.connection, false);
             },
 
-            redo: function () {
+            redo: function() {
                 this.diagram._addConnection(this.connection, false);
             }
         });
 
         var AddShapeUnit = Class.extend({
-            init: function (shape, diagram) {
+            init: function(shape, diagram) {
                 this.shape = shape;
                 this.diagram = diagram;
                 this.title = "New shape";
             },
 
-            undo: function () {
+            undo: function() {
                 this.diagram.deselect();
                 this.diagram.remove(this.shape, false);
             },
 
-            redo: function () {
+            redo: function() {
                 this.diagram._addShape(this.shape, false);
             }
         });
 
         var PanUndoUnit = Class.extend({
-            init: function (initialPosition, finalPosition, diagram) {
+            init: function(initialPosition, finalPosition, diagram) {
                 this.initial = initialPosition;
                 this.finalPos = finalPosition;
                 this.diagram = diagram;
                 this.title = "Pan Unit";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram.pan(this.initial);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.pan(this.finalPos);
             }
         });
 
         var RotateUnit = Class.extend({
-            init: function (adorner, shapes, undoRotates) {
+            init: function(adorner, shapes, undoRotates) {
                 this.shapes = shapes;
                 this.undoRotates = undoRotates;
                 this.title = "Rotation";
@@ -79833,7 +79854,7 @@ return window.kendo;
                     this.redoRotates.push(shape.rotate().angle);
                 }
             },
-            undo: function () {
+            undo: function() {
                 var i, shape;
                 for (i = 0; i < this.shapes.length; i++) {
                     shape = this.shapes[i];
@@ -79848,7 +79869,7 @@ return window.kendo;
                     this.adorner.refresh();
                 }
             },
-            redo: function () {
+            redo: function() {
                 var i, shape;
                 for (i = 0; i < this.shapes.length; i++) {
                     shape = this.shapes[i];
@@ -79866,31 +79887,31 @@ return window.kendo;
         });
 
         var ToFrontUnit = Class.extend({
-            init: function (diagram, items, initialIndices) {
+            init: function(diagram, items, initialIndices) {
                 this.diagram = diagram;
                 this.indices = initialIndices;
                 this.items = items;
                 this.title = "Rotate Unit";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._toIndex(this.items, this.indices);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.toFront(this.items, false);
             }
         });
 
         var ToBackUnit = Class.extend({
-            init: function (diagram, items, initialIndices) {
+            init: function(diagram, items, initialIndices) {
                 this.diagram = diagram;
                 this.indices = initialIndices;
                 this.items = items;
                 this.title = "Rotate Unit";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._toIndex(this.items, this.indices);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.toBack(this.items, false);
             }
         });
@@ -79899,7 +79920,7 @@ return window.kendo;
          * Undo-redo service.
          */
         var UndoRedoService = kendo.Observable.extend({
-            init: function (options) {
+            init: function(options) {
                 kendo.Observable.fn.init.call(this, options);
                 this.bind(this.events, options);
                 this.stack = [];
@@ -79913,21 +79934,21 @@ return window.kendo;
              * Starts the collection of units. Add those with
              * the addCompositeItem method and call commit. Or cancel to forget about it.
              */
-            begin: function () {
+            begin: function() {
                 this.composite = new CompositeUnit();
             },
 
             /**
              * Cancels the collection process of unit started with 'begin'.
              */
-            cancel: function () {
+            cancel: function() {
                 this.composite = undefined;
             },
 
             /**
              * Commits a batch of units.
              */
-            commit: function (execute) {
+            commit: function(execute) {
                 if (this.composite.units.length > 0) {
                     this._restart(this.composite, execute);
                 }
@@ -79938,7 +79959,7 @@ return window.kendo;
              * Adds a unit as part of the begin-commit batch.
              * @param undoUnit
              */
-            addCompositeItem: function (undoUnit) {
+            addCompositeItem: function(undoUnit) {
                 if (this.composite) {
                     this.composite.add(undoUnit);
                 } else {
@@ -79951,7 +79972,7 @@ return window.kendo;
              * @param undoUnit The unit to be added.
              * @param execute If false, the unit will be added but not executed.
              */
-            add: function (undoUnit, execute) {
+            add: function(undoUnit, execute) {
                 this._restart(undoUnit, execute);
             },
 
@@ -79967,14 +79988,14 @@ return window.kendo;
                 }
             },
 
-            count: function () {
+            count: function() {
                 return this.stack.length;
             },
 
             /**
              * Rollback of the unit on top of the stack.
              */
-            undo: function () {
+            undo: function() {
                 if (this.index > 0) {
                     this.index--;
                     this.stack[this.index].undo();
@@ -79985,7 +80006,7 @@ return window.kendo;
             /**
              * Redo of the last undone action.
              */
-            redo: function () {
+            redo: function() {
                 if (this.stack.length > 0 && this.index < this.stack.length) {
                     this.stack[this.index].redo();
                     this.index++;
@@ -79993,7 +80014,7 @@ return window.kendo;
                 }
             },
 
-            _restart: function (composite, execute) {
+            _restart: function(composite, execute) {
                 // throw away anything beyond this point if this is a new branch
                 this.stack.splice(this.index, this.stack.length - this.index);
                 this.stack.push(composite);
@@ -80012,7 +80033,7 @@ return window.kendo;
             /**
              * Clears the stack.
              */
-            clear: function () {
+            clear: function() {
                 this.stack = [];
                 this.index = 0;
             }
@@ -80021,25 +80042,25 @@ return window.kendo;
 // Tools =========================================
 
         var EmptyTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
             },
-            start: function () {
+            start: function() {
             },
-            move: function () {
+            move: function() {
             },
-            end: function () {
+            end: function() {
             },
-            tryActivate: function () {
+            tryActivate: function() {
                 return false;
             },
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.arrow;
             }
         });
 
         var ScrollerTool = EmptyTool.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 var tool = this;
                 var friction = kendo.support.mobileOS ? FRICTION_MOBILE : FRICTION;
                 EmptyTool.fn.init.call(tool, toolService);
@@ -80059,7 +80080,7 @@ return window.kendo;
                     tool.movableCanvas = new Movable(canvas.element);
                 }
 
-                var virtualScroll = function (dimension, min, max) {
+                var virtualScroll = function(dimension, min, max) {
                     dimension.makeVirtual();
                     dimension.virtualSize(min || SCROLL_MIN, max || SCROLL_MAX);
                 };
@@ -80069,7 +80090,7 @@ return window.kendo;
                 scroller.disable();
             },
 
-            tryActivate: function (p, meta) {
+            tryActivate: function(p, meta) {
                 var toolService = this.toolService;
                 var options = toolService.diagram.options.pannable;
                 var enabled = meta.ctrlKey;
@@ -80082,15 +80103,15 @@ return window.kendo;
                     }
                 }
 
-                return  options !== false && enabled && !defined(toolService.hoveredAdorner) && !defined(toolService._hoveredConnector);
+                return options !== false && enabled && !defined(toolService.hoveredAdorner) && !defined(toolService._hoveredConnector);
             },
 
-            start: function () {
+            start: function() {
                 this.scroller.enable();
             },
-            move: function () {
+            move: function() {
             },//the tool itself should not handle the scrolling. Let kendo scroller take care of this part. Check _move
-            _move: function (args) {
+            _move: function(args) {
                 var tool = this,
                     diagram = tool.toolService.diagram,
                     canvas = diagram.canvas,
@@ -80104,12 +80125,12 @@ return window.kendo;
                     scrollPos = scrollPos.plus(diagram._pan.times(-1));
                 }
 
-                diagram.trigger(PAN, {pan: scrollPos});
+                diagram.trigger(PAN, { pan: scrollPos });
             },
-            end: function () {
+            end: function() {
                 this.scroller.disable();
             },
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.move;
             }
         });
@@ -80119,13 +80140,13 @@ return window.kendo;
          * @type {*}
          */
         var PointerTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
             },
-            tryActivate: function () {
+            tryActivate: function() {
                 return true; // the pointer tool is last and handles all others requests.
             },
-            start: function (p, meta) {
+            start: function(p, meta) {
                 var toolService = this.toolService,
                     diagram = toolService.diagram,
                     hoveredItem = toolService.hoveredItem;
@@ -80155,7 +80176,7 @@ return window.kendo;
                 }
             },
 
-            move: function (p) {
+            move: function(p) {
                 if (this.adorner) {
                     this.adorner.move(this.handle, p);
                     if (this.adorner.isDragHandle(this.handle)) {
@@ -80164,7 +80185,7 @@ return window.kendo;
                 }
             },
 
-            end: function () {
+            end: function() {
                 var diagram = this.toolService.diagram,
                     adorner = this.adorner,
                     unit;
@@ -80183,16 +80204,16 @@ return window.kendo;
                 this.adorner = undefined;
                 this.handle = undefined;
             },
-            getCursor: function (p) {
+            getCursor: function(p) {
                 return this.toolService.hoveredItem ? this.toolService.hoveredItem._getCursor(p) : Cursors.arrow;
             }
         });
 
         var SelectionTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
             },
-            tryActivate: function (p, meta) {
+            tryActivate: function(p, meta) {
                 var toolService = this.toolService;
                 var selectable = toolService.diagram.options.selectable;
                 var enabled = selectable && selectable.multiple !== false;
@@ -80207,16 +80228,16 @@ return window.kendo;
 
                 return enabled && !defined(toolService.hoveredItem) && !defined(toolService.hoveredAdorner);
             },
-            start: function (p) {
+            start: function(p) {
                 var diagram = this.toolService.diagram;
                 diagram.deselect();
                 diagram.selector.start(p);
             },
-            move: function (p) {
+            move: function(p) {
                 var diagram = this.toolService.diagram;
                 diagram.selector.move(p);
             },
-            end: function (p, meta) {
+            end: function(p, meta) {
                 var diagram = this.toolService.diagram, hoveredItem = this.toolService.hoveredItem;
                 var rect = diagram.selector.bounds();
                 if ((!hoveredItem || !hoveredItem.isSelected) && !meta.ctrlKey) {
@@ -80227,20 +80248,20 @@ return window.kendo;
                 }
                 diagram.selector.end();
             },
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.arrow;
             }
         });
 
         var ConnectionTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
                 this.type = "ConnectionTool";
             },
             tryActivate: function() {
                 return this.toolService._hoveredConnector;
             },
-            start: function (p, meta) {
+            start: function(p, meta) {
                 var toolService = this.toolService,
                     diagram = toolService.diagram,
                     connector = toolService._hoveredConnector,
@@ -80259,16 +80280,16 @@ return window.kendo;
                 }
             },
 
-            move: function (p) {
+            move: function(p) {
                 var toolService = this.toolService;
                 var connection = toolService.activeConnection;
 
                 connection.target(p);
-                toolService.diagram.trigger(DRAG, { shapes: [], connections: [connection], connectionHandle: TARGET  });
+                toolService.diagram.trigger(DRAG, { shapes: [], connections: [connection], connectionHandle: TARGET });
                 return true;
             },
 
-            end: function (p) {
+            end: function(p) {
                 var toolService = this.toolService,
                     d = toolService.diagram,
                     connection = toolService.activeConnection,
@@ -80300,27 +80321,27 @@ return window.kendo;
                 }
                 toolService._connectionManipulation();
 
-                if(cachedTouchTarget) {
+                if (cachedTouchTarget) {
                     d._connectorsAdorner.visual.remove(cachedTouchTarget);
                     d._cachedTouchTarget = null;
                 }
             },
 
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.arrow;
             }
         });
 
         var ConnectionEditTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
                 this.type = "ConnectionTool";
             },
 
-            tryActivate: function (p, meta) {
+            tryActivate: function(p, meta) {
                 var toolService = this.toolService,
                     diagram = toolService.diagram,
-                    selectable =  diagram.options.selectable,
+                    selectable = diagram.options.selectable,
                     item = toolService.hoveredItem,
                     isActive = selectable !== false &&
                                item && item.path && !(item.isSelected && meta.ctrlKey);
@@ -80332,7 +80353,7 @@ return window.kendo;
                 return isActive;
             },
 
-            start: function (p, meta) {
+            start: function(p, meta) {
                 var toolService = this.toolService;
                 var connection = this._c;
 
@@ -80356,7 +80377,7 @@ return window.kendo;
                 }
             },
 
-            move: function (p) {
+            move: function(p) {
                 var adorner = this._c.adorner;
                 if (canDrag(this._c) && adorner) {
                     adorner.move(this.handle, p);
@@ -80366,7 +80387,7 @@ return window.kendo;
                 }
             },
 
-            end: function (p) {
+            end: function(p) {
                 var connection = this._c;
                 var adorner = connection.adorner;
                 var toolService = this.toolService;
@@ -80386,7 +80407,7 @@ return window.kendo;
                 }
             },
 
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.move;
             }
         });
@@ -80400,7 +80421,7 @@ return window.kendo;
          * @type {*}
          */
         var ToolService = Class.extend({
-            init: function (diagram) {
+            init: function(diagram) {
                 this.diagram = diagram;
                 this.tools = [
                     new ScrollerTool(this),
@@ -80413,7 +80434,7 @@ return window.kendo;
                 this.activeTool = undefined;
             },
 
-            start: function (p, meta) {
+            start: function(p, meta) {
                 meta = deepExtend({}, meta);
                 if (this.activeTool) {
                     this.activeTool.end(p, meta);
@@ -80428,7 +80449,7 @@ return window.kendo;
                 return true;
             },
 
-            move: function (p, meta) {
+            move: function(p, meta) {
                 meta = deepExtend({}, meta);
                 var updateHovered = true;
                 if (this.activeTool) {
@@ -80441,7 +80462,7 @@ return window.kendo;
                 return true;
             },
 
-            end: function (p, meta) {
+            end: function(p, meta) {
                 meta = deepExtend({}, meta);
                 if (this.activeTool) {
                     this.activeTool.end(p, meta);
@@ -80452,7 +80473,7 @@ return window.kendo;
                 return true;
             },
 
-            keyDown: function (key, meta) {
+            keyDown: function(key, meta) {
                 var diagram = this.diagram;
                 meta = deepExtend({ ctrlKey: false, metaKey: false, altKey: false }, meta);
                 if ((meta.ctrlKey || meta.metaKey) && !meta.altKey) {// ctrl or option
@@ -80502,7 +80523,7 @@ return window.kendo;
                 }
 
             },
-            wheel: function (p, meta) {
+            wheel: function(p, meta) {
                 var diagram = this.diagram,
                     delta = meta.delta,
                     z = diagram.zoom(),
@@ -80528,7 +80549,7 @@ return window.kendo;
 
                 return true;
             },
-            setTool: function (tool, index) {
+            setTool: function(tool, index) {
                 tool.toolService = this;
                 this.tools[index] = tool;
             },
@@ -80542,13 +80563,13 @@ return window.kendo;
                 }
             },
 
-            _discardNewConnection: function () {
+            _discardNewConnection: function() {
                 if (this.newConnection) {
                     this.diagram.remove(this.newConnection);
                     this.newConnection = undefined;
                 }
             },
-            _activateTool: function (p, meta) {
+            _activateTool: function(p, meta) {
                 for (var i = 0; i < this.tools.length; i++) {
                     var tool = this.tools[i];
                     if (tool.tryActivate(p, meta)) {
@@ -80557,13 +80578,13 @@ return window.kendo;
                     }
                 }
             },
-            _updateCursor: function (p) {
+            _updateCursor: function(p) {
                 var element = this.diagram.element;
                 var cursor = this.activeTool ? this.activeTool.getCursor(p) : (this.hoveredAdorner ? this.hoveredAdorner._getCursor(p) : (this.hoveredItem ? this.hoveredItem._getCursor(p) : Cursors.arrow));
 
-                element.css({cursor: cursor});
+                element.css({ cursor: cursor });
             },
-            _connectionManipulation: function (connection, disabledShape, isNew) {
+            _connectionManipulation: function(connection, disabledShape, isNew) {
                 this.activeConnection = connection;
                 this.disabledShape = disabledShape;
                 if (isNew) {
@@ -80572,7 +80593,7 @@ return window.kendo;
                     this.newConnection = undefined;
                 }
             },
-            _updateHoveredItem: function (p) {
+            _updateHoveredItem: function(p) {
                 var hit = this._hitTest(p);
                 var diagram = this.diagram;
 
@@ -80592,13 +80613,13 @@ return window.kendo;
                     }
                 }
             },
-            _removeHover: function () {
+            _removeHover: function() {
                 if (this.hoveredItem) {
                     this.hoveredItem._hover(false);
                     this.hoveredItem = undefined;
                 }
             },
-            _hitTest: function (point) {
+            _hitTest: function(point) {
                 var hit, d = this.diagram, item, i;
 
                 // connectors
@@ -80654,7 +80675,7 @@ return window.kendo;
                 return hit || shapeHit || connectionHit;
             },
 
-            _hitTestItems: function (array, point) {
+            _hitTestItems: function(array, point) {
                 var i, item, hit;
                 for (i = array.length - 1; i >= 0; i--) {
                     item = array[i];
@@ -80672,7 +80693,7 @@ return window.kendo;
          * Base class for connection routers.
          */
         var ConnectionRouterBase = kendo.Class.extend({
-            init: function () {
+            init: function() {
             }
             /*route: function (connection) {
              },
@@ -80688,7 +80709,7 @@ return window.kendo;
          * Base class for polyline and cascading routing.
          */
         var LinearConnectionRouter = ConnectionRouterBase.extend({
-            init: function (connection) {
+            init: function(connection) {
                 var that = this;
                 ConnectionRouterBase.fn.init.call(that);
                 this.connection = connection;
@@ -80696,7 +80717,7 @@ return window.kendo;
             /**
              * Hit testing for polyline paths.
              */
-            hitTest: function (p) {
+            hitTest: function(p) {
                 var rec = this.getBounds().inflate(HIT_TEST_DISTANCE);
                 if (!rec.contains(p)) {
                     return false;
@@ -80708,7 +80729,7 @@ return window.kendo;
              * Bounds of a polyline.
              * @returns {kendo.dataviz.diagram.Rect}
              */
-            getBounds: function () {
+            getBounds: function() {
                 var points = this.connection.allPoints(),
                     s = points[0],
                     e = points[points.length - 1],
@@ -80734,12 +80755,12 @@ return window.kendo;
          * @type {*|Object|void|extend|Zepto.extend|b.extend}
          */
         var PolylineRouter = LinearConnectionRouter.extend({
-            init: function (connection) {
+            init: function(connection) {
                 var that = this;
                 LinearConnectionRouter.fn.init.call(that);
                 this.connection = connection;
             },
-            route: function () {
+            route: function() {
                 // just keep the points as is
             }
         });
@@ -80747,7 +80768,7 @@ return window.kendo;
         var CascadingRouter = LinearConnectionRouter.extend({
             SAME_SIDE_DISTANCE_RATIO: 5,
 
-            init: function (connection) {
+            init: function(connection) {
                 var that = this;
                 LinearConnectionRouter.fn.init.call(that);
                 this.connection = connection;
@@ -80764,7 +80785,7 @@ return window.kendo;
                 return result;
             },
 
-            route: function () {
+            route: function() {
                 var sourceConnector = this.connection._resolvedSourceConnector;
                 var targetConnector = this.connection._resolvedTargetConnector;
                 var start = this.connection.sourcePoint();
@@ -80916,7 +80937,7 @@ return window.kendo;
                 return [points[1], points[2]];
             },
 
-            _startHorizontal: function (start, end, sourceSide) {
+            _startHorizontal: function(start, end, sourceSide) {
                 var horizontal;
                 if (sourceSide !== null && (sourceSide === RIGHT || sourceSide === LEFT)) {
                     horizontal = true;
@@ -80931,20 +80952,20 @@ return window.kendo;
 // Adorners =========================================
 
         var AdornerBase = Class.extend({
-            init: function (diagram, options) {
+            init: function(diagram, options) {
                 var that = this;
                 that.diagram = diagram;
                 that.options = deepExtend({}, that.options, options);
                 that.visual = new Group();
                 that.diagram._adorners.push(that);
             },
-            refresh: function () {
+            refresh: function() {
 
             }
         });
 
         var ConnectionEditAdorner = AdornerBase.extend({
-            init: function (connection, options) {
+            init: function(connection, options) {
                 var that = this, diagram;
                 that.connection = connection;
                 diagram = that.connection.diagram;
@@ -80962,11 +80983,11 @@ return window.kendo;
                 handles: {}
             },
 
-            _getCursor: function () {
+            _getCursor: function() {
                 return Cursors.move;
             },
 
-            start: function (p) {
+            start: function(p) {
                 this.handle = this._hitTest(p);
                 this.startPoint = p;
                 this._initialSource = this.connection.source();
@@ -80985,7 +81006,7 @@ return window.kendo;
                 }
             },
 
-            move: function (handle, p) {
+            move: function(handle, p) {
                 switch (handle) {
                     case -1:
                         this.connection.source(p);
@@ -81008,7 +81029,7 @@ return window.kendo;
                 return true;
             },
 
-            stop: function (p) {
+            stop: function(p) {
                 var ts = this.diagram.toolService, item = ts.hoveredItem, target;
                 if (ts._hoveredConnector) {
                     target = ts._hoveredConnector._c;
@@ -81029,7 +81050,7 @@ return window.kendo;
                 return new ConnectionEditUndoUnit(this.connection, this._initialSource, this._initialTarget);
             },
 
-            _hitTest: function (point) {
+            _hitTest: function(point) {
                 var sourcePoint = this.connection.sourcePoint();
                 var targetPoint = this.connection.targetPoint();
                 var radiusX = this.options.handles.width / 2 + HIT_TEST_DISTANCE;
@@ -81049,24 +81070,24 @@ return window.kendo;
                 return handle;
             },
 
-            refresh: function () {
+            refresh: function() {
                 this.spVisual.redraw({ center: this.diagram.modelToLayer(this.connection.sourcePoint()) });
                 this.epVisual.redraw({ center: this.diagram.modelToLayer(this.connection.targetPoint()) });
             }
         });
 
         var ConnectorsAdorner = AdornerBase.extend({
-            init: function (diagram, options) {
+            init: function(diagram, options) {
                 var that = this;
                 AdornerBase.fn.init.call(that, diagram, options);
-                that._refreshHandler = function (e) {
+                that._refreshHandler = function(e) {
                     if (e.item == that.shape) {
                         that.refresh();
                     }
                 };
             },
 
-            show: function (shape) {
+            show: function(shape) {
                 var that = this, len, i, ctr;
                 that._visible = true;
                 that.shape = shape;
@@ -81085,27 +81106,27 @@ return window.kendo;
 
             _clearVisual: function() {
                 var that = this;
-                if(that.diagram._cachedTouchTarget) {
+                if (that.diagram._cachedTouchTarget) {
                     that._keepCachedTouchTarget();
                 } else {
                     that.visual.clear();
                 }
             },
 
-            _keepCachedTouchTarget: function () {
+            _keepCachedTouchTarget: function() {
                 var that = this,
                     visualChildren = that.visual.children;
                 var childrenCount = visualChildren.length;
                 var index = inArray(that.diagram._cachedTouchTarget, visualChildren);
                 for (var i = childrenCount - 1; i >= 0; i--) {
-                    if(i == index) {
+                    if (i == index) {
                         continue;
                     }
                     that.visual.remove(visualChildren[i]);
                 }
             },
 
-            destroy: function () {
+            destroy: function() {
                 var that = this;
                 that.diagram.unbind(ITEMBOUNDSCHANGE, that._refreshHandler);
                 that.shape = undefined;
@@ -81113,7 +81134,7 @@ return window.kendo;
                 that.visual.visible(false);
             },
 
-            _hitTest: function (p) {
+            _hitTest: function(p) {
                 var ctr, i;
                 for (i = 0; i < this.connectors.length; i++) {
                     ctr = this.connectors[i];
@@ -81125,12 +81146,12 @@ return window.kendo;
                 }
             },
 
-            refresh: function () {
+            refresh: function() {
                 if (this.shape) {
                     var bounds = this.shape.bounds();
                         bounds = this.diagram.modelToLayer(bounds);
                     this.visual.position(bounds.topLeft());
-                    $.each(this.connectors, function () {
+                    $.each(this.connectors, function() {
                         this.refresh();
                     });
                 }
@@ -81162,7 +81183,7 @@ return window.kendo;
         }
 
         var ResizingAdorner = AdornerBase.extend({
-            init: function (diagram, options) {
+            init: function(diagram, options) {
                 var that = this;
                 AdornerBase.fn.init.call(that, diagram, options);
                 that._manipulating = false;
@@ -81172,18 +81193,18 @@ return window.kendo;
                 that._initSelection();
                 that._createHandles();
                 that.redraw();
-                that.diagram.bind("select", function (e) {
+                that.diagram.bind("select", function(e) {
                     that._initialize(e.selected);
                 });
 
-                that._refreshHandler = function () {
+                that._refreshHandler = function() {
                     if (!that._internalChange) {
                         that.refreshBounds();
                         that.refresh();
                     }
                 };
 
-                that._rotatedHandler = function () {
+                that._rotatedHandler = function() {
                     if (that.shapes.length == 1) {
                         that._angle = that.shapes[0].rotate().angle;
                     }
@@ -81262,7 +81283,7 @@ return window.kendo;
                 }
             },
 
-            bounds: function (value) {
+            bounds: function(value) {
                 if (value) {
                     this._innerBounds = value.clone();
                     this._bounds = this.diagram.modelToLayer(value).inflate(this.options.offset, this.options.offset);
@@ -81271,7 +81292,7 @@ return window.kendo;
                 }
             },
 
-            _hitTest: function (p) {
+            _hitTest: function(p) {
                 var tp = this.diagram.modelToLayer(p),
                     i, hit, handleBounds, handlesCount = this.map.length, handle;
 
@@ -81296,7 +81317,7 @@ return window.kendo;
                 }
             },
 
-            _getHandleBounds: function (p) {
+            _getHandleBounds: function(p) {
                 if (this._resizable()) {
                     var handles = this._handleOptions(),
                         w = handles.width,
@@ -81321,7 +81342,7 @@ return window.kendo;
                 }
             },
 
-            _getCursor: function (point) {
+            _getCursor: function(point) {
                 var hit = this._hitTest(point);
                 if (hit && (hit.x >= -1) && (hit.x <= 1) && (hit.y >= -1) && (hit.y <= 1) && this._resizable()) {
                     var angle = this._angle;
@@ -81381,7 +81402,7 @@ return window.kendo;
                 that.redraw();
             },
 
-            _rotates: function () {
+            _rotates: function() {
                 var that = this, i, shape;
                 that.initialRotates = [];
                 for (i = 0; i < that.shapes.length; i++) {
@@ -81390,7 +81411,7 @@ return window.kendo;
                 }
             },
 
-            _positions: function () {
+            _positions: function() {
                 var that = this, i, shape;
                 that.initialStates = [];
                 for (i = 0; i < that.shapes.length; i++) {
@@ -81418,7 +81439,7 @@ return window.kendo;
                 }
             },
 
-            start: function (p) {
+            start: function(p) {
                 this._sp = p;
                 this._cp = p;
                 this._lp = p;
@@ -81431,7 +81452,7 @@ return window.kendo;
                 }
             },
 
-            redraw: function () {
+            redraw: function() {
                 var i, handle,
                     visibleHandles = this._resizable();
 
@@ -81461,7 +81482,7 @@ return window.kendo;
                 this.refresh();
             },
 
-            move: function (handle, p) {
+            move: function(handle, p) {
                 var delta, dragging,
                     dtl = new Point(),
                     dbr = new Point(),
@@ -81583,27 +81604,27 @@ return window.kendo;
                 this._rotating = undefined;
             },
 
-            _truncatePositionToGuides: function (bounds) {
+            _truncatePositionToGuides: function(bounds) {
                 if (this.diagram.ruler) {
                     return this.diagram.ruler.truncatePositionToGuides(bounds);
                 }
                 return bounds;
             },
 
-            _truncateSizeToGuides: function (bounds) {
+            _truncateSizeToGuides: function(bounds) {
                 if (this.diagram.ruler) {
                     return this.diagram.ruler.truncateSizeToGuides(bounds);
                 }
                 return bounds;
             },
 
-            _truncateAngle: function (a) {
+            _truncateAngle: function(a) {
                 var snap = this.snapOptions();
                 var snapAngle = Math.max(snap.angle || DEFAULT_SNAP_ANGLE, MIN_SNAP_ANGLE);
                 return snap ? Math.floor((a % 360) / snapAngle) * snapAngle : (a % 360);
             },
 
-            _truncateDistance: function (d) {
+            _truncateDistance: function(d) {
                 if (d instanceof diagram.Point) {
                     return new diagram.Point(this._truncateDistance(d.x), this._truncateDistance(d.y));
                 } else {
@@ -81626,7 +81647,7 @@ return window.kendo;
                 return editable !== false && drag !== false && snap !== false;
             },
 
-            _displaceBounds: function (bounds, dtl, dbr, dragging) {
+            _displaceBounds: function(bounds, dtl, dbr, dragging) {
                 var tl = bounds.topLeft().plus(dtl),
                     br = bounds.bottomRight().plus(dbr),
                     newBounds = Rect.fromPoints(tl, br),
@@ -81639,7 +81660,7 @@ return window.kendo;
                 return newBounds;
             },
 
-            stop: function () {
+            stop: function() {
                 var unit, i, shape;
                 if (this._cp != this._sp) {
                     if (this._rotating) {
@@ -81682,7 +81703,7 @@ return window.kendo;
                 return false;
             },
 
-            refreshBounds: function () {
+            refreshBounds: function() {
                 var bounds = this.shapes.length == 1 ?
                     this.shapes[0].bounds().clone() :
                     this.diagram.boundingBox(this.shapes, true);
@@ -81690,13 +81711,13 @@ return window.kendo;
                 this.bounds(bounds);
             },
 
-            refresh: function () {
+            refresh: function() {
                 var that = this, b, bounds;
                 if (this.shapes.length > 0) {
                     bounds = this.bounds();
                     this.visual.visible(true);
                     this.visual.position(bounds.topLeft());
-                    $.each(this.map, function () {
+                    $.each(this.map, function() {
                         b = that._getHandleBounds(new Point(this.x, this.y));
                         this.visual.position(b.topLeft());
                     });
@@ -81717,7 +81738,7 @@ return window.kendo;
         });
 
         var Selector = Class.extend({
-            init: function (diagram) {
+            init: function(diagram) {
                 var selectable = diagram.options.selectable;
                 this.options = deepExtend({}, this.options, selectable);
 
@@ -81734,26 +81755,26 @@ return window.kendo;
                     color: TRANSPARENT
                 }
             },
-            start: function (p) {
+            start: function(p) {
                 this._sp = this._ep = p;
                 this.refresh();
                 this.diagram._adorn(this, true);
             },
-            end: function () {
+            end: function() {
                 this._sp = this._ep = undefined;
                 this.diagram._adorn(this, false);
             },
-            bounds: function (value) {
+            bounds: function(value) {
                 if (value) {
                     this._bounds = value;
                 }
                 return this._bounds;
             },
-            move: function (p) {
+            move: function(p) {
                 this._ep = p;
                 this.refresh();
             },
-            refresh: function () {
+            refresh: function() {
                 if (this._sp) {
                     var visualBounds = Rect.fromPoints(this.diagram.modelToLayer(this._sp), this.diagram.modelToLayer(this._ep));
                     this.bounds(Rect.fromPoints(this._sp, this._ep));
@@ -81764,13 +81785,13 @@ return window.kendo;
         });
 
         var ConnectorVisual = Class.extend({
-            init: function (connector) {
+            init: function(connector) {
                 this.options = deepExtend({}, connector.options);
                 this._c = connector;
                 this.visual = new Circle(this.options);
                 this.refresh();
             },
-            _hover: function (value) {
+            _hover: function(value) {
                 var options = this.options,
                     hover = options.hover,
                     stroke = options.stroke,
@@ -81789,7 +81810,7 @@ return window.kendo;
                     fill: fill
                 });
             },
-            refresh: function () {
+            refresh: function() {
                 var p = this._c.shape.diagram.modelToView(this._c.position()),
                     relative = p.minus(this._c.shape.bounds("transformed").topLeft()),
                     value = new Rect(p.x, p.y, 0, 0);
@@ -81797,7 +81818,7 @@ return window.kendo;
                 this._visualBounds = value;
                 this.visual.redraw({ center: new Point(relative.x, relative.y) });
             },
-            _hitTest: function (p) {
+            _hitTest: function(p) {
                 var tp = this._c.shape.diagram.modelToView(p);
                 return this._visualBounds.contains(tp);
             }
@@ -81856,13 +81877,13 @@ return window.kendo;
         });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/layout',[ "./math" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram,
         Graph = diagram.Graph,
@@ -81995,7 +82016,7 @@ return window.kendo;
             ignoreInvisible: true,
             animateTransitions: false
         },
-        init: function () {
+        init: function() {
         },
 
         /**
@@ -82003,18 +82024,18 @@ return window.kendo;
          * Returns the final set of nodes (not the Graph).
          * @param components
          */
-        gridLayoutComponents: function (components) {
+        gridLayoutComponents: function(components) {
             if (!components) {
                 throw "No components supplied.";
             }
 
             // calculate and cache the bounds of the components
-            Utils.forEach(components, function (c) {
+            Utils.forEach(components, function(c) {
                 c.calcBounds();
             });
 
             // order by decreasing width
-            components.sort(function (a, b) {
+            components.sort(function(a, b) {
                 return b.bounds.width - a.bounds.width;
             });
 
@@ -82068,7 +82089,7 @@ return window.kendo;
             };
         },
 
-        moveToOffset: function (component, p) {
+        moveToOffset: function(component, p) {
             var i, j,
                 bounds = component.bounds,
                 deltax = p.x - bounds.x,
@@ -82102,7 +82123,7 @@ return window.kendo;
             return new Point(deltax, deltay);
         },
 
-        transferOptions: function (options) {
+        transferOptions: function(options) {
 
             // Size options lead to stackoverflow and need special handling
 
@@ -82136,7 +82157,7 @@ return window.kendo;
      * @type {*}
      */
     var DiagramToHyperTreeAdapter = kendo.Class.extend({
-        init: function (diagram) {
+        init: function(diagram) {
 
             /**
              * The mapping to/from the original nodes.
@@ -82223,7 +82244,7 @@ return window.kendo;
          *    The only reason a connection or node is not being mapped might be due to the visibility, which includes the visibility change through a collapsed parent container.
          * @param options
          */
-        convert: function (options) {
+        convert: function(options) {
 
             if (Utils.isUndefined(this.diagram)) {
                 throw "No diagram to convert.";
@@ -82249,10 +82270,10 @@ return window.kendo;
             this.finalLinks = new Dictionary(this.edges);
 
             this.finalGraph = new Graph();
-            this.finalNodes.forEach(function (n) {
+            this.finalNodes.forEach(function(n) {
                 this.finalGraph.addNode(n);
             }, this);
-            this.finalLinks.forEach(function (l) {
+            this.finalLinks.forEach(function(l) {
                 this.finalGraph.addExistingLink(l);
             }, this);
             return this.finalGraph;
@@ -82263,7 +82284,7 @@ return window.kendo;
          * @param connection
          * @returns {*}
          */
-        mapConnection: function (connection) {
+        mapConnection: function(connection) {
             return this.edgeMap.get(connection.id);
         },
 
@@ -82272,7 +82293,7 @@ return window.kendo;
          * @param shape
          * @returns {*}
          */
-        mapShape: function (shape) {
+        mapShape: function(shape) {
             return this.nodeMap.get(shape.id);
         },
 
@@ -82281,8 +82302,8 @@ return window.kendo;
          * @param a
          * @param b
          */
-        getEdge: function (a, b) {
-            return Utils.first(a.links, function (link) {
+        getEdge: function(a, b) {
+            return Utils.first(a.links, function(link) {
                 return link.getComplement(a) === b;
             });
         },
@@ -82290,7 +82311,7 @@ return window.kendo;
         /**
          * Clears all the collections used by the conversion process.
          */
-        clear: function () {
+        clear: function() {
             this.finalGraph = null;
             this.hyperTree = (!this.options.ignoreContainers && this.options.layoutContainerChildren) ? new HyperTree() : null;
             this.hyperMap = (!this.options.ignoreContainers && this.options.layoutContainerChildren) ? new Dictionary() : null;
@@ -82310,7 +82331,7 @@ return window.kendo;
          * @param containerGraph
          * @returns {Array}
          */
-        listToRoot: function (containerGraph) {
+        listToRoot: function(containerGraph) {
             var list = [];
             var s = containerGraph.container;
             if (!s) {
@@ -82325,14 +82346,14 @@ return window.kendo;
             return list;
         },
 
-        firstNonIgnorableContainer: function (shape) {
+        firstNonIgnorableContainer: function(shape) {
 
             if (shape.isContainer && !this._isIgnorableItem(shape)) {
                 return shape;
             }
             return !shape.parentContainer ? null : this.firstNonIgnorableContainer(shape.parentContainer);
         },
-        isContainerConnection: function (a, b) {
+        isContainerConnection: function(a, b) {
             if (a.isContainer && this.isDescendantOf(a, b)) {
                 return true;
             }
@@ -82346,7 +82367,7 @@ return window.kendo;
          * @param a
          * @returns {boolean}
          */
-        isDescendantOf: function (scope, a) {
+        isDescendantOf: function(scope, a) {
             if (!scope.isContainer) {
                 throw "Expecting a container.";
             }
@@ -82366,7 +82387,7 @@ return window.kendo;
 
             return containers.length > 0;
         },
-        isIgnorableItem: function (shape) {
+        isIgnorableItem: function(shape) {
             if (this.options.ignoreInvisible) {
                 if (shape.isCollapsed && this._isVisible(shape)) {
                     return false;
@@ -82387,11 +82408,11 @@ return window.kendo;
          * necessarily a container in the parent hierarchy of the shape.
          * @param shape
          */
-        isShapeMapped: function (shape) {
+        isShapeMapped: function(shape) {
             return shape.isCollapsed && !this._isVisible(shape) && !this._isTop(shape);
         },
 
-        leastCommonAncestor: function (a, b) {
+        leastCommonAncestor: function(a, b) {
             if (!a) {
                 throw "Parameter should not be null.";
             }
@@ -82424,8 +82445,8 @@ return window.kendo;
                 return this.hyperTree.root.data;
             }
             else {
-                return grep(this.hyperTree.nodes, function (n) {
-                    return  n.data.container === found;
+                return grep(this.hyperTree.nodes, function(n) {
+                    return n.data.container === found;
                 });
             }
         },
@@ -82435,7 +82456,7 @@ return window.kendo;
          * @returns {boolean}
          * @private
          */
-        _isTop: function (item) {
+        _isTop: function(item) {
             return !item.parentContainer;
         },
 
@@ -82446,7 +82467,7 @@ return window.kendo;
          * @returns {*}
          * @private
          */
-        _isVisible: function (shape) {
+        _isVisible: function(shape) {
 
             if (!shape.visible()) {
                 return false;
@@ -82454,7 +82475,7 @@ return window.kendo;
             return !shape.parentContainer ? shape.visible() : this._isVisible(shape.parentContainer);
         },
 
-        _isCollapsed: function (shape) {
+        _isCollapsed: function(shape) {
 
             if (shape.isContainer && shape.isCollapsed) {
                 return true;
@@ -82466,7 +82487,7 @@ return window.kendo;
          * First part of the graph creation; analyzing the shapes and containers and deciding whether they should be mapped to a Node.
          * @private
          */
-        _renormalizeShapes: function () {
+        _renormalizeShapes: function() {
             // add the nodes, the adjacency structure will be reconstructed later on
             if (this.options.ignoreContainers) {
                 for (var i = 0, len = this.diagram.shapes.length; i < len; i++) {
@@ -82494,7 +82515,7 @@ return window.kendo;
          * Second part of the graph creation; analyzing the connections and deciding whether they should be mapped to an edge.
          * @private
          */
-        _renormalizeConnections: function () {
+        _renormalizeConnections: function() {
             if (this.diagram.connections.length === 0) {
                 return;
             }
@@ -82559,8 +82580,8 @@ return window.kendo;
             }
         },
 
-        areConnectedAlready: function (n, m) {
-            return Utils.any(this.edges, function (l) {
+        areConnectedAlready: function(n, m) {
+            return Utils.any(this.edges, function(l) {
                 return l.source === n && l.target === m || l.source === m && l.target === n;
             });
         }
@@ -82604,7 +82625,7 @@ return window.kendo;
      * @type {*}
      */
     var SpringLayout = LayoutBase.extend({
-        init: function (diagram) {
+        init: function(diagram) {
             var that = this;
             LayoutBase.fn.init.call(that);
             if (Utils.isUndefined(diagram)) {
@@ -82613,7 +82634,7 @@ return window.kendo;
             this.diagram = diagram;
         },
 
-        layout: function (options) {
+        layout: function(options) {
 
             this.transferOptions(options);
 
@@ -82635,7 +82656,7 @@ return window.kendo;
             return new diagram.LayoutState(this.diagram, finalNodeSet);
         },
 
-        layoutGraph: function (graph, options) {
+        layoutGraph: function(graph, options) {
 
             if (Utils.isDefined(options)) {
                 this.transferOptions(options);
@@ -82662,7 +82683,7 @@ return window.kendo;
         /**
          * Single iteration of the simulation.
          */
-        tick: function () {
+        tick: function() {
             var i;
             // collect the repulsive forces on each node
             for (i = 0; i < this.graph.nodes.length; i++) {
@@ -82694,7 +82715,7 @@ return window.kendo;
          * @param node A Node.
          * @private
          */
-        _shake: function (node) {
+        _shake: function(node) {
             // just a simple polar neighborhood
             var rho = Math.random() * this.options.nodeDistance / 4;
             var alpha = Math.random() * 2 * Math.PI;
@@ -82711,7 +82732,7 @@ return window.kendo;
          * @returns {number}
          * @private
          */
-        _InverseSquareForce: function (d, n, m) {
+        _InverseSquareForce: function(d, n, m) {
             var force;
             if (!this.refineStage) {
                 force = Math.pow(d, 2) / Math.pow(this.options.nodeDistance, 2);
@@ -82738,14 +82759,14 @@ return window.kendo;
          * @returns {number}
          * @private
          */
-        _SquareForce: function (d, n, m) {
+        _SquareForce: function(d, n, m) {
             return 1 / this._InverseSquareForce(d, n, m);
         },
 
-        _repulsion: function (n) {
+        _repulsion: function(n) {
             n.dx = 0;
             n.dy = 0;
-            Utils.forEach(this.graph.nodes, function (m) {
+            Utils.forEach(this.graph.nodes, function(m) {
                 if (m === n) {
                     return;
                 }
@@ -82760,7 +82781,7 @@ return window.kendo;
                 n.dy += (vy / distance) * r;
             }, this);
         },
-        _attraction: function (link) {
+        _attraction: function(link) {
             var t = link.target;
             var s = link.source;
             if (s === t) {
@@ -82789,13 +82810,13 @@ return window.kendo;
          * @returns {*}
          * @private
          */
-        _expectedBounds: function () {
+        _expectedBounds: function() {
 
             var size, N = this.graph.nodes.length, /*golden ration optimal?*/ ratio = 1.5, multiplier = 4;
             if (N === 0) {
                 return size;
             }
-            size = Utils.fold(this.graph.nodes, function (s, node) {
+            size = Utils.fold(this.graph.nodes, function(s, node) {
                 var area = node.width * node.height;
                 if (area > 0) {
                     s += Math.sqrt(area);
@@ -82814,11 +82835,11 @@ return window.kendo;
 
     var TreeLayoutProcessor = kendo.Class.extend({
 
-        init: function (options) {
+        init: function(options) {
             this.center = null;
             this.options = options;
         },
-        layout: function (treeGraph, root) {
+        layout: function(treeGraph, root) {
             this.graph = treeGraph;
             if (!this.graph.nodes || this.graph.nodes.length === 0) {
                 return;
@@ -82853,7 +82874,7 @@ return window.kendo;
             // nonull.ForEach(n => n.associatedShape.Position = n.Location);
         },
 
-        layoutLeft: function (left) {
+        layoutLeft: function(left) {
             this.setChildrenDirection(this.center, "Left", false);
             this.setChildrenLayout(this.center, "Default", false);
             var h = 0, w = 0, y, i, node;
@@ -82877,7 +82898,7 @@ return window.kendo;
             }
         },
 
-        layoutRight: function (right) {
+        layoutRight: function(right) {
             this.setChildrenDirection(this.center, "Right", false);
             this.setChildrenLayout(this.center, "Default", false);
             var h = 0, w = 0, y, i, node;
@@ -82900,7 +82921,7 @@ return window.kendo;
             }
         },
 
-        layoutUp: function (up) {
+        layoutUp: function(up) {
             this.setChildrenDirection(this.center, "Up", false);
             this.setChildrenLayout(this.center, "Default", false);
             var w = 0, y, node, i;
@@ -82924,7 +82945,7 @@ return window.kendo;
             }
         },
 
-        layoutDown: function (down) {
+        layoutDown: function(down) {
             var node, i;
             this.setChildrenDirection(this.center, "Down", false);
             this.setChildrenLayout(this.center, "Default", false);
@@ -82947,7 +82968,7 @@ return window.kendo;
             }
         },
 
-        layoutRadialTree: function () {
+        layoutRadialTree: function() {
             // var rmax = children.Aggregate(0D, (current, node) => Math.max(node.SectorAngle, current));
             this.setChildrenDirection(this.center, "Radial", false);
             this.setChildrenLayout(this.center, "Default", false);
@@ -82971,7 +82992,7 @@ return window.kendo;
             this.center.Angle = endAngle - startAngle;
         },
 
-        tipOverTree: function (down, startFromLevel) {
+        tipOverTree: function(down, startFromLevel) {
             if (Utils.isUndefined(startFromLevel)) {
                 startFromLevel = 0;
             }
@@ -83014,7 +83035,7 @@ return window.kendo;
              special.Data.Location = new Point(Center.Data.Location.X + Center.AssociatedShape.BoundingRectangle.Width + this.options.HorizontalSeparation, Center.Data.Location.Y);
              }*/
         },
-        calculateAngularWidth: function (n, d) {
+        calculateAngularWidth: function(n, d) {
             if (d > this.maxDepth) {
                 this.maxDepth = d;
             }
@@ -83036,7 +83057,7 @@ return window.kendo;
             n.sectorAngle = aw;
             return aw;
         },
-        sortChildren: function (n) {
+        sortChildren: function(n) {
             var basevalue = 0, i;
 
             // update basevalue angle for node ordering
@@ -83075,7 +83096,7 @@ return window.kendo;
             return col;
         },
 
-        normalizeAngle: function (angle) {
+        normalizeAngle: function(angle) {
             while (angle > Math.PI * 2) {
                 angle -= 2 * Math.PI;
             }
@@ -83084,7 +83105,7 @@ return window.kendo;
             }
             return angle;
         },
-        radialLayout: function (node, radius, startAngle, endAngle) {
+        radialLayout: function(node, radius, startAngle, endAngle) {
             var deltaTheta = endAngle - startAngle;
             var deltaThetaHalf = deltaTheta / 2.0;
             var parentSector = node.sectorAngle;
@@ -83106,7 +83127,7 @@ return window.kendo;
                 fraction += childAngleFraction;
             }
         },
-        setPolarLocation: function (node, radius, angle) {
+        setPolarLocation: function(node, radius, angle) {
             node.x = this.origin.x + (radius * Math.cos(angle));
             node.y = this.origin.y + (radius * Math.sin(angle));
             node.BoundingRectangle = new Rect(node.x, node.y, node.width, node.height);
@@ -83118,9 +83139,9 @@ return window.kendo;
          * @param direction
          * @param includeStart
          */
-        setChildrenDirection: function (node, direction, includeStart) {
+        setChildrenDirection: function(node, direction, includeStart) {
             var rootDirection = node.treeDirection;
-            this.graph.depthFirstTraversal(node, function (n) {
+            this.graph.depthFirstTraversal(node, function(n) {
                 n.treeDirection = direction;
             });
             if (!includeStart) {
@@ -83135,7 +83156,7 @@ return window.kendo;
          * @param includeStart
          * @param startFromLevel
          */
-        setChildrenLayout: function (node, layout, includeStart, startFromLevel) {
+        setChildrenLayout: function(node, layout, includeStart, startFromLevel) {
             if (Utils.isUndefined(startFromLevel)) {
                 startFromLevel = 0;
             }
@@ -83146,7 +83167,7 @@ return window.kendo;
 
                 // assign the layout on the condition that the level is at least the 'startFromLevel'
                 this.graph.depthFirstTraversal(
-                    node, function (s) {
+                    node, function(s) {
                         if (s.level >= startFromLevel + 1) {
                             s.childrenLayout = layout;
                         }
@@ -83154,7 +83175,7 @@ return window.kendo;
                 );
             }
             else {
-                this.graph.depthFirstTraversal(node, function (s) {
+                this.graph.depthFirstTraversal(node, function(s) {
                     s.childrenLayout = layout;
                 });
 
@@ -83171,7 +83192,7 @@ return window.kendo;
          * @param givenSize
          * @returns {Size}
          */
-        measure: function (node, givenSize) {
+        measure: function(node, givenSize) {
             var w = 0, h = 0, s;
             var result = new Size(0, 0);
             if (!node) {
@@ -83349,7 +83370,7 @@ return window.kendo;
             node.Size = result;
             return result;
         },
-        arrange: function (n, p) {
+        arrange: function(n, p) {
             var i, pp, child, node, childrenwidth, b = n.associatedShape.bounds();
             var shapeWidth = b.width;
             var shapeHeight = b.height;
@@ -83399,7 +83420,7 @@ return window.kendo;
                                 break;
 
                             default:
-                                throw   "Unsupported TreeDirection";
+                                throw "Unsupported TreeDirection";
                         }
 
                         break;
@@ -83443,7 +83464,7 @@ return window.kendo;
                                 break;
 
                             default:
-                                throw   "Unsupported TreeDirection";
+                                throw "Unsupported TreeDirection";
                         }
 
                         break;
@@ -83496,7 +83517,7 @@ return window.kendo;
                                 }
                                 break;
 
-                            case    "Default":
+                            case "Default":
                                 selfLocation = new Point(p.x + ((n.Size.width - shapeWidth) / 2), p.y);
                                 n.x = selfLocation.x;
                                 n.y = selfLocation.y;
@@ -83526,7 +83547,7 @@ return window.kendo;
                                 break;
 
                             default:
-                                throw   "Unsupported TreeDirection";
+                                throw "Unsupported TreeDirection";
                         }
                         break;
 
@@ -83534,11 +83555,11 @@ return window.kendo;
                         break;
 
                     default:
-                        throw   "Unsupported TreeDirection";
+                        throw "Unsupported TreeDirection";
                 }
             }
         },
-        layoutSwitch: function () {
+        layoutSwitch: function() {
             if (!this.center) {
                 return;
             }
@@ -83569,10 +83590,10 @@ return window.kendo;
                     else {
                         // odd number will give one more at the right
                         leftcount = children.length / 2;
-                        male = grep(this.center.children, function (n) {
+                        male = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) < leftcount;
                         });
-                        female = grep(this.center.children, function (n) {
+                        female = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) >= leftcount;
                         });
 
@@ -83590,10 +83611,10 @@ return window.kendo;
                     else {
                         // odd number will give one more at the right
                         leftcount = children.length / 2;
-                        male = grep(this.center.children, function (n) {
+                        male = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) < leftcount;
                         });
-                        female = grep(this.center.children, function (n) {
+                        female = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) >= leftcount;
                         });
                         this.layoutUp(male);
@@ -83622,7 +83643,7 @@ return window.kendo;
                 case "tipover":
                 case "tipovertree":
                     if (this.options.tipOverTreeStartLevel < 0) {
-                        throw  "The tip-over level should be a positive integer.";
+                        throw "The tip-over level should be a positive integer.";
                     }
                     this.tipOverTree(this.center.children, this.options.tipOverTreeStartLevel);
                     break;
@@ -83639,7 +83660,7 @@ return window.kendo;
      * @type {*}
      */
     var TreeLayout = LayoutBase.extend({
-        init: function (diagram) {
+        init: function(diagram) {
             var that = this;
             LayoutBase.fn.init.call(that);
             if (Utils.isUndefined(diagram)) {
@@ -83651,7 +83672,7 @@ return window.kendo;
         /**
          * Arranges the diagram in a tree-layout with the specified options and tree subtype.
          */
-        layout: function (options) {
+        layout: function(options) {
 
             this.transferOptions(options);
 
@@ -83671,7 +83692,7 @@ return window.kendo;
             return new diagram.LayoutState(this.diagram, finalNodeSet);
         },
 
-        layoutComponents: function () {
+        layoutComponents: function() {
             if (this.graph.isEmpty()) {
                 return;
             }
@@ -83709,7 +83730,7 @@ return window.kendo;
          * @param graph
          * @returns {*} A literal object consisting of the found root and the spanning tree.
          */
-        getTree: function (graph) {
+        getTree: function(graph) {
             var root = null;
             if (this.options.roots && this.options.roots.length > 0) {
                 for (var i = 0, len = graph.nodes.length; i < len; i++) {
@@ -83734,7 +83755,7 @@ return window.kendo;
             return this.getTreeForRoot(graph, root);
         },
 
-        getTreeForRoot: function (graph, root) {
+        getTreeForRoot: function(graph, root) {
 
             var tree = graph.getSpanningTree(root);
             if (Utils.isUndefined(tree) || tree.isEmpty()) {
@@ -83753,7 +83774,7 @@ return window.kendo;
      * @type {*}
      */
     var LayeredLayout = LayoutBase.extend({
-        init: function (diagram) {
+        init: function(diagram) {
             var that = this;
             LayoutBase.fn.init.call(that);
             if (Utils.isUndefined(diagram)) {
@@ -83762,7 +83783,7 @@ return window.kendo;
             this.diagram = diagram;
         },
 
-        layout: function (options) {
+        layout: function(options) {
 
             this.transferOptions(options);
 
@@ -83789,7 +83810,7 @@ return window.kendo;
          * Initializes the runtime data properties of the layout.
          * @private
          */
-        _initRuntimeProperties: function () {
+        _initRuntimeProperties: function() {
             for (var k = 0; k < this.graph.nodes.length; k++) {
                 var node = this.graph.nodes[k];
                 node.layer = -1;
@@ -83807,7 +83828,7 @@ return window.kendo;
                 node.gridPosition = 0;
             }
         },
-        _prepare: function (graph) {
+        _prepare: function(graph) {
             var current = [], i, l, link;
 
             // defines a mapping of a node to the layer index
@@ -83815,7 +83836,7 @@ return window.kendo;
             var layerCount = 0;
             var targetLayer, next, target;
 
-            Utils.forEach(graph.nodes, function (node) {
+            Utils.forEach(graph.nodes, function(node) {
                 if (node.incoming.length === 0) {
                     layerMap.set(node, 0);
                     current.push(node);
@@ -83846,7 +83867,7 @@ return window.kendo;
 
             var sortedNodes = layerMap.keys();
 
-            sortedNodes.sort(function (o1, o2) {
+            sortedNodes.sort(function(o1, o2) {
                 var o1layer = layerMap.get(o1);
                 var o2layer = layerMap.get(o2);
                 return Utils.sign(o2layer - o1layer);
@@ -83878,7 +83899,7 @@ return window.kendo;
                 this.layers.push(layer);
             }
 
-            layerMap.forEach(function (node, layer) {
+            layerMap.forEach(function(node, layer) {
                 node.layer = layer;
                 this.layers[layer].push(node);
             }, this);
@@ -83894,7 +83915,7 @@ return window.kendo;
         /**
          * Performs the layout of a single component.
          */
-        layoutGraph: function (graph, options) {
+        layoutGraph: function(graph, options) {
             if (Utils.isUndefined(graph)) {
                 throw "No graph given or graph analysis of the diagram failed.";
             }
@@ -83927,20 +83948,20 @@ return window.kendo;
             this._dedummify();
 
             // re-reverse the links which were switched earlier
-            Utils.forEach(reversedEdges, function (e) {
+            Utils.forEach(reversedEdges, function(e) {
                 if (e.points) {
                     e.points.reverse();
                 }
             });
         },
 
-        setMinDist: function (m, n, minDist) {
+        setMinDist: function(m, n, minDist) {
             var l = m.layer;
             var i = m.layerIndex;
             this.minDistances[l][i] = minDist;
         },
 
-        getMinDist: function (m, n) {
+        getMinDist: function(m, n) {
             var dist = 0,
                 i1 = m.layerIndex,
                 i2 = n.layerIndex,
@@ -83954,7 +83975,7 @@ return window.kendo;
             return dist;
         },
 
-        placeLeftToRight: function (leftClasses) {
+        placeLeftToRight: function(leftClasses) {
             var leftPos = new Dictionary(), n, node;
             for (var c = 0; c < this.layers.length; ++c) {
                 var classNodes = leftClasses[c];
@@ -84012,7 +84033,7 @@ return window.kendo;
             return leftPos;
         },
 
-        placeRightToLeft: function (rightClasses) {
+        placeRightToLeft: function(rightClasses) {
             var rightPos = new Dictionary(), n, node;
             for (var c = 0; c < this.layers.length; ++c) {
                 var classNodes = rightClasses[c];
@@ -84070,21 +84091,21 @@ return window.kendo;
             return rightPos;
         },
 
-        _getLeftWing: function () {
+        _getLeftWing: function() {
             var leftWing = { value: null };
             var result = this.computeClasses(leftWing, 1);
             this.nodeLeftClass = leftWing.value;
             return result;
         },
 
-        _getRightWing: function () {
+        _getRightWing: function() {
             var rightWing = { value: null };
             var result = this.computeClasses(rightWing, -1);
             this.nodeRightClass = rightWing.value;
             return result;
         },
 
-        computeClasses: function (wingPair, d) {
+        computeClasses: function(wingPair, d) {
             var currentWing = 0,
                 wing = wingPair.value = new Dictionary();
 
@@ -84092,7 +84113,7 @@ return window.kendo;
                 currentWing = l;
 
                 var layer = this.layers[l];
-                for (var n = d === 1 ? 0 : layer.length - 1; 0 <= n && n < layer.length; n += d) {
+                for (var n = d === 1 ? 0 : layer.length - 1; n >= 0 && n < layer.length; n += d) {
                     var node = layer[n];
                     if (!wing.containsKey(node)) {
                         wing.set(node, currentWing);
@@ -84114,7 +84135,7 @@ return window.kendo;
             for (var i = 0; i < this.layers.length; i++) {
                 wings.push(null);
             }
-            wing.forEach(function (node, classIndex) {
+            wing.forEach(function(node, classIndex) {
                 if (wings[classIndex] === null) {
                     wings[classIndex] = [];
                 }
@@ -84123,18 +84144,18 @@ return window.kendo;
 
             return wings;
         },
-        _isVerticalLayout: function () {
+        _isVerticalLayout: function() {
             return this.options.subtype.toLowerCase() === "up" || this.options.subtype.toLowerCase() === "down" || this.options.subtype.toLowerCase() === "vertical";
         },
 
-        _isHorizontalLayout: function () {
+        _isHorizontalLayout: function() {
             return this.options.subtype.toLowerCase() === "right" || this.options.subtype.toLowerCase() === "left" || this.options.subtype.toLowerCase() === "horizontal";
         },
-        _isIncreasingLayout: function () {
+        _isIncreasingLayout: function() {
             // meaning that the visiting of the layers goes in the natural order of increasing layer index
             return this.options.subtype.toLowerCase() === "right" || this.options.subtype.toLowerCase() === "down";
         },
-        _moveThingsAround: function () {
+        _moveThingsAround: function() {
             var i, l, node, layer, n, w;
             // sort the layers by their grid position
             for (l = 0; l < this.layers.length; ++l) {
@@ -84163,11 +84184,11 @@ return window.kendo;
 
             this.downNodes = new Dictionary();
             this.upNodes = new Dictionary();
-            Utils.forEach(this.graph.nodes, function (node) {
+            Utils.forEach(this.graph.nodes, function(node) {
                 this.downNodes.set(node, []);
                 this.upNodes.set(node, []);
             }, this);
-            Utils.forEach(this.graph.links, function (link) {
+            Utils.forEach(this.graph.links, function(link) {
                 var origin = link.source;
                 var dest = link.target;
                 var down = null, up = null;
@@ -84182,10 +84203,10 @@ return window.kendo;
                 this.downNodes.get(up).push(down);
                 this.upNodes.get(down).push(up);
             }, this);
-            this.downNodes.forEachValue(function (list) {
+            this.downNodes.forEachValue(function(list) {
                 list.sort(this._gridPositionComparer);
             }, this);
-            this.upNodes.forEachValue(function (list) {
+            this.upNodes.forEachValue(function(list) {
                 list.sort(this._gridPositionComparer);
             }, this);
 
@@ -84236,7 +84257,7 @@ return window.kendo;
             var leftPos = this.placeLeftToRight(leftClasses);
             var rightPos = this.placeRightToLeft(rightClasses);
             var x = new Dictionary();
-            Utils.forEach(this.graph.nodes, function (node) {
+            Utils.forEach(this.graph.nodes, function(node) {
                 x.set(node, (leftPos.get(node) + rightPos.get(node)) / 2);
             });
 
@@ -84272,9 +84293,9 @@ return window.kendo;
                 }
             }
             var directions = [1, -1];
-            Utils.forEach(directions, function (d) {
+            Utils.forEach(directions, function(d) {
                 var start = d === 1 ? 0 : this.layers.length - 1;
-                for (var l = start; 0 <= l && l < this.layers.length; l += d) {
+                for (var l = start; l >= 0 && l < this.layers.length; l += d) {
                     var layer = this.layers[l];
                     var virtualStartIndex = this._firstVirtualNode(layer);
                     var virtualStart = null;
@@ -84336,7 +84357,7 @@ return window.kendo;
 
 
             var fromLayerIndex = this._isIncreasingLayout() ? 0 : this.layers.length - 1;
-            var reachedFinalLayerIndex = function (k, ctx) {
+            var reachedFinalLayerIndex = function(k, ctx) {
                 if (ctx._isIncreasingLayout()) {
                     return k < ctx.layers.length;
                 }
@@ -84383,7 +84404,7 @@ return window.kendo;
             }
         },
 
-        adjustDirections: function (l, d, order, placed) {
+        adjustDirections: function(l, d, order, placed) {
             if (l + d < 0 || l + d >= this.layers.length) {
                 return;
             }
@@ -84423,7 +84444,7 @@ return window.kendo;
             }
         },
 
-        getNeighborOnLayer: function (node, l) {
+        getNeighborOnLayer: function(node, l) {
             var neighbor = this.upNodes.get(node)[0];
             if (neighbor.layer === l) {
                 return neighbor;
@@ -84435,7 +84456,7 @@ return window.kendo;
             return null;
         },
 
-        _sequencer: function (x, virtualStart, virtualEnd, dir, sequence) {
+        _sequencer: function(x, virtualStart, virtualEnd, dir, sequence) {
             if (sequence.length === 1) {
                 this._sequenceSingle(x, virtualStart, virtualEnd, dir, sequence[0]);
             }
@@ -84448,7 +84469,7 @@ return window.kendo;
             }
         },
 
-        _sequenceSingle: function (x, virtualStart, virtualEnd, dir, node) {
+        _sequenceSingle: function(x, virtualStart, virtualEnd, dir, node) {
             var neighbors = dir === -1 ? this.downNodes.get(node) : this.upNodes.get(node);
 
             var n = neighbors.length;
@@ -84469,7 +84490,7 @@ return window.kendo;
             }
         },
 
-        combineSequences: function (x, virtualStart, virtualEnd, dir, sequence) {
+        combineSequences: function(x, virtualStart, virtualEnd, dir, sequence) {
             var r = sequence.length, t = this.intDiv(r, 2);
 
             // collect left changes
@@ -84552,9 +84573,9 @@ return window.kendo;
             }
         },
 
-        placeLeft: function (node, leftPos, leftClass) {
+        placeLeft: function(node, leftPos, leftClass) {
             var pos = Number.NEGATIVE_INFINITY;
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 var leftSibling = this.leftSibling(v);
                 if (leftSibling && this.nodeLeftClass.get(leftSibling) === this.nodeLeftClass.get(v)) {
                     if (!leftPos.containsKey(leftSibling)) {
@@ -84566,14 +84587,14 @@ return window.kendo;
             if (pos === Number.NEGATIVE_INFINITY) {
                 pos = 0;
             }
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 leftPos.set(v, pos);
             });
         },
 
-        placeRight: function (node, rightPos, rightClass) {
+        placeRight: function(node, rightPos, rightClass) {
             var pos = Number.POSITIVE_INFINITY;
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 var rightSibling = this.rightSibling(v);
                 if (rightSibling && this.nodeRightClass.get(rightSibling) === this.nodeRightClass.get(v)) {
                     if (!rightPos.containsKey(rightSibling)) {
@@ -84585,29 +84606,29 @@ return window.kendo;
             if (pos === Number.POSITIVE_INFINITY) {
                 pos = 0;
             }
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 rightPos.set(v, pos);
             });
         },
 
-        leftSibling: function (node) {
+        leftSibling: function(node) {
             var layer = this.layers[node.layer],
                 layerIndex = node.layerIndex;
             return layerIndex === 0 ? null : layer[layerIndex - 1];
         },
 
-        rightSibling: function (node) {
+        rightSibling: function(node) {
             var layer = this.layers[node.layer];
             var layerIndex = node.layerIndex;
             return layerIndex === layer.length - 1 ? null : layer[layerIndex + 1];
 
         },
 
-        _getComposite: function (node) {
+        _getComposite: function(node) {
             return node.isVirtual ? this._nodesInLink(node) : [node];
         },
 
-        arrangeNodes: function () {
+        arrangeNodes: function() {
             var i, l, ni, layer, node;
             // Initialize node's base priority
             for (l = 0; l < this.layers.length; l++) {
@@ -84663,7 +84684,7 @@ return window.kendo;
         /// <param name="layerIndex">The layer to organize.</param>
         /// <param name="movingDownwards">If set to <c>true</c> we move down in the layer stack.</param>
         /// <seealso cref="OptimizeCrossings()"/>
-        layoutLayer: function (down, layer) {
+        layoutLayer: function(down, layer) {
             var iconsidered;
             var considered;
 
@@ -84679,7 +84700,7 @@ return window.kendo;
             for (var n = 0; n < considered.length; n++) {
                 sorted.push(considered[n]);
             }
-            sorted.sort(function (n1, n2) {
+            sorted.sort(function(n1, n2) {
                 var n1Priority = (n1.upstreamPriority + n1.downstreamPriority) / 2;
                 var n2Priority = (n2.upstreamPriority + n2.downstreamPriority) / 2;
 
@@ -84693,7 +84714,7 @@ return window.kendo;
             });
 
             // each node strives for its barycenter; high priority nodes start first
-            Utils.forEach(sorted, function (node) {
+            Utils.forEach(sorted, function(node) {
                 var nodeGridPos = node.gridPosition;
                 var nodeBaryCenter = this.calcBaryCenter(node);
                 var nodePriority = (node.upstreamPriority + node.downstreamPriority) / 2;
@@ -84748,7 +84769,7 @@ return window.kendo;
         /// <param name="node">The node.</param>
         /// <param name="layer">The layer.</param>
         /// <returns>Returns <c>true</c> if the shift was possible, otherwise <c>false</c>.</returns>
-        moveRight: function (node, layer, priority) {
+        moveRight: function(node, layer, priority) {
             var index = Utils.indexOf(layer, node);
             if (index === layer.length - 1) {
                 // this is the last node in the layer, so we can move to the right without troubles
@@ -84786,7 +84807,7 @@ return window.kendo;
         /// <param name="node">The node.</param>
         /// <param name="layer">The layer.</param>
         /// <returns>Returns <c>true</c> if the shift was possible, otherwise <c>false</c>.</returns>
-        moveLeft: function (node, layer, priority) {
+        moveLeft: function(node, layer, priority) {
             var index = Utils.indexOf(layer, node);
             if (index === 0) {
                 // this is the last node in the layer, so we can move to the left without troubles
@@ -84818,7 +84839,7 @@ return window.kendo;
             return false;
         },
 
-        mapVirtualNode: function (node, link) {
+        mapVirtualNode: function(node, link) {
             this.nodeToLinkMap.set(node, link);
             if (!this.linkToNodeMap.containsKey(link)) {
                 this.linkToNodeMap.set(link, []);
@@ -84826,14 +84847,14 @@ return window.kendo;
             this.linkToNodeMap.get(link).push(node);
         },
 
-        _nodesInLink: function (node) {
+        _nodesInLink: function(node) {
             return this.linkToNodeMap.get(this.nodeToLinkMap.get(node));
         },
 
         /// <summary>
         /// Inserts dummy nodes to break long links.
         /// </summary>
-        _dummify: function () {
+        _dummify: function() {
             this.linkToNodeMap = new Dictionary();
             this.nodeToLinkMap = new Dictionary();
 
@@ -84988,7 +85009,7 @@ return window.kendo;
         /// Removes the dummy nodes inserted earlier to break long links.
         /// </summary>
         /// <remarks>The virtual nodes are effectively turned into intermediate connection points.</remarks>
-        _dedummify: function () {
+        _dedummify: function() {
             var dedum = true;
             while (dedum) {
                 dedum = false;
@@ -85046,7 +85067,7 @@ return window.kendo;
         /// <summary>
         /// Optimizes/reduces the crossings between the layers by turning the crossing problem into a (combinatorial) number ordering problem.
         /// </summary>
-        _optimizeCrossings: function () {
+        _optimizeCrossings: function() {
             var moves = -1, i;
             var maxIterations = 3;
             var iter = 0;
@@ -85068,7 +85089,7 @@ return window.kendo;
             }
         },
 
-        calcUpData: function (layer) {
+        calcUpData: function(layer) {
             if (layer === 0) {
                 return;
             }
@@ -85114,7 +85135,7 @@ return window.kendo;
             }
         },
 
-        calcDownData: function (layer) {
+        calcDownData: function(layer) {
             if (layer === this.layers.length - 1) {
                 return;
             }
@@ -85168,7 +85189,7 @@ return window.kendo;
         /// <param name="layerIndex">The layer index.</param>
         /// <param name="movingDownwards">If set to <c>true</c> we move down in the layer stack.</param>
         /// <returns>The number of nodes having moved, i.e. the number of crossings reduced.</returns>
-        optimizeLayerCrossings: function (down, layer) {
+        optimizeLayerCrossings: function(down, layer) {
             var iconsidered;
             var considered;
 
@@ -85240,7 +85261,7 @@ return window.kendo;
         /// </summary>
         /// <param name="layerIndex">Index of the layer.</param>
         /// <param name="n">The Nth node in the layer.</param>
-        _swapPairs: function () {
+        _swapPairs: function() {
             var maxIterations = this.options.layeredIterations;
             var iter = 0;
 
@@ -85368,7 +85389,7 @@ return window.kendo;
         /// <param name="layerIndex1">The layer index.</param>
         /// <param name="layerIndex2">Another layer index.</param>
         /// <returns></returns>
-        countLinksCrossingBetweenTwoLayers: function (ulayer, dlayer) {
+        countLinksCrossingBetweenTwoLayers: function(ulayer, dlayer) {
             var links = this.layers[ulayer].linksTo[dlayer];
             var link1, link2, n11, n12, n21, n22, l1, l2;
             var crossings = 0;
@@ -85412,7 +85433,7 @@ return window.kendo;
             return crossings;
         },
 
-        calcBaryCenter: function (node) {
+        calcBaryCenter: function(node) {
             var upstreamLinkCount = node.upstreamLinkCount;
             var downstreamLinkCount = node.downstreamLinkCount;
             var uBaryCenter = node.uBaryCenter;
@@ -85431,7 +85452,7 @@ return window.kendo;
             return 0;
         },
 
-        _gridPositionComparer: function (x, y) {
+        _gridPositionComparer: function(x, y) {
             if (x.gridPosition < y.gridPosition) {
                 return -1;
             }
@@ -85441,15 +85462,15 @@ return window.kendo;
             return 0;
         },
 
-        _positionAscendingComparer: function (x, y) {
+        _positionAscendingComparer: function(x, y) {
             return x.k < y.k ? -1 : x.k > y.k ? 1 : 0;
         },
 
-        _positionDescendingComparer: function (x, y) {
+        _positionDescendingComparer: function(x, y) {
             return x.k < y.k ? 1 : x.k > y.k ? -1 : 0;
         },
 
-        _firstVirtualNode: function (layer) {
+        _firstVirtualNode: function(layer) {
             for (var c = 0; c < layer.length; c++) {
                 if (layer[c].isVirtual) {
                     return c;
@@ -85458,7 +85479,7 @@ return window.kendo;
             return -1;
         },
 
-        compareByIndex: function (o1, o2) {
+        compareByIndex: function(o1, o2) {
             var i1 = o1.index;
             var i2 = o2.index;
 
@@ -85473,11 +85494,11 @@ return window.kendo;
             return 0;
         },
 
-        intDiv: function (numerator, denominator) {
+        intDiv: function(numerator, denominator) {
             return (numerator - numerator % denominator) / denominator;
         },
 
-        nextVirtualNode: function (layer, node) {
+        nextVirtualNode: function(layer, node) {
             var nodeIndex = node.layerIndex;
             for (var i = nodeIndex + 1; i < layer.length; ++i) {
                 if (layer[i].isVirtual) {
@@ -85494,7 +85515,7 @@ return window.kendo;
      * @type {*}
      */
     var LayoutState = kendo.Class.extend({
-        init: function (diagram, graphOrNodes) {
+        init: function(diagram, graphOrNodes) {
             if (Utils.isUndefined(diagram)) {
                 throw "No diagram given";
             }
@@ -85512,7 +85533,7 @@ return window.kendo;
          * - the links points and node bounds in the literal object
          * @param diagramOrGraphOrNodes
          */
-        capture: function (diagramOrGraphOrNodes) {
+        capture: function(diagramOrGraphOrNodes) {
             var node,
                 nodes,
                 shape,
@@ -85579,7 +85600,7 @@ return window.kendo;
     });
 
     deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
         SpringLayout: SpringLayout,
@@ -85591,13 +85612,13 @@ return window.kendo;
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.html.base',[
         "kendo.core"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "html.base",
@@ -85608,14 +85629,14 @@ var __meta__ = { // jshint ignore:line
     features: []
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Class = kendo.Class;
 
     kendo.html = kendo.html || {};
 
     var HTMLBase = Class.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
             that.element = $(element);
             options = options || {};
@@ -85625,12 +85646,13 @@ var __meta__ = { // jshint ignore:line
         options: {
             stylingOptions: []
         },
-        _addClasses: function () {
+        _addClasses: function() {
             var that = this,
                 options = that.options,
-                stylingOptions = options.stylingOptions;
+                stylingOptions = options.stylingOptions,
+                previouslyAddedClasses = that.wrapper.data("added-classes");
 
-            stylingOptions = stylingOptions.map(function(option){
+            stylingOptions = stylingOptions.map(function(option) {
                 var validFill;
 
                 if (option === "themeColor") {
@@ -85653,9 +85675,14 @@ var __meta__ = { // jshint ignore:line
                 });
             });
 
+            if (previouslyAddedClasses) {
+                that.wrapper.removeClass(previouslyAddedClasses.join(" "));
+            }
+
+            that.wrapper.data("added-classes", stylingOptions);
             that.wrapper.addClass(stylingOptions.join(" "));
         },
-        html: function () {
+        html: function() {
             var that = this;
 
             return that.wrapper[0].outerHTML;
@@ -85670,13 +85697,13 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.html.button',[
         "kendo.html.base"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "html.button",
@@ -85687,7 +85714,7 @@ var __meta__ = { // jshint ignore:line
     features: []
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         HTMLBase = kendo.html.HTMLBase,
 
@@ -85695,7 +85722,7 @@ var __meta__ = { // jshint ignore:line
         KBUTTONICON = "k-button-icon",
         KBUTTONTEXT = "k-button-text";
 
-    var renderButton = function (element, options) {
+    var renderButton = function(element, options) {
         if (arguments[0] === undefined || $.isPlainObject(arguments[0])) {
             options = element;
             element = $("<button></button>");
@@ -85705,7 +85732,7 @@ var __meta__ = { // jshint ignore:line
     };
 
     var HTMLButton = HTMLBase.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
             HTMLBase.fn.init.call(that, element, options);
             that.wrapper = that.element.addClass(KBUTTON);
@@ -85746,7 +85773,7 @@ var __meta__ = { // jshint ignore:line
 
                 element.contents().filter(function() {
                     return (!$(this).hasClass("k-sprite") && !$(this).hasClass("k-icon") && !$(this).hasClass("k-image"));
-                }).each(function(idx, el){
+                }).each(function(idx, el) {
                     if (el.nodeType == 1 || el.nodeType == 3 && kendo.trim(el.nodeValue).length > 0) {
                         isEmpty = false;
                     }
@@ -85784,15 +85811,13 @@ var __meta__ = { // jshint ignore:line
 
             element.contents().filter(function() {
                 return (!$(this).hasClass(KBUTTONICON) && !$(this).hasClass("k-sprite") && !$(this).hasClass("k-icon") && !$(this).hasClass("k-image"));
-            }).each(function(idx, el){
+            }).each(function(idx, el) {
                 if (el.nodeType == 1 || el.nodeType == 3 && kendo.trim(el.nodeValue).length > 0) {
                     if (el.nodeType === 3) {
-                        var parent = el.parentNode;
                         var newSpan = document.createElement('span');
 
-                        newSpan.appendChild(document.createTextNode(el.nodeValue));
-                        parent.replaceChild(newSpan, el);
-
+                        el.parentNode.insertBefore(newSpan, el);
+                        newSpan.appendChild(el);
                         el = newSpan;
                     }
 
@@ -85821,50 +85846,1095 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
-    define('kendo.toolbar',[ "kendo.core", "kendo.userevents", "kendo.popup", "kendo.html.button" ], f);
-})(function(){
+(function(f, define) {
+    define('kendo.button.menu',["kendo.core", "kendo.popup"], f);
+})(function() {
+
+var __meta__ = { // jshint ignore:line
+    id: "button.menu",
+    name: "ButtonMenu",
+    category: "web",
+    description: "The popup Menu list part of the SplitButton and the DropDownButton",
+    depends: ["core", "popup"]
+};
+
+(function($, undefined) {
+    var kendo = window.kendo,
+        Widget = kendo.ui.Widget,
+        NS = ".kendoButtonMenu",
+        ui = kendo.ui,
+        keys = kendo.keys,
+        extend = $.extend,
+
+        DOT = ".",
+        ID = "id",
+        NEXT = "next",
+        PREV = "prev",
+        DISABLEDSTATE = "k-disabled",
+        HIDDEN = "k-hidden",
+
+        ARIA_DISABLED = "aria-disabled",
+        ROLE_MENU = "menu",
+        ROLE_MENU_ITEM = "menuitem",
+        TABINDEX = "tabindex",
+
+        CLICK = "click",
+        MENU_CLICK = "menuClick",
+        OPEN = "menuOpen",
+        CLOSE = "menuClose",
+        KEYDOWN = "keydown",
+
+        FOCUS = "focus";
+
+    var cssClasses = {
+        popup: "k-menu-popup",
+        list: "k-group k-menu-group k-reset",
+        listItem: "k-item k-menu-item",
+        menuItem: "k-menu-item",
+        itemText: "k-menu-link-text",
+        item: "k-link k-menu-link",
+        sprite: "k-sprite",
+        image: "k-image",
+        icon: "k-icon"
+    };
+
+    var baseItem = {
+        text: null,
+        icon: null,
+        url: null,
+        attributes: null,
+        enabled: true,
+        hidden: false,
+        id: null,
+        imageUrl: null,
+        spriteCssClass: null
+    };
+
+    var IMAGE_TEMPLATE = "#if(imageUrl){#<img alt=\"icon\" class=\"" + cssClasses.image + "\" src=\"#:imageUrl#\" />#}#";
+    var SPRITE_TEMPLATE = "#if(spriteCssClass){#<span class=\"" + cssClasses.sprite + " #:spriteCssClass#\"></span>#}#";
+    var ICON_TEMPLATE = "#if(icon){#<span class=\"" + cssClasses.icon + " k-i-#:icon#\"></span>#}#";
+    var TEXT_TEMPLATE = "#if(text){#<span class=\"" + cssClasses.itemText + "\">#:text#</span>#}#";
+
+    var ITEM_TEMPLATE = "<span class=\"" + cssClasses.item + "\">" + IMAGE_TEMPLATE + SPRITE_TEMPLATE + ICON_TEMPLATE + TEXT_TEMPLATE + "</span>";
+
+    var LINK_TEMPLATE = "<a href=\"#:url#\" class=\"" + cssClasses.item + "\">" + IMAGE_TEMPLATE + SPRITE_TEMPLATE + ICON_TEMPLATE + TEXT_TEMPLATE + "</a>";
+
+    function findFocusableSibling(element, dir) {
+        var getSibling = dir === NEXT ? $.fn.next : $.fn.prev;
+        var getter = dir === NEXT ? $.fn.first : $.fn.last;
+        var candidate = getSibling.call(element);
+        var focusable = ":kendoFocusable";
+
+        if (!candidate.length) {
+            candidate = getter.call(element.parent().find(DOT + cssClasses.menuItem));
+        }
+
+        if (candidate.is(focusable) || !candidate.length) {
+            return candidate;
+        }
+
+        if (candidate.find(focusable).length) {
+            return getter.call(candidate.find(focusable));
+        }
+
+        return findFocusableSibling(candidate, dir);
+    }
+
+    var ButtonMenu = Widget.extend({
+        init: function(element, options) {
+            var that = this;
+
+
+            Widget.fn.init.call(that, element, options);
+
+            that.mainButton = options.mainButton;
+            that._clickHandlers = {};
+
+            that._renderList();
+
+            that._initPopup();
+
+            that._attachEvents();
+
+            that._applyCssClasses(that.list);
+        },
+
+        options: {
+            name: "ButtonMenu",
+            element: null,
+            items: [],
+            size: "medium",
+        },
+
+        events: [
+            MENU_CLICK,
+            OPEN,
+            CLOSE
+        ],
+
+        _renderList: function() {
+            var that = this,
+                items = that.options.items,
+                popup = that.element.addClass(cssClasses.popup),
+                id = that.mainButton.attr(ID) || kendo.guid(),
+                list = $("<ul role=\"" + ROLE_MENU + "\"></ul>").addClass(cssClasses.list);
+
+            that.list = list.appendTo(popup);
+
+            that.list.attr(ID, id + "_buttonmenu");
+
+            items.forEach(that._renderListItem.bind(that));
+        },
+
+        _renderListItem: function(item) {
+            var that = this,
+                id, menuItem;
+
+            item = extend({}, baseItem, item, {
+                enabled: item.enable && item.enabled // backward compatibility: support both enable and enabled options.
+            });
+
+            id = item.id || kendo.guid();
+            menuItem = $("<li id=\"" + id + "\" role=\"" + ROLE_MENU_ITEM + "\" class=\"" + cssClasses.listItem + "\">" + that._renderItemButton(item) + "</li>");
+
+            if (item.click) {
+                that._clickHandlers[id] = item.click;
+            }
+
+            if (item.attributes) {
+                menuItem.attr(item.attributes);
+            }
+
+            if (item.data && kendo.isFunction(item.data)) {
+                menuItem.data(item.data(item));
+            }
+
+            that.list.append(menuItem);
+
+            that.enable(item.enabled, menuItem);
+            that._hide(item.hidden, menuItem);
+        },
+
+        _renderItemButton: function(item) {
+            var that = this,
+                options = that.options;
+
+            if (options.itemTemplate) {
+                return kendo.template(options.itemTemplate)(item);
+            }
+
+            if (item.url) {
+                return kendo.template(LINK_TEMPLATE)(item);
+            } else {
+                return kendo.template(ITEM_TEMPLATE)(item);
+            }
+        },
+
+        _initPopup: function() {
+            var that = this,
+                options = that.options;
+
+            that._popup = new ui.Popup(that.element, extend({}, options.popup, {
+                anchor: that.mainButton,
+                isRtl: that._isRtl,
+                toggleTarget: options.toggleTarget,
+                copyAnchorStyles: false,
+                animation: options.animation,
+                open: that._popupOpenHandler.bind(that),
+                close: that._popupCloseHandler.bind(that),
+                activate: that._popupExpandHandler.bind(that)
+            }));
+        },
+
+        _popupOpenHandler: function(ev) {
+            var that = this;
+
+            var isDefaultPrevented = that.trigger(OPEN);
+
+            if (isDefaultPrevented) {
+                ev.preventDefault();
+                return;
+            }
+
+            that.list.find(DOT + cssClasses.menuItem).attr(TABINDEX, 0);
+        },
+
+        _popupCloseHandler: function(ev) {
+            var that = this,
+                isDefaultPrevented = that.trigger(CLOSE);
+
+            if (isDefaultPrevented) {
+                ev.preventDefault();
+            }
+
+            that.list.find(DOT + cssClasses.menuItem).attr(TABINDEX, -1);
+        },
+
+        _popupExpandHandler: function() {
+            var that = this;
+
+            that.list.find(":kendoFocusable").first().trigger(FOCUS);
+        },
+
+        adjustPopupWidth: function(width) {
+            var that = this;
+
+            that.element.addClass("k-split-wrapper");
+
+            that.element.css({
+                "min-width": width
+            });
+        },
+
+        _attachEvents: function() {
+            var that = this;
+
+            that.list
+                .on(CLICK + NS, DOT + cssClasses.menuItem, that._click.bind(that))
+                .on(KEYDOWN + NS, DOT + cssClasses.menuItem, that.listItemKeydown.bind(that));
+
+            that.mainButton
+                .on(KEYDOWN + NS, that._keydown.bind(that));
+        },
+
+        _keydown: function(ev) {
+            var that = this;
+
+            if ($(ev.target).is(DOT + DISABLEDSTATE) || $(ev.target).parents(DOT + DISABLEDSTATE).length) {
+                return;
+            }
+
+            if (ev.altKey && ev.keyCode === keys.DOWN) {
+                that._popup.open();
+                ev.preventDefault();
+                return;
+            }
+        },
+
+        listItemKeydown: function(ev) {
+            var that = this,
+                li = $(ev.target);
+
+            ev.preventDefault();
+
+            if (ev.keyCode === keys.ESC || ev.keyCode === keys.TAB || (ev.altKey && ev.keyCode === keys.UP)) {
+                that._popup.close();
+                that.mainButton.trigger(FOCUS);
+            } else if (ev.keyCode === keys.DOWN) {
+                findFocusableSibling(li, NEXT).trigger(FOCUS);
+            } else if (ev.keyCode === keys.UP) {
+                findFocusableSibling(li, PREV).trigger(FOCUS);
+            } else if (!li.is(DOT + DISABLEDSTATE) && (ev.keyCode === keys.SPACEBAR || ev.keyCode === keys.ENTER)) {
+                li.trigger(CLICK);
+            } else if (ev.keyCode === keys.HOME) {
+                that.list.find(":kendoFocusable")
+                    .filter(DOT + cssClasses.menuItem)
+                    .first().trigger(FOCUS);
+            } else if (ev.keyCode === keys.END) {
+                that.list.find(":kendoFocusable")
+                    .filter(DOT + cssClasses.menuItem)
+                    .last().trigger(FOCUS);
+            }
+        },
+
+        _click: function(ev) {
+            var that = this,
+                target = $(ev.target).closest(DOT + cssClasses.menuItem),
+                id = target.attr(ID);
+
+            if (that._clickHandlers[id]) {
+                that._clickHandlers[id](ev);
+            }
+
+            that.trigger(MENU_CLICK, { id: id, target: target, type: "menu-click", originalEvent: ev });
+        },
+
+        toggle: function() {
+            this._popup.toggle();
+        },
+
+        enable: function(enable, items) {
+            var that = this;
+
+            if (!items || !items.length) {
+                items = that.items();
+            } else {
+                items = that.list.find(items);
+            }
+
+            items.toggleClass(DISABLEDSTATE, !enable);
+
+            if (enable) {
+                items.removeAttr(ARIA_DISABLED);
+            } else {
+                items.attr(ARIA_DISABLED, !enable);
+            }
+        },
+
+
+        _hide: function(hidden, items) {
+            var that = this;
+
+            if (!items || !items.length) {
+                items = that.items();
+            } else {
+                items = that.list.find(items);
+            }
+
+            items.toggleClass(HIDDEN, hidden);
+        },
+
+        hide: function(items) {
+            this._hide(true, items);
+        },
+
+        show: function(items) {
+            this._hide(false, items);
+        },
+
+        close: function() {
+            this._popup.close();
+        },
+
+        items: function() {
+            return this.list.children(DOT + cssClasses.menuItem);
+        },
+
+        destroyPopup: function() {
+            var that = this;
+
+            if (that._popup) {
+                that._popup.destroy();
+                that._popup = null;
+
+                that.list.off(NS);
+                that.list.remove();
+                that.list = null;
+            }
+        },
+
+        destroy: function() {
+            var that = this;
+
+            delete that._clickHandlers;
+
+            that.destroyPopup();
+            that.mainButton.off(NS);
+            Widget.fn.destroy.call(that);
+        }
+    });
+
+    kendo.cssProperties.registerPrefix("ButtonMenu", "k-menu-group-");
+
+    ui.plugin(ButtonMenu);
+
+})(window.kendo.jQuery);
+
+return window.kendo;
+
+}, typeof define == "function" && define.amd ? define : function(a1, a2, a3) {
+    (a3 || a2)();
+});
+(function(f, define) {
+    define('kendo.splitbutton',["kendo.html.button", "kendo.button.menu"], f);
+})(function() {
+
+var __meta__ = { // jshint ignore:line
+    id: "splitbutton",
+    name: "SplitButton",
+    category: "web",
+    description: "The SplitButton allows the user to execute a default action which is bound to a Button or to choose a predefined action from a drop-down list.",
+    depends: ["button.menu", "html.button"]
+};
+
+(function($, undefined) {
+    var kendo = window.kendo,
+        Widget = kendo.ui.Widget,
+        NS = ".kendoSplitButton",
+        ui = kendo.ui,
+        extend = $.extend,
+        html = kendo.html,
+        outerWidth = kendo._outerWidth,
+        keys = kendo.keys,
+
+        DOT = ".",
+        ID = "id",
+
+        ARIA_HASPOPUP = "aria-haspopup",
+        ARIA_DISABLED = "aria-disabled",
+        ARIA_CONTROLS = "aria-controls",
+        ARIA_LABEL = "aria-label",
+        ARIA_EXPANDED = "aria-expanded",
+
+        DISABLED = "disabled",
+        DISABLEDSTATE = "k-disabled",
+        FOCUSSTATE = "k-focus",
+
+        CLICK = "click",
+        KEYDOWN = "keydown",
+        OPEN = "open",
+        CLOSE = "close",
+
+        FOCUS = "focus",
+        BLUR = "blur";
+
+    var cssClasses = {
+        widget: "k-split-button k-button-group"
+    };
+
+    var SplitButton = Widget.extend({
+        init: function(element, options) {
+            var that = this;
+
+            options.enabled = options.enabled !== false && !$(element).prop(DISABLED);
+            Widget.fn.init.call(that, element, options);
+
+            that._wrapper();
+            that._renderButtons();
+            that._renderMenu();
+
+            that._enable(that.options.enabled);
+
+            that._aria();
+
+            that._attachEvents();
+
+            kendo.notify(that);
+
+            that._applyCssClasses();
+        },
+
+        options: {
+            name: "SplitButton",
+            enabled: true,
+            items: [],
+            rounded: "medium",
+            size: "medium",
+            fillMode: "solid",
+            themeColor: "base",
+            icon: null,
+            popup: null,
+            arrowIcon: "arrow-s",
+            messages: {
+                labelSuffix: "splitbutton"
+            }
+        },
+
+        events: [
+            CLICK,
+            OPEN,
+            CLOSE
+        ],
+
+        _wrapper: function() {
+            var that = this,
+                id = that.element.attr(ID) || kendo.guid(),
+                wrapperId = id + "_wrapper";
+
+            that.wrapper = that.element
+                .wrap("<div id=\"" + wrapperId + "\" class=\"" + cssClasses.widget + "\"></div>")
+                .parent(".k-split-button");
+
+            that.arrowButton = $("<button tabindex=\"-1\" aria-label=\"arrow-button\" class=\"k-split-button-arrow\"></button>").appendTo(that.wrapper);
+        },
+
+        _applyCssClasses: function() {
+            var that = this;
+
+            that.wrapper.addClass(that._getAppearanceClasses());
+        },
+
+        _clearCssClasses: function() {
+            var that = this;
+
+            that.wrapper.removeClass(that._getAppearanceClasses());
+        },
+
+        _getAppearanceClasses: function() {
+            var that = this,
+                widgetName = that.__proto__.options.name, // jshint ignore:line
+                roundedClass = kendo.cssProperties.getValidClass({
+                    widget: widgetName,
+                    propName: "rounded",
+                    value: that.options.rounded
+                });
+
+            return roundedClass;
+        },
+
+        _renderButtons: function() {
+            var that = this;
+
+            that._mainButton();
+            that._arrowButton();
+        },
+
+        _mainButton: function() {
+            var that = this,
+                options = extend({}, that.options);
+
+            delete options.click;
+
+            html.renderButton(that.element, options);
+        },
+
+        _arrowButton: function() {
+            var that = this,
+                options = extend({}, that.options, {
+                    icon: that.options.arrowIcon,
+                });
+
+            delete options.text;
+            delete options.imageUrl;
+            delete options.click;
+
+            html.renderButton(that.arrowButton, options);
+        },
+
+        _aria: function() {
+            var that = this,
+                element = that.element,
+                menu = that.menu;
+
+            element.attr(ARIA_HASPOPUP, menu ? "menu" : null);
+            element.attr(ARIA_EXPANDED, menu ? false : null);
+            element.attr(ARIA_CONTROLS, menu ? menu.list.attr(ID) : null);
+
+            if (!element.attr(ARIA_LABEL)) {
+                element.attr(ARIA_LABEL, element.text() + " " + that.options.messages.labelSuffix);
+            }
+        },
+
+        _renderMenu: function() {
+            var that = this,
+                options = extend({}, that.options),
+                menu = $("<div></div>");
+
+            delete options.click;
+            delete options.name;
+
+            if (!options.items.length) {
+                return;
+            }
+
+            that.menu = menu.appendTo(that.wrapper).kendoButtonMenu(extend({
+                mainButton: that.element,
+                toggleTarget: that.arrowButton,
+                menuOpen: that.menuOpenHandler.bind(that),
+                menuClose: that.menuCloseHandler.bind(that),
+                menuClick: that._click.bind(that)
+            }, options)).data("kendoButtonMenu");
+        },
+
+        menuOpenHandler: function(ev) {
+            var that = this,
+                computedWidth = outerWidth(that.wrapper);
+
+            var isDefaultPrevented = that.trigger(OPEN, { target: that.element });
+            if (isDefaultPrevented) {
+                ev.preventDefault();
+                return;
+            }
+
+            ev.sender.adjustPopupWidth(computedWidth);
+            that.element.attr(ARIA_EXPANDED, true);
+        },
+
+        menuCloseHandler: function(ev) {
+            var that = this,
+                isDefaultPrevented = that.trigger(CLOSE, { target: that.element });
+
+            if (isDefaultPrevented) {
+                ev.preventDefault();
+                return;
+            }
+
+            that.element.attr(ARIA_EXPANDED, false);
+            that.element.trigger(FOCUS);
+        },
+
+        _attachEvents: function() {
+            var that = this;
+
+            that.element.on(CLICK + NS, that._click.bind(that));
+            that.element.on(KEYDOWN + NS, that._keydown.bind(that));
+            that.element.on(FOCUS + NS, that._focus.bind(that));
+            that.element.on(BLUR + NS, that._blur.bind(that));
+        },
+
+        _focus: function() {
+            this.wrapper.addClass(FOCUSSTATE);
+        },
+
+        _blur: function() {
+            this.wrapper.removeClass(FOCUSSTATE);
+        },
+
+        _click: function(ev) {
+            var that = this,
+                target = $(ev.target).closest(".k-button"),
+                id = target.attr(ID),
+                originalEvent = ev;
+
+            if (ev.type === "menu-click") {
+                id = ev.id;
+                target = ev.target;
+                originalEvent = ev.originalEvent;
+            }
+
+            that.menu.close();
+
+            that.trigger(CLICK, { id: id, target: target, originalEvent: originalEvent });
+        },
+
+        _keydown: function(ev) {
+            var that = this;
+
+            if (that.element.is(DOT + DISABLEDSTATE) && (ev.keyCode === keys.ENTER || ev.keyCode === keys.SPACEBAR)) {
+                ev.preventDefault();
+            }
+        },
+
+        focus: function() {
+            var that = this;
+            that.element.trigger(FOCUS);
+        },
+
+        _enable: function(enable, soft) {
+            this.element.add(this.arrowButton)
+                .toggleClass(DISABLEDSTATE, !enable);
+
+            if (enable) {
+                this.element.removeAttr(ARIA_DISABLED);
+            } else {
+                this.element.attr(ARIA_DISABLED, !enable);
+            }
+
+            if (!soft) {
+                this.element.attr(DISABLED, !enable);
+            }
+
+            this.arrowButton.attr(DISABLED, !enable);
+        },
+
+        enable: function(enable, menuItem, soft) {
+            var that = this;
+
+            if (enable === undefined) {
+                enable = true;
+            }
+
+            if (menuItem && menuItem.length) {
+                that.menu.enable(enable, menuItem);
+                return;
+            }
+
+            that.options.enabled = enable;
+
+            that._enable(enable, soft);
+            that.menu.enable(enable);
+        },
+
+        hide: function(menuItem) {
+            var that = this;
+
+            if (menuItem && menuItem.length) {
+                that.menu.hide(menuItem);
+            }
+        },
+
+        show: function(menuItem) {
+            var that = this;
+
+            if (menuItem && menuItem.length) {
+                that.menu.show(menuItem);
+            }
+        },
+
+        open: function() {
+            this.menu._popup.open();
+        },
+
+        close: function() {
+            this.menu._popup.close();
+        },
+
+        items: function() {
+            return this.menu.items();
+        },
+
+        setOptions: function(options) {
+            var that = this;
+
+            Widget.fn.setOptions.call(that, options);
+
+            if (options.popup || options.items || options.size) {
+                that.menu.destroy();
+                that._renderMenu();
+            }
+
+            that._renderButtons();
+
+            that._aria();
+        },
+
+        destroy: function() {
+            var that = this;
+
+            that.menu.destroy();
+
+            that.element.off(NS);
+
+            Widget.fn.destroy.call(that);
+        }
+    });
+
+    kendo.cssProperties.registerPrefix("SplitButton", "k-splitbutton-");
+
+    kendo.cssProperties.registerValues("SplitButton", [{
+        prop: "rounded",
+        values: kendo.cssProperties.roundedValues.concat([["full", "full"]])
+    }]);
+
+    ui.plugin(SplitButton);
+
+})(window.kendo.jQuery);
+
+return window.kendo;
+
+}, typeof define == "function" && define.amd ? define : function(a1, a2, a3) {
+    (a3 || a2)();
+});
+(function(f, define) {
+    define('kendo.dropdownbutton',["kendo.html.button", "kendo.button.menu"], f);
+})(function() {
+
+var __meta__ = { // jshint ignore:line
+    id: "dropdownbutton",
+    name: "DropDownButton",
+    category: "web",
+    description: "The DropDownButton allows the user to execute an action from a drop-down list.",
+    depends: ["button.menu", "html.button"]
+};
+
+(function($, undefined) {
+    var kendo = window.kendo,
+        Widget = kendo.ui.Widget,
+        NS = ".kendoDropDownButton",
+        ui = kendo.ui,
+        keys = kendo.keys,
+        extend = $.extend,
+        html = kendo.html,
+        outerWidth = kendo._outerWidth,
+
+        DOT = ".",
+        ID = "id",
+
+        ARIA_HASPOPUP = "aria-haspopup",
+        ARIA_DISABLED = "aria-disabled",
+        ARIA_CONTROLS = "aria-controls",
+        ARIA_LABEL = "aria-label",
+        ARIA_EXPANDED = "aria-expanded",
+
+        DISABLED = "disabled",
+        DISABLEDSTATE = "k-disabled",
+
+        CLICK = "click",
+        KEYDOWN = "keydown",
+        OPEN = "open",
+        CLOSE = "close",
+
+        FOCUS = "focus";
+
+    var cssClasses = {
+        menuButton: "k-menu-button"
+    };
+
+    var DropDownButton = Widget.extend({
+        init: function(element, options) {
+            var that = this;
+
+            options.enabled = options.enabled !== false && !$(element).prop(DISABLED);
+            Widget.fn.init.call(that, element, options);
+
+            that.wrapper = that.element;
+
+            that._mainButton();
+            that._renderMenu();
+
+            that._enable(that.options.enabled);
+
+            that._aria();
+
+            that._attachEvents();
+
+            kendo.notify(that);
+
+            that._applyCssClasses();
+        },
+
+        options: {
+            name: "DropDownButton",
+            enabled: true,
+            items: [],
+            rounded: "medium",
+            size: "medium",
+            fillMode: "solid",
+            themeColor: "base",
+            icon: null,
+            popup: null,
+            messages: {
+                labelSuffix: "dropdownbutton"
+            }
+        },
+
+        events: [
+            CLICK,
+            OPEN,
+            CLOSE
+        ],
+
+        _mainButton: function() {
+            var that = this,
+                options = extend({}, that.options);
+
+            delete options.click;
+
+            that.element.addClass(cssClasses.menuButton);
+
+            html.renderButton(that.element, options);
+        },
+
+        _aria: function() {
+            var that = this,
+                element = that.element,
+                menu = that.menu;
+
+            element.attr(ARIA_HASPOPUP, menu ? "menu" : null);
+            element.attr(ARIA_EXPANDED, menu ? false : null);
+            element.attr(ARIA_CONTROLS, menu ? menu.list.attr(ID) : null);
+
+            if (!element.attr(ARIA_LABEL)) {
+                element.attr(ARIA_LABEL, element.text() + " " + that.options.messages.labelSuffix);
+            }
+        },
+
+        _renderMenu: function() {
+            var that = this,
+                options = extend({}, that.options),
+                menu = $("<div></div>");
+
+            delete options.click;
+            delete options.name;
+
+            if (!options.items.length) {
+                return;
+            }
+
+            that.menu = menu.appendTo(document.body).kendoButtonMenu(extend({
+                mainButton: that.element,
+                toggleTarget: that.element,
+                menuOpen: that.menuOpenHandler.bind(that),
+                menuClose: that.menuCloseHandler.bind(that),
+                menuClick: that._click.bind(that)
+            }, options)).data("kendoButtonMenu");
+        },
+
+        menuOpenHandler: function(ev) {
+            var that = this,
+                computedWidth = outerWidth(that.element);
+
+            var isDefaultPrevented = that.trigger(OPEN, { target: that.element });
+            if (isDefaultPrevented) {
+                ev.preventDefault();
+                return;
+            }
+
+            ev.sender.adjustPopupWidth(computedWidth);
+            that.element.attr(ARIA_EXPANDED, true);
+        },
+
+        menuCloseHandler: function(ev) {
+            var that = this,
+                isDefaultPrevented = that.trigger(CLOSE, { target: that.element });
+
+            if (isDefaultPrevented) {
+                ev.preventDefault();
+                return;
+            }
+
+            that.element.attr(ARIA_EXPANDED, false);
+            that.element.trigger(FOCUS);
+        },
+
+        _attachEvents: function() {
+            var that = this;
+
+            that.element.on(KEYDOWN + NS, that._keydown.bind(that));
+        },
+
+        _click: function(ev) {
+            var that = this,
+                id = ev.id,
+                target = ev.target,
+                originalEvent = ev.originalEvent;
+
+            that.menu.close();
+
+            that.trigger(CLICK, { id: id, target: target, originalEvent: originalEvent });
+        },
+
+        _keydown: function(ev) {
+            var that = this;
+
+            if (that.element.is(DOT + DISABLEDSTATE) && (ev.keyCode === keys.ENTER || ev.keyCode === keys.SPACEBAR)) {
+                ev.preventDefault();
+            }
+        },
+
+        focus: function() {
+            var that = this;
+            that.element.trigger(FOCUS);
+        },
+
+        _enable: function(enable, soft) {
+            this.element
+                .toggleClass(DISABLEDSTATE, !enable);
+
+            if (enable) {
+                this.element.removeAttr(ARIA_DISABLED);
+            } else {
+                this.element.attr(ARIA_DISABLED, !enable);
+            }
+
+            if (!soft) {
+                this.element.attr(DISABLED, !enable);
+            }
+        },
+
+        enable: function(enable, menuItem, soft) {
+            var that = this;
+
+            if (enable === undefined) {
+                enable = true;
+            }
+
+            if (menuItem && menuItem.length) {
+                that.menu.enable(enable, menuItem);
+                return;
+            }
+
+            that.options.enabled = enable;
+
+            that._enable(enable, soft);
+            that.menu.enable(enable);
+        },
+
+        hide: function(menuItem) {
+            var that = this;
+
+            if (menuItem && menuItem.length) {
+                that.menu.hide(menuItem);
+            }
+        },
+
+        show: function(menuItem) {
+            var that = this;
+
+            if (menuItem && menuItem.length) {
+                that.menu.show(menuItem);
+            }
+        },
+
+        open: function() {
+            this.menu._popup.open();
+        },
+
+        close: function() {
+            this.menu._popup.close();
+        },
+
+        items: function() {
+            return this.menu.items();
+        },
+
+        setOptions: function(options) {
+            var that = this;
+
+            Widget.fn.setOptions.call(that, options);
+
+            if (options.popup || options.items || options.size) {
+                that.menu.destroy();
+                that._renderMenu();
+            }
+
+            that._mainButton();
+
+            that._aria();
+        },
+
+        destroy: function() {
+            var that = this;
+
+            that.menu.destroy();
+
+            that.element.off(NS);
+
+            Widget.fn.destroy.call(that);
+        }
+    });
+
+    ui.plugin(DropDownButton);
+
+})(window.kendo.jQuery);
+
+return window.kendo;
+
+}, typeof define == "function" && define.amd ? define : function(a1, a2, a3) {
+    (a3 || a2)();
+});
+(function(f, define) {
+    define('kendo.toolbar',[ "kendo.core", "kendo.userevents", "kendo.popup", "kendo.html.button", "kendo.splitbutton", "kendo.dropdownbutton" ], f);
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "toolbar",
     name: "ToolBar",
     category: "web",
     description: "The ToolBar widget displays one or more command buttons divided into groups.",
-    depends: [ "core", "html.button"  ]
+    depends: [ "core", "html.button", "splitbutton", "dropdownbutton" ]
 };
 
 (function($, undefined) {
     var kendo = window.kendo,
         Class = kendo.Class,
-        Widget = kendo.ui.Widget,
+        ui = kendo.ui,
+        Widget = ui.Widget,
         isFunction = kendo.isFunction,
         keys = kendo.keys,
         outerWidth = kendo._outerWidth,
         ns = ".kendoToolBar",
-
         TOOLBAR = "k-toolbar",
         KBUTTON = "k-button",
-        BUTTON_DEFAULTS = "k-button-md k-rounded-md k-button-solid k-button-solid-base",
         OVERFLOW_BUTTON = "k-overflow-button",
         TOGGLE_BUTTON = "k-toggle-button",
         BUTTON_GROUP = "k-button-group",
         SPLIT_BUTTON = "k-split-button",
-        SPLIT_BUTTON_ARROW = "k-split-button-arrow",
-        LIST_CONTAINER = "k-list-container k-split-container",
-        ICON_BUTTON = "k-icon-button",
+        MENU_BUTTON = "k-menu-button",
         KSEPARATOR = "k-separator",
         SPACER_CLASS = "k-spacer",
         POPUP = "k-popup",
         RESIZABLE_TOOLBAR = "k-toolbar-resizable",
         STATE_SELECTED = "k-selected",
         STATE_DISABLED = "k-disabled",
-        STATE_HIDDEN = "k-state-hidden",
-        HIDDEN = "k-hidden",
+        STATE_HIDDEN = "k-hidden",
+        FORCE_HIDDEN = "k-force-hidden",
         GROUP_START = "k-group-start",
         GROUP_END = "k-group-end",
         MENU_LINK = "k-menu-link",
+        MENU_ITEM = "k-menu-item",
         OVERFLOW_GROUP = "k-overflow-group",
         OVERFLOW_HIDDEN = "k-overflow-hidden",
         OVERFLOW_ANCHOR = "k-overflow-anchor",
@@ -85872,9 +86942,6 @@ var __meta__ = { // jshint ignore:line
         OVERFLOW_WRAPPER = "k-overflow-wrapper",
         FIRST_TOOLBAR_VISIBLE = "k-toolbar-first-visible",
         LAST_TOOLBAR_VISIBLE = "k-toolbar-last-visible",
-        BUTTON_ROUNDED_MD = "k-rounded-md",
-
-        MENU_GROUP = "k-group k-menu-group k-reset k-menu-group-md",
 
         ARIA_DISABLED = "aria-disabled",
         ARIA_PRESSED = "aria-pressed",
@@ -85894,6 +86961,8 @@ var __meta__ = { // jshint ignore:line
         HREF = "href",
         ROLE = "role",
         BUTTON = "button",
+        SPLITBUTTON = "splitButton",
+        DROPDOWNBUTTON = "dropDownButton",
         SEPARATOR = "separator",
         OVERFLOW = "overflow",
         NEXT = "next",
@@ -85923,6 +86992,7 @@ var __meta__ = { // jshint ignore:line
 
         EMPTY = " ",
         NOTHING = "",
+        TEXT_ITEM = "textItem",
         DOT = ".",
         COMMA = ",",
         ID = "id";
@@ -85983,15 +87053,15 @@ var __meta__ = { // jshint ignore:line
 
             show: function() {
                 this.element.removeClass(STATE_HIDDEN);
-                this.element.removeClass(HIDDEN);
+                this.element.removeClass(FORCE_HIDDEN);
                 this.options.hidden = false;
             },
 
             hide: function() {
                 this.element.addClass(STATE_HIDDEN);
-                this.element.addClass(HIDDEN);
+                this.element.addClass(FORCE_HIDDEN);
 
-                if (this.overflow && this.overflowHidden){
+                if (this.overflow && this.overflowHidden) {
                     this.overflowHidden();
                 }
                 this.options.hidden = true;
@@ -86032,6 +87102,15 @@ var __meta__ = { // jshint ignore:line
         });
 
         kendo.toolbar.Item = Item;
+
+        var BareItem = Item.extend({
+            init: function(options, toolbar) {
+                this.options = $.extend({}, this.options, options);
+                this.toolbar = toolbar;
+            }
+        });
+
+        kendo.toolbar.BareItem = BareItem;
 
         var Button = Item.extend({
             init: function(options, toolbar) {
@@ -86116,7 +87195,7 @@ var __meta__ = { // jshint ignore:line
                     element.addClass("k-align-" + options.align);
                 }
 
-                if (!!options.text && (options.showText == "toolbar" ||  options.showText == BOTH)) {
+                if (!!options.text && (options.showText == "toolbar" || options.showText == BOTH)) {
                     if (options.mobile) {
                         element.html('<span class="km-text">' + options.text + "</span>");
                     } else {
@@ -86126,9 +87205,9 @@ var __meta__ = { // jshint ignore:line
                     element.attr("aria-label", options.text);
                 }
 
-                if(options.icon || options.spriteCssClass || options.imageUrl) {
-                    if(options.showIcon !== "toolbar" && options.showIcon !== BOTH) {
-                        options.icon  = null;
+                if (options.icon || options.spriteCssClass || options.imageUrl) {
+                    if (options.showIcon !== "toolbar" && options.showIcon !== BOTH) {
+                        options.icon = null;
                         options.spriteCssClass = null;
                         options.imageUrl = null;
                     }
@@ -86175,7 +87254,7 @@ var __meta__ = { // jshint ignore:line
                 var element = this.element;
                 options = this.options;
 
-                if (!!options.text && (options.showText == OVERFLOW ||  options.showText == BOTH)) {
+                if (!!options.text && (options.showText == OVERFLOW || options.showText == BOTH)) {
                     if (options.mobile) {
                         element.html('<span class="km-text">' + options.text + "</span>");
                     } else {
@@ -86185,9 +87264,9 @@ var __meta__ = { // jshint ignore:line
                     element.attr("aria-label", options.text);
                 }
 
-                if(options.icon || options.spriteCssClass || options.imageUrl) {
-                    if(options.showIcon !== OVERFLOW && options.showIcon !== BOTH) {
-                        options.icon  = null;
+                if (options.icon || options.spriteCssClass || options.imageUrl) {
+                    if (options.showIcon !== OVERFLOW && options.showIcon !== BOTH) {
+                        options.icon = null;
                         options.spriteCssClass = null;
                         options.imageUrl = null;
                     }
@@ -86211,7 +87290,7 @@ var __meta__ = { // jshint ignore:line
                     this.hide();
                 }
 
-                if (options.togglable){
+                if (options.togglable) {
                     this.toggle(options.selected);
                 }
 
@@ -86398,195 +87477,145 @@ var __meta__ = { // jshint ignore:line
 
         var ToolBarSplitButton = Item.extend({
             init: function(options, toolbar) {
-                var element = this.element = $('<div class="' + SPLIT_BUTTON + EMPTY + BUTTON_GROUP + EMPTY + BUTTON_ROUNDED_MD + '" tabindex="0"></div>');
-
-                this.options = options;
-                this.toolbar = toolbar;
-
-                this.mainButton = new ToolBarButton($.extend({}, options, { hidden: false }), toolbar);
-                this.arrowButton = $('<a class="' + KBUTTON + EMPTY + BUTTON_DEFAULTS + EMPTY + ICON_BUTTON + EMPTY + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? "km-icon km-arrowdown" : "k-icon k-button-icon k-i-arrow-s") + '"></span></a>');
-                this.popupElement = $('<ul class="' + LIST_CONTAINER + EMPTY + MENU_GROUP + '"></ul>');
-
-                this.mainButton.element
-                    .removeAttr("href tabindex")
-                    .appendTo(element);
-
-                this.arrowButton.appendTo(element);
-                this.popupElement.appendTo(element);
-
-                if (options.align) {
-                    element.addClass("k-align-" + options.align);
-                }
-
-                if (!options.id) {
-                    options.id = options.uid;
-                }
-
-                element.attr(ID, options.id + "_wrapper");
-
-                this.addOverflowAttr();
-                this.addUidAttr();
-
-                this.createMenuButtons();
-                this.createPopup();
-                this._navigatable();
-
-                this.mainButton.main = true;
-
-                this.enable(options.enable);
-
-                if (options.hidden) {
-                    this.hide();
-                }
-
-                element.data({
-                    type: "splitButton",
-                    splitButton: this,
-                    kendoPopup: this.popup
-                });
-            },
-
-            _navigatable: function() {
                 var that = this;
 
-                that.popupElement.on(KEYDOWN + ns, DOT + MENU_LINK, function(e) {
-                    var li = $(e.target).parent();
-
-                    e.preventDefault();
-
-                    if (e.keyCode === keys.ESC || e.keyCode === keys.TAB || (e.altKey && e.keyCode === keys.UP)) {
-                        that.toggle();
-                        that.focus();
-                    } else if (e.keyCode === keys.DOWN) {
-                        findFocusableSibling(li, NEXT).trigger(FOCUS);
-                    } else if (e.keyCode === keys.UP) {
-                        findFocusableSibling(li, PREV).trigger(FOCUS);
-                    } else if (e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) {
-                        that.toolbar.userEvents.trigger(TAP, { target: $(e.target) });
-                    } else if (e.keyCode === keys.HOME) {
-                        li.parent().find(":kendoFocusable").first().trigger(FOCUS);
-                    } else if (e.keyCode === keys.END) {
-                        li.parent().find(":kendoFocusable").last().trigger(FOCUS);
-                    }
+                that.options = $.extend({
+                    id: options.id || options.uid,
+                    enable: true
+                }, options, {
+                    togglable: false // disable togglable for splitbutton
                 });
-            },
 
-            createMenuButtons: function() {
-                var options = this.options;
-                var items = options.menuButtons;
-                var item;
+                if (options.primary) {
+                    that.options.themeColor = PRIMARY;
+                }
 
-                for (var i = 0; i < items.length; i++) {
-                    item = new ToolBarMenuButton($.extend({ mobile: options.mobile, type: BUTTON, click: options.click }, items[i]), this.toolbar);
-                    item.element.wrap(POPUP_ITEM_TEMPLATE).parent().appendTo(this.popupElement);
+                if (options.showIcon === "overflow") {
+                    that.options.icon = null;
+                }
+
+                if (options.showText === "overflow") {
+                    that.options.text = "";
+                }
+
+                that.toolbar = toolbar;
+
+                that.splitButton = new ui.SplitButton($("<button id='" + that.options.id + "'>" + that.options.text + "</button>"),
+                                                         $.extend({}, that.options, {
+                                                             items: that._extend(options.menuButtons),
+                                                        }), toolbar.options);
+                that.element = that.splitButton.wrapper;
+
+                that.splitButton.bind(CLICK, toolbar._buttonClick.bind(toolbar));
+                that.splitButton.bind(CLOSE, that._close.bind(that));
+                that.splitButton.bind(OPEN, that._open.bind(that));
+
+                that.splitButton.element.data({
+                    type: SPLITBUTTON,
+                    button: that,
+                    splitButton: that
+                });
+
+                that.splitButton.wrapper.data({
+                    type: SPLITBUTTON,
+                    button: that,
+                    splitButton: that
+                });
+
+                that.addOverflowAttr();
+                that.addUidAttr();
+                that.attributes();
+                that.addMenuAttributes();
+
+                if (that.options.enable === false) {
+                    that.enable(this.options.enable);
+                }
+
+                if (that.options.hidden) {
+                    that.hide();
                 }
             },
-
-            createPopup: function() {
+            _open: function(ev) {
                 var that = this;
-                var options = this.options;
-                var element = this.element;
-
-                this.popupElement
-                        .attr(ID, options.id + OPTION_LIST_SUFFIX)
-                        .attr(KENDO_UID_ATTR, options.rootUid);
-
-                if (options.mobile) {
-                    this.popupElement = actionSheetWrap(this.popupElement);
+                var isDefaultPrevented = that.toolbar.trigger(OPEN, { target: that.element });
+                if (isDefaultPrevented) {
+                    ev.preventDefault();
                 }
-
-                this.popup = this.popupElement.kendoPopup({
-                    appendTo: options.mobile ? $(options.mobile).children(".km-pane") : null,
-                    anchor: element,
-                    isRtl: this.toolbar._isRtl,
-                    copyAnchorStyles: false,
-                    animation: options.animation,
-                    open: function(e){
-                        var isDefaultPrevented = that.toolbar.trigger(OPEN, { target: element });
-
-                        if(isDefaultPrevented){
-                            e.preventDefault();
-                            return;
-                        }
-
-                        that.adjustPopupWidth(e.sender);
-                    },
-                    activate: function() {
-                        this.element.find(":kendoFocusable").first().trigger(FOCUS);
-                    },
-                    close: function(e) {
-                        var isDefaultPrevented = that.toolbar.trigger(CLOSE, { target: element });
-                        if(isDefaultPrevented){
-                            e.preventDefault();
-                        }
-                        element.trigger(FOCUS);
-                    }
-                }).data("kendoPopup");
-
-                this.popup.element.on(CLICK + ns, "a.k-button", preventClick);
             },
-
-            adjustPopupWidth: function (popup) {
-                var anchor = popup.options.anchor,
-                    computedWidth = outerWidth(anchor),
-                    width;
-
-                kendo.wrap(popup.element).addClass("k-split-wrapper");
-
-                if (popup.element.css("box-sizing") !== "border-box") {
-                    width = computedWidth - (outerWidth(popup.element) - popup.element.width());
-                } else {
-                    width = computedWidth;
+            _close: function(ev) {
+                var that = this;
+                var isDefaultPrevented = that.toolbar.trigger(CLOSE, { target: that.element });
+                if (isDefaultPrevented) {
+                    ev.preventDefault();
                 }
-
-                popup.element.css({
-                    fontFamily: anchor.css("font-family"),
-                    "min-width": width
+                that.splitButton.element.trigger(FOCUS);
+            },
+            _extend: function(items) {
+                var that = this;
+                return items.map(function(item) {
+                    var itemInstance = new BareItem(item, that.toolbar);
+                    return $.extend({}, item, {
+                        togglable: false,
+                        data: function() {
+                            return {
+                                type: BUTTON,
+                                button: itemInstance,
+                                splitButton: that
+                            };
+                        }
+                    });
                 });
             },
+            addMenuAttributes: function() {
+                var that = this,
+                    items = that.splitButton.items(),
+                    itemInstance;
 
+                items.each(function(index, item) {
+                    item = $(item);
+                    itemInstance = item.data(BUTTON);
+                    itemInstance.element = item;
+                    itemInstance.options = $.extend({
+                        type: BUTTON,
+                        enable: true
+                    }, itemInstance.options);
+
+                    itemInstance.addOverflowAttr();
+                    itemInstance.addUidAttr();
+                });
+            },
             remove: function() {
-                this.popup.element.off(CLICK + ns, "a.k-button");
-                this.popup.destroy();
-                this.element.remove();
+                var elmToRemove = this.splitButton.wrapper;
+                this.splitButton.destroy();
+                elmToRemove.remove();
             },
+            enable: function(enable, item) {
+                this.splitButton.enable(enable, item, true);
 
-            toggle: function() {
-                if(this.options.enable || this.popup.visible()){
-                    this.popup.toggle();
+                if (this.twin()) {
+                    this.twin().enable(enable);
                 }
             },
+            attributes: function() {
+                var that = this,
+                    mainButton = that.splitButton.element,
+                    attributes = this.options.attributes,
+                    classes;
 
-            enable: function(isEnabled) {
-                if (isEnabled === undefined) {
-                    isEnabled = true;
+                if (attributes) {
+                    if (attributes.class) {
+                        classes = attributes.class;
+
+                        mainButton.addClass(classes);
+
+                        delete attributes.class;
+                    }
+
+                    mainButton.attr(attributes);
+
+                    attributes.class = classes;
                 }
-
-                this.mainButton.enable(isEnabled);
-                this.element.toggleClass(STATE_DISABLED, !isEnabled);
-                this.element.attr(ARIA_DISABLED, !isEnabled);
-                this.options.enable = isEnabled;
             },
-
-            focus: function() {
-                this.element.trigger(FOCUS);
-            },
-
-            hide: function() {
-                if (this.popup) {
-                    this.popup.close();
-                }
-
-                this.element.addClass(STATE_HIDDEN);
-                this.element.addClass(HIDDEN);
-                this.options.hidden = true;
-            },
-
-            show: function() {
-                this.element.removeClass(STATE_HIDDEN);
-                this.element.removeClass(HIDDEN);
-                this.options.hidden = false;
-            }
         });
 
         kendo.toolbar.ToolBarSplitButton = ToolBarSplitButton;
@@ -86597,12 +87626,12 @@ var __meta__ = { // jshint ignore:line
                     items = options.menuButtons,
                     item, splitContainerId;
 
-                this.options = options;
+                this.options = $.extend({}, options, { togglable: false });
                 this.toolbar = toolbar;
                 this.overflow = true;
                 splitContainerId = (options.id || options.uid) + OPTION_LIST_SUFFIX;
 
-                this.mainButton = new OverflowButton($.extend({ isChild: true }, options));
+                this.mainButton = new OverflowButton($.extend({ isChild: true }, options, { togglable: false }));
                 this.mainButton.element.appendTo(element);
 
                 for (var i = 0; i < items.length; i++) {
@@ -86615,10 +87644,27 @@ var __meta__ = { // jshint ignore:line
 
                 this.mainButton.main = true;
 
+                if (this.options.enable === false) {
+                    this.enable(this.options.enable);
+                }
+
                 element.data({
-                    type: "splitButton",
+                    type: SPLITBUTTON,
                     splitButton: this
                 });
+            },
+
+            enable: function(isEnabled) {
+                var elements = this.element.add(this.element.find(DOT + OVERFLOW_BUTTON));
+
+                if (isEnabled === undefined) {
+                    isEnabled = true;
+                }
+
+                elements.toggleClass(STATE_DISABLED, !isEnabled);
+                elements.attr(ARIA_DISABLED, !isEnabled);
+
+                this.options.enable = isEnabled;
             },
 
             overflowHidden: function() {
@@ -86627,7 +87673,232 @@ var __meta__ = { // jshint ignore:line
         });
 
         kendo.toolbar.OverflowSplitButton = OverflowSplitButton;
-        kendo.toolbar.registerComponent("splitButton", ToolBarSplitButton, OverflowSplitButton);
+        kendo.toolbar.registerComponent(SPLITBUTTON, ToolBarSplitButton, OverflowSplitButton);
+
+        var ToolBarDropDownButton = Item.extend({
+            init: function(options, toolbar) {
+                var that = this;
+
+                that.options = $.extend({
+                    id: options.id || options.uid,
+                    enable: true
+                }, options, {
+                    togglable: false // disable togglable for dropdownbutton
+                });
+
+                if (options.primary) {
+                    that.options.themeColor = PRIMARY;
+                }
+
+                if (options.showIcon === "overflow") {
+                    that.options.icon = null;
+                }
+
+                if (options.showText === "overflow") {
+                    that.options.text = "";
+                }
+
+                that.toolbar = toolbar;
+
+                that.dropDownButton = new ui.DropDownButton($("<button id='" + that.options.id + "'>" + that.options.text + "</button>"),
+                                                         $.extend({}, that.options, {
+                                                             items: that._extend(options.menuButtons)
+                                                        }), toolbar.options);
+                that.element = that.dropDownButton.element;
+
+                that.dropDownButton.bind(CLICK, toolbar._buttonClick.bind(toolbar));
+                that.dropDownButton.bind(CLOSE, that._close.bind(that));
+                that.dropDownButton.bind(OPEN, that._open.bind(that));
+
+                that.dropDownButton.element.data({
+                    type: DROPDOWNBUTTON,
+                    button: that,
+                    dropDownButton: that
+                });
+
+                that.addOverflowAttr();
+                that.addUidAttr();
+                that.attributes();
+                that.addMenuAttributes();
+
+                if (that.options.enable === false) {
+                    that.enable(this.options.enable);
+                }
+
+                if (that.options.hidden) {
+                    that.hide();
+                }
+            },
+            _open: function(ev) {
+                var that = this;
+                var isDefaultPrevented = that.toolbar.trigger(OPEN, { target: that.element });
+                if (isDefaultPrevented) {
+                    ev.preventDefault();
+                }
+            },
+            _close: function(ev) {
+                var that = this;
+                var isDefaultPrevented = that.toolbar.trigger(CLOSE, { target: that.element });
+                if (isDefaultPrevented) {
+                    ev.preventDefault();
+                }
+                that.dropDownButton.element.trigger(FOCUS);
+            },
+            _extend: function(items) {
+                var that = this;
+                return items.map(function(item) {
+                    var itemInstance = new BareItem(item, that.toolbar);
+                    return $.extend({}, item, {
+                        data: function() {
+                            return {
+                                type: BUTTON,
+                                button: itemInstance,
+                                dropDownButton: that
+                            };
+                        }
+                    });
+                });
+            },
+            addMenuAttributes: function() {
+                var that = this,
+                    items = that.dropDownButton.items(),
+                    itemInstance;
+
+                items.each(function(index, item) {
+                    item = $(item);
+                    itemInstance = item.data(BUTTON);
+                    itemInstance.element = item;
+                    itemInstance.options = $.extend({
+                        type: BUTTON,
+                        enable: true
+                    }, itemInstance.options);
+
+                    itemInstance.addOverflowAttr();
+                    itemInstance.addUidAttr();
+                });
+            },
+            remove: function() {
+                var elmToRemove = this.dropDownButton.element;
+                this.dropDownButton.destroy();
+                elmToRemove.remove();
+            },
+            enable: function(enable, item) {
+                this.dropDownButton.enable(enable, item, true);
+
+                if (this.twin()) {
+                    this.twin().enable(enable);
+                }
+            },
+            attributes: function() {
+                var that = this,
+                    mainButton = that.element,
+                    attributes = this.options.attributes,
+                    classes;
+
+                if (attributes) {
+                    if (attributes.class) {
+                        classes = attributes.class;
+
+                        mainButton.addClass(classes);
+
+                        delete attributes.class;
+                    }
+
+                    mainButton.attr(attributes);
+
+                    attributes.class = classes;
+                }
+            },
+        });
+
+        kendo.toolbar.ToolBarSplitButton = ToolBarSplitButton;
+
+        var OverflowTextItem = Item.extend({
+            init: function(options, toolbar) {
+                var element = this.element = $('<span></span>');
+
+                this.element = element;
+                this.options = options;
+                this.toolbar = toolbar;
+                this.overflow = true;
+
+                this.attributes();
+                this.addUidAttr();
+                this.addOverflowIdAttr();
+
+                if (options.icon && (!options.showIcon || options.showIcon !== "toolbar")) {
+                    element.append("<span class=\"k-icon k-i-" + options.icon + "\"></span>");
+                }
+
+                if (options.showText !== "toolbar") {
+                    element.append("<span>" + this.options.text + "</span>");
+                }
+
+                element.data({
+                    type: TEXT_ITEM,
+                    textItem: this
+                });
+            },
+
+            overflowHidden: function() {
+                this.element.addClass(OVERFLOW_HIDDEN);
+            }
+        });
+
+        var OverflowDropDownButton = Item.extend({
+            init: function(options, toolbar) {
+                var element = this.element = $('<li class="' + SPLIT_BUTTON + ' ' + MENU_BUTTON + '"></li>'),
+                    items = options.menuButtons,
+                    item, splitContainerId;
+
+                this.options = $.extend({}, options, { togglable: false });
+                this.toolbar = toolbar;
+                this.overflow = true;
+                splitContainerId = (options.id || options.uid) + OPTION_LIST_SUFFIX;
+
+                this.mainButton = new OverflowTextItem($.extend({ isChild: true }, options, { togglable: false }));
+                this.mainButton.element.appendTo(element);
+
+                for (var i = 0; i < items.length; i++) {
+                    item = new OverflowButton($.extend({ mobile: options.mobile, type: BUTTON, splitContainerId: splitContainerId, isChild: true }, items[i], { click: options.click }), this.toolbar);
+                    item.element.appendTo(element);
+                }
+
+                this.addUidAttr();
+                this.addOverflowAttr();
+
+                this.mainButton.main = true;
+
+                if (this.options.enable === false) {
+                    this.enable(this.options.enable);
+                }
+
+                element.data({
+                    type: DROPDOWNBUTTON,
+                    dropDownButton: this
+                });
+            },
+
+            enable: function(isEnabled) {
+                var elements = this.element.add(this.element.find(DOT + OVERFLOW_BUTTON));
+
+                if (isEnabled === undefined) {
+                    isEnabled = true;
+                }
+
+                elements.toggleClass(STATE_DISABLED, !isEnabled);
+                elements.attr(ARIA_DISABLED, !isEnabled);
+
+                this.options.enable = isEnabled;
+            },
+
+            overflowHidden: function() {
+                this.element.addClass(OVERFLOW_HIDDEN);
+            }
+        });
+
+        kendo.toolbar.OverflowSplitButton = OverflowDropDownButton;
+        kendo.toolbar.registerComponent(DROPDOWNBUTTON, ToolBarDropDownButton, OverflowDropDownButton);
 
         var ToolBarSeparator = Item.extend({
             init: function(options, toolbar) {
@@ -86786,12 +88057,12 @@ var __meta__ = { // jshint ignore:line
             }
         }
 
-        function findFocusableSibling (element, dir) {
+        function findFocusableSibling(element, dir) {
             var getSibling = dir === NEXT ? $.fn.next : $.fn.prev;
             var getter = dir === NEXT ? $.fn.first : $.fn.last;
             var candidate = getSibling.call(element);
 
-            if(!candidate.length && element.is(DOT + OVERFLOW_ANCHOR)){
+            if (!candidate.length && element.is(DOT + OVERFLOW_ANCHOR)) {
                 return element;
             }
 
@@ -86863,7 +88134,7 @@ var __meta__ = { // jshint ignore:line
                     STATE_DISABLED = "km-state-disabled";
                 }
 
-                if(options.resizable) {
+                if (options.resizable) {
                     that._renderOverflow();
                     element.addClass(RESIZABLE_TOOLBAR);
 
@@ -86881,12 +88152,12 @@ var __meta__ = { // jshint ignore:line
                     that.popup = { element: $([]) };
                 }
 
-                if(options.items && options.items.length) {
+                if (options.items && options.items.length) {
                     for (var i = 0; i < options.items.length; i++) {
                         that.add(options.items[i]);
                     }
 
-                    if(options.resizable) {
+                    if (options.resizable) {
                         that._shrink(that.element.innerWidth());
                     }
                 }
@@ -86896,7 +88167,7 @@ var __meta__ = { // jshint ignore:line
                     allowSelection: true,
                     filter:
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] a." + KBUTTON + COMMA + EMPTY +
-                        "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + MENU_LINK + COMMA + EMPTY +
+                        "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + MENU_ITEM + COMMA + EMPTY +
                         "[" + KENDO_UID_ATTR + "=" + this.uid + "] ." + OVERFLOW_BUTTON,
                     tap: that._buttonClick.bind(that),
                     press: toggleActive,
@@ -86949,9 +88220,8 @@ var __meta__ = { // jshint ignore:line
             destroy: function() {
                 var that = this;
 
-                that.element.find(DOT + SPLIT_BUTTON).each(function(idx, element) {
-                    $(element).data("kendoPopup").destroy();
-                });
+                that.destroySplitButtons();
+                that.destroyDropDownButtons();
 
                 that.element.off(ns, "a.k-button");
 
@@ -86965,6 +88235,46 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 Widget.fn.destroy.call(that);
+            },
+
+            destroySplitButtons: function() {
+                var that = this,
+                    splitButtonWrappers = that.element.find(DOT + SPLIT_BUTTON),
+                    item;
+
+
+                splitButtonWrappers.each(function(idx, element) {
+                    item = that._getItem(element);
+
+                    if (item && item.type === SPLITBUTTON) {
+                        item = item.toolbar;
+                    }
+
+                    if (item && item.splitButton && item.splitButton.destroy) {
+                        item.splitButton.destroy();
+                        $(element).remove();
+                    }
+                });
+            },
+
+            destroyDropDownButtons: function() {
+                var that = this,
+                    dropDownButtons = that.element.find(DOT + MENU_BUTTON),
+                    item;
+
+
+                    dropDownButtons.each(function(idx, element) {
+                    item = that._getItem(element);
+
+                    if (item && item.type === DROPDOWNBUTTON) {
+                        item = item.toolbar;
+                    }
+
+                    if (item && item.dropDownButton && item.dropDownButton.destroy) {
+                        item.dropDownButton.destroy();
+                        $(element).remove();
+                    }
+                });
             },
 
             add: function(options) {
@@ -87011,7 +88321,7 @@ var __meta__ = { // jshint ignore:line
                         }
 
                         overflowTool.element.appendTo(that.popup.container);
-                        that.angular("compile", function(){
+                        that.angular("compile", function() {
                             return { elements: overflowTool.element.get() };
                         });
                     }
@@ -87028,7 +88338,7 @@ var __meta__ = { // jshint ignore:line
                     if (tool) {
                         tool.element.appendTo(that.element);
 
-                        that.angular("compile", function(){
+                        that.angular("compile", function() {
                             return { elements: tool.element.get() };
                         });
                     }
@@ -87043,31 +88353,30 @@ var __meta__ = { // jshint ignore:line
                     type;
 
                 //find toolbar item
-
                 element = this.element.find(candidate);
+
                 if (!element.length) {
-                    element = $(".k-split-container[data-uid=" + this.uid + "]").find(candidate);
+                    element = $("[data-role=\"buttonmenu\"]").find(candidate);
                 }
 
                 type = element.length ? element.data("type") : NOTHING;
                 toolbarItem = element.data(type);
 
-                if (toolbarItem) {
-                    if (toolbarItem.main) {
-                        element = element.parent(DOT + SPLIT_BUTTON);
-                        type = "splitButton";
-                        toolbarItem = element.data(type);
-                    }
+                if (toolbarItem && isResizable) {
 
-                    if (isResizable) {
                         overflowItem = toolbarItem.twin();
-                    }
                 } else if (isResizable) { //find overflow item
                     element = this.popup.element.find(candidate);
                     type = element.length ? element.data("type") : NOTHING;
                     overflowItem = element.data(type);
 
-                    if (overflowItem && overflowItem.main) {
+                    if (type === TEXT_ITEM) {
+                        element = element.parent(DOT + MENU_BUTTON);
+                        type = "dropDownButton";
+                        overflowItem = element.data(type);
+                    }
+
+                    if (overflowItem && overflowItem.main && type !== TEXT_ITEM) {
                         element = element.parent(DOT + SPLIT_BUTTON);
                         type = "splitButton";
                         overflowItem = element.data(type);
@@ -87114,10 +88423,10 @@ var __meta__ = { // jshint ignore:line
 
                         item.overflow.hide();
 
-                        if(buttonGroupInstance) {
+                        if (buttonGroupInstance) {
                             buttonGroupInstance.refresh();
                         }
-                    } else if(!item.overflow.options.hidden) {
+                    } else if (!item.overflow.options.hidden) {
                         item.overflow.hide();
                     }
                 }
@@ -87137,7 +88446,7 @@ var __meta__ = { // jshint ignore:line
                         if (buttonGroupInstance) {
                             buttonGroupInstance.refresh();
                         }
-                    } else if(item.toolbar.options.hidden) {
+                    } else if (item.toolbar.options.hidden) {
                         item.toolbar.show();
                     }
                 }
@@ -87151,7 +88460,7 @@ var __meta__ = { // jshint ignore:line
                         if (buttonGroupInstance) {
                             buttonGroupInstance.refresh();
                         }
-                    } else if(item.overflow.options.hidden) {
+                    } else if (item.overflow.options.hidden) {
                         item.overflow.show();
                     }
                 }
@@ -87166,7 +88475,7 @@ var __meta__ = { // jshint ignore:line
                     enable = true;
                 }
 
-                if (item.toolbar) { item.toolbar.enable(enable); }
+                if (item.toolbar) { item.toolbar.enable(enable, item.element); }
                 if (item.overflow) { item.overflow.enable(enable); }
             },
 
@@ -87182,6 +88491,7 @@ var __meta__ = { // jshint ignore:line
                     if (checked === undefined) {
                         checked = true;
                     }
+
                     item.toggle(checked, true);
                 }
             },
@@ -87211,7 +88521,7 @@ var __meta__ = { // jshint ignore:line
                     animation: that.animation,
                     appendTo: that.isMobile ? $(that.isMobile).children(".km-pane") : null,
                     copyAnchorStyles: false,
-                    open: function (e) {
+                    open: function(e) {
                         var wrapper = kendo.wrap(that.popup.element)
                             .addClass(OVERFLOW_WRAPPER);
 
@@ -87228,7 +88538,7 @@ var __meta__ = { // jshint ignore:line
                     activate: function() {
                         this.element.find(":kendoFocusable").first().trigger(FOCUS);
                     },
-                    close: function (e) {
+                    close: function(e) {
                         if (that.trigger(OVERFLOW_CLOSE)) {
                             e.preventDefault();
                         }
@@ -87250,12 +88560,12 @@ var __meta__ = { // jshint ignore:line
                         that._toggleOverflow();
                         that.overflowAnchor.trigger(FOCUS);
                     } else if (e.keyCode === keys.DOWN) {
-                        element = !isComplexTool || (isComplexTool && target.is(":last-child")) ? li : target;
+                        element = !isComplexTool || (isComplexTool && target.is(":last-child")) || (isComplexTool && !target.next().is(":kendoFocusable")) ? li : target;
                         findFocusableSibling(element, NEXT).trigger(FOCUS);
                     } else if (e.keyCode === keys.UP) {
-                        element = !isComplexTool || (isComplexTool && target.is(":first-child")) ? li : target;
+                        element = !isComplexTool || (isComplexTool && target.is(":first-child")) || (isComplexTool && !target.prev().is(":kendoFocusable")) ? li : target;
                         findFocusableSibling(element, PREV).trigger(FOCUS);
-                    } else if (e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) {
+                    } else if ((e.keyCode === keys.SPACEBAR || e.keyCode === keys.ENTER) && !$(e.target).is(DOT + STATE_DISABLED)) {
                         that.userEvents.trigger(TAP, { target: $(e.target) });
                         that.overflowAnchor.trigger(FOCUS);
                     } else if (e.keyCode === keys.HOME) {
@@ -87300,19 +88610,15 @@ var __meta__ = { // jshint ignore:line
             },
 
             _buttonClick: function(e) {
-                var that = this, popup,
-                    target, item, splitContainer,
-                    isSplitButtonArrow = e.target.closest(DOT + SPLIT_BUTTON_ARROW).length,
-                    handler, eventData, urlTarget;
+                var that = this,
+                    target = $(e.target),
+                    item, handler, eventData, urlTarget;
 
                 e.preventDefault();
 
-                if (isSplitButtonArrow) {
-                    that._toggle(e);
-                    return;
+                if (!target.data(SPLITBUTTON)) {
+                    target = $(e.target).closest(DOT + KBUTTON + COMMA + EMPTY + DOT + MENU_LINK, that.element);
                 }
-
-                target = $(e.target).closest(DOT + KBUTTON + COMMA + EMPTY + DOT + MENU_LINK, that.element);
 
                 if (target.hasClass(OVERFLOW_ANCHOR)) {
                     return;
@@ -87355,12 +88661,6 @@ var __meta__ = { // jshint ignore:line
                 if (target.hasClass(OVERFLOW_BUTTON)) {
                     that.popup.close();
                 }
-
-                splitContainer = target.closest(".k-split-container");
-                if (splitContainer[0]) {
-                    popup = splitContainer.data("kendoPopup");
-                    (popup ? popup : splitContainer.parents(".km-popup-wrapper").data("kendoPopup")).close();
-                }
             },
 
             _navigatable: function() {
@@ -87380,7 +88680,7 @@ var __meta__ = { // jshint ignore:line
                             element = findFocusableSibling(element, NEXT);
                         }
 
-                        if(element.length) {
+                        if (element.length) {
                             element[0].focus();
                         }
                     })
@@ -87399,7 +88699,7 @@ var __meta__ = { // jshint ignore:line
                         firstHasFocus = false,
                         isOnlyOverflowAnchor = false;
 
-                    if(!items.not(DOT + OVERFLOW_ANCHOR).length){
+                    if (!items.not(DOT + OVERFLOW_ANCHOR).length) {
                         isOnlyOverflowAnchor = true;
                     }
 
@@ -87454,28 +88754,18 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (e.altKey && keyCode === keys.DOWN) {
-                    var splitButton = $(document.activeElement).data("splitButton");
                     var isOverflowAnchor = $(document.activeElement).is(DOT + OVERFLOW_ANCHOR);
 
-                    if (splitButton) {
-                        splitButton.toggle();
-                    } else if (isOverflowAnchor) {
+                    if (isOverflowAnchor) {
                         this._toggleOverflow();
                     }
 
                     return;
                 }
 
-                if ((keyCode === keys.SPACEBAR || keyCode === keys.ENTER) && !target.is("input, checkbox")) {
-
-                    if(keyCode === keys.SPACEBAR){
+                if ((keyCode === keys.SPACEBAR || keyCode === keys.ENTER) && !target.is("input, checkbox, button")) {
+                    if (keyCode === keys.SPACEBAR) {
                         e.preventDefault(); //prevent spacebar to scroll the page down
-                    }
-
-                    if (target.is(DOT + SPLIT_BUTTON)) {
-                        target = target.children().first();
-                        this.userEvents.trigger(TAP, { target: target });
-                    } else if (keyCode === keys.SPACEBAR) {
                         this.userEvents.trigger(TAP, { target: target });
                     }
 
@@ -87512,7 +88802,7 @@ var __meta__ = { // jshint ignore:line
                 }
             },
 
-            _getNextElement: function (item, direction) {
+            _getNextElement: function(item, direction) {
                 var items = this.element.children(":not(.k-separator, .k-spacer):visible");
                 var itemIndex = items.index(item) === -1 ? items.index(item.parentElement) : items.index(item);
                 var startIndex = this.overflowAnchor ? 1 : 0;
@@ -87558,6 +88848,11 @@ var __meta__ = { // jshint ignore:line
                     if ($(focusableItem).hasClass("k-combobox")) {
                         focusableItem = $(focusableItem).find("input");
                     }
+
+                    if ($(focusableItem).hasClass("k-split-button-arrow")) {
+                        focusableItem = $(focusableItem).prev();
+                    }
+
                     this._preventNextFocus = $(focusableItem).closest(DOT + BUTTON_GROUP).length ? false : true;
                 }
 
@@ -87571,7 +88866,7 @@ var __meta__ = { // jshint ignore:line
 
                 var elementToFocus, prevElement,
                     prevElements = element.prevAll();
-                prevElements.each(function(){
+                prevElements.each(function() {
                     prevElement = $(this);
                     if (prevElement.is(":kendoFocusable")) {
                         elementToFocus = prevElement;
@@ -87623,9 +88918,10 @@ var __meta__ = { // jshint ignore:line
 
             _childrenWidth: function() {
                 var childrenWidth = 0;
+                var gap = parseInt(this.element.css('gap'), 10) || 0;
 
-                this.element.children(":visible:not(." + STATE_HIDDEN + COMMA + EMPTY + DOT + SPACER_CLASS + ")").each(function() {
-                    childrenWidth += outerWidth($(this), true);
+                this.element.children(":visible:not(" + DOT + SPACER_CLASS + ")").each(function() {
+                    childrenWidth += outerWidth($(this), true) + gap;
                 });
 
                 return Math.ceil(childrenWidth);
@@ -87655,9 +88951,9 @@ var __meta__ = { // jshint ignore:line
                     hiddenCommands;
 
                 if (containerWidth > this._childrenWidth()) {
-                    hiddenCommands = this.element.children(":hidden:not('." + STATE_HIDDEN + "')");
+                    hiddenCommands = this.element.children(DOT + STATE_HIDDEN + ":not(" + DOT + FORCE_HIDDEN + ")");
 
-                    for (var i = 0; i < hiddenCommands.length ; i++) {
+                    for (var i = 0; i < hiddenCommands.length; i++) {
                         commandElement = hiddenCommands.eq(i);
                         if (containerWidth < this._childrenWidth() || !this._showItem(commandElement, containerWidth)) {
                             break;
@@ -87667,7 +88963,7 @@ var __meta__ = { // jshint ignore:line
             },
 
             _hideItem: function(item) {
-                item.addClass(HIDDEN);
+                item.addClass(STATE_HIDDEN);
 
                 if (this.popup) {
                     this.popup.container
@@ -87677,17 +88973,18 @@ var __meta__ = { // jshint ignore:line
             },
 
             _showItem: function(item, containerWidth) {
+                var gap = parseInt(this.element.css('gap'), 10) || 0;
                 // From jquery.outerWidth docs:
                 //  > jQuery will attempt to temporarily show and then re-hide an element
                 //  > in order to measure its dimensions, but this is unreliable
                 // Thus we show and hide the item
-                item.removeClass(HIDDEN);
-                var itemOuterWidth = outerWidth(item, true);
-                item.addClass(HIDDEN);
+                item.removeClass(STATE_HIDDEN);
+                var itemOuterWidth = outerWidth(item, true) + gap;
+                item.addClass(STATE_HIDDEN);
 
                 if (item.length && containerWidth > this._childrenWidth() + itemOuterWidth) {
 
-                    item.removeClass(HIDDEN);
+                    item.removeClass(STATE_HIDDEN);
 
                     if (this.popup) {
                         this.popup.container
@@ -87719,11 +89016,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.toggleinputbase',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "toggleinputbase",
@@ -87794,13 +89091,13 @@ var __meta__ = { // jshint ignore:line
         enable: function(enable) {
             var element = this.element;
 
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
             this.options.enabled = enable;
 
-            if(enable) {
+            if (enable) {
                 element.prop(DISABLED, false);
             } else {
                 element.attr(DISABLED, DISABLED);
@@ -87817,13 +89114,13 @@ var __meta__ = { // jshint ignore:line
             this.element.on(CHANGE + this.NS, this._change.bind(this));
         },
 
-        _change: function () {
+        _change: function() {
             var checked = this.element[0].checked;
 
             this.trigger(CHANGE, { checked: checked });
         },
 
-        _initSettings: function () {
+        _initSettings: function() {
             var that = this,
                 element = that.element[0],
                 options = that.options;
@@ -87856,13 +89153,13 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.html.input',[
         "kendo.html.base"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "html.input",
@@ -87873,11 +89170,11 @@ var __meta__ = { // jshint ignore:line
     features: []
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         HTMLBase = kendo.html.HTMLBase;
 
-    var renderCheckBox = function (element, options) {
+    var renderCheckBox = function(element, options) {
         if (arguments[0] === undefined || $.isPlainObject(arguments[0])) {
             options = element;
             element = $("<input />");
@@ -87886,7 +89183,7 @@ var __meta__ = { // jshint ignore:line
         return (new HTMLCheckBox(element, options)).html();
     };
 
-    var renderRadioButton = function (element, options) {
+    var renderRadioButton = function(element, options) {
         if (arguments[0] === undefined || $.isPlainObject(arguments[0])) {
             options = element;
             element = $("<input />");
@@ -87896,7 +89193,7 @@ var __meta__ = { // jshint ignore:line
     };
 
     var HTMLInput = HTMLBase.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
             HTMLBase.fn.init.call(that, element, options);
             that._wrapper();
@@ -87907,7 +89204,7 @@ var __meta__ = { // jshint ignore:line
             labelPosition: "after",
             encoded: true
         },
-        _wrapper: function () {
+        _wrapper: function() {
             var that = this,
                 element = that.element[0],
                 options = that.options,
@@ -87917,14 +89214,14 @@ var __meta__ = { // jshint ignore:line
                 .addClass(options.inputClass)
                 .prop("type", options.type);
 
-            if(!elementId && !!options.label) {
+            if (!elementId && !!options.label) {
                 element.id = elementId = kendo.guid();
             }
 
-            if(!!options.label) {
+            if (!!options.label) {
                 that.labelEl = $("<label for='" + elementId + "' class='" + options.labelClass + "'>");
 
-                if(options.encoded) {
+                if (options.encoded) {
                     that.labelEl.text(options.label);
                 } else {
                     that.labelEl.html(options.label);
@@ -87933,16 +89230,16 @@ var __meta__ = { // jshint ignore:line
                 that.element[options.labelPosition](that.labelEl);
             }
         },
-        html: function () {
+        html: function() {
             var that = this,
                 after = that.options.labelPosition === "after",
                 wrapperHtml = HTMLBase.fn.html.call(that);
 
-            if(!that.labelEl) {
+            if (!that.labelEl) {
                 return wrapperHtml;
             }
 
-            if(after) {
+            if (after) {
                 return wrapperHtml + that.labelEl[0].outerHTML;
             }
 
@@ -87951,7 +89248,7 @@ var __meta__ = { // jshint ignore:line
     });
 
     var HTMLCheckBox = HTMLInput.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
             HTMLInput.fn.init.call(that, element, options);
             that._addClasses();
@@ -87968,7 +89265,7 @@ var __meta__ = { // jshint ignore:line
     });
 
     var HTMLRadioButton = HTMLInput.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
             HTMLInput.fn.init.call(that, element, options);
             that._addClasses();
@@ -88004,11 +89301,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.checkbox',[ "kendo.toggleinputbase", "kendo.html.input" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "checkbox",
@@ -88059,7 +89356,7 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 (function(f, define) {
     define('kendo.list',[ "kendo.data", "kendo.popup" ], f);
@@ -88101,6 +89398,7 @@ var __meta__ = { // jshint ignore:line
         FIXED_GROUP_HEADER = ".k-list-group-sticky-header",
         GROUP_LABEL = ".k-list-item-group-label",
         ITEMSELECTOR = ".k-list-item",
+        ITEMSELECTORTABLE = ".k-table-row",
         OPEN = "open",
         CLOSE = "close",
         CASCADE = "cascade",
@@ -88844,7 +90142,6 @@ var __meta__ = { // jshint ignore:line
             id = id ? id + " " + that.ul[0].id : that.ul[0].id;
 
             element.attr({
-                "aria-owns": id,
                 "aria-controls": id
             });
 
@@ -88993,7 +90290,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 if (!visible) {
-                    popups.hide();
+                    list.parent().hide();
                 }
             }
 
@@ -90014,12 +91311,12 @@ var __meta__ = { // jshint ignore:line
         },
 
         _touchHandlers: function() {
-            var that = this;
-            var startY;
-            var endY;
-            var tapPosition = function(event) {
-                return (event.originalEvent || event).changedTouches[0].pageY;
-            };
+            var that = this,
+                itemSelector = this.options.columns && this.options.columns.length ? ITEMSELECTORTABLE : ITEMSELECTOR,
+                startY, endY,
+                tapPosition = function(event) {
+                    return (event.originalEvent || event).changedTouches[0].pageY;
+                };
 
             that.element.on("touchstart" + STATIC_LIST_NS, function(e) {
                 startY = tapPosition(e);
@@ -90034,7 +91331,7 @@ var __meta__ = { // jshint ignore:line
 
                 if (Math.abs(endY - startY) < 10) {
                     that._touchTriggered = true;
-                    that._triggerClick($(e.target).closest(ITEMSELECTOR).get(0));
+                    that._triggerClick($(e.target).closest(itemSelector).get(0));
                 }
             });
         },
@@ -90972,9 +92269,9 @@ return window.kendo;
 
 }, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.virtuallist',[ "kendo.data" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "virtuallist",
@@ -91144,7 +92441,7 @@ var __meta__ = { // jshint ignore:line
         }
 
         this.angular("cleanup", function() {
-            return { elements: [ element ]};
+            return { elements: [ element ] };
         });
 
         element
@@ -91187,7 +92484,7 @@ var __meta__ = { // jshint ignore:line
         }
 
         this.angular("compile", function() {
-            return { elements: [ element ], data: [ { dataItem: data.item, group: data.group, newGroup: data.newGroup } ]};
+            return { elements: [ element ], data: [ { dataItem: data.item, group: data.group, newGroup: data.newGroup } ] };
         });
     }
 
@@ -91199,14 +92496,14 @@ var __meta__ = { // jshint ignore:line
             var currentWidthInt = parseInt(currentWidth, 10);
             var widthStyle = '';
 
-            if(currentWidth){
+            if (currentWidth) {
                 widthStyle += "style='width:";
                 widthStyle += currentWidthInt;
                 widthStyle += percentageUnitsRegex.test(currentWidth) ? "%" : "px";
                 widthStyle += ";'";
             }
             item += "<span class='k-table-td' " + widthStyle + ">";
-            item += templates["column"+ i](dataItem);
+            item += templates["column" + i](dataItem);
             item += "</span>";
         }
 
@@ -91272,7 +92569,7 @@ var __meta__ = { // jshint ignore:line
 
             that.content = that.wrapper = that.element.wrap("<div unselectable='on' class='" + contentClasses + "'></div>").parent();
 
-            if(that.options.columns && that.options.columns.length) {
+            if (that.options.columns && that.options.columns.length) {
                 var thead = that.element.closest(".k-data-table").find('.k-table-thead');
                 var row = $('<tr class="k-table-group-row">' +
                     '<th class="k-table-th" colspan="' + that.options.columns.length + '"></th>' +
@@ -91287,9 +92584,9 @@ var __meta__ = { // jshint ignore:line
                 that.element.addClass(LIST_UL);
             }
 
-            if(options.ariaLabel) {
+            if (options.ariaLabel) {
                 this.element.attr("aria-label", options.ariaLabel);
-            } else if(options.ariaLabelledBy) {
+            } else if (options.ariaLabelledBy) {
                 this.element.attr("aria-labelledby", options.ariaLabelledBy);
             }
 
@@ -91377,7 +92674,7 @@ var __meta__ = { // jshint ignore:line
             var dataSource = source || {};
             var value;
 
-            dataSource = Array.isArray(dataSource) ? {data: dataSource} : dataSource;
+            dataSource = Array.isArray(dataSource) ? { data: dataSource } : dataSource;
             dataSource = kendo.data.DataSource.create(dataSource);
 
             if (that.dataSource) {
@@ -91412,7 +92709,7 @@ var __meta__ = { // jshint ignore:line
             return this.dataSource.currentRangeStart();
         },
 
-        _triggerListBound: function () {
+        _triggerListBound: function() {
             var that = this;
             var skip = that.skip();
 
@@ -91430,10 +92727,10 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _highlightSelectedItems: function () {
+        _highlightSelectedItems: function() {
             for (var i = 0; i < this._selectedDataItems.length; i++) {
                 var item = this._getElementByDataItem(this._selectedDataItems[i]);
-                if(item.length){
+                if (item.length) {
                     item.addClass(SELECTED);
                 }
             }
@@ -91461,7 +92758,7 @@ var __meta__ = { // jshint ignore:line
                     that._selectingValue = true;
 
                     that.bound(true);
-                    that.value(that._values, true).done(function () {
+                    that.value(that._values, true).done(function() {
                         that._selectingValue = false;
                         that._triggerListBound();
                     });
@@ -91503,12 +92800,12 @@ var __meta__ = { // jshint ignore:line
             };
         },
 
-        _removeSelectedDataItem: function (value) {
+        _removeSelectedDataItem: function(value) {
             var that = this,
                 valueGetter = that._valueGetter;
 
             for (var idx in that._selectedDataItems) {
-                if(valueGetter(that._selectedDataItems[idx]) === value) {
+                if (valueGetter(that._selectedDataItems[idx]) === value) {
                     that._selectedIndexes.splice(idx, 1);
                     return that._selectedDataItems.splice(idx, 1)[0];
                 }
@@ -91551,7 +92848,7 @@ var __meta__ = { // jshint ignore:line
             return that._valueDeferred;
         },
 
-        _checkValuesOrder: function (value) {
+        _checkValuesOrder: function(value) {
             if (this._removedAddedIndexes &&
                 this._removedAddedIndexes.length === value.length) {
                     var newValue = this._removedAddedIndexes.slice();
@@ -91768,7 +93065,7 @@ var __meta__ = { // jshint ignore:line
             if (that.options.type === "group") {
                 kendo.ui.progress($(that.wrapper), true);
                 that.mute(function() {
-                    that.dataSource.range(skip, take, function () {
+                    that.dataSource.range(skip, take, function() {
                         kendo.ui.progress($(that.wrapper), false);
                     });
                     view = that.dataSource.view();
@@ -92095,7 +93392,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!hasData) {
                 height = 0;
-            } else if (height/itemHeight > total) {
+            } else if (height / itemHeight > total) {
                 height = total * itemHeight;
             }
 
@@ -92147,9 +93444,9 @@ var __meta__ = { // jshint ignore:line
             if (options.columns) {
                 for (var i = 0; i < options.columns.length; i++) {
                     var currentColumn = options.columns[i];
-                    var templateText = currentColumn.field ? currentColumn.field.toString(): "text";
+                    var templateText = currentColumn.field ? currentColumn.field.toString() : "text";
 
-                    templates["column"+ i] = currentColumn.template || "#: " + templateText + "#";
+                    templates["column" + i] = currentColumn.template || "#: " + templateText + "#";
                 }
             }
 
@@ -92168,7 +93465,7 @@ var __meta__ = { // jshint ignore:line
                 itemHeight = this.options.itemHeight + "px",
                 itemClass = this.options.columns && this.options.columns.length ? TABLE_ITEM : LIST_ITEM;
 
-            while(count-- > 0) {
+            while (count-- > 0) {
                 text = document.createElement("span");
                 text.className = "k-list-item-text";
 
@@ -92432,7 +93729,7 @@ var __meta__ = { // jshint ignore:line
 
             for (var i = index, length = index + itemCount; i < length; i++) {
                 item = this._itemMapper(this.getter(i, index), i, value);
-                if(items[items.length - 1]){
+                if (items[items.length - 1]) {
                     items[items.length - 1].isLastGroupedItem = item.newGroup;
                 }
                 items.push(item);
@@ -92781,7 +94078,7 @@ var __meta__ = { // jshint ignore:line
             this._valueGetter = kendo.getter(this.options.dataValueField);
         },
 
-        _calculateGroupPadding: function (height) {
+        _calculateGroupPadding: function(height) {
             var firstItem = this.items().first(),
                 groupHeader = this.header,
                 padding = 0;
@@ -92797,8 +94094,8 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _calculateColumnsHeaderPadding: function () {
-            if(this.options.columns && this.options.columns.length){
+        _calculateColumnsHeaderPadding: function() {
+            if (this.options.columns && this.options.columns.length) {
                 var isRtl = kendo.support.isRtl(this.wrapper);
                 var scrollbar = kendo.support.scrollbar();
                 var columnsHeader = this.content.parent().parent().find(".k-table-header");
@@ -92817,11 +94114,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dropdownlist',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist", "kendo.html.button" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dropdownlist",
@@ -93047,7 +94344,7 @@ var __meta__ = { // jshint ignore:line
 
             that.optionLabel.off();
 
-            if(that.filterInput){
+            if (that.filterInput) {
                 that.filterInput.off(nsFocusEvent);
             }
         },
@@ -93104,11 +94401,11 @@ var __meta__ = { // jshint ignore:line
             wrapper.attr("aria-describedby", inputId);
         },
 
-        _focusInput: function () {
+        _focusInput: function() {
             this._focusElement(this.filterInput);
         },
 
-        _resizeFilterInput: function () {
+        _resizeFilterInput: function() {
             var filterInput = this.filterInput;
             var originalPrevent = this._prevent;
 
@@ -93193,7 +94490,7 @@ var __meta__ = { // jshint ignore:line
             this.listView.refresh();
         },
 
-        text: function (text) {
+        text: function(text) {
             var that = this;
             var loweredText;
             var ignoreCase = that.options.ignoreCase;
@@ -93435,7 +94732,7 @@ var __meta__ = { // jshint ignore:line
 
             wrapper.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
                    .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
-            if(that.filterInput) {
+            if (that.filterInput) {
                 that.filterInput.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
                    .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
             }
@@ -93736,7 +95033,7 @@ var __meta__ = { // jshint ignore:line
             return this.listView.dataItemByIndex(this.listView.getElementIndex(element));
         },
 
-        _click: function (e) {
+        _click: function(e) {
             var that = this;
             var item = e.item || $(e.currentTarget);
 
@@ -93818,7 +95115,7 @@ var __meta__ = { // jshint ignore:line
                 }, that.options.delay);
 
                 if (!that.listView.bound()) {
-                    dataSource.fetch().done(function () {
+                    dataSource.fetch().done(function() {
                         that._selectNext();
                     });
                     return;
@@ -94090,8 +95387,8 @@ var __meta__ = { // jshint ignore:line
                     icon: "arrow-s",
                     size: options.size,
                     fillMode: options.fillMode,
-                    shape: null,
-                    rounded: null
+                    shape: "none",
+                    rounded: "none"
                 });
 
                 wrapper.append('<span id="' + id + '" unselectable="on" class="k-input-inner">' +
@@ -94131,7 +95428,6 @@ var __meta__ = { // jshint ignore:line
                     accesskey: element.attr("accesskey"),
                     unselectable: "on",
                     role: "combobox",
-                    "aria-haspopup": "listbox",
                     "aria-expanded": false
                 });
 
@@ -94178,7 +95474,7 @@ var __meta__ = { // jshint ignore:line
             if (that.hasOptionLabel() && !that.options.optionLabelTemplate) {
                 try {
                     that.valueTemplate(that._optionLabelDataItem());
-                } catch(e) {
+                } catch (e) {
                     throw new Error(MSG_INVALID_OPTION_LABEL);
                 }
             }
@@ -94214,7 +95510,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            var getElements = function(){
+            var getElements = function() {
                 return {
                     elements: span.get(),
                     data: [ { dataItem: dataItem } ]
@@ -94225,7 +95521,7 @@ var __meta__ = { // jshint ignore:line
 
             try {
                 span.html(template(dataItem));
-            } catch(e) {
+            } catch (e) {
                 //dataItem has missing fields required in custom template
                 span.html("");
             }
@@ -94312,11 +95608,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.selectable',[ "kendo.core", "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "selectable",
@@ -94326,7 +95622,7 @@ var __meta__ = { // jshint ignore:line
     advanced: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         abs = Math.abs,
@@ -94382,7 +95678,7 @@ var __meta__ = { // jshint ignore:line
             });
 
             if (multiple) {
-                if(dragToSelect) {
+                if (dragToSelect) {
                     that.userEvents
                         .bind("start", that._start.bind(that))
                         .bind("move", that._move.bind(that))
@@ -94572,8 +95868,8 @@ var __meta__ = { // jshint ignore:line
                 related = toSelect.add(this.relatedTarget(toSelect));
 
                 if (collision(toSelect, position)) {
-                    if(toSelect.hasClass(selectedClass)) {
-                        if(ctrlKey && target !== toSelect[0]) {
+                    if (toSelect.hasClass(selectedClass)) {
+                        if (ctrlKey && target !== toSelect[0]) {
                             related.removeClass(selectedClass).addClass(UNSELECTING);
                         }
                     } else if (!toSelect.hasClass(ACTIVE) && !toSelect.hasClass(UNSELECTING) && !this._collidesWithActiveElement(related, position)) {
@@ -94583,14 +95879,14 @@ var __meta__ = { // jshint ignore:line
                 } else {
                     if (toSelect.hasClass(ACTIVE)) {
                         related.removeClass(ACTIVE);
-                    } else if(ctrlKey && toSelect.hasClass(UNSELECTING)) {
+                    } else if (ctrlKey && toSelect.hasClass(UNSELECTING)) {
                         related.removeClass(UNSELECTING).addClass(selectedClass);
                     }
                 }
             }
         },
 
-        _collidesWithActiveElement: function (element, marqueeRect) {
+        _collidesWithActiveElement: function(element, marqueeRect) {
             if (!this.options.ignoreOverlapped) {
                 return false;
             }
@@ -94624,7 +95920,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 selectElement = that._selectElement.bind(that);
 
-            if(val) {
+            if (val) {
                 val.each(function() {
                     selectElement(this);
                 });
@@ -94636,12 +95932,12 @@ var __meta__ = { // jshint ignore:line
             return that.element.find(that.options.filter + "." + (that.options.selectedClass || SELECTED));
         },
 
-        selectedRanges: function () {
+        selectedRanges: function() {
             var that = this;
             var rangeSelectedAttr = kendo.attr("range-selected");
             var map = {};
 
-            that.element.find("[" + rangeSelectedAttr + "]").each(function (_, elem) {
+            that.element.find("[" + rangeSelectedAttr + "]").each(function(_, elem) {
                 var rangeId = $(elem).attr(rangeSelectedAttr);
                 var mapLocation = map[rangeId];
 
@@ -94655,11 +95951,11 @@ var __meta__ = { // jshint ignore:line
             return map;
         },
 
-        selectedSingleItems: function () {
+        selectedSingleItems: function() {
             var that = this;
             var rangeSelectedAttr = kendo.attr("range-selected");
 
-            return that.element.find(that.options.filter + "." + (that.options.selectedClass || SELECTED) + ":not([" + rangeSelectedAttr + "])").toArray().map(function (elem) {
+            return that.element.find(that.options.filter + "." + (that.options.selectedClass || SELECTED) + ":not([" + rangeSelectedAttr + "])").toArray().map(function(elem) {
                 return $(elem);
             });
         },
@@ -94668,7 +95964,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 selected;
 
-            if(that._lastActive !== null) {
+            if (that._lastActive !== null) {
                 return that._lastActive;
             }
 
@@ -94681,10 +95977,10 @@ var __meta__ = { // jshint ignore:line
         _selectElement: function(element, preventNotify) {
             var toSelect = $(element),
                 selectedClass = this.options.selectedClass || SELECTED,
-                isPrevented =  !preventNotify && this._notify("select", { element: element });
+                isPrevented = !preventNotify && this._notify("select", { element: element });
 
             toSelect.removeClass(ACTIVE);
-            if(!isPrevented) {
+            if (!isPrevented) {
                  toSelect.addClass(selectedClass);
 
                 if (this.options.aria) {
@@ -94699,7 +95995,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _unselect: function(element) {
-            if (this.trigger(UNSELECT, { element: element})) {
+            if (this.trigger(UNSELECT, { element: element })) {
                 return;
             }
 
@@ -94811,7 +96107,7 @@ var __meta__ = { // jshint ignore:line
         elementPosition.right = elementPosition.left + kendo._outerWidth(element);
         elementPosition.bottom = elementPosition.top + kendo._outerHeight(element);
 
-        return !(elementPosition.left > right||
+        return !(elementPosition.left > right ||
             elementPosition.right < position.left ||
             elementPosition.top > bottom ||
             elementPosition.bottom < position.top);
@@ -94830,11 +96126,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.calendar',[ "kendo.core", "kendo.selectable" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "calendar",
@@ -94910,11 +96206,11 @@ var __meta__ = { // jshint ignore:line
         HEADERSELECTOR = '.k-header, .k-calendar-header',
         CLASSIC_HEADER_TEMPLATE = '<div class="k-header k-hstack">' +
             '<a href="\\#" #=actionAttr#="prev" role="button" class="k-nav-prev k-button #=size# k-rounded-md k-button-flat k-button-flat-base k-icon-button" ' + ARIA_LABEL + '="Previous"><span class="k-button-icon k-icon k-i-arrow-60-left"></span></a>' +
-            '<a href="\\#" #=actionAttr#="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-nav-fast k-button #=size# k-rounded-md k-button-flat k-button-flat-base  k-flex"></a>' +
+            '<a href="\\#" #=actionAttr#="nav-up" role="button" id="nav-up" class="k-nav-fast k-button #=size# k-rounded-md k-button-flat k-button-flat-base  k-flex"></a>' +
             '<a href="\\#" #=actionAttr#="next" role="button" class="k-nav-next k-button #=size# k-rounded-md k-button-flat k-button-flat-base  k-icon-button" ' + ARIA_LABEL + '="Next"><span class="k-icon k-i-arrow-60-right"></span></a>' +
         '</div>',
         MODERN_HEADER_TEMPLATE = '<div class="k-calendar-header k-hstack">' +
-            '<a href="\\#" #=actionAttr#="nav-up" role="button" aria-live="assertive" aria-atomic="true" class="k-calendar-title k-title k-button #=size# k-rounded-md k-button-flat k-button-flat-base "></a>' +
+            '<a href="\\#" #=actionAttr#="nav-up" id="nav-up" role="button" class="k-calendar-title k-title k-button #=size# k-rounded-md k-button-flat k-button-flat-base "></a>' +
             '<span class="k-spacer"></span>' +
             '<span class="k-calendar-nav k-hstack">' +
                 '<a #=actionAttr#="prev" class="k-button #=size# k-rounded-md k-button-flat k-button-flat-base  k-icon-button k-prev-view">' +
@@ -94984,7 +96280,7 @@ var __meta__ = { // jshint ignore:line
                 element.on(CLICK, WEEKCOLUMNSELECTOR, function(e) {
                         var first = $(e.currentTarget).closest("tr").find(CELLSELECTORVALID).first(),
                             last = that.selectable._lastActive = $(e.currentTarget).closest("tr").find(CELLSELECTORVALID).last();
-                        that.selectable.selectRange(first, last, { event: e});
+                        that.selectable.selectRange(first, last, { event: e });
                         that._current = that._value = toDateObject(last.find("a"));
                         that._setCurrent(that._current);
                 });
@@ -95033,9 +96329,9 @@ var __meta__ = { // jshint ignore:line
             disableDates: null,
             url: "",
             culture: "",
-            footer : "",
-            format : "",
-            month : {},
+            footer: "",
+            format: "",
+            month: {},
             weekNumber: false,
             selectable: "single",
             selectDates: [],
@@ -95056,7 +96352,13 @@ var __meta__ = { // jshint ignore:line
             },
             messages: {
                 weekColumnHeader: "",
-                today: "Today"
+                today: "Today",
+                navigateTo: "Navigate to ",
+                parentViews: {
+                    month: "year view",
+                    year: "decade view",
+                    decade: "century view"
+                }
             },
             componentType: "classic"
         },
@@ -95092,6 +96394,10 @@ var __meta__ = { // jshint ignore:line
 
             options.disableDates = getDisabledExpr(options.disableDates);
             that._destroySelectable();
+
+            if (options.messages) {
+                options.messages = $.extend({}, true, that.options.messages, options.messages);
+            }
 
             Widget.fn.setOptions.call(that, options);
 
@@ -95247,6 +96553,12 @@ var __meta__ = { // jshint ignore:line
             if (!from || that._changeView) {
                 title.html(currentView.title(value, min, max, culture));
 
+                if (that.options.messages.parentViews && that._view.name !== CENTURY) {
+                    title.attr("title", that.options.messages.navigateTo + that.options.messages.parentViews[that._view.name]);
+                } else {
+                    title.removeAttr("title");
+                }
+
                 that._table = to = $(currentView.content(extend({
                     min: min,
                     max: max,
@@ -95254,13 +96566,15 @@ var __meta__ = { // jshint ignore:line
                     url: options.url,
                     dates: options.dates,
                     format: options.format,
-                    otherMonth : true,
+                    otherMonth: true,
                     culture: culture,
                     disableDates: options.disableDates,
                     isWeekColumnVisible: options.weekNumber,
                     messages: options.messages,
                     contentClasses: that.options.contentClasses
                 }, that[currentView.name])));
+
+                that._aria();
 
                 addClassToViewContainer(to, currentView.name);
                 var replace = from && from.data("start") === to.data("start");
@@ -95309,11 +96623,11 @@ var __meta__ = { // jshint ignore:line
             }
 
             datesUnique = dates
-                .map(function (date) { return date.getTime(); })
-                .filter(function (date, position, array) {
+                .map(function(date) { return date.getTime(); })
+                .filter(function(date, position, array) {
                     return array.indexOf(date) === position;
                 })
-                .map(function (time) { return new Date(time); });
+                .map(function(time) { return new Date(time); });
 
             validSelectedDates = $.grep(datesUnique, function(value) {
                 if (value) {
@@ -95345,6 +96659,16 @@ var __meta__ = { // jshint ignore:line
             } else {
                 that._changeView = !value || view && view.compare(value, that._current) !== 0;
                 that.navigate(value);
+            }
+        },
+
+        _aria: function() {
+            var table = this._table;
+
+            table.attr("aria-labelledby", this._title.attr("id"));
+
+            if (this._view.name === "month" && this.options.selectable === "multiple") {
+                table.attr("aria-multiselectable", "true");
             }
         },
 
@@ -95408,9 +96732,6 @@ var __meta__ = { // jshint ignore:line
             var selectable = that.options.selectable,
             selectableOptions = Selectable.parseOptions(selectable);
 
-            if (selectableOptions.multiple) {
-                that.element.attr("aria-multiselectable", "true");
-            }
             that.selectable = new Selectable(that.wrapper, {
                 aria: true,
                 //excludes the anchor element
@@ -95452,7 +96773,7 @@ var __meta__ = { // jshint ignore:line
                     that._toggleSelection($(eventArgs.event.currentTarget));
                 }
                 else {
-                    that._cellsBySelector(CELLSELECTORVALID).each(function(index, element){
+                    that._cellsBySelector(CELLSELECTORVALID).each(function(index, element) {
                         var value = toDateObject($(element).find("a"));
                         that._deselect(value);
                     });
@@ -95496,14 +96817,14 @@ var __meta__ = { // jshint ignore:line
         //shift selection
         _rangeSelection: function(toDateCell, startDate) {
             var that = this,
-                fromDate  = startDate || toDateObject(that.selectable.value().first().find("a")),
+                fromDate = startDate || toDateObject(that.selectable.value().first().find("a")),
                 toDate = toDateObject(toDateCell.find("a")),
                 daysDifference;
 
             if (that.selectable._lastActive || that._value) {
-                fromDate = that.selectable._lastActive? toDateObject(that.selectable._lastActive.find("a")): new Date(+that._value);
+                fromDate = that.selectable._lastActive ? toDateObject(that.selectable._lastActive.find("a")) : new Date(+that._value);
             } else {
-                that.selectable._lastActive = startDate? that._cellByDate(that._view.toDateString(startDate), CELLSELECTORVALID): that.selectable.value().first();
+                that.selectable._lastActive = startDate ? that._cellByDate(that._view.toDateString(startDate), CELLSELECTORVALID) : that.selectable.value().first();
             }
 
             that._selectDates = [];
@@ -95553,7 +96874,7 @@ var __meta__ = { // jshint ignore:line
             if (that._view.name == "month") {
                 return !isDisabled(currentValue);
             } else {
-                index = that.wrapper.find("."+FOCUSED).index();
+                index = that.wrapper.find("." + FOCUSED).index();
                 cell = that.wrapper.find(".k-content td").eq(index + cellIndex);
                 return cell.is(CELLSELECTORVALID) || !isDisabled(currentValue);
             }
@@ -95708,7 +97029,7 @@ var __meta__ = { // jshint ignore:line
             if (!that._dateInView(currentValue)) {
                 that._selectDates = [];
 
-                fromDate = that.selectable._lastActive? toDateObject(that.selectable._lastActive.find("a")): currentValue;
+                fromDate = that.selectable._lastActive ? toDateObject(that.selectable._lastActive.find("a")) : currentValue;
                 daysDifference = daysBetweenTwoDates(fromDate, new Date(+currentValue));
 
                 addDaysToArray(that._selectDates, daysDifference, fromDate, that.options.disableDates);
@@ -95719,7 +97040,7 @@ var __meta__ = { // jshint ignore:line
                 that.trigger(CHANGE);
                 return;
             }
-            that.selectable.options.filter = that.wrapper.find("table").length > 1 && +currentValue > +that._current? "table.k-month:eq(1) " + CELLSELECTORVALID: "table.k-month:eq(0) " + CELLSELECTORVALID;
+            that.selectable.options.filter = that.wrapper.find("table").length > 1 && +currentValue > +that._current ? "table.k-month:eq(1) " + CELLSELECTORVALID : "table.k-month:eq(0) " + CELLSELECTORVALID;
             that._setCurrent(currentValue);
             that._current = currentValue;
 
@@ -95738,10 +97059,10 @@ var __meta__ = { // jshint ignore:line
 
             if ($(that._cell[0]).hasClass(SELECTED)) {
                 that.selectable._unselect($(that._cell[0]));
-                that.selectable.trigger(CHANGE, { event: event});
+                that.selectable.trigger(CHANGE, { event: event });
             }
             else {
-                that.selectable.value($(that._cell[0]), { event: event});
+                that.selectable.value($(that._cell[0]), { event: event });
             }
         },
 
@@ -95880,7 +97201,7 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        _selectCell: function (date) {
+        _selectCell: function(date) {
             var that = this,
                 cell = that._selectedCell,
                 value = that._view.toDateString(date);
@@ -95890,14 +97211,14 @@ var __meta__ = { // jshint ignore:line
                     cell.removeClass(SELECTED);
                 }
 
-                cell = that._cellByDate(value, that.options.selectable == "multiple" ? CELLSELECTOR: "td:not(." + OTHERMONTH + ")");
+                cell = that._cellByDate(value, that.options.selectable == "multiple" ? CELLSELECTOR : "td:not(." + OTHERMONTH + ")");
 
                 that._selectedCell = cell;
                 cell.addClass(SELECTED)
                     .attr(ARIA_SELECTED, true);
         },
 
-        _setCurrent: function (date) {
+        _setCurrent: function(date) {
             var that = this,
                 id = kendo.guid(),
                 cell = that._cell,
@@ -95909,7 +97230,7 @@ var __meta__ = { // jshint ignore:line
                     cell[0].removeAttribute(ID);
                 }
 
-                cell = that._cellByDate(value, that.options.selectable == "multiple" ? CELLSELECTOR: "td:not(." + OTHERMONTH + ")");
+                cell = that._cellByDate(value, that.options.selectable == "multiple" ? CELLSELECTOR : "td:not(." + OTHERMONTH + ")");
 
                 that._cell = cell;
 
@@ -95922,7 +97243,7 @@ var __meta__ = { // jshint ignore:line
                 }
         },
 
-        _bindTable: function (table) {
+        _bindTable: function(table) {
             table
             .on(FOCUS_WITH_NS, this._addClassProxy)
             .on(BLUR, this._removeClassProxy);
@@ -96003,21 +97324,24 @@ var __meta__ = { // jshint ignore:line
             linksSelector = that.options.linksSelector;
 
             if (!element.find(HEADERSELECTOR)[0]) {
-                element.html(kendo.template(that.options.header.template)($.extend(true,{}, that.options, {actionAttr: kendo.attr("action"), size: kendo.getValidCssClass("k-button-", "size", that.options.size)})));
+                element.html(kendo.template(that.options.header.template)($.extend(true,{}, that.options, {
+                    actionAttr: kendo.attr("action"),
+                    size: kendo.getValidCssClass("k-button-", "size", that.options.size)
+                })));
             }
 
             element.find(linksSelector)
                 .on(CLICK + " touchend" + ns, function() { return false; } );
 
-            that._title = element.find('[' + kendo.attr("action") + '="nav-up"]').on(CLICK + " touchend" + ns, function () {
+            that._title = element.find('[' + kendo.attr("action") + '="nav-up"]').on(CLICK + " touchend" + ns, function() {
                 that._active = that.options.focusOnNav !== false;
                 that.navigateUp();
             });
-            that[PREVARROW] = element.find('[' + kendo.attr("action") + '="prev"]').on(CLICK + " touchend" + ns, function () {
+            that[PREVARROW] = element.find('[' + kendo.attr("action") + '="prev"]').on(CLICK + " touchend" + ns, function() {
                 that._active = that.options.focusOnNav !== false;
                 that.navigateToPast();
             });
-            that[NEXTARROW] = element.find('[' + kendo.attr("action") + '="next"]').on(CLICK + " touchend" + ns, function () {
+            that[NEXTARROW] = element.find('[' + kendo.attr("action") + '="next"]').on(CLICK + " touchend" + ns, function() {
                 that._active = that.options.focusOnNav !== false;
                 that.navigateToFuture();
             });
@@ -96154,12 +97478,16 @@ var __meta__ = { // jshint ignore:line
                 content = month.content,
                 weekNumber = month.weekNumber,
                 empty = month.empty,
-                footerTemplate = '#= kendo.toString(data,"D","' + options.culture +'") #';
+                footerTemplate = '#= kendo.toString(data,"D","' + options.culture + '") #';
 
             that.month = {
                 content: template('<td class="#=data.cssClass#" role="gridcell"><a tabindex="-1" class="k-link#=data.linkClass#" href="#=data.url#" ' + kendo.attr(VALUE) + '="#=data.dateString#" title="#=data.title#">' + (content || "#=data.value#") + '</a></td>', { useWithBlock: !!content }),
                 empty: template('<td role="gridcell">' + (empty || "&nbsp;") + "</td>", { useWithBlock: !!empty }),
                 weekNumber: template('<td class="k-alt">' + (weekNumber || "#= data.weekNumber #") + "</td>", { useWithBlock: !!weekNumber })
+            };
+
+            that.year = {
+                content: template('<td class="#=data.cssClass#" role="gridcell"><a tabindex="-1" class="k-link" href="\\#" data-#=data.ns#value="#=data.dateString#" aria-label="#=data.label#">#=data.value#</a></td>', { useWithBlock: false })
             };
 
             if (footer && footer !== true) {
@@ -96169,7 +97497,7 @@ var __meta__ = { // jshint ignore:line
             that.footer = footer !== false ? template(footerTemplate, { useWithBlock: false }) : null;
         },
 
-        _updateAria: function (ariaTemplate, date) {
+        _updateAria: function(ariaTemplate, date) {
             var that = this;
             var cell = that._cell;
             var valueType = that.view().valueType();
@@ -96193,7 +97521,7 @@ var __meta__ = { // jshint ignore:line
     ui.plugin(Calendar);
 
     var calendar = {
-        firstDayOfMonth: function (date) {
+        firstDayOfMonth: function(date) {
             return createDate(
                 date.getFullYear(),
                 date.getMonth(),
@@ -96201,7 +97529,7 @@ var __meta__ = { // jshint ignore:line
             );
         },
 
-        firstVisibleDay: function (date, calendarInfo) {
+        firstVisibleDay: function(date, calendarInfo) {
             calendarInfo = calendarInfo || kendo.culture().calendar;
 
             var firstDay = calendarInfo.firstDay,
@@ -96215,7 +97543,7 @@ var __meta__ = { // jshint ignore:line
             return firstVisibleDay;
         },
 
-        setTime: function (date, time) {
+        setTime: function(date, time) {
             var tzOffsetBefore = date.getTimezoneOffset(),
             resultDATE = new DATE(date.getTime() + time),
             tzOffsetDiff = resultDATE.getTimezoneOffset() - tzOffsetBefore;
@@ -96265,7 +97593,7 @@ var __meta__ = { // jshint ignore:line
                 }
 
                 for (; idx < 7; idx++) {
-                    html += '<th scope="col" class="k-calendar-th" title="' + names[idx] + '">' + shortNames[idx] + '</th>';
+                    html += '<th scope="col" class="k-calendar-th" aria-label="' + names[idx] + '">' + shortNames[idx] + '</th>';
                 }
 
                 adjustDST(today, 0);
@@ -96280,9 +97608,9 @@ var __meta__ = { // jshint ignore:line
                     weekNumber: options.weekNumber,
                     min: createDate(min.getFullYear(), min.getMonth(), min.getDate()),
                     max: createDate(max.getFullYear(), max.getMonth(), max.getDate()),
-                    otherMonth : otherMonth,
+                    otherMonth: otherMonth,
                     content: options.content,
-                    lastDayOfMonth : lastDayOfMonth,
+                    lastDayOfMonth: lastDayOfMonth,
                     empty: options.empty,
                     setter: that.setDate,
                     disableDates: options.disableDates,
@@ -96376,7 +97704,7 @@ var __meta__ = { // jshint ignore:line
             toDateString: function(date) {
                 return date.getFullYear() + "/" + date.getMonth() + "/" + date.getDate();
             },
-            valueType: function () {
+            valueType: function() {
                 return "date";
             }
         },
@@ -96386,11 +97714,13 @@ var __meta__ = { // jshint ignore:line
                 return date.getFullYear();
             },
             content: function(options) {
-                var namesAbbr = getCalendarInfo(options.culture).months.namesAbbr,
-                toDateString = this.toDateString,
-                min = options.min,
-                max = options.max,
-                html = "";
+                var calendarMonths = getCalendarInfo(options.culture).months,
+                    namesAbbr = calendarMonths.namesAbbr,
+                    namesFull = calendarMonths.names,
+                    toDateString = this.toDateString,
+                    min = options.min,
+                    max = options.max,
+                    html = "";
 
                 if (options.showHeader) {
                     html += '<table tabindex="0" role="grid" class="k-calendar-table k-content k-meta-view" cellspacing="0">';
@@ -96407,11 +97737,13 @@ var __meta__ = { // jshint ignore:line
                     start: createDate(options.date.getFullYear(), 0, 1),
                     html: html,
                     setter: this.setDate,
+                    content: options.content,
                     build: function(date) {
                         var cssClass = [ "k-calendar-td" ];
 
                         return {
                             value: namesAbbr[date.getMonth()],
+                            label: namesFull[date.getMonth()],
                             ns: kendo.ns,
                             dateString: toDateString(date),
                             cssClass: cssClass.join(" ")
@@ -96425,7 +97757,7 @@ var __meta__ = { // jshint ignore:line
             last: function(date) {
                 return createDate(date.getFullYear(), 11, date.getDate());
             },
-            compare: function(date1, date2){
+            compare: function(date1, date2) {
                 return compare(date1, date2);
             },
             setDate: function(date, value) {
@@ -96459,7 +97791,7 @@ var __meta__ = { // jshint ignore:line
             toDateString: function(date) {
                 return date.getFullYear() + "/" + date.getMonth() + "/1";
             },
-            valueType: function () {
+            valueType: function() {
                 return "month";
             }
         },
@@ -96486,8 +97818,8 @@ var __meta__ = { // jshint ignore:line
                     start: createDate(year - year % 10 - 1, 0, 1),
                     min: createDate(options.min.getFullYear(), 0, 1),
                     max: createDate(options.max.getFullYear(), 0, 1),
-                    otherMonth : options.otherMonth,
-                    html : html,
+                    otherMonth: options.otherMonth,
+                    html: html,
                     setter: this.setDate,
                     build: function(date, idx) {
                         var cssClass = [ "k-calendar-td" ];
@@ -96522,7 +97854,7 @@ var __meta__ = { // jshint ignore:line
             toDateString: function(date) {
                 return date.getFullYear() + "/0/1";
             },
-            valueType: function () {
+            valueType: function() {
                 return "year";
             }
         },
@@ -96560,8 +97892,8 @@ var __meta__ = { // jshint ignore:line
                     start: createDate(year - year % 100 - 10, 0, 1),
                     min: createDate(minYear, 0, 1),
                     max: createDate(maxYear, 0, 1),
-                    otherMonth : options.otherMonth,
-                    html : html,
+                    otherMonth: options.otherMonth,
+                    html: html,
                     setter: this.setDate,
                     build: function(date, idx) {
                         var cssClass = [ "k-calendar-td" ];
@@ -96607,7 +97939,7 @@ var __meta__ = { // jshint ignore:line
                 var year = date.getFullYear();
                 return (year - year % 10) + "/0/1";
             },
-            valueType: function () {
+            valueType: function() {
                 return "decade";
             }
         }]
@@ -96661,7 +97993,7 @@ var __meta__ = { // jshint ignore:line
             if (idx > 0 && idx % cellsPerRow === 0) {
                 html += '</tr><tr role="row" class="k-calendar-tr">';
                 if (isWeekColumnVisible) {
-                    html += otherMonth || (+start <= +lastDayOfMonth) ? weekNumber(weekNumberBuild(start)) : weekNumber({ weekNumber : "&nbsp;"});
+                    html += otherMonth || (+start <= +lastDayOfMonth) ? weekNumber(weekNumberBuild(start)) : weekNumber({ weekNumber: "&nbsp;" });
                 }
             }
 
@@ -96680,7 +98012,7 @@ var __meta__ = { // jshint ignore:line
 
     function compare(date1, date2, modifier) {
         var year1 = date1.getFullYear(),
-            start  = date2.getFullYear(),
+            start = date2.getFullYear(),
             end = start,
             result = 0;
 
@@ -96703,7 +98035,7 @@ var __meta__ = { // jshint ignore:line
         return new DATE(today.getFullYear(), today.getMonth(), today.getDate());
     }
 
-    function restrictValue (value, min, max) {
+    function restrictValue(value, min, max) {
         var today = getToday();
 
         if (value) {
@@ -96761,7 +98093,7 @@ var __meta__ = { // jshint ignore:line
         }
     }
 
-    function prevent (e) {
+    function prevent(e) {
         e.preventDefault();
     }
 
@@ -96853,7 +98185,7 @@ var __meta__ = { // jshint ignore:line
         var body, callback,
             disabledDates = [],
             days = ["su", "mo", "tu", "we", "th", "fr", "sa"],
-            searchExpression = "if (found) {"+
+            searchExpression = "if (found) {" +
                     " return true " +
                 "} else {" +
                     "return false" +
@@ -96861,7 +98193,7 @@ var __meta__ = { // jshint ignore:line
 
         if (dates[0] instanceof DATE) {
             disabledDates = convertDatesArray(dates);
-            body = "var clonedDate = new Date(date); var found = date && window.kendo.jQuery.inArray(clonedDate.setHours(0, 0, 0, 0),["+ disabledDates +"]) > -1;" + searchExpression;
+            body = "var clonedDate = new Date(date); var found = date && window.kendo.jQuery.inArray(clonedDate.setHours(0, 0, 0, 0),[" + disabledDates + "]) > -1;" + searchExpression;
         } else {
             for (var i = 0; i < dates.length; i++) {
                 var day = dates[i].slice(0,2).toLowerCase();
@@ -96870,7 +98202,7 @@ var __meta__ = { // jshint ignore:line
                     disabledDates.push(index);
                 }
             }
-            body = "var clonedDate = new Date(date); var found = date && window.kendo.jQuery.inArray(clonedDate.getDay(),["+ disabledDates +"]) > -1;" + searchExpression;
+            body = "var clonedDate = new Date(date); var found = date && window.kendo.jQuery.inArray(clonedDate.getDay(),[" + disabledDates + "]) > -1;" + searchExpression;
         }
 
         callback = new Function("date", body); //jshint ignore:line
@@ -96912,11 +98244,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dateinput',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dateinput",
@@ -96926,7 +98258,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var global = window;
     var kendo = global.kendo;
     var caret = kendo.caret;
@@ -96949,7 +98281,7 @@ var __meta__ = { // jshint ignore:line
     var knownSymbols = "dMyHhmftsz";
 
     var DateInput = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
 
             Widget.fn.init.call(that, element, options);
@@ -96984,7 +98316,7 @@ var __meta__ = { // jshint ignore:line
                 .on("focus" + ns, function() {
                     that.wrapper.addClass(FOCUSED);
                 })
-                .on("focusout" + ns, function () {
+                .on("focusout" + ns, function() {
                     that.wrapper.removeClass(FOCUSED);
                     that._change();
                 });
@@ -97035,7 +98367,7 @@ var __meta__ = { // jshint ignore:line
             CHANGE
         ],
 
-        min: function (value) {
+        min: function(value) {
             if (value !== undefined) {
                 this.options.min = value;
             } else {
@@ -97043,7 +98375,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        max: function (value) {
+        max: function(value) {
             if (value !== undefined) {
                 this.options.max = value;
             } else {
@@ -97051,7 +98383,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        setOptions: function (options) {
+        setOptions: function(options) {
             var that = this;
             Widget.fn.setOptions.call(that, options);
             this._unbindInput();
@@ -97059,7 +98391,7 @@ var __meta__ = { // jshint ignore:line
             this._updateElementValue();
         },
 
-        destroy: function () {
+        destroy: function() {
             var that = this;
             that.element.off(ns);
 
@@ -97070,7 +98402,7 @@ var __meta__ = { // jshint ignore:line
             Widget.fn.destroy.call(that);
         },
 
-        value: function (value) {
+        value: function(value) {
             if (value === undefined) {
                 return this._dateTime.getDateObject();
             }
@@ -97093,34 +98425,34 @@ var __meta__ = { // jshint ignore:line
             this._oldValue = value;
         },
 
-        _updateElementValue: function () {
+        _updateElementValue: function() {
             var stringAndFromat = this._dateTime.toPair(this.options.format, this.options.culture, this.options.messages);
             this.element.val(stringAndFromat[0]);
             this._oldText = stringAndFromat[0];
             this._format = stringAndFromat[1];
         },
 
-        readonly: function (readonly) {
+        readonly: function(readonly) {
             this._editable({
                 readonly: readonly === undefined ? true : readonly,
                 disable: false
             });
         },
 
-        enable: function (enable) {
+        enable: function(enable) {
             this._editable({
                 readonly: false,
                 disable: !(enable = enable === undefined ? true : enable)
             });
         },
 
-        _bindInput: function () {
+        _bindInput: function() {
             var that = this;
             that.element
                 .on("focus" + ns, function() {
                     that.wrapper.addClass(FOCUSED);
                 })
-                .on("focusout" + ns, function () {
+                .on("focusout" + ns, function() {
                     that.wrapper.removeClass(FOCUSED);
                     that._change();
                 })
@@ -97131,7 +98463,7 @@ var __meta__ = { // jshint ignore:line
                 .on("DOMMouseScroll" + ns + " mousewheel" + ns, that._scroll.bind(that));
         },
 
-        _unbindInput: function () {
+        _unbindInput: function() {
             this.element
                 .off("keydown" + ns)
                 .off("paste" + ns)
@@ -97142,7 +98474,7 @@ var __meta__ = { // jshint ignore:line
                 .off("DOMMouseScroll" + ns + " mousewheel" + ns);
         },
 
-        _editable: function (options) {
+        _editable: function(options) {
             var that = this;
             var element = that.element;
             var disable = options.disable;
@@ -97153,7 +98485,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!readonly && !disable) {
                 wrapper.removeClass(STATEDISABLED);
-                if(element && element.length) {
+                if (element && element.length) {
                     element[0].removeAttribute(DISABLED);
                     element[0].removeAttribute(READONLY);
                 }
@@ -97163,7 +98495,7 @@ var __meta__ = { // jshint ignore:line
                 if (disable) {
                     wrapper.addClass(STATEDISABLED);
                     element.attr(DISABLED, disable);
-                    if(element && element.length) {
+                    if (element && element.length) {
                         element[0].removeAttribute(READONLY);
                     }
                 }
@@ -97173,7 +98505,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _change: function () {
+        _change: function() {
             var that = this;
             var oldValue = that._oldValue;
             var value = that.value();
@@ -97197,7 +98529,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _input: function () {
+        _input: function() {
             var that = this;
             var element = that.element[0];
             var blinkInvalid = false;
@@ -97227,11 +98559,11 @@ var __meta__ = { // jshint ignore:line
                 //android fix
                 if (!navigationOnly) {
                     var difSym = diff[0][0];
-                    setTimeout(function () { that._selectSegment(difSym); });
+                    setTimeout(function() { that._selectSegment(difSym); });
                 }
             }
             if (navigationOnly) {
-                var newEvent = { keyCode: 39, preventDefault: function () { } };
+                var newEvent = { keyCode: 39, preventDefault: function() { } };
                 this._keydown(newEvent);
             }
             if (blinkInvalid) {
@@ -97239,7 +98571,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _blinkInvalidState: function () {
+        _blinkInvalidState: function() {
             var that = this;
 
             that._addInvalidState();
@@ -97254,7 +98586,7 @@ var __meta__ = { // jshint ignore:line
             that._validationIcon.removeClass("k-hidden");
         },
 
-        _removeInvalidState: function () {
+        _removeInvalidState: function() {
             var that = this;
 
             that.wrapper.removeClass(STATEINVALID);
@@ -97262,20 +98594,20 @@ var __meta__ = { // jshint ignore:line
             that._invalidStateTimeout = null;
         },
 
-        _mouseUp: function () {
+        _mouseUp: function() {
             var selection = caret(this.element[0]);
             if (selection[0] === selection[1]) {
                 this._selectNearestSegment();
             }
         },
 
-        _scroll: function (e) {
+        _scroll: function(e) {
             if (kendo._activeElement() !== this.element[0] || this.element.is("[readonly]")) {
                 return;
             }
             e = window.event || e;
 
-            var newEvent = { keyCode: 37, preventDefault: function () { } };
+            var newEvent = { keyCode: 37, preventDefault: function() { } };
 
             if (e.shiftKey) {
                 newEvent.keyCode = (e.wheelDelta || -e.detail) > 0 ? 37 : 39;
@@ -97292,7 +98624,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _form: function () {
+        _form: function() {
             var that = this;
             var element = that.element;
             var formId = element.attr("form");
@@ -97304,8 +98636,8 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (form[0]) {
-                that._resetHandler = function () {
-                    setTimeout(function () {
+                that._resetHandler = function() {
+                    setTimeout(function() {
                         that.value(initialValue);
                     });
                 };
@@ -97314,11 +98646,11 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _paste: function (e) {
+        _paste: function(e) {
             e.preventDefault();
         },
 
-        _keydown: function (e) {
+        _keydown: function(e) {
             var key = e.keyCode;
             var selection;
             if (key == 37 || key == 39) { //left/right
@@ -97356,17 +98688,17 @@ var __meta__ = { // jshint ignore:line
                 var keycode = e.keyCode ? e.keyCode : e.which;
                 if (keycode === 8 || keycode === 46) {
                     var that = this;
-                    setTimeout(function () {
+                    setTimeout(function() {
                         that._input();
                     }, 0);
                 }
             }
-            if (key === keys.ENTER){
+            if (key === keys.ENTER) {
                 this._change();
             }
         },
 
-        _selectNearestSegment: function () {
+        _selectNearestSegment: function() {
             var selection = caret(this.element[0]);
             var start = selection[0];
             for (var i = start, j = start - 1; i < this._format.length || j >= 0; i++ , j--) {
@@ -97381,7 +98713,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _selectSegment: function (symbol) {
+        _selectSegment: function(symbol) {
             var begin = -1, end = 0;
             for (var i = 0; i < this._format.length; i++) {
                 if (this._format[i] === symbol) {
@@ -97408,7 +98740,7 @@ var __meta__ = { // jshint ignore:line
 
     ui.plugin(DateInput);
 
-    var customDateTime = function (initDate, initFormat, initCulture, initMessages) {
+    var customDateTime = function(initDate, initFormat, initCulture, initMessages) {
 
         var value = null;
         var year = true, month = true, date = true, hours = true, minutes = true, seconds = true, milliseconds = true;
@@ -97431,7 +98763,7 @@ var __meta__ = { // jshint ignore:line
         }
         var dateFormatRegExp = /dddd|ddd|dd|d|MMMM|MMM|MM|M|yyyy|yy|HH|H|hh|h|mm|m|fff|ff|f|tt|ss|s|zzz|zz|z|"[^"]*"|'[^']*'/g;
         var months = null, calendar = null, days = null, returnsFormat = false;
-        var matcher = function (match) {
+        var matcher = function(match) {
             var mins, sign;
             var result;
 
@@ -97527,15 +98859,15 @@ var __meta__ = { // jshint ignore:line
             }
         }
 
-        this.setValue = function (val) {
+        this.setValue = function(val) {
             date = val;
         };
 
-        this.getValue = function () {
+        this.getValue = function() {
             return date;
         };
 
-        this.modifyPart = function (symbol, offset) {
+        this.modifyPart = function(symbol, offset) {
             var newValue = new Date((value && value.getTime) ? value.getTime() : value);
             switch (symbol) {
                 case "y": newValue.setFullYear(newValue.getFullYear() + offset); break;
@@ -97563,7 +98895,7 @@ var __meta__ = { // jshint ignore:line
             }
         };
 
-        this.parsePart = function (symbol, currentChar) {
+        this.parsePart = function(symbol, currentChar) {
             if (!currentChar) {
                 setExisting(symbol, false);
                 return true;
@@ -97693,7 +99025,7 @@ var __meta__ = { // jshint ignore:line
             return true;
         };
 
-        this.toPair = function (format, culture , messages) {
+        this.toPair = function(format, culture , messages) {
             if (!format) {
                 return ["", ""];
             }
@@ -97709,7 +99041,7 @@ var __meta__ = { // jshint ignore:line
             ];
         };
 
-        this.getDateObject = function () {
+        this.getDateObject = function() {
             return (year && month && date && hours && minutes && seconds && milliseconds) ?
                 new Date(value.getTime()) : null;
         };
@@ -97725,7 +99057,7 @@ var __meta__ = { // jshint ignore:line
         }
     };
 
-    function approximateStringMatching(oldText, oldFormat, newText, caret){
+    function approximateStringMatching(oldText, oldFormat, newText, caret) {
         var oldTextSeparator = oldText[caret + oldText.length - newText.length];
         oldText = oldText.substring(0, caret + oldText.length - newText.length);
         newText = newText.substring(0, caret);
@@ -97773,11 +99105,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
-    define('kendo.datepicker',[ "kendo.calendar", "kendo.popup",  "kendo.dateinput", "kendo.html.button"], f);
-})(function(){
+(function(f, define) {
+    define('kendo.datepicker',[ "kendo.calendar", "kendo.popup", "kendo.dateinput", "kendo.html.button"], f);
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "datepicker",
@@ -97863,7 +99195,7 @@ var __meta__ = { // jshint ignore:line
         that.options = options = options || {};
         id = options.id;
 
-        if(!options.omitPopup){
+        if (!options.omitPopup) {
             div.appendTo(body);
             that.popup = new ui.Popup(div, extend(options.popup, options, { name: "Popup", isRtl: kendo.support.isRtl(options.anchor) }));
         } else {
@@ -97947,7 +99279,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         destroy: function() {
-            if(this.popup){
+            if (this.popup) {
                 this.popup.destroy();
             }
         },
@@ -98146,7 +99478,7 @@ var __meta__ = { // jshint ignore:line
 
             try {
                 element[0].setAttribute("type", "text");
-            } catch(e) {
+            } catch (e) {
                 element[0].type = "text";
             }
 
@@ -98156,7 +99488,7 @@ var __meta__ = { // jshint ignore:line
                     role: "combobox",
                     "aria-expanded": false,
                     "aria-haspopup": "grid",
-                    "aria-owns": that.dateView._dateViewID,
+                    "aria-controls": that.dateView._dateViewID,
                     "autocomplete": "off"
                 });
             that._reset();
@@ -98252,7 +99584,7 @@ var __meta__ = { // jshint ignore:line
                 wrapper
                     .removeClass(STATEDISABLED)
                     .on(HOVEREVENTS, that._toggleHover);
-                if(element && element.length) {
+                if (element && element.length) {
                     element[0].removeAttribute(DISABLED);
                     element[0].removeAttribute(READONLY);
                 }
@@ -98308,6 +99640,11 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             Widget.fn.destroy.call(that);
+
+            if (that.dateView.calendar && that._navigateCalendarHandler) {
+                that.dateView.calendar.unbind(NAVIGATE, that._navigateCalendarHandler);
+                that._navigateCalendarHandler = null;
+            }
 
             that.dateView.destroy();
 
@@ -98449,26 +99786,32 @@ var __meta__ = { // jshint ignore:line
                     icon: "calendar",
                     size: options.size,
                     fillMode: options.fillMode,
-                    shape: null,
-                    rounded: null
+                    shape: "none",
+                    rounded: "none"
                 })).insertAfter(element);
             }
 
             that._dateIcon = icon.attr({
-                "role": "button",
-                "aria-controls": that.dateView._dateViewID
+                "role": "button"
+            });
+        },
+
+        _setCalendarAttribute: function() {
+            var that = this;
+            setTimeout(function() {
+                that.element.attr(ARIA_ACTIVEDESCENDANT, that.dateView.calendar._table.attr(ARIA_ACTIVEDESCENDANT));
             });
         },
 
         _navigateCalendar: function() {
             var that = this;
 
+            if (!that._navigateCalendarHandler) {
+                that._navigateCalendarHandler = that._setCalendarAttribute.bind(that);
+            }
+
             if (!!that.dateView.calendar) {
-                that.dateView.calendar.unbind(NAVIGATE).bind(NAVIGATE,function() {
-                    setTimeout(function() {
-                        that.element.attr(ARIA_ACTIVEDESCENDANT, that.dateView.calendar._table.attr(ARIA_ACTIVEDESCENDANT));
-                    });
-                });
+                that.dateView.calendar.unbind(NAVIGATE, that._navigateCalendarHandler).bind(NAVIGATE, that._navigateCalendarHandler);
             }
         },
 
@@ -98635,13 +99978,13 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function (f, define) {
+(function(f, define) {
     define('kendo.floatinglabel',["kendo.core"], f);
-})(function () {
+})(function() {
 
-var __meta__ = {// jshint ignore:line
+var __meta__ = { // jshint ignore:line
     id: "floatinglabel",
     name: "FloatingLabel",
     category: "framework",
@@ -98649,7 +99992,7 @@ var __meta__ = {// jshint ignore:line
     hidden: true
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         ui = kendo.ui,
@@ -98662,7 +100005,7 @@ var __meta__ = {// jshint ignore:line
         STATEREADONLY = "k-readonly";
 
     var FloatingLabel = Widget.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             var that = this;
 
             Widget.fn.init.call(that, element, options);
@@ -98699,7 +100042,7 @@ var __meta__ = {// jshint ignore:line
             });
         },
 
-        refresh: function () {
+        refresh: function() {
             var that = this;
             var element = that.element;
 
@@ -98751,11 +100094,11 @@ var __meta__ = {// jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) { (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.numerictextbox',[ "kendo.core", "kendo.userevents", "kendo.floatinglabel", "kendo.html.button" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "numerictextbox",
@@ -98859,8 +100202,8 @@ var __meta__ = { // jshint ignore:line
                  });
              }
 
-             element.attr("aria-valuemin", options.min !== NULL ? options.min*options.factor : options.min)
-                    .attr("aria-valuemax", options.max !== NULL ? options.max*options.factor : options.max);
+             element.attr("aria-valuemin", options.min !== NULL ? options.min * options.factor : options.min)
+                    .attr("aria-valuemax", options.max !== NULL ? options.max * options.factor : options.max);
 
              options.format = extractFormat(options.format);
 
@@ -98884,7 +100227,7 @@ var __meta__ = { // jshint ignore:line
                  that.readonly(element.is("[readonly]"));
              }
 
-             that.angular("compile", function(){
+             that.angular("compile", function() {
                  return {
                      elements: that._text.get()
                  };
@@ -98981,7 +100324,7 @@ var __meta__ = { // jshint ignore:line
             } else {
                 wrapper
                     .addClass(disable ? STATEDISABLED : "")
-                    .removeClass(disable ?"" : STATEDISABLED);
+                    .removeClass(disable ? "" : STATEDISABLED);
 
                 text.attr(DISABLED, disable)
                     .attr(READONLY, readonly)
@@ -99015,7 +100358,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        setOptions: function (options) {
+        setOptions: function(options) {
             var that = this;
             Widget.fn.setOptions.call(that, options);
 
@@ -99023,8 +100366,8 @@ var __meta__ = { // jshint ignore:line
             that._text.prop("placeholder", that.options.placeholder);
             that._placeholder(that.options.placeholder);
             that.element.attr({
-                "aria-valuemin": that.options.min !== NULL ? that.options.min*that.options.factor : that.options.min,
-                "aria-valuemax": that.options.max !== NULL ? that.options.max*that.options.factor : that.options.max
+                "aria-valuemin": that.options.min !== NULL ? that.options.min * that.options.factor : that.options.min,
+                "aria-valuemax": that.options.max !== NULL ? that.options.max * that.options.factor : that.options.max
             });
 
             that.options.format = extractFormat(that.options.format);
@@ -99151,7 +100494,7 @@ var __meta__ = { // jshint ignore:line
             that._downArrowEventHandler = new kendo.UserEvents(that._downArrow, { release: _release });
         },
 
-        _validation: function () {
+        _validation: function() {
             var that = this;
             var element = that.element;
 
@@ -99203,20 +100546,20 @@ var __meta__ = { // jshint ignore:line
             });
         },
 
-        selectValue: function(){
+        selectValue: function() {
             if (this.options.selectOnFocus) {
                 this.element[0].select();
             }
         },
 
-        _getFactorValue: function (value) {
+        _getFactorValue: function(value) {
             var that = this,
                 factor = that.options.factor;
 
             if (factor && factor !== 1) {
                 value = kendo.parseFloat(value);
                 if (value !== null) {
-                    value = value/factor;
+                    value = value / factor;
                 }
             }
 
@@ -99297,7 +100640,7 @@ var __meta__ = { // jshint ignore:line
 
             try {
                 element.setAttribute("type", "text");
-            } catch(e) {
+            } catch (e) {
                 element.type = "text";
             }
 
@@ -99315,8 +100658,8 @@ var __meta__ = { // jshint ignore:line
             that._text = text.addClass(element.className)
                              .attr({
                                  "role": "spinbutton",
-                                 "aria-valuemin": options.min !== NULL ? options.min*options.factor : options.min,
-                                 "aria-valuemax": options.max !== NULL ? options.max*options.factor : options.max,
+                                 "aria-valuemin": options.min !== NULL ? options.min * options.factor : options.min,
+                                 "aria-valuemax": options.max !== NULL ? options.max * options.factor : options.max,
                                  "autocomplete": "off"
                              });
         },
@@ -99346,11 +100689,11 @@ var __meta__ = { // jshint ignore:line
             that._cachedCaret = caret(that.element);
         },
 
-        _keyup: function () {
+        _keyup: function() {
             this._removeInvalidState();
         },
 
-        _inputHandler: function () {
+        _inputHandler: function() {
             var element = this.element;
             var value = element.val();
             var min = this.options.min;
@@ -99384,7 +100727,7 @@ var __meta__ = { // jshint ignore:line
             this._isPasted = false;
         },
 
-        _blinkInvalidState: function () {
+        _blinkInvalidState: function() {
             var that = this;
 
             that._addInvalidState();
@@ -99392,14 +100735,14 @@ var __meta__ = { // jshint ignore:line
             that._invalidStateTimeout = setTimeout(that._removeInvalidState.bind(that), 100);
         },
 
-        _addInvalidState: function () {
+        _addInvalidState: function() {
             var that = this;
 
             that.wrapper.addClass(STATEINVALID);
             that._validationIcon.removeClass('k-hidden');
         },
 
-        _removeInvalidState: function () {
+        _removeInvalidState: function() {
             var that = this;
 
             that.wrapper.removeClass(STATEINVALID);
@@ -99507,11 +100850,11 @@ var __meta__ = { // jshint ignore:line
                 that._focusin();
             }
 
-            if(that.options.factor && value) {
-                value = value/that.options.factor;
+            if (that.options.factor && value) {
+                value = value / that.options.factor;
             }
 
-            value =  +(value + that.options.step * step).toFixed(precision);
+            value = +(value + that.options.step * step).toFixed(precision);
             value = that._adjust(value);
             that._update(value);
             that._typing = false;
@@ -99574,8 +100917,8 @@ var __meta__ = { // jshint ignore:line
             that._placeholder(kendo.toString(value, format, culture));
 
             if (isNotNull) {
-                if(factor) {
-                    value =  parseFloat(that._round(value*factor, decimals), 10);
+                if (factor) {
+                    value = parseFloat(that._round(value * factor, decimals), 10);
                 }
                 value = value.toString();
                 if (value.indexOf("e") !== -1) {
@@ -99716,11 +101059,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.validator',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "validator",
@@ -99775,7 +101118,7 @@ var __meta__ = { // jshint ignore:line
             return true;
         },
         hasAttribute = function(input, name) {
-            if (input.length)  {
+            if (input.length) {
                 return input[0].attributes[name] != null;
             }
             return false;
@@ -99915,7 +101258,7 @@ var __meta__ = { // jshint ignore:line
                         quote = !!name && name.indexOf("'") > -1 ? '\"' : "'",
                         namedCheckbox = input.attr("name") && !this.element.find("input[name=" + quote + input.attr("name") + quote + "]:checked").length,
                         checkbox = input.filter("[type=checkbox]").length && (noNameCheckbox || namedCheckbox),
-                        radio = input.filter("[type=radio]").length && !this.element.find("input[name="  + quote + input.attr("name") + quote + "]:checked").length,
+                        radio = input.filter("[type=radio]").length && !this.element.find("input[name=" + quote + input.attr("name") + quote + "]:checked").length,
                         value = input.val();
 
                     return !(hasAttribute(input, "required") && (!value || value === "" || value.length === 0 || checkbox || radio));
@@ -99954,9 +101297,9 @@ var __meta__ = { // jshint ignore:line
 
                         if (decimals) {
                             raise = Math.pow(10, decimals);
-                            return ((Math.floor((val-min)*raise))%(step*raise)) / Math.pow(100, decimals) === 0;
+                            return ((Math.floor((val - min) * raise)) % (step * raise)) / Math.pow(100, decimals) === 0;
                         }
-                        return ((val-min)%step) === 0;
+                        return ((val - min) % step) === 0;
                     }
                     return true;
                 },
@@ -99972,29 +101315,29 @@ var __meta__ = { // jshint ignore:line
                     }
                     return true;
                 },
-                captcha: function (input) {
+                captcha: function(input) {
                     if (input.filter("[" + kendo.attr("role") + "=captcha]").length) {
                         var that = this,
                             captcha = kendo.widgetInstance(input),
-                            isValidated = function(isValid){
+                            isValidated = function(isValid) {
                                 return typeof(isValid) !== 'undefined' && isValid !== null;
                             };
 
                         if (!input.data("captcha_validating") && !isValidated(captcha.isValid()) && !!captcha.getCaptchaId()) {
                             input.data("captcha_validating", true);
                             that._validating = true;
-                            captcha.validate().done(function(){
+                            captcha.validate().done(function() {
                                 that._validating = false;
                                 that._checkElement(input);
-                            }).fail(function(data){
+                            }).fail(function(data) {
                                 that._validating = false;
-                                if(data.error && data.error === "handler_not_defined") {
+                                if (data.error && data.error === "handler_not_defined") {
                                     window.console.warn("Captcha's validationHandler is not defined! You should either define a proper validation endpoint or declare a callback function to ensure the required behavior.");
                                 }
                             });
                         }
 
-                        if (isValidated(captcha.isValid())){
+                        if (isValidated(captcha.isValid())) {
                             input.removeData("captcha_validating");
                             return captcha.isValid();
                         }
@@ -100172,12 +101515,12 @@ var __meta__ = { // jshint ignore:line
                     var prevElement = input.prev().get(0);
 
                     // Get the instance of the RadioGroup which is not initialized on the input element
-                    if(!widgetInstance && input.is("[type=radio]")) {
+                    if (!widgetInstance && input.is("[type=radio]")) {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-radio-list"));
                     }
 
                     // Get the instance of the CheckBoxGroup which is not initialized on the input element
-                    if(!widgetInstance && input.is("[type=checkbox]")) {
+                    if (!widgetInstance && input.is("[type=checkbox]")) {
                         widgetInstance = kendo.widgetInstance(input.closest(".k-checkbox-list"));
                     }
 
@@ -100373,7 +101716,7 @@ var __meta__ = { // jshint ignore:line
                     // Add current name if:
                     // - not present so far;
                     // - present but not part of CheckBoxGroup or RadioGroup.
-                    if(sorted.indexOf(input.attr(NAME)) === -1 ||
+                    if (sorted.indexOf(input.attr(NAME)) === -1 ||
                         (input.closest(".k-checkbox-list").length === 0 &&
                         input.closest(".k-radio-list").length === 0)) {
                             sorted.push(input.attr(NAME));
@@ -100459,7 +101802,7 @@ var __meta__ = { // jshint ignore:line
 
             var that = this,
                 link = $(e.target),
-                target = that.element.find("[name='" + link.data("field") +  "']"),
+                target = that.element.find("[name='" + link.data("field") + "']"),
                 nextFocusable;
 
             if (!target.length) {
@@ -100509,11 +101852,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)();  });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.editable',[ "kendo.checkbox", "kendo.dropdownlist", "kendo.datepicker", "kendo.numerictextbox", "kendo.validator", "kendo.binder" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "editable",
@@ -100674,7 +102017,7 @@ var __meta__ = { // jshint ignore:line
     ];
 
     var editors = {
-        "hidden": function (container, options) {
+        "hidden": function(container, options) {
             var attr = createAttributes(options);
             $('<input type="hidden"/>').attr(attr).appendTo(container);
         },
@@ -100715,7 +102058,7 @@ var __meta__ = { // jshint ignore:line
                 "\'" + kendo.attr("role") + '="dropdownlist"/>') .attr(attr).appendTo(container);
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg  k-hidden"/>').appendTo(container);
         },
-        "kendoEditor": function (container, options) {
+        "kendoEditor": function(container, options) {
             var attr = createAttributes(options);
             var type = options.editor;
             var editor = "kendo" + type;
@@ -100732,31 +102075,31 @@ var __meta__ = { // jshint ignore:line
     };
 
     var mobileEditors = {
-        "number": function (container, options) {
+        "number": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="number"/>').attr(attr).appendTo(container);
         },
-        "date": function (container, options) {
+        "date": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="date"/>').attr(attr).appendTo(container);
         },
-        "string": function (container, options) {
+        "string": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="text" />').attr(attr).appendTo(container);
         },
-        "boolean": function (container, options) {
+        "boolean": function(container, options) {
             var attr = createAttributes(options);
             attr = addIdAttribute(container, attr);
 
             $('<input type="checkbox" />').attr(attr).appendTo(container);
         },
-        "values": function (container, options) {
+        "values": function(container, options) {
             var attr = createAttributes(options);
             var items = options.values;
             var select = $('<select />');
@@ -100794,7 +102137,7 @@ var __meta__ = { // jshint ignore:line
 
         if (addHidden) {
             tag.val(true);
-            container.append($("<input type='hidden' name='" + field.field +"' value='false' data-skip='true' data-validate='false'/>"));
+            container.append($("<input type='hidden' name='" + field.field + "' value='false' data-skip='true' data-validate='false'/>"));
         }
     }
 
@@ -100839,7 +102182,7 @@ var __meta__ = { // jshint ignore:line
                 isCustomEditor = isObject && !isHidden && field.editor,
                 isKendoEditor = isObject && $.inArray(field.editor, kendoEditors) !== -1,
                 editor = isCustomEditor ? field.editor : editors[isHidden ? "hidden" : type],
-                container = that.element.find("[" + kendo.attr("container-for") + "=" + fieldName.replace(nameSpecialCharRegExp, "\\$1")+ "]");
+                container = that.element.find("[" + kendo.attr("container-for") + "=" + fieldName.replace(nameSpecialCharRegExp, "\\$1") + "]");
 
             editor = editor ? editor : editors.string;
 
@@ -100872,7 +102215,7 @@ var __meta__ = { // jshint ignore:line
                    return bindingRegex.test($(this).attr(bindAttribute));
                 });
             if (input.length > 1) {
-                input = input.filter(function () {
+                input = input.filter(function() {
                     var element = $(this);
                     return !element.is(":radio") || element.val() == value;
                 });
@@ -100897,7 +102240,7 @@ var __meta__ = { // jshint ignore:line
         destroy: function() {
             var that = this;
 
-            that.angular("cleanup", function(){
+            that.angular("cleanup", function() {
                 return { elements: that.element };
             });
 
@@ -100950,7 +102293,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (that.options.target) {
-                that.angular("compile", function(){
+                that.angular("compile", function() {
                     return {
                         elements: container,
                         data: container.map(function() { return { dataItem: model }; })
@@ -101002,11 +102345,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.window',[ "kendo.draganddrop", "kendo.popup"], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "window",
@@ -101214,6 +102557,7 @@ return window.kendo;
 
                 if (!element.is(".k-window-content") || !wrapper[0]) {
                     element.addClass("k-window-content");
+                    element.attr("tabindex", 0);
                     that._createWindow(element, options);
                     wrapper = that.wrapper = element.closest(KWINDOW);
 
@@ -101252,9 +102596,9 @@ return window.kendo;
 
                 windowFrame = windowContent.find("." + KCONTENTFRAME)[0];
 
-                if(windowFrame && !globalWindow.data(WINDOWEVENTSHANDLED)){
+                if (windowFrame && !globalWindow.data(WINDOWEVENTSHANDLED)) {
 
-                    globalWindow.on("blur" + NS, function(){
+                    globalWindow.on("blur" + NS, function() {
                         var element = $(document.activeElement).parent(KWINDOWCONTENT);
                         if (element.length) {
                             var windowInstance = kendo.widgetInstance(element);
@@ -101262,8 +102606,8 @@ return window.kendo;
                         }
                     });
 
-                    globalWindow.on("focus" + NS, function(){
-                        $(KWINDOWCONTENT).not(KDIALOGCONTENT).each(function(i, element){
+                    globalWindow.on("focus" + NS, function() {
+                        $(KWINDOWCONTENT).not(KDIALOGCONTENT).each(function(i, element) {
                             kendo.widgetInstance($(element))._blur();
                         });
                     });
@@ -101308,10 +102652,10 @@ return window.kendo;
 
                 kendo.notify(that);
 
-                if(this.options.modal) {
+                if (this.options.modal) {
                     this._tabKeyTrap = new TabKeyTrap(wrapper);
                     this._tabKeyTrap.trap();
-                    this._tabKeyTrap.shouldTrap = function () {
+                    this._tabKeyTrap.shouldTrap = function() {
                         return wrapper.data("isFront");
                     };
                 }
@@ -101572,7 +102916,7 @@ return window.kendo;
                 that.element.css(OVERFLOW, scrollable ? "" : "hidden");
             },
 
-            events:[
+            events: [
                 OPEN,
                 ACTIVATE,
                 DEACTIVATE,
@@ -101669,7 +103013,7 @@ return window.kendo;
 
                 // Pin/Unpin
                 if (e.altKey && keyCode == 80) {// Alt + P
-                    if(that.options.pinned){
+                    if (that.options.pinned) {
                         that.unpin();
                     } else {
                         that.pin();
@@ -101677,7 +103021,7 @@ return window.kendo;
                 }
 
                 // Maximize/Restore/Miminimize
-                if(e.altKey && keyCode == keys.UP){
+                if (e.altKey && keyCode == keys.UP) {
                     if (isMinimized) {
                         that.restore();
                         that.wrapper.trigger("focus");
@@ -101685,7 +103029,7 @@ return window.kendo;
                         that.maximize();
                         that.wrapper.trigger("focus");
                     }
-                } else if (e.altKey && keyCode == keys.DOWN){
+                } else if (e.altKey && keyCode == keys.DOWN) {
                     if (!isMinimized && !isMaximized) {
                         that.minimize();
                         that.wrapper.trigger("focus");
@@ -101767,7 +103111,7 @@ return window.kendo;
                 }
             },
 
-            _overlay: function (visible) {
+            _overlay: function(visible) {
                 var overlay = this.containment ? this.containment.children(KOVERLAY) : this.appendTo.children(KOVERLAY),
                     wrapper = this.wrapper,
                     display = visible ? "block" : "none",
@@ -101804,7 +103148,7 @@ return window.kendo;
                 }[iconClass];
             },
 
-            _windowActionHandler: function (e) {
+            _windowActionHandler: function(e) {
                 if (this._closing) {
                     return;
                 }
@@ -101857,7 +103201,7 @@ return window.kendo;
                 return undefined;
             },
 
-            center: function () {
+            center: function() {
                 var that = this,
                     position = that.options.position,
                     wrapper = that.wrapper,
@@ -101870,7 +103214,7 @@ return window.kendo;
                     return that;
                 }
 
-                if(that.options.pinned && !that._isPinned) {
+                if (that.options.pinned && !that._isPinned) {
                     that.pin();
                 }
 
@@ -101899,7 +103243,7 @@ return window.kendo;
                 return that;
             },
 
-            title: function (title) {
+            title: function(title) {
                 var that = this,
                     value,
                     encoded = true,
@@ -101912,7 +103256,7 @@ return window.kendo;
                 }
 
                 if ($.isPlainObject(title)) {
-                    value = typeof title.text !== "undefined" ? title.text :  "";
+                    value = typeof title.text !== "undefined" ? title.text : "";
                     encoded = title.encoded !== false;
                 } else {
                     value = title;
@@ -101939,7 +103283,7 @@ return window.kendo;
                 return that;
             },
 
-            content: function (html, data) {
+            content: function(html, data) {
                 var content = this.wrapper.children(KWINDOWCONTENT),
                     scrollContainer = content.children(".km-scroll-container");
 
@@ -101949,7 +103293,7 @@ return window.kendo;
                     return content.html();
                 }
 
-                this.angular("cleanup", function(){
+                this.angular("cleanup", function() {
                     return { elements: content.children() };
                 });
 
@@ -101957,7 +103301,7 @@ return window.kendo;
 
                 content.empty().html(html);
 
-                this.angular("compile", function(){
+                this.angular("compile", function() {
                     var a = [];
                     for (var i = content.length; --i >= 0;) {
                         a.push({ dataItem: data });
@@ -101971,7 +103315,7 @@ return window.kendo;
                 return this;
             },
 
-            open: function () {
+            open: function() {
                 var that = this,
                     wrapper = that.wrapper,
                     options = that.options,
@@ -102039,7 +103383,7 @@ return window.kendo;
                     that._stopDocumentScrolling();
                 }
 
-                if(this.options.pinned && !this._isPinned){
+                if (this.options.pinned && !this._isPinned) {
                     this.pin();
                 }
 
@@ -102063,7 +103407,7 @@ return window.kendo;
                 var modals = this._modals();
                 var options = this.options;
                 var hideOverlay = options.modal && !modals.length;
-                var hideOptions  = this._animationOptions("close");
+                var hideOptions = this._animationOptions("close");
 
                 if (hideOverlay) {
                     if (!suppressAnimation && hideOptions.duration && kendo.effects.Fade) {
@@ -102091,7 +103435,7 @@ return window.kendo;
                     wrapper = that.wrapper,
                     options = that.options,
                     showOptions = this._animationOptions("open"),
-                    hideOptions  = this._animationOptions("close"),
+                    hideOptions = this._animationOptions("close"),
                     containmentContext = this.containment && !that._isPinned,
                     doc = containmentContext ? this.containment : $(document),
                     defaultPrevented;
@@ -102144,7 +103488,7 @@ return window.kendo;
                 }
             },
 
-            _deactivate: function () {
+            _deactivate: function() {
                 var that = this;
 
                 that.wrapper
@@ -102162,13 +103506,13 @@ return window.kendo;
                 }
             },
 
-            close: function () {
+            close: function() {
                 this._close(true);
                 return this;
             },
 
             _actionable: function(element) {
-                return $(element).is(TITLEBAR_BUTTONS + "," + TITLEBAR_BUTTONS + " .k-icon, :input, a, .k-input, .k-icon, [role='gridcell']");
+                return $(element).is(TITLEBAR_BUTTONS + "," + TITLEBAR_BUTTONS + " .k-icon, :input, a, .k-input, .k-icon, [role='gridcell'], .k-input-value-text");
             },
 
             _shouldFocus: function(target) {
@@ -102181,7 +103525,7 @@ return window.kendo;
                     (!element.find(active).length || !element.find(target).length);
             },
 
-            toFront: function (e, avoidFocus) {
+            toFront: function(e, avoidFocus) {
                 var that = this,
                     wrapper = that.wrapper,
                     currentWindow = wrapper[0],
@@ -102217,7 +103561,7 @@ return window.kendo;
                 that.element.find("> .k-overlay").remove();
 
                 if (that._shouldFocus(target)) {
-                    if(!avoidFocus) {
+                    if (!avoidFocus) {
                         setTimeout(function() {
                             that.wrapper.focus();
                         }, openAnimation ? openAnimation.duration : 0);
@@ -102240,7 +103584,7 @@ return window.kendo;
                 return that;
             },
 
-            toggleMaximization: function () {
+            toggleMaximization: function() {
                 if (this._closing) {
                     return this;
                 }
@@ -102248,7 +103592,7 @@ return window.kendo;
                 return this[this.options.isMaximized ? "restore" : "maximize"]();
             },
 
-            restore: function () {
+            restore: function() {
                 var that = this;
                 var options = that.options;
                 var minHeight = options.minHeight;
@@ -102389,7 +103733,7 @@ return window.kendo;
                 return this;
             },
 
-            _stopDocumentScrolling: function(){
+            _stopDocumentScrolling: function() {
                 var that = this;
                 var containment = that.containment;
 
@@ -102412,7 +103756,7 @@ return window.kendo;
                 $html.css(OVERFLOW, HIDDEN);
             },
 
-            _enableDocumentScrolling: function(){
+            _enableDocumentScrolling: function() {
                 var that = this;
                 var containment = that.containment;
 
@@ -102429,26 +103773,26 @@ return window.kendo;
                 that._restoreOverflowRule($("html"));
             },
 
-            _storeOverflowRule: function($element){
-                if(this._isOverflowStored($element)){
+            _storeOverflowRule: function($element) {
+                if (this._isOverflowStored($element)) {
                     return;
                 }
 
                 var overflowRule = $element.get(0).style.overflow;
 
-                if(typeof overflowRule === "string"){
+                if (typeof overflowRule === "string") {
                     $element.data(DATADOCOVERFLOWRULE, overflowRule);
                 }
             },
 
-            _isOverflowStored: function ($element){
+            _isOverflowStored: function($element) {
                 return typeof $element.data(DATADOCOVERFLOWRULE) === "string";
             },
 
-            _restoreOverflowRule: function($element){
+            _restoreOverflowRule: function($element) {
                 var overflowRule = $element.data(DATADOCOVERFLOWRULE);
 
-                if(overflowRule !== null && overflowRule !== undefined){
+                if (overflowRule !== null && overflowRule !== undefined) {
                     $element.css(OVERFLOW, overflowRule);
                     $element.removeData(DATADOCOVERFLOWRULE);
                 } else {
@@ -102505,7 +103849,7 @@ return window.kendo;
                         that._scrollIsAppended = false;
                     }
 
-                    wrapper.css(extend(position, {position: "fixed"}));
+                    wrapper.css(extend(position, { position: "fixed" }));
                     wrapper.children(KWINDOWTITLEBAR).find(KPIN).addClass("k-i-unpin").removeClass("k-i-pin");
 
                     that._isPinned = true;
@@ -102568,12 +103912,12 @@ return window.kendo;
                     position.top = constrain(top, that.minTop, that.maxTop);
                     position.left = constrain(left, that.minLeft, that.maxLeft);
 
-                    wrapper.css(extend(position, {position: ""}));
+                    wrapper.css(extend(position, { position: "" }));
                     wrapper.children(KWINDOWTITLEBAR).find(KUNPIN).addClass("k-i-pin").removeClass("k-i-unpin");
                 }
             },
 
-            _onDocumentResize: function () {
+            _onDocumentResize: function() {
                 var that = this,
                     wrapper = that.wrapper,
                     wnd = $(window),
@@ -102607,7 +103951,7 @@ return window.kendo;
                 that.resize();
             },
 
-            refresh: function (options) {
+            refresh: function(options) {
                 var that = this,
                     initOptions = that.options,
                     element = $(that.element),
@@ -102671,12 +104015,12 @@ return window.kendo;
                 this.wrapper.find(REFRESHICON).removeClass(LOADING);
             },
 
-            _ajaxError: function (xhr, status) {
+            _ajaxError: function(xhr, status) {
                 this.trigger(ERROR, { status: status, xhr: xhr });
             },
 
-            _ajaxSuccess: function (contentTemplate) {
-                return function (data) {
+            _ajaxSuccess: function(contentTemplate) {
+                return function(data) {
                     var html = data;
                     if (contentTemplate) {
                         html = template(contentTemplate)(data || {});
@@ -102693,7 +104037,7 @@ return window.kendo;
                 this.wrapper.find(REFRESHICON).addClass(LOADING);
             },
 
-            _ajaxRequest: function (options) {
+            _ajaxRequest: function(options) {
                 this._loadingIconTimeout = setTimeout(this._showLoading.bind(this), 100);
 
                 $.ajax(extend({
@@ -102839,13 +104183,13 @@ return window.kendo;
         }
 
         WindowResizing.prototype = {
-            addOverlay: function () {
+            addOverlay: function() {
                 this.owner.wrapper.append(templates.overlay);
             },
-            removeOverlay: function () {
+            removeOverlay: function() {
                 this.owner.wrapper.find(KOVERLAY).remove();
             },
-            dragstart: function (e) {
+            dragstart: function(e) {
                 var that = this;
                 var wnd = that.owner;
                 var wrapper = wnd.wrapper;
@@ -102895,7 +104239,7 @@ return window.kendo;
 
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
-            drag: function (e) {
+            drag: function(e) {
                 if (this._preventDragging) {
                     return;
                 }
@@ -102911,7 +104255,7 @@ return window.kendo;
                     containmentContext = wnd.containment && !wnd._isPinned,
                     rtl = kendo.support.isRtl(wnd.containment),
                     leftRtlOffset = containmentContext && rtl && wnd.containment.innerWidth() > wnd.containment.width ? kendo.support.scrollbar() : 0,
-                    scrollOffset = containmentContext ? { top: wnd.containment.scrollTop(), left: wnd.containment.scrollLeft()} : { top: 0, left: 0},
+                    scrollOffset = containmentContext ? { top: wnd.containment.scrollTop(), left: wnd.containment.scrollLeft() } : { top: 0, left: 0 },
                     newWidth, newHeight,
                     windowBottom, windowRight,
                     x = Math.max(e.x.location, 0),
@@ -102979,7 +104323,7 @@ return window.kendo;
 
                     wnd.resize();
             },
-            dragend: function (e) {
+            dragend: function(e) {
                 if (this._preventDragging) {
                     return;
                 }
@@ -103032,7 +104376,7 @@ return window.kendo;
         }
 
         WindowDragging.prototype = {
-            dragstart: function (e) {
+            dragstart: function(e) {
                 var wnd = this.owner,
                     draggable = wnd.options.draggable,
                     element = wnd.element,
@@ -103061,7 +104405,7 @@ return window.kendo;
                     if (actions.length > 0) {
                         wnd.minLeft = outerWidth(actions) + parseInt(actions.css("right"), 10) - outerWidth(element);
                     } else {
-                        wnd.minLeft =  20 - outerWidth(element); // at least 20px remain visible
+                        wnd.minLeft = 20 - outerWidth(element); // at least 20px remain visible
                     }
 
                     wnd.minLeft -= containerOffset.left;
@@ -103075,7 +104419,7 @@ return window.kendo;
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
 
-            drag: function (e) {
+            drag: function(e) {
                 var wnd = this.owner;
                 var position = wnd.options.position;
                 var axis = wnd.options.draggable.axis;
@@ -103128,7 +104472,7 @@ return window.kendo;
                 $(BODY).css(CURSOR, "");
             },
 
-            dragcancel: function (e) {
+            dragcancel: function(e) {
                 if (this._preventDragging) {
                     return;
                 }
@@ -103137,7 +104481,7 @@ return window.kendo;
                 e.currentTarget.closest(KWINDOW).css(this.owner.initialWindowPosition);
             },
 
-            dragend: function () {
+            dragend: function() {
                 var wnd = this.owner;
 
                 if (this._preventDragging || wnd.isMaximized()) {
@@ -103169,9 +104513,9 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function (f, define) {
+(function(f, define) {
     define('dataviz/diagram/dom',["kendo.data", "kendo.draganddrop", "kendo.toolbar",
            "kendo.editable",
            "kendo.window",
@@ -103181,9 +104525,9 @@ return window.kendo;
            "./svg",
            "./services",
            "./layout" ], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         // Imports ================================================================
         var dataviz = kendo.dataviz,
             draw = kendo.drawing,
@@ -103294,7 +104638,7 @@ return window.kendo;
             name: RIGHT
         }, {
             name: AUTO,
-            position: function (shape) {
+            position: function(shape) {
                 return shape.getPosition("center");
             }
         }];
@@ -103392,7 +104736,7 @@ return window.kendo;
         }
 
         var DiagramElement = Observable.extend({
-            init: function (options) {
+            init: function(options) {
                 var that = this;
                 that.dataItem = (options || {}).dataItem;
                 Observable.fn.init.call(that);
@@ -103417,14 +104761,14 @@ return window.kendo;
                 enable: true
             },
 
-            _getCursor: function (point) {
+            _getCursor: function(point) {
                 if (this.adorner) {
                     return this.adorner._getCursor(point);
                 }
                 return this.options.cursor;
             },
 
-            visible: function (value) {
+            visible: function(value) {
                 if (isUndefined(value)) {
                     return this.visual.visible();
                 } else {
@@ -103432,33 +104776,33 @@ return window.kendo;
                 }
             },
 
-            bounds: function () {
+            bounds: function() {
             },
 
-            refresh: function () {
+            refresh: function() {
                 this.visual.redraw();
             },
 
-            position: function (point) {
+            position: function(point) {
                 this.options.x = point.x;
                 this.options.y = point.y;
                 this.visual.position(point);
             },
 
-            toString: function () {
+            toString: function() {
                 return this.options.id;
             },
 
-            serialize: function () {
+            serialize: function() {
                 // the options json object describes the shape perfectly. So this object can serve as shape serialization.
-                var json = deepExtend({}, {options: this.options});
+                var json = deepExtend({}, { options: this.options });
                 if (this.dataItem) {
                     json.dataItem = this.dataItem.toString();
                 }
                 return json;
             },
 
-            _content: function (content) {
+            _content: function(content) {
                 if (content !== undefined) {
                     var options = this.options;
 
@@ -103493,12 +104837,12 @@ return window.kendo;
                 this._contentVisual.redraw(options);
             },
 
-            _hitTest: function (point) {
+            _hitTest: function(point) {
                 var bounds = this.bounds();
                 return this.visible() && bounds.contains(point) && this.options.enable;
             },
 
-            _template: function () {
+            _template: function() {
                 var that = this;
                 if (that.options.content.template) {
                     var data = that.dataItem || {},
@@ -103510,7 +104854,7 @@ return window.kendo;
                 }
             },
 
-            _canSelect: function () {
+            _canSelect: function() {
                 return this.options.selectable !== false;
             },
 
@@ -103522,7 +104866,7 @@ return window.kendo;
         });
 
         var Connector = Class.extend({
-            init: function (shape, options) {
+            init: function(shape, options) {
                 this.options = deepExtend({}, this.options, options);
                 this.connections = [];
                 this.shape = shape;
@@ -103535,14 +104879,14 @@ return window.kendo;
                 },
                 hover: {}
             },
-            position: function () {
+            position: function() {
                 if (this.options.position) {
                     return this.options.position(this.shape);
                 } else {
                     return this.shape.getPosition(this.options.name);
                 }
             },
-            toJSON: function () {
+            toJSON: function() {
                 return {
                     shapeId: this.shape.toString(),
                     connector: this.options.name
@@ -103550,7 +104894,7 @@ return window.kendo;
             }
         });
 
-        Connector.parse = function (diagram, str) {
+        Connector.parse = function(diagram, str) {
             var tempStr = str.split(":"),
                 id = tempStr[0],
                 name = tempStr[1] || AUTO;
@@ -103564,7 +104908,7 @@ return window.kendo;
         };
 
         var Shape = DiagramElement.extend({
-            init: function (options, diagram) {
+            init: function(options, diagram) {
                 var that = this;
                 DiagramElement.fn.init.call(that, options);
                 this.diagram = diagram;
@@ -103714,7 +105058,7 @@ return window.kendo;
                 }
             },
 
-            bounds: function (value) {
+            bounds: function(value) {
                 var bounds;
 
                 if (value) {
@@ -103767,7 +105111,7 @@ return window.kendo;
                 });
             },
 
-            position: function (point) {
+            position: function(point) {
                 if (point) {
                     this.bounds(new Rect(point.x, point.y, this._bounds.width, this._bounds.height));
                 } else {
@@ -103778,7 +105122,7 @@ return window.kendo;
              * Returns a clone of this shape.
              * @returns {Shape}
              */
-            clone: function () {
+            clone: function() {
                 var json = this.serialize();
 
                 json.options.id = diagram.randomId();
@@ -103790,7 +105134,7 @@ return window.kendo;
                 return new Shape(json.options);
             },
 
-            select: function (value) {
+            select: function(value) {
                 var diagram = this.diagram, selected, deselected;
                 if (isUndefined(value)) {
                     value = true;
@@ -103818,7 +105162,7 @@ return window.kendo;
                 }
             },
 
-            rotate: function (angle, center, undoable) { // we assume the center is always the center of the shape.
+            rotate: function(angle, center, undoable) { // we assume the center is always the center of the shape.
                 var rotate = this.visual.rotate();
                 if (angle !== undefined) {
                     if (undoable !== false && this.diagram && this.diagram.undoRedoService && angle !== rotate.angle) {
@@ -103855,7 +105199,7 @@ return window.kendo;
                 return rotate;
             },
 
-            connections: function (type) { // in, out, undefined = both
+            connections: function(type) { // in, out, undefined = both
                 var result = [], i, j, con, cons, ctr;
 
                 for (i = 0; i < this.connectors.length; i++) {
@@ -103882,8 +105226,8 @@ return window.kendo;
                 return result;
             },
 
-            refreshConnections: function () {
-                $.each(this.connections(), function () {
+            refreshConnections: function() {
+                $.each(this.connections(), function() {
                     this.refresh();
                 });
             },
@@ -103893,7 +105237,7 @@ return window.kendo;
              * @param nameOrPoint The name of a Connector or a Point.
              * @returns {Connector}
              */
-            getConnector: function (nameOrPoint) {
+            getConnector: function(nameOrPoint) {
                 var i, ctr;
                 if (isString(nameOrPoint)) {
                     nameOrPoint = nameOrPoint.toLocaleLowerCase();
@@ -103910,7 +105254,7 @@ return window.kendo;
                 }
             },
 
-            getPosition: function (side) {
+            getPosition: function(side) {
                 var b = this.bounds(),
                     fnName = side.charAt(0).toLowerCase() + side.slice(1);
 
@@ -103921,7 +105265,7 @@ return window.kendo;
                 return b.center();
             },
 
-            redraw: function (options) {
+            redraw: function(options) {
                 if (options) {
                     var shapeOptions = this.options;
                     var boundsChange;
@@ -103940,7 +105284,7 @@ return window.kendo;
 
                     shapeOptions = deepExtend(shapeOptions, options);
 
-                    if  (options.rotation || boundsChange) {
+                    if (options.rotation || boundsChange) {
                         this._rotate();
                     }
 
@@ -103983,13 +105327,13 @@ return window.kendo;
                 };
             },
 
-            _triggerBoundsChange: function () {
+            _triggerBoundsChange: function() {
                 if (this.diagram) {
-                    this.diagram.trigger(ITEMBOUNDSCHANGE, {item: this, bounds: this._bounds.clone()}); // the trigger modifies the arguments internally.
+                    this.diagram.trigger(ITEMBOUNDSCHANGE, { item: this, bounds: this._bounds.clone() }); // the trigger modifies the arguments internally.
                 }
             },
 
-            _transformPoint: function (point) {
+            _transformPoint: function(point) {
                 var rotate = this.rotate(),
                     bounds = this.bounds(),
                     tl = bounds.topLeft();
@@ -104001,7 +105345,7 @@ return window.kendo;
                 return point;
             },
 
-            _transformedBounds: function () {
+            _transformedBounds: function() {
                 var bounds = this.bounds(),
                     tl = bounds.topLeft(),
                     br = bounds.bottomRight();
@@ -104009,7 +105353,7 @@ return window.kendo;
                 return Rect.fromPoints(this.diagram.modelToView(tl), this.diagram.modelToView(br));
             },
 
-            _rotatedBounds: function () {
+            _rotatedBounds: function() {
                 var bounds = this.bounds().rotatedBounds(this.rotate().angle),
                     tl = bounds.topLeft(),
                     br = bounds.bottomRight();
@@ -104017,7 +105361,7 @@ return window.kendo;
                 return Rect.fromPoints(tl, br);
             },
 
-            _rotate: function () {
+            _rotate: function() {
                 var rotation = this.options.rotation;
 
                 if (rotation && rotation.angle) {
@@ -104027,7 +105371,7 @@ return window.kendo;
                 this._rotationOffset = new Point();
             },
 
-            _hover: function (value) {
+            _hover: function(value) {
                 var options = this.options,
                     hover = options.hover,
                     stroke = options.stroke,
@@ -104051,7 +105395,7 @@ return window.kendo;
                 }
             },
 
-            _hitTest: function (value) {
+            _hitTest: function(value) {
                 if (this.visible()) {
                     var bounds = this.bounds(), rotatedPoint,
                         angle = this.rotate().angle;
@@ -104088,7 +105432,7 @@ return window.kendo;
                 } else if (visualOptions.data) {
                     shapeVisual = new Path(visualOptions);
                     translateToOrigin(shapeVisual);
-                } else if (type == "rectangle"){
+                } else if (type == "rectangle") {
                     shapeVisual = new Rectangle(visualOptions);
                 } else if (type == "circle") {
                     shapeVisual = new Circle(visualOptions);
@@ -104109,7 +105453,7 @@ return window.kendo;
          * The visual link between two Shapes through the intermediate of Connectors.
          */
         var Connection = DiagramElement.extend({
-            init: function (from, to, options) {
+            init: function(from, to, options) {
                 var that = this;
                 DiagramElement.fn.init.call(that, options);
                 this.updateOptionsFromModel();
@@ -104196,7 +105540,7 @@ return window.kendo;
                                 clearField("fromConnector", model);
                                 model.set("fromX", this.options.fromX);
                                 model.set("fromY", this.options.fromY);
-                            } else  {
+                            } else {
                                 model.set("from", this.options.from);
                                 if (defined(model.fromConnector)) {
                                     model.set("fromConnector", this.sourceConnector ? this.sourceConnector.options.name : null);
@@ -104239,7 +105583,7 @@ return window.kendo;
              * If the endpoint in Auto-connector the location of the resolved connector will be returned.
              * If the endpoint is floating the location of the endpoint is returned.
              */
-            sourcePoint: function () {
+            sourcePoint: function() {
                 return this._resolvedSourceConnector ? this._resolvedSourceConnector.position() : this._sourcePoint;
             },
 
@@ -104288,7 +105632,7 @@ return window.kendo;
                 }
             },
 
-            source: function (source, undoable) {
+            source: function(source, undoable) {
                 if (isDefined(source)) {
                     if (undoable && this.diagram) {
                         this.diagram.undoRedoService.addCompositeItem(new diagram.ConnectionEditUnit(this, source));
@@ -104301,7 +105645,7 @@ return window.kendo;
 
             _setFromOptions: function(from, fromPoint) {
                 this.options.from = from;
-                if (fromPoint)  {
+                if (fromPoint) {
                     this.options.fromX = fromPoint.x;
                     this.options.fromY = fromPoint.y;
                 } else {
@@ -104316,7 +105660,7 @@ return window.kendo;
              * @param value
              * @returns {*}
              */
-            sourceDefiner: function (value) {
+            sourceDefiner: function(value) {
                 if (value) {
                     if (value instanceof diagram.PathDefiner) {
                         value.left = null;
@@ -104336,7 +105680,7 @@ return window.kendo;
             /**
              * Gets  the Point where the target of the connection resides.
              */
-            targetPoint: function () {
+            targetPoint: function() {
                 return this._resolvedTargetConnector ? this._resolvedTargetConnector.position() : this._targetPoint;
             },
 
@@ -104384,7 +105728,7 @@ return window.kendo;
                 }
             },
 
-            target: function (target, undoable) {
+            target: function(target, undoable) {
                 if (isDefined(target)) {
                     if (undoable && this.diagram) {
                         this.diagram.undoRedoService.addCompositeItem(new diagram.ConnectionEditUnit(this, undefined, target));
@@ -104398,7 +105742,7 @@ return window.kendo;
 
             _setToOptions: function(to, toPoint) {
                 this.options.to = to;
-                if (toPoint)  {
+                if (toPoint) {
                     this.options.toX = toPoint.x;
                     this.options.toY = toPoint.y;
                 } else {
@@ -104413,7 +105757,7 @@ return window.kendo;
              * @param value
              * @returns {*}
              */
-            targetDefiner: function (value) {
+            targetDefiner: function(value) {
                 if (value) {
                     if (value instanceof diagram.PathDefiner) {
                         value.right = null;
@@ -104501,7 +105845,7 @@ return window.kendo;
                     var endIdx = math.floor(points.length / 2);
                     var startIdx = endIdx - 1;
 
-                    while(startIdx > 0 && points[startIdx].equals(points[endIdx])) {
+                    while (startIdx > 0 && points[startIdx].equals(points[endIdx])) {
                         startIdx--;
                         endIdx++;
                     }
@@ -104524,17 +105868,17 @@ return window.kendo;
                     var point;
 
                     if (alignToPath) {
-                        var angle  = draw.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
+                        var angle = draw.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
                         point = new Point((endPoint.x - startPoint.x) / 2 + startPoint.x, (endPoint.y - startPoint.y) / 2 + startPoint.y);
 
                         if (math.abs(angle) === 90) {
                             point.x += offset;
-                            point.y-= height / 2;
+                            point.y -= height / 2;
                         } else if (angle % 180 === 0) {
                             point.x -= width / 2;
                             point.y -= height + offset;
                         } else if (angle < -90 || (0 < angle && angle < 90)) {
-                            point.y-= height;
+                            point.y -= height;
                         } else if (angle < 0 || angle > 90) {
                             point.x -= width;
                             point.y -= height;
@@ -104560,7 +105904,7 @@ return window.kendo;
              * Selects or unselects this connections.
              * @param value True to select, false to unselect.
              */
-            select: function (value) {
+            select: function(value) {
                 var diagram = this.diagram, selected, deselected;
                 if (this._canSelect()) {
                     if (this.isSelected !== value) {
@@ -104598,7 +105942,7 @@ return window.kendo;
              * @remark This is automatically set in the refresh().
              * @returns {Rect}
              */
-            bounds: function (value) {
+            bounds: function(value) {
                 if (value && !isString(value)) {
                     this._bounds = value;
                 } else {
@@ -104610,7 +105954,7 @@ return window.kendo;
              * @param value A ConnectionType value.
              * @returns {ConnectionType}
              */
-            type: function (value) {
+            type: function(value) {
                 var options = this.options;
                 if (value) {
                     if (value !== options.type) {
@@ -104638,7 +105982,7 @@ return window.kendo;
              * The 'sourceDefiner' and 'targetDefiner' return the definers of the endpoints.
              * @param value
              */
-            points: function (value) {
+            points: function(value) {
                 if (value) {
                     this.definers = [];
                     for (var i = 0; i < value.length; i++) {
@@ -104666,7 +106010,7 @@ return window.kendo;
              * Gets all the points of this connection. This is the combination of the sourcePoint, the points and the targetPoint.
              * @returns {Array}
              */
-            allPoints: function () {
+            allPoints: function() {
                 var pts = [this.sourcePoint()];
                 if (this.definers) {
                     for (var k = 0; k < this.definers.length; k++) {
@@ -104677,7 +106021,7 @@ return window.kendo;
                 return pts;
             },
 
-            refresh: function () {
+            refresh: function() {
                 this._resolveConnectors();
                 this._refreshPath();
                 this._alignContent();
@@ -104687,7 +106031,7 @@ return window.kendo;
                 }
             },
 
-            _resolveConnectors: function () {
+            _resolveConnectors: function() {
                 var connection = this,
                     sourcePoint, targetPoint,
                     sourceConnectors, targetConnectors,
@@ -104793,11 +106137,11 @@ return window.kendo;
                                         math.abs(start.x - end.x), math.abs(start.y - end.y));
                         if (rect.width > 0) {
                             rect.x++;
-                            rect.width-=2;
+                            rect.width -= 2;
                         }
                         if (rect.height > 0) {
                             rect.y++;
-                            rect.height-=2;
+                            rect.height -= 2;
                         }
 
                         if (!rect.isEmpty() && this.diagram._shapesQuadTree.hitTestRect(rect, exclude)) {
@@ -104811,16 +106155,16 @@ return window.kendo;
 
             _getRouteExclude: function(sourcePoint, targetPoint, sourceShape, targetShape) {
                 var exclude = [];
-                if (this._isPointInsideShape(sourcePoint, sourceShape)){
+                if (this._isPointInsideShape(sourcePoint, sourceShape)) {
                     exclude.push(sourceShape);
                 }
-                if (this._isPointInsideShape(targetPoint, targetShape)){
+                if (this._isPointInsideShape(targetPoint, targetShape)) {
                     exclude.push(targetShape);
                 }
                 return exclude;
             },
 
-            _isPointInsideShape: function (point, shape) {
+            _isPointInsideShape: function(point, shape) {
                 var bounds = shape.bounds(), rotatedPoint,
                     angle = shape.rotate().angle,
                     pointX, pointY,
@@ -104833,7 +106177,7 @@ return window.kendo;
                 return pointX > boundsX && pointX < (boundsX + bounds.width) && pointY > boundsY && pointY < (boundsY + bounds.height);
             },
 
-            redraw: function (options) {
+            redraw: function(options) {
                 if (options) {
                     this.options = deepExtend({}, this.options, options);
 
@@ -104860,7 +106204,7 @@ return window.kendo;
              * Returns a clone of this connection.
              * @returns {Connection}
              */
-            clone: function () {
+            clone: function() {
                 var json = this.serialize();
 
                 if (this.diagram && this.diagram._isEditable && defined(this.dataItem)) {
@@ -104873,7 +106217,7 @@ return window.kendo;
              * Returns a serialized connection in json format. Consist of the options and the dataItem.
              * @returns {Connection}
              */
-            serialize: function () {
+            serialize: function() {
                 var from = this.from.toJSON ? this.from.toJSON : this.from.toString(),
                     to = this.to.toJSON ? this.to.toJSON : this.to.toString();
 
@@ -104897,7 +106241,7 @@ return window.kendo;
              * @returns {Connection}
              * @private
              */
-            _hitTest: function (value) {
+            _hitTest: function(value) {
                 if (this.visible()) {
                     var p = new Point(value.x, value.y), from = this.sourcePoint(), to = this.targetPoint();
                     if (value.isEmpty && !value.isEmpty() && value.contains(from) && value.contains(to)) {
@@ -104909,7 +106253,7 @@ return window.kendo;
                 }
             },
 
-            _hover: function (value) {
+            _hover: function(value) {
                 var color = (this.options.stroke || {}).color;
 
                 if (value && isDefined(this.options.hover.stroke.color)) {
@@ -104923,7 +106267,7 @@ return window.kendo;
                 });
             },
 
-            _refreshPath: function () {
+            _refreshPath: function() {
                 if (!defined(this.path)) {
                     return;
                 }
@@ -104931,7 +106275,7 @@ return window.kendo;
                 this.bounds(this._router.getBounds());
             },
 
-            _drawPath: function () {
+            _drawPath: function() {
                 if (this._router) {
                     this._router.route(); // sets the intermediate points
                 }
@@ -104944,12 +106288,12 @@ return window.kendo;
                 });
             },
 
-            _clearSourceConnector: function () {
+            _clearSourceConnector: function() {
                 this.sourceConnector = undefined;
                 this._resolvedSourceConnector = undefined;
             },
 
-            _clearTargetConnector: function () {
+            _clearTargetConnector: function() {
                 this.targetConnector = undefined;
                 this._resolvedTargetConnector = undefined;
             },
@@ -104990,14 +106334,14 @@ return window.kendo;
                 }
 
                 return {
-                    from : from,
+                    from: from,
                     to: to
                 };
             }
         });
 
         var Diagram = Widget.extend({
-            init: function (element, userOptions) {
+            init: function(element, userOptions) {
                 var that = this;
 
                 kendo.destroy(element);
@@ -105343,7 +106687,7 @@ return window.kendo;
                 });
             },
 
-            _createHandlers: function () {
+            _createHandlers: function() {
                 var that = this;
                 var element = that.element;
 
@@ -105382,7 +106726,7 @@ return window.kendo;
                 this.bind(PAN, that._destroyToolBar.bind(that));
             },
 
-            _dragStart: function (e) {
+            _dragStart: function(e) {
                 this._pauseMouseHandlers = true;
                 var point = this._eventPositions(e, true);
 
@@ -105393,7 +106737,7 @@ return window.kendo;
                 }
             },
 
-            _drag: function (e) {
+            _drag: function(e) {
                 var p = this._eventPositions(e);
                 var event = e.event;
                 if (this.toolService.move(p, this._meta(event))) {
@@ -105401,7 +106745,7 @@ return window.kendo;
                 }
             },
 
-            _dragEnd: function (e) {
+            _dragEnd: function(e) {
                 this._pauseMouseHandlers = false;
                 var p = this._eventPositions(e);
                 var event = e.event;
@@ -105411,7 +106755,7 @@ return window.kendo;
                 }
             },
 
-            _mouseMove: function (e) {
+            _mouseMove: function(e) {
                 if (!this._pauseMouseHandlers) {
                     var p = this._eventPositions(e);
                     this.toolService._updateHoveredItem(p);
@@ -105419,11 +106763,11 @@ return window.kendo;
                 }
             },
 
-            _mouseDown: function () {
+            _mouseDown: function() {
                 this._pauseMouseHandlers = true;
             },
 
-            _mouseUp: function () {
+            _mouseUp: function() {
                 this._pauseMouseHandlers = false;
             },
 
@@ -105469,13 +106813,13 @@ return window.kendo;
                 }
             },
 
-            _keydown: function (e) {
+            _keydown: function(e) {
                 if (this.toolService.keyDown(e.keyCode, this._meta(e))) {
                     e.preventDefault();
                 }
             },
 
-            _wheel: function (e) {
+            _wheel: function(e) {
                 var delta = mwDelta(e),
                     p = this._eventPositions(e),
                     meta = deepExtend(this._meta(e), { delta: delta });
@@ -105485,11 +106829,11 @@ return window.kendo;
                 }
             },
 
-            _meta: function (e) {
+            _meta: function(e) {
                 return { ctrlKey: e.ctrlKey, metaKey: e.metaKey, altKey: e.altKey, shiftKey: e.shiftKey, type: e.type };
             },
 
-            _eventPositions: function (e, start) {
+            _eventPositions: function(e, start) {
                 var point;
                 if (e.touch) {
                     var field = start ? "startLocation" : "location";
@@ -105566,7 +106910,7 @@ return window.kendo;
             },
 
             _gestureEnd: function() {
-                if (this.options.pannable !== false)  {
+                if (this.options.pannable !== false) {
                     this.scroller.enable();
                 }
                 this.trigger(ZOOM_END, {
@@ -105606,7 +106950,7 @@ return window.kendo;
                 var themes = dataviz.ui.themes || {};
                 var themeOptions;
 
-                if(dataviz.SASS_THEMES.indexOf(themeName) != -1) {
+                if (dataviz.SASS_THEMES.indexOf(themeName) != -1) {
                     themeOptions = dataviz.autoTheme().diagram;
                 }
                 else {
@@ -105657,7 +107001,7 @@ return window.kendo;
                     connections = options.connections,
                     conn, source, target, i;
 
-                for(i = 0; i < connections.length; i++) {
+                for (i = 0; i < connections.length; i++) {
                     conn = connections[i];
                     source = diagram._findConnectionTarget(conn.from);
                     target = diagram._findConnectionTarget(conn.to);
@@ -105683,7 +107027,7 @@ return window.kendo;
                 return target;
             },
 
-            destroy: function () {
+            destroy: function() {
                 var that = this;
                 Widget.fn.destroy.call(that);
 
@@ -105705,7 +107049,7 @@ return window.kendo;
                 that._destroyToolBar();
             },
 
-            destroyScroller: function () {
+            destroyScroller: function() {
                 var scroller = this.scroller;
 
                 if (!scroller) {
@@ -105717,7 +107061,7 @@ return window.kendo;
                 this.scroller = null;
             },
 
-            save: function () {
+            save: function() {
                 var json = {
                     shapes: [],
                     connections: []
@@ -105779,7 +107123,7 @@ return window.kendo;
                 deepExtend(this.options, options);
             },
 
-            clear: function () {
+            clear: function() {
                 var that = this;
 
                 that.select(false);
@@ -105794,7 +107138,7 @@ return window.kendo;
              * @param options Connection options that will be passed to the newly created connection.
              * @returns The newly created connection.
              */
-            connect: function (source, target, options) {
+            connect: function(source, target, options) {
                 var connection;
                 if (this.connectionsDataSource && this._isEditable) {
                     var dataItem = this.connectionsDataSource.add({});
@@ -105818,7 +107162,7 @@ return window.kendo;
              * @param target Shape, Connector, Point.
              * @returns true if the two items are connected.
              */
-            connected: function (source, target) {
+            connected: function(source, target) {
                 for (var i = 0; i < this.connections.length; i++) {
                     var c = this.connections[i];
                     if (c.from == source && c.to == target) {
@@ -105834,7 +107178,7 @@ return window.kendo;
              * @param undoable Boolean.
              * @returns The newly created connection.
              */
-            addConnection: function (connection, undoable) {
+            addConnection: function(connection, undoable) {
                 if (undoable !== false) {
                     this.undoRedoService.add(
                         new diagram.AddConnectionUnit(connection, this), false);
@@ -105854,7 +107198,7 @@ return window.kendo;
                 return connection;
             },
 
-            _addConnection: function (connection, undoable) {
+            _addConnection: function(connection, undoable) {
                 var connectionsDataSource = this.connectionsDataSource;
                 var dataItem;
                 if (connectionsDataSource && this._isEditable) {
@@ -105999,7 +107343,7 @@ return window.kendo;
                 }
             },
 
-            _triggerRemove: function(items){
+            _triggerRemove: function(items) {
                 var toRemove = [];
                 var item, args, editable;
 
@@ -106021,13 +107365,13 @@ return window.kendo;
             /**
              * Executes the next undoable action on top of the undo stack if any.
              */
-            undo: function () {
+            undo: function() {
                 this.undoRedoService.undo();
             },
             /**
              * Executes the previous undoable action on top of the redo stack if any.
              */
-            redo: function () {
+            redo: function() {
                 this.undoRedoService.redo();
             },
             /**
@@ -106036,7 +107380,7 @@ return window.kendo;
              * @param options
              * @returns {Array}
              */
-            select: function (item, options) {
+            select: function(item, options) {
                 if (isDefined(item)) {
                     options = deepExtend({ addToSelection: false }, options);
 
@@ -106125,7 +107469,7 @@ return window.kendo;
              * @param items DiagramElement, Array of Items.
              * @param undoable. By default the action is undoable.
              */
-            toFront: function (items, undoable) {
+            toFront: function(items, undoable) {
                 if (!items) {
                     items = this._selectedItems.slice();
                 }
@@ -106145,7 +107489,7 @@ return window.kendo;
              * @param items DiagramElement, Array of Items.
              * @param undoable. By default the action is undoable.
              */
-            toBack: function (items, undoable) {
+            toBack: function(items, undoable) {
                 if (!items) {
                     items = this._selectedItems.slice();
                 }
@@ -106166,7 +107510,7 @@ return window.kendo;
              * @param options. align - controls the position of the calculated rectangle relative to the viewport.
              * "Center middle" will position the items in the center. animate - controls if the pan should be animated.
              */
-            bringIntoView: function (item, options) { // jQuery|Item|Array|Rect
+            bringIntoView: function(item, options) { // jQuery|Item|Array|Rect
                 var viewport = this.viewport();
                 var aligner = new diagram.RectAlign(viewport);
                 var current, rect, original, newPan;
@@ -106175,7 +107519,7 @@ return window.kendo;
                     return;
                 }
 
-                options = deepExtend({animate: false, align: "center middle"}, options);
+                options = deepExtend({ animate: false, align: "center middle" }, options);
                 if (options.align == "none") {
                     options.align = "center middle";
                 }
@@ -106206,7 +107550,7 @@ return window.kendo;
                 this.pan(newPan.times(-1), options.animate);
             },
 
-            alignShapes: function (direction) {
+            alignShapes: function(direction) {
                 if (isUndefined(direction)) {
                     direction = "Left";
                 }
@@ -106272,7 +107616,7 @@ return window.kendo;
                 this.undoRedoService.add(unit, false);
             },
 
-            zoom: function (zoom, options) {
+            zoom: function(zoom, options) {
                 if (zoom) {
                     var staticPoint = options ? options.point : new diagram.Point(0, 0);
                     // var meta = options ? options.meta : 0;
@@ -106308,7 +107652,7 @@ return window.kendo;
                 return pan;
             },
 
-            pan: function (pan, animate) {
+            pan: function(pan, animate) {
                 if (pan instanceof Point) {
                     var that = this;
                     var scroller = that.scroller;
@@ -106328,7 +107672,7 @@ return window.kendo;
                 }
             },
 
-            viewport: function () {
+            viewport: function() {
                 var element = this.element;
                 var width = element.width();
                 var height = element.height();
@@ -106339,7 +107683,7 @@ return window.kendo;
 
                 return new Rect(0, 0, width, height);
             },
-            copy: function () {
+            copy: function() {
                 if (this.options.copy.enabled) {
                     this._clipboard = [];
                     this._copyOffset = 1;
@@ -106349,7 +107693,7 @@ return window.kendo;
                     }
                 }
             },
-            cut: function () {
+            cut: function() {
                 if (this.options.copy.enabled) {
                     this._clipboard = [];
                     this._copyOffset = 0;
@@ -106361,7 +107705,7 @@ return window.kendo;
                 }
             },
 
-            paste: function () {
+            paste: function() {
                 if (this._clipboard.length > 0) {
                     var item, copied, i;
                     var mapping = {};
@@ -106433,9 +107777,9 @@ return window.kendo;
              * @param origin Boolean. Pass 'true' if you need to get the bounding box of the shapes without their rotation offset.
              * @returns {Rect}
              */
-            boundingBox: function (items, origin) {
+            boundingBox: function(items, origin) {
                 var rect = Rect.empty(), temp,
-                    di = isDefined(items) ? this._getDiagramItems(items) : {shapes: this.shapes};
+                    di = isDefined(items) ? this._getDiagramItems(items) : { shapes: this.shapes };
                 if (di.shapes.length > 0) {
                     var item = di.shapes[0];
                     rect = item.bounds(ROTATED);
@@ -106529,11 +107873,11 @@ return window.kendo;
              * @param layoutType The layout algorithm to be applied (TreeLayout, LayeredLayout, SpringLayout).
              * @param options Layout-specific options.
              */
-            layout: function (options) {
+            layout: function(options) {
                 this._layouting = true;
                 // TODO: raise layout event?
                 var type;
-                if(isUndefined(options)) {
+                if (isUndefined(options)) {
                     options = this.options.layout;
                 }
                 if (isUndefined(options) || isUndefined(options.type)) {
@@ -106575,21 +107919,21 @@ return window.kendo;
              * @param id (string) the identifier of a shape.
              * @returns {Shape}
              */
-            getShapeById: function (id) {
+            getShapeById: function(id) {
                 var found;
-                found = Utils.first(this.shapes, function (s) {
+                found = Utils.first(this.shapes, function(s) {
                     return s.visual.id === id;
                 });
                 if (found) {
                     return found;
                 }
-                found = Utils.first(this.connections, function (c) {
+                found = Utils.first(this.connections, function(c) {
                     return c.visual.id === id;
                 });
                 return found;
             },
 
-            getShapeByModelId: function (id) {
+            getShapeByModelId: function(id) {
                 var shape;
                 if (this._isEditable) {
                     shape = this._dataMap[id];
@@ -106632,20 +107976,20 @@ return window.kendo;
             },
 
             _extendLayoutOptions: function(options) {
-                if(options.layout) {
+                if (options.layout) {
                     options.layout = deepExtend({}, diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
                 }
             },
 
-            _selectionChanged: function (selected, deselected) {
+            _selectionChanged: function(selected, deselected) {
                 if (selected.length || deselected.length) {
                     this.trigger(SELECT, { selected: selected, deselected: deselected });
                 }
             },
-            _getValidZoom: function (zoom) {
+            _getValidZoom: function(zoom) {
                 return math.min(math.max(zoom, this.options.zoomMin), this.options.zoomMax);
             },
-            _panTransform: function (pos) {
+            _panTransform: function(pos) {
                 var diagram = this,
                     pan = pos || diagram._pan;
 
@@ -106658,14 +108002,14 @@ return window.kendo;
                 }
             },
 
-            _finishPan: function () {
-                this.trigger(PAN, {total: this._pan, delta: Number.NaN});
+            _finishPan: function() {
+                this.trigger(PAN, { total: this._pan, delta: Number.NaN });
             },
-            _storePan: function (pan) {
+            _storePan: function(pan) {
                 this._pan = pan;
                 this._storeViewMatrix();
             },
-            _zoomMainLayer: function () {
+            _zoomMainLayer: function() {
                 var zoom = this._zoom;
 
                 var transform = new CompositeTransform(0, 0, zoom, zoom);
@@ -106673,7 +108017,7 @@ return window.kendo;
                 this._storeLayerMatrix(transform);
                 this._storeViewMatrix();
             },
-            _transformMainLayer: function () {
+            _transformMainLayer: function() {
                 var pan = this._pan,
                     zoom = this._zoom;
 
@@ -106694,12 +108038,12 @@ return window.kendo;
                 this._matrix = transform.toMatrix();
                 this._matrixInvert = transform.invert().toMatrix();
             },
-            _toIndex: function (items, indices) {
+            _toIndex: function(items, indices) {
                 var result = this._getDiagramItems(items);
                 this.mainLayer.toIndex(result.visuals, indices);
                 this._fixOrdering(result, false);
             },
-            _fixOrdering: function (result, toFront) {
+            _fixOrdering: function(result, toFront) {
                 var shapePos = toFront ? this.shapes.length - 1 : 0,
                     conPos = toFront ? this.connections.length - 1 : 0,
                     i, item;
@@ -106714,7 +108058,7 @@ return window.kendo;
                     Utils.insert(this.connections, item, conPos);
                 }
             },
-            _getDiagramItems: function (items) {
+            _getDiagramItems: function(items) {
                 var i, result = {}, args = items;
                 result.visuals = [];
                 result.shapes = [];
@@ -106740,7 +108084,7 @@ return window.kendo;
                 return result;
             },
 
-            _removeItem: function (item, undoable, removedConnections) {
+            _removeItem: function(item, undoable, removedConnections) {
                 item.select(false);
                 if (item instanceof Shape) {
                     this._removeShapeDataItem(item);
@@ -106753,7 +108097,7 @@ return window.kendo;
                 this.mainLayer.remove(item.visual);
             },
 
-            _removeShape: function (shape, undoable, removedConnections) {
+            _removeShape: function(shape, undoable, removedConnections) {
                 var i, connection, connector,
                     sources = [], targets = [];
                 this.toolService._removeHover();
@@ -106788,7 +108132,7 @@ return window.kendo;
                 }
             },
 
-            _removeConnection: function (connection, undoable) {
+            _removeConnection: function(connection, undoable) {
                 if (connection.sourceConnector) {
                     Utils.remove(connection.sourceConnector.connections, connection);
                 }
@@ -106882,7 +108226,7 @@ return window.kendo;
                 }
             },
 
-            _refreshSource: function (e) {
+            _refreshSource: function(e) {
                 var that = this,
                     node = e.node,
                     action = e.action,
@@ -106930,7 +108274,7 @@ return window.kendo;
                 }
             },
 
-            _addItem: function (item) {
+            _addItem: function(item) {
                 if (item instanceof Shape) {
                     this.addShape(item);
                 } else if (item instanceof Connection) {
@@ -107007,11 +108351,11 @@ return window.kendo;
                 this._destroyToolBar();
             },
 
-            _normalizePointZoom: function (point) {
+            _normalizePointZoom: function(point) {
                 return point.times(1 / this.zoom());
             },
 
-            _initialize: function () {
+            _initialize: function() {
                 this.shapes = [];
                 this._selectedItems = [];
                 this.connections = [];
@@ -107026,7 +108370,7 @@ return window.kendo;
                 this.id = diagram.randomId();
             },
 
-            _fetchFreshData: function () {
+            _fetchFreshData: function() {
                 var that = this;
                 that._dataSource();
 
@@ -107108,7 +108452,7 @@ return window.kendo;
                 }
             },
 
-            _error: function () {
+            _error: function() {
                 this._loadingShapes = false;
             },
 
@@ -107307,7 +108651,7 @@ return window.kendo;
                 return connector;
             },
 
-            _treeDataSource: function () {
+            _treeDataSource: function() {
                 var that = this,
                     options = that.options,
                     dataSource = options.dataSource;
@@ -107338,13 +108682,13 @@ return window.kendo;
                     .bind(ERROR, that._errorHandler);
             },
 
-            _unbindDataSource: function () {
+            _unbindDataSource: function() {
                 var that = this;
 
                 that.dataSource.unbind(CHANGE, that._refreshHandler).unbind(ERROR, that._errorHandler);
             },
 
-            _adorn: function (adorner, isActive) {
+            _adorn: function(adorner, isActive) {
                 if (isActive !== undefined && adorner) {
                     if (isActive) {
                         this._adorners.push(adorner);
@@ -107357,7 +108701,7 @@ return window.kendo;
                 }
             },
 
-            _showConnectors: function (shape, value) {
+            _showConnectors: function(shape, value) {
                 if (value) {
                     this._connectorsAdorner.show(shape);
                 } else {
@@ -107368,7 +108712,7 @@ return window.kendo;
             _updateAdorners: function() {
                 var adorners = this._adorners;
 
-                for(var i = 0; i < adorners.length; i++) {
+                for (var i = 0; i < adorners.length; i++) {
                     var adorner = adorners[i];
 
                     if (adorner.refreshBounds) {
@@ -107378,7 +108722,7 @@ return window.kendo;
                 }
             },
 
-            _refresh: function () {
+            _refresh: function() {
                 for (var i = 0; i < this.connections.length; i++) {
                     this.connections[i].refresh();
                 }
@@ -107601,7 +108945,7 @@ return window.kendo;
                     this[toolName](tool);
                 } else {
                     this._tools.push(deepExtend({}, tool, {
-                        attributes: this._setAttributes({action: tool.name})
+                        attributes: this._setAttributes({ action: tool.name })
                     }));
                 }
             },
@@ -108024,7 +109368,7 @@ return window.kendo;
                 this.trigger("update");
             },
 
-            _cancelClick: function (e) {
+            _cancelClick: function(e) {
                 e.preventDefault();
                 this.trigger("cancel");
             },
@@ -108051,7 +109395,7 @@ return window.kendo;
         function connectionSelector(container, options) {
             var model = this.dataSource.reader.model;
             if (model) {
-                var textField = model.fn.fields.text ? "text": model.idField;
+                var textField = model.fn.fields.text ? "text" : model.idField;
                 $("<input name='" + options.field + "' />")
                     .appendTo(container).kendoDropDownList({
                         dataValueField: model.idField,
@@ -108096,12 +109440,12 @@ return window.kendo;
 
         InactiveItemsCollection.fn = InactiveItemsCollection.prototype = {
             add: function(items) {
-                for(var idx = 0; idx < items.length; idx++) {
+                for (var idx = 0; idx < items.length; idx++) {
                     this.items[items[idx].uid] = new InactiveItem(items[idx]);
                 }
             },
 
-            forEach: function(callback){
+            forEach: function(callback) {
                 for (var uid in this.items) {
                     callback(this.items[uid]);
                 }
@@ -108189,7 +109533,7 @@ return window.kendo;
                 return this.rect.overlaps(rect);
             },
 
-            insert: function (shape, bounds) {
+            insert: function(shape, bounds) {
                 var inserted = false;
                 var children = this.children;
                 var length = children.length;
@@ -108441,9 +109785,9 @@ return window.kendo;
         });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.diagram',[
         "kendo.data", "kendo.draganddrop", "kendo.userevents", "kendo.mobile.scroller",
         "kendo.drawing",
@@ -108455,7 +109799,7 @@ return window.kendo;
        "./dataviz/diagram/layout",
        "./dataviz/diagram/dom"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "dataviz.diagram",
@@ -108478,11 +109822,11 @@ return window.kendo;
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.treemap',[ "kendo.data", "kendo.userevents", "kendo.dataviz.themes" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dataviz.treeMap",
@@ -108818,7 +110162,7 @@ var __meta__ = { // jshint ignore:line
                 var elements = element.children(".k-treemap-wrap").children();
                 var child, childElement;
 
-                this._layout.compute(root.children, root.coord, {text: this._view.titleSize(root, element)});
+                this._layout.compute(root.children, root.coord, { text: this._view.titleSize(root, element) });
                 for (var idx = 0; idx < root.children.length; idx++) {
                     child = root.children[idx];
                     childElement = elements.filter("[" + kendo.attr("uid") + "='" + child.dataItem.uid + "']");
@@ -108985,7 +110329,7 @@ var __meta__ = { // jshint ignore:line
 
         layoutV: function(items, width, coord) {
             var totalArea = this._totalArea(items),
-                top =  0;
+                top = 0;
 
             width = round(totalArea / width);
 
@@ -109024,7 +110368,7 @@ var __meta__ = { // jshint ignore:line
                 top = coord.top,
                 left = 0;
 
-            for (var i=0; i<items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 items[i].coord = {
                     height: height,
                     width: round(items[i].area / height),
@@ -109103,7 +110447,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _compile: function(element, dataItem) {
-            this.treeMap.angular("compile", function(){
+            this.treeMap.angular("compile", function() {
                 return {
                     elements: element,
                     data: [ { dataItem: dataItem } ]
@@ -109531,9 +110875,9 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.angular',[ "kendo.core" ], f);
 })(function() {
 
@@ -109546,7 +110890,7 @@ var __meta__ = { // jshint ignore:line
     defer: true
 };
 
-(function ($, angular, undefined) {
+(function($, angular, undefined) {
     "use strict";
 
     // Angular2 exposes a global angular object, but it does not have an injector...
@@ -109566,7 +110910,7 @@ var __meta__ = { // jshint ignore:line
     function withoutTimeout(f) {
         var save = $timeout;
         try {
-            $timeout = function(f){ return f(); };
+            $timeout = function(f) { return f(); };
             return f();
         } finally {
             $timeout = save;
@@ -109577,14 +110921,14 @@ var __meta__ = { // jshint ignore:line
 
     var createDataSource = (function() {
         var types = {
-            TreeList    : 'TreeListDataSource',
-            TreeView    : 'HierarchicalDataSource',
-            Scheduler   : 'SchedulerDataSource',
-            PivotGrid   : 'PivotDataSource',
-            PivotConfigurator   : 'PivotDataSource',
-            PanelBar    : 'HierarchicalDataSource',
-            Menu        : "$PLAIN",
-            ContextMenu : "$PLAIN"
+            TreeList: 'TreeListDataSource',
+            TreeView: 'HierarchicalDataSource',
+            Scheduler: 'SchedulerDataSource',
+            PivotGrid: 'PivotDataSource',
+            PivotConfigurator: 'PivotDataSource',
+            PanelBar: 'HierarchicalDataSource',
+            Menu: "$PLAIN",
+            ContextMenu: "$PLAIN"
         };
         var toDataSource = function(dataSource, type) {
             if (type == '$PLAIN') {
@@ -109613,18 +110957,18 @@ var __meta__ = { // jshint ignore:line
     }());
 
     var ignoredAttributes = {
-        kDataSource : true,
-        kOptions    : true,
-        kRebind     : true,
-        kNgModel    : true,
-        kNgDelay    : true
+        kDataSource: true,
+        kOptions: true,
+        kRebind: true,
+        kNgModel: true,
+        kNgDelay: true
     };
 
     var ignoredOwnProperties = {
         // XXX: other names to ignore here?
-        name    : true,
-        title   : true,
-        style   : true
+        name: true,
+        title: true,
+        style: true
     };
 
     function createWidget(scope, element, attrs, widget, origAttr, controllers) {
@@ -109715,7 +111059,7 @@ var __meta__ = { // jshint ignore:line
             options = parseOptions(scope, element, attrs, widget, ctor).options;
 
             if (element.is("select")) {
-                (function(options){
+                (function(options) {
                     if (options.length > 0) {
                         var first = $(options[0]);
                         if (!/\S/.test(first.text()) && /^\?/.test(first.val())) {
@@ -109944,7 +111288,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             haveChangeOnElement = true;
-            setTimeout(function(){
+            setTimeout(function() {
                 haveChangeOnElement = false;
                 if (widget) { // might have been destroyed in between. :-(
                     var kNgModel = scope[widget.element.attr("k-ng-model")];
@@ -110022,7 +111366,7 @@ var __meta__ = { // jshint ignore:line
     }
 
     function bindToKNgModel(widget, scope, kNgModel) {
-        if(kendo.ui.DateRangePicker && widget instanceof kendo.ui.DateRangePicker){
+        if (kendo.ui.DateRangePicker && widget instanceof kendo.ui.DateRangePicker) {
             var rangePickerModels = kNgModel.split(",");
             var rangePickerStartModel = rangePickerModels[0].trim();
             var rangePickerEndModel;
@@ -110031,9 +111375,9 @@ var __meta__ = { // jshint ignore:line
             if (rangePickerModels[1]) {
                 rangePickerEndModel = rangePickerModels[1].trim();
                 bindToKNgModel(widget._endDateInput, scope, rangePickerEndModel);
-                widget.range({start:scope[rangePickerStartModel], end:scope[rangePickerEndModel] });
+                widget.range({ start: scope[rangePickerStartModel], end: scope[rangePickerEndModel] });
             } else {
-                widget.range({start:scope[rangePickerStartModel], end: null });
+                widget.range({ start: scope[rangePickerStartModel], end: null });
             }
 
             return;
@@ -110044,7 +111388,7 @@ var __meta__ = { // jshint ignore:line
             return;
         }
 
-        var form  = $(widget.element).parents("ng-form, form").first();
+        var form = $(widget.element).parents("ng-form, form").first();
         var ngForm = kendo.getter(form.attr("name"), true)(scope);
         var getter = $parse(kNgModel);
         var setter = getter.assign;
@@ -110093,7 +111437,7 @@ var __meta__ = { // jshint ignore:line
                 ngForm.$setDirty();
             }
 
-            digest(scope, function(){
+            digest(scope, function() {
                 setter(scope, widget.$angular_getLogicValue());
                 currentValueLength = length(getter(scope));
             });
@@ -110126,20 +111470,20 @@ var __meta__ = { // jshint ignore:line
 
         var prevClassList = [].slice.call($(element)[0].classList);
 
-        var mo = new MutationObserver(function(changes){
-            suspend();    // make sure we don't trigger a loop
+        var mo = new MutationObserver(function(changes) {
+            suspend(); // make sure we don't trigger a loop
             if (!widget) {
                 return;
             }
 
-            changes.forEach(function(chg){
+            changes.forEach(function(chg) {
                 var w = $(widget.wrapper)[0];
                 switch (chg.attributeName) {
 
                     case "class":
                         // sync classes to the wrapper element
                         var currClassList = [].slice.call(chg.target.classList);
-                        currClassList.forEach(function(cls){
+                        currClassList.forEach(function(cls) {
                             if (prevClassList.indexOf(cls) < 0) {
                                 w.classList.add(cls);
                                 if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
@@ -110147,7 +111491,7 @@ var __meta__ = { // jshint ignore:line
                                 }
                             }
                         });
-                        prevClassList.forEach(function(cls){
+                        prevClassList.forEach(function(cls) {
                             if (currClassList.indexOf(cls) < 0) {
                                 w.classList.remove(cls);
                                 if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
@@ -110265,7 +111609,7 @@ var __meta__ = { // jshint ignore:line
 
                 controller: [ '$scope', '$attrs', '$element', function($scope, $attrs) {
                     this.template = bind(setTemplate, $attrs);
-                    $attrs._cleanUp = bind(function(){
+                    $attrs._cleanUp = bind(function() {
                         this.template = null;
                         $attrs._cleanUp = null;
                     }, this);
@@ -110301,7 +111645,7 @@ var __meta__ = { // jshint ignore:line
                         scope.$emit("kendoRendered");
                         if (!RENDERED) {
                             RENDERED = true;
-                            $("form").each(function(){
+                            $("form").each(function() {
                                 var form = $(this).controller("form");
                                 if (form) {
                                     form.$setPristine();
@@ -110319,30 +111663,30 @@ var __meta__ = { // jshint ignore:line
     }]);
 
     var TAGNAMES = {
-        Editor         : "textarea",
-        NumericTextBox : "input",
-        DatePicker     : "input",
-        DateTimePicker : "input",
-        TimePicker     : "input",
-        AutoComplete   : "input",
-        ColorPicker    : "input",
-        MaskedTextBox  : "input",
-        MultiSelect    : "input",
-        Upload         : "input",
-        Validator      : "form",
-        Button         : "button",
-        MobileButton        : "a",
-        MobileBackButton    : "a",
-        MobileDetailButton  : "a",
-        ListView       : "ul",
+        Editor: "textarea",
+        NumericTextBox: "input",
+        DatePicker: "input",
+        DateTimePicker: "input",
+        TimePicker: "input",
+        AutoComplete: "input",
+        ColorPicker: "input",
+        MaskedTextBox: "input",
+        MultiSelect: "input",
+        Upload: "input",
+        Validator: "form",
+        Button: "button",
+        MobileButton: "a",
+        MobileBackButton: "a",
+        MobileDetailButton: "a",
+        ListView: "ul",
         MobileListView: "ul",
-        ScrollView       : "div",
-        PanelBar       : "ul",
-        TreeView       : "ul",
-        Menu           : "ul",
-        ContextMenu    : "ul",
-        ActionSheet    : "ul",
-        Switch    : "input"
+        ScrollView: "div",
+        PanelBar: "ul",
+        TreeView: "ul",
+        Menu: "ul",
+        ContextMenu: "ul",
+        ActionSheet: "ul",
+        Switch: "input"
     };
 
     var SKIP_SHORTCUTS = [
@@ -110403,11 +111747,11 @@ var __meta__ = { // jshint ignore:line
         if (SKIP_SHORTCUTS.indexOf(name.replace("kendo", "")) == -1) {
             var names = name === shortcut ? [ name ] : [ name, shortcut ];
             angular.forEach(names, function(directiveName) {
-                module.directive(directiveName, function(){
+                module.directive(directiveName, function() {
                     return {
-                        restrict : "E",
-                        replace  : true,
-                        template : function(element, attributes) {
+                        restrict: "E",
+                        replace: true,
+                        template: function(element, attributes) {
                             var tag = TAGNAMES[className] || "div";
                             var scopeField = attributes.kScopeField || attributes.scopeField;
 
@@ -110488,7 +111832,7 @@ var __meta__ = { // jshint ignore:line
     // object).
     function defadvice(klass, methodName, func) {
         if (Array.isArray(klass)) {
-            return angular.forEach(klass, function(klass){
+            return angular.forEach(klass, function(klass) {
                 defadvice(klass, methodName, func);
             });
         }
@@ -110517,8 +111861,8 @@ var __meta__ = { // jshint ignore:line
         return true;
     }
 
-    kendo.onWidgetRegistered(function(entry){
-        pendingPatches = $.grep(pendingPatches, function(args){
+    kendo.onWidgetRegistered(function(entry) {
+        pendingPatches = $.grep(pendingPatches, function(args) {
             return !defadvice.apply(null, args);
         });
         createDirectives(entry.widget, entry.prefix == "Mobile");
@@ -110526,7 +111870,7 @@ var __meta__ = { // jshint ignore:line
 
     /* -----[ Customize widgets for Angular ]----- */
 
-    defadvice([ "ui.Widget", "mobile.ui.Widget" ], "angular", function(cmd, arg){
+    defadvice([ "ui.Widget", "mobile.ui.Widget" ], "angular", function(cmd, arg) {
         var self = this.self;
         if (cmd == "init") {
             // `arg` here should be the widget options.
@@ -110546,13 +111890,13 @@ var __meta__ = { // jshint ignore:line
         var scope = self.$angular_scope;
 
         if (scope) {
-            withoutTimeout(function(){
+            withoutTimeout(function() {
                 var x = arg(), elements = x.elements, data = x.data;
                 if (elements.length > 0) {
                     switch (cmd) {
 
                       case "cleanup":
-                        angular.forEach(elements, function(el){
+                        angular.forEach(elements, function(el) {
                             var itemScope = $(el).data("$$kendoScope");
 
                             if (itemScope && itemScope !== scope && itemScope.$$kendoScope) {
@@ -110565,7 +111909,7 @@ var __meta__ = { // jshint ignore:line
                         var injector = self.element.injector();
                         var compile = injector ? injector.get("$compile") : $defaultCompile;
 
-                        angular.forEach(elements, function(el, i){
+                        angular.forEach(elements, function(el, i) {
                             var itemScope;
                             if (x.scopeFrom) {
                                 itemScope = x.scopeFrom;
@@ -110590,15 +111934,15 @@ var __meta__ = { // jshint ignore:line
         }
     });
 
-    defadvice("ui.Widget", "$angular_getLogicValue", function(){
+    defadvice("ui.Widget", "$angular_getLogicValue", function() {
         return this.self.value();
     });
 
-    defadvice("ui.Widget", "$angular_setLogicValue", function(val){
+    defadvice("ui.Widget", "$angular_setLogicValue", function(val) {
         this.self.value(val);
     });
 
-    defadvice("ui.Select", "$angular_getLogicValue", function(){
+    defadvice("ui.Select", "$angular_getLogicValue", function() {
         var item = this.self.dataItem(),
             valueField = this.self.options.dataValueField;
 
@@ -110617,7 +111961,7 @@ var __meta__ = { // jshint ignore:line
         }
     });
 
-    defadvice("ui.Select", "$angular_setLogicValue", function(val){
+    defadvice("ui.Select", "$angular_setLogicValue", function(val) {
         var self = this.self;
         var options = self.options;
         var valueField = options.dataValueField;
@@ -110656,7 +112000,7 @@ var __meta__ = { // jshint ignore:line
         return value;
     });
 
-    defadvice("ui.MultiSelect", "$angular_setLogicValue", function(val){
+    defadvice("ui.MultiSelect", "$angular_setLogicValue", function(val) {
         if (val == null) {
             val = [];
         }
@@ -110702,7 +112046,7 @@ var __meta__ = { // jshint ignore:line
     });
 
     // most handers will only contain a kendoEvent in the scope.
-    defadvice("ui.Widget", "$angular_makeEventHandler", function(event, scope, handler){
+    defadvice("ui.Widget", "$angular_makeEventHandler", function(event, scope, handler) {
         handler = $parse(handler);
         return function(e) {
             digest(scope, function() {
@@ -110712,7 +112056,7 @@ var __meta__ = { // jshint ignore:line
     });
 
     // for the Grid and ListView we add `data` and `selected` too.
-    defadvice([ "ui.Grid", "ui.ListView", "ui.TreeView", "ui.PanelBar" ], "$angular_makeEventHandler", function(event, scope, handler){
+    defadvice([ "ui.Grid", "ui.ListView", "ui.TreeView", "ui.PanelBar" ], "$angular_makeEventHandler", function(event, scope, handler) {
         if (event != "change") {
             return this.next();
         }
@@ -110764,11 +112108,11 @@ var __meta__ = { // jshint ignore:line
     // If no `template` is supplied for Grid columns, provide an Angular
     // template.  The reason is that in this way AngularJS will take
     // care to update the view as the data in scope changes.
-    defadvice("ui.Grid", "$angular_init", function(element, options){
+    defadvice("ui.Grid", "$angular_init", function(element, options) {
         this.next();
         if (options.columns) {
             var settings = $.extend({}, kendo.Template, options.templateSettings);
-            angular.forEach(options.columns, function(col){
+            angular.forEach(options.columns, function(col) {
                 if (col.field && !col.template && !col.format && !col.values && (col.encoded === undefined || col.encoded)) {
                     col.template = "<span ng-bind='" +
                         kendo.expr(col.field, "dataItem") + "'>#: " +
@@ -110782,7 +112126,7 @@ var __meta__ = { // jshint ignore:line
         // mobile/ButtonGroup does not have a "value" method, but looks
         // like it would be useful.  We provide it here.
 
-        defadvice("mobile.ui.ButtonGroup", "value", function(mew){
+        defadvice("mobile.ui.ButtonGroup", "value", function(mew) {
             var self = this.self;
             if (mew != null) {
                 self.select(self.element.children("li.km-button").eq(mew));
@@ -110792,7 +112136,7 @@ var __meta__ = { // jshint ignore:line
             return self.selectedIndex;
         });
 
-        defadvice("mobile.ui.ButtonGroup", "_select", function(){
+        defadvice("mobile.ui.ButtonGroup", "_select", function() {
             this.next();
             this.self.trigger("change");
         });
@@ -110879,7 +112223,7 @@ var __meta__ = { // jshint ignore:line
     }).directive('kendoMobileLayout', function() {
         return {
             link: {
-                pre: function (scope, element, attrs) {
+                pre: function(scope, element, attrs) {
                     createWidget(scope, element, attrs, 'kendoMobileLayout', 'kendoMobileLayout');
                 }
             }
@@ -110905,11 +112249,11 @@ var __meta__ = { // jshint ignore:line
                 }
             }
         };
-    }).directive('kendoViewTitle', function(){
+    }).directive('kendoViewTitle', function() {
         return {
-            restrict : "E",
-            replace  : true,
-            template : function(element) {
+            restrict: "E",
+            replace: true,
+            template: function(element) {
                 return "<span data-" + kendo.ns + "role='view-title'>" + element.html() + "</span>";
             }
         };
@@ -110927,11 +112271,11 @@ var __meta__ = { // jshint ignore:line
                     element.addClass("km-footer").attr("data-role", "footer");
                 }
             };
-    }).directive('kendoMobileScrollViewPage', function(){
+    }).directive('kendoMobileScrollViewPage', function() {
         return {
-            restrict : "E",
-            replace  : true,
-            template : function(element) {
+            restrict: "E",
+            replace: true,
+            template: function(element) {
                 return "<div data-" + kendo.ns + "role='page'>" + element.html() + "</div>";
             }
         };
@@ -110997,7 +112341,7 @@ var __meta__ = { // jshint ignore:line
                         return function(scope, element, attrs, controllers) {
                             var controller;
 
-                            while(!controller && controllers.length) {
+                            while (!controller && controllers.length) {
                                 controller = controllers.shift();
                             }
 
@@ -111020,9 +112364,9 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz',[
         "kendo.core",
         "kendo.fx",
@@ -111052,14 +112396,14 @@ return window.kendo;
         "kendo.dataviz.treemap",
         "kendo.angular"
     ], f);
-})(function(){
+})(function() {
     "bundle all";
     return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.touch',[ "kendo.core", "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "touch",
@@ -111225,11 +112569,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.view',[ "kendo.core", "kendo.fx", "kendo.mobile.scroller", "kendo.view" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.view",
@@ -111329,11 +112673,11 @@ var __meta__ = { // jshint ignore:line
         },
 
         enable: function(enable) {
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
-            if(enable) {
+            if (enable) {
                 this.overlay.hide();
             } else {
                 this.overlay.show();
@@ -111387,7 +112731,7 @@ var __meta__ = { // jshint ignore:line
 
             if (!this.inited) {
                 this.inited = true;
-                this.trigger(INIT, {view: this});
+                this.trigger(INIT, { view: this });
             } else { // skip the initial controller update
                 this._invokeNgController();
             }
@@ -111397,30 +112741,30 @@ var __meta__ = { // jshint ignore:line
             }
 
             this._padIfNativeScrolling();
-            this.trigger(SHOW, {view: this});
+            this.trigger(SHOW, { view: this });
             kendo.resize(element);
         },
 
         showEnd: function() {
-            this.trigger(AFTER_SHOW, {view: this});
+            this.trigger(AFTER_SHOW, { view: this });
             this._padIfNativeScrolling();
         },
 
         hideEnd: function() {
             var that = this;
             that.element.hide();
-            that.trigger(HIDE, {view: that});
+            that.trigger(HIDE, { view: that });
 
             if (that.layout) {
-                that.layout.trigger(HIDE, { view : that, layout: that.layout });
+                that.layout.trigger(HIDE, { view: that, layout: that.layout });
             }
         },
 
-        beforeTransition: function(type){
+        beforeTransition: function(type) {
             this.trigger(TRANSITION_START, { type: type });
         },
 
-        afterTransition: function(type){
+        afterTransition: function(type) {
             this.trigger(TRANSITION_END, { type: type });
         },
 
@@ -111587,7 +112931,7 @@ var __meta__ = { // jshint ignore:line
                 kendo.mobile.init(this.element.children());
             }
             this.element.detach();
-            this.trigger(INIT, {layout: this});
+            this.trigger(INIT, { layout: this });
         },
 
         _locate: function(selectors) {
@@ -111642,7 +112986,7 @@ var __meta__ = { // jshint ignore:line
                 view.element.append(that.footer);
             }
 
-            that.trigger(SHOW, {layout: that, view: view});
+            that.trigger(SHOW, { layout: that, view: view });
             that.currentView = view;
         }
     });
@@ -111943,11 +113287,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.loader',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.loader",
@@ -112042,11 +113386,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.pane',[ "kendo.mobile.view", "kendo.mobile.loader" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.pane",
@@ -112172,7 +113516,7 @@ var __meta__ = { // jshint ignore:line
                 },
 
                 viewTypeDetermined: function(e) {
-                    if (!e.remote || !that.options.serverNavigation)  {
+                    if (!e.remote || !that.options.serverNavigation) {
                         that.trigger(NAVIGATE, { url: e.url });
                     }
                 }
@@ -112343,11 +113687,11 @@ var __meta__ = { // jshint ignore:line
             this.element.css('-ms-touch-action', '');
         },
 
-        _appLinkClick: function (e) {
+        _appLinkClick: function(e) {
             var href = $(e.currentTarget).attr("href");
             var remote = href && href[0] !== "#" && this.options.serverNavigation;
 
-            if(!remote && attrValue($(e.currentTarget), "rel") != EXTERNAL) {
+            if (!remote && attrValue($(e.currentTarget), "rel") != EXTERNAL) {
                 e.preventDefault();
             }
         },
@@ -112413,11 +113757,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.popover',[ "kendo.popup", "kendo.mobile.pane" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.popover",
@@ -112690,11 +114034,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.shim',[ "kendo.popup" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.shim",
@@ -112721,7 +114065,7 @@ var __meta__ = { // jshint ignore:line
                 osname = app ? app.os.name : (os ? os.name : "ios"),
                 ioswp = osname === "ios" || osname === "wp" || (app ? app.os.skin : false),
                 bb = osname === "blackberry",
-                align = options.align || (ioswp ?  "bottom center" : bb ? "center right" : "center center"),
+                align = options.align || (ioswp ? "bottom center" : bb ? "center right" : "center center"),
                 position = options.position || (ioswp ? "bottom center" : bb ? "center right" : "center center"),
                 effect = options.effect || (ioswp ? "slideIn:up" : bb ? "slideIn:left" : "fade:in"),
                 shim = $(SHIM).handler(that).hide();
@@ -112823,11 +114167,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.modalview',[ "kendo.mobile.shim", "kendo.mobile.view" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.modalview",
@@ -112955,11 +114299,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.drawer',[ "kendo.mobile.view", "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.drawer",
@@ -113268,7 +114612,7 @@ var __meta__ = { // jshint ignore:line
                 shouldShow = velocity < velocityThreshold && (velocity < -velocityThreshold || pastHalf);
             }
 
-            if(shouldShow) {
+            if (shouldShow) {
                 this._show();
             } else {
                 this.hide();
@@ -113281,11 +114625,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.splitview',[ "kendo.mobile.pane" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.splitview",
@@ -113391,14 +114735,14 @@ var __meta__ = { // jshint ignore:line
             that.content.addClass("km-split-content");
         },
 
-        _style: function () {
+        _style: function() {
             var style = this.options.style,
                 element = this.element,
                 styles;
 
             if (style) {
                 styles = style.split(" ");
-                $.each(styles, function () {
+                $.each(styles, function() {
                     element.addClass("km-split-" + this);
                 });
             }
@@ -113417,12 +114761,12 @@ var __meta__ = { // jshint ignore:line
                         this.navigate("");
                     }
                 });
-                that.trigger("init", {view: that});
+                that.trigger("init", { view: that });
             } else {
                 this._invokeNgController();
             }
 
-            that.trigger("show", {view: that});
+            that.trigger("show", { view: that });
         }
     });
 
@@ -113431,11 +114775,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.application',[ "kendo.mobile.pane", "kendo.router" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.application",
@@ -113457,7 +114801,7 @@ var __meta__ = { // jshint ignore:line
         BERRYPHONEGAP = OS.device == "blackberry" && OS.flatVersion >= 600 && OS.flatVersion < 1000 && OS.appMode,
         FONT_SIZE_COEF = 0.93,
         VERTICAL = "km-vertical",
-        CHROME =  OS.browser === "chrome",
+        CHROME = OS.browser === "chrome",
         BROKEN_WEBVIEW_RESIZE = OS.ios && OS.flatVersion >= 700 && OS.flatVersion < 800 && (OS.appMode || CHROME),
         INITIALLY_HORIZONTAL = (Math.abs(window.orientation) / 90 == 1),
         HORIZONTAL = "km-horizontal",
@@ -113471,14 +114815,14 @@ var __meta__ = { // jshint ignore:line
             wp: { wp: true, browser: "default", device: "wp", flatVersion: "800", majorVersion: "8", minorVersion: "0.0", name: "wp", tablet: false }
         },
 
-        viewportTemplate = kendo.template('<meta content="initial-scale=#: data.scale #, maximum-scale=#: data.scale #, user-scalable=no#=data.height#" name="viewport" />', {usedWithBlock: false}),
+        viewportTemplate = kendo.template('<meta content="initial-scale=#: data.scale #, maximum-scale=#: data.scale #, user-scalable=no#=data.height#" name="viewport" />', { usedWithBlock: false }),
         systemMeta = kendo.template('<meta name="apple-mobile-web-app-capable" content="#= data.webAppCapable === false ? \'no\' : \'yes\' #" /> ' +
                      '<meta name="apple-mobile-web-app-status-bar-style" content="#=data.statusBarStyle#" /> ' +
-                     '<meta name="msapplication-tap-highlight" content="no" /> ', {usedWithBlock: false}),
-        clipTemplate = kendo.template('<style>.km-view { clip: rect(0 #= data.width #px #= data.height #px 0); }</style>', {usedWithBlock: false}),
+                     '<meta name="msapplication-tap-highlight" content="no" /> ', { usedWithBlock: false }),
+        clipTemplate = kendo.template('<style>.km-view { clip: rect(0 #= data.width #px #= data.height #px 0); }</style>', { usedWithBlock: false }),
         ENABLE_CLIP = OS.android && OS.browser != "chrome" || OS.blackberry,
 
-        iconMeta = kendo.template('<link rel="apple-touch-icon' + (OS.android ? '-precomposed' : '') + '" # if(data.size) { # sizes="#=data.size#" #}# href="#=data.icon#" />', {usedWithBlock: false}),
+        iconMeta = kendo.template('<link rel="apple-touch-icon' + (OS.android ? '-precomposed' : '') + '" # if(data.size) { # sizes="#=data.size#" #}# href="#=data.icon#" />', { usedWithBlock: false }),
 
         HIDEBAR = (OS.device == "iphone" || OS.device == "ipod") && OS.majorVersion < 7,
         SUPPORT_SWIPE_TO_GO_BACK = (OS.device == "iphone" || OS.device == "ipod") && OS.majorVersion >= 7,
@@ -113556,9 +114900,9 @@ var __meta__ = { // jshint ignore:line
     function applyViewportHeight() {
         $("meta[name=viewport]").remove();
             HEAD.append(viewportTemplate({
-            height: ", width=device-width" +  // width=device-width was removed for iOS6, but this should stay for BB PhoneGap.
+            height: ", width=device-width" + // width=device-width was removed for iOS6, but this should stay for BB PhoneGap.
                         (isOrientationHorizontal() ?
-                            ", height=" + window.innerHeight + "px"  :
+                            ", height=" + window.innerHeight + "px" :
                             (support.mobileOS.flatVersion >= 600 && support.mobileOS.flatVersion < 700) ?
                                 ", height=" + window.innerWidth + "px" :
                                 ", height=device-height")
@@ -113697,7 +115041,7 @@ var __meta__ = { // jshint ignore:line
                 skin = that.options.skin,
                 split = [],
                 os = OS || MOBILE_PLATFORMS[DEFAULT_OS],
-                refreshBackgroundFn = function () {
+                refreshBackgroundFn = function() {
                     if (that.os.variant && (that.os.skin && that.os.skin === that.os.name) || !that.os.skin) {
                         that.element.removeClass("km-wp-dark km-wp-light km-wp-dark-force km-wp-light-force").addClass(wp8Background(that.os));
                     }
@@ -113874,17 +115218,17 @@ var __meta__ = { // jshint ignore:line
             this._clearExistingMeta();
 
             if (!BERRYPHONEGAP) {
-                HEAD.prepend(viewportTemplate({ height: "", scale : this.options.retina ? 1 / support.devicePixelRatio : "1.0" }));
+                HEAD.prepend(viewportTemplate({ height: "", scale: this.options.retina ? 1 / support.devicePixelRatio : "1.0" }));
             }
 
             HEAD.prepend(systemMeta(options));
 
             if (icon) {
                 if (typeof icon === "string") {
-                    icon = { "" : icon };
+                    icon = { "": icon };
                 }
 
-                for(size in icon) {
+                for (size in icon) {
                     HEAD.prepend(iconMeta({ icon: icon[size], size: size }));
                 }
             }
@@ -113936,11 +115280,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.actionsheet',[ "kendo.mobile.popover", "kendo.mobile.shim" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.actionsheet",
@@ -113993,7 +115337,7 @@ var __meta__ = { // jshint ignore:line
 
             element
                 .addClass("km-actionsheet")
-                .append(cancelTemplate({cancel: that.options.cancel}))
+                .append(cancelTemplate({ cancel: that.options.cancel }))
                 .wrap(WRAP)
                 .on("up", BUTTONS, "_click")
                 .on("click", BUTTONS, kendo.preventDefault);
@@ -114004,7 +115348,7 @@ var __meta__ = { // jshint ignore:line
 
             that.wrapper = element.parent().addClass(type ? " km-actionsheet-" + type : "");
 
-            that.shim = new ShimClass(that.wrapper, $.extend({modal: os.ios && os.majorVersion < 7, className: "km-actionsheet-root"}, that.options.popup) );
+            that.shim = new ShimClass(that.wrapper, $.extend({ modal: os.ios && os.majorVersion < 7, className: "km-actionsheet-root" }, that.options.popup) );
 
             that._closeProxy = that._close.bind(that);
             that._shimHideProxy = that._shimHide.bind(that);
@@ -114106,11 +115450,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.button',[ "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.button",
@@ -114202,7 +115546,7 @@ var __meta__ = { // jshint ignore:line
             enable: true
         },
 
-        badge: function (value) {
+        badge: function(value) {
             var badge = this.badgeElement = this.badgeElement || createBadge(value).appendTo(this.element);
 
             if (value || value === 0) {
@@ -114222,13 +115566,13 @@ var __meta__ = { // jshint ignore:line
         enable: function(enable) {
             var element = this.element;
 
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
             this.options.enable = enable;
 
-            if(enable) {
+            if (enable) {
                 element.prop(DISABLED, false);
             } else {
                 element.attr(DISABLED, DISABLED);
@@ -114247,7 +115591,7 @@ var __meta__ = { // jshint ignore:line
             var activeElement = document.activeElement,
                 nodeName = activeElement ? activeElement.nodeName : "";
 
-            if(this.options.enable) {
+            if (this.options.enable) {
                 highlightButton(this, e, true);
 
                 if (nodeName == "INPUT" || nodeName == "TEXTAREA") {
@@ -114263,12 +115607,12 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if(!that.options.enable) {
+            if (!that.options.enable) {
                 e.preventDefault();
                 return;
             }
 
-            if (that.trigger(CLICK, {target: $(e.target), button: that.element})) {
+            if (that.trigger(CLICK, { target: $(e.target), button: that.element })) {
                 e.preventDefault();
             }
         },
@@ -114375,11 +115719,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.buttongroup',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.buttongroup",
@@ -114396,7 +115740,7 @@ var __meta__ = { // jshint ignore:line
         ACTIVE = "state-active",
         DISABLE = "state-disabled",
         SELECT = "select",
-        SELECTOR = "li:not(.km-" + ACTIVE +")";
+        SELECTOR = "li:not(.km-" + ACTIVE + ")";
 
     function className(name) {
         return "k-" + name + " km-" + name;
@@ -114419,7 +115763,7 @@ var __meta__ = { // jshint ignore:line
             that._enable = true;
             that.select(that.options.index);
 
-            if(!that.options.enable) {
+            if (!that.options.enable) {
                 that._enable = false;
                 that.wrapper.addClass(className(DISABLE));
             }
@@ -114440,7 +115784,7 @@ var __meta__ = { // jshint ignore:line
             return this.element.find(".km-" + ACTIVE);
         },
 
-        select: function (li) {
+        select: function(li) {
             var that = this,
                 index = -1;
 
@@ -114486,7 +115830,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         enable: function(enable) {
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
@@ -114532,11 +115876,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.collapsible',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.collapsible",
@@ -114704,7 +116048,7 @@ var __meta__ = { // jshint ignore:line
                 height;
 
             this.content.css({
-                position:   'absolute',
+                position: 'absolute',
                 visibility: 'hidden',
                 height: "auto"
             });
@@ -114722,11 +116066,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.listview',[ "kendo.data", "kendo.userevents", "kendo.mobile.button" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.listview",
@@ -115002,7 +116346,7 @@ var __meta__ = { // jshint ignore:line
                 items = this.items,
                 endReached = false;
 
-            while(items.length) {
+            while (items.length) {
                 items.pop().destroy();
             }
 
@@ -115060,7 +116404,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (this.lastDirection) { // scrolling up
-                while(items[items.length - 1].bottom > top + height * 2) {
+                while (items[items.length - 1].bottom > top + height * 2) {
                     if (this.offset === 0) {
                         break;
                     }
@@ -115118,7 +116462,7 @@ var __meta__ = { // jshint ignore:line
             this.lastDirection = up;
 
             if (up) { // scrolling up
-               if (items[0].top > topBorder &&  // needs reorder
+               if (items[0].top > topBorder && // needs reorder
                    items[items.length - 1].bottom > bottomBorder + padding && // enough padding below
                    this.offset > 0 // we are not at the top
                   )
@@ -115454,7 +116798,7 @@ var __meta__ = { // jshint ignore:line
 
 
             if (action === "itemchange") {
-                if(!listView._hasBindingTarget()) {
+                if (!listView._hasBindingTarget()) {
                     item = listView.findByDataItem(dataItems)[0];
                     if (item) {
                         listView.setDataItem(item, dataItems[0]);
@@ -115574,7 +116918,7 @@ var __meta__ = { // jshint ignore:line
             var appliedFilters = this.listView.dataSource.filter();
             var searchInput = this.listView._filter.searchInput;
 
-            if (!appliedFilters || appliedFilters.filters[0].field !== this.listView.options.filterable.field)  {
+            if (!appliedFilters || appliedFilters.filters[0].field !== this.listView.options.filterable.field) {
                 searchInput.val("");
             } else {
                 searchInput.val(appliedFilters.filters[0].value);
@@ -115760,7 +117104,7 @@ var __meta__ = { // jshint ignore:line
                 this._itemBinder.destroy();
             }
 
-            if(this._headerFixer) {
+            if (this._headerFixer) {
                 this._headerFixer.destroy();
             }
 
@@ -115853,7 +117197,7 @@ var __meta__ = { // jshint ignore:line
 
         remove: function(dataItems) {
             var items = this.findByDataItem(dataItems);
-            this.angular("cleanup", function(){
+            this.angular("cleanup", function() {
                 return { elements: items };
             });
             kendo.destroy(items);
@@ -115876,7 +117220,7 @@ var __meta__ = { // jshint ignore:line
                 replaceItem = function(items) {
                     var newItem = $(items[0]);
                     kendo.destroy(item);
-                    listView.angular("cleanup", function(){ return { elements: [ $(item) ] }; });
+                    listView.angular("cleanup", function() { return { elements: [ $(item) ] }; });
                     $(item).replaceWith(newItem);
                     listView.trigger(ITEM_CHANGE, { item: newItem, data: dataItem, ns: ui });
                 };
@@ -115896,7 +117240,7 @@ var __meta__ = { // jshint ignore:line
             this.angular("compile", function() {
                 return {
                     elements: items,
-                    data: dataItems.map(function(data){
+                    data: dataItems.map(function(data) {
                         return { dataItem: data };
                     })
                 };
@@ -115974,7 +117318,7 @@ var __meta__ = { // jshint ignore:line
                 dataItem = this.dataSource.getByUid(id);
             }
 
-            if (this.trigger(CLICK, {target: target, item: item, dataItem: dataItem, button: button})) {
+            if (this.trigger(CLICK, { target: target, item: item, dataItem: dataItem, button: button })) {
                 e.preventDefault();
             }
         },
@@ -116048,11 +117392,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.navbar',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.navbar",
@@ -116130,11 +117474,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.scrollview',[ "kendo.fx", "kendo.data", "kendo.draganddrop" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.scrollview",
@@ -116158,7 +117502,7 @@ var __meta__ = { // jshint ignore:line
 
         // Math
         math = Math,
-        abs  = math.abs,
+        abs = math.abs,
         ceil = math.ceil,
         round = math.round,
         max = math.max,
@@ -116665,7 +118009,7 @@ var __meta__ = { // jshint ignore:line
 
         forcePageUpdate: function() {
             var offset = this.pane.offset(),
-                threshold  = this.pane.size().width * 3/4;
+                threshold = this.pane.size().width * 3 / 4;
 
             if (abs(offset) > threshold) {
                 return this.updatePage();
@@ -117039,12 +118383,12 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 /* jshint multistr: true */
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.switch',[ "kendo.fx", "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.switch",
@@ -117135,7 +118479,7 @@ var __meta__ = { // jshint ignore:line
 
             that.width = that.wrapper.width();
 
-            that.constrain  = that.width - handleWidth;
+            that.constrain = that.width - handleWidth;
             that.snapPoint = that.constrain / 2;
 
             if (typeof that.origin != "number") {
@@ -117194,13 +118538,13 @@ var __meta__ = { // jshint ignore:line
             var element = this.element,
                 wrapper = this.wrapper;
 
-            if(typeof enable == "undefined") {
+            if (typeof enable == "undefined") {
                 enable = true;
             }
 
             this.options.enable = enable;
 
-            if(enable) {
+            if (enable) {
                 element.prop(DISABLED, false);
             } else {
                 element.attr(DISABLED, DISABLED);
@@ -117231,7 +118575,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _start: function() {
-            if(!this.options.enable) {
+            if (!this.options.enable) {
                 this.userEvents.cancel();
             } else {
                 this.userEvents.capture();
@@ -117246,7 +118590,7 @@ var __meta__ = { // jshint ignore:line
             that._toggle(that.position > that.snapPoint);
         },
 
-        _toggle: function (checked) {
+        _toggle: function(checked) {
             var that = this,
                 handle = that.handle,
                 element = that.element[0],
@@ -117273,7 +118617,7 @@ var __meta__ = { // jshint ignore:line
                     duration: duration,
                     offset: distance + "px,0",
                     reset: true,
-                    complete: function () {
+                    complete: function() {
                         if (value !== checked) {
                             element.checked = checked;
                             that.trigger(CHANGE, { checked: checked });
@@ -117288,7 +118632,7 @@ var __meta__ = { // jshint ignore:line
             that.userEvents = new kendo.UserEvents(that.wrapper, {
                 fastTap: true,
                 tap: function() {
-                    if(that.options.enable) {
+                    if (that.options.enable) {
                         that._toggle(!that.element[0].checked);
                     }
                 },
@@ -117304,11 +118648,11 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.tabstrip',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.tabstrip",
@@ -117355,7 +118699,7 @@ var __meta__ = { // jshint ignore:line
                 idx = 0,
                 length = tabs.length;
 
-            if(isNaN(url)) {
+            if (isNaN(url)) {
                 for (; idx < length; idx ++) {
                     tab = tabs[idx];
                     path = tab.href.replace(/(\#.+)(\?.+)$/, "$1"); // remove the fragment query string - http://www.foo.com?foo#bar**?baz=qux**
@@ -117423,7 +118767,7 @@ var __meta__ = { // jshint ignore:line
                 return;
             }
 
-            if (that.trigger(SELECT, {item: item})) {
+            if (that.trigger(SELECT, { item: item })) {
                 e.preventDefault();
             } else {
                 that._setActiveItem(item);
@@ -117484,9 +118828,9 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile',[
         "kendo.core",
         "kendo.fx",
@@ -117523,15 +118867,15 @@ return window.kendo;
         "kendo.mobile.tabstrip",
         "kendo.angular"
     ], f);
-})(function(){
+})(function() {
     "bundle all";
     return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.mobile',[ "kendo.dataviz", "kendo.mobile" ], f);
-})(function(){
+})(function() {
     "bundle all";
     return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

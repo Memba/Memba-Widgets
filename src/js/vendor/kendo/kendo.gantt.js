@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.gantt',["kendo.data", "kendo.resizable", "kendo.switch", "kendo.gantt.data", "kendo.gantt.editors", "kendo.gantt.list", "kendo.gantt.timeline", "kendo.pdf"], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "gantt",
@@ -21,7 +21,7 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
 
     var kendo = window.kendo,
-        keys = $.extend({F10: 121}, kendo.keys),
+        keys = $.extend({ F10: 121 }, kendo.keys),
         supportsMedia = "matchMedia" in window,
         mobileOS = kendo.support.mobileOS,
         Widget = kendo.ui.Widget,
@@ -48,8 +48,8 @@ var __meta__ = { // jshint ignore:line
         DOT = ".",
         TASK_DELETE_CONFIRM = "Are you sure you want to delete this task?",
         DEPENDENCY_DELETE_CONFIRM = "Are you sure you want to delete this dependency?",
-        TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-gantt-toggle" type="button" '+ ARIA_LABEL + '="Toggle"><span class="k-button-icon #=styles.iconToggle#"></span></button>'),
-        BUTTON_TEMPLATE = '<button aria-label="#=text#" class="#=styles.button# #=styles.buttonDefaults# #=className#" type="button" '+
+        TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base k-icon-button k-gantt-toggle" type="button" ' + ARIA_LABEL + '="Toggle"><span class="k-button-icon #=styles.iconToggle#"></span></button>'),
+        BUTTON_TEMPLATE = '<button aria-label="#=text#" class="#=styles.button# #=styles.buttonDefaults# #=className#" type="button" ' +
             '#if (action) {#' +
                 'data-action="#=action#"' +
             '#}#' +
@@ -206,7 +206,7 @@ var __meta__ = { // jshint ignore:line
                 },
                 pdf: {
                     text: "Export to PDF",
-                    className: Gantt.styles.toolbar.pdfButton  + " k-button-solid-base",
+                    className: Gantt.styles.toolbar.pdfButton + " k-button-solid-base",
                     iconClass: Gantt.styles.toolbar.iconPdf
                 }
             };
@@ -504,7 +504,7 @@ var __meta__ = { // jshint ignore:line
                 .append("<div class='" + ganttStyles.splitBarWrapper + "'><div class='" + splitBarHandleClassName + "'></div></div>")
                 .append("<div class='" + ganttStyles.timelineWrapper + "'><div></div></div>");
 
-            if(options.showPlannedTasks) {
+            if (options.showPlannedTasks) {
                 this.wrapper.addClass(ganttStyles.plannedTasks);
             }
 
@@ -595,7 +595,7 @@ var __meta__ = { // jshint ignore:line
                 }));
             }
 
-            if(this.toggeSwitchWrap) {
+            if (this.toggeSwitchWrap) {
                 this.toggeSwitchWrap.insertBefore(views);
             }
 
@@ -719,7 +719,7 @@ var __meta__ = { // jshint ignore:line
             for (var i = 0, length = actions.length; i < length; i++) {
                 action = actions[i];
 
-                if(action === "plannedTasks" || action.name === "plannedTasks") {
+                if (action === "plannedTasks" || action.name === "plannedTasks") {
                     this._createPlannedTasksSwitch();
                     continue;
                 }
@@ -759,13 +759,13 @@ var __meta__ = { // jshint ignore:line
                 styles: Gantt.styles.toolbar
             };
 
-            if(!options.className) {
+            if (!options.className) {
                 options.className = "k-button-solid-base";
             } else if (options.className.indexOf("k-button-solid-primary") === -1) {
                 options.className += " k-button-solid-base";
             }
 
-            if (!commandName && !(isPlainObject(command) && command.template))  {
+            if (!commandName && !(isPlainObject(command) && command.template)) {
                 throw new Error("Custom commands should have name specified");
             }
 
@@ -902,13 +902,13 @@ var __meta__ = { // jshint ignore:line
             var editable = false,
                 options = this.options;
 
-            if(options.editable !== false) {
+            if (options.editable !== false) {
                 editable = "incell";
 
-                if(options.editable && options.editable.update === false) {
+                if (options.editable && options.editable.update === false) {
                     editable = false;
                 } else {
-                    if(!options.editable || options.editable.reorder !== false) {
+                    if (!options.editable || options.editable.reorder !== false) {
                         editable = {
                             mode: "incell",
                             move: {
@@ -1014,11 +1014,11 @@ var __meta__ = { // jshint ignore:line
                     var updatedValues = e.values;
                     that._preventRefresh = true;
 
-                    if(that.updateDuration === null || that.updateDuration === undefined) {
+                    if (that.updateDuration === null || that.updateDuration === undefined) {
                         that.updateDuration = e.model.duration();
                     }
 
-                    if(that.updatePlannedDuration === null || that.updatePlannedDuration === undefined) {
+                    if (that.updatePlannedDuration === null || that.updatePlannedDuration === undefined) {
                         that.updatePlannedDuration = e.model.plannedDuration();
                     }
 
@@ -1082,7 +1082,7 @@ var __meta__ = { // jshint ignore:line
                     }
 
                     if (!that.trigger("save", { task: task, values: updateInfo })) {
-                        if(updateInfo) {
+                        if (updateInfo) {
                             that._preventRefresh = true;
                             that.dataSource.update(task, updateInfo);
 
@@ -1096,7 +1096,7 @@ var __meta__ = { // jshint ignore:line
                         that.dataSource.sync().then(function() {
                             restoreFocus();
                         });
-                    } else if(that.dataSource.hasChanges()) {
+                    } else if (that.dataSource.hasChanges()) {
                         that.dataSource.cancelChanges(task);
                         that._preventRefresh = false;
                         that.refresh();
@@ -1148,7 +1148,7 @@ var __meta__ = { // jshint ignore:line
                     var dataSource = that.dataSource,
                         task, updateInfo;
 
-                    if(e.position === "over") {
+                    if (e.position === "over") {
                         dataSource.cancelChanges();
 
                         updateInfo = {
@@ -1165,8 +1165,8 @@ var __meta__ = { // jshint ignore:line
                     }
                 })
                 .bind("dataBound", function() {
-                    if(that.dataSource.sort().length === 0) {
-                        that.dataSource.sort([{field: "orderId", dir: "asc"}]);
+                    if (that.dataSource.sort().length === 0) {
+                        that.dataSource.sort([{ field: "orderId", dir: "asc" }]);
                     }
                 })
                 .bind("reorder", function(e) {
@@ -1422,8 +1422,8 @@ var __meta__ = { // jshint ignore:line
 
             this.assignments.dataSource = kendo.data.DataSource.create(dataSource);
 
-            this.assignments.dataSource.
-                bind("change", this._assignmentsRefreshHandler);
+            this.assignments.dataSource
+                .bind("change", this._assignmentsRefreshHandler);
         },
 
         _createEditor: function() {
@@ -1509,7 +1509,7 @@ var __meta__ = { // jshint ignore:line
                 attr: ""
             };
 
-            if (!commandName && !(isPlainObject(command) && command.template))  {
+            if (!commandName && !(isPlainObject(command) && command.template)) {
                 throw new Error("Custom commands should have name specified");
             }
 
@@ -1521,7 +1521,7 @@ var __meta__ = { // jshint ignore:line
                 options = extend(true, options, command);
             }
 
-            if(!options.className) {
+            if (!options.className) {
                 options.className = "k-button-solid-base";
             } else if (options.className.indexOf("k-button-solid-primary") === -1) {
                 options.className += " k-button-solid-base";
@@ -1534,7 +1534,7 @@ var __meta__ = { // jshint ignore:line
             return this.timeline.view(type);
         },
 
-        range: function (range) {
+        range: function(range) {
             var dataSource = this.dataSource;
             var view = this.view();
             var timeline = this.timeline;
@@ -1555,7 +1555,7 @@ var __meta__ = { // jshint ignore:line
             };
         },
 
-        date: function (date) {
+        date: function(date) {
             var view = this.view();
 
             if (date) {
@@ -1693,7 +1693,7 @@ var __meta__ = { // jshint ignore:line
             var resourcesField = that.resources.field;
 
             if (!that.trigger("save", { task: task, values: updateInfo })) {
-                if(updateInfo) {
+                if (updateInfo) {
                     that._preventRefresh = true;
 
                     that.dataSource.update(task, updateInfo);
@@ -2094,16 +2094,16 @@ var __meta__ = { // jshint ignore:line
             this._resizeDraggable = wrapper
                 .find(DOT + ganttStyles.splitBar)
                 .height(treeListWrapper.height())
-                .hover(function () {
+                .hover(function() {
                     $(this).addClass(ganttStyles.splitBarHover);
-                }, function () {
+                }, function() {
                     $(this).removeClass(ganttStyles.splitBarHover);
                 })
                 .end()
                 .kendoResizable({
                     orientation: "horizontal",
                     handle: DOT + ganttStyles.splitBar,
-                    "start": function () {
+                    "start": function() {
                         treeListWidth = treeListWrapper.width();
                         timelineWidth = timelineWrapper.width();
                         timelineScroll = kendo.scrollLeft(timelineWrapper.find(contentSelector));
@@ -2273,7 +2273,7 @@ var __meta__ = { // jshint ignore:line
                     }
                 })
 
-                .on("keydown" + NS, function (e) {
+                .on("keydown" + NS, function(e) {
                     var key = e.keyCode;
                     var that = this;
                     var focusableItems = $(that._getToolbarItems());
@@ -2281,7 +2281,7 @@ var __meta__ = { // jshint ignore:line
                     if (idx === -1 && $(e.target).closest(DOT + ganttStyles.toolbar.views).length) {
                         idx = focusableItems.index(that.toolbar.find(".k-gantt-views > .k-selected:visible, .k-views-dropdown:visible")[0]);
                     }
-                    var itemToFocus = e.shiftKey ? focusableItems[idx -  1] : focusableItems[idx +  1];
+                    var itemToFocus = e.shiftKey ? focusableItems[idx - 1] : focusableItems[idx + 1];
 
                     if (key === keys.F10) {
                         that.toolbar.find(".k-button:visible").first().addClass(ganttStyles.focused).trigger("focus");
@@ -2415,7 +2415,7 @@ var __meta__ = { // jshint ignore:line
                 });
         },
 
-        _getToolbarItems: function () {
+        _getToolbarItems: function() {
             return this.toolbar.find("> .k-button:visible").toArray().concat(
                 this.toolbar.find(".k-views-dropdown:visible").toArray(),
                 this.toolbar.find(".k-gantt-views > .k-selected:visible").toArray()
@@ -2541,4 +2541,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

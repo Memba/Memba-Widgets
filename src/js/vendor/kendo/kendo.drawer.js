@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.drawer',[ "kendo.userevents" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "drawer",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "userevents" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
@@ -32,7 +32,7 @@ var __meta__ = { // jshint ignore:line
         PUSH = "push",
         OVERLAY = "overlay",
         LEFT = "left",
-        RIGHT ="right";
+        RIGHT = "right";
 
     var Drawer = kendo.ui.Widget.extend({
         init: function(element, options) {
@@ -69,7 +69,7 @@ var __meta__ = { // jshint ignore:line
                 if ($.contains(that.drawerItemsWrapper[0], e.event.target)) {
                     that._itemClick(e);
                 }
-                if (options.autoCollapse && that.visible && !that.trigger("hide", { sender: this})) {
+                if (options.autoCollapse && that.visible && !that.trigger("hide", { sender: this })) {
                     that.hide();
                     e.preventDefault();
                 }
@@ -78,7 +78,7 @@ var __meta__ = { // jshint ignore:line
             if (this.options.swipeToOpen) {
                 userEvents.bind("start", function(e) { that._start(e); });
                 userEvents.bind("move", function(e) { that._update(e); });
-                userEvents.bind("end", function(e) {  that._end(e); });
+                userEvents.bind("end", function(e) { that._end(e); });
                 userEvents.bind("tap", that.tap);
             } else {
                 userEvents.bind("press", that.tap);
@@ -101,7 +101,7 @@ var __meta__ = { // jshint ignore:line
             element.addClass("k-widget k-drawer");
         },
 
-        _navigatable: function () {
+        _navigatable: function() {
 
             if (!this.options.navigatable) {
                 return;
@@ -126,7 +126,7 @@ var __meta__ = { // jshint ignore:line
                 .on("keydown" + NS, that, that._keyDown.bind(that));
         },
 
-        _blur: function () {
+        _blur: function() {
             var that = this;
 
             if (that._current) {
@@ -134,13 +134,13 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _focus: function () {
+        _focus: function() {
             var that = this;
 
             that._setCurrent(that._current ? that._current : that.drawerItemsWrapper.find("[data-role='drawer-item']").eq(0));
         },
 
-        _setCurrent: function (current) {
+        _setCurrent: function(current) {
             var that = this;
             var id = kendo.guid();
             var next = $(current);
@@ -162,7 +162,7 @@ var __meta__ = { // jshint ignore:line
             that._current = next;
         },
 
-        _keyDown: function (e) {
+        _keyDown: function(e) {
             var that = this;
             var handled = false;
             var current = that._current;
@@ -204,7 +204,7 @@ var __meta__ = { // jshint ignore:line
             if (e.keyCode == keys.SPACEBAR || e.keyCode == keys.ENTER) {
                 handled = true;
                 that.tap({
-                    event: { target: current[0]},
+                    event: { target: current[0] },
                     preventDefault: $.noop
                 });
             }
@@ -225,7 +225,7 @@ var __meta__ = { // jshint ignore:line
             var drawerElement = this.drawerElement;
             var element = this.element;
             var contentElement = this.contentElement;
-            var drawerItemsWrapper = this.drawerItemsWrapper =  drawerElement.wrapAll("<div class='k-drawer-items'></div>").parent();
+            var drawerItemsWrapper = this.drawerItemsWrapper = drawerElement.wrapAll("<div class='k-drawer-items'></div>").parent();
             var drawerWrapper = this.drawerWrapper = drawerItemsWrapper.wrap("<div class='k-drawer-wrapper'></div>").parent();
             var drawerContainer = this.drawerContainer = element.wrap("<div class='k-drawer-container'></div>").parent();
 
@@ -359,7 +359,7 @@ var __meta__ = { // jshint ignore:line
                 this._selectItem();
             }
 
-            if(options.mini) {
+            if (options.mini) {
                 if (miniWidth) {
                     drawerWrapper.width(miniWidth);
                 } else {
@@ -386,12 +386,12 @@ var __meta__ = { // jshint ignore:line
             var drawerContainer = that.drawerContainer;
 
             if (position == RIGHT) {
-                drawerContainer.removeClass('k-drawer-'+ LEFT);
-                drawerContainer.addClass('k-drawer-'+ RIGHT);
+                drawerContainer.removeClass('k-drawer-' + LEFT);
+                drawerContainer.addClass('k-drawer-' + RIGHT);
             }
             else {
-                drawerContainer.removeClass('k-drawer-'+ RIGHT);
-                drawerContainer.addClass('k-drawer-'+ LEFT);
+                drawerContainer.removeClass('k-drawer-' + RIGHT);
+                drawerContainer.addClass('k-drawer-' + LEFT);
             }
 
             this.leftPositioned = position === LEFT;
@@ -453,15 +453,15 @@ var __meta__ = { // jshint ignore:line
                 shouldShow = velocity < velocityThreshold && (velocity < -velocityThreshold || pastHalf);
             }
 
-            if(shouldShow) {
-                if (this.trigger("show", { sender: this})) {
+            if (shouldShow) {
+                if (this.trigger("show", { sender: this })) {
                     e.preventDefault();
                     this.hide();
                 } else {
                     this.show();
                 }
             } else {
-                if (this.trigger("hide", { sender: this})) {
+                if (this.trigger("hide", { sender: this })) {
                     e.preventDefault();
                     this.show();
                 } else {
@@ -511,7 +511,7 @@ var __meta__ = { // jshint ignore:line
 
             if (item) {
                 item.addClass("k-state-selected");
-                this.trigger("itemClick", {item: item, sender: this});
+                this.trigger("itemClick", { item: item, sender: this });
                 this._selectedItemIndex = item.index();
                 return;
             }
@@ -591,5 +591,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

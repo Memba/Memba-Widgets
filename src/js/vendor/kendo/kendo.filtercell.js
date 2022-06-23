@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.filtercell',[ "kendo.autocomplete", "kendo.datepicker", "kendo.numerictextbox", "kendo.combobox", "kendo.dropdownlist" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "filtercell",
@@ -41,7 +41,7 @@ var __meta__ = { // jshint ignore:line
         if ($.isPlainObject(filter)) {
             if (filter.hasOwnProperty("filters")) {
                 filters = filter.filters;
-            } else if(filter.field == field) {
+            } else if (filter.field == field) {
                 return filter;
             }
         }
@@ -70,7 +70,7 @@ var __meta__ = { // jshint ignore:line
         }
     }
 
-    function removeDuplicates (dataSelector, dataTextField) {
+    function removeDuplicates(dataSelector, dataTextField) {
         var getter = kendo.getter(dataTextField, true);
 
         return function(e) {
@@ -83,7 +83,7 @@ var __meta__ = { // jshint ignore:line
                 var item = items[index++],
                     text = getter(item);
 
-                if(!seen.hasOwnProperty(text)){
+                if (!seen.hasOwnProperty(text)) {
                     result.push(item);
                     seen[text] = true;
                 }
@@ -168,7 +168,7 @@ var __meta__ = { // jshint ignore:line
                 value: null,
                 operatorVisible: function() {
                     var val = this.get("value");
-                    return  (val !== null && val !== undefined && val != "undefined") || (isNonValueFilter(this.get("operator")) && that.dataSource.filter() && !that._clearInProgress);
+                    return (val !== null && val !== undefined && val != "undefined") || (isNonValueFilter(this.get("operator")) && that.dataSource.filter() && !that._clearInProgress);
                 }
             });
             that._prevOperator = options.operator;
@@ -317,6 +317,7 @@ var __meta__ = { // jshint ignore:line
             if (!(suggestDataSource instanceof DataSource)) {
                 if (!options.customDataSource && suggestDataSource) {
                     suggestDataSource.group = undefined;
+                    suggestDataSource.filter = undefined;
                 }
                 suggestDataSource =
                     this.suggestDataSource =
@@ -388,7 +389,7 @@ var __meta__ = { // jshint ignore:line
                 filter;
 
             if (e.field == "operator" && model.value === undefined && !isNonValueFilter(model) && isNonValueFilter(that._prevOperator)) {
-                filter = that.dataSource.filter() || { filters:[], logic: "and" };
+                filter = that.dataSource.filter() || { filters: [], logic: "and" };
                 removeFiltersForField(filter, that.options.field);
                 that._prevOperator = model.operator;
                 that._applyFilter(filter);
@@ -396,7 +397,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             if (that.manuallyUpdatingVM || (e.field == "operator" && model.value === undefined && !isNonValueFilter(model)) ||
-                (e.field == "operator" && that._clearInProgress && model.value !== null))  {
+                (e.field == "operator" && that._clearInProgress && model.value !== null)) {
                 return;
             }
 
@@ -433,7 +434,7 @@ var __meta__ = { // jshint ignore:line
                 logic = expression.logic || "and",
                 filters = expression.filters,
                 filter,
-                result = that.dataSource.filter() || { filters:[], logic: "and" },
+                result = that.dataSource.filter() || { filters: [], logic: "and" },
                 idx,
                 length;
 
@@ -601,5 +602,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.radiogroup',[ "kendo.core", "kendo.inputgroupbase", "kendo.radiobutton" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "radiogroup",
@@ -64,9 +64,9 @@ var __meta__ = { // jshint ignore:line
         item: function(index) {
             var checked = this.wrapper.find("input:checked");
 
-            if(this._indexIsPresent(index)) {
+            if (this._indexIsPresent(index)) {
                 return $(this.items().get(index));
-            } else if(checked.length) {
+            } else if (checked.length) {
                 return checked;
             }
         },
@@ -75,14 +75,14 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 selectedElement = that.element.find("[value='" + value + "']");
 
-            if(value === undefined) {
+            if (value === undefined) {
                 return that._value;
-            } else if(value === null) {
+            } else if (value === null) {
                 that._value = null;
                 that.element.find(DOT + that.groupStyles.input).prop(CHECKED, false);
             }
 
-            if(selectedElement.length > 0) {
+            if (selectedElement.length > 0) {
                 that._value = value;
                 that.element.find(DOT + that.groupStyles.input).prop(CHECKED, false);
                 selectedElement.prop(CHECKED, true);
@@ -93,7 +93,7 @@ var __meta__ = { // jshint ignore:line
             var target = $(e.target),
                 oldValue = this._value;
 
-            if(this._targetForPreventedChange === e.target) {
+            if (this._targetForPreventedChange === e.target) {
                 this._targetForPreventedChange = null;
                 return;
             }
@@ -124,4 +124,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

@@ -1,16 +1,16 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function (f, define) {
+(function(f, define) {
     define('kendo.actionsheet',["kendo.core", "kendo.popup"], f);
-})(function () {
+})(function() {
 
-var __meta__ = {// jshint ignore:line
+var __meta__ = { // jshint ignore:line
     id: "ActionSheet",
     name: "ActionSheet",
     category: "web", // suite
@@ -18,7 +18,7 @@ var __meta__ = {// jshint ignore:line
     depends: ["core", "popup"] // dependencies
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var ui = kendo.ui;
@@ -41,7 +41,7 @@ var __meta__ = {// jshint ignore:line
     var KEYDOWN = "keydown";
     var hexColor = /^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/;
     var HEADER_TEMPLATE = '<div class="k-actionsheet-header">' +
-                                "#=title#"+
+                                "#=title#" +
                             '</div>';
     var ITEM_TEMPLATE = '<li role="none" class="k-actionsheet-item #= disabled ? "' + STATEDISABLED + '" : "" #">' +
                             '<a href="\\#" class="k-actionsheet-action">' +
@@ -129,7 +129,7 @@ var __meta__ = {// jshint ignore:line
             popup: null
         },
 
-        _mapItems: function () {
+        _mapItems: function() {
             var that = this;
 
             if (!that._hasItems) {
@@ -139,7 +139,7 @@ var __meta__ = {// jshint ignore:line
             that.options.items = that.options.items.map(defaultItemsMapper);
         },
 
-        _wrapper: function () {
+        _wrapper: function() {
             var that = this;
             var element = that.element;
             var wrapper;
@@ -149,7 +149,7 @@ var __meta__ = {// jshint ignore:line
             wrapper.prepend($('<div></div>').addClass(OVERLAY));
         },
 
-        _popup: function () {
+        _popup: function() {
             var that = this;
             var options = that.options;
 
@@ -168,7 +168,7 @@ var __meta__ = {// jshint ignore:line
             that.popup.bind(ACTIVATE, that._openHandler.bind(that));
         },
 
-        _header: function () {
+        _header: function() {
             var that = this;
             var options = that.options;
 
@@ -179,7 +179,7 @@ var __meta__ = {// jshint ignore:line
             that.element.append(template(HEADER_TEMPLATE)(options));
         },
 
-        _items: function () {
+        _items: function() {
             var that = this;
 
             if (!that._hasItems) {
@@ -189,7 +189,7 @@ var __meta__ = {// jshint ignore:line
             that._createItems(topGroupFilter);
         },
 
-        _createItems: function (itemsFilter) {
+        _createItems: function(itemsFilter) {
             var that = this;
             var items = that.options.items.filter(itemsFilter);
             var idx;
@@ -209,7 +209,7 @@ var __meta__ = {// jshint ignore:line
             for (idx = 0; idx < items.length; idx++) {
                 item = items[idx];
                 icon = createIcon(item);
-                itemElement = $(itemTemplate(extend({}, item, {icon: icon && icon.prop('outerHTML')})));
+                itemElement = $(itemTemplate(extend({}, item, { icon: icon && icon.prop('outerHTML') })));
                 container.append(itemElement);
 
                 if (item.click) {
@@ -218,7 +218,7 @@ var __meta__ = {// jshint ignore:line
             }
         },
 
-        _footer: function () {
+        _footer: function() {
             var that = this;
 
             if (!that._hasItems) {
@@ -255,7 +255,7 @@ var __meta__ = {// jshint ignore:line
             DOCUMENT_ELEMENT.off(that.downEvent, that._mousedownProxy);
         },
 
-        _keydown: function (e) {
+        _keydown: function(e) {
             var that = this;
             var keys = kendo.keys;
             var keyCode = e.keyCode;
@@ -266,7 +266,7 @@ var __meta__ = {// jshint ignore:line
             }
         },
 
-        _openHandler: function () {
+        _openHandler: function() {
             var that = this;
 
             that.element.find('li.k-actionsheet-item').eq(0).find("a").trigger("focus");
@@ -301,6 +301,6 @@ var __meta__ = {// jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) {
     (a3 || a2)();
 });

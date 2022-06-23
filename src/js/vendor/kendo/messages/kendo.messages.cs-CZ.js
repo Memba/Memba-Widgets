@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* FlatColorPicker messages */
 
 if (kendo.ui.FlatColorPicker) {
@@ -56,7 +56,7 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "settings": "Nastavení sloupců",
   "lock": "Zamknout",
   "unlock": "Odemknout",
-  "stick" : "Připnout sloupec",
+  "stick": "Připnout sloupec",
   "unstick": "Odepnout sloupec",
   "setColumnPosition": "Nastavit pozici sloupce",
   "apply": "Použít",
@@ -985,10 +985,10 @@ $.extend(true, kendo.spreadsheet.messages.filterMenu,{
       "endswith": "Text končí na"
     },
     "date": {
-      "eq":  "Datum je",
+      "eq": "Datum je",
       "neq": "Datum není",
-      "lt":  "Datum je před",
-      "gt":  "Datum je po"
+      "lt": "Datum je před",
+      "gt": "Datum je po"
     },
     "number": {
       "eq": "Je rovno",
@@ -1392,7 +1392,7 @@ if (kendo.ui.PDFViewer) {
             open: "Otevřít",
             exportAs: "Exportovat",
             download: "Stáhnout",
-            pager:  {
+            pager: {
                 first: "Jít na první stránku",
                 previous: "Jít na předchozí stránku",
                 next: "Jít na další stránku",

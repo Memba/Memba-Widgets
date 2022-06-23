@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.dropdownlist',[ "kendo.list", "kendo.mobile.scroller", "kendo.virtuallist", "kendo.html.button" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "dropdownlist",
@@ -234,7 +234,7 @@ var __meta__ = { // jshint ignore:line
 
             that.optionLabel.off();
 
-            if(that.filterInput){
+            if (that.filterInput) {
                 that.filterInput.off(nsFocusEvent);
             }
         },
@@ -291,11 +291,11 @@ var __meta__ = { // jshint ignore:line
             wrapper.attr("aria-describedby", inputId);
         },
 
-        _focusInput: function () {
+        _focusInput: function() {
             this._focusElement(this.filterInput);
         },
 
-        _resizeFilterInput: function () {
+        _resizeFilterInput: function() {
             var filterInput = this.filterInput;
             var originalPrevent = this._prevent;
 
@@ -380,7 +380,7 @@ var __meta__ = { // jshint ignore:line
             this.listView.refresh();
         },
 
-        text: function (text) {
+        text: function(text) {
             var that = this;
             var loweredText;
             var ignoreCase = that.options.ignoreCase;
@@ -622,7 +622,7 @@ var __meta__ = { // jshint ignore:line
 
             wrapper.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
                    .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
-            if(that.filterInput) {
+            if (that.filterInput) {
                 that.filterInput.on("focusin" + nsFocusEvent, that._focusinHandler.bind(that))
                    .on("focusout" + nsFocusEvent, that._focusoutHandler.bind(that));
             }
@@ -923,7 +923,7 @@ var __meta__ = { // jshint ignore:line
             return this.listView.dataItemByIndex(this.listView.getElementIndex(element));
         },
 
-        _click: function (e) {
+        _click: function(e) {
             var that = this;
             var item = e.item || $(e.currentTarget);
 
@@ -1005,7 +1005,7 @@ var __meta__ = { // jshint ignore:line
                 }, that.options.delay);
 
                 if (!that.listView.bound()) {
-                    dataSource.fetch().done(function () {
+                    dataSource.fetch().done(function() {
                         that._selectNext();
                     });
                     return;
@@ -1277,8 +1277,8 @@ var __meta__ = { // jshint ignore:line
                     icon: "arrow-s",
                     size: options.size,
                     fillMode: options.fillMode,
-                    shape: null,
-                    rounded: null
+                    shape: "none",
+                    rounded: "none"
                 });
 
                 wrapper.append('<span id="' + id + '" unselectable="on" class="k-input-inner">' +
@@ -1318,7 +1318,6 @@ var __meta__ = { // jshint ignore:line
                     accesskey: element.attr("accesskey"),
                     unselectable: "on",
                     role: "combobox",
-                    "aria-haspopup": "listbox",
                     "aria-expanded": false
                 });
 
@@ -1365,7 +1364,7 @@ var __meta__ = { // jshint ignore:line
             if (that.hasOptionLabel() && !that.options.optionLabelTemplate) {
                 try {
                     that.valueTemplate(that._optionLabelDataItem());
-                } catch(e) {
+                } catch (e) {
                     throw new Error(MSG_INVALID_OPTION_LABEL);
                 }
             }
@@ -1401,7 +1400,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            var getElements = function(){
+            var getElements = function() {
                 return {
                     elements: span.get(),
                     data: [ { dataItem: dataItem } ]
@@ -1412,7 +1411,7 @@ var __meta__ = { // jshint ignore:line
 
             try {
                 span.html(template(dataItem));
-            } catch(e) {
+            } catch (e) {
                 //dataItem has missing fields required in custom template
                 span.html("");
             }
@@ -1499,5 +1498,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -63,8 +63,8 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
 });
 }
 
-/* FileManager messages */ 
-  
+/* FileManager messages */
+
 if (kendo.ui.FileManager) {
   kendo.ui.FileManager.prototype.options.messages = $.extend(true, kendo.ui.FileManager.prototype.options.messages, {
       toolbar: {
@@ -508,17 +508,17 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
 /* FileBrowser and ImageBrowser messages */
 
 var browserMessages = {
-  "uploadFile" : "Charger",
-  "orderBy" : "Trier par",
-  "orderByName" : "Nom",
-  "orderBySize" : "Taille",
-  "directoryNotFound" : "Aucun répértoire de ce nom.",
-  "emptyFolder" : "Répertoire vide",
-  "deleteFile" : 'Etes-vous sûr de vouloir supprimer "{0}"?',
-  "invalidFileType" : "Le fichier sélectionné \"{0}\" n'est pas valide. Les type fichiers supportés sont {1}.",
-  "overwriteFile" : "Un fichier du nom \"{0}\" existe déjà dans ce répertoire. Voulez-vous le remplacer?",
-  "dropFilesHere" : "glissez les fichiers ici pour les charger",
-  "search" : "Recherche"
+  "uploadFile": "Charger",
+  "orderBy": "Trier par",
+  "orderByName": "Nom",
+  "orderBySize": "Taille",
+  "directoryNotFound": "Aucun répértoire de ce nom.",
+  "emptyFolder": "Répertoire vide",
+  "deleteFile": 'Etes-vous sûr de vouloir supprimer "{0}"?',
+  "invalidFileType": "Le fichier sélectionné \"{0}\" n'est pas valide. Les type fichiers supportés sont {1}.",
+  "overwriteFile": "Un fichier du nom \"{0}\" existe déjà dans ce répertoire. Voulez-vous le remplacer?",
+  "dropFilesHere": "glissez les fichiers ici pour les charger",
+  "search": "Recherche"
 };
 
 if (kendo.ui.FileBrowser) {
@@ -546,7 +546,7 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "statusUploaded": "téléchargé",
   "statusUploading": "téléchargement",
   "uploadSelectedFiles": "Télécharger des fichiers",
-  "headerStatusUploaded":  "Complété",
+  "headerStatusUploaded": "Complété",
   "headerStatusUploading": "Téléchargement..."
 });
 }

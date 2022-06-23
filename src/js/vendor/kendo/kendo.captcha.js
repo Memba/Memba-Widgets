@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function (f, define) {
+(function(f, define) {
     define('kendo.captcha',["kendo.core", "kendo.slider", "kendo.textbox", "kendo.skeletoncontainer"], f);
-})(function () {
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "captcha",
@@ -18,7 +18,7 @@
         depends: ["core", "slider", "textbox", "skeletoncontainer"]
     };
 
-    (function ($, undefined) {
+    (function($, undefined) {
         var kendo = window.kendo,
             Widget = kendo.ui.Widget,
             extend = $.extend,
@@ -58,7 +58,7 @@
         };
 
         var Captcha = Widget.extend({
-            init: function (element, options) {
+            init: function(element, options) {
                 var that = this;
 
                 Widget.fn.init.call(that, element, options);
@@ -71,7 +71,7 @@
                 that._idInput();
                 that._captchaImage();
 
-                if(that.options.audioButton || that.options.resetButton) {
+                if (that.options.audioButton || that.options.resetButton) {
                     that._buttons();
 
                 }
@@ -143,7 +143,7 @@
                 Widget.fn.destroy.call(that);
             },
 
-            _wrapper: function () {
+            _wrapper: function() {
                 var that = this,
                     styles = Captcha.styles,
                     wrapper = "<div class='" + styles.wrapper + "'><div class='" + styles.inputWrapper + "'></div></div>",
@@ -160,7 +160,7 @@
                 that.wrapper.prepend(that.imageWrapper);
             },
 
-            _captchaImage: function () {
+            _captchaImage: function() {
                 var that = this,
                     options = that.options,
                     messages = options.messages,
@@ -176,7 +176,7 @@
                 that._tabindex(that.captchaImage);
             },
 
-            _idInput: function () {
+            _idInput: function() {
                 var that = this,
                     options = that.options,
                     nameAttr = that._captchaIdField;
@@ -185,23 +185,23 @@
                 that._inputWrapper.after(that.idInput);
             },
 
-            _buttons: function () {
+            _buttons: function() {
                 var that = this,
                     styles = Captcha.styles;
 
                 that.buttonsWrapper = $("<div class=\"" + styles.buttonsWrapper + "\"></div>");
                 that.imageWrapper.append(that.buttonsWrapper);
 
-                if(that.options.audioButton) {
+                if (that.options.audioButton) {
                     that._audioButton();
                 }
 
-                if(that.options.resetButton) {
+                if (that.options.resetButton) {
                     that._resetButton();
                 }
             },
 
-            _resetButton: function () {
+            _resetButton: function() {
                 var that = this,
                     messages = that.options.messages,
                     styles = Captcha.styles;
@@ -215,13 +215,13 @@
                 that.resetButton.on(CLICK + NS, that._resetHandler.bind(that, true));
             },
 
-            _audioButton: function () {
+            _audioButton: function() {
                 var that = this,
                     messages = that.options.messages,
                     styles = Captcha.styles;
 
                 that.audioButton = $("<button type=\"button\" title=\"" + messages.audio + "\" class=\"" + styles.button + " " + styles.iconButton + "\">" +
-                                        "<span class=\"" + styles.buttonIcon  + " " + styles.audioIcon + "\"></span>" +
+                                        "<span class=\"" + styles.buttonIcon + " " + styles.audioIcon + "\"></span>" +
                                     "</button>");
 
                 that.buttonsWrapper.append(that.audioButton);
@@ -229,7 +229,7 @@
                 that.audioButton.on(CLICK + NS, that._audioHandler.bind(that));
             },
 
-            _resetHandler: function (focusResetButton) {
+            _resetHandler: function(focusResetButton) {
                 var that = this,
                     handler = that.options.handler,
                     deferred = $.Deferred(),
@@ -248,19 +248,19 @@
                 }
 
                 that._callHandler("reset", handler, success)
-                    .done(function(){
+                    .done(function() {
                         if (focusResetButton) {
                             that.resetButton.trigger("focus");
                         }
                     })
-                    .fail(function(args){
+                    .fail(function(args) {
                         that._progress(false);
                         deferred.reject(args);
                     });
                 return deferred.promise();
             },
 
-            _audioHandler: function () {
+            _audioHandler: function() {
                 var that = this,
                     handler = that.options.audioHandler,
                     deferred = $.Deferred(),
@@ -279,7 +279,7 @@
                 return deferred.promise();
             },
 
-            _validationHandler: function () {
+            _validationHandler: function() {
                 var that = this,
                     handler = that.options.validationHandler,
                     deferred = $.Deferred(),
@@ -301,37 +301,37 @@
                 return deferred.promise();
             },
 
-            _callHandler: function(type, handler, success, data){
+            _callHandler: function(type, handler, success, data) {
                 var that = this,
                     error = that._error.bind(that, type),
                     requestEnd = that._requestEnd.bind(that, type),
                     args;
 
                 if (isFunction(handler)) {
-                    handler({success: success, data: data});
+                    handler({ success: success, data: data });
                     return $.Deferred().promise();
                 } else {
                     args = typeof handler === STRING ? { url: handler, cache: false } : extend({}, handler);
                     args.success = success;
                     args.data = extend({}, data, args.data);
 
-                    if(!that.trigger(REQUEST_START, { type: type, data: data })){
+                    if (!that.trigger(REQUEST_START, { type: type, data: data })) {
                         return ajax(args).done(requestEnd).fail(error);
                     }
                 }
             },
 
-            _requestEnd: function (type, data) {
+            _requestEnd: function(type, data) {
                 var that = this;
-                that.trigger(REQUEST_END, {type: type, data: data});
+                that.trigger(REQUEST_END, { type: type, data: data });
             },
 
-            _error: function (type, jqXHR, textStatus, errorThrown) {
+            _error: function(type, jqXHR, textStatus, errorThrown) {
                 var that = this;
-                that.trigger(ERROR, {type: type, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown});
+                that.trigger(ERROR, { type: type, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown });
             },
 
-            _resetCaptcha: function (deferred, data) {
+            _resetCaptcha: function(deferred, data) {
                 var that = this,
                     id = data[that._captchaIdField],
                     captcha = data[that._captchaField];
@@ -339,18 +339,18 @@
                 that.idInput.val(id);
                 that.captchaImage.attr("src", captcha || "");
 
-                that.captchaImage.one("load", function(){
+                that.captchaImage.one("load", function() {
                     that._progress(false);
                 });
 
                 deferred.resolve(data);
             },
 
-            _playAudio: function (deferred, data) {
+            _playAudio: function(deferred, data) {
                 var that = this;
 
-                if(that._canPlayWav()) {
-                    if(that.audioElement) {
+                if (that._canPlayWav()) {
+                    if (that.audioElement) {
                         return;
                     }
 
@@ -358,7 +358,7 @@
                     that.audioElement.volume = that._audioVolume || that.audioElement.volume;
 
                     if (that.options.volumeControl) {
-                        $(that.audioElement).on("loadeddata" + NS, function () {
+                        $(that.audioElement).on("loadeddata" + NS, function() {
                             that._showVolumeControl(that.audioElement.volume);
                         });
                     }
@@ -366,8 +366,8 @@
                     $(that.audioElement).on("ended" + NS + " error" + NS, that._audioEnded.bind(that, deferred));
 
                     that.audioElement.play();
-                } else if(that._canPlayWithPlugin()) {
-                    if(that.audioElement) {
+                } else if (that._canPlayWithPlugin()) {
+                    if (that.audioElement) {
                         that.audioElement.play();
                         return;
                     }
@@ -397,12 +397,12 @@
                 return objectElement;
             },
 
-            _showVolumeControl: function (volume) {
+            _showVolumeControl: function(volume) {
                 var that = this,
                     styles = Captcha.styles,
                     volumeControlWrapper = $("<div class=\"" + styles.volumeControlWrapper + "\"></div>");
 
-                if(that.volumeControl) {
+                if (that.volumeControl) {
                     return;
                 }
 
@@ -423,16 +423,16 @@
                     tooltip: {
                         enabled: false
                     },
-                    change: function (ev) {
+                    change: function(ev) {
                         that._audioVolume = that.audioElement.volume = ev.value;
                     }
                 }).data("kendoSlider");
             },
 
-            _audioEnded: function (deferred) {
+            _audioEnded: function(deferred) {
                 var that = this;
 
-                if($(document.activeElement).is("a.k-draghandle")) {
+                if ($(document.activeElement).is("a.k-draghandle")) {
                     that.audioButton.trigger("focus");
                 }
 
@@ -446,7 +446,7 @@
                     delete that.volumeControlWrapper;
                 }
 
-                if(that.audioElement) {
+                if (that.audioElement) {
                     that.audioElement.pause();
                 }
 
@@ -454,12 +454,12 @@
                 $(that.audioElement).remove();
                 delete that.audioElement;
 
-                if(deferred && deferred.resolve) {
+                if (deferred && deferred.resolve) {
                     deferred.resolve();
                 }
             },
 
-            _canPlayWav: function () {
+            _canPlayWav: function() {
                 var that = this,
                     audio;
 
@@ -473,7 +473,7 @@
                 return that._canPlayAudio;
             },
 
-            _canPlayWithPlugin: function () {
+            _canPlayWithPlugin: function() {
                 var that = this;
 
                 if (that._audioPlugin) {
@@ -484,8 +484,8 @@
                 return that._audioPlugin;
             },
 
-            _getPlugin: function () {
-                var testNavigatorPlugins = function (name) {
+            _getPlugin: function() {
+                var testNavigatorPlugins = function(name) {
                     var plugins = navigator.plugins;
                     for (var i = 0; i < plugins.length; i++) {
 
@@ -498,7 +498,7 @@
                     return false;
                 };
 
-                var testActiveXAvailability = function (objectName) {
+                var testActiveXAvailability = function(objectName) {
                     try {
                         var control = new window.ActiveXObject(objectName);
                         return !!control;
@@ -518,14 +518,14 @@
                 }
             },
 
-            _validate: function (deferred, data) {
+            _validate: function(deferred, data) {
                 var that = this;
                 that._isValid = data;
                 that._toggleSuccessMessage(that._isValid);
                 deferred.resolve(data);
             },
 
-            _toggleSuccessMessage: function (toggle) {
+            _toggleSuccessMessage: function(toggle) {
                 var that = this,
                     idAttr = (that.element.attr("id") || that.element.attr("name")) + "-success",
                     messages = that.options.messages;
@@ -540,7 +540,7 @@
                 }
             },
 
-            _toggleButtons: function (toggle) {
+            _toggleButtons: function(toggle) {
                 var that = this;
 
                 if (that.resetButton) {
@@ -552,7 +552,7 @@
                 }
             },
 
-            _progress: function (toggle) {
+            _progress: function(toggle) {
                 var that = this;
 
                 that.wrapper.toggleClass(Captcha.styles.loading, toggle);
@@ -561,7 +561,7 @@
                 that._toggleSkeleton(toggle);
             },
 
-            _toggleSkeleton: function (toggle) {
+            _toggleSkeleton: function(toggle) {
                 var that = this;
 
                 if (that.skeleton) {
@@ -574,19 +574,19 @@
                 }
             },
 
-            _isRtl: function () {
+            _isRtl: function() {
                 return kendo.support.isRtl(this.wrapper);
             },
 
-            value: function () {
+            value: function() {
                 return this.element.val();
             },
 
-            getCaptchaId: function () {
+            getCaptchaId: function() {
                 return this.idInput.val();
             },
 
-            toJSON: function () {
+            toJSON: function() {
                 var that = this,
                     obj = {};
 
@@ -596,15 +596,15 @@
                 return obj;
             },
 
-            validate: function () {
+            validate: function() {
                 return this._validationHandler();
             },
 
-            isValid: function () {
+            isValid: function() {
                 return this._isValid;
             },
 
-            enable: function (toggle) {
+            enable: function(toggle) {
                 var that = this;
 
                 toggle = toggle !== false;
@@ -613,7 +613,7 @@
 
                 that.textbox.enable(toggle);
 
-                if(toggle) {
+                if (toggle) {
                     that.captchaImage.removeAttr("tabIndex");
                     that._tabindex(that.captchaImage);
                 } else {
@@ -624,7 +624,7 @@
                 that.wrapper.toggleClass(Captcha.styles.disabled, !toggle);
             },
 
-            readonly: function (toggle) {
+            readonly: function(toggle) {
                 var that = this;
 
                 toggle = toggle !== false;
@@ -636,11 +636,11 @@
                 that.textbox.readonly(toggle);
             },
 
-            speak: function () {
+            speak: function() {
                 return this._audioHandler();
             },
 
-            reset: function () {
+            reset: function() {
                 return this._resetHandler();
             }
         });
@@ -653,5 +653,5 @@
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

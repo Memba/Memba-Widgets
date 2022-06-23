@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -14,7 +14,7 @@
         f();
     }
 }(function(){
-(function ($, undefined) {
+(function($, undefined) {
 /* Validator */
 if (kendo.ui.Validator) {
 kendo.ui.Validator.prototype.options.messages =
@@ -45,7 +45,7 @@ $.extend(true, kendo.ui.TreeView.prototype.options.messages,{
 /* Upload */
 
 if (kendo.ui.Upload) {
-kendo.ui.Upload.prototype.options.localization=
+kendo.ui.Upload.prototype.options.localization =
 $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "select": "בחר...",
   "cancel": "בטל",
@@ -282,7 +282,7 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
   },
   "offsetPositions": {
     "first": "ראשון",
-    "fourth":"רביעי",
+    "fourth": "רביעי",
     "last": "אחרון",
     "second": "שני",
     "third": "שלישי"
@@ -380,7 +380,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "info": "הראה פריטים עם ערך ש",
   "title": "הראה פריטים עם ערך ש",
   "selectValue": "-בחר ערך-",
-  "isFalse":"לא",
+  "isFalse": "לא",
   "isTrue": "כן",
   "or": "או",
   "cancel": "בטל",

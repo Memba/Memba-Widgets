@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('orgchart/data',["kendo.data", "kendo.treelist"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var extend = $.extend,
@@ -176,7 +176,7 @@
             var order = (this._sort && this._sort.length) ? this._sort : {};
             var itemId, data;
 
-            if(fromView) {
+            if (fromView) {
                 data = this.view();
             } else {
                 data = this.data();
@@ -217,7 +217,7 @@
                 data.push(current);
             }
 
-            if(field !== null && field !== undefined) {
+            if (field !== null && field !== undefined) {
                 data = new Query(data).group({ field: field }).toArray();
             }
 
@@ -233,7 +233,7 @@
             for (i = 0; i < items.length; i++) {
                 current = items[i];
 
-                if(current.get("id") === skippedItem.get("id")) {
+                if (current.get("id") === skippedItem.get("id")) {
                     continue;
                 }
 
@@ -281,19 +281,19 @@
             var group, i, j, itemId, innerGrouped, children, current, hasChildren;
 
 
-            for(i = 0; i < grouped.length; i++) {
+            for (i = 0; i < grouped.length; i++) {
                 group = grouped[i];
                 children = [];
                 hasChildren = false;
 
-                for(j = 0; j < group.items.length; j++) {
+                for (j = 0; j < group.items.length; j++) {
                     current = group.items[j];
 
-                    if(!group.hasChildren && current.hasChildren) {
+                    if (!group.hasChildren && current.hasChildren) {
                         group.hasChildren = true;
                     }
 
-                    if(current.expanded) {
+                    if (current.expanded) {
                         group.expanded = true;
                     }
 
@@ -301,12 +301,12 @@
                     children = children.concat(map[itemId]);
                 }
 
-                if(group.expanded) {
+                if (group.expanded) {
                     innerGrouped = new Query(children).group({ field: field }).toArray();
                     group.children = this._innerGroupedItemsTree(field, innerGrouped, map);
                 }
 
-                if(!group.hasChildren && children.length > 0) {
+                if (!group.hasChildren && children.length > 0) {
                     group.hasChildren = true;
                 }
             }
@@ -317,20 +317,20 @@
         _loadExpanded: function(data) {
             var items, i, current;
 
-            if(!data) {
+            if (!data) {
                 return;
             }
 
-            if(data.id !== null && data.id !== undefined) {
+            if (data.id !== null && data.id !== undefined) {
                 items = this._byParentId(data.id);
             } else {
                 items = this._byParentId(this._defaultParentId());
             }
 
-            for(i = 0; i < items.length; i++) {
+            for (i = 0; i < items.length; i++) {
                 current = items[i];
 
-                if(current.expanded && !current.loaded()) {
+                if (current.expanded && !current.loaded()) {
                     this.toggleChildren(current, true);
                 }
             }
@@ -359,11 +359,11 @@
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('orgchart/view',["kendo.core"], f);
-})(function(){
+})(function() {
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -527,13 +527,13 @@ return window.kendo;
         },
 
         jqueryGroupElement: function(group) {
-            if(!group) {
+            if (!group) {
                 return;
             }
 
             var jQueryElement = this._processItem(group);
 
-            if(!jQueryElement.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
+            if (!jQueryElement.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
                 jQueryElement = jQueryElement.closest(DOT + ORGCHART_STYLES.nodesGroupContainer);
             }
 
@@ -541,13 +541,13 @@ return window.kendo;
         },
 
         jqueryItemElement: function(item) {
-            if(!item) {
+            if (!item) {
                 return;
             }
 
             var jQueryElement = this._processItem(item);
 
-            if(!jQueryElement.hasClass(ORGCHART_STYLES.card)) {
+            if (!jQueryElement.hasClass(ORGCHART_STYLES.card)) {
                 jQueryElement = jQueryElement.closest(DOT + ORGCHART_STYLES.card);
             }
 
@@ -566,7 +566,7 @@ return window.kendo;
             var $item = this._getToSelect(item),
                 previousSelection = this.element.find("[tabindex=0]");
 
-            if(!$item) {
+            if (!$item) {
                 return;
             }
 
@@ -594,13 +594,13 @@ return window.kendo;
             var focusableItem = this.element.find("[tabindex='0']"),
                 focusableDataItem = this._dataItems(focusableItem);
 
-            if(!focusableItem.length || !focusableDataItem || !focusableDataItem.length || !!this._idTabIndex) {
+            if (!focusableItem.length || !focusableDataItem || !focusableDataItem.length || !!this._idTabIndex) {
                 return;
             }
 
             this._idTabIndex = focusableDataItem[0].get(ID);
 
-            if(focusableItem.hasClass(ORGCHART_STYLES.focused)) {
+            if (focusableItem.hasClass(ORGCHART_STYLES.focused)) {
                 this._shouldRestoreSelection = true;
             } else {
                 this._shouldRestoreSelection = false;
@@ -610,19 +610,19 @@ return window.kendo;
         _calculateDimensions: function() {
             var itemElement = this.element.find(DOT + this._selector).first();
 
-            if(!this._buttonHeight) {
+            if (!this._buttonHeight) {
                 this._buttonHeight = this.element.find(DOT + ORGCHART_STYLES.button).first().outerHeight();
             }
 
-            if(!this._spacing) {
+            if (!this._spacing) {
                 this._spacing = this.element.find(DOT + ORGCHART_STYLES.lineVertical).first().outerHeight();
             }
 
-            if(!this._itemWidth) {
+            if (!this._itemWidth) {
                 this._itemWidth = this._calculateItemWidth();
             }
 
-            if(!this._itemHeight) {
+            if (!this._itemHeight) {
                 this._itemHeight = itemElement.outerHeight(true);
             }
         },
@@ -646,7 +646,7 @@ return window.kendo;
         _dataItem: function(item) {
             var $item = this.jqueryItemElement(item);
 
-            if(!$item || !$item.data(UID)) {
+            if (!$item || !$item.data(UID)) {
                 return;
             }
 
@@ -698,7 +698,7 @@ return window.kendo;
                 previous = this.element.find("[tabindex=0]");
 
 
-            if(previous[0] === target[0]) {
+            if (previous[0] === target[0]) {
                 return;
             }
 
@@ -713,7 +713,7 @@ return window.kendo;
                 previous = this.element.find("[tabindex=0]");
 
 
-            if(previous[0] === target[0]) {
+            if (previous[0] === target[0]) {
                 return;
             }
 
@@ -737,44 +737,44 @@ return window.kendo;
                 collapseKey = keys.UP,
                 groupIsVertical;
 
-            if(!focused) {
+            if (!focused) {
                 return;
             }
 
             groupIsVertical = this._groupIsVertical(focused);
 
-            if(groupIsVertical) {
+            if (groupIsVertical) {
                 nextKey.push(keys.DOWN);
                 prevKey.push(keys.UP);
             }
 
-            if(key === keys.HOME) {
+            if (key === keys.HOME) {
                 this._keyHome();
-            } else if(key === keys.END) {
+            } else if (key === keys.END) {
                 this._keyEnd();
-            } else if(nextKey.indexOf(key) > -1) {
+            } else if (nextKey.indexOf(key) > -1) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 this._keyNext(focused);
-            } else if(prevKey.indexOf(key) > -1) {
+            } else if (prevKey.indexOf(key) > -1) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 this._keyPrev(focused);
-            } else if(key === expandKey) {
+            } else if (key === expandKey) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 this._keyExpand(focused);
-            } else if(key === collapseKey) {
+            } else if (key === collapseKey) {
                 e.preventDefault();
                 e.stopPropagation();
 
                 this._keyCollapse(focused);
-            } else if(key === keys.ENTER) {
+            } else if (key === keys.ENTER) {
                 this._keyEnter(focused);
-            } else if(key === keys.ESC) {
+            } else if (key === keys.ESC) {
                 this._keyEscape(focused);
             }
         },
@@ -787,17 +787,17 @@ return window.kendo;
                 items = this._dataItems(el),
                 i;
 
-            if(shouldExpand) {
-                if(that.trigger(EXPAND, { item: el, dataItems: items })) {
+            if (shouldExpand) {
+                if (that.trigger(EXPAND, { item: el, dataItems: items })) {
                     return;
                 }
             } else {
-                if(that.trigger(COLLAPSE, { item: el, dataItems: items })) {
+                if (that.trigger(COLLAPSE, { item: el, dataItems: items })) {
                     return;
                 }
             }
 
-            for(i = 0; i < items.length; i++) {
+            for (i = 0; i < items.length; i++) {
                 that.dataSource.toggleChildren(items[i], shouldExpand).then(this.refresh.bind(this));
             }
         },
@@ -818,11 +818,11 @@ return window.kendo;
             var jQueryElement;
 
             // Substitute with kendo.type() when merged and taken from master
-            if($.type(el) === STRING) {
+            if ($.type(el) === STRING) {
                 jQueryElement = this.element.find(el);
-            } else if(kendo.isElement(el)) {
+            } else if (kendo.isElement(el)) {
                 jQueryElement = $(el);
-            } else if(el instanceof jQuery) {
+            } else if (el instanceof jQuery) {
                 jQueryElement = el;
             }
 
@@ -862,7 +862,7 @@ return window.kendo;
                 color: borderColors[level - 1] || borderColors[0]
             })));
 
-            if(item.attributes) {
+            if (item.attributes) {
                 cardWrapper.attr(JSON.parse(JSON.stringify(item.attributes)));
             }
 
@@ -887,7 +887,7 @@ return window.kendo;
         _restoreSelection: function() {
             var toFocusItem, toFocus;
 
-            if(!this._idTabIndex) {
+            if (!this._idTabIndex) {
                 toFocus = this.element.find(DOT + this._selector).first();
 
                 toFocus.attr(TABINDEX, "0");
@@ -899,7 +899,7 @@ return window.kendo;
                 this._idTabIndex = null;
             }
 
-            if(this._shouldRestoreSelection) {
+            if (this._shouldRestoreSelection) {
                 this._shouldRestoreSelection = false;
                 this._preventTriggerSelect = true;
                 toFocus.trigger("focus");
@@ -922,11 +922,11 @@ return window.kendo;
                 var top = $(el).offset().top,
                     bottom = top + $(el).outerHeight(true);
 
-                if(top < min) {
+                if (top < min) {
                     min = top;
                 }
 
-                if(bottom > max) {
+                if (bottom > max) {
                     max = bottom;
                 }
             });
@@ -945,7 +945,7 @@ return window.kendo;
         collapse: function(item) {
             var $item = this.jqueryItemElement(item);
 
-            if(!$item) {
+            if (!$item) {
                 return;
             }
 
@@ -955,7 +955,7 @@ return window.kendo;
         expand: function(item) {
             var $item = this.jqueryItemElement(item);
 
-            if(!$item) {
+            if (!$item) {
                 return;
             }
 
@@ -973,25 +973,25 @@ return window.kendo;
                 shouldReset = false,
                 previousMax, i, item;
 
-            if(!maxColumnsPerLevel[level] || maxColumnsPerLevel[level] < itemsLength) {
+            if (!maxColumnsPerLevel[level] || maxColumnsPerLevel[level] < itemsLength) {
                 previousMax = maxColumnsPerLevel[level];
                 shouldReset = true;
                 maxColumnsPerLevel[level] = itemsLength;
             }
 
-            for(i = 0; i < itemsLength; i++) {
+            for (i = 0; i < itemsLength; i++) {
                 item = items[i];
 
-                if(item.hasChildren) {
+                if (item.hasChildren) {
                     nestedChildren = true;
 
-                    if(item.expanded) {
+                    if (item.expanded) {
                         this._calculateLevel(item.children, level + 1);
                     }
                 }
             }
 
-            if(!nestedChildren && shouldReset && level > 0) {
+            if (!nestedChildren && shouldReset && level > 0) {
                 shouldReset = false;
                 maxColumnsPerLevel[level] = previousMax || 1;
             }
@@ -1005,7 +1005,7 @@ return window.kendo;
 
             this._calculateLevel(items, 0);
 
-            for(i = 0; i < maxColumnsPerLevel.length; i++) {
+            for (i = 0; i < maxColumnsPerLevel.length; i++) {
                 total = total * maxColumnsPerLevel[i];
             }
 
@@ -1015,7 +1015,7 @@ return window.kendo;
         _dataItems: function(container) {
             var item = this.dataSource.getByUid(container.data(UID));
 
-            if(item) {
+            if (item) {
                 return [item];
             } else {
                 return null;
@@ -1044,11 +1044,11 @@ return window.kendo;
             var dataItem = this._dataItem(focused),
                 parentUid, parentItem;
 
-            if(dataItem.expanded) {
-                if(!this.trigger(COLLAPSE, { item: focused, dataItems: [dataItem] })) {
+            if (dataItem.expanded) {
+                if (!this.trigger(COLLAPSE, { item: focused, dataItems: [dataItem] })) {
                     this.collapse(focused);
                 }
-            } else if(dataItem.parentId) {
+            } else if (dataItem.parentId) {
                 parentUid = this.dataSource.get(dataItem.parentId).get(UID);
                 parentItem = this.element.find("[data-uid='" + parentUid + "']");
 
@@ -1060,7 +1060,7 @@ return window.kendo;
         },
 
         _keyEnter: function(focused) {
-            if(focused.find(DOT + ORGCHART_STYLES.cardMenu).length > 0) {
+            if (focused.find(DOT + ORGCHART_STYLES.cardMenu).length > 0) {
                 this.trigger(MENU, focused);
             }
         },
@@ -1070,12 +1070,12 @@ return window.kendo;
                 ownedGroup = this.element.find(HASH + focused.attr(ARIA_OWNS)),
                 childItem;
 
-            if(!dataItem.hasChildren) {
+            if (!dataItem.hasChildren) {
                 return;
             }
 
-            if(!dataItem.expanded) {
-                if(!this.trigger(EXPAND, { item: focused, dataItems: [dataItem] })) {
+            if (!dataItem.expanded) {
+                if (!this.trigger(EXPAND, { item: focused, dataItems: [dataItem] })) {
                     this.expand(focused);
                 }
             } else {
@@ -1093,11 +1093,11 @@ return window.kendo;
                 next = focused.parent().next(DOT + ORGCHART_STYLES.node).find(DOT + ORGCHART_STYLES.card),
                 ownedGroup = this.element.find(HASH + focused.attr(ARIA_OWNS));
 
-            if(!next.length && dataItem.hasChildren && dataItem.expanded) {
+            if (!next.length && dataItem.hasChildren && dataItem.expanded) {
                 next = ownedGroup.find(DOT + ORGCHART_STYLES.card).first();
             }
 
-            if(next.length === 0 || next.hasClass(ORGCHART_STYLES.focused)) {
+            if (next.length === 0 || next.hasClass(ORGCHART_STYLES.focused)) {
                 return;
             }
 
@@ -1112,12 +1112,12 @@ return window.kendo;
                 prev = focused.parent().prev(DOT + ORGCHART_STYLES.node).find(DOT + ORGCHART_STYLES.card),
                 parentUid;
 
-            if(!prev.length && dataItem.parentId) {
+            if (!prev.length && dataItem.parentId) {
                 parentUid = this.dataSource.get(dataItem.parentId).get(UID);
                 prev = this.element.find("[data-uid='" + parentUid + "']");
             }
 
-            if(prev.length === 0 || prev.hasClass(ORGCHART_STYLES.focused)) {
+            if (prev.length === 0 || prev.hasClass(ORGCHART_STYLES.focused)) {
                 return;
             }
 
@@ -1131,14 +1131,14 @@ return window.kendo;
             var currentTarget = $(e.currentTarget),
                 target = $(e.target);
 
-            if(this._preventTriggerSelect) {
+            if (this._preventTriggerSelect) {
                 e.stopPropagation();
                 this._preventTriggerSelect = false;
                 return;
             }
 
-            if(target.hasClass(ORGCHART_STYLES.cardMenu)) {
-                if(target.closest("[tabindex='0']").length > 0) {
+            if (target.hasClass(ORGCHART_STYLES.cardMenu)) {
+                if (target.closest("[tabindex='0']").length > 0) {
                     e.stopPropagation();
                     return;
                 } else {
@@ -1146,11 +1146,11 @@ return window.kendo;
                 }
             }
 
-            if(!currentTarget.hasClass(ORGCHART_STYLES.card)) {
+            if (!currentTarget.hasClass(ORGCHART_STYLES.card)) {
                 currentTarget = currentTarget.closest(DOT + ORGCHART_STYLES.card);
             }
 
-            if(!currentTarget.hasClass(ORGCHART_STYLES.focused)) {
+            if (!currentTarget.hasClass(ORGCHART_STYLES.focused)) {
                 this.trigger(SELECT, {
                     item: currentTarget,
                     dataItems: [this._dataItem(currentTarget)]
@@ -1163,11 +1163,11 @@ return window.kendo;
                 item = target.hasClass(ORGCHART_STYLES.card) ? target : target.closest(DOT + ORGCHART_STYLES.card),
                 menuButtonTarget = $(e.target).hasClass(ORGCHART_STYLES.cardMenu) ? $(e.target) : $(e.target).closest(DOT + ORGCHART_STYLES.cardMenu);
 
-            if(menuButtonTarget.length > 0) {
+            if (menuButtonTarget.length > 0) {
                 return;
             }
 
-            if(!target.hasClass(ORGCHART_STYLES.focused)) {
+            if (!target.hasClass(ORGCHART_STYLES.focused)) {
                 this.trigger(SELECT, {
                     item: item,
                     dataItems: [this._dataItem(item)]
@@ -1178,21 +1178,21 @@ return window.kendo;
         _orientation: function(group, level, vertical) {
             var vLine = $("<div>").addClass(ORGCHART_STYLES.line + SPACE + ORGCHART_STYLES.lineVertical);
 
-            if(vertical && level > 1) {
+            if (vertical && level > 1) {
                 group.addClass(ORGCHART_STYLES.groupVertical + SPACE + ORGCHART_STYLES.vstack);
                 group.find(DOT + ORGCHART_STYLES.nodeContainer).addClass(ORGCHART_STYLES.vstack);
 
-                if(group.find(DOT + ORGCHART_STYLES.button).length === 0 || group.find(DOT + ORGCHART_STYLES.card).length === 1) {
+                if (group.find(DOT + ORGCHART_STYLES.button).length === 0 || group.find(DOT + ORGCHART_STYLES.card).length === 1) {
                     group.find(DOT + ORGCHART_STYLES.card).before(vLine.clone());
                     group.find(DOT + ORGCHART_STYLES.node).first().find(DOT + ORGCHART_STYLES.lineVertical).addClass(ORGCHART_STYLES.lineVerticalTop);
-                } else if(level > 1) {
+                } else if (level > 1) {
                     group.find(DOT + ORGCHART_STYLES.card).first().before(vLine.clone());
                 }
             } else {
                 group.addClass(ORGCHART_STYLES.groupHorizontal + SPACE + ORGCHART_STYLES.hstack);
                 group.find(DOT + ORGCHART_STYLES.nodeContainer).addClass(ORGCHART_STYLES.hstack);
 
-                if(level > 1) {
+                if (level > 1) {
                     group.find(DOT + ORGCHART_STYLES.card).before(vLine.clone().addClass(ORGCHART_STYLES.lineVerticalTop));
                 }
             }
@@ -1219,7 +1219,7 @@ return window.kendo;
                 messages = this.options.messages,
                 i, item, guid, node, button, innerGroup, itemWidth, spacing, contentTemplate;
 
-            if(!this.options.template) {
+            if (!this.options.template) {
                 contentTemplate = kendo.template(CARD_TEMPLATE);
             } else if (typeof this.options.template === "function") {
                 contentTemplate = this.options.template;
@@ -1227,13 +1227,13 @@ return window.kendo;
                 contentTemplate = kendo.template(this.options.template);
             }
 
-            for(i = 0; i < items.length; i++) {
+            for (i = 0; i < items.length; i++) {
                 item = items[i];
                 guid = kendo.guid();
 
                 node = this._renderNode(cardWrapperTemplate, contentTemplate, item, level, guid);
 
-                if(item.hasChildren) {
+                if (item.hasChildren) {
                     node.append(vLine.clone());
                     button = $(buttonTemplate({ buttonSign: item.expanded ? MINUS : PLUS, label: item.expanded ? messages.collapse : messages.expand }));
                     node.append(button);
@@ -1243,18 +1243,18 @@ return window.kendo;
 
                 this._calculateDimensions();
 
-                itemWidth =  this._itemWidth;
+                itemWidth = this._itemWidth;
                 spacing = this._spacing;
 
-                if(item.hasChildren) {
+                if (item.hasChildren) {
                     vertical = false;
 
-                    if(item.expanded) {
+                    if (item.expanded) {
                         innerGroup = this._renderInnerGroup(item, numberOfColumns, parentLeft, i, level, guid);
                     }
                 }
 
-                if(!!innerGroup && innerGroup.hasClass(ORGCHART_STYLES.groupHorizontal) && item.expanded && !!item.children && item.children.length > 1) {
+                if (!!innerGroup && innerGroup.hasClass(ORGCHART_STYLES.groupHorizontal) && item.expanded && !!item.children && item.children.length > 1) {
                     button.after(hLine.clone().css({
                         width: (numberOfColumns - numberOfColumns / item.children.length) * (itemWidth + spacing) + PX,
                         "margin-top": this._buttonHeight / -2 + PX
@@ -1262,7 +1262,7 @@ return window.kendo;
                 }
             }
 
-            if(numberOfColumns > 1 && !vertical) {
+            if (numberOfColumns > 1 && !vertical) {
                 nodeContainer.find(DOT + ORGCHART_STYLES.node).width((numberOfColumns - 1) * (spacing + itemWidth));
             }
 
@@ -1270,7 +1270,7 @@ return window.kendo;
         },
 
         _renderInnerGroup: function(item, numberOfColumns, parentLeft, i, level, guid) {
-            var itemWidth =  this._itemWidth,
+            var itemWidth = this._itemWidth,
                 spacing = this._spacing,
                 width = numberOfColumns * itemWidth + (numberOfColumns - 1) * spacing,
                 left = (i * numberOfColumns * itemWidth) + parentLeft,
@@ -1279,7 +1279,7 @@ return window.kendo;
                 top = level * (this._itemHeight + this._buttonHeight + spacing) + spacing * (level - 1) - this._buttonHeight / 2,
                 innerGroup;
 
-            if(i > 0) {
+            if (i > 0) {
                 left += (i * numberOfColumns * spacing);
             }
 
@@ -1313,13 +1313,13 @@ return window.kendo;
             var $group = this.jqueryGroupElement(group),
                 dataItems, i;
 
-            if(!$group) {
+            if (!$group) {
                 return;
             }
 
             dataItems = this._dataItems($group);
 
-            for(i = 0; i < dataItems.length; i++) {
+            for (i = 0; i < dataItems.length; i++) {
                 this.dataSource.toggleChildren(dataItems[i], false).then(this.refresh.bind(this));
             }
         },
@@ -1328,13 +1328,13 @@ return window.kendo;
             var $group = this.jqueryGroupElement(group),
                 dataItems, i;
 
-            if(!$group) {
+            if (!$group) {
                 return;
             }
 
             dataItems = this._dataItems($group);
 
-            for(i = 0; i < dataItems.length; i++) {
+            for (i = 0; i < dataItems.length; i++) {
                 this.dataSource.toggleChildren(dataItems[i], true).then(this.refresh.bind(this));
             }
         },
@@ -1344,13 +1344,13 @@ return window.kendo;
                 dataItems = [],
                 items, item, current;
 
-            if(container.hasClass(ORGCHART_STYLES.card)) {
+            if (container.hasClass(ORGCHART_STYLES.card)) {
                 item = ds.getByUid(container.data(UID));
 
-                if(item) {
+                if (item) {
                     dataItems.push(item);
                 }
-            } else if(container.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
+            } else if (container.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
                 this._groupFocused = true;
 
                 items = container.find(DOT + ORGCHART_STYLES.card);
@@ -1358,7 +1358,7 @@ return window.kendo;
                 items.each(function(i, item) {
                     current = ds.getByUid(item.getAttribute("data-uid"));
 
-                    if(current) {
+                    if (current) {
                         dataItems.push(current);
                     }
                 });
@@ -1373,7 +1373,7 @@ return window.kendo;
                 padding = Number(itemElement.css("padding-left").split(PX)[0]),
                 border = Number(itemElement.css("border-left").split(PX)[0]);
 
-            return cardWidth+ 2 * padding + 2* border;
+            return cardWidth + 2 * padding + 2 * border;
         },
 
         _calculateLevel: function(groups, level) {
@@ -1385,7 +1385,7 @@ return window.kendo;
             this._maxColumnsPerLevel[level] = this._maxColumnsPerLevel[level] || 0;
             this._maxGroups[level] = this._maxGroups[level] || 0;
 
-            for(i = 0; i < groupsLength; i++) {
+            for (i = 0; i < groupsLength; i++) {
                 group = groups[i];
                 currentLength = group.items.length;
 
@@ -1395,24 +1395,24 @@ return window.kendo;
 
                 group = groups[i];
 
-                if(group.hasChildren) {
+                if (group.hasChildren) {
                     nestedChildren = true;
 
-                    if(group.expanded) {
+                    if (group.expanded) {
                         this._calculateLevel(group.children, level + 1);
                     }
                 }
             }
 
-            if(groupsLength > this._maxGroups[level]) {
+            if (groupsLength > this._maxGroups[level]) {
                 this._maxGroups[level] = groupsLength;
             }
 
-            if(!nestedChildren) {
+            if (!nestedChildren) {
                 maxColumns = 1;
             }
 
-            if(maxColumns > this._maxColumnsPerLevel[level]) {
+            if (maxColumns > this._maxColumnsPerLevel[level]) {
                 this._maxColumnsPerLevel[level] = maxColumns;
             }
         },
@@ -1426,12 +1426,12 @@ return window.kendo;
 
             this._calculateLevel(items, 0);
 
-            for(i = maxColumnsPerLevel.length - 1; i >= 0; i--) {
+            for (i = maxColumnsPerLevel.length - 1; i >= 0; i--) {
                 currentTotal = maxColumnsPerLevel[i] * maxGroups[i];
 
-                if(total > maxColumnsPerLevel[i]) {
+                if (total > maxColumnsPerLevel[i]) {
                     total = total * maxGroups[i];
-                } else if(total < currentTotal) {
+                } else if (total < currentTotal) {
                     total = currentTotal;
                 }
             }
@@ -1444,7 +1444,7 @@ return window.kendo;
         },
 
         _getToFocus: function(item) {
-            if(!this._groupFocused) {
+            if (!this._groupFocused) {
                 return this.element.find("[data-uid='" + item.get(UID) + "']");
             } else {
                 this._groupFocused = false;
@@ -1474,16 +1474,16 @@ return window.kendo;
                 return item.expanded;
             });
 
-            if(expanded) {
-                if(focused.hasClass(ORGCHART_STYLES.card)) {
+            if (expanded) {
+                if (focused.hasClass(ORGCHART_STYLES.card)) {
                     focused = focused.closest(DOT + ORGCHART_STYLES.nodesGroupContainer);
                     dataItems = this._dataItems(focused);
                 }
 
-                if(!this.trigger(COLLAPSE, { item: focused, dataItems: dataItems })) {
+                if (!this.trigger(COLLAPSE, { item: focused, dataItems: dataItems })) {
                     this.collapse(focused);
                 }
-            } else if(dataItems[0].parentId) {
+            } else if (dataItems[0].parentId) {
                 parentUid = this.dataSource.get(dataItems[0].parentId).get(UID);
 
                 this.trigger(SELECT, {
@@ -1497,7 +1497,7 @@ return window.kendo;
             var toSelect,
                 dataItems = [];
 
-            if(focused.hasClass(ORGCHART_STYLES.card) && focused.find(DOT + ORGCHART_STYLES.cardMenu).length > 0) {
+            if (focused.hasClass(ORGCHART_STYLES.card) && focused.find(DOT + ORGCHART_STYLES.cardMenu).length > 0) {
                 this.trigger(MENU, focused);
             } else {
                 toSelect = focused.find(DOT + ORGCHART_STYLES.card).first();
@@ -1511,7 +1511,7 @@ return window.kendo;
         },
 
         _keyEscape: function(focused) {
-            if(!focused.hasClass(ORGCHART_STYLES.card)) {
+            if (!focused.hasClass(ORGCHART_STYLES.card)) {
                 return;
             }
 
@@ -1534,7 +1534,7 @@ return window.kendo;
                 return item.hasChildren;
             });
 
-            if(!hasChildren) {
+            if (!hasChildren) {
                 return;
             }
 
@@ -1542,13 +1542,13 @@ return window.kendo;
                 return item.expanded;
             });
 
-            if(!expanded) {
-                if(focused.hasClass(ORGCHART_STYLES.card)) {
+            if (!expanded) {
+                if (focused.hasClass(ORGCHART_STYLES.card)) {
                     focused = focused.closest(DOT + ORGCHART_STYLES.nodesGroupContainer);
                     dataItems = this._dataItems(focused);
                 }
 
-                if(!this.trigger(EXPAND, { item: focused, dataItems: dataItems })) {
+                if (!this.trigger(EXPAND, { item: focused, dataItems: dataItems })) {
                     this.expand(focused);
                 }
             } else {
@@ -1572,17 +1572,17 @@ return window.kendo;
                 }),
                 next;
 
-                if(focused.hasClass(ORGCHART_STYLES.card)) {
+                if (focused.hasClass(ORGCHART_STYLES.card)) {
                     next = focused.parent().next(DOT + ORGCHART_STYLES.node).find(DOT + ORGCHART_STYLES.card);
                 } else {
                     next = focused.parent().next(DOT + ORGCHART_STYLES.nodesGroup).find(DOT + ORGCHART_STYLES.nodesGroupContainer);
                 }
 
-            if(!next.length && hasChildren && expanded) {
+            if (!next.length && hasChildren && expanded) {
                 next = ownedGroup.find(DOT + this._selector).first();
             }
 
-            if(next.length === 0) {
+            if (next.length === 0) {
                 return;
             }
 
@@ -1596,18 +1596,18 @@ return window.kendo;
             var dataItems = this._dataItems(focused),
                 parentUid, prev;
 
-            if(focused.hasClass(ORGCHART_STYLES.card)) {
+            if (focused.hasClass(ORGCHART_STYLES.card)) {
                 prev = focused.parent().prev(DOT + ORGCHART_STYLES.node).find(DOT + ORGCHART_STYLES.card);
             } else {
                 prev = focused.parent().prev(DOT + ORGCHART_STYLES.nodesGroup).find(DOT + ORGCHART_STYLES.nodesGroupContainer);
             }
 
-            if(!prev.length && dataItems[0].parentId) {
+            if (!prev.length && dataItems[0].parentId) {
                 parentUid = this.dataSource.get(dataItems[0].parentId).get(UID);
                 prev = this.element.find("[data-uid='" + parentUid + "']").closest(DOT + this._selector);
             }
 
-            if(prev.length === 0) {
+            if (prev.length === 0) {
                 return;
             }
 
@@ -1621,14 +1621,14 @@ return window.kendo;
             var target = $(e.target),
                 items, current;
 
-            if(this._preventTriggerSelect) {
+            if (this._preventTriggerSelect) {
                 e.stopPropagation();
                 this._preventTriggerSelect = false;
                 return;
             }
 
-            if(target.hasClass(ORGCHART_STYLES.cardMenu)) {
-                if(target.closest("[tabindex='0']").length > 0) {
+            if (target.hasClass(ORGCHART_STYLES.cardMenu)) {
+                if (target.closest("[tabindex='0']").length > 0) {
                     e.stopPropagation();
                     return;
                 } else {
@@ -1636,23 +1636,23 @@ return window.kendo;
                 }
             }
 
-            if(!target.hasClass(ORGCHART_STYLES.card) && !target.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
+            if (!target.hasClass(ORGCHART_STYLES.card) && !target.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
                 current = target.closest(DOT + ORGCHART_STYLES.card);
 
-                if(!current.length) {
+                if (!current.length) {
                     current = target.closest(DOT + ORGCHART_STYLES.nodesGroupContainer);
                 }
 
                 target = current;
             }
 
-            if(target.length === 0) {
+            if (target.length === 0) {
                 return;
             }
 
             items = this._dataItems(target);
 
-            if(!target.hasClass(ORGCHART_STYLES.focused)) {
+            if (!target.hasClass(ORGCHART_STYLES.focused)) {
                 e.stopPropagation();
                 this.trigger(SELECT, {
                     item: target,
@@ -1666,17 +1666,17 @@ return window.kendo;
                 previousSelection = this.element.find("[tabindex=0]"),
                 items, current;
 
-            if(!target.hasClass(ORGCHART_STYLES.card) && !target.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
+            if (!target.hasClass(ORGCHART_STYLES.card) && !target.hasClass(ORGCHART_STYLES.nodesGroupContainer)) {
                 current = target.closest(DOT + ORGCHART_STYLES.card);
 
-                if(!current.length) {
+                if (!current.length) {
                     current = target.closest(DOT + ORGCHART_STYLES.nodesGroupContainer);
                 }
 
                 target = current;
             }
 
-            if(target.length === 0 || previousSelection[0] === target[0]) {
+            if (target.length === 0 || previousSelection[0] === target[0]) {
                 return;
             }
 
@@ -1693,11 +1693,11 @@ return window.kendo;
 
             group.addClass(ORGCHART_STYLES.hstack);
 
-            if(level > 1) {
+            if (level > 1) {
                 group.find(DOT + ORGCHART_STYLES.nodesGroupContainer).before(vLine.clone());
             }
 
-            if(vertical && level > 1) {
+            if (vertical && level > 1) {
                 group.find(DOT + ORGCHART_STYLES.nodeContainer).removeClass(ORGCHART_STYLES.hstack);
                 group.find(DOT + ORGCHART_STYLES.nodeContainer).addClass(ORGCHART_STYLES.vstack);
             } else {
@@ -1715,7 +1715,7 @@ return window.kendo;
                 offsetDirection = kendo.support.isRtl(this.element) ? "right" : "left",
                 innerGroup, button, left, top, width, nodesGroupWidth, spacing;
 
-            if(item.hasChildren) {
+            if (item.hasChildren) {
                 vertical = false;
                 nodesGroup.append(vLine.clone());
                 button = $(buttonTemplate({ buttonSign: item.expanded ? MINUS : PLUS, label: item.expanded ? messages.collapse : messages.expand }));
@@ -1724,15 +1724,15 @@ return window.kendo;
 
                 this._calculateDimensions();
 
-                nodesGroupWidth =  this._itemWidth;
+                nodesGroupWidth = this._itemWidth;
                 spacing = this._spacing;
 
-                if(item.expanded) {
+                if (item.expanded) {
                     width = nodesGroupWidth * numberOfColumns + (numberOfColumns - 1) * spacing;
                     left = (index * numberOfColumns * nodesGroupWidth) + parentLeft;
                     top = level * (this._itemHeight + this._buttonHeight + spacing) + spacing * (level - 1) - this._buttonHeight / 2;
 
-                    if(index > 0) {
+                    if (index > 0) {
                         left += (index * numberOfColumns * spacing);
                     }
 
@@ -1753,7 +1753,7 @@ return window.kendo;
                 }
             }
 
-            if(!!innerGroup && item.expanded && !!item.children && item.children.length > 1) {
+            if (!!innerGroup && item.expanded && !!item.children && item.children.length > 1) {
                 button.after(hLine.clone().css({
                     width: (numberOfColumns - numberOfColumns / item.children.length) * (nodesGroupWidth + spacing) + PX,
                     "margin-top": this._buttonHeight / -2 + PX
@@ -1768,7 +1768,7 @@ return window.kendo;
                 numberOfColumns = parentColumns / items.length,
                 nodeContainer, nodesGroup, i, guid, currentVertical, item;
 
-            for(i = 0; i < items.length; i++) {
+            for (i = 0; i < items.length; i++) {
                 guid = kendo.guid();
                 item = items[i];
                 nodeContainer = this._renderNodesContainer(group, extend(true, {}, item, {
@@ -1780,7 +1780,7 @@ return window.kendo;
                 this._renderItems(nodeContainer, item.items, level, guid);
                 currentVertical = this._renderChildren(item, i, numberOfColumns, level, nodesGroup, parentLeft, guid);
 
-                if(vertical) {
+                if (vertical) {
                     vertical = currentVertical;
                 }
             }
@@ -1795,7 +1795,7 @@ return window.kendo;
             var cardWrapperTemplate = kendo.template(GROUPED_CARD_WRAPPER),
                 i, item, node, contentTemplate;
 
-            if(!this.options.template) {
+            if (!this.options.template) {
                 contentTemplate = kendo.template(CARD_TEMPLATE);
             } else if (typeof this.options.template === "function") {
                 contentTemplate = this.options.template;
@@ -1803,7 +1803,7 @@ return window.kendo;
                 contentTemplate = kendo.template(this.options.template);
             }
 
-            for(i = 0; i < items.length; i++) {
+            for (i = 0; i < items.length; i++) {
                 item = items[i];
                 node = this._renderNode(cardWrapperTemplate, contentTemplate, item, level, guid);
                 nodeContainer.append(node);
@@ -1845,10 +1845,10 @@ return window.kendo;
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
-(function(f, define){
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
+(function(f, define) {
     define('kendo.orgchart',[ "./orgchart/data", "./orgchart/view", "kendo.menu", "kendo.dialog", "kendo.form", "kendo.upload", "kendo.window" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "orgchart",
@@ -1858,7 +1858,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core", "menu", "dialog", "form", "upload", "window" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         DataBoundWidget = kendo.ui.DataBoundWidget,
         OrgChartDataSource = kendo.data.OrgChartDataSource,
@@ -2036,13 +2036,13 @@ var __meta__ = { // jshint ignore:line
          ],
 
         destroy: function() {
-            if(this._menu) {
+            if (this._menu) {
                 this._menu.destroy();
             }
-            if(this._editWindow) {
+            if (this._editWindow) {
                 this._editWindow.destroy();
             }
-            if(this._confirmDestroy) {
+            if (this._confirmDestroy) {
                 this._confirmDestroy.destroy();
             }
 
@@ -2072,11 +2072,11 @@ var __meta__ = { // jshint ignore:line
                 $parent = that.view.jqueryItemElement(parent),
                 parentItem = that.dataItem($parent);
 
-            if(!$parent || !parentItem) {
+            if (!$parent || !parentItem) {
                 return;
             }
 
-            if(!parentItem.loaded()) {
+            if (!parentItem.loaded()) {
                 that.dataSource.read({ id: parentItem.id })
                     .then(function() {
                         that.dataSource.add(extend({}, item, { parentId: parentItem.id }));
@@ -2089,7 +2089,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         cancelChanges: function() {
-            if(this.dataSource.hasChanges()) {
+            if (this.dataSource.hasChanges()) {
                 this.dataSource.cancelChanges();
             }
         },
@@ -2101,7 +2101,7 @@ var __meta__ = { // jshint ignore:line
         dataItem: function(item) {
             var $item = this.view.jqueryItemElement(item);
 
-            if(!$item || !$item.data(UID)) {
+            if (!$item || !$item.data(UID)) {
                 return;
             }
 
@@ -2111,7 +2111,7 @@ var __meta__ = { // jshint ignore:line
         delete: function(item) {
             var $item = this.view.jqueryItemElement(item);
 
-            if(!$item) {
+            if (!$item) {
                 return;
             }
 
@@ -2123,7 +2123,7 @@ var __meta__ = { // jshint ignore:line
             var $item = this.view.jqueryItemElement(item),
                 dataItem = this.dataItem($item);
 
-            if(!$item || !dataItem) {
+            if (!$item || !dataItem) {
                 return;
             }
 
@@ -2146,7 +2146,7 @@ var __meta__ = { // jshint ignore:line
             var $item = this.view.jqueryItemElement(item),
                 id;
 
-            if(!$item) {
+            if (!$item) {
                 return;
             }
 
@@ -2162,7 +2162,7 @@ var __meta__ = { // jshint ignore:line
         select: function(item) {
             var $item = this.view._getToSelect(item);
 
-            if(!$item) {
+            if (!$item) {
                 return;
             } else {
                 return this.view.select($item);
@@ -2178,7 +2178,7 @@ var __meta__ = { // jshint ignore:line
                 },
                 formWrapper, data;
 
-            if(!form) {
+            if (!form) {
                 return;
             }
 
@@ -2219,12 +2219,12 @@ var __meta__ = { // jshint ignore:line
                 },
                 menuElement;
 
-            if(editable === true ||
+            if (editable === true ||
                 (editable !== false &&
                     (editable.create || editable.destroy || editable.fields || editable.parent))) {
                         menuElement = "<ul>";
 
-                        if(editable === true) {
+                        if (editable === true) {
                             menuElement += MENU_ITEMS.edit;
                             menuElement += MENU_ITEMS.create;
                             menuElement += MENU_ITEMS.destroy;
@@ -2285,7 +2285,7 @@ var __meta__ = { // jshint ignore:line
                 confirm = this._confirmDestroy = new kendo.ui.Confirm(el, {
                     title: messages.destroyTitle,
                     content: messages.destroyContent,
-                    messages:{
+                    messages: {
                       okText: messages.destroy,
                       cancel: messages.cancel
                     },
@@ -2299,7 +2299,7 @@ var __meta__ = { // jshint ignore:line
             confirm.open();
 
             confirm.result.done(function() {
-                if(!that.trigger(DELETE, { dataItem: item })) {
+                if (!that.trigger(DELETE, { dataItem: item })) {
                     that.dataSource.remove(item);
                     that.dataSource.sync();
                 }
@@ -2319,13 +2319,13 @@ var __meta__ = { // jshint ignore:line
                 formOptions = this._formOptions(dataItem),
                 save;
 
-            if(!formOptions) {
+            if (!formOptions) {
                 return;
             }
 
             that._form = new kendo.ui.Form(formElement, formOptions);
 
-            if(!!dataItem.avatar) {
+            if (!!dataItem.avatar) {
                 that._avatarPreview(dataItem);
             }
 
@@ -2336,8 +2336,8 @@ var __meta__ = { // jshint ignore:line
                 width: "380 px",
                 modal: true,
                 close: function(e) {
-                    if(!save) {
-                        if(!that.trigger(CANCEL, { dataItem: dataItem })) {
+                    if (!save) {
+                        if (!that.trigger(CANCEL, { dataItem: dataItem })) {
                             that.cancelChanges();
                         } else {
                             e.preventDefault();
@@ -2362,10 +2362,10 @@ var __meta__ = { // jshint ignore:line
             that._editWindow.center().open();
 
             windowElement.on(CLICK, DOT + ORGCHART_STYLES.update, function() {
-                if(that._form.validate()) {
+                if (that._form.validate()) {
                     save = true;
 
-                    if(!that.trigger(SAVE, { dataItem: dataItem })) {
+                    if (!that.trigger(SAVE, { dataItem: dataItem })) {
                         that._editWindow.close();
                         that.saveChanges();
                     }
@@ -2384,11 +2384,11 @@ var __meta__ = { // jshint ignore:line
                 items = [],
                 parentsDs, optionsItems;
 
-            if(optionsForm) {
+            if (optionsForm) {
                 optionsItems = optionsForm.items;
             }
 
-            if((!optionsItems || optionsItems.length === 0) &&
+            if ((!optionsItems || optionsItems.length === 0) &&
                 (options.editable === true || (options.editable && options.editable.parent))) {
 
                 parentsDs = [{
@@ -2409,7 +2409,7 @@ var __meta__ = { // jshint ignore:line
                 });
             }
 
-            if((!optionsItems || optionsItems.length === 0) &&
+            if ((!optionsItems || optionsItems.length === 0) &&
                 (options.editable === true || (options.editable && options.editable.fields))) {
 
                 items = items.concat([{
@@ -2426,11 +2426,11 @@ var __meta__ = { // jshint ignore:line
                 }]);
             }
 
-            if(optionsForm) {
+            if (optionsForm) {
                 delete optionsForm.formData;
             }
 
-            if(items.length > 0 || (optionsItems && optionsItems.length > 0)) {
+            if (items.length > 0 || (optionsItems && optionsItems.length > 0)) {
                 return extend(true, {}, {
                     formData: item,
                     items: items
@@ -2441,7 +2441,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _onDataSourceChange: function(e) {
-            if(e.action === "add" || e.action === "itemchange" && this._editWindow) {
+            if (e.action === "add" || e.action === "itemchange" && this._editWindow) {
                 return;
             }
 
@@ -2471,7 +2471,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _onMenuClose: function() {
-            if($(document.activeElement).closest("[role='alertdialog']").length === 0) {
+            if ($(document.activeElement).closest("[role='alertdialog']").length === 0) {
                 this.wrapper.find("[tabindex='0']")
                     .addClass(ORGCHART_STYLES.focused)
                     .trigger("focus");
@@ -2485,17 +2485,17 @@ var __meta__ = { // jshint ignore:line
                 action = $(e.item).data(ACTION),
                 newItem;
 
-            if(!dataItem) {
+            if (!dataItem) {
                 return;
             }
 
-            if(action === EDIT) {
-                if(!that.trigger(EDIT, { dataItem: dataItem })) {
+            if (action === EDIT) {
+                if (!that.trigger(EDIT, { dataItem: dataItem })) {
                     that._edit(dataItem);
                 }
-            } else if(action === CREATE) {
-                if(!that.trigger(CREATE, { dataItem: dataItem })) {
-                    if(!dataItem.loaded()) {
+            } else if (action === CREATE) {
+                if (!that.trigger(CREATE, { dataItem: dataItem })) {
+                    if (!dataItem.loaded()) {
                         that.dataSource.read({ id: dataItem.id })
                             .then(function() {
                                 newItem = that.dataSource.add({
@@ -2512,7 +2512,7 @@ var __meta__ = { // jshint ignore:line
                         that._edit(newItem);
                     }
                 }
-            } else if(action === DESTROY) {
+            } else if (action === DESTROY) {
                 that._destroyItem(dataItem);
             }
         },
@@ -2524,7 +2524,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _openMenu: function(focused) {
-            if(this._menu) {
+            if (this._menu) {
                 this._menu.open(focused.find(DOT + ORGCHART_STYLES.cardMenu));
             }
         },
@@ -2534,19 +2534,19 @@ var __meta__ = { // jshint ignore:line
         },
 
         _triggerCollapse: function(e) {
-            if(this.trigger(COLLAPSE, { item: e.item, dataItems: e.dataItems })) {
+            if (this.trigger(COLLAPSE, { item: e.item, dataItems: e.dataItems })) {
                 e.preventDefault();
             }
         },
 
         _triggerExpand: function(e) {
-            if(this.trigger(EXPAND, { item: e.item, dataItems: e.dataItems })) {
+            if (this.trigger(EXPAND, { item: e.item, dataItems: e.dataItems })) {
                 e.preventDefault();
             }
         },
 
         _triggerSelect: function(e) {
-            if(!this.trigger(SELECT, { item: e.item, dataItems: e.dataItems })) {
+            if (!this.trigger(SELECT, { item: e.item, dataItems: e.dataItems })) {
                 this.view.select(e.item);
                 this.trigger(CHANGE, { item: e.item, dataItems: e.dataItems });
             }
@@ -2563,14 +2563,14 @@ var __meta__ = { // jshint ignore:line
                     select: function(e) {
                         var fileInfo = e.files[0];
                         var raw = fileInfo.rawFile;
-                        var reader  = new FileReader();
+                        var reader = new FileReader();
 
-                        if(fileInfo.validationErrors && fileInfo.validationErrors.length > 0) {
+                        if (fileInfo.validationErrors && fileInfo.validationErrors.length > 0) {
                             return;
                         }
 
                         if (raw) {
-                            reader.onloadend = function () {
+                            reader.onloadend = function() {
                                 item.set("avatar", this.result);
                                 that._avatarPreview(item, raw.name);
                             };
@@ -2586,7 +2586,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _view: function() {
-            if(this.options.groupField !== null && this.options.groupField !== undefined) {
+            if (this.options.groupField !== null && this.options.groupField !== undefined) {
                 this.view = new kendo.orgChart.GroupedView(this.container, this.options);
             } else {
                 this.view = new kendo.orgChart.SingleView(this.container, this.options);
@@ -2616,6 +2616,6 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
 // add validation to upload images only in the edit pop-up;

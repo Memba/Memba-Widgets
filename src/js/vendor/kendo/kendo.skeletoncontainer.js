@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.skeletoncontainer',[ "kendo.core"], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "skeletoncontainer",
@@ -105,7 +105,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _initTemplate: function () {
+        _initTemplate: function() {
             if (!this.options.template || this.options.grid) {
                 return;
             }
@@ -126,14 +126,14 @@ var __meta__ = { // jshint ignore:line
             var shapes = ["circle", "rect", "text"];
             var animations = ["wave", "pulse"];
 
-            for(var i = 0; i < shapes.length; i++) {
+            for (var i = 0; i < shapes.length; i++) {
                 this.element
                     .find("[k-skeleton-" + shapes[i] + "]")
                     .removeAttr("k-skeleton-" + shapes[i])
                     .addClass("k-skeleton k-skeleton-" + shapes[i] + "");
             }
 
-            for(var j = 0; j < animations.length; j++) {
+            for (var j = 0; j < animations.length; j++) {
                 this.element
                     .find("[k-skeleton-" + animations[j] + "]")
                     .removeAttr("k-skeleton-" + animations[j])
@@ -141,7 +141,7 @@ var __meta__ = { // jshint ignore:line
             }
         },
 
-        _setWrapperStyles: function () {
+        _setWrapperStyles: function() {
             var that = this;
             var options = that.options;
             var grid = options.grid;
@@ -151,7 +151,7 @@ var __meta__ = { // jshint ignore:line
                 that.element
                     .css({
                         "grid-template-columns": kendo.format("repeat({0}, 1fr)", grid.columns),
-                        "grid-template-rows":  kendo.format("repeat({0}, 1fr)", grid.rows),
+                        "grid-template-rows": kendo.format("repeat({0}, 1fr)", grid.rows),
                         "column-gap": (grid.gap || {}).columns,
                         "row-gap": (grid.gap || {}).rows
                     })
@@ -175,5 +175,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

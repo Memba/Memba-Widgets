@@ -1,16 +1,16 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/utils',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram = {},
         deepExtend = kendo.deepExtend,
@@ -22,50 +22,50 @@
     };
 
     deepExtend(Utils, {
-        isNearZero: function (num) {
+        isNearZero: function(num) {
             return Math.abs(num) < EPSILON;
         },
-        isDefined: function (obj) {
+        isDefined: function(obj) {
             return typeof obj !== 'undefined';
         },
 
-        isUndefined: function (obj) {
+        isUndefined: function(obj) {
             return (typeof obj === 'undefined') || obj === null;
         },
         /**
          * Returns whether the given object is an object or a value.
          */
-        isObject: function (obj) {
+        isObject: function(obj) {
             return obj === Object(obj);
         },
         /**
          * Returns whether the object has a property with the given name.
          */
-        has: function (obj, key) {
+        has: function(obj, key) {
             return Object.hasOwnProperty.call(obj, key);
         },
         /**
          * Returns whether the given object is a string.
          */
-        isString: function (obj) {
+        isString: function(obj) {
             return Object.prototype.toString.call(obj) == '[object String]';
         },
-        isBoolean: function (obj) {
+        isBoolean: function(obj) {
             return Object.prototype.toString.call(obj) == '[object Boolean]';
         },
-        isType: function (obj, type) {
+        isType: function(obj, type) {
             return Object.prototype.toString.call(obj) == '[object ' + type + ']';
         },
         /**
          * Returns whether the given object is a number.
          */
-        isNumber: function (obj) {
+        isNumber: function(obj) {
             return !isNaN(parseFloat(obj)) && isFinite(obj);
         },
         /**
          * Return whether the given object (array or dictionary).
          */
-        isEmpty: function (obj) {
+        isEmpty: function(obj) {
             if (obj === null) {
                 return true;
             }
@@ -80,11 +80,11 @@
             return true;
         },
         simpleExtend: function(destination, source) {
-            if(!Utils.isObject(source)) {
+            if (!Utils.isObject(source)) {
                 return;
             }
 
-            for(var name in source) {
+            for (var name in source) {
                 destination[name] = source[name];
             }
         },
@@ -101,7 +101,7 @@
             }
             return array;
         },
-        serializePoints: function (points) {
+        serializePoints: function(points) {
             var res = [];
             for (var i = 0; i < points.length; i++) {
                 var p = points[i];
@@ -109,7 +109,7 @@
             }
             return res.join(";");
         },
-        deserializePoints: function (s) {
+        deserializePoints: function(s) {
             var v = s.split(";"), points = [];
             if (v.length % 2 !== 0) {
                 throw "Not an array of points.";
@@ -128,13 +128,13 @@
          * @param upper The exclusive upper bound.
          * @returns {number}
          */
-        randomInteger: function (lower, upper) {
+        randomInteger: function(lower, upper) {
             return parseInt(Math.floor(Math.random() * upper) + lower, 10);
         } ,
         /*
          Depth-first traversal of the given node.
          */
-        DFT: function (el, func) {
+        DFT: function(el, func) {
             func(el);
             if (el.childNodes) {
                 for (var i = 0; i < el.childNodes.length; i++) {
@@ -146,7 +146,7 @@
         /*
          Returns the angle in degrees for the given matrix
          */
-        getMatrixAngle: function (m) {
+        getMatrixAngle: function(m) {
             if (m === null || m.d === 0) {
                 return 0;
             }
@@ -156,7 +156,7 @@
         /*
          Returns the scaling factors for the given matrix.
          */
-        getMatrixScaling: function (m) {
+        getMatrixScaling: function(m) {
             var sX = Math.sqrt(m.a * m.a + m.c * m.c);
             var sY = Math.sqrt(m.b * m.b + m.d * m.d);
             return [sX, sY];
@@ -254,7 +254,7 @@
         return null;
     };
 
-    Utils.remove = function (arr, what) {
+    Utils.remove = function(arr, what) {
         var ax;
         while ((ax = Utils.indexOf(arr, what)) !== -1) {
             arr.splice(ax, 1);
@@ -262,7 +262,7 @@
         return arr;
     };
 
-    Utils.contains = function (arr, obj) {
+    Utils.contains = function(arr, obj) {
         return Utils.indexOf(arr, obj) !== -1;
     };
 
@@ -270,7 +270,7 @@
         return $.inArray(what, arr);
     };
 
-    Utils.fold = function (list, iterator, acc, context) {
+    Utils.fold = function(list, iterator, acc, context) {
         var initial = arguments.length > 2;
 
         for (var i = 0; i < list.length; i++) {
@@ -291,9 +291,9 @@
         return acc;
     };
 
-    Utils.find = function (arr, iterator, context) {
+    Utils.find = function(arr, iterator, context) {
         var result;
-        Utils.any(arr, function (value, index, list) {
+        Utils.any(arr, function(value, index, list) {
             if (iterator.call(context, value, index, list)) {
                 result = value;
                 return true;
@@ -303,7 +303,7 @@
         return result;
     };
 
-    Utils.first = function (arr, constraint, context) {
+    Utils.first = function(arr, constraint, context) {
         if (arr.length === 0) {
             return null;
         }
@@ -317,12 +317,12 @@
     /**
      * Inserts the given element at the specified position and returns the result.
      */
-    Utils.insert = function (arr, element, position) {
+    Utils.insert = function(arr, element, position) {
         arr.splice(position, 0, element);
         return arr;
     };
 
-    Utils.all = function (arr, iterator, context) {
+    Utils.all = function(arr, iterator, context) {
         var result = true;
         var value;
 
@@ -338,7 +338,7 @@
         return result;
     };
 
-    Utils.clear = function (arr) {
+    Utils.clear = function(arr) {
         arr.splice(0, arr.length);
     };
 
@@ -348,7 +348,7 @@
      * @param b
      * @param sortfunc (optiona) sorting function for the values in the first array
      */
-    Utils.bisort = function (a, b, sortfunc) {
+    Utils.bisort = function(a, b, sortfunc) {
         if (Utils.isUndefined(a)) {
             throw "First array is not specified.";
         }
@@ -365,12 +365,12 @@
             all.push({ 'x': a[i], 'y': b[i] });
         }
         if (Utils.isUndefined(sortfunc)) {
-            all.sort(function (m, n) {
+            all.sort(function(m, n) {
                 return m.x - n.x;
             });
         }
         else {
-            all.sort(function (m, n) {
+            all.sort(function(m, n) {
                 return sortfunc(m.x, n.x);
             });
         }
@@ -384,12 +384,12 @@
         }
     };
 
-    Utils.addRange = function (arr, range) {
+    Utils.addRange = function(arr, range) {
         arr.push.apply(arr, range);
     };
 
     var Easing = {
-        easeInOut: function (pos) {
+        easeInOut: function(pos) {
             return ((-Math.cos(pos * Math.PI) / 2) + 0.5);
         }
     };
@@ -400,7 +400,7 @@
      * @type {*}
      */
     var Ticker = kendo.Class.extend({
-        init: function () {
+        init: function() {
             this.adapters = [];
             this.target = 0;
             this.tick = 0;
@@ -410,35 +410,35 @@
             this.handlers = [];
             var _this = this;
             this.transition = Easing.easeInOut;
-            this.timerDelegate = function () {
+            this.timerDelegate = function() {
                 _this.onTimerEvent();
             };
         },
-        addAdapter: function (a) {
+        addAdapter: function(a) {
             this.adapters.push(a);
         },
-        onComplete: function (handler) {
+        onComplete: function(handler) {
             this.handlers.push(handler);
         },
-        removeHandler: function (handler) {
-            this.handlers = $.grep(this.handlers, function (h) {
+        removeHandler: function(handler) {
+            this.handlers = $.grep(this.handlers, function(h) {
                 return h !== handler;
             });
         },
-        trigger: function () {
+        trigger: function() {
             var _this = this;
             if (this.handlers) {
-                Utils.forEach(this.handlers, function (h) {
+                Utils.forEach(this.handlers, function(h) {
                     return h.call(_this.caller !== null ? _this.caller : _this);
                 });
             }
         },
-        onStep: function () {
+        onStep: function() {
         },
-        seekTo: function (to) {
+        seekTo: function(to) {
             this.seekFromTo(this.tick, to);
         },
-        seekFromTo: function (from, to) {
+        seekFromTo: function(from, to) {
             this.target = Math.max(0, Math.min(1, to));
             this.tick = Math.max(0, Math.min(1, from));
             this.lastTime = new Date().getTime();
@@ -446,7 +446,7 @@
                 this.intervalId = window.setInterval(this.timerDelegate, this.interval);
             }
         },
-        stop: function () {
+        stop: function() {
             if (this.intervalId) {
                 window.clearInterval(this.intervalId);
                 this.intervalId = null;
@@ -456,7 +456,7 @@
                 // this.next();
             }
         },
-        play: function (origin) {
+        play: function(origin) {
             if (this.adapters.length === 0) {
                 return;
             }
@@ -466,10 +466,10 @@
             this.initState();
             this.seekFromTo(0, 1);
         },
-        reverse: function () {
+        reverse: function() {
             this.seekFromTo(1, 0);
         },
-        initState: function () {
+        initState: function() {
             if (this.adapters.length === 0) {
                 return;
             }
@@ -477,14 +477,14 @@
                 this.adapters[i].initState();
             }
         },
-        propagate: function () {
+        propagate: function() {
             var value = this.transition(this.tick);
 
             for (var i = 0; i < this.adapters.length; i++) {
                 this.adapters[i].update(value);
             }
         },
-        onTimerEvent: function () {
+        onTimerEvent: function() {
             var now = new Date().getTime();
             var timePassed = now - this.lastTime;
             this.lastTime = now;
@@ -507,7 +507,7 @@
     });
 
     kendo.deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
 
@@ -517,13 +517,13 @@
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/math',[ "./utils", "kendo.dataviz.core" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram,
@@ -541,37 +541,37 @@
         EPSILON = 1e-06;
 
     deepExtend(Point.fn, {
-        plus: function (p) {
+        plus: function(p) {
             return new Point(this.x + p.x, this.y + p.y);
         },
-        minus: function (p) {
+        minus: function(p) {
             return new Point(this.x - p.x, this.y - p.y);
         },
-        offset: function (value) {
+        offset: function(value) {
             return new Point(this.x - value, this.y - value);
         },
-        times: function (s) {
+        times: function(s) {
             return new Point(this.x * s, this.y * s);
         },
-        normalize: function () {
+        normalize: function() {
             if (this.length() === 0) {
                 return new Point();
             }
             return this.times(1 / this.length());
         },
-        length: function () {
+        length: function() {
             return Math.sqrt(this.x * this.x + this.y * this.y);
         },
-        toString: function () {
+        toString: function() {
             return "(" + this.x + "," + this.y + ")";
         },
-        lengthSquared: function () {
+        lengthSquared: function() {
             return (this.x * this.x + this.y * this.y);
         },
         middleOf: function MiddleOf(p, q) {
             return new Point(q.x - p.x, q.y - p.y).times(0.5).plus(p);
         },
-        toPolar: function (useDegrees) {
+        toPolar: function(useDegrees) {
             var factor = 1;
             if (useDegrees) {
                 factor = 180 / Math.PI;
@@ -615,7 +615,7 @@
                 }
             }
         },
-        isOnLine: function (from, to) {
+        isOnLine: function(from, to) {
             if (from.x > to.x) { // from must be the leftmost point
                 var temp = to;
                 to = from;
@@ -642,7 +642,7 @@
     });
 
     deepExtend(Point, {
-        parse: function (str) {
+        parse: function(str) {
             var tempStr = str.slice(1, str.length - 1),
                 xy = tempStr.split(","),
                 x = parseInt(xy[0], 10),
@@ -660,7 +660,7 @@
      */
     var PathDefiner = Class.extend(
         {
-            init: function (p, left, right) {
+            init: function(p, left, right) {
                 this.point = p;
                 this.left = left;
                 this.right = right;
@@ -672,16 +672,16 @@
      * Defines a rectangular region.
      */
     var Rect = Class.extend({
-        init: function (x, y, width, height) {
+        init: function(x, y, width, height) {
             this.x = x || 0;
             this.y = y || 0;
             this.width = width || 0;
             this.height = height || 0;
         },
-        contains: function (point) {
+        contains: function(point) {
             return ((point.x >= this.x) && (point.x <= (this.x + this.width)) && (point.y >= this.y) && (point.y <= (this.y + this.height)));
         },
-        inflate: function (dx, dy) {
+        inflate: function(dx, dy) {
             if (dy === undefined) {
                 dy = dx;
             }
@@ -692,7 +692,7 @@
             this.height += 2 * dy + 1;
             return this;
         },
-        offset: function (dx, dy) {
+        offset: function(dx, dy) {
             var x = dx, y = dy;
             if (dx instanceof Point) {
                 x = dx.x;
@@ -702,50 +702,50 @@
             this.y += y;
             return this;
         },
-        union: function (r) {
+        union: function(r) {
             var x1 = Math.min(this.x, r.x);
             var y1 = Math.min(this.y, r.y);
             var x2 = Math.max((this.x + this.width), (r.x + r.width));
             var y2 = Math.max((this.y + this.height), (r.y + r.height));
             return new Rect(x1, y1, x2 - x1, y2 - y1);
         },
-        center: function () {
+        center: function() {
             return new Point(this.x + this.width / 2, this.y + this.height / 2);
         },
-        top: function () {
+        top: function() {
             return new Point(this.x + this.width / 2, this.y);
         },
-        right: function () {
+        right: function() {
             return new Point(this.x + this.width, this.y + this.height / 2);
         },
-        bottom: function () {
+        bottom: function() {
             return new Point(this.x + this.width / 2, this.y + this.height);
         },
-        left: function () {
+        left: function() {
             return new Point(this.x, this.y + this.height / 2);
         },
-        topLeft: function () {
+        topLeft: function() {
             return new Point(this.x, this.y);
         },
-        topRight: function () {
+        topRight: function() {
             return new Point(this.x + this.width, this.y);
         },
-        bottomLeft: function () {
+        bottomLeft: function() {
             return new Point(this.x, this.y + this.height);
         },
-        bottomRight: function () {
+        bottomRight: function() {
             return new Point(this.x + this.width, this.y + this.height);
         },
-        clone: function () {
+        clone: function() {
             return new Rect(this.x, this.y, this.width, this.height);
         },
-        isEmpty: function () {
+        isEmpty: function() {
             return !this.width && !this.height;
         },
-        equals: function (rect) {
+        equals: function(rect) {
             return this.x === rect.x && this.y === rect.y && this.width === rect.width && this.height === rect.height;
         },
-        rotatedBounds: function (angle) {
+        rotatedBounds: function(angle) {
             var rect = this.clone(),
                 points = this.rotatedPoints(angle),
                 tl = points[0],
@@ -760,7 +760,7 @@
 
             return rect;
         },
-        rotatedPoints: function (angle) {
+        rotatedPoints: function(angle) {
             var rect = this,
                 c = rect.center(),
                 br = rect.bottomRight().rotate(c, 360 - angle),
@@ -770,12 +770,12 @@
 
             return [tl, tr, br, bl];
         },
-        toString: function (delimiter) {
+        toString: function(delimiter) {
             delimiter = delimiter || " ";
 
             return this.x + delimiter + this.y + delimiter + this.width + delimiter + this.height;
         },
-        scale: function (scaleX, scaleY, staicPoint, adornerCenter, angle) {
+        scale: function(scaleX, scaleY, staicPoint, adornerCenter, angle) {
             var tl = this.topLeft();
             var thisCenter = this.center();
             tl.rotate(thisCenter, 360 - angle).rotate(adornerCenter, angle);
@@ -811,7 +811,7 @@
     });
 
     var Size = Class.extend({
-        init: function (width, height) {
+        init: function(width, height) {
             this.width = width;
             this.height = height;
         }
@@ -819,7 +819,7 @@
 
     Size.prototype.Empty = new Size(0, 0);
 
-    Rect.toRect = function (rect) {
+    Rect.toRect = function(rect) {
         if (!(rect instanceof Rect)) {
             rect = new Rect(rect.x, rect.y, rect.width, rect.height);
         }
@@ -827,11 +827,11 @@
         return rect;
     };
 
-    Rect.empty = function () {
+    Rect.empty = function() {
         return new Rect(0, 0, 0, 0);
     };
 
-    Rect.fromPoints = function (p, q) {
+    Rect.fromPoints = function(p, q) {
         if (isNaN(p.x) || isNaN(p.y) || isNaN(q.x) || isNaN(q.y)) {
             throw "Some values are NaN.";
         }
@@ -866,19 +866,19 @@
     }
 
     var Intersect = {
-        lines: function (start1, end1, start2, end2) {
+        lines: function(start1, end1, start2, end2) {
             return intersectLine(start1, end1, start2, end2);
         },
-        segments: function (start1, end1, start2, end2) {
+        segments: function(start1, end1, start2, end2) {
             return intersectLine(start1, end1, start2, end2, true);
         },
-        rectWithLine: function (rect, start, end) {
-            return  Intersect.segments(start, end, rect.topLeft(), rect.topRight()) ||
+        rectWithLine: function(rect, start, end) {
+            return Intersect.segments(start, end, rect.topLeft(), rect.topRight()) ||
                 Intersect.segments(start, end, rect.topRight(), rect.bottomRight()) ||
                 Intersect.segments(start, end, rect.bottomLeft(), rect.bottomRight()) ||
                 Intersect.segments(start, end, rect.topLeft(), rect.bottomLeft());
         },
-        rects: function (rect1, rect2, angle) {
+        rects: function(rect1, rect2, angle) {
             var tl = rect2.topLeft(),
                 tr = rect2.topRight(),
                 bl = rect2.bottomLeft(),
@@ -928,11 +928,11 @@
      * Aligns two rectangles, where one is the container and the other is content.
      */
     var RectAlign = Class.extend({
-        init: function (container) {
+        init: function(container) {
             this.container = Rect.toRect(container);
         },
 
-        align: function (content, alignment) {
+        align: function(content, alignment) {
             var alignValues = alignment.toLowerCase().split(" ");
 
             for (var i = 0; i < alignValues.length; i++) {
@@ -941,7 +941,7 @@
 
             return content;
         },
-        _singleAlign: function (content, alignment) {
+        _singleAlign: function(content, alignment) {
             if (isFunction(this[alignment])) {
                 return this[alignment](content);
             }
@@ -950,53 +950,53 @@
             }
         },
 
-        left: function (content) {
+        left: function(content) {
             return this._align(content, this._left);
         },
-        center: function (content) {
+        center: function(content) {
             return this._align(content, this._center);
         },
-        right: function (content) {
+        right: function(content) {
             return this._align(content, this._right);
         },
-        stretch: function (content) {
+        stretch: function(content) {
             return this._align(content, this._stretch);
         },
-        top: function (content) {
+        top: function(content) {
             return this._align(content, this._top);
         },
-        middle: function (content) {
+        middle: function(content) {
             return this._align(content, this._middle);
         },
-        bottom: function (content) {
+        bottom: function(content) {
             return this._align(content, this._bottom);
         },
 
-        _left: function (container, content) {
+        _left: function(container, content) {
             content.x = container.x;
         },
-        _center: function (container, content) {
+        _center: function(container, content) {
             content.x = ((container.width - content.width) / 2) || 0;
         },
-        _right: function (container, content) {
+        _right: function(container, content) {
             content.x = container.width - content.width;
         },
-        _top: function (container, content) {
+        _top: function(container, content) {
             content.y = container.y;
         },
-        _middle: function (container, content) {
+        _middle: function(container, content) {
             content.y = ((container.height - content.height) / 2) || 0;
         },
-        _bottom: function (container, content) {
+        _bottom: function(container, content) {
             content.y = container.height - content.height;
         },
-        _stretch: function (container, content) {
+        _stretch: function(container, content) {
             content.x = 0;
             content.y = 0;
             content.height = container.height;
             content.width = container.width;
         },
-        _align: function (content, alignCalc) {
+        _align: function(content, alignCalc) {
             content = Rect.toRect(content);
             alignCalc(this.container, content);
 
@@ -1005,7 +1005,7 @@
     });
 
     var Polar = Class.extend({
-        init: function (r, a) {
+        init: function(r, a) {
             this.r = r;
             this.angle = a;
         }
@@ -1015,7 +1015,7 @@
      * SVG transformation matrix.
      */
     var Matrix = Class.extend({
-        init: function (a, b, c, d, e, f) {
+        init: function(a, b, c, d, e, f) {
             this.a = a || 0;
             this.b = b || 0;
             this.c = c || 0;
@@ -1023,7 +1023,7 @@
             this.e = e || 0;
             this.f = f || 0;
         },
-        plus: function (m) {
+        plus: function(m) {
             this.a += m.a;
             this.b += m.b;
             this.c += m.c;
@@ -1031,7 +1031,7 @@
             this.e += m.e;
             this.f += m.f;
         },
-        minus: function (m) {
+        minus: function(m) {
             this.a -= m.a;
             this.b -= m.b;
             this.c -= m.c;
@@ -1039,7 +1039,7 @@
             this.e -= m.e;
             this.f -= m.f;
         },
-        times: function (m) {
+        times: function(m) {
             return new Matrix(
                 this.a * m.a + this.c * m.b,
                 this.b * m.a + this.d * m.b,
@@ -1049,19 +1049,19 @@
                 this.b * m.e + this.d * m.f + this.f
             );
         },
-        apply: function (p) {
+        apply: function(p) {
             return new Point(this.a * p.x + this.c * p.y + this.e, this.b * p.x + this.d * p.y + this.f);
         },
-        applyRect: function (r) {
+        applyRect: function(r) {
             return Rect.fromPoints(this.apply(r.topLeft()), this.apply(r.bottomRight()));
         },
-        toString: function () {
+        toString: function() {
             return "matrix(" + this.a + " " + this.b + " " + this.c + " " + this.d + " " + this.e + " " + this.f + ")";
         }
     });
 
     deepExtend(Matrix, {
-        fromSVGMatrix: function (vm) {
+        fromSVGMatrix: function(vm) {
             var m = new Matrix();
             m.a = vm.a;
             m.b = vm.b;
@@ -1071,7 +1071,7 @@
             m.f = vm.f;
             return m;
         },
-        fromMatrixVector: function (v) {
+        fromMatrixVector: function(v) {
             var m = new Matrix();
             m.a = v.a;
             m.b = v.b;
@@ -1081,7 +1081,7 @@
             m.f = v.f;
             return m;
         },
-        fromList: function (v) {
+        fromList: function(v) {
             if (v.length !== 6) {
                 throw "The given list should consist of six elements.";
             }
@@ -1094,7 +1094,7 @@
             m.f = v[5];
             return m;
         },
-        translation: function (x, y) {
+        translation: function(x, y) {
             var m = new Matrix();
             m.a = 1;
             m.b = 0;
@@ -1104,10 +1104,10 @@
             m.f = y;
             return m;
         },
-        unit: function () {
+        unit: function() {
             return new Matrix(1, 0, 0, 1, 0, 0);
         },
-        rotation: function (angle, x, y) {
+        rotation: function(angle, x, y) {
             var m = new Matrix();
             m.a = Math.cos(angle * Math.PI / 180);
             m.b = Math.sin(angle * Math.PI / 180);
@@ -1117,7 +1117,7 @@
             m.f = (y - y * m.a - x * m.b) || 0;
             return m;
         },
-        scaling: function (scaleX, scaleY) {
+        scaling: function(scaleX, scaleY) {
             var m = new Matrix();
             m.a = scaleX;
             m.b = 0;
@@ -1127,7 +1127,7 @@
             m.f = 0;
             return m;
         },
-        parse: function (v) {
+        parse: function(v) {
             var parts, nums;
             if (v) {
                 v = v.trim();
@@ -1136,13 +1136,13 @@
                     nums = v.slice(7, v.length - 1).trim();
                     parts = nums.split(",");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
                     parts = nums.split(" ");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
@@ -1154,7 +1154,7 @@
                 if (v.indexOf(",") > 0) {
                     parts = v.split(",");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
@@ -1162,7 +1162,7 @@
                 if (v.indexOf(" ") > 0) {
                     parts = v.split(" ");
                     if (parts.length === 6) {
-                        return Matrix.fromList(map(parts, function (p) {
+                        return Matrix.fromList(map(parts, function(p) {
                             return parseFloat(p);
                         }));
                     }
@@ -1176,7 +1176,7 @@
      * SVG transformation represented as a vector.
      */
     var MatrixVector = Class.extend({
-        init: function (a, b, c, d, e, f) {
+        init: function(a, b, c, d, e, f) {
             this.a = a || 0;
             this.b = b || 0;
             this.c = c || 0;
@@ -1238,7 +1238,7 @@
          * @param a An endpoint of the line or segment.
          * @param b The complementary endpoint of the line or segment.
          */
-        _distanceToLineSquared: function (p, a, b) {
+        _distanceToLineSquared: function(p, a, b) {
             function d2(pt1, pt2) {
                 return (pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y);
             }
@@ -1269,7 +1269,7 @@
          * @param a An endpoint of the line or segment.
          * @param b The complementary endpoint of the line or segment.
          */
-        distanceToLine: function (p, a, b) {
+        distanceToLine: function(p, a, b) {
             return Math.sqrt(this._distanceToLineSquared(p, a, b));
         },
 
@@ -1279,7 +1279,7 @@
          * @param points The points defining the polyline.
          * @returns {Number}
          */
-        distanceToPolyline: function (p, points) {
+        distanceToPolyline: function(p, points) {
             var minimum = Number.MAX_VALUE;
             if (Utils.isUndefined(points) || points.length === 0) {
                 return Number.MAX_VALUE;
@@ -1306,7 +1306,7 @@
      * See http://en.wikipedia.org/wiki/Hash_table
      */
     var HashTable = kendo.Class.extend({
-        init: function () {
+        init: function() {
             this._buckets = [];
             this.length = 0;
         },
@@ -1314,7 +1314,7 @@
         /**
          * Adds the literal object with the given key (of the form {key: key,....}).
          */
-        add: function (key, value) {
+        add: function(key, value) {
 
             var obj = this._createGetBucket(key);
             if (Utils.isDefined(value)) {
@@ -1326,7 +1326,7 @@
         /**
          * Gets the literal object with the given key.
          */
-        get: function (key) {
+        get: function(key) {
             if (this._bucketExists(key)) {
                 return this._createGetBucket(key);
             }
@@ -1338,14 +1338,14 @@
          * @param key The key of the entry.
          * @param value The value to set. If the key already exists the value will be overwritten.
          */
-        set: function (key, value) {
+        set: function(key, value) {
             this.add(key, value);
         },
 
         /**
          * Determines whether the HashTable contains a specific key.
          */
-        containsKey: function (key) {
+        containsKey: function(key) {
             return this._bucketExists(key);
         },
 
@@ -1353,7 +1353,7 @@
          * Removes the element with the specified key from the hashtable.
          * Returns the removed bucket.
          */
-        remove: function (key) {
+        remove: function(key) {
             if (this._bucketExists(key)) {
                 var hashId = this._hash(key);
                 delete this._buckets[hashId];
@@ -1366,7 +1366,7 @@
          * Foreach with an iterator working on the key-value pairs.
          * @param func
          */
-        forEach: function (func) {
+        forEach: function(func) {
             var hashes = this._hashes();
             for (var i = 0, len = hashes.length; i < len; i++) {
                 var hash = hashes[i];
@@ -1382,7 +1382,7 @@
          * Returns a (shallow) clone of the current HashTable.
          * @returns {HashTable}
          */
-        clone: function () {
+        clone: function() {
             var ht = new HashTable();
             var hashes = this._hashes();
             for (var i = 0, len = hashes.length; i < len; i++) {
@@ -1401,7 +1401,7 @@
          * @returns {Array}
          * @private
          */
-        _hashes: function () {
+        _hashes: function() {
             var hashes = [];
             for (var hash in this._buckets) {
                 if (this._buckets.hasOwnProperty(hash)) {
@@ -1411,7 +1411,7 @@
             return hashes;
         },
 
-        _bucketExists: function (key) {
+        _bucketExists: function(key) {
             var hashId = this._hash(key);
             return Utils.isDefined(this._buckets[hashId]);
         },
@@ -1421,7 +1421,7 @@
          * be created and returned.
          * A createGetBucket is a literal object of the form {key: key, ...}.
          */
-        _createGetBucket: function (key) {
+        _createGetBucket: function(key) {
             var hashId = this._hash(key);
             var bucket = this._buckets[hashId];
             if (Utils.isUndefined(bucket)) {
@@ -1435,7 +1435,7 @@
         /**
          * Hashing of the given key.
          */
-        _hash: function (key) {
+        _hash: function(key) {
             if (Utils.isNumber(key)) {
                 return key;
             }
@@ -1451,7 +1451,7 @@
         /**
          * Hashing of a string.
          */
-        _hashString: function (s) {
+        _hashString: function(s) {
             // see for example http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
             var result = 0;
             if (s.length === 0) {
@@ -1467,7 +1467,7 @@
         /**
          * Returns the unique identifier for an object. This is automatically assigned and add on the object.
          */
-        _objectHashId: function (key) {
+        _objectHashId: function(key) {
             var id = key._hashId;
             if (Utils.isUndefined(id)) {
                 id = randomId();
@@ -1488,7 +1488,7 @@
          * Initializes a new instance of the Dictionary class.
          * @param dictionary Loads the content of the given dictionary into this new one.
          */
-        init: function (dictionary) {
+        init: function(dictionary) {
             var that = this;
             kendo.Observable.fn.init.call(that);
             this._hashTable = new HashTable();
@@ -1499,7 +1499,7 @@
                         this.add(dictionary[i]);
                     }
                 } else {
-                    dictionary.forEach(function (k, v) {
+                    dictionary.forEach(function(k, v) {
                         this.add(k, v);
                     }, this);
                 }
@@ -1510,7 +1510,7 @@
          * Adds a key-value to the dictionary.
          * If the key already exists this will assign the given value to the existing entry.
          */
-        add: function (key, value) {
+        add: function(key, value) {
             var entry = this._hashTable.get(key);
             if (!entry) {
                 entry = this._hashTable.add(key);
@@ -1525,14 +1525,14 @@
          * @param key The key of the entry.
          * @param value The value to set. If the key already exists the value will be overwritten.
          */
-        set: function (key, value) {
+        set: function(key, value) {
             this.add(key, value);
         },
 
         /**
          * Gets the value associated with the given key in the dictionary.
          */
-        get: function (key) {
+        get: function(key) {
             var entry = this._hashTable.get(key);
             if (entry) {
                 return entry.value;
@@ -1543,14 +1543,14 @@
         /**
          * Returns whether the dictionary contains the given key.
          */
-        containsKey: function (key) {
+        containsKey: function(key) {
             return this._hashTable.containsKey(key);
         },
 
         /**
          * Removes the element with the specified key from the dictionary.
          */
-        remove: function (key) {
+        remove: function(key) {
             if (this.containsKey(key)) {
                 this.trigger("changed");
                 this.length--;
@@ -1561,8 +1561,8 @@
         /**
          * The functional gets the key and value as parameters.
          */
-        forEach: function (func, thisRef) {
-            this._hashTable.forEach(function (entry) {
+        forEach: function(func, thisRef) {
+            this._hashTable.forEach(function(entry) {
                 func.call(thisRef, entry.key, entry.value);
             });
         },
@@ -1570,8 +1570,8 @@
         /**
          * Same as forEach except that only the value is passed to the functional.
          */
-        forEachValue: function (func, thisRef) {
-            this._hashTable.forEach(function (entry) {
+        forEachValue: function(func, thisRef) {
+            this._hashTable.forEach(function(entry) {
                 func.call(thisRef, entry.value);
             });
         },
@@ -1579,8 +1579,8 @@
         /**
          * Calls a defined callback function for each key in the dictionary.
          */
-        forEachKey: function (func, thisRef) {
-            this._hashTable.forEach(function (entry) {
+        forEachKey: function(func, thisRef) {
+            this._hashTable.forEach(function(entry) {
                 func.call(thisRef, entry.key);
             });
         },
@@ -1588,9 +1588,9 @@
         /**
          * Gets an array with all keys in the dictionary.
          */
-        keys: function () {
+        keys: function() {
             var keys = [];
-            this.forEachKey(function (key) {
+            this.forEachKey(function(key) {
                 keys.push(key);
             });
             return keys;
@@ -1601,7 +1601,7 @@
 
     var Queue = kendo.Class.extend({
 
-        init: function () {
+        init: function() {
             this._tail = null;
             this._head = null;
             this.length = 0;
@@ -1610,7 +1610,7 @@
         /**
          * Enqueues an object to the end of the queue.
          */
-        enqueue: function (value) {
+        enqueue: function(value) {
             var entry = { value: value, next: null };
             if (!this._head) {
                 this._head = entry;
@@ -1626,7 +1626,7 @@
         /**
          * Removes and returns the object at top of the queue.
          */
-        dequeue: function () {
+        dequeue: function() {
             if (this.length < 1) {
                 throw new Error("The queue is empty.");
             }
@@ -1636,7 +1636,7 @@
             return value;
         },
 
-        contains: function (item) {
+        contains: function(item) {
             var current = this._head;
             while (current) {
                 if (current.value === item) {
@@ -1655,30 +1655,30 @@
      * @type {*}
      */
     var Set = kendo.Observable.extend({
-        init: function (resource) {
+        init: function(resource) {
             var that = this;
             kendo.Observable.fn.init.call(that);
             this._hashTable = new HashTable();
             this.length = 0;
             if (Utils.isDefined(resource)) {
                 if (resource instanceof HashTable) {
-                    resource.forEach(function (d) {
+                    resource.forEach(function(d) {
                         this.add(d);
                     });
                 }
                 else if (resource instanceof Dictionary) {
-                    resource.forEach(function (k, v) {
-                        this.add({key: k, value: v});
+                    resource.forEach(function(k, v) {
+                        this.add({ key: k, value: v });
                     }, this);
                 }
             }
         },
 
-        contains: function (item) {
+        contains: function(item) {
             return this._hashTable.containsKey(item);
         },
 
-        add: function (item) {
+        add: function(item) {
             var entry = this._hashTable.get(item);
             if (!entry) {
                 this._hashTable.add(item, item);
@@ -1687,7 +1687,7 @@
             }
         },
 
-        get: function (item) {
+        get: function(item) {
             if (this.contains(item)) {
                 return this._hashTable.get(item).value;
             }
@@ -1701,7 +1701,7 @@
          * @param item
          * @returns {*}
          */
-        hash: function (item) {
+        hash: function(item) {
             return this._hashTable._hash(item);
         },
 
@@ -1709,7 +1709,7 @@
          * Removes the given item from the set. No exception is thrown if the item is not in the Set.
          * @param item
          */
-        remove: function (item) {
+        remove: function(item) {
             if (this.contains(item)) {
                 this._hashTable.remove(item);
                 this.length--;
@@ -1720,14 +1720,14 @@
          * Foreach with an iterator working on the key-value pairs.
          * @param func
          */
-        forEach: function (func, context) {
-            this._hashTable.forEach(function (kv) {
+        forEach: function(func, context) {
+            this._hashTable.forEach(function(kv) {
                 func(kv.value);
             }, context);
         },
-        toArray: function () {
+        toArray: function() {
             var r = [];
-            this.forEach(function (d) {
+            this.forEach(function(d) {
                 r.push(d);
             });
             return r;
@@ -1741,7 +1741,7 @@
      */
     var Node = kendo.Class.extend({
 
-        init: function (id, shape) {
+        init: function(id, shape) {
 
             /**
              * Holds all the links incident with the current node.
@@ -1801,7 +1801,7 @@
         /**
          * Returns whether this node has no links attached.
          */
-        isIsolated: function () {
+        isIsolated: function() {
             return Utils.isEmpty(this.links);
         },
 
@@ -1809,7 +1809,7 @@
          * Gets or sets the bounding rectangle of this node.
          * This should be considered as runtime data, the property is not hotlinked to a SVG item.
          */
-        bounds: function (r) {
+        bounds: function(r) {
             if (!Utils.isDefined(r)) {
                 return new diagram.Rect(this.x, this.y, this.width, this.height);
             }
@@ -1824,9 +1824,9 @@
          * Returns whether there is at least one link with the given (complementary) node. This can be either an
          * incoming or outgoing link.
          */
-        isLinkedTo: function (node) {
+        isLinkedTo: function(node) {
             var that = this;
-            return Utils.any(that.links, function (link) {
+            return Utils.any(that.links, function(link) {
                 return link.getComplement(that) === node;
             });
         },
@@ -1835,7 +1835,7 @@
          * Gets the children of this node, defined as the adjacent nodes with a link from this node to the adjacent one.
          * @returns {Array}
          */
-        getChildren: function () {
+        getChildren: function() {
             if (this.outgoing.length === 0) {
                 return [];
             }
@@ -1851,7 +1851,7 @@
          * Gets the parents of this node, defined as the adjacent nodes with a link from the adjacent node to this one.
          * @returns {Array}
          */
-        getParents: function () {
+        getParents: function() {
             if (this.incoming.length === 0) {
                 return [];
             }
@@ -1867,7 +1867,7 @@
          * Returns a clone of the Node. Note that the identifier is not cloned since it's a different Node instance.
          * @returns {Node}
          */
-        clone: function () {
+        clone: function() {
             var copy = new Node();
             if (Utils.isDefined(this.weight)) {
                 copy.weight = this.weight;
@@ -1889,7 +1889,7 @@
         /**
          * Returns whether there is a link from the current node to the given node.
          */
-        adjacentTo: function (node) {
+        adjacentTo: function(node) {
             return this.isLinkedTo(node) !== null;
         },
 
@@ -1897,7 +1897,7 @@
          * Removes the given link from the link collection this node owns.
          * @param link
          */
-        removeLink: function (link) {
+        removeLink: function(link) {
             if (link.source === this) {
                 Utils.remove(this.links, link);
                 Utils.remove(this.outgoing, link);
@@ -1914,8 +1914,8 @@
         /**
          * Returns whether there is a (outgoing) link from the current node to the given one.
          */
-        hasLinkTo: function (node) {
-            return Utils.any(this.outgoing, function (link) {
+        hasLinkTo: function(node) {
+            return Utils.any(this.outgoing, function(link) {
                 return link.target === node;
             });
         },
@@ -1923,22 +1923,22 @@
         /**
          * Returns the degree of this node, i.e. the sum of incoming and outgoing links.
          */
-        degree: function () {
+        degree: function() {
             return this.links.length;
         },
 
         /**
          * Returns whether this node is either the source or the target of the given link.
          */
-        incidentWith: function (link) {
+        incidentWith: function(link) {
             return contains(this.links, link);
         },
 
         /**
          * Returns the links between this node and the given one.
          */
-        getLinksWith: function (node) {
-            return Utils.all(this.links, function (link) {
+        getLinksWith: function(node) {
+            return Utils.all(this.links, function(link) {
                 return link.getComplement(this) === node;
             }, this);
         },
@@ -1946,12 +1946,12 @@
         /**
          * Returns the nodes (either parent or child) which are linked to the current one.
          */
-        getNeighbors: function () {
+        getNeighbors: function() {
             var neighbors = [];
-            Utils.forEach(this.incoming, function (e) {
+            Utils.forEach(this.incoming, function(e) {
                 neighbors.push(e.getComplement(this));
             }, this);
-            Utils.forEach(this.outgoing, function (e) {
+            Utils.forEach(this.outgoing, function(e) {
                 neighbors.push(e.getComplement(this));
             }, this);
             return neighbors;
@@ -1963,7 +1963,7 @@
      */
     var Link = kendo.Class.extend({
 
-        init: function (source, target, id, connection) {
+        init: function(source, target, id, connection) {
             if (Utils.isUndefined(source)) {
                 throw "The source of the new link is not set.";
             }
@@ -2009,7 +2009,7 @@
         /**
          * Returns the complementary node of the given one, if any.
          */
-        getComplement: function (node) {
+        getComplement: function(node) {
             if (this.source !== node && this.target !== node) {
                 throw "The given node is not incident with this link.";
             }
@@ -2019,7 +2019,7 @@
         /**
          * Returns the overlap of the current link with the given one, if any.
          */
-        getCommonNode: function (link) {
+        getCommonNode: function(link) {
             if (this.source === link.source || this.source === link.target) {
                 return this.source;
             }
@@ -2032,21 +2032,21 @@
         /**
          * Returns whether the current link is bridging the given nodes.
          */
-        isBridging: function (v1, v2) {
+        isBridging: function(v1, v2) {
             return this.source === v1 && this.target === v2 || this.source === v2 && this.target === v1;
         },
 
         /**
          * Returns the source and target of this link as a tuple.
          */
-        getNodes: function () {
+        getNodes: function() {
             return [this.source, this.target];
         },
 
         /**
          * Returns whether the given node is either the source or the target of the current link.
          */
-        incidentWith: function (node) {
+        incidentWith: function(node) {
             return this.source === node || this.target === node;
         },
 
@@ -2054,14 +2054,14 @@
          * Returns whether the given link is a continuation of the current one. This can be both
          * via an incoming or outgoing link.
          */
-        adjacentTo: function (link) {
+        adjacentTo: function(link) {
             return contains(this.source.links, link) || contains(this.target.links, link);
         },
 
         /**
          * Changes the source-node of this link.
          */
-        changeSource: function (node) {
+        changeSource: function(node) {
             Utils.remove(this.source.links, this);
             Utils.remove(this.source.outgoing, this);
 
@@ -2075,7 +2075,7 @@
          * Changes the target-node of this link.
          * @param node
          */
-        changeTarget: function (node) {
+        changeTarget: function(node) {
             Utils.remove(this.target.links, this);
             Utils.remove(this.target.incoming, this);
 
@@ -2088,7 +2088,7 @@
         /**
          * Changes both the source and the target nodes of this link.
          */
-        changesNodes: function (v, w) {
+        changesNodes: function(v, w) {
             if (this.source === v) {
                 this.changeSource(w);
             }
@@ -2100,7 +2100,7 @@
         /**
          * Reverses the direction of this link.
          */
-        reverse: function () {
+        reverse: function() {
             var oldSource = this.source;
             var oldTarget = this.target;
 
@@ -2117,7 +2117,7 @@
         /**
          * Ensures that the given target defines the endpoint of this link.
          */
-        directTo: function (target) {
+        directTo: function(target) {
             if (this.source !== target && this.target !== target) {
                 throw "The given node is not incident with this link.";
             }
@@ -2129,7 +2129,7 @@
         /**
          * Returns a reversed clone of this link.
          */
-        createReverseEdge: function () {
+        createReverseEdge: function() {
             var r = this.clone();
             r.reverse();
             r.reversed = true;
@@ -2139,7 +2139,7 @@
         /**
          * Returns a clone of this link.
          */
-        clone: function () {
+        clone: function() {
             var clone = new Link(this.source, this.target);
             return clone;
         }
@@ -2152,7 +2152,7 @@
      * inside the Graph.
      */
     var Graph = kendo.Class.extend({
-        init: function (idOrDiagram) {
+        init: function(idOrDiagram) {
             /**
              * The links or edge collection of this Graph.
              * @type {Array}
@@ -2204,7 +2204,7 @@
          * properties.
          * @param forceRebuild If set to true the relational info will be rebuild even if already present.
          */
-        cacheRelationships: function (forceRebuild) {
+        cacheRelationships: function(forceRebuild) {
             if (Utils.isUndefined(forceRebuild)) {
                 forceRebuild = false;
             }
@@ -2227,7 +2227,7 @@
          * @param visited The collection of visited nodes.
          * @param offset The offset or starting counter of the level info.
          */
-        assignLevels: function (startNode, offset, visited) {
+        assignLevels: function(startNode, offset, visited) {
             if (!startNode) {
                 throw "Start node not specified.";
             }
@@ -2238,7 +2238,7 @@
             this.cacheRelationships();
             if (Utils.isUndefined(visited)) {
                 visited = new Dictionary();
-                Utils.forEach(this.nodes, function (n) {
+                Utils.forEach(this.nodes, function(n) {
                     visited.add(n, false);
                 });
             }
@@ -2260,11 +2260,11 @@
          * @param value
          * @returns {*}
          */
-        root: function (value) {
+        root: function(value) {
             if (Utils.isUndefined(value)) {
                 if (!this._root) {
                     // TODO: better to use the longest path for the most probable root?
-                    var found = Utils.first(this.nodes, function (n) {
+                    var found = Utils.first(this.nodes, function(n) {
                         return n.incoming.length === 0;
                     });
                     if (found) {
@@ -2287,7 +2287,7 @@
          * If you alter the items of the components you'll alter the original graph and vice versa.
          * @returns {Array}
          */
-        getConnectedComponents: function () {
+        getConnectedComponents: function() {
             this.componentIndex = 0;
             this.setItemIndices();
             var componentId = Utils.initArray(this.nodes.length, -1);
@@ -2308,17 +2308,17 @@
                 graph.addNodeAndOutgoings(this.nodes[i]);
             }
             // sorting the components in decreasing order of node count
-            components.sort(function (a, b) {
+            components.sort(function(a, b) {
                 return b.nodes.length - a.nodes.length;
             });
             return components;
         },
 
-        _collectConnectedNodes: function (setIds, nodeIndex) {
+        _collectConnectedNodes: function(setIds, nodeIndex) {
             setIds[nodeIndex] = this.componentIndex; // part of the current component
             var node = this.nodes[nodeIndex];
             Utils.forEach(node.links,
-                function (link) {
+                function(link) {
                     var next = link.getComplement(node);
                     var nextId = next.index;
                     if (setIds[nextId] === -1) {
@@ -2331,7 +2331,7 @@
          * Calculates the bounds of this Graph if the Nodes have spatial dimensions defined.
          * @returns {Rect}
          */
-        calcBounds: function () {
+        calcBounds: function() {
             if (this.isEmpty()) {
                 this.bounds = new Rect();
                 return this.bounds;
@@ -2358,7 +2358,7 @@
          * @param root The root of the spanning tree.
          * @returns {Graph}
          */
-        getSpanningTree: function (root) {
+        getSpanningTree: function(root) {
             var tree = new Graph();
             var map = new Dictionary(), source, target;
             tree.root = root.clone();
@@ -2422,7 +2422,7 @@
                 treeLevels.push([]);
             }
 
-            Utils.forEach(tree.nodes, function (node) {
+            Utils.forEach(tree.nodes, function(node) {
                 treeLevels[node.level].push(node);
             });
 
@@ -2437,7 +2437,7 @@
          * @param incidenceLessThan The maximum degree or incidence the random node should have.
          * @returns {*}
          */
-        takeRandomNode: function (excludedNodes, incidenceLessThan) {
+        takeRandomNode: function(excludedNodes, incidenceLessThan) {
             if (Utils.isUndefined(excludedNodes)) {
                 excludedNodes = [];
             }
@@ -2450,7 +2450,7 @@
             if (this.nodes.length === 1) {
                 return contains(excludedNodes, this.nodes[0]) ? null : this.nodes[0];
             }
-            var pool = $.grep(this.nodes, function (node) {
+            var pool = $.grep(this.nodes, function(node) {
                 return !contains(excludedNodes, node) && node.degree() <= incidenceLessThan;
             });
             if (Utils.isEmpty(pool)) {
@@ -2462,15 +2462,15 @@
         /**
          * Returns whether this is an empty graph.
          */
-        isEmpty: function () {
+        isEmpty: function() {
             return Utils.isEmpty(this.nodes);
         },
 
         /**
          * Checks whether the endpoints of the links are all in the nodes collection.
          */
-        isHealthy: function () {
-            return Utils.all(this.links, function (link) {
+        isHealthy: function() {
+            return Utils.all(this.links, function(link) {
                 return contains(this.nodes, link.source) && contains(this.nodes, link.target);
             }, this);
         },
@@ -2479,7 +2479,7 @@
          * Gets the parents of this node, defined as the adjacent nodes with a link from the adjacent node to this one.
          * @returns {Array}
          */
-        getParents: function (n) {
+        getParents: function(n) {
             if (!this.hasNode(n)) {
                 throw "The given node is not part of this graph.";
             }
@@ -2490,7 +2490,7 @@
          * Gets the children of this node, defined as the adjacent nodes with a link from this node to the adjacent one.
          * @returns {Array}
          */
-        getChildren: function (n) {
+        getChildren: function(n) {
             if (!this.hasNode(n)) {
                 throw "The given node is not part of this graph.";
             }
@@ -2500,7 +2500,7 @@
         /**
          * Adds a new link to the graph between the given nodes.
          */
-        addLink: function (sourceOrLink, target, owner) {
+        addLink: function(sourceOrLink, target, owner) {
 
             if (Utils.isUndefined(sourceOrLink)) {
                 throw "The source of the link is not defined.";
@@ -2544,7 +2544,7 @@
         /**
          * Removes all the links in this graph.
          */
-        removeAllLinks: function () {
+        removeAllLinks: function() {
             while (this.links.length > 0) {
                 var link = this.links[0];
                 this.removeLink(link);
@@ -2554,7 +2554,7 @@
         /**
          * Adds the given link to the current graph.
          */
-        addExistingLink: function (link) {
+        addExistingLink: function(link) {
 
             if (this.hasLink(link)) {
                 return;
@@ -2596,9 +2596,9 @@
          * @param linkOrId An identifier or a Link object.
          * @returns {*}
          */
-        hasLink: function (linkOrId) {
+        hasLink: function(linkOrId) {
             if (Utils.isString(linkOrId)) {
-                return Utils.any(this.links, function (link) {
+                return Utils.any(this.links, function(link) {
                     return link.id === linkOrId;
                 });
             }
@@ -2610,7 +2610,7 @@
         /**
          * Gets the node with the specified Id or null if not part of this graph.
          */
-        getNode: function (nodeOrId) {
+        getNode: function(nodeOrId) {
             var id = nodeOrId.id || nodeOrId;
             if (this._nodeMap.containsKey(id)) {
                 return this._nodeMap.get(id);
@@ -2620,7 +2620,7 @@
         /**
          * Returns whether the given node or node Id is part of this graph.
          */
-        hasNode: function (nodeOrId) {
+        hasNode: function(nodeOrId) {
             var id = nodeOrId.id || nodeOrId;
             return this._nodeMap.containsKey(id);
         },
@@ -2639,7 +2639,7 @@
          * Removes the given node from this graph.
          * The node can be specified as an object or as an identifier (string).
          */
-        removeNode: function (nodeOrId) {
+        removeNode: function(nodeOrId) {
             var n = nodeOrId;
             if (Utils.isString(nodeOrId)) {
                 n = this.getNode(nodeOrId);
@@ -2662,8 +2662,8 @@
         /**
          * Returns whether the given nodes are connected with a least one link independently of the direction.
          */
-        areConnected: function (n1, n2) {
-            return Utils.any(this.links, function (link) {
+        areConnected: function(n1, n2) {
+            return Utils.any(this.links, function(link) {
                 return link.source == n1 && link.target == n2 || link.source == n2 && link.target == n1;
             });
         },
@@ -2671,7 +2671,7 @@
         /**
          * Removes the given link from this graph.
          */
-        removeLink: function (link) {
+        removeLink: function(link) {
             /*    if (!this.links.contains(link)) {
              throw "The given link is not part of the Graph.";
              }
@@ -2689,7 +2689,7 @@
          * The node can be an existing Node or the identifier of a new node.
          * No error is thrown if the node is already there and the existing one is returned.
          */
-        addNode: function (nodeOrId, layoutRect, owner) {
+        addNode: function(nodeOrId, layoutRect, owner) {
 
             var newNode = null;
 
@@ -2725,14 +2725,14 @@
         /**
          * Adds the given Node and its outgoing links.
          */
-        addNodeAndOutgoings: function (node) {
+        addNodeAndOutgoings: function(node) {
             if (!this.hasNode(node)) {
                 this._addNode(node);
             }
 
             var newLinks = node.outgoing;
             node.outgoing = [];
-            Utils.forEach(newLinks, function (link) {
+            Utils.forEach(newLinks, function(link) {
                 this.addExistingLink(link);
             }, this);
         },
@@ -2740,7 +2740,7 @@
         /**
          * Sets the 'index' property on the links and nodes of this graph.
          */
-        setItemIndices: function () {
+        setItemIndices: function() {
             var i;
             for (i = 0; i < this.nodes.length; ++i) {
                 this.nodes[i].index = i;
@@ -2754,7 +2754,7 @@
         /**
          * Returns a clone of this graph.
          */
-        clone: function (saveMapping) {
+        clone: function(saveMapping) {
             var copy = new Graph();
             var save = Utils.isDefined(saveMapping) && saveMapping === true;
             if (save) {
@@ -2763,7 +2763,7 @@
             }
             // we need a map even if the saveMapping is not set
             var map = new Dictionary();
-            Utils.forEach(this.nodes, function (nOriginal) {
+            Utils.forEach(this.nodes, function(nOriginal) {
                 var nCopy = nOriginal.clone();
                 map.set(nOriginal, nCopy);
                 copy._addNode(nCopy);
@@ -2773,7 +2773,7 @@
                 }
             });
 
-            Utils.forEach(this.links, function (linkOriginal) {
+            Utils.forEach(this.links, function(linkOriginal) {
                 if (map.containsKey(linkOriginal.source) && map.containsKey(linkOriginal.target)) {
                     var linkCopy = copy.addLink(map.get(linkOriginal.source), map.get(linkOriginal.target));
                     if (save) {
@@ -2790,7 +2790,7 @@
          *  - ["n1->n2", "n2->n3"]: creates the three nodes and adds the links
          *  - ["n1->n2", {id: "QSDF"}, "n2->n3"]: same as previous but also performs a deep extend of the link between n1 and n2 with the given object.
          */
-        linearize: function (addIds) {
+        linearize: function(addIds) {
             return Graph.Utils.linearize(this, addIds);
         },
 
@@ -2799,7 +2799,7 @@
          * @param startNode a node or id of a node in this graph
          * @param action
          */
-        depthFirstTraversal: function (startNode, action) {
+        depthFirstTraversal: function(startNode, action) {
             if (Utils.isUndefined(startNode)) {
                 throw "You need to supply a starting node.";
             }
@@ -2814,7 +2814,7 @@
             this._dftIterator(foundNode, action, visited);
         },
 
-        _dftIterator: function (node, action, visited) {
+        _dftIterator: function(node, action, visited) {
 
             action(node);
             visited.push(node);
@@ -2833,7 +2833,7 @@
          * @param startNode a node or id of a node in this graph
          * @param action
          */
-        breadthFirstTraversal: function (startNode, action) {
+        breadthFirstTraversal: function(startNode, action) {
 
             if (Utils.isUndefined(startNode)) {
                 throw "You need to supply a starting node.";
@@ -2877,7 +2877,7 @@
          * @param index The counter of visited nodes used to assign the indices.
          * @private
          */
-        _stronglyConnectedComponents: function (excludeSingleItems, node, indices, lowLinks, connected, stack, index) {
+        _stronglyConnectedComponents: function(excludeSingleItems, node, indices, lowLinks, connected, stack, index) {
             indices.add(node, index);
             lowLinks.add(node, index);
             index++;
@@ -2915,7 +2915,7 @@
          * @param excludeSingleItems Whether isolated nodes should be excluded.
          * @returns {Array} The array of cycles found.
          */
-        findCycles: function (excludeSingleItems) {
+        findCycles: function(excludeSingleItems) {
             if (Utils.isUndefined(excludeSingleItems)) {
                 excludeSingleItems = true;
             }
@@ -2937,7 +2937,7 @@
          * Returns whether this graph is acyclic.
          * @returns {*}
          */
-        isAcyclic: function () {
+        isAcyclic: function() {
             return Utils.isEmpty(this.findCycles());
         },
 
@@ -2945,10 +2945,10 @@
          * Returns whether the given graph is a subgraph of this one.
          * @param other Another graph instance.
          */
-        isSubGraph: function (other) {
+        isSubGraph: function(other) {
             var otherArray = other.linearize();
             var thisArray = this.linearize();
-            return Utils.all(otherArray, function (s) {
+            return Utils.all(otherArray, function(s) {
                 return contains(thisArray, s);
             });
         },
@@ -2957,7 +2957,7 @@
          *  Makes an acyclic graph from the current (connected) one.
          * * @returns {Array} The reversed links.
          */
-        makeAcyclic: function () {
+        makeAcyclic: function() {
             // if empty or almost empty
             if (this.isEmpty() || this.nodes.length <= 1 || this.links.length <= 1) {
                 return [];
@@ -2991,7 +2991,7 @@
              * @param node
              * @returns {number}
              */
-            var flowIntensity = function (node) {
+            var flowIntensity = function(node) {
                 if (node.outgoing.length === 0) {
                     return (2 - N);
                 }
@@ -3008,7 +3008,7 @@
              * @param node
              * @param intensityCatalog
              */
-            var catalogEqualIntensity = function (node, intensityCatalog) {
+            var catalogEqualIntensity = function(node, intensityCatalog) {
                 var intensity = flowIntensity(node, N);
                 if (!intensityCatalog.containsKey(intensity)) {
                     intensityCatalog.set(intensity, []);
@@ -3016,7 +3016,7 @@
                 intensityCatalog.get(intensity).push(node);
             };
 
-            Utils.forEach(copy.nodes, function (v) {
+            Utils.forEach(copy.nodes, function(v) {
                 catalogEqualIntensity(v, intensityCatalog);
             });
 
@@ -3090,7 +3090,7 @@
             }
 
             var reversedEdges = [];
-            Utils.forEach(this.links, function (link) {
+            Utils.forEach(this.links, function(link) {
                 if (vertexOrder.get(link.source) > vertexOrder.get(link.target)) {
                     link.reverse();
                     reversedEdges.push(link);
@@ -3109,7 +3109,7 @@
          * @returns {*}
          * @constructor
          */
-        EightGraph: function () {
+        EightGraph: function() {
             return Graph.Utils.parse([ "1->2", "2->3", "3->4", "4->1", "3->5", "5->6", "6->7", "7->3"]);
         },
 
@@ -3118,7 +3118,7 @@
          * @returns {*}
          * @constructor
          */
-        Mindmap: function () {
+        Mindmap: function() {
             return Graph.Utils.parse(["0->1", "0->2", "0->3", "0->4", "0->5", "1->6", "1->7", "7->8", "2->9", "9->10", "9->11", "3->12",
                 "12->13", "13->14", "4->15", "4->16", "15->17", "15->18", "18->19", "18->20", "14->21", "14->22", "5->23", "23->24", "23->25", "6->26"]);
         },
@@ -3128,7 +3128,7 @@
          * @returns {*}
          * @constructor
          */
-        ThreeGraph: function () {
+        ThreeGraph: function() {
             return Graph.Utils.parse([ "1->2", "2->3", "3->1"]);
         },
 
@@ -3138,7 +3138,7 @@
          * @returns {diagram.Graph}
          * @constructor
          */
-        BinaryTree: function (levels) {
+        BinaryTree: function(levels) {
             if (Utils.isUndefined(levels)) {
                 levels = 5;
             }
@@ -3151,7 +3151,7 @@
          * @returns {diagram.Graph}
          * @constructor
          */
-        Linear: function (length) {
+        Linear: function(length) {
             if (Utils.isUndefined(length)) {
                 length = 10;
             }
@@ -3168,7 +3168,7 @@
          * @returns {diagram.Graph}
          * @constructor
          */
-        Tree: function (levels, siblingsCount) {
+        Tree: function(levels, siblingsCount) {
             return Graph.Utils.createBalancedTree(levels, siblingsCount);
         },
 
@@ -3183,7 +3183,7 @@
          * @returns {diagram.Graph}
          * @constructor
          */
-        Forest: function (levels, siblingsCount, trees) {
+        Forest: function(levels, siblingsCount, trees) {
             return Graph.Utils.createBalancedForest(levels, siblingsCount, trees);
         },
 
@@ -3192,7 +3192,7 @@
          * @returns {*}
          * @constructor
          */
-        Workflow: function () {
+        Workflow: function() {
             return Graph.Utils.parse(
                 ["0->1", "1->2", "2->3", "1->4", "4->3", "3->5", "5->6", "6->3", "6->7", "5->4"]
             );
@@ -3206,7 +3206,7 @@
          * @param m Vertical count of grid cells. If zero this will result in a linear graph.
          * @constructor
          */
-        Grid: function (n, m) {
+        Grid: function(n, m) {
             var g = new diagram.Graph();
             if (n <= 0 && m <= 0) {
                 return g;
@@ -3242,7 +3242,7 @@
          *  - ["n1->n2", "n2->n3"]: creates the three nodes and adds the links
          *  - ["n1->n2", {id: "id177"}, "n2->n3"]: same as previous but also performs a deep extend of the link between n1 and n2 with the given object.
          */
-        parse: function (graphString) {
+        parse: function(graphString) {
 
             var previousLink, graph = new diagram.Graph(), parts = graphString.slice();
             for (var i = 0, len = parts.length; i < len; i++) {
@@ -3273,7 +3273,7 @@
          * Returns a linearized representation of the given Graph.
          * See also the Graph.Utils.parse method for the inverse operation.
          */
-        linearize: function (graph, addIds) {
+        linearize: function(graph, addIds) {
             if (Utils.isUndefined(graph)) {
                 throw "Expected an instance of a Graph object in slot one.";
             }
@@ -3285,7 +3285,7 @@
                 var link = graph.links[i];
                 lin.push(link.source.id + "->" + link.target.id);
                 if (addIds) {
-                    lin.push({id: link.id});
+                    lin.push({ id: link.id });
                 }
             }
             return lin;
@@ -3300,7 +3300,7 @@
          * @returns {*}
          * @private
          */
-        _addShape: function (kendoDiagram, p, id, shapeDefaults) {
+        _addShape: function(kendoDiagram, p, id, shapeDefaults) {
             if (Utils.isUndefined(p)) {
                 p = new diagram.Point(0, 0);
             }
@@ -3332,7 +3332,7 @@
          * @returns {*}
          * @private
          */
-        _addConnection: function (diagram, from, to, options) {
+        _addConnection: function(diagram, from, to, options) {
             return diagram.connect(from, to, options);
         },
 
@@ -3341,7 +3341,7 @@
          * @param diagram The Kendo diagram where the diagram will be created.
          * @param graph The graph structure defining the diagram.
          */
-        createDiagramFromGraph: function (diagram, graph, doLayout, randomSize) {
+        createDiagramFromGraph: function(diagram, graph, doLayout, randomSize) {
 
             if (Utils.isUndefined(diagram)) {
                 throw "The diagram surface is undefined.";
@@ -3415,12 +3415,12 @@
                 if (Utils.isUndefined(targetShape)) {
                     continue;
                 }
-                this._addConnection(diagram, sourceShape, targetShape, {id: link.id});
+                this._addConnection(diagram, sourceShape, targetShape, { id: link.id });
 
             }
             if (doLayout) {
                 var l = new diagram.SpringLayout(diagram);
-                l.layoutGraph(graph, {limitToView: false});
+                l.layoutGraph(graph, { limitToView: false });
                 for (var shi = 0; shi < graph.nodes.length; shi++) {
                     node = graph.nodes[shi];
                     shape = map[node.id];
@@ -3438,7 +3438,7 @@
          * @param siblingsCount How many siblings each level should have.
          * @returns {diagram.Graph}
          */
-        createBalancedTree: function (levels, siblingsCount) {
+        createBalancedTree: function(levels, siblingsCount) {
             if (Utils.isUndefined(levels)) {
                 levels = 3;
             }
@@ -3479,7 +3479,7 @@
          * @returns {diagram.Graph}
          * @param treeCount The number of trees the forest should have.
          */
-        createBalancedForest: function (levels, siblingsCount, treeCount) {
+        createBalancedForest: function(levels, siblingsCount, treeCount) {
             if (Utils.isUndefined(levels)) {
                 levels = 3;
             }
@@ -3521,7 +3521,7 @@
          * @param isTree Whether the return graph should be a tree (default: false).
          * @returns {diagram.Graph}
          */
-        createRandomConnectedGraph: function (nodeCount, maxIncidence, isTree) {
+        createRandomConnectedGraph: function(nodeCount, maxIncidence, isTree) {
 
             /* Swa's Mathematica export of random Bernoulli graphs
              gr[n_,p_]:=Module[{g=RandomGraph[BernoulliGraphDistribution[n,p],VertexLabels->"Name",DirectedEdges->True]},
@@ -3585,14 +3585,14 @@
          * @param isTree Whether the generated diagram should be a tree
          * @param layoutType The optional layout type to apply after the diagram is generated.
          */
-        randomDiagram: function (diagram, shapeCount, maxIncidence, isTree, randomSize) {
+        randomDiagram: function(diagram, shapeCount, maxIncidence, isTree, randomSize) {
             var g = kendo.dataviz.diagram.Graph.Utils.createRandomConnectedGraph(shapeCount, maxIncidence, isTree);
             Graph.Utils.createDiagramFromGraph(diagram, g, false, randomSize);
         }
     };
 
     kendo.deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
 
@@ -3617,13 +3617,13 @@
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/svg',[ "kendo.drawing", "./math" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram,
@@ -3679,47 +3679,47 @@
     }
 
     var Scale = Class.extend({
-        init: function (x, y) {
+        init: function(x, y) {
             this.x = x;
             this.y = y;
         },
-        toMatrix: function () {
+        toMatrix: function() {
             return Matrix.scaling(this.x, this.y);
         },
-        toString: function () {
+        toString: function() {
             return kendo.format("scale({0},{1})", this.x, this.y);
         },
         invert: function() {
-            return new Scale(1/this.x, 1/this.y);
+            return new Scale(1 / this.x, 1 / this.y);
         }
     });
 
     var Translation = Class.extend({
-        init: function (x, y) {
+        init: function(x, y) {
             this.x = x;
             this.y = y;
         },
-        toMatrixVector: function () {
+        toMatrixVector: function() {
             return new MatrixVector(0, 0, 0, 0, this.x, this.y);
         },
-        toMatrix: function () {
+        toMatrix: function() {
             return Matrix.translation(this.x, this.y);
         },
-        toString: function () {
+        toString: function() {
             return kendo.format("translate({0},{1})", this.x, this.y);
         },
-        plus: function (delta) {
+        plus: function(delta) {
             this.x += delta.x;
             this.y += delta.y;
         },
-        times: function (factor) {
+        times: function(factor) {
             this.x *= factor;
             this.y *= factor;
         },
-        length: function () {
+        length: function() {
             return Math.sqrt(this.x * this.x + this.y * this.y);
         },
-        normalize: function () {
+        normalize: function() {
             if (this.Length === 0) {
                 return;
             }
@@ -3731,22 +3731,22 @@
     });
 
     var Rotation = Class.extend({
-        init: function (angle, x, y) {
+        init: function(angle, x, y) {
             this.x = x || 0;
             this.y = y || 0;
             this.angle = angle;
         },
-        toString: function () {
+        toString: function() {
             if (this.x && this.y) {
                 return kendo.format("rotate({0},{1},{2})", this.angle, this.x, this.y);
             } else {
                 return kendo.format("rotate({0})", this.angle);
             }
         },
-        toMatrix: function () {
+        toMatrix: function() {
             return Matrix.rotation(this.angle, this.x, this.y); // T*R*T^-1
         },
-        center: function () {
+        center: function() {
             return new Point(this.x, this.y);
         },
         invert: function() {
@@ -3756,11 +3756,11 @@
 
     Rotation.ZERO = new Rotation(0);
 
-    Rotation.create = function (rotation) {
+    Rotation.create = function(rotation) {
         return new Rotation(rotation.angle, rotation.x, rotation.y);
     };
 
-    Rotation.parse = function (str) {
+    Rotation.parse = function(str) {
         var values = str.slice(1, str.length - 1).split(","),
             angle = values[0],
             x = values[1],
@@ -3770,7 +3770,7 @@
     };
 
     var CompositeTransform = Class.extend({
-        init: function (x, y, scaleX, scaleY, angle, center) {
+        init: function(x, y, scaleX, scaleY, angle, center) {
             this.translate = new Translation(x, y);
             if (scaleX !== undefined && scaleY !== undefined) {
                 this.scale = new Scale(scaleX, scaleY);
@@ -3779,8 +3779,8 @@
                 this.rotate = center ? new Rotation(angle, center.x, center.y) : new Rotation(angle);
             }
         },
-        toString: function () {
-            var toString = function (transform) {
+        toString: function() {
+            var toString = function(transform) {
                 return transform ? transform.toString() : "";
             };
 
@@ -3789,12 +3789,12 @@
                 toString(this.scale);
         },
 
-        render: function (visual) {
+        render: function(visual) {
             visual._transform = this;
             visual._renderTransform();
         },
 
-        toMatrix: function () {
+        toMatrix: function() {
             var m = Matrix.unit();
 
             if (this.translate) {
@@ -3894,7 +3894,7 @@
     };
 
     var Element = Class.extend({
-        init: function (options) {
+        init: function(options) {
             var element = this;
             element.options = deepExtend({}, element.options, options);
             element.id = element.options.id;
@@ -3902,17 +3902,17 @@
             element._transform = new CompositeTransform();
         },
 
-        visible: function (value) {
+        visible: function(value) {
             return this.drawingContainer().visible(value);
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options && options.id) {
                  this.id = options.id;
             }
         },
 
-        position: function (x, y) {
+        position: function(x, y) {
             var options = this.options;
             if (!defined(x)) {
                return new Point(options.x, options.y);
@@ -3930,7 +3930,7 @@
             this._renderTransform();
         },
 
-        rotate: function (angle, center) {
+        rotate: function(angle, center) {
             if (defined(angle)) {
                 this._transform.rotate = new Rotation(angle, center.x, center.y);
                 this._renderTransform();
@@ -3942,16 +3942,16 @@
             return this.drawingElement;
         },
 
-        _renderTransform: function () {
+        _renderTransform: function() {
             var matrix = this._transform.toMatrix();
             this.drawingContainer().transform(new g.Matrix(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f));
         },
 
-        _hover: function () {},
+        _hover: function() {},
 
         _diffNumericOptions: diffNumericOptions,
 
-        _measure: function (force) {
+        _measure: function(force) {
             var rect;
             if (!this._measured || force) {
                 var box = this._boundingBox() || new g.Rect();
@@ -4006,7 +4006,7 @@
             });
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var stroke = options.stroke;
                 var fill = options.fill;
@@ -4021,7 +4021,7 @@
             }
         },
 
-        _hover: function (show) {
+        _hover: function(show) {
             var drawingElement = this.drawingElement;
             var options = this.options;
             var hover = options.hover;
@@ -4071,7 +4071,7 @@
     });
 
     var TextBlock = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             options = this._textColor(options);
             VisualBase.fn.init.call(this, options);
 
@@ -4136,11 +4136,11 @@
             }
         },
 
-        content: function (text) {
+        content: function(text) {
             return this.drawingElement.content(text);
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var sizeChanged = false;
                 var textOptions = this.options;
@@ -4176,7 +4176,7 @@
     deepExtend(TextBlock.fn, AutoSizeableMixin);
 
     var Rectangle = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this._initPath();
             this._setPosition();
@@ -4191,7 +4191,7 @@
             }
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 VisualBase.fn.redraw.call(this, options);
                 if (this._diffNumericOptions(options, [WIDTH, HEIGHT])) {
@@ -4304,7 +4304,7 @@
 
     var ArrowMarker = MarkerBase.extend({
         options: {
-            path: "M 0 0 L 10 5 L 0 10 L 3 5 z"           ,
+            path: "M 0 0 L 10 5 L 0 10 L 3 5 z" ,
             anchor: {
                 x: 10,
                 y: 5
@@ -4430,7 +4430,7 @@
 
             if (type == Markers.filledCircle) {
                 markerType = CircleMarker;
-            } else if (type == Markers.arrowStart || type == Markers.arrowEnd){
+            } else if (type == Markers.arrowStart || type == Markers.arrowEnd) {
                 markerType = ArrowMarker;
             } else {
                 this._removeMarker(position);
@@ -4446,7 +4446,7 @@
             }
         },
 
-        _positionMarker : function(position) {
+        _positionMarker: function(position) {
             var marker = this._markers[position];
 
             if (marker) {
@@ -4477,7 +4477,7 @@
                 if (optionsCap.type && pathCapType != optionsCap.type) {
                     this._removeMarker(position);
                     this._markers[position] = this._createMarker(pathOptions[cap], position);
-                    created  = true;
+                    created = true;
                 } else if (this._markers[position]) {
                    this._markers[position].redraw(optionsCap);
                 }
@@ -4488,7 +4488,7 @@
             return created;
         },
 
-        _redrawMarkers: function (pathChange, options) {
+        _redrawMarkers: function(pathChange, options) {
             if (!this._redrawMarker(pathChange, START, options) && pathChange) {
                 this._positionMarker(START);
             }
@@ -4499,7 +4499,7 @@
     };
 
     var Path = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this.container = new d.Group();
             this._createElements();
@@ -4514,7 +4514,7 @@
             return this.container;
         },
 
-        data: function (value) {
+        data: function(value) {
             var options = this.options;
             if (value) {
                 if (options.data != value) {
@@ -4528,7 +4528,7 @@
             }
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 VisualBase.fn.redraw.call(this, options);
 
@@ -4574,7 +4574,7 @@
     deepExtend(Path.fn, MarkerPathMixin);
 
     var Line = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this.container = new d.Group();
             this._initPath();
@@ -4585,7 +4585,7 @@
             return this.container;
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 options = options || {};
                 var from = options.from;
@@ -4636,7 +4636,7 @@
     deepExtend(Line.fn, MarkerPathMixin);
 
     var Polyline = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this.container = new d.Group();
             this._initPath();
@@ -4647,7 +4647,7 @@
             return this.container;
         },
 
-        points: function (points) {
+        points: function(points) {
             var options = this.options;
             if (points) {
                 options.points = points;
@@ -4657,7 +4657,7 @@
             }
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var points = options.points;
                 VisualBase.fn.redraw.call(this, options);
@@ -4722,13 +4722,13 @@
     deepExtend(Polyline.fn, MarkerPathMixin);
 
     var Image = Element.extend({
-        init: function (options) {
+        init: function(options) {
             Element.fn.init.call(this, options);
 
             this._initImage();
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 if (options.source) {
                     this.drawingElement.src(options.source);
@@ -4759,7 +4759,7 @@
     });
 
     var Group = Element.extend({
-        init: function (options) {
+        init: function(options) {
             this.children = [];
             Element.fn.init.call(this, options);
             this.drawingElement = new d.Group();
@@ -4770,13 +4770,13 @@
             autoSize: false
         },
 
-        append: function (visual) {
+        append: function(visual) {
             this.drawingElement.append(visual.drawingContainer());
             this.children.push(visual);
             this._childrenChange = true;
         },
 
-        remove: function (visual) {
+        remove: function(visual) {
             if (this._remove(visual)) {
                 this._childrenChange = true;
             }
@@ -4791,13 +4791,13 @@
             }
         },
 
-        clear: function () {
+        clear: function() {
             this.drawingElement.clear();
             this.children = [];
             this._childrenChange = true;
         },
 
-        toFront: function (visuals) {
+        toFront: function(visuals) {
             var visual;
 
             for (var i = 0; i < visuals.length; i++) {
@@ -4808,11 +4808,11 @@
             }
         },
         //TO DO: add drawing group support for moving and inserting children
-        toBack: function (visuals) {
+        toBack: function(visuals) {
             this._reorderChildren(visuals, 0);
         },
 
-        toIndex: function (visuals, indices) {
+        toIndex: function(visuals, indices) {
             this._reorderChildren(visuals, indices);
         },
 
@@ -4842,7 +4842,7 @@
             group.append.apply(group, drawingChildren);
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 if (this._childrenChange) {
                     this._childrenChange = false;
@@ -4882,7 +4882,7 @@
     deepExtend(Group.fn, AutoSizeableMixin);
 
     var Layout = Group.extend({
-        init: function (rect, options) {
+        init: function(rect, options) {
             this.children = [];
             Element.fn.init.call(this, options);
             this.drawingElement = new d.Layout(toDrawingRect(rect), options);
@@ -4904,20 +4904,20 @@
             this.drawingElement.reflow();
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             kendo.deepExtend(this.drawingElement.options, options);
             Group.fn.redraw.call(this, options);
         }
     });
 
     var Circle = VisualBase.extend({
-        init: function (options) {
+        init: function(options) {
             VisualBase.fn.init.call(this, options);
             this._initCircle();
             this._initSize();
         },
 
-        redraw: function (options) {
+        redraw: function(options) {
             if (options) {
                 var circleOptions = this.options;
 
@@ -4953,7 +4953,7 @@
                 options.radius = radius = Math.min(width, height) / 2;
             }
 
-            var center = options.center || {x: radius, y: radius};
+            var center = options.center || { x: radius, y: radius };
             this._center = new g.Point(center.x, center.y);
             this._circle = new g.Circle(this._center, radius);
             this.drawingElement = new d.Circle(this._circle, {
@@ -4966,7 +4966,7 @@
     deepExtend(Circle.fn, AutoSizeableMixin);
 
     var Canvas = Class.extend({
-        init: function (element, options) {
+        init: function(element, options) {
             options = options || {};
             this.element = element;
             this.surface = d.Surface.create(element, options);
@@ -4979,12 +4979,12 @@
             this.size(this._viewBox);
         },
 
-        bounds: function () {
+        bounds: function() {
             var box = this.drawingElement.clippedBBox();
             return new Rect(0, 0, box.width(), box.height());
         },
 
-        size: function (size) {
+        size: function(size) {
             var viewBox = this._viewBox;
             if (defined(size)) {
                 viewBox.width = size.width;
@@ -4997,12 +4997,12 @@
             };
         },
 
-        _translate: function (x, y) {
+        _translate: function(x, y) {
             var viewBox = this._viewBox;
             if (defined(x) && defined(y)) {
                 viewBox.x = x;
                 viewBox.y = y;
-                this.surface.translate({x: x, y: y});
+                this.surface.translate({ x: x, y: y });
             }
             return {
                 x: viewBox.x,
@@ -5014,26 +5014,26 @@
             this.surface.draw(this.drawingElement);
         },
 
-        append: function (visual) {
+        append: function(visual) {
             this.drawingElement.append(visual.drawingContainer());
             return this;
         },
 
-        remove: function (visual) {
+        remove: function(visual) {
             this.drawingElement.remove(visual.drawingContainer());
         },
 
-        insertBefore: function () {
+        insertBefore: function() {
 
         },
 
-        clear: function () {
+        clear: function() {
             this.drawingElement.clear();
         },
 
         destroy: function(clearHtml) {
             this.surface.destroy();
-            if(clearHtml) {
+            if (clearHtml) {
                 $(this.element).remove();
             }
         }
@@ -5096,7 +5096,7 @@
 
     // Exports ================================================================
     kendo.deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
         diffNumericOptions: diffNumericOptions,
@@ -5122,13 +5122,13 @@
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function (f, define) {
+(function(f, define) {
     define('dataviz/diagram/services',[ "kendo.drawing", "./svg" ], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         // Imports ================================================================
         var kendo = window.kendo,
             dataviz = kendo.dataviz,
@@ -5200,11 +5200,11 @@
         diagram.Cursors = Cursors;
 
         var PositionAdapter = kendo.Class.extend({
-            init: function (layoutState) {
+            init: function(layoutState) {
                 this.layoutState = layoutState;
                 this.diagram = layoutState.diagram;
             },
-            initState: function () {
+            initState: function() {
                 this.froms = [];
                 this.tos = [];
                 this.subjects = [];
@@ -5219,7 +5219,7 @@
 
                 this.layoutState.nodeMap.forEach(pusher, this);
             },
-            update: function (tick) {
+            update: function(tick) {
                 if (this.subjects.length <= 0) {
                     return;
                 }
@@ -5233,7 +5233,7 @@
         });
 
         var LayoutUndoUnit = Class.extend({
-            init: function (initialState, finalState, animate) {
+            init: function(initialState, finalState, animate) {
                 if (isUndefined(animate)) {
                     this.animate = false;
                 }
@@ -5244,17 +5244,17 @@
                 this._finalState = finalState;
                 this.title = "Diagram layout";
             },
-            undo: function () {
+            undo: function() {
                 this.setState(this._initialState);
             },
-            redo: function () {
+            redo: function() {
                 this.setState(this._finalState);
             },
-            setState: function (state) {
+            setState: function(state) {
                 var diagram = state.diagram;
                 if (this.animate) {
                     state.linkMap.forEach(
-                        function (id, points) {
+                        function(id, points) {
                             var conn = diagram.getShapeById(id);
                             conn.visible(false);
                             if (conn) {
@@ -5264,9 +5264,9 @@
                     );
                     var ticker = new Ticker();
                     ticker.addAdapter(new PositionAdapter(state));
-                    ticker.onComplete(function () {
+                    ticker.onComplete(function() {
                         state.linkMap.forEach(
-                            function (id) {
+                            function(id) {
                                 var conn = diagram.getShapeById(id);
                                 conn.visible(true);
                             }
@@ -5275,14 +5275,14 @@
                     ticker.play();
                 }
                 else {
-                    state.nodeMap.forEach(function (id, bounds) {
+                    state.nodeMap.forEach(function(id, bounds) {
                         var shape = diagram.getShapeById(id);
                         if (shape) {
                             shape.position(bounds.topLeft());
                         }
                     });
                     state.linkMap.forEach(
-                        function (id, points) {
+                        function(id, points) {
                             var conn = diagram.getShapeById(id);
                             if (conn) {
                                 conn.points(points);
@@ -5294,22 +5294,22 @@
         });
 
         var CompositeUnit = Class.extend({
-            init: function (unit) {
+            init: function(unit) {
                 this.units = [];
                 this.title = "Composite unit";
                 if (unit !== undefined) {
                     this.units.push(unit);
                 }
             },
-            add: function (undoUnit) {
+            add: function(undoUnit) {
                 this.units.push(undoUnit);
             },
-            undo: function () {
+            undo: function() {
                 for (var i = 0; i < this.units.length; i++) {
                     this.units[i].undo();
                 }
             },
-            redo: function () {
+            redo: function() {
                 for (var i = 0; i < this.units.length; i++) {
                     this.units[i].redo();
                 }
@@ -5317,7 +5317,7 @@
         });
 
         var ConnectionEditUnit = Class.extend({
-            init: function (item, redoSource, redoTarget) {
+            init: function(item, redoSource, redoTarget) {
                 this.item = item;
                 this._redoSource = redoSource;
                 this._redoTarget = redoTarget;
@@ -5330,7 +5330,7 @@
                 }
                 this.title = "Connection Editing";
             },
-            undo: function () {
+            undo: function() {
                 if (this._undoSource !== undefined) {
                     this.item._updateConnector(this._undoSource, "source");
                 }
@@ -5341,7 +5341,7 @@
 
                 this.item.updateModel();
             },
-            redo: function () {
+            redo: function() {
                 if (this._redoSource !== undefined) {
                     this.item._updateConnector(this._redoSource, "source");
                 }
@@ -5355,7 +5355,7 @@
         });
 
         var ConnectionEditUndoUnit = Class.extend({
-            init: function (item, undoSource, undoTarget) {
+            init: function(item, undoSource, undoTarget) {
                 this.item = item;
                 this._undoSource = undoSource;
                 this._undoTarget = undoTarget;
@@ -5363,12 +5363,12 @@
                 this._redoTarget = item.target();
                 this.title = "Connection Editing";
             },
-            undo: function () {
+            undo: function() {
                 this.item._updateConnector(this._undoSource, "source");
                 this.item._updateConnector(this._undoTarget, "target");
                 this.item.updateModel();
             },
-            redo: function () {
+            redo: function() {
                 this.item._updateConnector(this._redoSource, "source");
                 this.item._updateConnector(this._redoTarget, "target");
                 this.item.updateModel();
@@ -5376,31 +5376,31 @@
         });
 
         var DeleteConnectionUnit = Class.extend({
-            init: function (connection) {
+            init: function(connection) {
                 this.connection = connection;
                 this.diagram = connection.diagram;
                 this.targetConnector = connection.targetConnector;
                 this.title = "Delete connection";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._addConnection(this.connection, false);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.remove(this.connection, false);
             }
         });
 
         var DeleteShapeUnit = Class.extend({
-            init: function (shape) {
+            init: function(shape) {
                 this.shape = shape;
                 this.diagram = shape.diagram;
                 this.title = "Deletion";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._addShape(this.shape, false);
                 this.shape.select(false);
             },
-            redo: function () {
+            redo: function() {
                 this.shape.select(false);
                 this.diagram.remove(this.shape, false);
             }
@@ -5410,7 +5410,7 @@
          * @type {*}
          */
         var TransformUnit = Class.extend({
-            init: function (shapes, undoStates, adorner) {
+            init: function(shapes, undoStates, adorner) {
                 this.shapes = shapes;
                 this.undoStates = undoStates;
                 this.title = "Transformation";
@@ -5421,7 +5421,7 @@
                     this.redoStates.push(shape.bounds());
                 }
             },
-            undo: function () {
+            undo: function() {
                 for (var i = 0; i < this.shapes.length; i++) {
                     var shape = this.shapes[i];
                     shape.bounds(this.undoStates[i]);
@@ -5435,7 +5435,7 @@
                     this.adorner.refresh();
                 }
             },
-            redo: function () {
+            redo: function() {
                 for (var i = 0; i < this.shapes.length; i++) {
                     var shape = this.shapes[i];
                     shape.bounds(this.redoStates[i]);
@@ -5454,55 +5454,55 @@
         });
 
         var AddConnectionUnit = Class.extend({
-            init: function (connection, diagram) {
+            init: function(connection, diagram) {
                 this.connection = connection;
                 this.diagram = diagram;
                 this.title = "New connection";
             },
 
-            undo: function () {
+            undo: function() {
                 this.diagram.remove(this.connection, false);
             },
 
-            redo: function () {
+            redo: function() {
                 this.diagram._addConnection(this.connection, false);
             }
         });
 
         var AddShapeUnit = Class.extend({
-            init: function (shape, diagram) {
+            init: function(shape, diagram) {
                 this.shape = shape;
                 this.diagram = diagram;
                 this.title = "New shape";
             },
 
-            undo: function () {
+            undo: function() {
                 this.diagram.deselect();
                 this.diagram.remove(this.shape, false);
             },
 
-            redo: function () {
+            redo: function() {
                 this.diagram._addShape(this.shape, false);
             }
         });
 
         var PanUndoUnit = Class.extend({
-            init: function (initialPosition, finalPosition, diagram) {
+            init: function(initialPosition, finalPosition, diagram) {
                 this.initial = initialPosition;
                 this.finalPos = finalPosition;
                 this.diagram = diagram;
                 this.title = "Pan Unit";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram.pan(this.initial);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.pan(this.finalPos);
             }
         });
 
         var RotateUnit = Class.extend({
-            init: function (adorner, shapes, undoRotates) {
+            init: function(adorner, shapes, undoRotates) {
                 this.shapes = shapes;
                 this.undoRotates = undoRotates;
                 this.title = "Rotation";
@@ -5515,7 +5515,7 @@
                     this.redoRotates.push(shape.rotate().angle);
                 }
             },
-            undo: function () {
+            undo: function() {
                 var i, shape;
                 for (i = 0; i < this.shapes.length; i++) {
                     shape = this.shapes[i];
@@ -5530,7 +5530,7 @@
                     this.adorner.refresh();
                 }
             },
-            redo: function () {
+            redo: function() {
                 var i, shape;
                 for (i = 0; i < this.shapes.length; i++) {
                     shape = this.shapes[i];
@@ -5548,31 +5548,31 @@
         });
 
         var ToFrontUnit = Class.extend({
-            init: function (diagram, items, initialIndices) {
+            init: function(diagram, items, initialIndices) {
                 this.diagram = diagram;
                 this.indices = initialIndices;
                 this.items = items;
                 this.title = "Rotate Unit";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._toIndex(this.items, this.indices);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.toFront(this.items, false);
             }
         });
 
         var ToBackUnit = Class.extend({
-            init: function (diagram, items, initialIndices) {
+            init: function(diagram, items, initialIndices) {
                 this.diagram = diagram;
                 this.indices = initialIndices;
                 this.items = items;
                 this.title = "Rotate Unit";
             },
-            undo: function () {
+            undo: function() {
                 this.diagram._toIndex(this.items, this.indices);
             },
-            redo: function () {
+            redo: function() {
                 this.diagram.toBack(this.items, false);
             }
         });
@@ -5581,7 +5581,7 @@
          * Undo-redo service.
          */
         var UndoRedoService = kendo.Observable.extend({
-            init: function (options) {
+            init: function(options) {
                 kendo.Observable.fn.init.call(this, options);
                 this.bind(this.events, options);
                 this.stack = [];
@@ -5595,21 +5595,21 @@
              * Starts the collection of units. Add those with
              * the addCompositeItem method and call commit. Or cancel to forget about it.
              */
-            begin: function () {
+            begin: function() {
                 this.composite = new CompositeUnit();
             },
 
             /**
              * Cancels the collection process of unit started with 'begin'.
              */
-            cancel: function () {
+            cancel: function() {
                 this.composite = undefined;
             },
 
             /**
              * Commits a batch of units.
              */
-            commit: function (execute) {
+            commit: function(execute) {
                 if (this.composite.units.length > 0) {
                     this._restart(this.composite, execute);
                 }
@@ -5620,7 +5620,7 @@
              * Adds a unit as part of the begin-commit batch.
              * @param undoUnit
              */
-            addCompositeItem: function (undoUnit) {
+            addCompositeItem: function(undoUnit) {
                 if (this.composite) {
                     this.composite.add(undoUnit);
                 } else {
@@ -5633,7 +5633,7 @@
              * @param undoUnit The unit to be added.
              * @param execute If false, the unit will be added but not executed.
              */
-            add: function (undoUnit, execute) {
+            add: function(undoUnit, execute) {
                 this._restart(undoUnit, execute);
             },
 
@@ -5649,14 +5649,14 @@
                 }
             },
 
-            count: function () {
+            count: function() {
                 return this.stack.length;
             },
 
             /**
              * Rollback of the unit on top of the stack.
              */
-            undo: function () {
+            undo: function() {
                 if (this.index > 0) {
                     this.index--;
                     this.stack[this.index].undo();
@@ -5667,7 +5667,7 @@
             /**
              * Redo of the last undone action.
              */
-            redo: function () {
+            redo: function() {
                 if (this.stack.length > 0 && this.index < this.stack.length) {
                     this.stack[this.index].redo();
                     this.index++;
@@ -5675,7 +5675,7 @@
                 }
             },
 
-            _restart: function (composite, execute) {
+            _restart: function(composite, execute) {
                 // throw away anything beyond this point if this is a new branch
                 this.stack.splice(this.index, this.stack.length - this.index);
                 this.stack.push(composite);
@@ -5694,7 +5694,7 @@
             /**
              * Clears the stack.
              */
-            clear: function () {
+            clear: function() {
                 this.stack = [];
                 this.index = 0;
             }
@@ -5703,25 +5703,25 @@
 // Tools =========================================
 
         var EmptyTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
             },
-            start: function () {
+            start: function() {
             },
-            move: function () {
+            move: function() {
             },
-            end: function () {
+            end: function() {
             },
-            tryActivate: function () {
+            tryActivate: function() {
                 return false;
             },
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.arrow;
             }
         });
 
         var ScrollerTool = EmptyTool.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 var tool = this;
                 var friction = kendo.support.mobileOS ? FRICTION_MOBILE : FRICTION;
                 EmptyTool.fn.init.call(tool, toolService);
@@ -5741,7 +5741,7 @@
                     tool.movableCanvas = new Movable(canvas.element);
                 }
 
-                var virtualScroll = function (dimension, min, max) {
+                var virtualScroll = function(dimension, min, max) {
                     dimension.makeVirtual();
                     dimension.virtualSize(min || SCROLL_MIN, max || SCROLL_MAX);
                 };
@@ -5751,7 +5751,7 @@
                 scroller.disable();
             },
 
-            tryActivate: function (p, meta) {
+            tryActivate: function(p, meta) {
                 var toolService = this.toolService;
                 var options = toolService.diagram.options.pannable;
                 var enabled = meta.ctrlKey;
@@ -5764,15 +5764,15 @@
                     }
                 }
 
-                return  options !== false && enabled && !defined(toolService.hoveredAdorner) && !defined(toolService._hoveredConnector);
+                return options !== false && enabled && !defined(toolService.hoveredAdorner) && !defined(toolService._hoveredConnector);
             },
 
-            start: function () {
+            start: function() {
                 this.scroller.enable();
             },
-            move: function () {
+            move: function() {
             },//the tool itself should not handle the scrolling. Let kendo scroller take care of this part. Check _move
-            _move: function (args) {
+            _move: function(args) {
                 var tool = this,
                     diagram = tool.toolService.diagram,
                     canvas = diagram.canvas,
@@ -5786,12 +5786,12 @@
                     scrollPos = scrollPos.plus(diagram._pan.times(-1));
                 }
 
-                diagram.trigger(PAN, {pan: scrollPos});
+                diagram.trigger(PAN, { pan: scrollPos });
             },
-            end: function () {
+            end: function() {
                 this.scroller.disable();
             },
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.move;
             }
         });
@@ -5801,13 +5801,13 @@
          * @type {*}
          */
         var PointerTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
             },
-            tryActivate: function () {
+            tryActivate: function() {
                 return true; // the pointer tool is last and handles all others requests.
             },
-            start: function (p, meta) {
+            start: function(p, meta) {
                 var toolService = this.toolService,
                     diagram = toolService.diagram,
                     hoveredItem = toolService.hoveredItem;
@@ -5837,7 +5837,7 @@
                 }
             },
 
-            move: function (p) {
+            move: function(p) {
                 if (this.adorner) {
                     this.adorner.move(this.handle, p);
                     if (this.adorner.isDragHandle(this.handle)) {
@@ -5846,7 +5846,7 @@
                 }
             },
 
-            end: function () {
+            end: function() {
                 var diagram = this.toolService.diagram,
                     adorner = this.adorner,
                     unit;
@@ -5865,16 +5865,16 @@
                 this.adorner = undefined;
                 this.handle = undefined;
             },
-            getCursor: function (p) {
+            getCursor: function(p) {
                 return this.toolService.hoveredItem ? this.toolService.hoveredItem._getCursor(p) : Cursors.arrow;
             }
         });
 
         var SelectionTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
             },
-            tryActivate: function (p, meta) {
+            tryActivate: function(p, meta) {
                 var toolService = this.toolService;
                 var selectable = toolService.diagram.options.selectable;
                 var enabled = selectable && selectable.multiple !== false;
@@ -5889,16 +5889,16 @@
 
                 return enabled && !defined(toolService.hoveredItem) && !defined(toolService.hoveredAdorner);
             },
-            start: function (p) {
+            start: function(p) {
                 var diagram = this.toolService.diagram;
                 diagram.deselect();
                 diagram.selector.start(p);
             },
-            move: function (p) {
+            move: function(p) {
                 var diagram = this.toolService.diagram;
                 diagram.selector.move(p);
             },
-            end: function (p, meta) {
+            end: function(p, meta) {
                 var diagram = this.toolService.diagram, hoveredItem = this.toolService.hoveredItem;
                 var rect = diagram.selector.bounds();
                 if ((!hoveredItem || !hoveredItem.isSelected) && !meta.ctrlKey) {
@@ -5909,20 +5909,20 @@
                 }
                 diagram.selector.end();
             },
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.arrow;
             }
         });
 
         var ConnectionTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
                 this.type = "ConnectionTool";
             },
             tryActivate: function() {
                 return this.toolService._hoveredConnector;
             },
-            start: function (p, meta) {
+            start: function(p, meta) {
                 var toolService = this.toolService,
                     diagram = toolService.diagram,
                     connector = toolService._hoveredConnector,
@@ -5941,16 +5941,16 @@
                 }
             },
 
-            move: function (p) {
+            move: function(p) {
                 var toolService = this.toolService;
                 var connection = toolService.activeConnection;
 
                 connection.target(p);
-                toolService.diagram.trigger(DRAG, { shapes: [], connections: [connection], connectionHandle: TARGET  });
+                toolService.diagram.trigger(DRAG, { shapes: [], connections: [connection], connectionHandle: TARGET });
                 return true;
             },
 
-            end: function (p) {
+            end: function(p) {
                 var toolService = this.toolService,
                     d = toolService.diagram,
                     connection = toolService.activeConnection,
@@ -5982,27 +5982,27 @@
                 }
                 toolService._connectionManipulation();
 
-                if(cachedTouchTarget) {
+                if (cachedTouchTarget) {
                     d._connectorsAdorner.visual.remove(cachedTouchTarget);
                     d._cachedTouchTarget = null;
                 }
             },
 
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.arrow;
             }
         });
 
         var ConnectionEditTool = Class.extend({
-            init: function (toolService) {
+            init: function(toolService) {
                 this.toolService = toolService;
                 this.type = "ConnectionTool";
             },
 
-            tryActivate: function (p, meta) {
+            tryActivate: function(p, meta) {
                 var toolService = this.toolService,
                     diagram = toolService.diagram,
-                    selectable =  diagram.options.selectable,
+                    selectable = diagram.options.selectable,
                     item = toolService.hoveredItem,
                     isActive = selectable !== false &&
                                item && item.path && !(item.isSelected && meta.ctrlKey);
@@ -6014,7 +6014,7 @@
                 return isActive;
             },
 
-            start: function (p, meta) {
+            start: function(p, meta) {
                 var toolService = this.toolService;
                 var connection = this._c;
 
@@ -6038,7 +6038,7 @@
                 }
             },
 
-            move: function (p) {
+            move: function(p) {
                 var adorner = this._c.adorner;
                 if (canDrag(this._c) && adorner) {
                     adorner.move(this.handle, p);
@@ -6048,7 +6048,7 @@
                 }
             },
 
-            end: function (p) {
+            end: function(p) {
                 var connection = this._c;
                 var adorner = connection.adorner;
                 var toolService = this.toolService;
@@ -6068,7 +6068,7 @@
                 }
             },
 
-            getCursor: function () {
+            getCursor: function() {
                 return Cursors.move;
             }
         });
@@ -6082,7 +6082,7 @@
          * @type {*}
          */
         var ToolService = Class.extend({
-            init: function (diagram) {
+            init: function(diagram) {
                 this.diagram = diagram;
                 this.tools = [
                     new ScrollerTool(this),
@@ -6095,7 +6095,7 @@
                 this.activeTool = undefined;
             },
 
-            start: function (p, meta) {
+            start: function(p, meta) {
                 meta = deepExtend({}, meta);
                 if (this.activeTool) {
                     this.activeTool.end(p, meta);
@@ -6110,7 +6110,7 @@
                 return true;
             },
 
-            move: function (p, meta) {
+            move: function(p, meta) {
                 meta = deepExtend({}, meta);
                 var updateHovered = true;
                 if (this.activeTool) {
@@ -6123,7 +6123,7 @@
                 return true;
             },
 
-            end: function (p, meta) {
+            end: function(p, meta) {
                 meta = deepExtend({}, meta);
                 if (this.activeTool) {
                     this.activeTool.end(p, meta);
@@ -6134,7 +6134,7 @@
                 return true;
             },
 
-            keyDown: function (key, meta) {
+            keyDown: function(key, meta) {
                 var diagram = this.diagram;
                 meta = deepExtend({ ctrlKey: false, metaKey: false, altKey: false }, meta);
                 if ((meta.ctrlKey || meta.metaKey) && !meta.altKey) {// ctrl or option
@@ -6184,7 +6184,7 @@
                 }
 
             },
-            wheel: function (p, meta) {
+            wheel: function(p, meta) {
                 var diagram = this.diagram,
                     delta = meta.delta,
                     z = diagram.zoom(),
@@ -6210,7 +6210,7 @@
 
                 return true;
             },
-            setTool: function (tool, index) {
+            setTool: function(tool, index) {
                 tool.toolService = this;
                 this.tools[index] = tool;
             },
@@ -6224,13 +6224,13 @@
                 }
             },
 
-            _discardNewConnection: function () {
+            _discardNewConnection: function() {
                 if (this.newConnection) {
                     this.diagram.remove(this.newConnection);
                     this.newConnection = undefined;
                 }
             },
-            _activateTool: function (p, meta) {
+            _activateTool: function(p, meta) {
                 for (var i = 0; i < this.tools.length; i++) {
                     var tool = this.tools[i];
                     if (tool.tryActivate(p, meta)) {
@@ -6239,13 +6239,13 @@
                     }
                 }
             },
-            _updateCursor: function (p) {
+            _updateCursor: function(p) {
                 var element = this.diagram.element;
                 var cursor = this.activeTool ? this.activeTool.getCursor(p) : (this.hoveredAdorner ? this.hoveredAdorner._getCursor(p) : (this.hoveredItem ? this.hoveredItem._getCursor(p) : Cursors.arrow));
 
-                element.css({cursor: cursor});
+                element.css({ cursor: cursor });
             },
-            _connectionManipulation: function (connection, disabledShape, isNew) {
+            _connectionManipulation: function(connection, disabledShape, isNew) {
                 this.activeConnection = connection;
                 this.disabledShape = disabledShape;
                 if (isNew) {
@@ -6254,7 +6254,7 @@
                     this.newConnection = undefined;
                 }
             },
-            _updateHoveredItem: function (p) {
+            _updateHoveredItem: function(p) {
                 var hit = this._hitTest(p);
                 var diagram = this.diagram;
 
@@ -6274,13 +6274,13 @@
                     }
                 }
             },
-            _removeHover: function () {
+            _removeHover: function() {
                 if (this.hoveredItem) {
                     this.hoveredItem._hover(false);
                     this.hoveredItem = undefined;
                 }
             },
-            _hitTest: function (point) {
+            _hitTest: function(point) {
                 var hit, d = this.diagram, item, i;
 
                 // connectors
@@ -6336,7 +6336,7 @@
                 return hit || shapeHit || connectionHit;
             },
 
-            _hitTestItems: function (array, point) {
+            _hitTestItems: function(array, point) {
                 var i, item, hit;
                 for (i = array.length - 1; i >= 0; i--) {
                     item = array[i];
@@ -6354,7 +6354,7 @@
          * Base class for connection routers.
          */
         var ConnectionRouterBase = kendo.Class.extend({
-            init: function () {
+            init: function() {
             }
             /*route: function (connection) {
              },
@@ -6370,7 +6370,7 @@
          * Base class for polyline and cascading routing.
          */
         var LinearConnectionRouter = ConnectionRouterBase.extend({
-            init: function (connection) {
+            init: function(connection) {
                 var that = this;
                 ConnectionRouterBase.fn.init.call(that);
                 this.connection = connection;
@@ -6378,7 +6378,7 @@
             /**
              * Hit testing for polyline paths.
              */
-            hitTest: function (p) {
+            hitTest: function(p) {
                 var rec = this.getBounds().inflate(HIT_TEST_DISTANCE);
                 if (!rec.contains(p)) {
                     return false;
@@ -6390,7 +6390,7 @@
              * Bounds of a polyline.
              * @returns {kendo.dataviz.diagram.Rect}
              */
-            getBounds: function () {
+            getBounds: function() {
                 var points = this.connection.allPoints(),
                     s = points[0],
                     e = points[points.length - 1],
@@ -6416,12 +6416,12 @@
          * @type {*|Object|void|extend|Zepto.extend|b.extend}
          */
         var PolylineRouter = LinearConnectionRouter.extend({
-            init: function (connection) {
+            init: function(connection) {
                 var that = this;
                 LinearConnectionRouter.fn.init.call(that);
                 this.connection = connection;
             },
-            route: function () {
+            route: function() {
                 // just keep the points as is
             }
         });
@@ -6429,7 +6429,7 @@
         var CascadingRouter = LinearConnectionRouter.extend({
             SAME_SIDE_DISTANCE_RATIO: 5,
 
-            init: function (connection) {
+            init: function(connection) {
                 var that = this;
                 LinearConnectionRouter.fn.init.call(that);
                 this.connection = connection;
@@ -6446,7 +6446,7 @@
                 return result;
             },
 
-            route: function () {
+            route: function() {
                 var sourceConnector = this.connection._resolvedSourceConnector;
                 var targetConnector = this.connection._resolvedTargetConnector;
                 var start = this.connection.sourcePoint();
@@ -6598,7 +6598,7 @@
                 return [points[1], points[2]];
             },
 
-            _startHorizontal: function (start, end, sourceSide) {
+            _startHorizontal: function(start, end, sourceSide) {
                 var horizontal;
                 if (sourceSide !== null && (sourceSide === RIGHT || sourceSide === LEFT)) {
                     horizontal = true;
@@ -6613,20 +6613,20 @@
 // Adorners =========================================
 
         var AdornerBase = Class.extend({
-            init: function (diagram, options) {
+            init: function(diagram, options) {
                 var that = this;
                 that.diagram = diagram;
                 that.options = deepExtend({}, that.options, options);
                 that.visual = new Group();
                 that.diagram._adorners.push(that);
             },
-            refresh: function () {
+            refresh: function() {
 
             }
         });
 
         var ConnectionEditAdorner = AdornerBase.extend({
-            init: function (connection, options) {
+            init: function(connection, options) {
                 var that = this, diagram;
                 that.connection = connection;
                 diagram = that.connection.diagram;
@@ -6644,11 +6644,11 @@
                 handles: {}
             },
 
-            _getCursor: function () {
+            _getCursor: function() {
                 return Cursors.move;
             },
 
-            start: function (p) {
+            start: function(p) {
                 this.handle = this._hitTest(p);
                 this.startPoint = p;
                 this._initialSource = this.connection.source();
@@ -6667,7 +6667,7 @@
                 }
             },
 
-            move: function (handle, p) {
+            move: function(handle, p) {
                 switch (handle) {
                     case -1:
                         this.connection.source(p);
@@ -6690,7 +6690,7 @@
                 return true;
             },
 
-            stop: function (p) {
+            stop: function(p) {
                 var ts = this.diagram.toolService, item = ts.hoveredItem, target;
                 if (ts._hoveredConnector) {
                     target = ts._hoveredConnector._c;
@@ -6711,7 +6711,7 @@
                 return new ConnectionEditUndoUnit(this.connection, this._initialSource, this._initialTarget);
             },
 
-            _hitTest: function (point) {
+            _hitTest: function(point) {
                 var sourcePoint = this.connection.sourcePoint();
                 var targetPoint = this.connection.targetPoint();
                 var radiusX = this.options.handles.width / 2 + HIT_TEST_DISTANCE;
@@ -6731,24 +6731,24 @@
                 return handle;
             },
 
-            refresh: function () {
+            refresh: function() {
                 this.spVisual.redraw({ center: this.diagram.modelToLayer(this.connection.sourcePoint()) });
                 this.epVisual.redraw({ center: this.diagram.modelToLayer(this.connection.targetPoint()) });
             }
         });
 
         var ConnectorsAdorner = AdornerBase.extend({
-            init: function (diagram, options) {
+            init: function(diagram, options) {
                 var that = this;
                 AdornerBase.fn.init.call(that, diagram, options);
-                that._refreshHandler = function (e) {
+                that._refreshHandler = function(e) {
                     if (e.item == that.shape) {
                         that.refresh();
                     }
                 };
             },
 
-            show: function (shape) {
+            show: function(shape) {
                 var that = this, len, i, ctr;
                 that._visible = true;
                 that.shape = shape;
@@ -6767,27 +6767,27 @@
 
             _clearVisual: function() {
                 var that = this;
-                if(that.diagram._cachedTouchTarget) {
+                if (that.diagram._cachedTouchTarget) {
                     that._keepCachedTouchTarget();
                 } else {
                     that.visual.clear();
                 }
             },
 
-            _keepCachedTouchTarget: function () {
+            _keepCachedTouchTarget: function() {
                 var that = this,
                     visualChildren = that.visual.children;
                 var childrenCount = visualChildren.length;
                 var index = inArray(that.diagram._cachedTouchTarget, visualChildren);
                 for (var i = childrenCount - 1; i >= 0; i--) {
-                    if(i == index) {
+                    if (i == index) {
                         continue;
                     }
                     that.visual.remove(visualChildren[i]);
                 }
             },
 
-            destroy: function () {
+            destroy: function() {
                 var that = this;
                 that.diagram.unbind(ITEMBOUNDSCHANGE, that._refreshHandler);
                 that.shape = undefined;
@@ -6795,7 +6795,7 @@
                 that.visual.visible(false);
             },
 
-            _hitTest: function (p) {
+            _hitTest: function(p) {
                 var ctr, i;
                 for (i = 0; i < this.connectors.length; i++) {
                     ctr = this.connectors[i];
@@ -6807,12 +6807,12 @@
                 }
             },
 
-            refresh: function () {
+            refresh: function() {
                 if (this.shape) {
                     var bounds = this.shape.bounds();
                         bounds = this.diagram.modelToLayer(bounds);
                     this.visual.position(bounds.topLeft());
-                    $.each(this.connectors, function () {
+                    $.each(this.connectors, function() {
                         this.refresh();
                     });
                 }
@@ -6844,7 +6844,7 @@
         }
 
         var ResizingAdorner = AdornerBase.extend({
-            init: function (diagram, options) {
+            init: function(diagram, options) {
                 var that = this;
                 AdornerBase.fn.init.call(that, diagram, options);
                 that._manipulating = false;
@@ -6854,18 +6854,18 @@
                 that._initSelection();
                 that._createHandles();
                 that.redraw();
-                that.diagram.bind("select", function (e) {
+                that.diagram.bind("select", function(e) {
                     that._initialize(e.selected);
                 });
 
-                that._refreshHandler = function () {
+                that._refreshHandler = function() {
                     if (!that._internalChange) {
                         that.refreshBounds();
                         that.refresh();
                     }
                 };
 
-                that._rotatedHandler = function () {
+                that._rotatedHandler = function() {
                     if (that.shapes.length == 1) {
                         that._angle = that.shapes[0].rotate().angle;
                     }
@@ -6944,7 +6944,7 @@
                 }
             },
 
-            bounds: function (value) {
+            bounds: function(value) {
                 if (value) {
                     this._innerBounds = value.clone();
                     this._bounds = this.diagram.modelToLayer(value).inflate(this.options.offset, this.options.offset);
@@ -6953,7 +6953,7 @@
                 }
             },
 
-            _hitTest: function (p) {
+            _hitTest: function(p) {
                 var tp = this.diagram.modelToLayer(p),
                     i, hit, handleBounds, handlesCount = this.map.length, handle;
 
@@ -6978,7 +6978,7 @@
                 }
             },
 
-            _getHandleBounds: function (p) {
+            _getHandleBounds: function(p) {
                 if (this._resizable()) {
                     var handles = this._handleOptions(),
                         w = handles.width,
@@ -7003,7 +7003,7 @@
                 }
             },
 
-            _getCursor: function (point) {
+            _getCursor: function(point) {
                 var hit = this._hitTest(point);
                 if (hit && (hit.x >= -1) && (hit.x <= 1) && (hit.y >= -1) && (hit.y <= 1) && this._resizable()) {
                     var angle = this._angle;
@@ -7063,7 +7063,7 @@
                 that.redraw();
             },
 
-            _rotates: function () {
+            _rotates: function() {
                 var that = this, i, shape;
                 that.initialRotates = [];
                 for (i = 0; i < that.shapes.length; i++) {
@@ -7072,7 +7072,7 @@
                 }
             },
 
-            _positions: function () {
+            _positions: function() {
                 var that = this, i, shape;
                 that.initialStates = [];
                 for (i = 0; i < that.shapes.length; i++) {
@@ -7100,7 +7100,7 @@
                 }
             },
 
-            start: function (p) {
+            start: function(p) {
                 this._sp = p;
                 this._cp = p;
                 this._lp = p;
@@ -7113,7 +7113,7 @@
                 }
             },
 
-            redraw: function () {
+            redraw: function() {
                 var i, handle,
                     visibleHandles = this._resizable();
 
@@ -7143,7 +7143,7 @@
                 this.refresh();
             },
 
-            move: function (handle, p) {
+            move: function(handle, p) {
                 var delta, dragging,
                     dtl = new Point(),
                     dbr = new Point(),
@@ -7265,27 +7265,27 @@
                 this._rotating = undefined;
             },
 
-            _truncatePositionToGuides: function (bounds) {
+            _truncatePositionToGuides: function(bounds) {
                 if (this.diagram.ruler) {
                     return this.diagram.ruler.truncatePositionToGuides(bounds);
                 }
                 return bounds;
             },
 
-            _truncateSizeToGuides: function (bounds) {
+            _truncateSizeToGuides: function(bounds) {
                 if (this.diagram.ruler) {
                     return this.diagram.ruler.truncateSizeToGuides(bounds);
                 }
                 return bounds;
             },
 
-            _truncateAngle: function (a) {
+            _truncateAngle: function(a) {
                 var snap = this.snapOptions();
                 var snapAngle = Math.max(snap.angle || DEFAULT_SNAP_ANGLE, MIN_SNAP_ANGLE);
                 return snap ? Math.floor((a % 360) / snapAngle) * snapAngle : (a % 360);
             },
 
-            _truncateDistance: function (d) {
+            _truncateDistance: function(d) {
                 if (d instanceof diagram.Point) {
                     return new diagram.Point(this._truncateDistance(d.x), this._truncateDistance(d.y));
                 } else {
@@ -7308,7 +7308,7 @@
                 return editable !== false && drag !== false && snap !== false;
             },
 
-            _displaceBounds: function (bounds, dtl, dbr, dragging) {
+            _displaceBounds: function(bounds, dtl, dbr, dragging) {
                 var tl = bounds.topLeft().plus(dtl),
                     br = bounds.bottomRight().plus(dbr),
                     newBounds = Rect.fromPoints(tl, br),
@@ -7321,7 +7321,7 @@
                 return newBounds;
             },
 
-            stop: function () {
+            stop: function() {
                 var unit, i, shape;
                 if (this._cp != this._sp) {
                     if (this._rotating) {
@@ -7364,7 +7364,7 @@
                 return false;
             },
 
-            refreshBounds: function () {
+            refreshBounds: function() {
                 var bounds = this.shapes.length == 1 ?
                     this.shapes[0].bounds().clone() :
                     this.diagram.boundingBox(this.shapes, true);
@@ -7372,13 +7372,13 @@
                 this.bounds(bounds);
             },
 
-            refresh: function () {
+            refresh: function() {
                 var that = this, b, bounds;
                 if (this.shapes.length > 0) {
                     bounds = this.bounds();
                     this.visual.visible(true);
                     this.visual.position(bounds.topLeft());
-                    $.each(this.map, function () {
+                    $.each(this.map, function() {
                         b = that._getHandleBounds(new Point(this.x, this.y));
                         this.visual.position(b.topLeft());
                     });
@@ -7399,7 +7399,7 @@
         });
 
         var Selector = Class.extend({
-            init: function (diagram) {
+            init: function(diagram) {
                 var selectable = diagram.options.selectable;
                 this.options = deepExtend({}, this.options, selectable);
 
@@ -7416,26 +7416,26 @@
                     color: TRANSPARENT
                 }
             },
-            start: function (p) {
+            start: function(p) {
                 this._sp = this._ep = p;
                 this.refresh();
                 this.diagram._adorn(this, true);
             },
-            end: function () {
+            end: function() {
                 this._sp = this._ep = undefined;
                 this.diagram._adorn(this, false);
             },
-            bounds: function (value) {
+            bounds: function(value) {
                 if (value) {
                     this._bounds = value;
                 }
                 return this._bounds;
             },
-            move: function (p) {
+            move: function(p) {
                 this._ep = p;
                 this.refresh();
             },
-            refresh: function () {
+            refresh: function() {
                 if (this._sp) {
                     var visualBounds = Rect.fromPoints(this.diagram.modelToLayer(this._sp), this.diagram.modelToLayer(this._ep));
                     this.bounds(Rect.fromPoints(this._sp, this._ep));
@@ -7446,13 +7446,13 @@
         });
 
         var ConnectorVisual = Class.extend({
-            init: function (connector) {
+            init: function(connector) {
                 this.options = deepExtend({}, connector.options);
                 this._c = connector;
                 this.visual = new Circle(this.options);
                 this.refresh();
             },
-            _hover: function (value) {
+            _hover: function(value) {
                 var options = this.options,
                     hover = options.hover,
                     stroke = options.stroke,
@@ -7471,7 +7471,7 @@
                     fill: fill
                 });
             },
-            refresh: function () {
+            refresh: function() {
                 var p = this._c.shape.diagram.modelToView(this._c.position()),
                     relative = p.minus(this._c.shape.bounds("transformed").topLeft()),
                     value = new Rect(p.x, p.y, 0, 0);
@@ -7479,7 +7479,7 @@
                 this._visualBounds = value;
                 this.visual.redraw({ center: new Point(relative.x, relative.y) });
             },
-            _hitTest: function (p) {
+            _hitTest: function(p) {
                 var tp = this._c.shape.diagram.modelToView(p);
                 return this._visualBounds.contains(tp);
             }
@@ -7538,13 +7538,13 @@
         });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('dataviz/diagram/layout',[ "./math" ], f);
-})(function(){
+})(function() {
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram,
         Graph = diagram.Graph,
@@ -7677,7 +7677,7 @@
             ignoreInvisible: true,
             animateTransitions: false
         },
-        init: function () {
+        init: function() {
         },
 
         /**
@@ -7685,18 +7685,18 @@
          * Returns the final set of nodes (not the Graph).
          * @param components
          */
-        gridLayoutComponents: function (components) {
+        gridLayoutComponents: function(components) {
             if (!components) {
                 throw "No components supplied.";
             }
 
             // calculate and cache the bounds of the components
-            Utils.forEach(components, function (c) {
+            Utils.forEach(components, function(c) {
                 c.calcBounds();
             });
 
             // order by decreasing width
-            components.sort(function (a, b) {
+            components.sort(function(a, b) {
                 return b.bounds.width - a.bounds.width;
             });
 
@@ -7750,7 +7750,7 @@
             };
         },
 
-        moveToOffset: function (component, p) {
+        moveToOffset: function(component, p) {
             var i, j,
                 bounds = component.bounds,
                 deltax = p.x - bounds.x,
@@ -7784,7 +7784,7 @@
             return new Point(deltax, deltay);
         },
 
-        transferOptions: function (options) {
+        transferOptions: function(options) {
 
             // Size options lead to stackoverflow and need special handling
 
@@ -7818,7 +7818,7 @@
      * @type {*}
      */
     var DiagramToHyperTreeAdapter = kendo.Class.extend({
-        init: function (diagram) {
+        init: function(diagram) {
 
             /**
              * The mapping to/from the original nodes.
@@ -7905,7 +7905,7 @@
          *    The only reason a connection or node is not being mapped might be due to the visibility, which includes the visibility change through a collapsed parent container.
          * @param options
          */
-        convert: function (options) {
+        convert: function(options) {
 
             if (Utils.isUndefined(this.diagram)) {
                 throw "No diagram to convert.";
@@ -7931,10 +7931,10 @@
             this.finalLinks = new Dictionary(this.edges);
 
             this.finalGraph = new Graph();
-            this.finalNodes.forEach(function (n) {
+            this.finalNodes.forEach(function(n) {
                 this.finalGraph.addNode(n);
             }, this);
-            this.finalLinks.forEach(function (l) {
+            this.finalLinks.forEach(function(l) {
                 this.finalGraph.addExistingLink(l);
             }, this);
             return this.finalGraph;
@@ -7945,7 +7945,7 @@
          * @param connection
          * @returns {*}
          */
-        mapConnection: function (connection) {
+        mapConnection: function(connection) {
             return this.edgeMap.get(connection.id);
         },
 
@@ -7954,7 +7954,7 @@
          * @param shape
          * @returns {*}
          */
-        mapShape: function (shape) {
+        mapShape: function(shape) {
             return this.nodeMap.get(shape.id);
         },
 
@@ -7963,8 +7963,8 @@
          * @param a
          * @param b
          */
-        getEdge: function (a, b) {
-            return Utils.first(a.links, function (link) {
+        getEdge: function(a, b) {
+            return Utils.first(a.links, function(link) {
                 return link.getComplement(a) === b;
             });
         },
@@ -7972,7 +7972,7 @@
         /**
          * Clears all the collections used by the conversion process.
          */
-        clear: function () {
+        clear: function() {
             this.finalGraph = null;
             this.hyperTree = (!this.options.ignoreContainers && this.options.layoutContainerChildren) ? new HyperTree() : null;
             this.hyperMap = (!this.options.ignoreContainers && this.options.layoutContainerChildren) ? new Dictionary() : null;
@@ -7992,7 +7992,7 @@
          * @param containerGraph
          * @returns {Array}
          */
-        listToRoot: function (containerGraph) {
+        listToRoot: function(containerGraph) {
             var list = [];
             var s = containerGraph.container;
             if (!s) {
@@ -8007,14 +8007,14 @@
             return list;
         },
 
-        firstNonIgnorableContainer: function (shape) {
+        firstNonIgnorableContainer: function(shape) {
 
             if (shape.isContainer && !this._isIgnorableItem(shape)) {
                 return shape;
             }
             return !shape.parentContainer ? null : this.firstNonIgnorableContainer(shape.parentContainer);
         },
-        isContainerConnection: function (a, b) {
+        isContainerConnection: function(a, b) {
             if (a.isContainer && this.isDescendantOf(a, b)) {
                 return true;
             }
@@ -8028,7 +8028,7 @@
          * @param a
          * @returns {boolean}
          */
-        isDescendantOf: function (scope, a) {
+        isDescendantOf: function(scope, a) {
             if (!scope.isContainer) {
                 throw "Expecting a container.";
             }
@@ -8048,7 +8048,7 @@
 
             return containers.length > 0;
         },
-        isIgnorableItem: function (shape) {
+        isIgnorableItem: function(shape) {
             if (this.options.ignoreInvisible) {
                 if (shape.isCollapsed && this._isVisible(shape)) {
                     return false;
@@ -8069,11 +8069,11 @@
          * necessarily a container in the parent hierarchy of the shape.
          * @param shape
          */
-        isShapeMapped: function (shape) {
+        isShapeMapped: function(shape) {
             return shape.isCollapsed && !this._isVisible(shape) && !this._isTop(shape);
         },
 
-        leastCommonAncestor: function (a, b) {
+        leastCommonAncestor: function(a, b) {
             if (!a) {
                 throw "Parameter should not be null.";
             }
@@ -8106,8 +8106,8 @@
                 return this.hyperTree.root.data;
             }
             else {
-                return grep(this.hyperTree.nodes, function (n) {
-                    return  n.data.container === found;
+                return grep(this.hyperTree.nodes, function(n) {
+                    return n.data.container === found;
                 });
             }
         },
@@ -8117,7 +8117,7 @@
          * @returns {boolean}
          * @private
          */
-        _isTop: function (item) {
+        _isTop: function(item) {
             return !item.parentContainer;
         },
 
@@ -8128,7 +8128,7 @@
          * @returns {*}
          * @private
          */
-        _isVisible: function (shape) {
+        _isVisible: function(shape) {
 
             if (!shape.visible()) {
                 return false;
@@ -8136,7 +8136,7 @@
             return !shape.parentContainer ? shape.visible() : this._isVisible(shape.parentContainer);
         },
 
-        _isCollapsed: function (shape) {
+        _isCollapsed: function(shape) {
 
             if (shape.isContainer && shape.isCollapsed) {
                 return true;
@@ -8148,7 +8148,7 @@
          * First part of the graph creation; analyzing the shapes and containers and deciding whether they should be mapped to a Node.
          * @private
          */
-        _renormalizeShapes: function () {
+        _renormalizeShapes: function() {
             // add the nodes, the adjacency structure will be reconstructed later on
             if (this.options.ignoreContainers) {
                 for (var i = 0, len = this.diagram.shapes.length; i < len; i++) {
@@ -8176,7 +8176,7 @@
          * Second part of the graph creation; analyzing the connections and deciding whether they should be mapped to an edge.
          * @private
          */
-        _renormalizeConnections: function () {
+        _renormalizeConnections: function() {
             if (this.diagram.connections.length === 0) {
                 return;
             }
@@ -8241,8 +8241,8 @@
             }
         },
 
-        areConnectedAlready: function (n, m) {
-            return Utils.any(this.edges, function (l) {
+        areConnectedAlready: function(n, m) {
+            return Utils.any(this.edges, function(l) {
                 return l.source === n && l.target === m || l.source === m && l.target === n;
             });
         }
@@ -8286,7 +8286,7 @@
      * @type {*}
      */
     var SpringLayout = LayoutBase.extend({
-        init: function (diagram) {
+        init: function(diagram) {
             var that = this;
             LayoutBase.fn.init.call(that);
             if (Utils.isUndefined(diagram)) {
@@ -8295,7 +8295,7 @@
             this.diagram = diagram;
         },
 
-        layout: function (options) {
+        layout: function(options) {
 
             this.transferOptions(options);
 
@@ -8317,7 +8317,7 @@
             return new diagram.LayoutState(this.diagram, finalNodeSet);
         },
 
-        layoutGraph: function (graph, options) {
+        layoutGraph: function(graph, options) {
 
             if (Utils.isDefined(options)) {
                 this.transferOptions(options);
@@ -8344,7 +8344,7 @@
         /**
          * Single iteration of the simulation.
          */
-        tick: function () {
+        tick: function() {
             var i;
             // collect the repulsive forces on each node
             for (i = 0; i < this.graph.nodes.length; i++) {
@@ -8376,7 +8376,7 @@
          * @param node A Node.
          * @private
          */
-        _shake: function (node) {
+        _shake: function(node) {
             // just a simple polar neighborhood
             var rho = Math.random() * this.options.nodeDistance / 4;
             var alpha = Math.random() * 2 * Math.PI;
@@ -8393,7 +8393,7 @@
          * @returns {number}
          * @private
          */
-        _InverseSquareForce: function (d, n, m) {
+        _InverseSquareForce: function(d, n, m) {
             var force;
             if (!this.refineStage) {
                 force = Math.pow(d, 2) / Math.pow(this.options.nodeDistance, 2);
@@ -8420,14 +8420,14 @@
          * @returns {number}
          * @private
          */
-        _SquareForce: function (d, n, m) {
+        _SquareForce: function(d, n, m) {
             return 1 / this._InverseSquareForce(d, n, m);
         },
 
-        _repulsion: function (n) {
+        _repulsion: function(n) {
             n.dx = 0;
             n.dy = 0;
-            Utils.forEach(this.graph.nodes, function (m) {
+            Utils.forEach(this.graph.nodes, function(m) {
                 if (m === n) {
                     return;
                 }
@@ -8442,7 +8442,7 @@
                 n.dy += (vy / distance) * r;
             }, this);
         },
-        _attraction: function (link) {
+        _attraction: function(link) {
             var t = link.target;
             var s = link.source;
             if (s === t) {
@@ -8471,13 +8471,13 @@
          * @returns {*}
          * @private
          */
-        _expectedBounds: function () {
+        _expectedBounds: function() {
 
             var size, N = this.graph.nodes.length, /*golden ration optimal?*/ ratio = 1.5, multiplier = 4;
             if (N === 0) {
                 return size;
             }
-            size = Utils.fold(this.graph.nodes, function (s, node) {
+            size = Utils.fold(this.graph.nodes, function(s, node) {
                 var area = node.width * node.height;
                 if (area > 0) {
                     s += Math.sqrt(area);
@@ -8496,11 +8496,11 @@
 
     var TreeLayoutProcessor = kendo.Class.extend({
 
-        init: function (options) {
+        init: function(options) {
             this.center = null;
             this.options = options;
         },
-        layout: function (treeGraph, root) {
+        layout: function(treeGraph, root) {
             this.graph = treeGraph;
             if (!this.graph.nodes || this.graph.nodes.length === 0) {
                 return;
@@ -8535,7 +8535,7 @@
             // nonull.ForEach(n => n.associatedShape.Position = n.Location);
         },
 
-        layoutLeft: function (left) {
+        layoutLeft: function(left) {
             this.setChildrenDirection(this.center, "Left", false);
             this.setChildrenLayout(this.center, "Default", false);
             var h = 0, w = 0, y, i, node;
@@ -8559,7 +8559,7 @@
             }
         },
 
-        layoutRight: function (right) {
+        layoutRight: function(right) {
             this.setChildrenDirection(this.center, "Right", false);
             this.setChildrenLayout(this.center, "Default", false);
             var h = 0, w = 0, y, i, node;
@@ -8582,7 +8582,7 @@
             }
         },
 
-        layoutUp: function (up) {
+        layoutUp: function(up) {
             this.setChildrenDirection(this.center, "Up", false);
             this.setChildrenLayout(this.center, "Default", false);
             var w = 0, y, node, i;
@@ -8606,7 +8606,7 @@
             }
         },
 
-        layoutDown: function (down) {
+        layoutDown: function(down) {
             var node, i;
             this.setChildrenDirection(this.center, "Down", false);
             this.setChildrenLayout(this.center, "Default", false);
@@ -8629,7 +8629,7 @@
             }
         },
 
-        layoutRadialTree: function () {
+        layoutRadialTree: function() {
             // var rmax = children.Aggregate(0D, (current, node) => Math.max(node.SectorAngle, current));
             this.setChildrenDirection(this.center, "Radial", false);
             this.setChildrenLayout(this.center, "Default", false);
@@ -8653,7 +8653,7 @@
             this.center.Angle = endAngle - startAngle;
         },
 
-        tipOverTree: function (down, startFromLevel) {
+        tipOverTree: function(down, startFromLevel) {
             if (Utils.isUndefined(startFromLevel)) {
                 startFromLevel = 0;
             }
@@ -8696,7 +8696,7 @@
              special.Data.Location = new Point(Center.Data.Location.X + Center.AssociatedShape.BoundingRectangle.Width + this.options.HorizontalSeparation, Center.Data.Location.Y);
              }*/
         },
-        calculateAngularWidth: function (n, d) {
+        calculateAngularWidth: function(n, d) {
             if (d > this.maxDepth) {
                 this.maxDepth = d;
             }
@@ -8718,7 +8718,7 @@
             n.sectorAngle = aw;
             return aw;
         },
-        sortChildren: function (n) {
+        sortChildren: function(n) {
             var basevalue = 0, i;
 
             // update basevalue angle for node ordering
@@ -8757,7 +8757,7 @@
             return col;
         },
 
-        normalizeAngle: function (angle) {
+        normalizeAngle: function(angle) {
             while (angle > Math.PI * 2) {
                 angle -= 2 * Math.PI;
             }
@@ -8766,7 +8766,7 @@
             }
             return angle;
         },
-        radialLayout: function (node, radius, startAngle, endAngle) {
+        radialLayout: function(node, radius, startAngle, endAngle) {
             var deltaTheta = endAngle - startAngle;
             var deltaThetaHalf = deltaTheta / 2.0;
             var parentSector = node.sectorAngle;
@@ -8788,7 +8788,7 @@
                 fraction += childAngleFraction;
             }
         },
-        setPolarLocation: function (node, radius, angle) {
+        setPolarLocation: function(node, radius, angle) {
             node.x = this.origin.x + (radius * Math.cos(angle));
             node.y = this.origin.y + (radius * Math.sin(angle));
             node.BoundingRectangle = new Rect(node.x, node.y, node.width, node.height);
@@ -8800,9 +8800,9 @@
          * @param direction
          * @param includeStart
          */
-        setChildrenDirection: function (node, direction, includeStart) {
+        setChildrenDirection: function(node, direction, includeStart) {
             var rootDirection = node.treeDirection;
-            this.graph.depthFirstTraversal(node, function (n) {
+            this.graph.depthFirstTraversal(node, function(n) {
                 n.treeDirection = direction;
             });
             if (!includeStart) {
@@ -8817,7 +8817,7 @@
          * @param includeStart
          * @param startFromLevel
          */
-        setChildrenLayout: function (node, layout, includeStart, startFromLevel) {
+        setChildrenLayout: function(node, layout, includeStart, startFromLevel) {
             if (Utils.isUndefined(startFromLevel)) {
                 startFromLevel = 0;
             }
@@ -8828,7 +8828,7 @@
 
                 // assign the layout on the condition that the level is at least the 'startFromLevel'
                 this.graph.depthFirstTraversal(
-                    node, function (s) {
+                    node, function(s) {
                         if (s.level >= startFromLevel + 1) {
                             s.childrenLayout = layout;
                         }
@@ -8836,7 +8836,7 @@
                 );
             }
             else {
-                this.graph.depthFirstTraversal(node, function (s) {
+                this.graph.depthFirstTraversal(node, function(s) {
                     s.childrenLayout = layout;
                 });
 
@@ -8853,7 +8853,7 @@
          * @param givenSize
          * @returns {Size}
          */
-        measure: function (node, givenSize) {
+        measure: function(node, givenSize) {
             var w = 0, h = 0, s;
             var result = new Size(0, 0);
             if (!node) {
@@ -9031,7 +9031,7 @@
             node.Size = result;
             return result;
         },
-        arrange: function (n, p) {
+        arrange: function(n, p) {
             var i, pp, child, node, childrenwidth, b = n.associatedShape.bounds();
             var shapeWidth = b.width;
             var shapeHeight = b.height;
@@ -9081,7 +9081,7 @@
                                 break;
 
                             default:
-                                throw   "Unsupported TreeDirection";
+                                throw "Unsupported TreeDirection";
                         }
 
                         break;
@@ -9125,7 +9125,7 @@
                                 break;
 
                             default:
-                                throw   "Unsupported TreeDirection";
+                                throw "Unsupported TreeDirection";
                         }
 
                         break;
@@ -9178,7 +9178,7 @@
                                 }
                                 break;
 
-                            case    "Default":
+                            case "Default":
                                 selfLocation = new Point(p.x + ((n.Size.width - shapeWidth) / 2), p.y);
                                 n.x = selfLocation.x;
                                 n.y = selfLocation.y;
@@ -9208,7 +9208,7 @@
                                 break;
 
                             default:
-                                throw   "Unsupported TreeDirection";
+                                throw "Unsupported TreeDirection";
                         }
                         break;
 
@@ -9216,11 +9216,11 @@
                         break;
 
                     default:
-                        throw   "Unsupported TreeDirection";
+                        throw "Unsupported TreeDirection";
                 }
             }
         },
-        layoutSwitch: function () {
+        layoutSwitch: function() {
             if (!this.center) {
                 return;
             }
@@ -9251,10 +9251,10 @@
                     else {
                         // odd number will give one more at the right
                         leftcount = children.length / 2;
-                        male = grep(this.center.children, function (n) {
+                        male = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) < leftcount;
                         });
-                        female = grep(this.center.children, function (n) {
+                        female = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) >= leftcount;
                         });
 
@@ -9272,10 +9272,10 @@
                     else {
                         // odd number will give one more at the right
                         leftcount = children.length / 2;
-                        male = grep(this.center.children, function (n) {
+                        male = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) < leftcount;
                         });
-                        female = grep(this.center.children, function (n) {
+                        female = grep(this.center.children, function(n) {
                             return Utils.indexOf(children, n) >= leftcount;
                         });
                         this.layoutUp(male);
@@ -9304,7 +9304,7 @@
                 case "tipover":
                 case "tipovertree":
                     if (this.options.tipOverTreeStartLevel < 0) {
-                        throw  "The tip-over level should be a positive integer.";
+                        throw "The tip-over level should be a positive integer.";
                     }
                     this.tipOverTree(this.center.children, this.options.tipOverTreeStartLevel);
                     break;
@@ -9321,7 +9321,7 @@
      * @type {*}
      */
     var TreeLayout = LayoutBase.extend({
-        init: function (diagram) {
+        init: function(diagram) {
             var that = this;
             LayoutBase.fn.init.call(that);
             if (Utils.isUndefined(diagram)) {
@@ -9333,7 +9333,7 @@
         /**
          * Arranges the diagram in a tree-layout with the specified options and tree subtype.
          */
-        layout: function (options) {
+        layout: function(options) {
 
             this.transferOptions(options);
 
@@ -9353,7 +9353,7 @@
             return new diagram.LayoutState(this.diagram, finalNodeSet);
         },
 
-        layoutComponents: function () {
+        layoutComponents: function() {
             if (this.graph.isEmpty()) {
                 return;
             }
@@ -9391,7 +9391,7 @@
          * @param graph
          * @returns {*} A literal object consisting of the found root and the spanning tree.
          */
-        getTree: function (graph) {
+        getTree: function(graph) {
             var root = null;
             if (this.options.roots && this.options.roots.length > 0) {
                 for (var i = 0, len = graph.nodes.length; i < len; i++) {
@@ -9416,7 +9416,7 @@
             return this.getTreeForRoot(graph, root);
         },
 
-        getTreeForRoot: function (graph, root) {
+        getTreeForRoot: function(graph, root) {
 
             var tree = graph.getSpanningTree(root);
             if (Utils.isUndefined(tree) || tree.isEmpty()) {
@@ -9435,7 +9435,7 @@
      * @type {*}
      */
     var LayeredLayout = LayoutBase.extend({
-        init: function (diagram) {
+        init: function(diagram) {
             var that = this;
             LayoutBase.fn.init.call(that);
             if (Utils.isUndefined(diagram)) {
@@ -9444,7 +9444,7 @@
             this.diagram = diagram;
         },
 
-        layout: function (options) {
+        layout: function(options) {
 
             this.transferOptions(options);
 
@@ -9471,7 +9471,7 @@
          * Initializes the runtime data properties of the layout.
          * @private
          */
-        _initRuntimeProperties: function () {
+        _initRuntimeProperties: function() {
             for (var k = 0; k < this.graph.nodes.length; k++) {
                 var node = this.graph.nodes[k];
                 node.layer = -1;
@@ -9489,7 +9489,7 @@
                 node.gridPosition = 0;
             }
         },
-        _prepare: function (graph) {
+        _prepare: function(graph) {
             var current = [], i, l, link;
 
             // defines a mapping of a node to the layer index
@@ -9497,7 +9497,7 @@
             var layerCount = 0;
             var targetLayer, next, target;
 
-            Utils.forEach(graph.nodes, function (node) {
+            Utils.forEach(graph.nodes, function(node) {
                 if (node.incoming.length === 0) {
                     layerMap.set(node, 0);
                     current.push(node);
@@ -9528,7 +9528,7 @@
 
             var sortedNodes = layerMap.keys();
 
-            sortedNodes.sort(function (o1, o2) {
+            sortedNodes.sort(function(o1, o2) {
                 var o1layer = layerMap.get(o1);
                 var o2layer = layerMap.get(o2);
                 return Utils.sign(o2layer - o1layer);
@@ -9560,7 +9560,7 @@
                 this.layers.push(layer);
             }
 
-            layerMap.forEach(function (node, layer) {
+            layerMap.forEach(function(node, layer) {
                 node.layer = layer;
                 this.layers[layer].push(node);
             }, this);
@@ -9576,7 +9576,7 @@
         /**
          * Performs the layout of a single component.
          */
-        layoutGraph: function (graph, options) {
+        layoutGraph: function(graph, options) {
             if (Utils.isUndefined(graph)) {
                 throw "No graph given or graph analysis of the diagram failed.";
             }
@@ -9609,20 +9609,20 @@
             this._dedummify();
 
             // re-reverse the links which were switched earlier
-            Utils.forEach(reversedEdges, function (e) {
+            Utils.forEach(reversedEdges, function(e) {
                 if (e.points) {
                     e.points.reverse();
                 }
             });
         },
 
-        setMinDist: function (m, n, minDist) {
+        setMinDist: function(m, n, minDist) {
             var l = m.layer;
             var i = m.layerIndex;
             this.minDistances[l][i] = minDist;
         },
 
-        getMinDist: function (m, n) {
+        getMinDist: function(m, n) {
             var dist = 0,
                 i1 = m.layerIndex,
                 i2 = n.layerIndex,
@@ -9636,7 +9636,7 @@
             return dist;
         },
 
-        placeLeftToRight: function (leftClasses) {
+        placeLeftToRight: function(leftClasses) {
             var leftPos = new Dictionary(), n, node;
             for (var c = 0; c < this.layers.length; ++c) {
                 var classNodes = leftClasses[c];
@@ -9694,7 +9694,7 @@
             return leftPos;
         },
 
-        placeRightToLeft: function (rightClasses) {
+        placeRightToLeft: function(rightClasses) {
             var rightPos = new Dictionary(), n, node;
             for (var c = 0; c < this.layers.length; ++c) {
                 var classNodes = rightClasses[c];
@@ -9752,21 +9752,21 @@
             return rightPos;
         },
 
-        _getLeftWing: function () {
+        _getLeftWing: function() {
             var leftWing = { value: null };
             var result = this.computeClasses(leftWing, 1);
             this.nodeLeftClass = leftWing.value;
             return result;
         },
 
-        _getRightWing: function () {
+        _getRightWing: function() {
             var rightWing = { value: null };
             var result = this.computeClasses(rightWing, -1);
             this.nodeRightClass = rightWing.value;
             return result;
         },
 
-        computeClasses: function (wingPair, d) {
+        computeClasses: function(wingPair, d) {
             var currentWing = 0,
                 wing = wingPair.value = new Dictionary();
 
@@ -9774,7 +9774,7 @@
                 currentWing = l;
 
                 var layer = this.layers[l];
-                for (var n = d === 1 ? 0 : layer.length - 1; 0 <= n && n < layer.length; n += d) {
+                for (var n = d === 1 ? 0 : layer.length - 1; n >= 0 && n < layer.length; n += d) {
                     var node = layer[n];
                     if (!wing.containsKey(node)) {
                         wing.set(node, currentWing);
@@ -9796,7 +9796,7 @@
             for (var i = 0; i < this.layers.length; i++) {
                 wings.push(null);
             }
-            wing.forEach(function (node, classIndex) {
+            wing.forEach(function(node, classIndex) {
                 if (wings[classIndex] === null) {
                     wings[classIndex] = [];
                 }
@@ -9805,18 +9805,18 @@
 
             return wings;
         },
-        _isVerticalLayout: function () {
+        _isVerticalLayout: function() {
             return this.options.subtype.toLowerCase() === "up" || this.options.subtype.toLowerCase() === "down" || this.options.subtype.toLowerCase() === "vertical";
         },
 
-        _isHorizontalLayout: function () {
+        _isHorizontalLayout: function() {
             return this.options.subtype.toLowerCase() === "right" || this.options.subtype.toLowerCase() === "left" || this.options.subtype.toLowerCase() === "horizontal";
         },
-        _isIncreasingLayout: function () {
+        _isIncreasingLayout: function() {
             // meaning that the visiting of the layers goes in the natural order of increasing layer index
             return this.options.subtype.toLowerCase() === "right" || this.options.subtype.toLowerCase() === "down";
         },
-        _moveThingsAround: function () {
+        _moveThingsAround: function() {
             var i, l, node, layer, n, w;
             // sort the layers by their grid position
             for (l = 0; l < this.layers.length; ++l) {
@@ -9845,11 +9845,11 @@
 
             this.downNodes = new Dictionary();
             this.upNodes = new Dictionary();
-            Utils.forEach(this.graph.nodes, function (node) {
+            Utils.forEach(this.graph.nodes, function(node) {
                 this.downNodes.set(node, []);
                 this.upNodes.set(node, []);
             }, this);
-            Utils.forEach(this.graph.links, function (link) {
+            Utils.forEach(this.graph.links, function(link) {
                 var origin = link.source;
                 var dest = link.target;
                 var down = null, up = null;
@@ -9864,10 +9864,10 @@
                 this.downNodes.get(up).push(down);
                 this.upNodes.get(down).push(up);
             }, this);
-            this.downNodes.forEachValue(function (list) {
+            this.downNodes.forEachValue(function(list) {
                 list.sort(this._gridPositionComparer);
             }, this);
-            this.upNodes.forEachValue(function (list) {
+            this.upNodes.forEachValue(function(list) {
                 list.sort(this._gridPositionComparer);
             }, this);
 
@@ -9918,7 +9918,7 @@
             var leftPos = this.placeLeftToRight(leftClasses);
             var rightPos = this.placeRightToLeft(rightClasses);
             var x = new Dictionary();
-            Utils.forEach(this.graph.nodes, function (node) {
+            Utils.forEach(this.graph.nodes, function(node) {
                 x.set(node, (leftPos.get(node) + rightPos.get(node)) / 2);
             });
 
@@ -9954,9 +9954,9 @@
                 }
             }
             var directions = [1, -1];
-            Utils.forEach(directions, function (d) {
+            Utils.forEach(directions, function(d) {
                 var start = d === 1 ? 0 : this.layers.length - 1;
-                for (var l = start; 0 <= l && l < this.layers.length; l += d) {
+                for (var l = start; l >= 0 && l < this.layers.length; l += d) {
                     var layer = this.layers[l];
                     var virtualStartIndex = this._firstVirtualNode(layer);
                     var virtualStart = null;
@@ -10018,7 +10018,7 @@
 
 
             var fromLayerIndex = this._isIncreasingLayout() ? 0 : this.layers.length - 1;
-            var reachedFinalLayerIndex = function (k, ctx) {
+            var reachedFinalLayerIndex = function(k, ctx) {
                 if (ctx._isIncreasingLayout()) {
                     return k < ctx.layers.length;
                 }
@@ -10065,7 +10065,7 @@
             }
         },
 
-        adjustDirections: function (l, d, order, placed) {
+        adjustDirections: function(l, d, order, placed) {
             if (l + d < 0 || l + d >= this.layers.length) {
                 return;
             }
@@ -10105,7 +10105,7 @@
             }
         },
 
-        getNeighborOnLayer: function (node, l) {
+        getNeighborOnLayer: function(node, l) {
             var neighbor = this.upNodes.get(node)[0];
             if (neighbor.layer === l) {
                 return neighbor;
@@ -10117,7 +10117,7 @@
             return null;
         },
 
-        _sequencer: function (x, virtualStart, virtualEnd, dir, sequence) {
+        _sequencer: function(x, virtualStart, virtualEnd, dir, sequence) {
             if (sequence.length === 1) {
                 this._sequenceSingle(x, virtualStart, virtualEnd, dir, sequence[0]);
             }
@@ -10130,7 +10130,7 @@
             }
         },
 
-        _sequenceSingle: function (x, virtualStart, virtualEnd, dir, node) {
+        _sequenceSingle: function(x, virtualStart, virtualEnd, dir, node) {
             var neighbors = dir === -1 ? this.downNodes.get(node) : this.upNodes.get(node);
 
             var n = neighbors.length;
@@ -10151,7 +10151,7 @@
             }
         },
 
-        combineSequences: function (x, virtualStart, virtualEnd, dir, sequence) {
+        combineSequences: function(x, virtualStart, virtualEnd, dir, sequence) {
             var r = sequence.length, t = this.intDiv(r, 2);
 
             // collect left changes
@@ -10234,9 +10234,9 @@
             }
         },
 
-        placeLeft: function (node, leftPos, leftClass) {
+        placeLeft: function(node, leftPos, leftClass) {
             var pos = Number.NEGATIVE_INFINITY;
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 var leftSibling = this.leftSibling(v);
                 if (leftSibling && this.nodeLeftClass.get(leftSibling) === this.nodeLeftClass.get(v)) {
                     if (!leftPos.containsKey(leftSibling)) {
@@ -10248,14 +10248,14 @@
             if (pos === Number.NEGATIVE_INFINITY) {
                 pos = 0;
             }
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 leftPos.set(v, pos);
             });
         },
 
-        placeRight: function (node, rightPos, rightClass) {
+        placeRight: function(node, rightPos, rightClass) {
             var pos = Number.POSITIVE_INFINITY;
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 var rightSibling = this.rightSibling(v);
                 if (rightSibling && this.nodeRightClass.get(rightSibling) === this.nodeRightClass.get(v)) {
                     if (!rightPos.containsKey(rightSibling)) {
@@ -10267,29 +10267,29 @@
             if (pos === Number.POSITIVE_INFINITY) {
                 pos = 0;
             }
-            Utils.forEach(this._getComposite(node), function (v) {
+            Utils.forEach(this._getComposite(node), function(v) {
                 rightPos.set(v, pos);
             });
         },
 
-        leftSibling: function (node) {
+        leftSibling: function(node) {
             var layer = this.layers[node.layer],
                 layerIndex = node.layerIndex;
             return layerIndex === 0 ? null : layer[layerIndex - 1];
         },
 
-        rightSibling: function (node) {
+        rightSibling: function(node) {
             var layer = this.layers[node.layer];
             var layerIndex = node.layerIndex;
             return layerIndex === layer.length - 1 ? null : layer[layerIndex + 1];
 
         },
 
-        _getComposite: function (node) {
+        _getComposite: function(node) {
             return node.isVirtual ? this._nodesInLink(node) : [node];
         },
 
-        arrangeNodes: function () {
+        arrangeNodes: function() {
             var i, l, ni, layer, node;
             // Initialize node's base priority
             for (l = 0; l < this.layers.length; l++) {
@@ -10345,7 +10345,7 @@
         /// <param name="layerIndex">The layer to organize.</param>
         /// <param name="movingDownwards">If set to <c>true</c> we move down in the layer stack.</param>
         /// <seealso cref="OptimizeCrossings()"/>
-        layoutLayer: function (down, layer) {
+        layoutLayer: function(down, layer) {
             var iconsidered;
             var considered;
 
@@ -10361,7 +10361,7 @@
             for (var n = 0; n < considered.length; n++) {
                 sorted.push(considered[n]);
             }
-            sorted.sort(function (n1, n2) {
+            sorted.sort(function(n1, n2) {
                 var n1Priority = (n1.upstreamPriority + n1.downstreamPriority) / 2;
                 var n2Priority = (n2.upstreamPriority + n2.downstreamPriority) / 2;
 
@@ -10375,7 +10375,7 @@
             });
 
             // each node strives for its barycenter; high priority nodes start first
-            Utils.forEach(sorted, function (node) {
+            Utils.forEach(sorted, function(node) {
                 var nodeGridPos = node.gridPosition;
                 var nodeBaryCenter = this.calcBaryCenter(node);
                 var nodePriority = (node.upstreamPriority + node.downstreamPriority) / 2;
@@ -10430,7 +10430,7 @@
         /// <param name="node">The node.</param>
         /// <param name="layer">The layer.</param>
         /// <returns>Returns <c>true</c> if the shift was possible, otherwise <c>false</c>.</returns>
-        moveRight: function (node, layer, priority) {
+        moveRight: function(node, layer, priority) {
             var index = Utils.indexOf(layer, node);
             if (index === layer.length - 1) {
                 // this is the last node in the layer, so we can move to the right without troubles
@@ -10468,7 +10468,7 @@
         /// <param name="node">The node.</param>
         /// <param name="layer">The layer.</param>
         /// <returns>Returns <c>true</c> if the shift was possible, otherwise <c>false</c>.</returns>
-        moveLeft: function (node, layer, priority) {
+        moveLeft: function(node, layer, priority) {
             var index = Utils.indexOf(layer, node);
             if (index === 0) {
                 // this is the last node in the layer, so we can move to the left without troubles
@@ -10500,7 +10500,7 @@
             return false;
         },
 
-        mapVirtualNode: function (node, link) {
+        mapVirtualNode: function(node, link) {
             this.nodeToLinkMap.set(node, link);
             if (!this.linkToNodeMap.containsKey(link)) {
                 this.linkToNodeMap.set(link, []);
@@ -10508,14 +10508,14 @@
             this.linkToNodeMap.get(link).push(node);
         },
 
-        _nodesInLink: function (node) {
+        _nodesInLink: function(node) {
             return this.linkToNodeMap.get(this.nodeToLinkMap.get(node));
         },
 
         /// <summary>
         /// Inserts dummy nodes to break long links.
         /// </summary>
-        _dummify: function () {
+        _dummify: function() {
             this.linkToNodeMap = new Dictionary();
             this.nodeToLinkMap = new Dictionary();
 
@@ -10670,7 +10670,7 @@
         /// Removes the dummy nodes inserted earlier to break long links.
         /// </summary>
         /// <remarks>The virtual nodes are effectively turned into intermediate connection points.</remarks>
-        _dedummify: function () {
+        _dedummify: function() {
             var dedum = true;
             while (dedum) {
                 dedum = false;
@@ -10728,7 +10728,7 @@
         /// <summary>
         /// Optimizes/reduces the crossings between the layers by turning the crossing problem into a (combinatorial) number ordering problem.
         /// </summary>
-        _optimizeCrossings: function () {
+        _optimizeCrossings: function() {
             var moves = -1, i;
             var maxIterations = 3;
             var iter = 0;
@@ -10750,7 +10750,7 @@
             }
         },
 
-        calcUpData: function (layer) {
+        calcUpData: function(layer) {
             if (layer === 0) {
                 return;
             }
@@ -10796,7 +10796,7 @@
             }
         },
 
-        calcDownData: function (layer) {
+        calcDownData: function(layer) {
             if (layer === this.layers.length - 1) {
                 return;
             }
@@ -10850,7 +10850,7 @@
         /// <param name="layerIndex">The layer index.</param>
         /// <param name="movingDownwards">If set to <c>true</c> we move down in the layer stack.</param>
         /// <returns>The number of nodes having moved, i.e. the number of crossings reduced.</returns>
-        optimizeLayerCrossings: function (down, layer) {
+        optimizeLayerCrossings: function(down, layer) {
             var iconsidered;
             var considered;
 
@@ -10922,7 +10922,7 @@
         /// </summary>
         /// <param name="layerIndex">Index of the layer.</param>
         /// <param name="n">The Nth node in the layer.</param>
-        _swapPairs: function () {
+        _swapPairs: function() {
             var maxIterations = this.options.layeredIterations;
             var iter = 0;
 
@@ -11050,7 +11050,7 @@
         /// <param name="layerIndex1">The layer index.</param>
         /// <param name="layerIndex2">Another layer index.</param>
         /// <returns></returns>
-        countLinksCrossingBetweenTwoLayers: function (ulayer, dlayer) {
+        countLinksCrossingBetweenTwoLayers: function(ulayer, dlayer) {
             var links = this.layers[ulayer].linksTo[dlayer];
             var link1, link2, n11, n12, n21, n22, l1, l2;
             var crossings = 0;
@@ -11094,7 +11094,7 @@
             return crossings;
         },
 
-        calcBaryCenter: function (node) {
+        calcBaryCenter: function(node) {
             var upstreamLinkCount = node.upstreamLinkCount;
             var downstreamLinkCount = node.downstreamLinkCount;
             var uBaryCenter = node.uBaryCenter;
@@ -11113,7 +11113,7 @@
             return 0;
         },
 
-        _gridPositionComparer: function (x, y) {
+        _gridPositionComparer: function(x, y) {
             if (x.gridPosition < y.gridPosition) {
                 return -1;
             }
@@ -11123,15 +11123,15 @@
             return 0;
         },
 
-        _positionAscendingComparer: function (x, y) {
+        _positionAscendingComparer: function(x, y) {
             return x.k < y.k ? -1 : x.k > y.k ? 1 : 0;
         },
 
-        _positionDescendingComparer: function (x, y) {
+        _positionDescendingComparer: function(x, y) {
             return x.k < y.k ? 1 : x.k > y.k ? -1 : 0;
         },
 
-        _firstVirtualNode: function (layer) {
+        _firstVirtualNode: function(layer) {
             for (var c = 0; c < layer.length; c++) {
                 if (layer[c].isVirtual) {
                     return c;
@@ -11140,7 +11140,7 @@
             return -1;
         },
 
-        compareByIndex: function (o1, o2) {
+        compareByIndex: function(o1, o2) {
             var i1 = o1.index;
             var i2 = o2.index;
 
@@ -11155,11 +11155,11 @@
             return 0;
         },
 
-        intDiv: function (numerator, denominator) {
+        intDiv: function(numerator, denominator) {
             return (numerator - numerator % denominator) / denominator;
         },
 
-        nextVirtualNode: function (layer, node) {
+        nextVirtualNode: function(layer, node) {
             var nodeIndex = node.layerIndex;
             for (var i = nodeIndex + 1; i < layer.length; ++i) {
                 if (layer[i].isVirtual) {
@@ -11176,7 +11176,7 @@
      * @type {*}
      */
     var LayoutState = kendo.Class.extend({
-        init: function (diagram, graphOrNodes) {
+        init: function(diagram, graphOrNodes) {
             if (Utils.isUndefined(diagram)) {
                 throw "No diagram given";
             }
@@ -11194,7 +11194,7 @@
          * - the links points and node bounds in the literal object
          * @param diagramOrGraphOrNodes
          */
-        capture: function (diagramOrGraphOrNodes) {
+        capture: function(diagramOrGraphOrNodes) {
             var node,
                 nodes,
                 shape,
@@ -11261,7 +11261,7 @@
     });
 
     deepExtend(diagram, {
-        init: function (element) {
+        init: function(element) {
             kendo.init(element, diagram.ui);
         },
         SpringLayout: SpringLayout,
@@ -11273,9 +11273,9 @@
     });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function (f, define) {
+(function(f, define) {
     define('dataviz/diagram/dom',["kendo.data", "kendo.draganddrop", "kendo.toolbar",
            "kendo.editable",
            "kendo.window",
@@ -11285,9 +11285,9 @@
            "./svg",
            "./services",
            "./layout" ], f);
-})(function () {
+})(function() {
 
-    (function ($, undefined) {
+    (function($, undefined) {
         // Imports ================================================================
         var dataviz = kendo.dataviz,
             draw = kendo.drawing,
@@ -11398,7 +11398,7 @@
             name: RIGHT
         }, {
             name: AUTO,
-            position: function (shape) {
+            position: function(shape) {
                 return shape.getPosition("center");
             }
         }];
@@ -11496,7 +11496,7 @@
         }
 
         var DiagramElement = Observable.extend({
-            init: function (options) {
+            init: function(options) {
                 var that = this;
                 that.dataItem = (options || {}).dataItem;
                 Observable.fn.init.call(that);
@@ -11521,14 +11521,14 @@
                 enable: true
             },
 
-            _getCursor: function (point) {
+            _getCursor: function(point) {
                 if (this.adorner) {
                     return this.adorner._getCursor(point);
                 }
                 return this.options.cursor;
             },
 
-            visible: function (value) {
+            visible: function(value) {
                 if (isUndefined(value)) {
                     return this.visual.visible();
                 } else {
@@ -11536,33 +11536,33 @@
                 }
             },
 
-            bounds: function () {
+            bounds: function() {
             },
 
-            refresh: function () {
+            refresh: function() {
                 this.visual.redraw();
             },
 
-            position: function (point) {
+            position: function(point) {
                 this.options.x = point.x;
                 this.options.y = point.y;
                 this.visual.position(point);
             },
 
-            toString: function () {
+            toString: function() {
                 return this.options.id;
             },
 
-            serialize: function () {
+            serialize: function() {
                 // the options json object describes the shape perfectly. So this object can serve as shape serialization.
-                var json = deepExtend({}, {options: this.options});
+                var json = deepExtend({}, { options: this.options });
                 if (this.dataItem) {
                     json.dataItem = this.dataItem.toString();
                 }
                 return json;
             },
 
-            _content: function (content) {
+            _content: function(content) {
                 if (content !== undefined) {
                     var options = this.options;
 
@@ -11597,12 +11597,12 @@
                 this._contentVisual.redraw(options);
             },
 
-            _hitTest: function (point) {
+            _hitTest: function(point) {
                 var bounds = this.bounds();
                 return this.visible() && bounds.contains(point) && this.options.enable;
             },
 
-            _template: function () {
+            _template: function() {
                 var that = this;
                 if (that.options.content.template) {
                     var data = that.dataItem || {},
@@ -11614,7 +11614,7 @@
                 }
             },
 
-            _canSelect: function () {
+            _canSelect: function() {
                 return this.options.selectable !== false;
             },
 
@@ -11626,7 +11626,7 @@
         });
 
         var Connector = Class.extend({
-            init: function (shape, options) {
+            init: function(shape, options) {
                 this.options = deepExtend({}, this.options, options);
                 this.connections = [];
                 this.shape = shape;
@@ -11639,14 +11639,14 @@
                 },
                 hover: {}
             },
-            position: function () {
+            position: function() {
                 if (this.options.position) {
                     return this.options.position(this.shape);
                 } else {
                     return this.shape.getPosition(this.options.name);
                 }
             },
-            toJSON: function () {
+            toJSON: function() {
                 return {
                     shapeId: this.shape.toString(),
                     connector: this.options.name
@@ -11654,7 +11654,7 @@
             }
         });
 
-        Connector.parse = function (diagram, str) {
+        Connector.parse = function(diagram, str) {
             var tempStr = str.split(":"),
                 id = tempStr[0],
                 name = tempStr[1] || AUTO;
@@ -11668,7 +11668,7 @@
         };
 
         var Shape = DiagramElement.extend({
-            init: function (options, diagram) {
+            init: function(options, diagram) {
                 var that = this;
                 DiagramElement.fn.init.call(that, options);
                 this.diagram = diagram;
@@ -11818,7 +11818,7 @@
                 }
             },
 
-            bounds: function (value) {
+            bounds: function(value) {
                 var bounds;
 
                 if (value) {
@@ -11871,7 +11871,7 @@
                 });
             },
 
-            position: function (point) {
+            position: function(point) {
                 if (point) {
                     this.bounds(new Rect(point.x, point.y, this._bounds.width, this._bounds.height));
                 } else {
@@ -11882,7 +11882,7 @@
              * Returns a clone of this shape.
              * @returns {Shape}
              */
-            clone: function () {
+            clone: function() {
                 var json = this.serialize();
 
                 json.options.id = diagram.randomId();
@@ -11894,7 +11894,7 @@
                 return new Shape(json.options);
             },
 
-            select: function (value) {
+            select: function(value) {
                 var diagram = this.diagram, selected, deselected;
                 if (isUndefined(value)) {
                     value = true;
@@ -11922,7 +11922,7 @@
                 }
             },
 
-            rotate: function (angle, center, undoable) { // we assume the center is always the center of the shape.
+            rotate: function(angle, center, undoable) { // we assume the center is always the center of the shape.
                 var rotate = this.visual.rotate();
                 if (angle !== undefined) {
                     if (undoable !== false && this.diagram && this.diagram.undoRedoService && angle !== rotate.angle) {
@@ -11959,7 +11959,7 @@
                 return rotate;
             },
 
-            connections: function (type) { // in, out, undefined = both
+            connections: function(type) { // in, out, undefined = both
                 var result = [], i, j, con, cons, ctr;
 
                 for (i = 0; i < this.connectors.length; i++) {
@@ -11986,8 +11986,8 @@
                 return result;
             },
 
-            refreshConnections: function () {
-                $.each(this.connections(), function () {
+            refreshConnections: function() {
+                $.each(this.connections(), function() {
                     this.refresh();
                 });
             },
@@ -11997,7 +11997,7 @@
              * @param nameOrPoint The name of a Connector or a Point.
              * @returns {Connector}
              */
-            getConnector: function (nameOrPoint) {
+            getConnector: function(nameOrPoint) {
                 var i, ctr;
                 if (isString(nameOrPoint)) {
                     nameOrPoint = nameOrPoint.toLocaleLowerCase();
@@ -12014,7 +12014,7 @@
                 }
             },
 
-            getPosition: function (side) {
+            getPosition: function(side) {
                 var b = this.bounds(),
                     fnName = side.charAt(0).toLowerCase() + side.slice(1);
 
@@ -12025,7 +12025,7 @@
                 return b.center();
             },
 
-            redraw: function (options) {
+            redraw: function(options) {
                 if (options) {
                     var shapeOptions = this.options;
                     var boundsChange;
@@ -12044,7 +12044,7 @@
 
                     shapeOptions = deepExtend(shapeOptions, options);
 
-                    if  (options.rotation || boundsChange) {
+                    if (options.rotation || boundsChange) {
                         this._rotate();
                     }
 
@@ -12087,13 +12087,13 @@
                 };
             },
 
-            _triggerBoundsChange: function () {
+            _triggerBoundsChange: function() {
                 if (this.diagram) {
-                    this.diagram.trigger(ITEMBOUNDSCHANGE, {item: this, bounds: this._bounds.clone()}); // the trigger modifies the arguments internally.
+                    this.diagram.trigger(ITEMBOUNDSCHANGE, { item: this, bounds: this._bounds.clone() }); // the trigger modifies the arguments internally.
                 }
             },
 
-            _transformPoint: function (point) {
+            _transformPoint: function(point) {
                 var rotate = this.rotate(),
                     bounds = this.bounds(),
                     tl = bounds.topLeft();
@@ -12105,7 +12105,7 @@
                 return point;
             },
 
-            _transformedBounds: function () {
+            _transformedBounds: function() {
                 var bounds = this.bounds(),
                     tl = bounds.topLeft(),
                     br = bounds.bottomRight();
@@ -12113,7 +12113,7 @@
                 return Rect.fromPoints(this.diagram.modelToView(tl), this.diagram.modelToView(br));
             },
 
-            _rotatedBounds: function () {
+            _rotatedBounds: function() {
                 var bounds = this.bounds().rotatedBounds(this.rotate().angle),
                     tl = bounds.topLeft(),
                     br = bounds.bottomRight();
@@ -12121,7 +12121,7 @@
                 return Rect.fromPoints(tl, br);
             },
 
-            _rotate: function () {
+            _rotate: function() {
                 var rotation = this.options.rotation;
 
                 if (rotation && rotation.angle) {
@@ -12131,7 +12131,7 @@
                 this._rotationOffset = new Point();
             },
 
-            _hover: function (value) {
+            _hover: function(value) {
                 var options = this.options,
                     hover = options.hover,
                     stroke = options.stroke,
@@ -12155,7 +12155,7 @@
                 }
             },
 
-            _hitTest: function (value) {
+            _hitTest: function(value) {
                 if (this.visible()) {
                     var bounds = this.bounds(), rotatedPoint,
                         angle = this.rotate().angle;
@@ -12192,7 +12192,7 @@
                 } else if (visualOptions.data) {
                     shapeVisual = new Path(visualOptions);
                     translateToOrigin(shapeVisual);
-                } else if (type == "rectangle"){
+                } else if (type == "rectangle") {
                     shapeVisual = new Rectangle(visualOptions);
                 } else if (type == "circle") {
                     shapeVisual = new Circle(visualOptions);
@@ -12213,7 +12213,7 @@
          * The visual link between two Shapes through the intermediate of Connectors.
          */
         var Connection = DiagramElement.extend({
-            init: function (from, to, options) {
+            init: function(from, to, options) {
                 var that = this;
                 DiagramElement.fn.init.call(that, options);
                 this.updateOptionsFromModel();
@@ -12300,7 +12300,7 @@
                                 clearField("fromConnector", model);
                                 model.set("fromX", this.options.fromX);
                                 model.set("fromY", this.options.fromY);
-                            } else  {
+                            } else {
                                 model.set("from", this.options.from);
                                 if (defined(model.fromConnector)) {
                                     model.set("fromConnector", this.sourceConnector ? this.sourceConnector.options.name : null);
@@ -12343,7 +12343,7 @@
              * If the endpoint in Auto-connector the location of the resolved connector will be returned.
              * If the endpoint is floating the location of the endpoint is returned.
              */
-            sourcePoint: function () {
+            sourcePoint: function() {
                 return this._resolvedSourceConnector ? this._resolvedSourceConnector.position() : this._sourcePoint;
             },
 
@@ -12392,7 +12392,7 @@
                 }
             },
 
-            source: function (source, undoable) {
+            source: function(source, undoable) {
                 if (isDefined(source)) {
                     if (undoable && this.diagram) {
                         this.diagram.undoRedoService.addCompositeItem(new diagram.ConnectionEditUnit(this, source));
@@ -12405,7 +12405,7 @@
 
             _setFromOptions: function(from, fromPoint) {
                 this.options.from = from;
-                if (fromPoint)  {
+                if (fromPoint) {
                     this.options.fromX = fromPoint.x;
                     this.options.fromY = fromPoint.y;
                 } else {
@@ -12420,7 +12420,7 @@
              * @param value
              * @returns {*}
              */
-            sourceDefiner: function (value) {
+            sourceDefiner: function(value) {
                 if (value) {
                     if (value instanceof diagram.PathDefiner) {
                         value.left = null;
@@ -12440,7 +12440,7 @@
             /**
              * Gets  the Point where the target of the connection resides.
              */
-            targetPoint: function () {
+            targetPoint: function() {
                 return this._resolvedTargetConnector ? this._resolvedTargetConnector.position() : this._targetPoint;
             },
 
@@ -12488,7 +12488,7 @@
                 }
             },
 
-            target: function (target, undoable) {
+            target: function(target, undoable) {
                 if (isDefined(target)) {
                     if (undoable && this.diagram) {
                         this.diagram.undoRedoService.addCompositeItem(new diagram.ConnectionEditUnit(this, undefined, target));
@@ -12502,7 +12502,7 @@
 
             _setToOptions: function(to, toPoint) {
                 this.options.to = to;
-                if (toPoint)  {
+                if (toPoint) {
                     this.options.toX = toPoint.x;
                     this.options.toY = toPoint.y;
                 } else {
@@ -12517,7 +12517,7 @@
              * @param value
              * @returns {*}
              */
-            targetDefiner: function (value) {
+            targetDefiner: function(value) {
                 if (value) {
                     if (value instanceof diagram.PathDefiner) {
                         value.right = null;
@@ -12605,7 +12605,7 @@
                     var endIdx = math.floor(points.length / 2);
                     var startIdx = endIdx - 1;
 
-                    while(startIdx > 0 && points[startIdx].equals(points[endIdx])) {
+                    while (startIdx > 0 && points[startIdx].equals(points[endIdx])) {
                         startIdx--;
                         endIdx++;
                     }
@@ -12628,17 +12628,17 @@
                     var point;
 
                     if (alignToPath) {
-                        var angle  = draw.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
+                        var angle = draw.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
                         point = new Point((endPoint.x - startPoint.x) / 2 + startPoint.x, (endPoint.y - startPoint.y) / 2 + startPoint.y);
 
                         if (math.abs(angle) === 90) {
                             point.x += offset;
-                            point.y-= height / 2;
+                            point.y -= height / 2;
                         } else if (angle % 180 === 0) {
                             point.x -= width / 2;
                             point.y -= height + offset;
                         } else if (angle < -90 || (0 < angle && angle < 90)) {
-                            point.y-= height;
+                            point.y -= height;
                         } else if (angle < 0 || angle > 90) {
                             point.x -= width;
                             point.y -= height;
@@ -12664,7 +12664,7 @@
              * Selects or unselects this connections.
              * @param value True to select, false to unselect.
              */
-            select: function (value) {
+            select: function(value) {
                 var diagram = this.diagram, selected, deselected;
                 if (this._canSelect()) {
                     if (this.isSelected !== value) {
@@ -12702,7 +12702,7 @@
              * @remark This is automatically set in the refresh().
              * @returns {Rect}
              */
-            bounds: function (value) {
+            bounds: function(value) {
                 if (value && !isString(value)) {
                     this._bounds = value;
                 } else {
@@ -12714,7 +12714,7 @@
              * @param value A ConnectionType value.
              * @returns {ConnectionType}
              */
-            type: function (value) {
+            type: function(value) {
                 var options = this.options;
                 if (value) {
                     if (value !== options.type) {
@@ -12742,7 +12742,7 @@
              * The 'sourceDefiner' and 'targetDefiner' return the definers of the endpoints.
              * @param value
              */
-            points: function (value) {
+            points: function(value) {
                 if (value) {
                     this.definers = [];
                     for (var i = 0; i < value.length; i++) {
@@ -12770,7 +12770,7 @@
              * Gets all the points of this connection. This is the combination of the sourcePoint, the points and the targetPoint.
              * @returns {Array}
              */
-            allPoints: function () {
+            allPoints: function() {
                 var pts = [this.sourcePoint()];
                 if (this.definers) {
                     for (var k = 0; k < this.definers.length; k++) {
@@ -12781,7 +12781,7 @@
                 return pts;
             },
 
-            refresh: function () {
+            refresh: function() {
                 this._resolveConnectors();
                 this._refreshPath();
                 this._alignContent();
@@ -12791,7 +12791,7 @@
                 }
             },
 
-            _resolveConnectors: function () {
+            _resolveConnectors: function() {
                 var connection = this,
                     sourcePoint, targetPoint,
                     sourceConnectors, targetConnectors,
@@ -12897,11 +12897,11 @@
                                         math.abs(start.x - end.x), math.abs(start.y - end.y));
                         if (rect.width > 0) {
                             rect.x++;
-                            rect.width-=2;
+                            rect.width -= 2;
                         }
                         if (rect.height > 0) {
                             rect.y++;
-                            rect.height-=2;
+                            rect.height -= 2;
                         }
 
                         if (!rect.isEmpty() && this.diagram._shapesQuadTree.hitTestRect(rect, exclude)) {
@@ -12915,16 +12915,16 @@
 
             _getRouteExclude: function(sourcePoint, targetPoint, sourceShape, targetShape) {
                 var exclude = [];
-                if (this._isPointInsideShape(sourcePoint, sourceShape)){
+                if (this._isPointInsideShape(sourcePoint, sourceShape)) {
                     exclude.push(sourceShape);
                 }
-                if (this._isPointInsideShape(targetPoint, targetShape)){
+                if (this._isPointInsideShape(targetPoint, targetShape)) {
                     exclude.push(targetShape);
                 }
                 return exclude;
             },
 
-            _isPointInsideShape: function (point, shape) {
+            _isPointInsideShape: function(point, shape) {
                 var bounds = shape.bounds(), rotatedPoint,
                     angle = shape.rotate().angle,
                     pointX, pointY,
@@ -12937,7 +12937,7 @@
                 return pointX > boundsX && pointX < (boundsX + bounds.width) && pointY > boundsY && pointY < (boundsY + bounds.height);
             },
 
-            redraw: function (options) {
+            redraw: function(options) {
                 if (options) {
                     this.options = deepExtend({}, this.options, options);
 
@@ -12964,7 +12964,7 @@
              * Returns a clone of this connection.
              * @returns {Connection}
              */
-            clone: function () {
+            clone: function() {
                 var json = this.serialize();
 
                 if (this.diagram && this.diagram._isEditable && defined(this.dataItem)) {
@@ -12977,7 +12977,7 @@
              * Returns a serialized connection in json format. Consist of the options and the dataItem.
              * @returns {Connection}
              */
-            serialize: function () {
+            serialize: function() {
                 var from = this.from.toJSON ? this.from.toJSON : this.from.toString(),
                     to = this.to.toJSON ? this.to.toJSON : this.to.toString();
 
@@ -13001,7 +13001,7 @@
              * @returns {Connection}
              * @private
              */
-            _hitTest: function (value) {
+            _hitTest: function(value) {
                 if (this.visible()) {
                     var p = new Point(value.x, value.y), from = this.sourcePoint(), to = this.targetPoint();
                     if (value.isEmpty && !value.isEmpty() && value.contains(from) && value.contains(to)) {
@@ -13013,7 +13013,7 @@
                 }
             },
 
-            _hover: function (value) {
+            _hover: function(value) {
                 var color = (this.options.stroke || {}).color;
 
                 if (value && isDefined(this.options.hover.stroke.color)) {
@@ -13027,7 +13027,7 @@
                 });
             },
 
-            _refreshPath: function () {
+            _refreshPath: function() {
                 if (!defined(this.path)) {
                     return;
                 }
@@ -13035,7 +13035,7 @@
                 this.bounds(this._router.getBounds());
             },
 
-            _drawPath: function () {
+            _drawPath: function() {
                 if (this._router) {
                     this._router.route(); // sets the intermediate points
                 }
@@ -13048,12 +13048,12 @@
                 });
             },
 
-            _clearSourceConnector: function () {
+            _clearSourceConnector: function() {
                 this.sourceConnector = undefined;
                 this._resolvedSourceConnector = undefined;
             },
 
-            _clearTargetConnector: function () {
+            _clearTargetConnector: function() {
                 this.targetConnector = undefined;
                 this._resolvedTargetConnector = undefined;
             },
@@ -13094,14 +13094,14 @@
                 }
 
                 return {
-                    from : from,
+                    from: from,
                     to: to
                 };
             }
         });
 
         var Diagram = Widget.extend({
-            init: function (element, userOptions) {
+            init: function(element, userOptions) {
                 var that = this;
 
                 kendo.destroy(element);
@@ -13447,7 +13447,7 @@
                 });
             },
 
-            _createHandlers: function () {
+            _createHandlers: function() {
                 var that = this;
                 var element = that.element;
 
@@ -13486,7 +13486,7 @@
                 this.bind(PAN, that._destroyToolBar.bind(that));
             },
 
-            _dragStart: function (e) {
+            _dragStart: function(e) {
                 this._pauseMouseHandlers = true;
                 var point = this._eventPositions(e, true);
 
@@ -13497,7 +13497,7 @@
                 }
             },
 
-            _drag: function (e) {
+            _drag: function(e) {
                 var p = this._eventPositions(e);
                 var event = e.event;
                 if (this.toolService.move(p, this._meta(event))) {
@@ -13505,7 +13505,7 @@
                 }
             },
 
-            _dragEnd: function (e) {
+            _dragEnd: function(e) {
                 this._pauseMouseHandlers = false;
                 var p = this._eventPositions(e);
                 var event = e.event;
@@ -13515,7 +13515,7 @@
                 }
             },
 
-            _mouseMove: function (e) {
+            _mouseMove: function(e) {
                 if (!this._pauseMouseHandlers) {
                     var p = this._eventPositions(e);
                     this.toolService._updateHoveredItem(p);
@@ -13523,11 +13523,11 @@
                 }
             },
 
-            _mouseDown: function () {
+            _mouseDown: function() {
                 this._pauseMouseHandlers = true;
             },
 
-            _mouseUp: function () {
+            _mouseUp: function() {
                 this._pauseMouseHandlers = false;
             },
 
@@ -13573,13 +13573,13 @@
                 }
             },
 
-            _keydown: function (e) {
+            _keydown: function(e) {
                 if (this.toolService.keyDown(e.keyCode, this._meta(e))) {
                     e.preventDefault();
                 }
             },
 
-            _wheel: function (e) {
+            _wheel: function(e) {
                 var delta = mwDelta(e),
                     p = this._eventPositions(e),
                     meta = deepExtend(this._meta(e), { delta: delta });
@@ -13589,11 +13589,11 @@
                 }
             },
 
-            _meta: function (e) {
+            _meta: function(e) {
                 return { ctrlKey: e.ctrlKey, metaKey: e.metaKey, altKey: e.altKey, shiftKey: e.shiftKey, type: e.type };
             },
 
-            _eventPositions: function (e, start) {
+            _eventPositions: function(e, start) {
                 var point;
                 if (e.touch) {
                     var field = start ? "startLocation" : "location";
@@ -13670,7 +13670,7 @@
             },
 
             _gestureEnd: function() {
-                if (this.options.pannable !== false)  {
+                if (this.options.pannable !== false) {
                     this.scroller.enable();
                 }
                 this.trigger(ZOOM_END, {
@@ -13710,7 +13710,7 @@
                 var themes = dataviz.ui.themes || {};
                 var themeOptions;
 
-                if(dataviz.SASS_THEMES.indexOf(themeName) != -1) {
+                if (dataviz.SASS_THEMES.indexOf(themeName) != -1) {
                     themeOptions = dataviz.autoTheme().diagram;
                 }
                 else {
@@ -13761,7 +13761,7 @@
                     connections = options.connections,
                     conn, source, target, i;
 
-                for(i = 0; i < connections.length; i++) {
+                for (i = 0; i < connections.length; i++) {
                     conn = connections[i];
                     source = diagram._findConnectionTarget(conn.from);
                     target = diagram._findConnectionTarget(conn.to);
@@ -13787,7 +13787,7 @@
                 return target;
             },
 
-            destroy: function () {
+            destroy: function() {
                 var that = this;
                 Widget.fn.destroy.call(that);
 
@@ -13809,7 +13809,7 @@
                 that._destroyToolBar();
             },
 
-            destroyScroller: function () {
+            destroyScroller: function() {
                 var scroller = this.scroller;
 
                 if (!scroller) {
@@ -13821,7 +13821,7 @@
                 this.scroller = null;
             },
 
-            save: function () {
+            save: function() {
                 var json = {
                     shapes: [],
                     connections: []
@@ -13883,7 +13883,7 @@
                 deepExtend(this.options, options);
             },
 
-            clear: function () {
+            clear: function() {
                 var that = this;
 
                 that.select(false);
@@ -13898,7 +13898,7 @@
              * @param options Connection options that will be passed to the newly created connection.
              * @returns The newly created connection.
              */
-            connect: function (source, target, options) {
+            connect: function(source, target, options) {
                 var connection;
                 if (this.connectionsDataSource && this._isEditable) {
                     var dataItem = this.connectionsDataSource.add({});
@@ -13922,7 +13922,7 @@
              * @param target Shape, Connector, Point.
              * @returns true if the two items are connected.
              */
-            connected: function (source, target) {
+            connected: function(source, target) {
                 for (var i = 0; i < this.connections.length; i++) {
                     var c = this.connections[i];
                     if (c.from == source && c.to == target) {
@@ -13938,7 +13938,7 @@
              * @param undoable Boolean.
              * @returns The newly created connection.
              */
-            addConnection: function (connection, undoable) {
+            addConnection: function(connection, undoable) {
                 if (undoable !== false) {
                     this.undoRedoService.add(
                         new diagram.AddConnectionUnit(connection, this), false);
@@ -13958,7 +13958,7 @@
                 return connection;
             },
 
-            _addConnection: function (connection, undoable) {
+            _addConnection: function(connection, undoable) {
                 var connectionsDataSource = this.connectionsDataSource;
                 var dataItem;
                 if (connectionsDataSource && this._isEditable) {
@@ -14103,7 +14103,7 @@
                 }
             },
 
-            _triggerRemove: function(items){
+            _triggerRemove: function(items) {
                 var toRemove = [];
                 var item, args, editable;
 
@@ -14125,13 +14125,13 @@
             /**
              * Executes the next undoable action on top of the undo stack if any.
              */
-            undo: function () {
+            undo: function() {
                 this.undoRedoService.undo();
             },
             /**
              * Executes the previous undoable action on top of the redo stack if any.
              */
-            redo: function () {
+            redo: function() {
                 this.undoRedoService.redo();
             },
             /**
@@ -14140,7 +14140,7 @@
              * @param options
              * @returns {Array}
              */
-            select: function (item, options) {
+            select: function(item, options) {
                 if (isDefined(item)) {
                     options = deepExtend({ addToSelection: false }, options);
 
@@ -14229,7 +14229,7 @@
              * @param items DiagramElement, Array of Items.
              * @param undoable. By default the action is undoable.
              */
-            toFront: function (items, undoable) {
+            toFront: function(items, undoable) {
                 if (!items) {
                     items = this._selectedItems.slice();
                 }
@@ -14249,7 +14249,7 @@
              * @param items DiagramElement, Array of Items.
              * @param undoable. By default the action is undoable.
              */
-            toBack: function (items, undoable) {
+            toBack: function(items, undoable) {
                 if (!items) {
                     items = this._selectedItems.slice();
                 }
@@ -14270,7 +14270,7 @@
              * @param options. align - controls the position of the calculated rectangle relative to the viewport.
              * "Center middle" will position the items in the center. animate - controls if the pan should be animated.
              */
-            bringIntoView: function (item, options) { // jQuery|Item|Array|Rect
+            bringIntoView: function(item, options) { // jQuery|Item|Array|Rect
                 var viewport = this.viewport();
                 var aligner = new diagram.RectAlign(viewport);
                 var current, rect, original, newPan;
@@ -14279,7 +14279,7 @@
                     return;
                 }
 
-                options = deepExtend({animate: false, align: "center middle"}, options);
+                options = deepExtend({ animate: false, align: "center middle" }, options);
                 if (options.align == "none") {
                     options.align = "center middle";
                 }
@@ -14310,7 +14310,7 @@
                 this.pan(newPan.times(-1), options.animate);
             },
 
-            alignShapes: function (direction) {
+            alignShapes: function(direction) {
                 if (isUndefined(direction)) {
                     direction = "Left";
                 }
@@ -14376,7 +14376,7 @@
                 this.undoRedoService.add(unit, false);
             },
 
-            zoom: function (zoom, options) {
+            zoom: function(zoom, options) {
                 if (zoom) {
                     var staticPoint = options ? options.point : new diagram.Point(0, 0);
                     // var meta = options ? options.meta : 0;
@@ -14412,7 +14412,7 @@
                 return pan;
             },
 
-            pan: function (pan, animate) {
+            pan: function(pan, animate) {
                 if (pan instanceof Point) {
                     var that = this;
                     var scroller = that.scroller;
@@ -14432,7 +14432,7 @@
                 }
             },
 
-            viewport: function () {
+            viewport: function() {
                 var element = this.element;
                 var width = element.width();
                 var height = element.height();
@@ -14443,7 +14443,7 @@
 
                 return new Rect(0, 0, width, height);
             },
-            copy: function () {
+            copy: function() {
                 if (this.options.copy.enabled) {
                     this._clipboard = [];
                     this._copyOffset = 1;
@@ -14453,7 +14453,7 @@
                     }
                 }
             },
-            cut: function () {
+            cut: function() {
                 if (this.options.copy.enabled) {
                     this._clipboard = [];
                     this._copyOffset = 0;
@@ -14465,7 +14465,7 @@
                 }
             },
 
-            paste: function () {
+            paste: function() {
                 if (this._clipboard.length > 0) {
                     var item, copied, i;
                     var mapping = {};
@@ -14537,9 +14537,9 @@
              * @param origin Boolean. Pass 'true' if you need to get the bounding box of the shapes without their rotation offset.
              * @returns {Rect}
              */
-            boundingBox: function (items, origin) {
+            boundingBox: function(items, origin) {
                 var rect = Rect.empty(), temp,
-                    di = isDefined(items) ? this._getDiagramItems(items) : {shapes: this.shapes};
+                    di = isDefined(items) ? this._getDiagramItems(items) : { shapes: this.shapes };
                 if (di.shapes.length > 0) {
                     var item = di.shapes[0];
                     rect = item.bounds(ROTATED);
@@ -14633,11 +14633,11 @@
              * @param layoutType The layout algorithm to be applied (TreeLayout, LayeredLayout, SpringLayout).
              * @param options Layout-specific options.
              */
-            layout: function (options) {
+            layout: function(options) {
                 this._layouting = true;
                 // TODO: raise layout event?
                 var type;
-                if(isUndefined(options)) {
+                if (isUndefined(options)) {
                     options = this.options.layout;
                 }
                 if (isUndefined(options) || isUndefined(options.type)) {
@@ -14679,21 +14679,21 @@
              * @param id (string) the identifier of a shape.
              * @returns {Shape}
              */
-            getShapeById: function (id) {
+            getShapeById: function(id) {
                 var found;
-                found = Utils.first(this.shapes, function (s) {
+                found = Utils.first(this.shapes, function(s) {
                     return s.visual.id === id;
                 });
                 if (found) {
                     return found;
                 }
-                found = Utils.first(this.connections, function (c) {
+                found = Utils.first(this.connections, function(c) {
                     return c.visual.id === id;
                 });
                 return found;
             },
 
-            getShapeByModelId: function (id) {
+            getShapeByModelId: function(id) {
                 var shape;
                 if (this._isEditable) {
                     shape = this._dataMap[id];
@@ -14736,20 +14736,20 @@
             },
 
             _extendLayoutOptions: function(options) {
-                if(options.layout) {
+                if (options.layout) {
                     options.layout = deepExtend({}, diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
                 }
             },
 
-            _selectionChanged: function (selected, deselected) {
+            _selectionChanged: function(selected, deselected) {
                 if (selected.length || deselected.length) {
                     this.trigger(SELECT, { selected: selected, deselected: deselected });
                 }
             },
-            _getValidZoom: function (zoom) {
+            _getValidZoom: function(zoom) {
                 return math.min(math.max(zoom, this.options.zoomMin), this.options.zoomMax);
             },
-            _panTransform: function (pos) {
+            _panTransform: function(pos) {
                 var diagram = this,
                     pan = pos || diagram._pan;
 
@@ -14762,14 +14762,14 @@
                 }
             },
 
-            _finishPan: function () {
-                this.trigger(PAN, {total: this._pan, delta: Number.NaN});
+            _finishPan: function() {
+                this.trigger(PAN, { total: this._pan, delta: Number.NaN });
             },
-            _storePan: function (pan) {
+            _storePan: function(pan) {
                 this._pan = pan;
                 this._storeViewMatrix();
             },
-            _zoomMainLayer: function () {
+            _zoomMainLayer: function() {
                 var zoom = this._zoom;
 
                 var transform = new CompositeTransform(0, 0, zoom, zoom);
@@ -14777,7 +14777,7 @@
                 this._storeLayerMatrix(transform);
                 this._storeViewMatrix();
             },
-            _transformMainLayer: function () {
+            _transformMainLayer: function() {
                 var pan = this._pan,
                     zoom = this._zoom;
 
@@ -14798,12 +14798,12 @@
                 this._matrix = transform.toMatrix();
                 this._matrixInvert = transform.invert().toMatrix();
             },
-            _toIndex: function (items, indices) {
+            _toIndex: function(items, indices) {
                 var result = this._getDiagramItems(items);
                 this.mainLayer.toIndex(result.visuals, indices);
                 this._fixOrdering(result, false);
             },
-            _fixOrdering: function (result, toFront) {
+            _fixOrdering: function(result, toFront) {
                 var shapePos = toFront ? this.shapes.length - 1 : 0,
                     conPos = toFront ? this.connections.length - 1 : 0,
                     i, item;
@@ -14818,7 +14818,7 @@
                     Utils.insert(this.connections, item, conPos);
                 }
             },
-            _getDiagramItems: function (items) {
+            _getDiagramItems: function(items) {
                 var i, result = {}, args = items;
                 result.visuals = [];
                 result.shapes = [];
@@ -14844,7 +14844,7 @@
                 return result;
             },
 
-            _removeItem: function (item, undoable, removedConnections) {
+            _removeItem: function(item, undoable, removedConnections) {
                 item.select(false);
                 if (item instanceof Shape) {
                     this._removeShapeDataItem(item);
@@ -14857,7 +14857,7 @@
                 this.mainLayer.remove(item.visual);
             },
 
-            _removeShape: function (shape, undoable, removedConnections) {
+            _removeShape: function(shape, undoable, removedConnections) {
                 var i, connection, connector,
                     sources = [], targets = [];
                 this.toolService._removeHover();
@@ -14892,7 +14892,7 @@
                 }
             },
 
-            _removeConnection: function (connection, undoable) {
+            _removeConnection: function(connection, undoable) {
                 if (connection.sourceConnector) {
                     Utils.remove(connection.sourceConnector.connections, connection);
                 }
@@ -14986,7 +14986,7 @@
                 }
             },
 
-            _refreshSource: function (e) {
+            _refreshSource: function(e) {
                 var that = this,
                     node = e.node,
                     action = e.action,
@@ -15034,7 +15034,7 @@
                 }
             },
 
-            _addItem: function (item) {
+            _addItem: function(item) {
                 if (item instanceof Shape) {
                     this.addShape(item);
                 } else if (item instanceof Connection) {
@@ -15111,11 +15111,11 @@
                 this._destroyToolBar();
             },
 
-            _normalizePointZoom: function (point) {
+            _normalizePointZoom: function(point) {
                 return point.times(1 / this.zoom());
             },
 
-            _initialize: function () {
+            _initialize: function() {
                 this.shapes = [];
                 this._selectedItems = [];
                 this.connections = [];
@@ -15130,7 +15130,7 @@
                 this.id = diagram.randomId();
             },
 
-            _fetchFreshData: function () {
+            _fetchFreshData: function() {
                 var that = this;
                 that._dataSource();
 
@@ -15212,7 +15212,7 @@
                 }
             },
 
-            _error: function () {
+            _error: function() {
                 this._loadingShapes = false;
             },
 
@@ -15411,7 +15411,7 @@
                 return connector;
             },
 
-            _treeDataSource: function () {
+            _treeDataSource: function() {
                 var that = this,
                     options = that.options,
                     dataSource = options.dataSource;
@@ -15442,13 +15442,13 @@
                     .bind(ERROR, that._errorHandler);
             },
 
-            _unbindDataSource: function () {
+            _unbindDataSource: function() {
                 var that = this;
 
                 that.dataSource.unbind(CHANGE, that._refreshHandler).unbind(ERROR, that._errorHandler);
             },
 
-            _adorn: function (adorner, isActive) {
+            _adorn: function(adorner, isActive) {
                 if (isActive !== undefined && adorner) {
                     if (isActive) {
                         this._adorners.push(adorner);
@@ -15461,7 +15461,7 @@
                 }
             },
 
-            _showConnectors: function (shape, value) {
+            _showConnectors: function(shape, value) {
                 if (value) {
                     this._connectorsAdorner.show(shape);
                 } else {
@@ -15472,7 +15472,7 @@
             _updateAdorners: function() {
                 var adorners = this._adorners;
 
-                for(var i = 0; i < adorners.length; i++) {
+                for (var i = 0; i < adorners.length; i++) {
                     var adorner = adorners[i];
 
                     if (adorner.refreshBounds) {
@@ -15482,7 +15482,7 @@
                 }
             },
 
-            _refresh: function () {
+            _refresh: function() {
                 for (var i = 0; i < this.connections.length; i++) {
                     this.connections[i].refresh();
                 }
@@ -15705,7 +15705,7 @@
                     this[toolName](tool);
                 } else {
                     this._tools.push(deepExtend({}, tool, {
-                        attributes: this._setAttributes({action: tool.name})
+                        attributes: this._setAttributes({ action: tool.name })
                     }));
                 }
             },
@@ -16128,7 +16128,7 @@
                 this.trigger("update");
             },
 
-            _cancelClick: function (e) {
+            _cancelClick: function(e) {
                 e.preventDefault();
                 this.trigger("cancel");
             },
@@ -16155,7 +16155,7 @@
         function connectionSelector(container, options) {
             var model = this.dataSource.reader.model;
             if (model) {
-                var textField = model.fn.fields.text ? "text": model.idField;
+                var textField = model.fn.fields.text ? "text" : model.idField;
                 $("<input name='" + options.field + "' />")
                     .appendTo(container).kendoDropDownList({
                         dataValueField: model.idField,
@@ -16200,12 +16200,12 @@
 
         InactiveItemsCollection.fn = InactiveItemsCollection.prototype = {
             add: function(items) {
-                for(var idx = 0; idx < items.length; idx++) {
+                for (var idx = 0; idx < items.length; idx++) {
                     this.items[items[idx].uid] = new InactiveItem(items[idx]);
                 }
             },
 
-            forEach: function(callback){
+            forEach: function(callback) {
                 for (var uid in this.items) {
                     callback(this.items[uid]);
                 }
@@ -16293,7 +16293,7 @@
                 return this.rect.overlaps(rect);
             },
 
-            insert: function (shape, bounds) {
+            insert: function(shape, bounds) {
                 var inserted = false;
                 var children = this.children;
                 var length = children.length;
@@ -16545,9 +16545,9 @@
         });
 })(window.kendo.jQuery);
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 
-(function(f, define){
+(function(f, define) {
     define('kendo.dataviz.diagram',[
         "kendo.data", "kendo.draganddrop", "kendo.userevents", "kendo.mobile.scroller",
         "kendo.drawing",
@@ -16559,7 +16559,7 @@
        "./dataviz/diagram/layout",
        "./dataviz/diagram/dom"
     ], f);
-})(function(){
+})(function() {
 
     var __meta__ = { // jshint ignore:line
         id: "dataviz.diagram",
@@ -16582,5 +16582,5 @@
 
     return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.scheduler.yearview',[ "kendo.scheduler.view", "kendo.multiviewcalendar", "kendo.tooltip" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "scheduler.yearview",
@@ -107,7 +107,7 @@ var __meta__ = { // jshint ignore:line
 
         events: [ NAVIGATE ],
 
-        _yearRange: function () {
+        _yearRange: function() {
             var that = this,
                 options = that.options,
                 tempEnd;
@@ -138,7 +138,7 @@ var __meta__ = { // jshint ignore:line
             that.content.append(that.body);
         },
 
-        _initCalendar: function () {
+        _initCalendar: function() {
             var that = this,
                 options = that.options,
                 calendarElement = $("<div/>");
@@ -195,7 +195,7 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 calendar = ev.sender,
                 isPrevious = calendar._firstViewValue < that.startDate(),
-                navigationDate = isPrevious ?  that.previousDate() : that.nextDate();
+                navigationDate = isPrevious ? that.previousDate() : that.nextDate();
 
             that.trigger(NAVIGATE, { view: "year", date: navigationDate });
 
@@ -213,7 +213,7 @@ var __meta__ = { // jshint ignore:line
             }
 
             isPrevious = calendar._firstViewValue < that.startDate();
-            focusDate = isPrevious ?  that.lastDateInRange() : that.nextDate();
+            focusDate = isPrevious ? that.lastDateInRange() : that.nextDate();
 
             if (that.options.selectable) {
                 calendar.value(focusDate);
@@ -296,7 +296,7 @@ var __meta__ = { // jshint ignore:line
         _inverseTooltipEventsColor: function() {
             var that = this;
 
-            $.each(that.tooltip.popup.element.find(DOT + YearViewStyles.event), function(){
+            $.each(that.tooltip.popup.element.find(DOT + YearViewStyles.event), function() {
                 that._inverseEventColor($(this));
             });
         },
@@ -313,7 +313,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _tooltipHide: function() {
-            if(!this.calendar) {
+            if (!this.calendar) {
                 return;
             }
 
@@ -562,5 +562,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

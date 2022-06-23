@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.mobile.actionsheet',[ "kendo.mobile.popover", "kendo.mobile.shim" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "mobile.actionsheet",
@@ -61,7 +61,7 @@ var __meta__ = { // jshint ignore:line
 
             element
                 .addClass("km-actionsheet")
-                .append(cancelTemplate({cancel: that.options.cancel}))
+                .append(cancelTemplate({ cancel: that.options.cancel }))
                 .wrap(WRAP)
                 .on("up", BUTTONS, "_click")
                 .on("click", BUTTONS, kendo.preventDefault);
@@ -72,7 +72,7 @@ var __meta__ = { // jshint ignore:line
 
             that.wrapper = element.parent().addClass(type ? " km-actionsheet-" + type : "");
 
-            that.shim = new ShimClass(that.wrapper, $.extend({modal: os.ios && os.majorVersion < 7, className: "km-actionsheet-root"}, that.options.popup) );
+            that.shim = new ShimClass(that.wrapper, $.extend({ modal: os.ios && os.majorVersion < 7, className: "km-actionsheet-root" }, that.options.popup) );
 
             that._closeProxy = that._close.bind(that);
             that._shimHideProxy = that._shimHide.bind(that);
@@ -174,5 +174,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

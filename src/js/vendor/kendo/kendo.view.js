@@ -1,18 +1,18 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.view',[
         "kendo.core",
         "kendo.binder",
         "kendo.fx"
     ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "view",
@@ -25,7 +25,7 @@ var __meta__ = { // jshint ignore:line
 
 (function($, undefined) {
     var kendo = window.kendo,
-        attr =  kendo.attr,
+        attr = kendo.attr,
         ui = kendo.ui,
         attrValue = kendo.attrValue,
         directiveSelector = kendo.directiveSelector,
@@ -154,11 +154,11 @@ var __meta__ = { // jshint ignore:line
             this.hide();
         },
 
-        beforeTransition: function(type){
+        beforeTransition: function(type) {
             this.trigger(TRANSITION_START, { type: type });
         },
 
-        afterTransition: function(type){
+        afterTransition: function(type) {
             this.trigger(TRANSITION_END, { type: type });
         },
 
@@ -217,12 +217,12 @@ var __meta__ = { // jshint ignore:line
                 if (content[0].tagName === SCRIPT) {
                     content = content.html();
                 }
-            } catch(e) {
+            } catch (e) {
                 if (sizzleErrorRegExp.test(e.message)) {
                     content = that.content;
                 }
             }
-            
+
             if (typeof content === "string") {
                 content = content.replace(/^\s+|\s+$/g, '');
                 if (that._evalTemplate) {
@@ -405,7 +405,7 @@ var __meta__ = { // jshint ignore:line
     var transitionRegExp = /^(\w+)(:(\w+))?( (\w+))?$/;
 
     function parseTransition(transition) {
-        if (!transition){
+        if (!transition) {
             return {};
         }
 
@@ -429,7 +429,7 @@ var __meta__ = { // jshint ignore:line
 
         after: function() {
             this.running = false;
-            this.trigger("complete", {view: this.view});
+            this.trigger("complete", { view: this.view });
             this.trigger("after");
         },
 
@@ -733,5 +733,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

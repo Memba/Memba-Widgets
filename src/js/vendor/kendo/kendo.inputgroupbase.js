@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.inputgroupbase',[ "kendo.core" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "inputgroupbase",
@@ -74,7 +74,7 @@ var __meta__ = { // jshint ignore:line
             inputs.each(function(i, input) {
                 var widget = kendo.widgetInstance($(input));
 
-                if(widget) {
+                if (widget) {
                     widget.destroy();
                 }
             });
@@ -84,7 +84,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         item: function(index) {
-            if(this._indexIsPresent(index)) {
+            if (this._indexIsPresent(index)) {
                 return $(this.items().get(index));
             }
         },
@@ -96,7 +96,7 @@ var __meta__ = { // jshint ignore:line
         enable: function(shouldEnable) {
             var items;
 
-            if(shouldEnable !== false && shouldEnable !== true) {
+            if (shouldEnable !== false && shouldEnable !== true) {
                 return;
             }
 
@@ -106,16 +106,16 @@ var __meta__ = { // jshint ignore:line
         },
 
         enableItem: function(shouldEnable, item) {
-            if(shouldEnable !== false && shouldEnable !== true) {
+            if (shouldEnable !== false && shouldEnable !== true) {
                 return;
             }
 
-            if(this._indexIsPresent(item)) {
+            if (this._indexIsPresent(item)) {
                 item = $(this.element.find(DOT + this.groupStyles.item).get(item));
-            } else if(item instanceof jQuery) {
-                if(item.is("input")) {
+            } else if (item instanceof jQuery) {
+                if (item.is("input")) {
                     item = item.closest(DOT + this.groupStyles.item);
-                } else if(!item.is("li")) {
+                } else if (!item.is("li")) {
                     return;
                 }
             } else {
@@ -141,7 +141,7 @@ var __meta__ = { // jshint ignore:line
         _clickHandler: function(e) {
             var target = $(e.target);
 
-            if(this.trigger(SELECT, {
+            if (this.trigger(SELECT, {
                 target: target
             })) {
                 e.preventDefault();
@@ -162,7 +162,7 @@ var __meta__ = { // jshint ignore:line
         _disabledOnElements: function(items, disabled) {
             var inputs = items.find("input");
 
-            if(disabled) {
+            if (disabled) {
                 inputs.attr(DISABLED, "");
                 items.addClass(this.groupStyles.disabled);
             } else {
@@ -195,14 +195,14 @@ var __meta__ = { // jshint ignore:line
             var label = itemElement.find(DOT + this.groupStyles.label),
                 input = itemElement.find(DOT + this.groupStyles.input);
 
-            if(itemElement.closest(DOT + this.groupStyles.list).length === 0) {
+            if (itemElement.closest(DOT + this.groupStyles.list).length === 0) {
                 this.element.append(itemElement);
             }
 
-            if(item.value !== null && item.value !== undefined) {
+            if (item.value !== null && item.value !== undefined) {
                 input.val(item.value);
             }
-            if(item.id){
+            if (item.id) {
                 input.attr("id", item.id);
                 label.attr("for", item.id);
             }
@@ -218,7 +218,7 @@ var __meta__ = { // jshint ignore:line
 
             delete options.name;
 
-            if(!!item.label && label.length > 0) {
+            if (!!item.label && label.length > 0) {
                 label.remove();
             }
 
@@ -229,22 +229,22 @@ var __meta__ = { // jshint ignore:line
             var label = itemElement.find(DOT + this.groupStyles.label),
                 input = itemElement.find(DOT + this.groupStyles.input);
 
-            if(item.name) {
+            if (item.name) {
                 input.attr("name", item.name);
             }
-            if(!item.labelAfter) {
+            if (!item.labelAfter) {
                 label.after(input);
             }
-            if(item.attributes) {
+            if (item.attributes) {
                 itemElement.attr(item.attributes);
             }
-            if(item.cssClass) {
+            if (item.cssClass) {
                 itemElement.addClass(item.cssClass);
             }
-            if(!item.enabled) {
+            if (!item.enabled) {
                 this._disabledOnElements(itemElement, true);
             }
-            if(item.validation) {
+            if (item.validation) {
                 input.attr(item.validation);
             }
         },
@@ -252,7 +252,7 @@ var __meta__ = { // jshint ignore:line
         _iterateMarkupItems: function() {
             var element = this.element;
 
-            if(element.children("li").length > 0) {
+            if (element.children("li").length > 0) {
                 element.find("li").each(this._markupItem.bind(this));
             }
         },
@@ -260,7 +260,7 @@ var __meta__ = { // jshint ignore:line
         _markupItem: function(i, el) {
             var input = el.querySelector("input");
 
-            if(input.hasAttribute("disabled")) {
+            if (input.hasAttribute("disabled")) {
                 $(el).addClass(this.groupStyles.disabled);
             }
         },
@@ -269,28 +269,28 @@ var __meta__ = { // jshint ignore:line
             var options = this.options,
                 items = this._items;
 
-            if(typeof item === "string" || typeof item === "number") {
+            if (typeof item === "string" || typeof item === "number") {
                 item = {
                     value: item,
                     label: item
                 };
             }
-            if(item.encoded !== false) {
+            if (item.encoded !== false) {
                 item.encoded = true;
             }
-            if(options.labelPosition === AFTER) {
+            if (options.labelPosition === AFTER) {
                 item.labelAfter = true;
             }
-            if(item.enabled === undefined) {
+            if (item.enabled === undefined) {
                 item.enabled = options.enabled;
             }
-            if(!item.id) {
+            if (!item.id) {
                 item.id = kendo.guid();
             }
 
             item.name = options.inputName || this.element.attr("name") || this.element.attr("id");
 
-            if(items.length > index) {
+            if (items.length > index) {
                 items[index] = extend({}, items[index], item);
             } else {
                 items.push(item);
@@ -298,10 +298,10 @@ var __meta__ = { // jshint ignore:line
         },
 
         _parseItems: function(items) {
-            if(!this._items) {
+            if (!this._items) {
                 this._items = [];
             }
-            if(items) {
+            if (items) {
                 items.forEach(this._parseItem.bind(this));
             }
         },
@@ -317,22 +317,22 @@ var __meta__ = { // jshint ignore:line
                     items.push({});
                 };
 
-            if(wrapper.is("[required]")) {
+            if (wrapper.is("[required]")) {
                 validationAttributes.required = REQUIRED;
                 wrapper.prop(REQUIRED, false);
             }
-            if(wrapper.is("[data-val=true]")) {
+            if (wrapper.is("[data-val=true]")) {
                 validationAttributes["data-val"] = "true";
                 wrapper.removeAttr("data-val");
             }
-            if(wrapper.is("[data-val-required]")) {
+            if (wrapper.is("[data-val-required]")) {
                 this._dataValRequired(validationAttributes);
                 wrapper.removeAttr("data-val-required");
             }
-            if(wrapper.is("[data-val-server]")) {
+            if (wrapper.is("[data-val-server]")) {
                 validationAttributes["data-val-server"] = wrapper.attr("data-val-server");
             }
-            if(Object.keys(validationAttributes).length > 0 && (!items || items.length === 0)) {
+            if (Object.keys(validationAttributes).length > 0 && (!items || items.length === 0)) {
                 wrapper.find("li").each(createItem);
             }
 
@@ -347,13 +347,13 @@ var __meta__ = { // jshint ignore:line
 
             wrapper.addClass(this.groupStyles.list);
 
-            if(this.options.layout === VERTICAL) {
+            if (this.options.layout === VERTICAL) {
                 wrapper.addClass(this.groupStyles.vertical);
             } else {
                 wrapper.addClass(this.groupStyles.horizontal);
             }
 
-            if(itemElements.length > 0 && inputs.length > 0) {
+            if (itemElements.length > 0 && inputs.length > 0) {
                 itemElements.addClass(this.groupStyles.item);
                 inputs.addClass(this.groupStyles.input);
                 wrapper.find("label").addClass(this.groupStyles.label);
@@ -370,4 +370,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
-    define('kendo.datepicker',[ "kendo.calendar", "kendo.popup",  "kendo.dateinput", "kendo.html.button"], f);
-})(function(){
+(function(f, define) {
+    define('kendo.datepicker',[ "kendo.calendar", "kendo.popup", "kendo.dateinput", "kendo.html.button"], f);
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "datepicker",
@@ -94,7 +94,7 @@ var __meta__ = { // jshint ignore:line
         that.options = options = options || {};
         id = options.id;
 
-        if(!options.omitPopup){
+        if (!options.omitPopup) {
             div.appendTo(body);
             that.popup = new ui.Popup(div, extend(options.popup, options, { name: "Popup", isRtl: kendo.support.isRtl(options.anchor) }));
         } else {
@@ -178,7 +178,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         destroy: function() {
-            if(this.popup){
+            if (this.popup) {
                 this.popup.destroy();
             }
         },
@@ -377,7 +377,7 @@ var __meta__ = { // jshint ignore:line
 
             try {
                 element[0].setAttribute("type", "text");
-            } catch(e) {
+            } catch (e) {
                 element[0].type = "text";
             }
 
@@ -387,7 +387,7 @@ var __meta__ = { // jshint ignore:line
                     role: "combobox",
                     "aria-expanded": false,
                     "aria-haspopup": "grid",
-                    "aria-owns": that.dateView._dateViewID,
+                    "aria-controls": that.dateView._dateViewID,
                     "autocomplete": "off"
                 });
             that._reset();
@@ -483,7 +483,7 @@ var __meta__ = { // jshint ignore:line
                 wrapper
                     .removeClass(STATEDISABLED)
                     .on(HOVEREVENTS, that._toggleHover);
-                if(element && element.length) {
+                if (element && element.length) {
                     element[0].removeAttribute(DISABLED);
                     element[0].removeAttribute(READONLY);
                 }
@@ -539,6 +539,11 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             Widget.fn.destroy.call(that);
+
+            if (that.dateView.calendar && that._navigateCalendarHandler) {
+                that.dateView.calendar.unbind(NAVIGATE, that._navigateCalendarHandler);
+                that._navigateCalendarHandler = null;
+            }
 
             that.dateView.destroy();
 
@@ -680,26 +685,32 @@ var __meta__ = { // jshint ignore:line
                     icon: "calendar",
                     size: options.size,
                     fillMode: options.fillMode,
-                    shape: null,
-                    rounded: null
+                    shape: "none",
+                    rounded: "none"
                 })).insertAfter(element);
             }
 
             that._dateIcon = icon.attr({
-                "role": "button",
-                "aria-controls": that.dateView._dateViewID
+                "role": "button"
+            });
+        },
+
+        _setCalendarAttribute: function() {
+            var that = this;
+            setTimeout(function() {
+                that.element.attr(ARIA_ACTIVEDESCENDANT, that.dateView.calendar._table.attr(ARIA_ACTIVEDESCENDANT));
             });
         },
 
         _navigateCalendar: function() {
             var that = this;
 
+            if (!that._navigateCalendarHandler) {
+                that._navigateCalendarHandler = that._setCalendarAttribute.bind(that);
+            }
+
             if (!!that.dateView.calendar) {
-                that.dateView.calendar.unbind(NAVIGATE).bind(NAVIGATE,function() {
-                    setTimeout(function() {
-                        that.element.attr(ARIA_ACTIVEDESCENDANT, that.dateView.calendar._table.attr(ARIA_ACTIVEDESCENDANT));
-                    });
-                });
+                that.dateView.calendar.unbind(NAVIGATE, that._navigateCalendarHandler).bind(NAVIGATE, that._navigateCalendarHandler);
             }
         },
 
@@ -866,5 +877,5 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });
 

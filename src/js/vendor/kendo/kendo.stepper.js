@@ -1,14 +1,14 @@
 /**
- * Kendo UI v2022.2.510 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.2.621 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
-(function(f, define){
+(function(f, define) {
     define('kendo.stepper',[ "kendo.core", "kendo.progressbar" ], f);
-})(function(){
+})(function() {
 
 var __meta__ = { // jshint ignore:line
     id: "stepper",
@@ -18,7 +18,7 @@ var __meta__ = { // jshint ignore:line
     depends: [ "core", "progressbar" ]
 };
 
-(function ($, undefined) {
+(function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         keys = kendo.keys,
@@ -120,7 +120,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         enable: function(value) {
-            if(this.options.enabled !== value) {
+            if (this.options.enabled !== value) {
                 this.options.enabled = value;
                 this.options.selectable = value;
                 this._link();
@@ -157,7 +157,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         setValid: function(valid) {
-            if(this.options.error === valid) {
+            if (this.options.error === valid) {
                 this.options.error = !valid;
                 this._link();
                 this._stepClasses();
@@ -168,7 +168,7 @@ var __meta__ = { // jshint ignore:line
             var options = this.options,
                 stepIndicator;
 
-            if(!!options.iconTemplate) {
+            if (!!options.iconTemplate) {
                 stepIndicator = $("<span>").addClass(stepStyles.stepIndicator).attr(ARIA_HIDDEN, "true");
                 stepIndicator.append(kendo.template(options.iconTemplate)(options));
             } else {
@@ -189,10 +189,10 @@ var __meta__ = { // jshint ignore:line
             this.element.find(DOT + stepStyles.stepLink).empty();
             this._linkAttributes();
 
-            if(options.indicatorVisible) {
+            if (options.indicatorVisible) {
                 this._indicator();
             }
-            if(options.labelVisible) {
+            if (options.labelVisible) {
                 this._label();
             }
         },
@@ -203,15 +203,15 @@ var __meta__ = { // jshint ignore:line
 
             link.removeAttr(ARIA_DISABLED + SPACE + ARIA_INVALID + SPACE + ARIA_CURRENT + SPACE + TABINDEX);
 
-            if(!options.selected) {
+            if (!options.selected) {
                 link.attr(TABINDEX, "-1");
             } else {
                 link.attr(ARIA_CURRENT, "true");
             }
-            if(!options.enabled || !options.selectable) {
+            if (!options.enabled || !options.selectable) {
                 link.attr(ARIA_DISABLED, "true");
             }
-            if(options.error) {
+            if (options.error) {
                 link.attr(ARIA_INVALID, "true");
             }
         },
@@ -229,24 +229,24 @@ var __meta__ = { // jshint ignore:line
             var options = this.options,
                 stepClasses = stepStyles.step;
 
-            if(options.isFirstStep){
+            if (options.isFirstStep) {
                 stepClasses += (SPACE + stepStyles.firstStep);
             }
-            if(options.isLastStep){
+            if (options.isLastStep) {
                 stepClasses += (SPACE + stepStyles.lastStep);
             }
-            if(!options.enabled){
+            if (!options.enabled) {
                 stepClasses += (SPACE + stepStyles.disabledStep);
             }
-            if(options.error){
+            if (options.error) {
                 stepClasses += (SPACE + stepStyles.errorStep);
             }
-            if(options.previous){
+            if (options.previous) {
                 stepClasses += (SPACE + stepStyles.doneStep);
-                if(!options.error) {
+                if (!options.error) {
                     stepClasses += (SPACE + stepStyles.successStep);
                 }
-            } else if(options.selected) {
+            } else if (options.selected) {
                 stepClasses += (SPACE + stepStyles.currentStep);
                 stepClasses += (SPACE + stepStyles.focusStep);
             }
@@ -294,7 +294,7 @@ var __meta__ = { // jshint ignore:line
         destroy: function() {
             var that = this;
 
-            if(that.progressBar) {
+            if (that.progressBar) {
                 Widget.fn.destroy.call(that.progressBar);
             }
 
@@ -310,7 +310,7 @@ var __meta__ = { // jshint ignore:line
 
             Widget.fn.setOptions.call(that, options);
 
-            if(that.progressBar) {
+            if (that.progressBar) {
                 Widget.fn.destroy.call(that.progressBar);
             }
 
@@ -333,7 +333,7 @@ var __meta__ = { // jshint ignore:line
                 stepsOptions[idx] = step.options;
             };
 
-            if(value) {
+            if (value) {
                 this.wrapper.removeAttr(ARIA_DISABLED);
             } else {
                 this.wrapper.attr(ARIA_DISABLED, "true");
@@ -348,31 +348,31 @@ var __meta__ = { // jshint ignore:line
             var steps = this.options.steps,
                 selectedStep;
             var findSelectedStep = function(step) {
-                if(step.selected) {
+                if (step.selected) {
                     selectedStep = step;
                 }
             };
 
-            if(!stepOptions || isNaN(index)) {
+            if (!stepOptions || isNaN(index)) {
                 return;
             }
-            if(index < 0) {
+            if (index < 0) {
                 index = steps.length + index;
             }
-            if(index < 0) {
+            if (index < 0) {
                 return;
             }
-            if(!steps) {
+            if (!steps) {
                 steps = [];
             }
 
-            if(steps.length === 0 || index >= steps.length) {
+            if (steps.length === 0 || index >= steps.length) {
                 index = steps.length;
             }
 
             steps.forEach(findSelectedStep);
 
-            if(stepOptions.selected === true) {
+            if (stepOptions.selected === true) {
                 selectedStep.selected = false;
             }
 
@@ -385,14 +385,14 @@ var __meta__ = { // jshint ignore:line
         },
 
         next: function() {
-            if(!this._steps || this._steps.length <= 1) {
+            if (!this._steps || this._steps.length <= 1) {
                 return;
             }
 
             var selectedStep = this.selectedStep;
             var selectedIndex = selectedStep.getIndex();
 
-            if(selectedIndex + 1 === this._steps.length) {
+            if (selectedIndex + 1 === this._steps.length) {
                 return;
             } else {
                 this._select(selectedIndex + 1);
@@ -400,14 +400,14 @@ var __meta__ = { // jshint ignore:line
         },
 
         previous: function() {
-            if(!this._steps || this._steps.length <= 1) {
+            if (!this._steps || this._steps.length <= 1) {
                 return;
             }
 
             var selectedStep = this.selectedStep;
             var selectedIndex = selectedStep.getIndex();
 
-            if(selectedIndex === 0) {
+            if (selectedIndex === 0) {
                 return;
             } else {
                 this._select(selectedIndex - 1);
@@ -418,20 +418,20 @@ var __meta__ = { // jshint ignore:line
             var steps = this.options.steps,
                 removedStep, newSelected, newSelectedIndex;
 
-            if(isNaN(index) || !steps || steps.length < 2 || index >= steps.length) {
+            if (isNaN(index) || !steps || steps.length < 2 || index >= steps.length) {
                 return;
             }
-            if(index < 0) {
+            if (index < 0) {
                 index = steps.length + index;
             }
-            if(index < 0) {
+            if (index < 0) {
                 return;
             }
 
             removedStep = steps.splice(index, 1)[0];
 
-            if(removedStep.selected === true && steps.length > 0) {
-                if(index > 0) {
+            if (removedStep.selected === true && steps.length > 0) {
+                if (index > 0) {
                     newSelectedIndex = index - 1;
                 } else {
                     newSelectedIndex = 0;
@@ -439,7 +439,7 @@ var __meta__ = { // jshint ignore:line
 
                 newSelected = steps[newSelectedIndex];
 
-                if(typeof newSelected === "string") {
+                if (typeof newSelected === "string") {
                     newSelected = {
                         label: newSelected
                     };
@@ -463,11 +463,11 @@ var __meta__ = { // jshint ignore:line
         select: function(stepIndex) {
             var that = this;
 
-            if(stepIndex === undefined || stepIndex === null || isNaN(stepIndex)) {
+            if (stepIndex === undefined || stepIndex === null || isNaN(stepIndex)) {
                 return that.selectedStep;
             }
 
-            if(stepIndex >= that._steps.length || stepIndex < 0) {
+            if (stepIndex >= that._steps.length || stepIndex < 0) {
                 return;
             }
 
@@ -477,7 +477,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         steps: function(steps) {
-            if(steps === undefined) {
+            if (steps === undefined) {
                 return this._steps;
             }
 
@@ -490,15 +490,15 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 selectedStep;
             var findSelectedStep = function(step) {
-                if(step.selected) {
+                if (step.selected) {
                     selectedStep = step;
                 }
             };
 
             steps.forEach(findSelectedStep);
 
-            if(!selectedStep) {
-                if(typeof steps[0] === "string") {
+            if (!selectedStep) {
+                if (typeof steps[0] === "string") {
                     steps[0] = {
                         label: steps[0]
                     };
@@ -518,7 +518,7 @@ var __meta__ = { // jshint ignore:line
             that.wrapper.empty().append($("<ol />").addClass(stepperStyles.stepList));
             that._stepList = that.wrapper.find(DOT + stepperStyles.stepList);
 
-            if(that.options.orientation === VERTICAL) {
+            if (that.options.orientation === VERTICAL) {
                 that._stepList.addClass(stepperStyles.stepListVertical);
             } else {
                 that._stepList.addClass(stepperStyles.stepListHorizontal);
@@ -546,7 +546,7 @@ var __meta__ = { // jshint ignore:line
                 margin = "margin-left",
                 style = {};
 
-            if(orientation === VERTICAL) {
+            if (orientation === VERTICAL) {
                 steps.css("max-height", 100 / numberOfSteps + "%");
                 progressElement.css({
                     "margin-top": -1 * (stepList.height() - 16),
@@ -555,7 +555,7 @@ var __meta__ = { // jshint ignore:line
             } else {
                 steps.css("max-width", 100 / numberOfSteps + "%");
 
-                if(kendo.support.isRtl(this.wrapper)) {
+                if (kendo.support.isRtl(this.wrapper)) {
                     margin = "margin-right";
                 }
                 style[margin] = stepWidth / 2;
@@ -598,7 +598,7 @@ var __meta__ = { // jshint ignore:line
             for (idx = 0; idx < stepsOptions.length; idx++) {
                 stepOpt = stepsOptions[idx];
 
-                if(typeof stepOpt === "string") {
+                if (typeof stepOpt === "string") {
                     stepOpt = {
                         label: stepOpt
                     };
@@ -607,7 +607,7 @@ var __meta__ = { // jshint ignore:line
                 if (stepOpt !== undefined) {
                     isLastStep = idx === stepsOptions.length - 1;
 
-                    if(stepOpt.selected) {
+                    if (stepOpt.selected) {
                         selected = true;
                     } else {
                         stepOpt = that._selectablePreviousState(stepOpt, selected, idx);
@@ -616,7 +616,7 @@ var __meta__ = { // jshint ignore:line
                     step = that._createStep(stepOpt, idx, isLastStep);
                     that._steps.push(step);
 
-                    if(step.getSelected()) {
+                    if (step.getSelected()) {
                         that.selectedStep = step;
                     }
                 }
@@ -624,7 +624,7 @@ var __meta__ = { // jshint ignore:line
         },
 
         _indicatorAndLabel: function() {
-            if(!this.options.indicator && !this.options.label) {
+            if (!this.options.indicator && !this.options.label) {
                 this.options.indicator = true;
                 this.options.label = true;
             }
@@ -633,7 +633,7 @@ var __meta__ = { // jshint ignore:line
         _focusout: function(e) {
             var that = this;
 
-            if(!that.wrapper.get(0).contains(e.relatedTarget)) {
+            if (!that.wrapper.get(0).contains(e.relatedTarget)) {
                 setTimeout(function() {
                     that._leaveStepper();
                 });
@@ -644,7 +644,7 @@ var __meta__ = { // jshint ignore:line
             var focusedStep = this.wrapper.find(DOT + stepStyles.focusStep),
                 allStepLinks = this.wrapper.find(DOT + stepStyles.stepLink);
 
-            if(newStep.length > 0) {
+            if (newStep.length > 0) {
                 focusedStep.removeClass(stepStyles.focusStep);
                 allStepLinks.attr(TABINDEX, "-1");
                 newStep.find(DOT + stepStyles.stepLink).removeAttr(TABINDEX)[0].focus();
@@ -686,18 +686,18 @@ var __meta__ = { // jshint ignore:line
                 focusedStepIndex = focusedStepElement.index(),
                 stepsCount = that.steps().length;
 
-            if(keyCode === keys.TAB) {
-                if(e.shiftKey && focusedStepIndex > 0) {
+            if (keyCode === keys.TAB) {
+                if (e.shiftKey && focusedStepIndex > 0) {
                     e.preventDefault();
                     that._tabKey(e, -1);
-                } else if(!e.shiftKey && focusedStepIndex < stepsCount - 1) {
+                } else if (!e.shiftKey && focusedStepIndex < stepsCount - 1) {
                     e.preventDefault();
                     that._tabKey(e, +1);
                 }
-            } else if(keyCode > 34 && keyCode < 41){
+            } else if (keyCode > 34 && keyCode < 41) {
                 e.preventDefault();
                 that._navKeys(e);
-            } else if(keyCode === keys.ENTER || keyCode === keys.SPACEBAR) {
+            } else if (keyCode === keys.ENTER || keyCode === keys.SPACEBAR) {
                 e.preventDefault();
                 that._selectHandler(e, $(document.activeElement).closest(DOT + stepStyles.step));
             } else {
@@ -718,7 +718,7 @@ var __meta__ = { // jshint ignore:line
         _navKeys: function(e) {
             var selectOnFocus = this.options.selectOnFocus;
 
-            if(selectOnFocus) {
+            if (selectOnFocus) {
                 this._navKeysSelect(e);
             } else {
                 this._navKeysFocus(e);
@@ -730,30 +730,30 @@ var __meta__ = { // jshint ignore:line
                 rtl = kendo.support.isRtl(this.wrapper),
                 orientation = this.options.orientation;
 
-            switch(keyCode) {
+            switch (keyCode) {
                 case keys.DOWN:
-                    if(rtl && orientation !== VERTICAL) {
+                    if (rtl && orientation !== VERTICAL) {
                         this._focusPreviousStep();
                     } else {
                         this._focusNextStep();
                     }
                     break;
                 case keys.RIGHT:
-                    if(rtl) {
+                    if (rtl) {
                         this._focusPreviousStep();
                     } else {
                         this._focusNextStep();
                     }
                     break;
                 case keys.UP:
-                    if(rtl && orientation !== VERTICAL) {
+                    if (rtl && orientation !== VERTICAL) {
                         this._focusNextStep();
                     } else {
                         this._focusPreviousStep();
                     }
                     break;
                 case keys.LEFT:
-                    if(rtl) {
+                    if (rtl) {
                         this._focusNextStep();
                     } else {
                         this._focusPreviousStep();
@@ -776,30 +776,30 @@ var __meta__ = { // jshint ignore:line
                 orientation = this.options.orientation,
                 targetStep;
 
-            switch(keyCode) {
+            switch (keyCode) {
                 case keys.DOWN:
-                    if(rtl && orientation !== VERTICAL) {
+                    if (rtl && orientation !== VERTICAL) {
                         targetStep = steps[focusedStepIndex - 1];
                     } else {
                         targetStep = steps[focusedStepIndex + 1];
                     }
                     break;
                 case keys.RIGHT:
-                    if(rtl) {
+                    if (rtl) {
                         targetStep = steps[focusedStepIndex - 1];
                     } else {
                         targetStep = steps[focusedStepIndex + 1];
                     }
                     break;
                 case keys.UP:
-                    if(rtl && orientation !== VERTICAL) {
+                    if (rtl && orientation !== VERTICAL) {
                         targetStep = steps[focusedStepIndex + 1];
                     } else {
                         targetStep = steps[focusedStepIndex - 1];
                     }
                     break;
                 case keys.LEFT:
-                    if(rtl) {
+                    if (rtl) {
                         targetStep = steps[focusedStepIndex + 1];
                     } else {
                         targetStep = steps[focusedStepIndex - 1];
@@ -813,7 +813,7 @@ var __meta__ = { // jshint ignore:line
                     break;
             }
 
-            if(targetStep) {
+            if (targetStep) {
                 this._focusStep(targetStep.element);
                 this._selectHandlerOnKey(e, targetStep.element);
             }
@@ -840,7 +840,7 @@ var __meta__ = { // jshint ignore:line
                 stepsOptions = options.steps,
                 numberOfSteps, progressBarOptions;
 
-            if(!stepsOptions || stepsOptions.length === 0) {
+            if (!stepsOptions || stepsOptions.length === 0) {
                 return;
             } else {
                 numberOfSteps = stepsOptions.length;
@@ -853,7 +853,7 @@ var __meta__ = { // jshint ignore:line
                 showStatus: false
             };
 
-            if(orientation === VERTICAL) {
+            if (orientation === VERTICAL) {
                 progressBarOptions.reverse = true;
             }
 
@@ -864,7 +864,7 @@ var __meta__ = { // jshint ignore:line
             var progressBar = this.progressBar,
                 newOptions;
 
-            if(!progressBar) {
+            if (!progressBar) {
                 return;
             }
 
@@ -888,9 +888,9 @@ var __meta__ = { // jshint ignore:line
         _resetStep: function(i, index, forward) {
             var step = this._steps[i];
 
-            if(!forward && i < index) {
+            if (!forward && i < index) {
                 step.options.selectable = true;
-            } else if(i === index) {
+            } else if (i === index) {
                 step.options.previous = false;
                 step.options.selected = true;
                 step.options.selectable = true;
@@ -901,7 +901,7 @@ var __meta__ = { // jshint ignore:line
                 step.options.previous = forward;
             }
 
-            if(this.options.linear && (i < index - 1 || i > index + 1)) {
+            if (this.options.linear && (i < index - 1 || i > index + 1)) {
                 step.options.selectable = false;
             }
 
@@ -919,14 +919,14 @@ var __meta__ = { // jshint ignore:line
                 targetStep = this._steps[index],
                 forward, i, min, max;
 
-            if(!targetStep || !targetStep.getEnabled()) {
+            if (!targetStep || !targetStep.getEnabled()) {
                 return;
             }
 
-            if(index > selectedIndex) {
+            if (index > selectedIndex) {
                 forward = true;
 
-                if(linear) {
+                if (linear) {
                     min = Math.max(selectedIndex - 1, 0);
                     max = Math.min(index + 1, stepsOptions.length - 1);
                 } else {
@@ -936,7 +936,7 @@ var __meta__ = { // jshint ignore:line
             } else {
                 forward = false;
 
-                if(linear) {
+                if (linear) {
                     min = Math.max(index - 1, 0);
                     max = Math.min(selectedIndex + 1, stepsOptions.length - 1);
                 } else {
@@ -945,7 +945,7 @@ var __meta__ = { // jshint ignore:line
                 }
             }
 
-            for(i = min; i <= max; i ++) {
+            for (i = min; i <= max; i ++) {
                 this._resetStep(i, index, forward);
             }
 
@@ -957,14 +957,14 @@ var __meta__ = { // jshint ignore:line
             var stepsOptions = this.options.steps,
                 linear = this.options.linear;
 
-            if(!selected) {
+            if (!selected) {
                 stepOpt.previous = true;
-                if(linear && !stepsOptions[idx + 1].selected) {
+                if (linear && !stepsOptions[idx + 1].selected) {
                     stepOpt.selectable = false;
                 } else {
                     stepOpt.selectable = true;
                 }
-            } else if(linear && !stepsOptions[idx - 1].selected) {
+            } else if (linear && !stepsOptions[idx - 1].selected) {
                 stepOpt.selectable = false;
             } else {
                 stepOpt.selectable = true;
@@ -986,16 +986,16 @@ var __meta__ = { // jshint ignore:line
                 step = that._steps[stepElement.index()],
                 currentStep = this.select();
 
-            if(!step || step.getIndex() === currentStep.getIndex() || !step.getEnabled() || !step.getSelectable()) {
+            if (!step || step.getIndex() === currentStep.getIndex() || !step.getEnabled() || !step.getSelectable()) {
                 that._focusStep(currentStep.element);
 
                 return;
             }
 
-            if(!that.trigger(SELECT, { sender: that, originalEvent: e, step: step})) {
+            if (!that.trigger(SELECT, { sender: that, originalEvent: e, step: step })) {
                 that._select(step.getIndex());
                 stepElement.find(DOT + stepStyles.stepLink)[0].focus();
-                that.trigger(ACTIVATE, { sender: that, originalEvent: e, step: step});
+                that.trigger(ACTIVATE, { sender: that, originalEvent: e, step: step });
             }
         },
 
@@ -1003,14 +1003,14 @@ var __meta__ = { // jshint ignore:line
             var that = this,
                 step = that._steps[stepElement.index()];
 
-            if(!step.getEnabled() || !step.getSelectable()) {
+            if (!step.getEnabled() || !step.getSelectable()) {
                 return;
             }
 
-            if(!that.trigger(SELECT, { sender: that, originalEvent: e, step: step})) {
+            if (!that.trigger(SELECT, { sender: that, originalEvent: e, step: step })) {
                 that._select(step.getIndex());
                 stepElement.find(DOT + stepStyles.stepLink)[0].focus();
-                that.trigger(ACTIVATE, { sender: that, originalEvent: e, step: step});
+                that.trigger(ACTIVATE, { sender: that, originalEvent: e, step: step });
             }
         },
 
@@ -1022,7 +1022,7 @@ var __meta__ = { // jshint ignore:line
 
             this._focusStep(targetStep);
 
-            if(selectOnFocus) {
+            if (selectOnFocus) {
                 this._selectHandlerOnKey(e, targetStep);
             }
         },
@@ -1034,7 +1034,7 @@ var __meta__ = { // jshint ignore:line
             that.wrapper = element;
             that.wrapper.addClass(stepperStyles.widget);
 
-            if(that.options.linear) {
+            if (that.options.linear) {
                 that.wrapper.addClass(stepperStyles.stepperLinear);
             }
 
@@ -1044,7 +1044,7 @@ var __meta__ = { // jshint ignore:line
         _wrapperClickHandler: function(e) {
             var currentStep = this.select();
 
-            if(!this._preventWrapperClick) {
+            if (!this._preventWrapperClick) {
                 e.preventDefault();
                 this._focusStep(currentStep.element);
             } else {
@@ -1063,4 +1063,4 @@ var __meta__ = { // jshint ignore:line
 
 return window.kendo;
 
-}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3){ (a3 || a2)(); });
+}, typeof define == 'function' && define.amd ? define : function(a1, a2, a3) { (a3 || a2)(); });

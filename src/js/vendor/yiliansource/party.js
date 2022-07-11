@@ -2121,6 +2121,7 @@ var modules_1 = __webpack_require__(/*! ../systems/modules */ "./src/systems/mod
 var random = __webpack_require__(/*! ../systems/random */ "./src/systems/random.ts");
 var sources = __webpack_require__(/*! ../systems/sources */ "./src/systems/sources.ts");
 var variation = __webpack_require__(/*! ../systems/variation */ "./src/systems/variation.ts");
+var util = __webpack_require__(/*! ../util */ "./src/util/index.ts");
 /**
  * The standard confetti template.
  *
@@ -2128,11 +2129,11 @@ var variation = __webpack_require__(/*! ../systems/variation */ "./src/systems/v
  * @param options The (optional) configuration overrides.
  */
 function confetti(source, options) {
-    var populated = __1.default.util.overrideDefaults({
-        count: __1.default.variation.range(20, 40),
-        spread: __1.default.variation.range(35, 45),
-        speed: __1.default.variation.range(300, 600),
-        size: __1.default.variation.skew(1, 0.2),
+    var populated = util.overrideDefaults({
+        count: variation.range(20, 40),
+        spread: variation.range(35, 45),
+        speed: variation.range(300, 600),
+        size: variation.skew(1, 0.2),
         rotation: function () { return random.randomUnitVector().scale(180); },
         color: function () { return components_1.Color.fromHsl(random.randomRange(0, 360), 100, 70); },
         modules: [
@@ -2149,7 +2150,7 @@ function confetti(source, options) {
         ],
         shapes: ["square", "circle"],
     }, options);
-    var emitter = __1.default.scene.current.createEmitter({
+    var emitter = __1.scene.current.createEmitter({
         emitterOptions: {
             loops: 1,
             duration: 8,
@@ -2160,7 +2161,7 @@ function confetti(source, options) {
             bursts: [{ time: 0, count: populated.count }],
             sourceSampler: sources.dynamicSource(source),
             angle: variation.skew(-90, variation.evaluateVariation(populated.spread)),
-            initialLifetime: variation.range(6, 8),
+            initialLifetime: 8,
             initialSpeed: populated.speed,
             initialSize: populated.size,
             initialRotation: populated.rotation,
@@ -2210,12 +2211,13 @@ __exportStar(__webpack_require__(/*! ./sparkles */ "./src/templates/sparkles.ts"
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.sparkles = void 0;
-var __1 = __webpack_require__(/*! ../ */ "./src/index.ts");
+var __1 = __webpack_require__(/*! .. */ "./src/index.ts");
 var components_1 = __webpack_require__(/*! ../components */ "./src/components/index.ts");
 var modules_1 = __webpack_require__(/*! ../systems/modules */ "./src/systems/modules.ts");
 var random = __webpack_require__(/*! ../systems/random */ "./src/systems/random.ts");
 var sources = __webpack_require__(/*! ../systems/sources */ "./src/systems/sources.ts");
 var variation = __webpack_require__(/*! ../systems/variation */ "./src/systems/variation.ts");
+var util = __webpack_require__(/*! ../util */ "./src/util/index.ts");
 /**
  * The standard sparkles template.
  *
@@ -2223,7 +2225,8 @@ var variation = __webpack_require__(/*! ../systems/variation */ "./src/systems/v
  * @param options The (optional) configuration overrides.
  */
 function sparkles(source, options) {
-    var populated = __1.default.util.overrideDefaults({
+    var populated = util.overrideDefaults({
+        lifetime: variation.range(1, 2),
         count: variation.range(10, 20),
         speed: variation.range(100, 200),
         size: variation.range(0.8, 1.8),
@@ -2247,8 +2250,9 @@ function sparkles(source, options) {
                 .through("relativeLifetime")
                 .build(),
         ],
+        shapes: "star",
     }, options);
-    var emitter = __1.default.scene.current.createEmitter({
+    var emitter = __1.scene.current.createEmitter({
         emitterOptions: {
             loops: 1,
             duration: 3,
@@ -2260,7 +2264,7 @@ function sparkles(source, options) {
             bursts: [{ time: 0, count: populated.count }],
             sourceSampler: sources.dynamicSource(source),
             angle: variation.range(0, 360),
-            initialLifetime: variation.range(1, 2),
+            initialLifetime: populated.lifetime,
             initialSpeed: populated.speed,
             initialSize: populated.size,
             initialRotation: populated.rotation,
@@ -2268,7 +2272,7 @@ function sparkles(source, options) {
         },
         rendererOptions: {
             applyLighting: undefined,
-            shapeFactory: "star",
+            shapeFactory: populated.shapes,
         },
     });
     return emitter;

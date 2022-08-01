@@ -1,5 +1,5 @@
 @include exports( "widgets.basiclist/layout" ) {
-    .kj-basiclist {
+    .m-basiclist {
         > .k-toolbar {
             // border-bottom: none;
             border-left: none;
@@ -19,25 +19,25 @@
     }
 
     // Cursor
-    body > .k-list-item > .kj-handle,
-    .kj-basiclist > .k-listview:not(.k-state-disabled) > .k-listview-content > .k-list-item > .kj-handle {
+    body > .k-list-item > .m-handle,
+    .m-basiclist > .k-listview:not(.k-state-disabled) > .k-listview-content > .k-list-item > .m-handle {
         cursor: move;
     }
 
     // we also need body > k-list-item for draggable hints
     body,
-    .kj-basiclist > .k-listview > .k-listview-content {
+    .m-basiclist > .k-listview > .k-listview-content {
         .k-list-item {
             align-items: center;
             display: flex;
             flex-flow: row nowrap;
             padding: 2px;
 
-            > .kj-handle {
+            > .m-handle {
                 width: 1em;
             }
 
-            > .kj-input-wrap {
+            > .m-input-wrap {
                 flex: 1 1 auto;
                 overflow: hidden;
                 position: relative;
@@ -70,7 +70,7 @@
                 }
             }
 
-            > .kj-buttons {
+            > .m-buttons {
                 align-items: center;
                 display: flex;
                 flex: 0 0 auto;

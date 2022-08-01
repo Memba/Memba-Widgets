@@ -37,22 +37,22 @@ const {
 } = window.kendo;
 const logger = new Logger('widgets.basiclist');
 const NS = '.kendoBasicList';
-const WIDGET_CLASS = 'k-widget kj-basiclist';
+const WIDGET_CLASS = 'k-widget m-basiclist';
 
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>{0}</a></div></div>';
+    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"><span class="k-icon k-i-plus k-button-icon"></span><span class="k-button-text">{0}</span></a></div></div>';
 const ITEM_TMPL = `<li class="k-list-item">
-        <div class="kj-handle"><span class="k-icon k-i-handler-drag" /></div>
-        <div class="kj-input-wrap"><input value="#: value$() #" class="k-textbox k-state-disabled" /></div>
-        <div class="kj-buttons">
+        <div class="m-handle"><span class="k-icon k-i-handler-drag" /></div>
+        <div class="m-input-wrap"><input value="#: value$() #" class="k-textbox k-state-disabled" /></div>
+        <div class="m-buttons">
             <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>
             <a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-delete"/></a>
         </div>
     </li>`;
 const EDIT_TMPL = `<li class="k-list-item">
-        <div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>
-        <div class="kj-input-wrap"><input data-${ns}bind="value: value" name="value" validationMessage="{0}"/><span data-${ns}for="value" class="k-invalid-msg"/></div>
-        <div class="kj-buttons">
+        <div class="m-handle"><span class="k-icon k-i-handler-drag"/></div>
+        <div class="m-input-wrap"><input data-${ns}bind="value: value" name="value" validationMessage="{0}"/><span data-${ns}for="value" class="k-invalid-msg"/></div>
+        <div class="m-buttons">
             <a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"/></a>
             <a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"/></a>
         </div>
@@ -192,7 +192,7 @@ const BasicList = Widget.extend({
     },
 
     /**
-     * Compute read template with type and atttibutes
+     * Compute read template with type and attributes
      * @method _getTemplate
      * @private
      */
@@ -206,7 +206,7 @@ const BasicList = Widget.extend({
     },
 
     /**
-     * Compute edit template with type and atttibutes
+     * Compute edit template with type and attributes
      * @method _getEditTemplate
      * @private
      */
@@ -393,7 +393,7 @@ const BasicList = Widget.extend({
                     cursor: 'move',
                     // filter: '> .k-listview-content > .k-list-item',
                     filter: '.k-list-item',
-                    handler: '.kj-handle, .kj-handle *',
+                    handler: '.m-handle, .m-handle *',
                     holdToDrag: support.touch,
                     ignore: 'input', // otherwise focus and selections won't work properly in inputs
                     placeholder(element) {

@@ -561,6 +561,15 @@ defineFunction('htmlData', '{data:string}{content:auto}', {
     }),
 });
 
+/* assign CSS styles to the element */
+defineFunction('htmlStyle', '{data:string}{content:auto}', {
+  createAtom: (command: string, args: Argument[], style: PrivateStyle): Atom =>
+    new GroupAtom(args[1] as Atom[], {
+      htmlStyle: args[0] as string,
+      style,
+    }),
+});
+
 /* Note: in TeX, \em is restricted to text mode. We extend it to math
  * This is the 'switch' variant of \emph, i.e:
  * `\emph{important text}`
@@ -662,6 +671,7 @@ defineFunction('mathop', '{:auto}', {
       captureSelection: true,
       limits: 'over-under',
       isFunction: true,
+      hasArgument: true,
       style,
     }),
 });
@@ -696,6 +706,7 @@ defineFunction(
           } as const
         )[command],
         captureSelection: true,
+        hasArgument: true,
         style,
       }),
   }
@@ -708,6 +719,7 @@ defineFunction(['operatorname', 'operatorname*'], '{operator:math}', {
   createAtom: (name: string, args: Argument[], style: PrivateStyle): Atom => {
     const result = new OperatorAtom(name, args[0] as Atom[], {
       isFunction: true,
+      hasArgument: true,
       limits: name === '\\operatorname' ? 'adjacent' : 'over-under',
       style,
     });
@@ -984,7 +996,12 @@ defineFunction(['ne', 'neq'], '', {
         }),
         new Atom('mrel', { style, value: '=' }),
       ],
-      { boxType: 'mrel', captureSelection: true, serialize: () => name }
+      {
+        boxType: 'mrel',
+        captureSelection: true,
+        serialize: () => name,
+        command: name,
+      }
     ),
 });
 

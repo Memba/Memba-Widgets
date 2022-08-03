@@ -9,22 +9,17 @@ export { InlineShortcutDefinition };
 /**
  * Return an array of potential shortcuts
  */
-export function getInlineShortcutsStartingWith(
+export function countInlineShortcutsStartingWith(
   s: string,
   config: MathfieldOptionsPrivate
-): string[] {
-  const result: string[] = [];
+): number {
+  let count = 0;
 
-  for (let i = 0; i <= s.length - 1; i++) {
-    const s2 = s.slice(Math.max(0, i));
-    for (const key of Object.keys(config.inlineShortcuts)) {
-      if (key.startsWith(s2) && !result.includes(key)) {
-        result.push(key!);
-      }
-    }
+  for (const key of Object.keys(config.inlineShortcuts)) {
+    if (key.startsWith(s)) count += 1;
   }
 
-  return result;
+  return count;
 }
 
 /**

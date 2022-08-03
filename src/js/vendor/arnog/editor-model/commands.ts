@@ -1,8 +1,9 @@
 import type { ModelPrivate } from './model-private';
+import { ArrayAtom } from '../core-atoms/array';
 import { LatexAtom } from '../core-atoms/latex';
 import { TextAtom } from '../core-atoms/text';
 import { LETTER_AND_DIGITS } from '../core-definitions/definitions';
-import { Offset } from '../public/mathfield';
+import type { Offset, Selection } from '../public/mathfield';
 import { getCommandSuggestionRange } from '../editor-mathfield/mode-editor-latex';
 
 /*
@@ -173,7 +174,7 @@ export function skip(
       while (
         atom &&
         atom instanceof LatexAtom &&
-        /[a-zA-Z*]/.test(atom.value)
+        /[a-zA-Z\*]/.test(atom.value)
       ) {
         offset = model.offsetOf(atom);
         atom = atom.rightSibling;
@@ -189,7 +190,7 @@ export function skip(
       while (
         atom &&
         atom instanceof LatexAtom &&
-        /[a-zA-Z*]/.test(atom.value)
+        /[a-zA-Z\*]/.test(atom.value)
       ) {
         offset = model.offsetOf(atom);
         atom = atom.leftSibling;
@@ -336,43 +337,45 @@ export function move(
     //
     // 1. Handle `captureSelection` and `skipBoundary`
     //
-    if (direction === 'forward') {
-      let atom = model.at(pos);
-      if (atom?.inCaptureSelection) {
-        // If in a capture selection, while going forward jump to
-        // after
-        while (!atom.captureSelection) atom = atom.parent!;
-        pos = model.offsetOf(atom);
-      } else if (
-        !atom?.isFirstSibling &&
-        atom?.isLastSibling &&
-        atom.parent?.skipBoundary
-      ) {
-        // When going forward if next is skipboundary, move 2
-        if (pos + 1 === model.lastOffset) {
-          pos = pos + 1;
-        } else {
-          model.position = pos + 1;
-          return move(model, 'forward', options);
+    if (pos >= 0 && pos <= model.lastOffset) {
+      if (direction === 'forward') {
+        let atom = model.at(pos);
+        if (atom.inCaptureSelection) {
+          // If in a capture selection, while going forward jump to
+          // after
+          while (!atom.captureSelection) atom = atom.parent!;
+          pos = model.offsetOf(atom);
+        } else if (
+          !atom.isFirstSibling &&
+          atom.isLastSibling &&
+          atom.parent?.skipBoundary
+        ) {
+          // When going forward if next is skipboundary, move 2
+          if (pos + 1 === model.lastOffset) {
+            pos = pos + 1;
+          } else {
+            model.position = pos + 1;
+            return move(model, 'forward', options);
+          }
+        } else if (atom instanceof LatexAtom && atom.isSuggestion) {
+          atom.isSuggestion = false;
         }
-      } else if (atom instanceof LatexAtom && atom.isSuggestion) {
-        atom.isSuggestion = false;
-      }
-    } else if (direction === 'backward') {
-      let atom = model.at(pos);
-      if (atom?.inCaptureSelection) {
-        // If in a capture selection while going backward, jump to
-        // before
-        while (!atom.captureSelection) atom = atom.parent!;
-        pos = Math.max(0, model.offsetOf(atom.leftSibling));
-      } else if (
-        !atom?.isLastSibling &&
-        atom?.isFirstSibling &&
-        atom.parent?.skipBoundary
-      ) {
-        // When going backward, if land on first of group and previous is
-        // skipbounday,  move -2
-        pos = Math.max(0, pos - 1);
+      } else if (direction === 'backward') {
+        let atom = model.at(pos);
+        if (atom.parent?.inCaptureSelection) {
+          // If in a capture selection while going backward, jump to
+          // before
+          while (!atom.captureSelection) atom = atom.parent!;
+          pos = Math.max(0, model.offsetOf(atom.leftSibling));
+        } else if (
+          !atom.isLastSibling &&
+          atom.isFirstSibling &&
+          atom.parent?.skipBoundary
+        ) {
+          // When going backward, if land on first of group and previous is
+          // skipbounday,  move -2
+          pos = Math.max(0, pos - 1);
+        }
       }
     }
 
@@ -421,17 +424,70 @@ function moveUpward(
 ): boolean {
   const extend = options?.extend ?? false;
 
-  model.collapseSelection('backward');
+  if (!extend) {
+    model.collapseSelection('backward');
+  }
   // Find a target branch
   // This is to handle the case: `\frac{x}{\sqrt{y}}`. If we're at `y`
-  // we'd expectto move to `x`, even though `\sqrt` doesn't have an 'above'
+  // we'd expect to move to `x`, even though `\sqrt` doesn't have an 'above'
   // branch, but one of its ancestor does.
   let atom = model.at(model.position);
-  while (atom && atom.treeBranch !== 'below') {
+
+  while (
+    atom &&
+    atom.treeBranch !== 'below' &&
+    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+  ) {
     atom = atom.parent!;
   }
 
-  if (atom) {
+  // handle navigating through matrices and such
+  if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
+    const arrayAtom = atom.parent;
+    const currentIndex =
+      arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
+    const rowAbove = Math.max(0, atom.treeBranch[0] - 1);
+    const cell = arrayAtom.array[rowAbove][atom.treeBranch[1]]!;
+    const targetIndex = Math.min(cell.length - 1, currentIndex);
+    const targetSelection = model.offsetOf(cell[targetIndex]);
+    if (extend) {
+      const [left, right] = model.selection.ranges[0];
+
+      // doesn't highlight
+      let newSelection: Selection;
+      if (targetSelection < left) {
+        // extending selection upwards
+        newSelection = {
+          ranges: [[targetSelection, right]],
+          direction: 'backward',
+        };
+      } else {
+        // reducing selection upwards
+        newSelection = {
+          ranges: [[left, targetSelection]],
+          direction: 'forward',
+        };
+      }
+      model.setSelection(newSelection);
+
+      // does highlight, has direction error
+      // model.extendSelectionTo(
+      //   targetSelection < left ? right : left,
+      //   targetSelection
+      // );
+
+      // doesn't highlight, doesn't continue selection
+      // model.extendSelectionTo(
+      //   targetSelection,
+      //   targetSelection < left ? right : left
+      // );
+    } else {
+      // move cursor to row above
+      setPositionHandlingPlaceholder(model, targetSelection);
+    }
+
+    model.announce('move up');
+  } else if (atom) {
     if (extend) {
       model.setSelection(
         model.offsetOf(atom.parent!.leftSibling),
@@ -450,19 +506,6 @@ function moveUpward(
     }
 
     model.announce('move up');
-    // } else if (model.parent.array) {
-    //     // In an array
-    //     let colRow = arrayColRow(model.parent.array, relation);
-    //     colRow = arrayAdjustRow(model.parent.array, colRow, -1);
-    //     if (colRow && arrayCell(model.parent.array, colRow)) {
-    //         model.path[model.path.length - 1].relation = ('cell' +
-    //             arrayIndex(model.parent.array, colRow)) as Relation;
-    //         setSelectionOffset(model, model.anchorOffset());
-
-    //         model.announce('moveUp');
-    //     } else {
-    //         move(model, 'backward', options);
-    //     }
   } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
@@ -482,13 +525,61 @@ function moveDownward(
 ): boolean {
   const extend = options?.extend ?? false;
 
-  model.collapseSelection('forward');
+  if (!extend) {
+    model.collapseSelection('forward');
+  }
+  // Find a target branch
+  // This is to handle the case: `\frac{\sqrt{x}}{y}`. If we're at `x`
+  // we'd expect to move to `y`, even though `\sqrt` doesn't have a 'below'
+  // branch, but one of its ancestor does.
   let atom = model.at(model.position);
-  while (atom && atom.treeBranch !== 'above') {
+
+  while (
+    atom &&
+    atom.treeBranch !== 'above' &&
+    !(Array.isArray(atom.treeBranch) && atom.parent instanceof ArrayAtom)
+  ) {
     atom = atom.parent!;
   }
 
-  if (atom) {
+  // handle navigating through matrices and such
+  if (Array.isArray(atom?.treeBranch) && atom.parent instanceof ArrayAtom) {
+    const arrayAtom = atom.parent;
+    const currentIndex =
+      arrayAtom.array[atom.treeBranch[0]][atom.treeBranch[1]]!.indexOf(atom);
+    const rowBelow = Math.min(
+      arrayAtom.array.length - 1,
+      atom.treeBranch[0] + 1
+    );
+    const cell = arrayAtom.array[rowBelow][atom.treeBranch[1]]!;
+    const targetIndex = Math.min(cell.length - 1, currentIndex);
+    const targetSelection = model.offsetOf(cell[targetIndex]);
+    if (extend) {
+      const [left, right] = model.selection.ranges[0];
+
+      let newSelection: Selection;
+      if (targetSelection < right) {
+        // reducing selection downwards
+        newSelection = {
+          ranges: [[targetSelection, right]],
+          direction: 'backward',
+        };
+      } else {
+        // extending selection downwards
+        newSelection = {
+          ranges: [[left, targetSelection]],
+          direction: 'forward',
+        };
+      }
+      // @todo: setSelection doesn't correctly handle this
+      model.setSelection(newSelection);
+    } else {
+      // move cursor to row below
+      setPositionHandlingPlaceholder(model, targetSelection);
+    }
+
+    model.announce('move down');
+  } else if (atom) {
     if (extend) {
       model.setSelection(
         model.offsetOf(atom.parent!.leftSibling),
@@ -507,18 +598,6 @@ function moveDownward(
     }
 
     model.announce('move down');
-    //     // In an array
-    //     let colRow = arrayColRow(model.parent.array, relation);
-    //     colRow = arrayAdjustRow(model.parent.array, colRow, +1);
-    //     // @revisit: validate this codepath
-    //     if (colRow && arrayCell(model.parent.array, colRow)) {
-    //         model.path[model.path.length - 1].relation = ('cell' +
-    //             arrayIndex(model.parent.array, colRow)) as Relation;
-    //         setSelectionOffset(model, model.anchorOffset());
-    //         model.announce('moveDown');
-    //     } else {
-    //         move(model, 'forward', options);
-    //     }
   } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {

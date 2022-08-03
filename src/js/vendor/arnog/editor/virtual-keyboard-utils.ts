@@ -21,20 +21,21 @@ import {
   VirtualKeyboardLayer,
   VirtualKeyboardOptions,
 } from '../public/options';
-import { VirtualKeyboardInterface } from '../public/mathfield';
+import { Mathfield, VirtualKeyboardInterface } from '../public/mathfield';
 import { getActiveKeyboardLayout } from './keyboard-layout';
 import { loadFonts } from '../core/fonts';
 import { isArray } from '../common/types';
 import { COMMANDS, SelectorPrivate } from './commands';
-import { ExecuteCommandFunction } from './commands-definitions';
 import { getMacros } from '../core-definitions/definitions';
 import { Scrim } from './scrim';
 import { Context } from '../core/context';
 import { DEFAULT_FONT_SIZE } from '../core/font-metrics';
 import { typeset } from '../core/typeset';
 import { getDefaultRegisters } from '../core/registers';
-import { throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 import { hashCode } from '../common/hash-code';
+import { Selector } from '../public/commands';
+import { MathfieldPrivate } from './mathfield';
 
 let gScrim: Scrim | null = null;
 
@@ -200,26 +201,18 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   options: VirtualKeyboardOptions & CoreOptions;
   _visible: boolean;
   _element?: HTMLDivElement;
-  _executeCommand?: ExecuteCommandFunction;
-  private readonly _focus?: () => void;
-  private readonly _blur?: () => void;
+  private readonly _mathfield?: MathfieldPrivate;
 
   coreStylesheet: Stylesheet | null;
   virtualKeyboardStylesheet: Stylesheet | null;
 
   constructor(
     options: VirtualKeyboardOptions & CoreOptions,
-    alt?: {
-      executeCommand: ExecuteCommandFunction;
-      focus: () => void;
-      blur: () => void;
-    }
+    mathfield?: Mathfield
   ) {
     this.options = options;
     this.visible = false;
-    this._executeCommand = alt?.executeCommand;
-    this._focus = alt?.focus;
-    this._blur = alt?.blur;
+    this._mathfield = mathfield as MathfieldPrivate;
     this.coreStylesheet = null;
     this.virtualKeyboardStylesheet = null;
   }
@@ -269,14 +262,22 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
   }
 
   focusMathfield(): void {
-    if (this._focus) this._focus();
+    this._mathfield?.focus?.();
   }
 
   blurMathfield(): void {
-    if (this._blur) this._blur();
+    this._mathfield?.blur?.();
   }
 
-  stateChanged(): void {}
+  stateChanged(): void {
+    this._mathfield?.element?.dispatchEvent(
+      new Event('virtual-keyboard-toggle', {
+        bubbles: true,
+        cancelable: false,
+        composed: true,
+      })
+    );
+  }
 
   executeCommand(
     command: SelectorPrivate | [SelectorPrivate, ...any[]]
@@ -298,7 +299,11 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
       return COMMANDS[selector]!.fn(this, ...args);
     }
 
-    return this._executeCommand?.(command) ?? false;
+    return (
+      this._mathfield?.executeCommand(
+        command as Selector | [Selector, ...any[]]
+      ) ?? false
+    );
   }
 
   create(): void {
@@ -331,18 +336,21 @@ export class VirtualKeyboard implements VirtualKeyboardInterface {
     // outside the virtual keyboard.
     // @todo should use a scrim instead (to prevent elements underneat the alt
     // layer from reacting while the alt layer is up)
-    window.addEventListener('mouseup', this);
-    window.addEventListener('blur', this);
-    window.addEventListener('touchend', this);
-    window.addEventListener('touchcancel', this);
+    if (isBrowser()) {
+      window.addEventListener('mouseup', this);
+      window.addEventListener('blur', this);
+      window.addEventListener('touchend', this);
+      window.addEventListener('touchcancel', this);
+    }
   }
 
   disable(): void {
-    window.removeEventListener('mouseup', this);
-    window.removeEventListener('blur', this);
-    window.removeEventListener('touchend', this);
-    window.removeEventListener('touchcancel', this);
-
+    if (isBrowser()) {
+      window.removeEventListener('mouseup', this);
+      window.removeEventListener('blur', this);
+      window.removeEventListener('touchend', this);
+      window.removeEventListener('touchcancel', this);
+    }
     hideAlternateKeys();
     this.visible = false;
 
@@ -719,11 +727,11 @@ const ALT_KEYS_BASE: {
   'i': [{ latex: '\\imaginaryI', aside: 'imaginary i' }],
   'j': [{ latex: '\\imaginaryJ', aside: 'imaginary j' }],
   'l': [{ latex: '\\ell', aside: 'ell' }],
-  'n': [{ latex: '\\N', aside: 'set of natural numbers' }],
-  'p': [{ latex: '\\P', aside: 'set of primes' }],
-  'q': [{ latex: '\\Q', aside: 'set of rational numbers' }],
-  'r': [{ latex: '\\R', aside: 'set of real numbers' }],
-  'z': [{ latex: '\\Z', aside: 'set of integers' }],
+  'n': [{ latex: '\\mathbb{N}', aside: 'set of natural numbers' }],
+  'p': [{ latex: '\\mathbb{P}', aside: 'set of primes' }],
+  'q': [{ latex: '\\mathbb{Q}', aside: 'set of rational numbers' }],
+  'r': [{ latex: '\\mathbb{R}', aside: 'set of real numbers' }],
+  'z': [{ latex: '\\mathbb{Z}', aside: 'set of integers' }],
 
   'x-var': [
     'y',
@@ -1265,7 +1273,6 @@ function latexToMarkup(latex: string, arg: (arg: string) => string): string {
         root.render(
           new Context(
             {
-              macros: getMacros(),
               registers: getDefaultRegisters(),
               smartFence: false,
             },
@@ -1318,10 +1325,9 @@ function makeKeyboardToolbar(
 
       if (keyboards[keyboard].tooltip) {
         result +=
-          "data-ML__tooltip='" +
+          "data-tooltip='" +
           (l10n(keyboards[keyboard].tooltip) ?? keyboards[keyboard].tooltip) +
           "' ";
-        result += "data-placement='top' data-delay='1s'";
       }
 
       if (keyboard !== currentKeyboard) {
@@ -1352,27 +1358,21 @@ function makeKeyboardToolbar(
     copyToClipboard: `
             <div class='action'
                 data-command='"copyToClipboard"'
-                data-ML__tooltip='${l10n(
-                  'tooltip.copy to clipboard'
-                )}' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.copy to clipboard')}'>
                 <svg><use xlink:href='#svg-copy' /></svg>
             </div>
         `,
     undo: `
             <div class='action disabled'
                 data-command='"undo"'
-                data-ML__tooltip='${l10n(
-                  'tooltip.undo'
-                )}' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.undo')}'>
                 <svg><use xlink:href='#svg-undo' /></svg>
             </div>
         `,
     redo: `
             <div class='action disabled'
                 data-command='"redo"'
-                data-ML__tooltip='${l10n(
-                  'tooltip.redo'
-                )}' data-placement='top' data-delay='1s'>
+                data-tooltip='${l10n('tooltip.redo')}'>
                 <svg><use xlink:href='#svg-redo' /></svg>
             </div>
         `,
@@ -1453,6 +1453,7 @@ export function makeKeycap(
         {
           focus: true,
           feedback: true,
+          scrollIntoView: true,
           mode: 'math',
           format: 'latex',
           resetStyle: true,
@@ -1465,6 +1466,7 @@ export function makeKeycap(
         {
           focus: true,
           feedback: true,
+          scrollIntoView: true,
           mode: 'math',
           format: 'latex',
           resetStyle: true,
@@ -1947,10 +1949,14 @@ export function makeKeyboardElement(
             layerMarkup += `<ul>`;
             for (const keycap of row) {
               layerMarkup += `<li`;
-              if (keycap.class && /separator/.test(keycap.class)) {
-                layerMarkup += ` class="${keycap.class}"`;
-              } else if (keycap.class) {
-                layerMarkup += ` class="keycap ${keycap.class}"`;
+              if (keycap.class) {
+                let cls = keycap.class;
+                if (keycap.layer && !/layer-switch/.test(cls)) {
+                  cls += ' layer-switch';
+                }
+                if (!/separator/.test(cls)) cls += ' keycap';
+
+                layerMarkup += ` class="${cls}"`;
               } else {
                 layerMarkup += ` class="keycap"`;
               }
@@ -1996,6 +2002,10 @@ export function makeKeyboardElement(
 
               if (keycap.shiftedCommand) {
                 layerMarkup += ` data-shifted-command="${keycap.shiftedCommand}"`;
+              }
+
+              if (keycap.layer) {
+                layerMarkup += ` data-layer="${keycap.layer}"`;
               }
 
               layerMarkup += `>${keycap.label ? keycap.label : ''}</li>`;
@@ -2131,11 +2141,13 @@ export function unshiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
       const content = keycap.getAttribute('data-unshifted-content');
       if (content) {
         keycap.innerHTML = keyboard.options.createHTML(content);
+        keycap.dataset.unshiftedContent = '';
       }
 
       const command = keycap.getAttribute('data-unshifted-command');
       if (command) {
         keycap.dataset.command = command;
+        keycap.dataset.unshiftedCommand = '';
       }
     }
   }

@@ -1,4 +1,4 @@
-/* 0.69.7 */import type { Keys } from './types-utils';
+/* 0.72.3 */import type { Keys } from './types-utils';
 import type { ParseMode, Style } from './core';
 import type { InsertOptions, Mathfield, Model, VirtualKeyboardInterface } from './mathfield';
 /**
@@ -14,7 +14,15 @@ import type { InsertOptions, Mathfield, Model, VirtualKeyboardInterface } from '
  */
 export declare type SpeechScope = 'all' | 'selection' | 'left' | 'right' | 'group' | 'parent';
 /**
- * Commands return true if they resulted in a dirty state
+ * Use with [[Mathfield.executeCommand]] or [[MathfieldElement.executeCommand]].
+ *
+ * ```ts
+ * const mf = document.getElementById('mathfield');
+ * mf.executeCommand('selectAll');
+ * mf.executeCommand('copyToClipboard');
+ * ```
+ *
+ * Commands return true if they resulted in a dirty state.
  * @command executeCommand
  */
 export interface Commands {

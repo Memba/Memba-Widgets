@@ -16,7 +16,7 @@ import { splitGraphemes } from './grapheme-splitter';
 // '<}>'    : end group
 // '#0'-'#9': argument
 // '#?'     : placeholder
-// '\' + ([a-zA-Z*]+)|([^a-zAz*])  : command
+// '\' + ([a-zA-Z\*]+)|([^a-zAz\*])  : command
 // other (length = 1)   : literal
 //  See: [TeX:289](http://tug.org/texlive/devsrc/Build/source/texk/web2c/tex.web)
 export type Token = string;
@@ -115,7 +115,7 @@ class Tokenizer {
     if (next === '\\') {
       if (!this.end()) {
         // A command is either a string of letters and asterisks...
-        let command = this.match(/^[a-zA-Z*]+/);
+        let command = this.match(/^[a-zA-Z\*]+/);
         if (command) {
           // Spaces after a 'control word' are ignored
           // (but not after a 'control symbol' (single char)
@@ -293,14 +293,14 @@ function expand(
         result.push('\\' + command);
       }
 
-      result = result.concat(tokens);
+      result.push(...tokens);
     } else if (token === '\\endcsname') {
       // Unexpected \endcsname are ignored
     } else if (token.length > 1 && token.startsWith('#')) {
       // It's a parameter to expand
       const parameter = token.slice(1);
-      result = result.concat(
-        tokenize(args?.(parameter) ?? args?.('?') ?? '\\placeholder{}', args)
+      result.push(
+        ...tokenize(args?.(parameter) ?? args?.('?') ?? '\\placeholder{}', args)
       );
     } else {
       result.push(token);
@@ -336,7 +336,7 @@ export function tokenize(
   const tokenizer = new Tokenizer(stream);
   let result: Token[] = [];
   do {
-    result = result.concat(expand(tokenizer, args));
+    result.push(...expand(tokenizer, args));
   } while (!tokenizer.end());
 
   return result;
@@ -347,7 +347,7 @@ export function joinLatex(segments: string[]): string {
   let result = '';
   for (const segment of segments) {
     if (segment) {
-      if (/[a-zA-Z*]/.test(segment[0])) {
+      if (/[a-zA-Z\*]/.test(segment[0])) {
         // If the segment begins with a char that *could* be in a command
         // name... insert a separator (if one was needed for the previous segment)
         result += sep;

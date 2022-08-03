@@ -14,6 +14,7 @@ import type {
 import { supportRegexPropertyEscape } from '../common/capabilities';
 import { PrivateStyle } from '../core/context';
 import { MathstyleName } from '../core/mathstyle';
+import { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 
 export type FunctionArgumentDefiniton = {
   isOptional: boolean;
@@ -193,12 +194,12 @@ const REVERSE_MATH_SYMBOLS = {
     0x27F9: '\\implies', // Also \Longrightarrow
     0x27fa: '\\iff',
 
-    0x2102: '\\C',    // Also \doubleStruckCapitalC
-    0x2115: '\\N',    // Also \doubleStruckCapitalN
-    0x2119: '\\P',    // Also \doubleStruckCapitalP
-    0x211A: '\\Q',    // Also \doubleStruckCapitalQ
-    0x211D: '\\R',    // Also \doubleStruckCapitalR
-    0x2124: '\\Z',    // Also \doubleStruckCapitalZ
+    0x2102: '\\mathbb{C}',    // Also \doubleStruckCapitalC
+    0x2115: '\\mathbb{N}',    // Also \doubleStruckCapitalN
+    0x2119: '\\mathbb{P}',    // Also \doubleStruckCapitalP
+    0x211A: '\\mathbb{Q}',    // Also \doubleStruckCapitalQ
+    0x211D: '\\mathbb{R}',    // Also \doubleStruckCapitalR
+    0x2124: '\\mathbb{Z}',    // Also \doubleStruckCapitalZ
 };
 export const LEGACY_COMMANDS: Record<string, FunctionDefinition> = {};
 
@@ -328,7 +329,6 @@ export const AMSMATH_MACROS: MacroDictionary = {
     def: '\\quad(\\operatorname{mod}\\ #1)',
     args: 1,
     expand: false,
-    captureSelection: false,
   },
 
   // > \newcommand{\mod}[1]{
@@ -344,7 +344,6 @@ export const AMSMATH_MACROS: MacroDictionary = {
     def: '\\quad\\operatorname{mod}\\,\\,#1',
     args: 1,
     expand: false,
-    captureSelection: false,
   },
 
   // > \renewcommand{\bmod}{
@@ -937,17 +936,18 @@ export function getInfo(
 
 /**
  * Return an array of suggestion for completing string 's'.
- * For example, for 'si', it could return ['sin', 'sinh', 'sim', 'simeq', 'sigma']
+ * For example, for '\si', it could return ['\sin', '\sinh', '\sim', 'simeq', '\sigma']
  * Infix operators are excluded, since they are deprecated commands.
  */
-export function suggest(s: string): { match: string; frequency: number }[] {
+export function suggest(mf: MathfieldPrivate, s: string): string[] {
   if (s === '\\') return [];
+  if (!s.startsWith('\\')) return [];
 
   const result: { match: string; frequency: number }[] = [];
 
   // Iterate over items in the dictionary
   for (const p in LEGACY_COMMANDS) {
-    // Avoid recommended infix commands
+    // Don't recommend infix commands
     if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
       result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency ?? 0 });
     }
@@ -959,10 +959,16 @@ export function suggest(s: string): { match: string; frequency: number }[] {
     }
   }
 
+  // Consider macros
+  const command = s.substring(1);
+  for (const p of Object.keys(mf.options.macros)) {
+    if (p.startsWith(command)) result.push({ match: '\\' + p, frequency: 0 });
+  }
+
   result.sort((a, b) => {
     if (a.frequency === b.frequency) {
       if (a.match.length === b.match.length) {
-        return a.match.localeCompare(b.match);
+        return a.match < b.match ? -1 : +1;
       }
 
       return a.match.length - b.match.length;
@@ -971,7 +977,7 @@ export function suggest(s: string): { match: string; frequency: number }[] {
     return (b.frequency ?? 0) - (a.frequency ?? 0);
   });
 
-  return result;
+  return result.map((x) => x.match);
 }
 
 /**
@@ -1010,7 +1016,7 @@ function parseParameterTemplate(
     });
     // Parse the rest
     for (let i = 1; i <= parameters.length; i++) {
-      result = result.concat(parseParameterTemplate(parameters[i]));
+      result.push(...parseParameterTemplate(parameters[i]));
     }
   } else {
     parameters = parameterTemplate.split('}');
@@ -1022,7 +1028,7 @@ function parseParameterTemplate(
       });
       // Parse the rest
       for (let i = 1; i <= parameters.length; i++) {
-        result = result.concat(parseParameterTemplate(parameters[i]));
+        result.push(...parseParameterTemplate(parameters[i]));
       }
     }
   }
@@ -1138,6 +1144,7 @@ export function defineFunction(
       args: (null | Argument)[],
       options: ApplyStyleDefinitionOptions
     ) => PrivateStyle;
+    command?: string;
   }
 ): void {
   if (!options) options = {};
@@ -1171,7 +1178,7 @@ export function getMacros(
     _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
   }
   if (!otherMacros) return _DEFAULT_MACROS;
-  return { ..._DEFAULT_MACROS, ...normalizeMacroDictionary(otherMacros) };
+  return normalizeMacroDictionary({ ..._DEFAULT_MACROS, ...otherMacros });
 }
 
 function normalizeMacroDefinition(
@@ -1208,7 +1215,7 @@ function normalizeMacroDefinition(
 }
 
 export function normalizeMacroDictionary(
-  macros: MacroDictionary | null
+  macros: MacroDictionary
 ): NormalizedMacroDictionary {
   if (!macros) return {};
   const result: NormalizedMacroDictionary = {};

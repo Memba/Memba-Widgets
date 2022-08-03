@@ -5,12 +5,19 @@ import { Offset } from '../public/mathfield';
 import { Atom } from '../core/atom-class';
 import { acceptCommandSuggestion } from './autocomplete';
 import { selectGroup } from '../editor-model/commands-select';
+import { isBrowser } from '../common/capabilities';
 
 let gLastTap: { x: number; y: number; time: number } | null = null;
 let gTapCount = 0;
 
 function isTouchEvent(evt: Event): evt is TouchEvent {
-  return globalThis.TouchEvent !== undefined && evt instanceof TouchEvent;
+  return isBrowser() && 'TouchEvent' in globalThis && evt instanceof TouchEvent;
+}
+
+function isPointerEvent(evt: Event): evt is PointerEvent {
+  return (
+    isBrowser() && 'PointerEvent' in globalThis && evt instanceof PointerEvent
+  );
 }
 
 export function onPointerDown(
@@ -31,7 +38,7 @@ export function onPointerDown(
   // PointerEvent) the touchstart event is sent with event.buttons = 0
   // which for a mouse event would normally be an invalid button.
   // Accept this button 0.
-  if (evt instanceof PointerEvent && evt.buttons !== 1 && evt.buttons !== 0) {
+  if (isPointerEvent(evt) && evt.buttons > 1) {
     return;
   }
 
@@ -50,7 +57,7 @@ export function onPointerDown(
     }
   }, 32);
   function endPointerTracking(evt: null | PointerEvent | TouchEvent): void {
-    if (window.PointerEvent) {
+    if (isBrowser() && 'PointerEvent' in window) {
       off(field, 'pointermove', onPointerMove);
       off(
         field,
@@ -72,7 +79,6 @@ export function onPointerDown(
     mathfield.element!.classList.remove('tracking');
     if (evt) {
       evt.preventDefault();
-      evt.stopPropagation();
     }
   }
 
@@ -103,7 +109,7 @@ export function onPointerDown(
     scrollRight = x > fieldBounds.right;
     scrollLeft = x < fieldBounds.left;
     let actualAnchor: Offset = anchor;
-    if (evt instanceof PointerEvent) {
+    if (isPointerEvent(evt)) {
       if (!evt.isPrimary) {
         actualAnchor = offsetFromPoint(that, evt.clientX, evt.clientY, {
           bias: 0,
@@ -222,7 +228,7 @@ export function onPointerDown(
         }
       } else if (!trackingPointer) {
         trackingPointer = true;
-        if (window.PointerEvent) {
+        if (isBrowser() && 'PointerEvent' in window) {
           on(field, 'pointermove', onPointerMove);
           on(
             field,
@@ -293,7 +299,7 @@ function nearestAtomFromPointRecursive(
   if (!bounds) return [Infinity, null];
 
   let result: [distance: number, atom: Atom | null] = [
-    distance(x, y, bounds),
+    atom.type === 'group' ? Infinity : distance(x, y, bounds),
     atom,
   ];
   //

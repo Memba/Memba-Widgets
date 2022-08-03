@@ -12,8 +12,6 @@ import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { Atom, Branch, ToLatexOptions } from '../core/atom-class';
 import { joinLatex } from '../core/tokenizer';
 
-import { parse as parseMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
-
 import { atomsToMathML } from '../addons/math-ml';
 
 import { atomToAsciiMath } from '../editor/atom-to-ascii-math';
@@ -38,6 +36,7 @@ export type GetAtomOptions = {
   includeChildren?: boolean;
 };
 
+/** @internal */
 export class ModelPrivate implements Model {
   readonly mathfield: MathfieldPrivate;
   readonly options: ModelOptions;
@@ -347,22 +346,29 @@ export class ModelPrivate implements Model {
 
   atomToString(atom: Atom, inFormat: OutputFormat): string {
     const format: string = inFormat ?? 'latex';
-    let result = '';
+
     if (format === 'latex' || format === 'latex-expanded') {
-      result = Atom.serialize(atom, {
+      return Atom.serialize(atom, {
         expandMacro: format === 'latex-expanded',
         defaultMode: this.mathfield.options.defaultMode,
       });
-    } else if (format === 'math-ml') {
-      result = atomsToMathML(atom, this.mathfield.options);
-    } else if (format === 'spoken') {
-      result = atomToSpeakableText(atom, this.mathfield.options);
-    } else if (format === 'spoken-text') {
+    }
+
+    if (format === 'math-ml')
+      return atomsToMathML(atom, this.mathfield.options);
+
+    if (format === 'spoken')
+      return atomToSpeakableText(atom, this.mathfield.options);
+
+    if (format === 'spoken-text') {
       const saveTextToSpeechMarkup = this.mathfield.options.textToSpeechMarkup;
       this.mathfield.options.textToSpeechMarkup = '';
-      result = atomToSpeakableText(atom, this.mathfield.options);
+      const result = atomToSpeakableText(atom, this.mathfield.options);
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
-    } else if (
+      return result;
+    }
+
+    if (
       format === 'spoken-ssml' ||
       format === 'spoken-ssml-with-highlighting'
     ) {
@@ -372,28 +378,27 @@ export class ModelPrivate implements Model {
       // If (format === 'spoken-ssml-with-highlighting') {     // @revisit
       //     this.config.atomIdsSettings = { seed: 'random' };
       // }
-      result = atomToSpeakableText(atom, this.mathfield.options);
+      const result = atomToSpeakableText(atom, this.mathfield.options);
       this.mathfield.options.textToSpeechMarkup = saveTextToSpeechMarkup;
       // This.config.atomIdsSettings = savedAtomIdsSettings;      // @revisit
-    } else if (format === 'math-json') {
-      try {
-        const json = parseMathJson(
-          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' }),
-          {
-            onError: this.mathfield.options.onError,
-          }
-        );
-        result = JSON.stringify(json);
-      } catch (e) {
-        return '';
-      }
-    } else if (format === 'ascii-math') {
-      result = atomToAsciiMath(atom);
-    } else {
-      console.warn('Unknown format :', format);
+      return result;
     }
 
-    return result;
+    if (format === 'math-json') {
+      try {
+        const expr = this.mathfield.computeEngine.parse(
+          Atom.serialize(atom, { expandMacro: false, defaultMode: 'math' })
+        );
+        return JSON.stringify(expr.json);
+      } catch (e) {
+        return JSON.stringify(['Error', 'Nothing', `'${e.toString()}'`]);
+      }
+    }
+
+    if (format === 'ascii-math') return atomToAsciiMath(atom);
+
+    console.warn('Unknown format :', format);
+    return '';
   }
 
   // getValue(): string;
@@ -465,7 +470,7 @@ export class ModelPrivate implements Model {
           // When going forward, if in a capture selection, jump to
           // after
           while (!atom.captureSelection) atom = atom.parent!;
-          pos = this.offsetOf(atom?.parent!.lastChild) + 1;
+          pos = this.offsetOf(atom?.lastChild) + 1;
         } else {
           pos += 1;
         }
@@ -523,14 +528,15 @@ export class ModelPrivate implements Model {
 
       // Include the parent if all the chidlren are selected
       let { parent } = this.at(end);
-      while (
-        parent !== this.root &&
-        childrenInRange(this, parent!, [start, end])
-      ) {
-        end = this.offsetOf(parent!);
-        parent = parent!.parent;
+      if (parent?.type === 'genfrac') {
+        while (
+          parent !== this.root &&
+          childrenInRange(this, parent!, [start, end])
+        ) {
+          end = this.offsetOf(parent!);
+          parent = parent!.parent;
+        }
       }
-
       parent = this.at(start).parent;
       while (
         parent !== this.root &&
@@ -543,15 +549,16 @@ export class ModelPrivate implements Model {
       // Now that the start has potentially changed, check again
       // if end needs to be updated
       parent = this.at(end).parent;
-      while (
-        parent !== this.root &&
-        childrenInRange(this, parent!, [start, end])
-      ) {
-        end = this.offsetOf(parent!);
-        console.assert(end >= 0);
-        parent = parent!.parent;
+      if (parent?.type === 'genfrac') {
+        while (
+          parent !== this.root &&
+          childrenInRange(this, parent!, [start, end])
+        ) {
+          end = this.offsetOf(parent!);
+          console.assert(end >= 0);
+          parent = parent!.parent;
+        }
       }
-
       this._position = this.normalizeOffset(position);
       this._selection = {
         ranges: [[start, end]],

@@ -53,6 +53,7 @@
   top: 0;
   height: 100%;
   width: 100%;
+  z-index: var(--keyboard-zindex, @keyboard-zindex);
 
   // The pointer events should pass through the "ML__keyboard" element
   // which is covering the entire screen, and be captured by the ML__keyboard--plate
@@ -207,7 +208,6 @@
     left: 0;
     bottom: calc(-1 * var(--keyboard-height, @keyboard-height));
     width: 100%;
-    z-index: var(--keyboard-zindex, @keyboard-zindex);
 
     padding-top: 5px;
 
@@ -237,6 +237,8 @@
     cursor: pointer;
 
     box-shadow: @shadow2;
+
+    pointer-events: all;
 
     .tex {
       font-family: 'KaTeX_Math', KaTeX_Main, 'Cambria Math', 'Asana Math',
@@ -304,7 +306,6 @@
         align-items: baseline;
         justify-content: center;
 
-        pointer-events: all;
         color: var(--keyboard-text);
         fill: currentColor;
         background: 0;
@@ -355,6 +356,53 @@
       }
     }
 
+    /* Add an attribute 'data-tooltip' to display a tooltip on hover.
+   Note there are a different set of tooltip rules for the keyboard toggle
+   (it's in a different CSS tree) */
+    [data-tooltip] {
+      position: relative;
+      &::after {
+        position: absolute;
+        display: inline-table;
+        content: attr(data-tooltip);
+
+        top: inherit;
+        bottom: 100%;
+        width: max-content;
+        max-width: 200px;
+        padding: 8px 8px;
+        background: #616161; // Grey 700
+        color: #fff;
+        text-align: center;
+        z-index: 2;
+
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+          0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+
+        font-family: @system;
+        font-weight: 400;
+        font-size: 12px;
+
+        /* Phone */
+        @media only screen and (max-width: 767px) {
+          padding: 8px 16px;
+          font-size: 16px;
+        }
+
+        transition: all 0.15s cubic-bezier(0.4, 0, 1, 1) 1s;
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      &:hover {
+        position: relative;
+        &::after {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    }
+
     /* Keyboard layouts are made or rows of keys... */
     & div .rows {
       border: 0;
@@ -394,7 +442,6 @@
           border: 1px solid var(--keycap-background-border);
           border-bottom-color: var(--keycap-background-border-bottom);
           border-radius: 5px;
-          pointer-events: all;
 
           /* Last key should be flush against the border */
           &:last-child {
@@ -580,6 +627,7 @@
           }
         }
       }
+
       /* iPhone 5 */
       @media only screen and (max-width: 414px) {
         & > ul {

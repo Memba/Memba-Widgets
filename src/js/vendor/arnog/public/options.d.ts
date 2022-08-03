@@ -1,4 +1,4 @@
-/* 0.69.7 */import { ErrorListener, MacroDictionary, ParseMode, ParserErrorCode, MathfieldErrorCode, Registers } from './core';
+/* 0.72.3 */import { ErrorListener, MacroDictionary, ParseMode, ParserErrorCode, MathfieldErrorCode, Registers } from './core';
 import type { Mathfield, Range } from './mathfield';
 import type { Selector } from './commands';
 import type { ErrorCode as MathJsonErrorCode } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
@@ -316,6 +316,8 @@ export interface VirtualKeyboardKeycap {
      * Command to perform when the shifted key is pressed
      */
     shiftedCommand: Selector | [Selector, ...any[]];
+    /** Name of the layer to shift to when the key is pressed */
+    layer: string;
 }
 export interface VirtualKeyboardDefinition {
     label: string;
@@ -506,7 +508,7 @@ export interface MathfieldHooks {
      *
      * By default this is:
      *
-     * ```
+     * ```js
      *  return `\\begin{equation*}${latex}\\end{equation*}`;
      * ```
      *

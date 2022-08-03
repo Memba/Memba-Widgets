@@ -46,11 +46,11 @@ function xmlEscape(string: string): string {
   );
 }
 
-function makeID(id, options) {
+function makeID(id: string, options): string {
   if (!id || !options.generateID) return '';
   // Note: the 'extid' attribute is recognized by SRE as an attribute
   // to be passed to SSML as a <mark> tag.
-  return ' extid="' + id + '"';
+  return ` extid="${id}"`;
 }
 
 function scanIdentifier(stream, final, options) {
@@ -140,9 +140,7 @@ function indexOfSuperscriptInNumber(stream) {
   return result;
 }
 
-function parseSubsup(base, stream, options) {
-  let result = false;
-  let mathML = '';
+function parseSubsup(base: string, stream, options): boolean {
   let atom: Atom = stream.atoms[stream.index - 1];
 
   if (!atom) return false;
@@ -156,29 +154,25 @@ function parseSubsup(base, stream, options) {
 
   if (!atom) return false;
 
-  const superscript = toMathML(atom.subscript, 0, 0, options).mathML;
+  const superscript = toMathML(atom.superscript, 0, 0, options).mathML;
   const subscript = toMathML(atom.subscript, 0, 0, options).mathML;
 
-  if (superscript && subscript) {
+  if (!superscript && !subscript) return false;
+
+  let mathML = '';
+  if (superscript && subscript)
     mathML = `<msubsup>${base}${subscript}${superscript}</msubsup>`;
-  } else if (superscript) {
-    mathML = `<msup>${base}${superscript}</msup>`;
-  } else if (subscript) {
-    mathML = `<msub>${base}${subscript}</msub>`;
-  }
+  else if (superscript) mathML = `<msup>${base}${superscript}</msup>`;
+  else if (subscript) mathML = `<msub>${base}${subscript}</msub>`;
 
-  if (mathML.length > 0) {
-    result = true;
-    stream.mathML += mathML;
-    stream.lastType = '';
-  }
+  stream.mathML += mathML;
+  stream.lastType = '';
 
-  return result;
+  return true;
 }
 
-function scanText(stream, final, options) {
-  let result = false;
-  final = final || stream.atoms.length;
+function scanText(stream, final: number, options) {
+  final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
   while (stream.index < final && stream.atoms[stream.index].mode === 'text') {
@@ -189,24 +183,17 @@ function scanText(stream, final, options) {
   }
 
   if (mathML.length > 0) {
-    result = true;
-    mathML =
-      '<mtext' +
-      makeID(stream.atoms[initial].id, options) +
-      '>' +
-      mathML +
-      '</mtext>';
-
-    stream.mathML += mathML;
+    stream.mathML += `<mtext ${makeID(stream.atoms[initial].id, options)}
+      >${mathML}</mtext>`;
     stream.lastType = 'mtext';
+    return true;
   }
 
-  return result;
+  return false;
 }
 
 function scanNumber(stream, final, options) {
-  let result = false;
-  final = final || stream.atoms.length;
+  final = final ?? stream.atoms.length;
   const initial = stream.index;
   let mathML = '';
 
@@ -224,27 +211,22 @@ function scanNumber(stream, final, options) {
     stream.index += 1;
   }
 
-  if (mathML.length > 0) {
-    result = true;
-    mathML =
-      '<mn' +
-      makeID(stream.atoms[initial].id, options) +
-      '>' +
-      mathML +
-      '</mn>';
+  if (mathML.length <= 0) return false;
 
-    if (superscript < 0 && isSuperscriptAtom(stream)) {
-      superscript = stream.index;
-      stream.index += 1;
-    }
+  mathML =
+    '<mn' + makeID(stream.atoms[initial].id, options) + '>' + mathML + '</mn>';
 
-    if (!parseSubsup(mathML, stream, options)) {
-      stream.mathML += mathML;
-      stream.lastType = 'mn';
-    }
+  if (superscript < 0 && isSuperscriptAtom(stream)) {
+    superscript = stream.index;
+    stream.index += 1;
   }
 
-  return result;
+  if (!parseSubsup(mathML, stream, options)) {
+    stream.mathML += mathML;
+    stream.lastType = 'mn';
+  }
+
+  return true;
 }
 
 function scanFence(stream, final, options) {
@@ -371,14 +353,6 @@ function scanOperator(stream, final, options) {
           '</mi>'
         : toMo(atom, options);
       mathML += op;
-      stream.index += 1;
-      if (parseSubsup(mathML, stream, options)) {
-        result = true;
-        stream.lastType = '';
-        mathML = '';
-      }
-
-      stream.index -= 1;
       if (!isUnit && !/^<mo>(.*)<\/mo>$/.test(op)) {
         mathML += `<mo>${APPLY_FUNCTION}</mo>`; // APPLY FUNCTION
         // mathML += scanArgument(stream);
@@ -387,7 +361,6 @@ function scanOperator(stream, final, options) {
         lastType = isUnit ? 'mi' : 'mo';
       }
     }
-    // MathML += '</mrow>';
 
     if (
       (stream.lastType === 'mi' || stream.lastType === 'mn') &&
@@ -612,14 +585,14 @@ function atomToMathML(atom, options): string {
   let underscript;
   let overscript;
   let body;
-  let variant = MATH_VARIANTS[atom.fontFamily || atom.font] || '';
+  let variant = MATH_VARIANTS[atom.fontFamily ?? atom.font] ?? '';
   if (variant) {
-    variant = ' mathvariant="' + variant + '"';
+    variant = ` mathvariant="${variant}"`;
   }
 
   const { command } = atom;
   if (atom.mode === 'text') {
-    result = '<mi' + makeID(atom.id, options) + '>' + atom.value + '</mi>';
+    result = `<mi${makeID(atom.id, options)}>${atom.value}</mi>`;
   } else {
     switch (atom.type) {
       case 'first':
@@ -896,16 +869,9 @@ function atomToMathML(atom, options): string {
         }
 
         const tag = /\d/.test(result) ? 'mn' : 'mi';
-        result =
-          '<' +
-          tag +
-          variant +
-          makeID(atom.id, options) +
-          '>' +
-          xmlEscape(result) +
-          '</' +
-          tag +
-          '>';
+        result = `<${tag}${variant}${makeID(atom.id, options)}>${xmlEscape(
+          result
+        )}</${tag}>`;
         break;
       }
 
@@ -1046,6 +1012,10 @@ function atomToMathML(atom, options): string {
         break;
       case 'error':
         console.log('In conversion to MathML, unknown type : ' + atom.type);
+        break;
+      case 'latex':
+        result +=
+          '<mtext' + makeID(atom.id, options) + '>' + atom.value + '</mtext>';
         break;
       default:
         console.log('In conversion to MathML, unknown type : ' + atom.type);

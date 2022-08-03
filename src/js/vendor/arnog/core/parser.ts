@@ -22,6 +22,7 @@ import {
   getEnvironmentDefinition,
   getInfo,
   getMacros,
+  normalizeMacroDictionary,
 } from '../core-definitions/definitions-utils';
 import type { ColumnFormat } from '../core-atoms/array';
 import { GroupAtom } from '../core-atoms/group';
@@ -38,7 +39,6 @@ import type { MathstyleName } from './mathstyle';
 export type ArgumentType =
   | ParseMode
   | (
-      | 'auto'
       | 'bbox'
       | 'colspec' // Formating of a column in tabular environment, e.g. `'r@{.}l'`
       | 'delim'
@@ -48,6 +48,7 @@ export type ArgumentType =
       | 'glue' // `'25mu plus 2em minus fiLll'`, `'2pt'`
       | 'string' // The string will end on the first non-literal token, e.g. `<}>`
       | 'balanced-string' // Delimiter is a balanced closing brace
+      | 'auto'
     );
 
 // Performance to check first char of string: https://jsben.ch/QLjdZ
@@ -904,8 +905,8 @@ export class Parser {
           array.push(row);
           row = [];
         } else {
-          this.mathlist = this.mathlist.concat(
-            this.parse(
+          this.mathlist.push(
+            ...this.parse(
               (token: Token) =>
                 token === '<}>' ||
                 token === '&' ||
@@ -1405,7 +1406,7 @@ export class Parser {
         // No mode-specific result. Try again from the start
         this.index = initialIndex;
         do {
-          this.mathlist = this.mathlist.concat(this.parse());
+          this.mathlist.push(...this.parse());
         } while (!this.match('<}>') && !this.end());
       }
     } else {
@@ -1661,6 +1662,7 @@ export class Parser {
       result.verbatimLatex =
         (result.command ?? '') +
         tokensToString(this.tokens.slice(initialIndex, this.index));
+      if (result.verbatimLatex.length === 0) result.verbatimLatex = undefined;
 
       if (result.isFunction && this.smartFence) {
         // The command was a function that may be followed by
@@ -1779,7 +1781,7 @@ export class Parser {
     // We could have no atom for tokens that were skipped, a ' ' in math mode
     // for example
     if (isArray<Atom>(result)) {
-      this.mathlist = this.mathlist.concat(result);
+      this.mathlist.push(...result);
     } else if (result) {
       this.mathlist.push(result);
     }
@@ -1811,7 +1813,7 @@ export function parseLatex(
 ): Atom[] {
   const parser = new Parser(tokenize(s, options?.args ?? null), {
     args: options?.args ?? null,
-    macros: getMacros(options?.macros),
+    macros: normalizeMacroDictionary(options?.macros ?? {}),
     registers: options?.registers ?? null,
     mathstyle: options?.mathstyle ?? 'displaystyle',
     colorMap: options?.colorMap ?? defaultColorMap,
@@ -1839,7 +1841,7 @@ export function parseLatex(
   while (!parser.end()) {
     const more = parser.parse();
     if (!more) break;
-    atoms = atoms.concat(more);
+    atoms.push(...more);
   }
   return atoms;
 }

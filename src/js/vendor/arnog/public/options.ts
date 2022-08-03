@@ -359,6 +359,9 @@ export interface VirtualKeyboardKeycap {
    * Command to perform when the shifted key is pressed
    */
   shiftedCommand: Selector | [Selector, ...any[]];
+
+  /** Name of the layer to shift to when the key is pressed */
+  layer: string;
 }
 
 export interface VirtualKeyboardDefinition {
@@ -585,7 +588,7 @@ export interface MathfieldHooks {
    *
    * By default this is:
    *
-   * ```
+   * ```js
    *  return `\\begin{equation*}${latex}\\end{equation*}`;
    * ```
    *

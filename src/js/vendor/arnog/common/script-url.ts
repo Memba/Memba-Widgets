@@ -25,7 +25,7 @@ function getFileUrl() {
     callerFrame = stackTraceFrames[2];
   }
 
-  m = callerFrame.match(/(http.*(\.mjs|\.js))[\?:]/);
+  m = callerFrame.match(/(https?:[^:]*)/);
   if (!m) {
     // We might be running under node, in which case we have a file path, not a URL
     m = callerFrame.match(/at (.*(\.ts))[\?:]/);
@@ -45,14 +45,27 @@ function getFileUrl() {
   return m[1];
 }
 
+// When using a CDN, there might be some indirections (i.e. to deal
+// with version numbers) before finding the actual location of the library.
+// When resolving relative (to find fonts/sounds), we need to have the resolved
+// URL
+let gResolvedScriptUrl: string | null = null;
+
 export function resolveRelativeUrl(url: string): string {
-  let result = '';
-  try {
-    result = new URL(url, gScriptUrl).toString();
-  } catch (e) {
-    console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
-  }
-  return result;
+  if (gResolvedScriptUrl === null)
+    try {
+      var request = new XMLHttpRequest();
+      // Do a `HEAD` request, we don't care about the body
+      request.open('HEAD', gScriptUrl, false);
+      request.send(null);
+      if (request.status === 200) gResolvedScriptUrl = request.responseURL;
+    } catch (e) {
+      console.error(`Invalid URL "${url}" (relative to "${gScriptUrl}")`);
+    }
+
+  if (gResolvedScriptUrl) return new URL(url, gResolvedScriptUrl).href;
+
+  return '';
 }
 
 // The URL of the bundled MathLive library. Used later to locate the `fonts`

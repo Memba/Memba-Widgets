@@ -55,7 +55,15 @@ export default {
     // object to be accessed later by the component implementation.
     // This allows the user of the component to control which version of
     // the MathLive module gets used.
-    Object.defineProperty(vue.prototype, '$mathlive', { value: mathlive });
+
+    if (vue?.version && +vue.version.split('.')[0] >= 3) {
+      // Vue >= 3.x
+      vue.config.globalProperties.$mathlive = mathlive;
+    } else {
+      // Vue < 3.x
+      Object.defineProperty(vue.prototype, '$mathlive', { value: mathlive });
+    }
+
     vue.component('mathlive-mathfield', this);
   },
   watch: {

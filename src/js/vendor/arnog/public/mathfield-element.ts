@@ -7,8 +7,6 @@ import {
   Offset,
   Range,
   Selection,
-  FindOptions,
-  ReplacementFunction,
 } from './mathfield';
 import { MathfieldErrorCode, ParseMode, ParserErrorCode, Style } from './core';
 
@@ -130,16 +128,17 @@ declare global {
    * @internal
    */
   interface HTMLElementEventMap {
+    'focus-out': CustomEvent<FocusOutEvent>;
+    'keystroke': CustomEvent<KeystrokeEvent>;
+    'math-error': CustomEvent<MathErrorEvent>;
+    'mode-change': Event;
+    'mount': Event;
+    'move-out': CustomEvent<MoveOutEvent>;
+    'unmount': Event;
+    'read-aloud-status-change': Event;
     'selection-change': Event;
     'undo-state-change': Event;
-    'mode-change': Event;
-    'read-aloud-status-change': Event;
-    'mount': Event;
-    'unmount': Event;
-    'math-error': CustomEvent<MathErrorEvent>;
-    'keystroke': CustomEvent<KeystrokeEvent>;
-    'focus-out': CustomEvent<FocusOutEvent>;
-    'move-out': CustomEvent<MoveOutEvent>;
+    'virtual-keyboard-toggle': Event;
   }
 }
 
@@ -164,7 +163,7 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 // Deferred State
 //
 // Methods such as `setOptions()` or `getOptions()` could be called before
-// the element has been connected (i.e. `mf = new MathfieldElement(); mf.setConfig()`...)
+// the element has been connected (i.e. `mf = new MathfieldElement(); mf.setOptions()`...)
 // and therefore before the mathfield instance has been created.
 // So we'll stash any deferred operations on options (and value) here, and
 // will apply them to the element when it gets connected to the DOM.
@@ -172,7 +171,7 @@ MATHFIELD_TEMPLATE.innerHTML = `<style>
 const gDeferredState = new WeakMap<
   MathfieldElement,
   {
-    value: string;
+    value: string | undefined;
     selection: Selection;
     options: Partial<MathfieldOptions>;
   }
@@ -420,7 +419,8 @@ export interface MathfieldElementAttributes {
  * ### CSS Variables
  *
  * To customize the appearance of the mathfield, declare the following CSS
- * variables (custom properties) in a ruleset that applied to the mathfield.
+ * variables (custom properties) in a ruleset that appliee to the mathfield.
+ *
  * ```css
  * math-field {
  *  --hue: 10       // Set the highlight color and caret to a reddish hue
@@ -465,7 +465,8 @@ export interface MathfieldElementAttributes {
  *
  * The property can be changed either directly on the
  * `MathfieldElement` object, or using `setOptions()` if it is prefixed with
- * `options.`, for example
+ * `options.`, for example:
+ *
  * ```javascript
  *  getElementById('mf').value = '\\sin x';
  *  getElementById('mf').setOptions({horizontalSpacingScale: 1.1});
@@ -473,6 +474,7 @@ export interface MathfieldElementAttributes {
  *
  * The values of attributes and properties are reflected, which means you can change one or the
  * other, for example:
+ *
  * ```javascript
  * getElementById('mf').setAttribute('virtual-keyboard-mode',  'manual');
  * console.log(getElementById('mf').getOption('virtualKeyboardMode'));
@@ -565,6 +567,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     return {
       'default-mode': 'string',
       'fonts-directory': 'string',
+      'sounds-directory': 'string',
       'horizontal-spacing-scale': 'string',
       'math-mode-space': 'string',
       'inline-shortcut-timeout': 'string',
@@ -601,21 +604,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       ...Object.keys(MathfieldElement.optionsAttributes),
       'disabled', // Global attribute
       'readonly', // A semi-global attribute (not all standard elements support it, but some do)
+      'read-only',
     ];
   }
 
+  /** @internal */
   private _mathfield: null | MathfieldPrivate;
   // The original text content of the slot.
   // Recorded at construction to avoid reacting to it if a `slotchange` event
   // gets fired as part of the construction (different browsers behave
   // differently).
+  /** @internal */
   private _slotValue: string;
 
   // The content of <style> tags inside the element.
+  /** @internal */
   private _style: string;
 
   /**
      * To create programmatically a new mahfield use:
+     * 
      * ```javascript
     let mfe = new MathfieldElement();
 
@@ -712,7 +720,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   getOptions(): MathfieldOptions;
   getOptions(
     keys?: keyof MathfieldOptions | (keyof MathfieldOptions)[]
-  ): any | Partial<MathfieldOptions> {
+  ): unknown | Partial<MathfieldOptions> {
     if (this._mathfield) {
       return getOptions(this._mathfield.options, keys);
     }
@@ -750,13 +758,13 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         ...options,
       };
       gDeferredState.set(this, {
-        value: gDeferredState.get(this)!.value,
+        ...gDeferredState.get(this)!,
         selection: { ranges: mergedOptions.readOnly ? [[0, 0]] : [[0, -1]] },
         options: mergedOptions,
       });
     } else {
       gDeferredState.set(this, {
-        value: '',
+        value: undefined,
         selection: { ranges: [[0, 0]] },
         options,
       });
@@ -767,29 +775,15 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Execute a [[`Commands`|command]] defined by a selector.
-   * ```javascript
-   * mfe.executeCommand('add-column-after');
-   * mfe.executeCommand(['switch-mode', 'math']);
-   * ```
-   *
-   * @param command - A selector, or an array whose first element
-   * is a selector, and whose subsequent elements are arguments to the selector.
-   *
-   * Selectors can be passed either in camelCase or kebab-case.
-   *
-   * ```javascript
-   * // Both calls do the same thing
-   * mfe.executeCommand('selectAll');
-   * mfe.executeCommand('select-all');
-   * ```
+   * @inheritdoc Mathfield.executeCommand
    */
   executeCommand(command: Selector | [Selector, ...any[]]): boolean {
     return this._mathfield?.executeCommand(command) ?? false;
   }
 
   /**
-   *  @category Accessing and changing the content
+   * @inheritdoc Mathfield.getValue
+   * @category Accessing and changing the content
    */
   getValue(format?: OutputFormat): string;
   getValue(start: Offset, end: Offset, format?: OutputFormat): string;
@@ -829,7 +823,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
         start === 0 &&
         end === -1
       ) {
-        return gDeferredState.get(this)!.value;
+        return gDeferredState.get(this)!.value ?? this.textContent ?? '';
       }
     }
 
@@ -837,18 +831,19 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   *  @category Accessing and changing the content
+   * @inheritdoc Mathfield.setValue
+   * @category Accessing and changing the content
    */
   setValue(value?: string, options?: InsertOptions): void {
-    if (this._mathfield) {
-      this._mathfield.setValue(value ?? '', options);
+    if (this._mathfield && value !== undefined) {
+      this._mathfield.setValue(value, options);
       return;
     }
 
     if (gDeferredState.has(this)) {
       const options = gDeferredState.get(this)!.options;
       gDeferredState.set(this, {
-        value: value ?? '',
+        value,
         selection: {
           ranges: options.readOnly ? [[0, 0]] : [[0, -1]],
           direction: 'forward',
@@ -860,7 +855,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
     const attrOptions = getOptionsFromAttributes(this);
     gDeferredState.set(this, {
-      value: value ?? '',
+      value,
       selection: {
         ranges: attrOptions.readOnly ? [[0, 0]] : [[0, -1]],
         direction: 'forward',
@@ -870,8 +865,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Return true if the mathfield is currently focused (responds to keyboard
-   * input).
+   * @inheritdoc Mathfield.hasFocus
    *
    * @category Focus
    *
@@ -920,14 +914,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Inserts a block of text at the current insertion point.
-   *
-   * This method can be called explicitly or invoked as a selector with
-   * `executeCommand("insert")`.
-   *
-   * After the insertion, the selection will be set according to the
-   * `options.selectionMode`.
-   *
+   * @inheritdoc Mathfield.insert
+
    *  @category Accessing and changing the content
    */
   insert(s: string, options?: InsertOptions): boolean {
@@ -935,24 +923,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   /**
-   * Updates the style (color, bold, italic, etc...) of the selection or sets
-   * the style to be applied to future input.
-   *
-   * If there is no selection and no range is specified, the style will
-   * apply to the next character typed.
-   *
-   * If a range is specified, the style is applied to the range, otherwise,
-   * if there is a selection, the style is applied to the selection.
-   *
-   * If the operation is 'toggle' and the range already has this style,
-   * remove it. If the range
-   * has the style partially applied (i.e. only some sections), remove it from
-   * those sections, and apply it to the entire range.
-   *
-   * If the operation is 'set', the style is applied to the range,
-   * whether it already has the style or not.
-   *
-   * The default operation is 'set'.
+   * @inheritdoc Mathfield.applyStyle
    *
    * @category Accessing and changing the content
    */
@@ -967,7 +938,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    * The bottom location of the caret (insertion point) in viewport
    * coordinates.
    *
-   * See also [[`setCaretPoint`]]
    * @category Selection
    */
   get caretPoint(): null | { x: number; y: number } {
@@ -989,32 +959,6 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    */
   setCaretPoint(x: number, y: number): boolean {
     return this._mathfield?.setCaretPoint(x, y) ?? false;
-  }
-
-  /**
-   *  Return an array of ranges matching the argument.
-   *
-   * An array is always returned, but it has no element if there are no
-   * matching items.
-   */
-  find(pattern: string | RegExp, options?: FindOptions): Range[] {
-    return this._mathfield?.find(pattern, options) ?? [];
-  }
-
-  /**
-   * Replace the pattern items matching the **pattern** with the
-   * **replacement** value.
-   *
-   * If **replacement** is a function, the function is called
-   * for each match and the function return value will be
-   * used as the replacement.
-   */
-  replace(
-    pattern: string | RegExp,
-    replacement: string | ReplacementFunction,
-    options?: FindOptions
-  ): void {
-    this._mathfield?.replace(pattern, replacement, options);
   }
 
   /**
@@ -1245,7 +1189,8 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       this._mathfield.model.deferNotifications(
         { content: false, selection: false },
         () => {
-          this._mathfield!.setValue(gDeferredState.get(this)!.value);
+          const value = gDeferredState.get(this)!.value;
+          if (value !== undefined) this._mathfield!.setValue(value);
           this._mathfield!.selection = gDeferredState.get(this)!.selection;
           gDeferredState.delete(this);
         }
@@ -1314,7 +1259,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       // the element was connected: delete the property (after saving its value)
       // and use the setter to (re-)set its value.
       delete this[prop];
-      if (prop === 'readonly') prop = 'readOnly';
+      if (prop === 'readonly' || prop === 'read-only') prop = 'readOnly';
       this[prop] = value;
     }
   }
@@ -1334,6 +1279,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
       case 'disabled':
         this.disabled = hasValue;
         break;
+      case 'read-only':
       case 'readonly':
         this.readOnly = hasValue;
         break;
@@ -1346,12 +1292,18 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
   }
 
   set readonly(value: boolean) {
-    const isDisabled = Boolean(value);
-    if (isDisabled) this.setAttribute('disabled', '');
+    const isReadonly = Boolean(value);
+    if (isReadonly) this.setAttribute('readonly', '');
+    else {
+      this.removeAttribute('readonly');
+      this.removeAttribute('read-only');
+    }
+
+    if (isReadonly) this.setAttribute('disabled', '');
     else this.removeAttribute('disabled');
 
-    this.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
-    this.setOptions({ readOnly: isDisabled });
+    this.setAttribute('aria-disabled', isReadonly ? 'true' : 'false');
+    this.setOptions({ readOnly: isReadonly });
   }
 
   get disabled(): boolean {
@@ -1369,7 +1321,7 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
 
   /**
    * The content of the mathfield as a Latex expression.
-   * ```
+   * ```js
    * document.querySelector('mf').value = '\\frac{1}{\\pi}'
    * ```
    *  @category Accessing and changing the content
@@ -1591,27 +1543,26 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
    *
    * @category Selection
    */
-  set selection(value: Selection | Offset) {
-    if (typeof value === 'number') {
-      value = { ranges: [[value, value]] };
+  set selection(sel: Selection | Offset) {
+    if (typeof sel === 'number') {
+      sel = { ranges: [[sel, sel]] };
     }
     if (this._mathfield) {
-      this._mathfield.selection = value;
+      this._mathfield.selection = sel;
       return;
     }
 
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
-        value: gDeferredState.get(this)!.value,
-        selection: value,
-        options: gDeferredState.get(this)!.options,
+        ...gDeferredState.get(this)!,
+        selection: sel,
       });
       return;
     }
 
     gDeferredState.set(this, {
-      value: '',
-      selection: value,
+      value: undefined,
+      selection: sel,
       options: getOptionsFromAttributes(this),
     });
   }
@@ -1642,15 +1593,14 @@ export class MathfieldElement extends HTMLElement implements Mathfield {
     }
     if (gDeferredState.has(this)) {
       gDeferredState.set(this, {
-        value: gDeferredState.get(this)!.value,
+        ...gDeferredState.get(this)!,
         selection: { ranges: [[offset, offset]] },
-        options: gDeferredState.get(this)!.options,
       });
       return;
     }
 
     gDeferredState.set(this, {
-      value: '',
+      value: undefined,
       selection: { ranges: [[offset, offset]] },
       options: getOptionsFromAttributes(this),
     });

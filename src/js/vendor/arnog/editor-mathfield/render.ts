@@ -12,7 +12,7 @@ import type { MathfieldPrivate } from './mathfield-private';
 import { atomsToMathML } from '../addons/math-ml';
 import { Atom, Context, DEFAULT_FONT_SIZE } from '../core/core';
 import { updatePopoverPosition } from '../editor/popover';
-import { throwIfNotInBrowser } from '../common/capabilities';
+import { isBrowser, throwIfNotInBrowser } from '../common/capabilities';
 
 /*
  * Return a hash (32-bit integer) representing the content of the mathfield
@@ -66,7 +66,7 @@ export function render(
   //
   // 1. Stop and reset read aloud state
   //
-  if (window.mathlive === undefined) {
+  if (isBrowser() && !('mathlive' in window)) {
     window.mathlive = {};
   }
 
@@ -81,7 +81,7 @@ export function render(
     atom.isSelected = false;
     atom.containsCaret = false;
   }
-  const hasFocus = mathfield.hasFocus() && !mathfield.options.readOnly;
+  const hasFocus = !mathfield.options.readOnly && mathfield.hasFocus();
   if (model.selectionIsCollapsed) {
     model.at(model.position).caret = hasFocus ? mathfield.mode : '';
   } else {
@@ -106,7 +106,6 @@ export function render(
   const base = model.root.render(
     new Context(
       {
-        macros: mathfield.options.macros,
         registers: mathfield.options.registers,
         atomIdsSettings: {
           // Using the hash as a seed for the ID

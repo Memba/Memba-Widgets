@@ -1,7 +1,6 @@
 /* eslint-disable no-new */
 import { InsertOptions, Offset, OutputFormat } from '../public/mathfield';
 import { MathfieldPrivate } from './mathfield-private';
-import { serialize as serializeMathJson } from '@cortex-js/compute-engine/dist/math-json.min.esm.js';
 
 import { requestUpdate } from './render';
 import { range } from '../editor-model/selection-utils';
@@ -18,7 +17,7 @@ import {
 
 import type { Style } from '../public/core';
 import { LeftRightAtom } from '../core-atoms/leftright';
-import { RIGHT_DELIM } from '../core/delimiters';
+import { RIGHT_DELIM, LEFT_DELIM } from '../core/delimiters';
 import {
   contentDidChange,
   selectionDidChange,
@@ -28,6 +27,7 @@ import { applyStyleToUnstyledAtoms } from '../editor-model/styling';
 import { parseLatex } from '../core/parser';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
+import { Expression } from '@cortex-js/compute-engine/dist/types/math-json/math-json-format';
 
 export class MathModeEditor extends ModeEditor {
   constructor() {
@@ -43,7 +43,7 @@ export class MathModeEditor extends ModeEditor {
     const json = ev.clipboardData.getData('application/json');
     if (json) {
       try {
-        text = serializeMathJson(JSON.parse(json), {});
+        text = mathfield.computeEngine.box(JSON.parse(json)).latex;
         format = 'latex';
       } catch {
         text = '';
@@ -77,7 +77,7 @@ export class MathModeEditor extends ModeEditor {
 
   insert(
     model: ModelPrivate,
-    text: string,
+    input: string | Expression,
     options: InsertOptions & {
       colorMap: (name: string) => string | undefined;
       backgroundColorMap: (name: string) => string | undefined;
@@ -100,9 +100,11 @@ export class MathModeEditor extends ModeEditor {
           parent instanceof LeftRightAtom &&
           parent.rightDelim === '?' &&
           model.at(model.position).isLastSibling &&
-          /^[)}\]|]$/.test(text)
+          typeof input === 'string' &&
+          /^[)}\]|]$/.test(input)
         ) {
-          parent.rightDelim = text;
+          parent.isDirty = true;
+          parent.rightDelim = input;
           model.position += 1;
           selectionDidChange(model);
           contentDidChange(model);
@@ -111,7 +113,8 @@ export class MathModeEditor extends ModeEditor {
       }
     } else if (
       model.selectionIsCollapsed &&
-      insertSmartFence(model, text, options.style)
+      typeof input === 'string' &&
+      insertSmartFence(model, input, options.style)
     ) {
       return true;
     }
@@ -170,7 +173,7 @@ export class MathModeEditor extends ModeEditor {
     if (args[0]) {
       // There was a selection, we'll use it for #@
       args['@'] = args[0];
-    } else if (/(^|[^\\])#@/.test(text)) {
+    } else if (typeof input === 'string' && /(^|[^\\])#@/.test(input)) {
       // We'll use the preceding `mord`s or text mode atoms for it (implicit argument)
       const offset = getImplicitArgOffset(model);
       if (offset >= 0) {
@@ -190,13 +193,32 @@ export class MathModeEditor extends ModeEditor {
 
     const [format, newAtoms] = convertStringToAtoms(
       model,
-      text,
+      input,
       argFunction,
       options
     );
     if (!newAtoms) return false;
 
-    const newPlaceholders = findPlaceholders(newAtoms);
+    const placeholdersFound = findPlaceholders(newAtoms);
+
+    const newPlaceholders = placeholdersFound.filter(
+      (atom) =>
+        atom.placeholderId &&
+        !model.mathfield._placeholders.has(atom.placeholderId)
+    );
+    const idsFound = placeholdersFound.map((atom) => atom.placeholderId);
+    const removedPlaceholder = [...model.mathfield._placeholders.keys()].filter(
+      (placeholderId) => !idsFound.includes(placeholderId)
+    );
+
+    removedPlaceholder.forEach((placeholderId) => {
+      if (model.mathfield._placeholders.has(placeholderId)) {
+        model.mathfield._placeholders.get(placeholderId)?.field.remove();
+
+        model.mathfield._placeholders.delete(placeholderId);
+      }
+    });
+
     newPlaceholders.forEach((placeholder) => {
       if (
         placeholder.placeholderId &&
@@ -276,7 +298,7 @@ export class MathModeEditor extends ModeEditor {
     const cursor = model.at(model.position);
     cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
-    if (format === 'latex') {
+    if (format === 'latex' && typeof input === 'string') {
       // If we are given a latex string with no arguments, store it as
       // "verbatim latex".
       // Caution: we can only do this if the `serialize()` for this parent
@@ -284,7 +306,7 @@ export class MathModeEditor extends ModeEditor {
       // properties than parent.body, for example by adding '\left.' and
       // '\right.' with a 'leftright' type, we can't use this shortcut.
       if (parent!.type === 'root' && hadEmptyBody && !usedArg) {
-        parent!.verbatimLatex = text;
+        parent!.verbatimLatex = input;
       }
     }
 
@@ -332,7 +354,7 @@ export class MathModeEditor extends ModeEditor {
 
 function convertStringToAtoms(
   model: ModelPrivate,
-  s: string,
+  s: string | Expression,
   args: (arg: string) => string,
   options: InsertOptions & {
     colorMap: (name: string) => string | undefined;
@@ -341,7 +363,20 @@ function convertStringToAtoms(
 ): [OutputFormat, Atom[]] {
   let format: OutputFormat | undefined = undefined;
   let result: Atom[] = [];
-  if (options.format === 'ascii-math') {
+
+  if (typeof s !== 'string' || options.format === 'math-json') {
+    [format, s] = [
+      'latex',
+      model.mathfield.computeEngine.box(s as Expression).latex,
+    ];
+    result = parseLatex(s, {
+      parseMode: 'math',
+      macros: options?.macros,
+      onError: model.listeners.onError,
+      colorMap: options.colorMap,
+      backgroundColorMap: options.backgroundColorMap,
+    });
+  } else if (typeof s === 'string' && options.format === 'ascii-math') {
     [format, s] = parseMathString(s, {
       format: 'ascii-math',
       inlineShortcuts: model.mathfield.options.inlineShortcuts,
@@ -372,7 +407,7 @@ function convertStringToAtoms(
     result = parseLatex(s, {
       parseMode: 'math',
       args: args,
-      macros: options.macros,
+      macros: { ...model.options.macros, ...(options.macros ?? {}) },
       smartFence: options.smartFence,
       onError: model.listeners.onError,
       colorMap: options.colorMap,
@@ -469,7 +504,7 @@ function findPlaceholders(atoms: Atom[]): PlaceholderAtom[] {
     for (const branch of atom.branches) {
       if (!atom.hasEmptyBranch(branch)) {
         const branchPlaceholder = findPlaceholders(atom.branch(branch)!);
-        result = result.concat(branchPlaceholder);
+        result.push(...branchPlaceholder);
       }
     }
 
@@ -499,16 +534,32 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
     return model.offsetOf(atom);
   }
 
-  if (!isImplicitArg(atom)) {
-    return -1;
-  }
+  // Find the first 'mrel', 'mbin', etc... to the left of the insertion point
+  // until the first sibling.
+  // Terms inside of delimiters (parens, brackets, etc) are grouped and kept together.
+  const atomAtCursor = atom;
+  const delimiterStack: string[] = [];
 
-  // Find the first 'mrel', etc... to the left of the insertion point
-  // until the first sibling
-  while (!atom.isFirstSibling && isImplicitArg(atom)) {
+  while (
+    !atom.isFirstSibling &&
+    (isImplicitArg(atom) || delimiterStack.length > 0)
+  ) {
+    if (atom.type === 'mclose') {
+      delimiterStack.unshift(atom.value);
+    }
+    if (
+      atom.type === 'mopen' &&
+      delimiterStack.length > 0 &&
+      atom.value === LEFT_DELIM[delimiterStack[0]]
+    ) {
+      delimiterStack.shift();
+    }
     atom = atom.leftSibling;
   }
 
+  if (atomAtCursor == atom) {
+    return -1;
+  }
   return model.offsetOf(atom);
 }
 
@@ -521,9 +572,11 @@ function getImplicitArgOffset(model: ModelPrivate): Offset {
  * be included as the numerator
  */
 function isImplicitArg(atom: Atom): boolean {
-  if (/^(mord|surd|msubsup|leftright|mop)$/.test(atom.type)) {
+  if (/^(mord|surd|msubsup|leftright|mop|mclose)$/.test(atom.type)) {
     // Exclude `\int`, \`sum`, etc...
     if (atom.isExtensibleSymbol) return false;
+    // Exclude trig functions (they can be written as `\sin \frac\pi3` without parens)
+    if (atom.isFunction) return false;
     return true;
   }
 
@@ -588,15 +641,17 @@ export function insertSmartFence(
       ? `\\mleft${fence}\\mright${rDelim}`
       : `\\left${fence}\\right?`;
 
-    const lastSiblingOffset = model.offsetOf(atom.lastSibling);
-    const content = model.extractAtoms([model.position, lastSiblingOffset]);
     ModeEditor.insert('math', model, s, {
       format: 'latex',
       style,
     });
-    // Move everything that was after the anchor into the leftright
-    model.at(model.position).body = content;
-    model.position -= 1;
+    // If there is content after the anchor, move it into the `leftright` atom
+    if (atom.lastSibling.type !== 'first') {
+      const lastSiblingOffset = model.offsetOf(atom.lastSibling);
+      const content = model.extractAtoms([model.position, lastSiblingOffset]);
+      model.at(model.position).body = content;
+      model.position -= 1;
+    }
     return true;
   }
 
@@ -614,6 +669,7 @@ export function insertSmartFence(
     // If we're the last atom inside a 'leftright',
     // update the parent
     if (parent instanceof LeftRightAtom && atom.isLastSibling) {
+      parent.isDirty = true;
       parent.rightDelim = fence;
       model.position += 1;
       contentDidChange(model);
@@ -648,6 +704,7 @@ export function insertSmartFence(
     // and the `leftright` right delim is indeterminate
     // adjust the body (put everything after the insertion point outside)
     if (parent instanceof LeftRightAtom && parent.rightDelim === '?') {
+      parent.isDirty = true;
       parent.rightDelim = fence;
 
       parent.parent!.addChildren(

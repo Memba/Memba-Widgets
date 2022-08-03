@@ -7,9 +7,7 @@ import type {
   Offset,
   Range,
   Selection,
-  FindOptions,
   ApplyStyleOptions,
-  ReplacementFunction,
   VirtualKeyboardInterface,
 } from '../public/mathfield';
 
@@ -30,7 +28,6 @@ import {
   perform,
   getCommandTarget,
 } from '../editor/commands';
-import { find, replace } from '../editor-model/find';
 import { complete } from './autocomplete';
 import { requestUpdate, render } from './render';
 import {
@@ -92,12 +89,14 @@ import { hashCode } from '../common/hash-code';
 import { disposeKeystrokeCaption } from './keystroke-caption';
 import { PlaceholderAtom } from '../core-atoms/placeholder';
 import MathfieldElement from '../public/mathfield-element';
+import { ComputeEngine } from '@cortex-js/compute-engine';
 
 let CORE_STYLESHEET_HASH: string | undefined = undefined;
 let MATHFIELD_STYLESHEET_HASH: string | undefined = undefined;
+/** @internal */
 export class MathfieldPrivate implements Mathfield {
+  _computeEngine: ComputeEngine;
   model: ModelPrivate;
-  macros: NormalizedMacroDictionary;
   options: Required<MathfieldOptionsPrivate>;
 
   dirty: boolean; // If true, need to be redrawn
@@ -153,7 +152,7 @@ export class MathfieldPrivate implements Mathfield {
   // If this value is different when the field is blured
   // the `onCommit` listener is triggered
   private valueOnFocus: string;
-  private eventHandlingInProgress = '';
+  private focusBlurInProgress = false;
   private readonly stylesheets: (null | Stylesheet)[] = [];
   private resizeTimer: number; // Timer handle
 
@@ -161,12 +160,22 @@ export class MathfieldPrivate implements Mathfield {
 
   /**
    *
+   * - `options.computeEngine`: An instance of a `ComputeEngine`. It is used to parse and serialize
+   * LaTeX strings, using the information contained in the dictionaries
+   * of the Compute Engine to determine, for example, which symbols are
+   * numbers or which are functions, and therefore corectly interpret
+   * `bf(x)` as `b \\times f(x)`.
+   *
+   * If no instance is provided, a new, default, one is created.
+   *
    * @param element - The DOM element that this mathfield is attached to.
    * Note that `element.mathfield` is this object.
    */
   constructor(
     element: HTMLElement & { mathfield?: MathfieldPrivate },
-    options: Partial<MathfieldOptionsPrivate>
+    options: Partial<MathfieldOptionsPrivate> & {
+      computeEngine?: ComputeEngine;
+    }
   ) {
     // Setup default config options
     this.options = updateOptions(
@@ -184,8 +193,10 @@ export class MathfieldPrivate implements Mathfield {
             ...options,
           }
     );
-    this.macros = this.options.macros as NormalizedMacroDictionary;
+    if (options.computeEngine) this._computeEngine = options.computeEngine;
+
     this._placeholders = new Map();
+
     this.colorMap = (name: string): string | undefined => {
       let result: string | undefined = undefined;
       if (typeof this.options.colorMap === 'function') {
@@ -217,16 +228,10 @@ export class MathfieldPrivate implements Mathfield {
       this.virtualKeyboard = options.useSharedVirtualKeyboard
         ? new VirtualKeyboardDelegate({
             targetOrigin: this.options.sharedVirtualKeyboardTargetOrigin,
-            focus: () => this.focus(),
-            blur: () => this.blur(),
-            executeCommand: (command) => this.executeCommand(command),
             originValidator: this.options.originValidator,
+            mathfield: this,
           })
-        : new VirtualKeyboard(this.options, {
-            focus: () => this.focus(),
-            blur: () => this.blur(),
-            executeCommand: (command) => this.executeCommand(command),
-          });
+        : new VirtualKeyboard(this.options, this);
     }
     this.plonkSound = this.options.plonkSound as HTMLAudioElement;
     if (!this.options.keypressSound) {
@@ -301,19 +306,18 @@ export class MathfieldPrivate implements Mathfield {
       this.options.virtualKeyboardToggleGlyph ?? DEFAULT_KEYBOARD_TOGGLE_GLYPH;
     markup += '</div>';
 
-    if (this.options.readOnly) {
-      markup += "<div class='ML__placeholdercontainer'></div>";
-    }
+    markup += "<div class='ML__placeholdercontainer'></div>";
+
     markup += '</span>';
 
     // 3.1/ The aria-live region for announcements
     // 3.1/ The area to stick MathML for screen reading larger exprs
     // (not used right now). The idea for the area is that focus would bounce
-    // their and then back triggering the screen reader to read it
+    // there and then back triggering the screen reader to read it
 
     markup +=
       '<div class="ML__sr-only">' +
-      '<span aria-live="assertive" aria-atomic="true"></span>' +
+      '<span aria-role="status" aria-live="assertive" aria-atomic="true"></span>' +
       '<span></span>' +
       '</div>';
 
@@ -337,21 +341,7 @@ export class MathfieldPrivate implements Mathfield {
       .firstElementChild as HTMLElement;
     this.field = this.element.children[iChild].children[0] as HTMLElement;
     // Listen to 'wheel' events to scroll (horizontally) the field when it overflows
-    this.field.addEventListener(
-      'wheel',
-      (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const wheelDelta = ev.detail ?? -ev.deltaX;
-        if (Number.isFinite(wheelDelta)) {
-          this.field!.scroll({
-            top: 0,
-            left: this.field!.scrollLeft - wheelDelta * 5,
-          });
-        }
-      },
-      { passive: false }
-    );
+    this.field.addEventListener('wheel', this, { passive: false });
 
     iChild++;
 
@@ -370,11 +360,6 @@ export class MathfieldPrivate implements Mathfield {
       this.element.classList.add('ML__isReadOnly');
     } else {
       this.element.classList.remove('ML__isReadOnly');
-    }
-    if (this.options.defaultMode === 'inline-math') {
-      this.element.classList.add('ML__isInline');
-    } else {
-      this.element.classList.remove('ML__isInline');
     }
     attachButtonHandlers(
       (command) => this.executeCommand(command),
@@ -418,6 +403,12 @@ export class MathfieldPrivate implements Mathfield {
     // reflects the style to be applied on next insertion.
     this.style = {};
 
+    if (this.options.defaultMode === 'inline-math') {
+      this.element.classList.add('ML__isInline');
+    } else {
+      this.element.classList.remove('ML__isInline');
+    }
+
     // Focus/blur state
     this.blurred = true;
     on(this.element, 'focus', this);
@@ -429,7 +420,7 @@ export class MathfieldPrivate implements Mathfield {
       textarea as HTMLTextAreaElement,
       {
         typedText: (text: string): void => onTypedText(this, text),
-        cut: (_ev: ClipboardEvent) => {
+        cut: (ev: ClipboardEvent) => {
           // Ignore if in read-only mode
           if (this.options.readOnly) {
             this.model.announce('plonk');
@@ -439,9 +430,12 @@ export class MathfieldPrivate implements Mathfield {
           // Snapshot the undo state
           this.snapshot();
 
+          // Copy to the clipboard
+          ModeEditor.onCopy(this, ev);
+
           // Clearing the selection will have the side effect of clearing the
           // content of the textarea. However, the textarea value is what will
-          // be copied to the clipboard, so defer the clearing of the selection
+          // be copied to the clipboard (in some cases), so defer the clearing of the selection
           // to later, after the cut operation has been handled.
           setTimeout(() => {
             deleteRange(this.model, range(this.model.selection));
@@ -470,7 +464,7 @@ export class MathfieldPrivate implements Mathfield {
     );
 
     // Delegate mouse and touch events
-    if (window.PointerEvent) {
+    if (isBrowser() && 'PointerEvent' in window) {
       // Use modern pointer events if available
       on(this.field, 'pointerdown', this);
     } else {
@@ -486,7 +480,7 @@ export class MathfieldPrivate implements Mathfield {
     this.model = new ModelPrivate(
       {
         mode: effectiveMode(this.options),
-        macros: this.macros,
+        macros: this.options.macros as NormalizedMacroDictionary,
         removeExtraneousParentheses: this.options.removeExtraneousParentheses,
       },
       {
@@ -574,6 +568,11 @@ export class MathfieldPrivate implements Mathfield {
     }
   }
 
+  get computeEngine(): ComputeEngine {
+    if (!this._computeEngine) this._computeEngine = new ComputeEngine();
+    return this._computeEngine;
+  }
+
   get virtualKeyboardState(): 'hidden' | 'visible' {
     if (this.virtualKeyboard?.visible) return 'visible';
     return 'hidden';
@@ -590,7 +589,7 @@ export class MathfieldPrivate implements Mathfield {
 
   get keybindings(): Keybinding[] {
     if (this._keybindings) return this._keybindings;
-    this._keybindings = normalizeKeybindings(
+    const keybindings = normalizeKeybindings(
       this.options.keybindings,
       getActiveKeyboardLayout() ?? DEFAULT_KEYBOARD_LAYOUT,
       (e) => {
@@ -604,7 +603,10 @@ export class MathfieldPrivate implements Mathfield {
         console.error(e.join('\n'));
       }
     );
-    return this._keybindings;
+    if (getActiveKeyboardLayout()?.score > 0) {
+      this._keybindings = keybindings;
+    }
+    return keybindings;
   }
 
   setOptions(config: Partial<MathfieldOptionsPrivate>): void {
@@ -627,6 +629,8 @@ export class MathfieldPrivate implements Mathfield {
         this.options.onMoveOutOf(this, direction),
       tabOut: (_sender, direction) => this.options.onTabOutOf(this, direction),
     });
+    this.model.options.macros = this.options
+      .macros as NormalizedMacroDictionary;
 
     if (!this.options.locale.startsWith(getActiveKeyboardLayout().locale)) {
       setKeyboardLayoutLocale(this.options.locale);
@@ -719,7 +723,6 @@ export class MathfieldPrivate implements Mathfield {
         selectionMode: 'after',
         format: 'latex',
         suppressChangeNotifications: true,
-        macros: this.options.macros,
       });
     }
 
@@ -739,7 +742,7 @@ export class MathfieldPrivate implements Mathfield {
   getOption<K extends keyof MathfieldOptionsPrivate>(
     key: K
   ): MathfieldOptionsPrivate[K] {
-    return getOptions(this.options, key);
+    return getOptions(this.options, key) as MathfieldOptionsPrivate[K];
   }
 
   /*
@@ -754,30 +757,32 @@ export class MathfieldPrivate implements Mathfield {
   handleEvent(evt: Event): void {
     switch (evt.type) {
       case 'focus':
-        if (!this.eventHandlingInProgress) {
-          this.eventHandlingInProgress = 'focus';
+        if (!this.focusBlurInProgress) {
+          this.focusBlurInProgress = true;
           this.onFocus();
-          this.eventHandlingInProgress = '';
+          this.focusBlurInProgress = false;
         }
-
         break;
+
       case 'blur':
-        if (!this.eventHandlingInProgress) {
-          this.eventHandlingInProgress = 'blur';
+        if (!this.focusBlurInProgress) {
+          this.focusBlurInProgress = true;
           this.onBlur();
-          this.eventHandlingInProgress = '';
+          this.focusBlurInProgress = false;
         }
-
         break;
+
       case 'touchstart':
       case 'mousedown':
-        // IOS <=13 Safari and Firefox on Android
+        // iOS <=13 Safari and Firefox on Android
         onPointerDown(this, evt as PointerEvent);
         break;
+
       case 'pointerdown':
         onPointerDown(this, evt as PointerEvent);
         break;
-      case 'resize': {
+
+      case 'resize':
         if (this.resizeTimer) {
           cancelAnimationFrame(this.resizeTimer);
         }
@@ -786,7 +791,10 @@ export class MathfieldPrivate implements Mathfield {
           () => isValidMathfield(this) && this.onResize()
         );
         break;
-      }
+
+      case 'wheel':
+        this.onWheel(evt as WheelEvent);
+        break;
 
       default:
         console.warn('Unexpected event type', evt.type);
@@ -796,14 +804,17 @@ export class MathfieldPrivate implements Mathfield {
   dispose(): void {
     if (!isValidMathfield(this)) return;
 
-    off(this.element!, 'pointerdown', this);
-    off(this.element!, 'touchstart:active mousedown', this);
-    off(this.element!, 'focus', this);
-    off(this.element!, 'blur', this);
-    off(window, 'resize', this);
+    const element = this.element!;
+    delete this.element;
+    delete element.mathfield;
 
-    this.element!.innerHTML = this.getValue();
-    delete this.element!.mathfield;
+    element.innerHTML = this.getValue();
+
+    off(element, 'pointerdown', this);
+    off(element, 'touchstart:active mousedown', this);
+    off(element, 'focus', this);
+    off(element, 'blur', this);
+    off(window, 'resize', this);
 
     delete this.accessibleNode;
     delete this.ariaLiveText;
@@ -818,8 +829,6 @@ export class MathfieldPrivate implements Mathfield {
     }
     disposePopover(this);
     disposeKeystrokeCaption(this);
-
-    delete this.element;
 
     this.stylesheets.forEach((x) => x?.release());
   }
@@ -908,18 +917,6 @@ export class MathfieldPrivate implements Mathfield {
     }
   }
 
-  find(value: string | RegExp, options?: FindOptions): Range[] {
-    return find(this.model, value, options);
-  }
-
-  replace(
-    searchValue: string | RegExp,
-    newValue: string | ReplacementFunction,
-    options?: FindOptions
-  ): void {
-    replace(this.model, searchValue, newValue, options);
-  }
-
   getPlaceholderField(placeholderId: string): MathfieldElement | undefined {
     return this._placeholders.get(placeholderId)?.field;
   }
@@ -976,6 +973,10 @@ export class MathfieldPrivate implements Mathfield {
         }
 
         void this.keypressSound?.play().catch(console.warn);
+      }
+
+      if (options.scrollIntoView) {
+        this.scrollIntoView();
       }
 
       if (s === '\\\\') {
@@ -1168,7 +1169,7 @@ export class MathfieldPrivate implements Mathfield {
   }
 
   attachNestedMathfield(): void {
-    let fontSizeChanged = false;
+    let needsUpdate = false;
     this._placeholders.forEach((v) => {
       const container = this.field?.querySelector(
         `[data-placeholder-id=${v.atom.placeholderId}]`
@@ -1179,24 +1180,43 @@ export class MathfieldPrivate implements Mathfield {
 
         const scaleDownFontsize =
           parseInt(window.getComputedStyle(container).fontSize) * 0.6;
-        if (v.field.style.fontSize !== `${scaleDownFontsize}px`) {
-          fontSizeChanged = true;
+
+        if (
+          !v.field.style.fontSize ||
+          Math.abs(scaleDownFontsize - parseFloat(v.field.style.fontSize)) >=
+            0.2
+        ) {
+          needsUpdate = true;
+          v.field.style.fontSize = `${scaleDownFontsize}px`;
         }
-        v.field.style.fontSize = `${scaleDownFontsize}px`;
-        v.field.style.top = `${
+        const newTop =
           (placeholderPosition?.top ?? 0) -
           (parentPosition?.top ?? 0) +
-          (this.element?.offsetTop ?? 0)
-        }px`;
-        v.field.style.left = `${
+          (this.element?.offsetTop ?? 0);
+        const newLeft =
           (placeholderPosition?.left ?? 0) -
           (parentPosition?.left ?? 0) +
-          (this.element?.offsetLeft ?? 0)
-        }px`;
+          (this.element?.offsetLeft ?? 0);
+        if (
+          !v.field.style.left ||
+          Math.abs(newLeft - parseFloat(v.field.style.left)) >= 1
+        ) {
+          needsUpdate = true;
+          v.field.style.left = `${newLeft}px`;
+        }
+
+        if (
+          !v.field.style.top ||
+          Math.abs(newTop - parseFloat(v.field.style.top)) >= 1
+        ) {
+          needsUpdate = true;
+          v.field.style.top = `${newTop}px`;
+        }
+        console.log('attaching', !!v.field.style.left, !!v.field.style.top);
       }
     });
 
-    if (fontSizeChanged) {
+    if (needsUpdate) {
       requestUpdate(this);
     }
   }
@@ -1405,5 +1425,25 @@ export class MathfieldPrivate implements Mathfield {
     }
 
     updatePopoverPosition(this);
+  }
+
+  private onWheel(ev: WheelEvent): void {
+    const wheelDelta = 5 * ev.deltaX;
+    if (!Number.isFinite(wheelDelta) || wheelDelta === 0) return;
+
+    const field = this.field!;
+
+    if (wheelDelta < 0 && field.scrollLeft === 0) return;
+
+    if (
+      wheelDelta > 0 &&
+      field.offsetWidth + field.scrollLeft >= field.scrollWidth
+    ) {
+      return;
+    }
+
+    field.scrollBy({ top: 0, left: wheelDelta });
+    ev.preventDefault();
+    ev.stopPropagation();
   }
 }

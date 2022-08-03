@@ -2,7 +2,7 @@ REM goto current directory
 cd /d %~dp0
 
 REM set directory where mathlive is built from sources
-set DIR="%USERPROFILE%\Desktop\mathlive-0.69.7"
+set DIR="%USERPROFILE%\Desktop\mathlive-0.72.3"
 
 REM src\
 RD ".\addons" /Q /S

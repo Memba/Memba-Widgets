@@ -1,4 +1,4 @@
-/* 0.69.7 */import { Selector } from './commands';
+/* 0.72.3 */import { Selector } from './commands';
 import { CoreOptions, MathfieldOptions, VirtualKeyboardOptions } from './options';
 import { ParseMode, MacroDictionary, Style, Registers } from './core';
 /**
@@ -57,21 +57,15 @@ export declare type InsertOptions = {
     /** If true, provide audio and haptic feedback
      */
     feedback?: boolean;
+    /** If true, scroll the caret into view after insertion
+     */
+    scrollIntoView?: boolean;
     /** If true, the style after the insertion
      * is the same as the style before. If false, the style after the
      * insertion is the style of the last inserted atom.
      */
     resetStyle?: boolean;
 };
-export declare type FindOptions = {
-    mode?: ParseMode;
-};
-export declare type ReplacementFunction = (args: {
-    range: Range;
-    match: string;
-    latex: string;
-    p: string[];
-}) => string;
 export declare type ApplyStyleOptions = {
     range?: Range;
     operation?: 'set' | 'toggle';
@@ -123,10 +117,10 @@ export declare type Selection = {
 };
 /**
  * This interface is implemented by:
- * - VirtualKeyboard
- * - VirtualKeyboardDelegate (used when the virtual keyboard is shared amongst
+ * - `VirtualKeyboard`
+ * - `VirtualKeyboardDelegate` (used when the virtual keyboard is shared amongst
  * mathfield instances)
- * - RemoteVirtualKeyboard (the shared virtual keyboard instance)
+ * - `RemoteVirtualKeyboard` (the shared virtual keyboard instance)
  */
 export interface VirtualKeyboardInterface {
     visible: boolean;
@@ -171,26 +165,31 @@ export interface Mathfield {
      */
     executeCommand(command: Selector | [Selector, ...any[]]): boolean;
     /**
-     * Returns a textual representation of the mathfield.
+     * Return a textual representation of the content of the mathfield.
      *
-     * @param format - The format of the result.
-     * **Default** = `"latex"`
+     * @param format - The format of the result
+     *
+     * **Default:** `"latex"`
+     *
      * @category Accessing the Content
      */
     getValue(format?: OutputFormat): string;
+    /** Return the value of the mathfield from `start` to `end` */
     getValue(start: Offset, end: Offset, format?: OutputFormat): string;
+    /** Return the value of the mathfield in `range` */
     getValue(range: Range | Selection, format?: OutputFormat): string;
+    /** @internal */
     getValue(arg1?: Offset | OutputFormat | Range | Selection, arg2?: Offset | OutputFormat, arg3?: OutputFormat): string;
     select(): void;
     /**
-     * Sets the content of the mathfield to the
-     * text interpreted as a LaTeX expression.
+     * Set the content of the mathfield to the text interpreted as a
+     * LaTeX expression.
      *
      * @category Accessing the Content
      */
     setValue(latex?: string, options?: InsertOptions): void;
     /**
-     * Inserts a block of text at the current insertion point.
+     * Insert a block of text at the current insertion point.
      *
      * This method can be called explicitly or invoked as a selector with
      * `executeCommand("insert")`.
@@ -202,6 +201,9 @@ export interface Mathfield {
      */
     insert(s: string, options?: InsertOptions): boolean;
     /**
+     * Return true if the mathfield is currently focused (responds to keyboard
+     * input).
+     *
      * @category Focus
      *
      */
@@ -215,7 +217,7 @@ export interface Mathfield {
      */
     blur?(): void;
     /**
-     * Updates the style (color, bold, italic, etc...) of the selection or sets
+     * Update the style (color, bold, italic, etc...) of the selection or sets
      * the style to be applied to future input.
      *
      * If there is no selection and no range is specified, the style will
@@ -224,42 +226,32 @@ export interface Mathfield {
      * If a range is specified, the style is applied to the range, otherwise,
      * if there is a selection, the style is applied to the selection.
      *
-     * If the operation is 'toggle' and the range already has this style,
+     * If the operation is `"toggle"` and the range already has this style,
      * remove it. If the range
      * has the style partially applied (i.e. only some sections), remove it from
      * those sections, and apply it to the entire range.
      *
-     * If the operation is 'set', the style is applied to the range,
+     * If the operation is `"set"`, the style is applied to the range,
      * whether it already has the style or not.
      *
-     * The default operation is 'set'.
+     * The default operation is `"set"`.
      *
      */
     applyStyle(style: Style, options?: ApplyStyleOptions): void;
+    /**
+     * The bottom location of the caret (insertion point) in viewport
+     * coordinates.
+     *
+     * See also [[`setCaretPoint`]]
+     * @category Selection
+     */
     getCaretPoint?(): {
         x: number;
         y: number;
     } | null;
     setCaretPoint(x: number, y: number): boolean;
     /**
-     * Search the formula for items matching the **pattern** as a Latex string or
-     * as a regular expression matching a Latex string.
-     *
-     * Results are returned as a `Range` array. If no results are found
-     * an empty array is returned.
-     */
-    find(pattern: string | RegExp, options?: FindOptions): Range[];
-    /**
-     * Replace the pattern items matching the **pattern** with the
-     * **replacement** value.
-     *
-     * If **replacement** is a function, the function is called
-     * for each match and the function return value will be
-     * used as the replacement.
-     */
-    replace(pattern: string | RegExp, replacement: string | ReplacementFunction, options?: FindOptions): void;
-    /**
-     * Returns a nested mathfield element that match the provided `placeholderId`
+     * Return a nested mathfield element that match the provided `placeholderId`
      * @param placeholderId
      */
     getPlaceholderField(placeholderId: string): Mathfield | undefined;

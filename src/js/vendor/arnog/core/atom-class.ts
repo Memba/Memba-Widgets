@@ -154,17 +154,21 @@ export class Atom {
 
   // If true, some structural changes have been made to the atom
   // (insertion or removal of children) or one of its children is dirty
+  /** @internal */
   private _isDirty: boolean;
 
   // A monotonically increasing counter to detect structural changes
+  /** @internal */
   private _changeCounter: number;
 
   // Cached list of children, invalidated when isDirty = true
+  /** @internal */
   private _children: Atom[] | undefined;
 
   // Optional, per instance, override of the `serialize()` method
   serializeOverride?: (atom: Atom, options: ToLatexOptions) => string;
 
+  /** @internal */
   private _branches: Branches;
 
   // How to display "limits" (i.e. superscript/subscript) for example
@@ -238,21 +242,18 @@ export class Atom {
       serialize?: (atom: Atom, options: ToLatexOptions) => string;
     }
   ) {
-    this.command = options?.command;
-    this.type = type;
-    if (typeof options?.value === 'string') {
-      this.value = options.value;
-    }
-
     this._isDirty = false;
     this._changeCounter = 0;
 
+    this.type = type;
+    this.command = options?.command;
     this.mode = options?.mode ?? 'math';
+    if (typeof options?.value === 'string') this.value = options.value;
     this.isFunction = options?.isFunction ?? false;
     this.subsupPlacement = options?.limits;
     this.style = options?.style ?? {};
-    this.serializeOverride = options?.serialize;
     this.displayContainsHighlight = options?.displayContainsHighlight ?? false;
+    this.serializeOverride = options?.serialize;
   }
 
   get changeCounter(): number {
@@ -365,28 +366,23 @@ export class Atom {
     value: boolean | number | string | Atom | Atom[] | undefined,
     options: ToLatexOptions
   ): string {
-    let result = '';
-    if (isArray<Atom>(value)) {
-      result = atomsToLatex(value, options);
-    } else if (typeof value === 'number' || typeof value === 'boolean') {
-      result = value.toString();
-    } else if (typeof value === 'string') {
-      result = value.replace(/\s/g, '~');
-    } else if (value !== undefined) {
-      // If we have some verbatim latex for this atom, use it.
-      // This allow non-significant punctuation to be preserved when possible.
-      if (!options.expandMacro && typeof value.verbatimLatex === 'string') {
-        return value.verbatimLatex;
-      }
+    if (isArray<Atom>(value)) return atomsToLatex(value, options);
 
-      if (value.serializeOverride) {
-        return value.serializeOverride(value, options);
-      }
+    if (typeof value === 'number' || typeof value === 'boolean')
+      return value.toString();
 
-      result = value.serialize(options);
-    }
+    if (typeof value === 'string') return value.replace(/\s/g, '~');
 
-    return result;
+    if (value === undefined) return '';
+
+    // If we have some verbatim latex for this atom, use it.
+    // This allow non-significant punctuation to be preserved when possible.
+    if (!options.expandMacro && typeof value.verbatimLatex === 'string')
+      return value.verbatimLatex;
+
+    if (value.serializeOverride) return value.serializeOverride(value, options);
+
+    return value.serialize(options);
   }
 
   /**
@@ -668,6 +664,10 @@ export class Atom {
 
     if (this.style.fontSize === 'auto') {
       delete this.style.fontSize;
+    }
+
+    for (const child of this.children) {
+      child.applyStyle(style);
     }
   }
 
